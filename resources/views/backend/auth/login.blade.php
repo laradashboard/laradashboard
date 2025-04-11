@@ -66,7 +66,7 @@
                       Keep me logged in
                     </label>
                   </div>
-                  <a href="/reset-password.html" class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">Forgot password?</a>
+                  <a href="{{ route('admin.password.request') }}" class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">Forgot password?</a>
                 </div>
                 <!-- Button -->
                 <div>
