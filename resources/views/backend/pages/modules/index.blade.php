@@ -1,7 +1,7 @@
 @extends('backend.layouts.app')
 
 @section('title')
-    {{ __('Modules - ' . config('app.name')) }}
+    {{ __('Modules - ' . config('settings.app_name') !== '' ? config('settings.app_name') : config('app.name')) }}
 @endsection
 
 @section('admin-content')

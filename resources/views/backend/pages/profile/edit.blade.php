@@ -1,6 +1,8 @@
 @extends('backend.layouts.app')
 
-@section('title', 'Edit Profile - ' . config('app.name'))
+@section('title')
+    {{ __('Edit Profile - ' . config('settings.app_name') !== '' ? config('settings.app_name') : config('app.name')) }}
+@endsection
 
 @section('admin-content')
 <div class="p-4 mx-auto max-w-7xl md:p-6">

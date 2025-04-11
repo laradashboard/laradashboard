@@ -1,7 +1,7 @@
 <!-- Sidebar -->
-<aside
+<aside style="{{ config('settings.sidebar_bg_lite')? 'background-color:'.config('settings.sidebar_bg_lite'):'' }}"
     :class="sidebarToggle ? 'translate-x-0 lg:w-[85px]' : '-translate-x-full'"
-    class="sidebar fixed left-0 top-0 z-10 flex h-screen w-[290px] flex-col overflow-y-hidden border-r bg-gray-800 px-5 border-gray-800 dark:bg-gray-900 lg:static lg:translate-x-0"
+    class="sidebar fixed left-0 top-0 z-10 flex h-screen w-[290px] flex-col overflow-y-hidden border-r {{ config('settings.sidebar_bg_lite') ?'': 'bg-gray-800' }} px-5 border-gray-800 dark:bg-gray-900 lg:static lg:translate-x-0"
 >
     <!-- Sidebar Header -->
     <div
@@ -12,19 +12,19 @@
             <span class="logo" :class="sidebarToggle ? 'hidden' : ''">
                 <img
                     class="dark:hidden"
-                    src="/images/logo/lara-dashboard-dark.png"
+                    src="{{ config('settings.site_logo_lite') ?? '/images/logo/lara-dashboard-dark.png' }}"
                     alt="Logo"
                 />
                 <img
                     class="hidden dark:block"
-                    src="/images/logo/lara-dashboard-dark.png"
+                    src="{{ config('settings.site_logo_dark') ?? '/images/logo/lara-dashboard-dark.png' }}"
                     alt="Logo"
                 />
             </span>
             <img
                 class="logo-icon w-20 lg:w-12"
                 :class="sidebarToggle ? 'lg:block' : 'hidden'"
-                src="/images/logo/icon.png"
+                src="{{ config('settings.site_icon') ?? '/images/logo/icon.png' }}"
                 alt="Logo"
             />
         </a>

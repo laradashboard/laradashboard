@@ -159,6 +159,14 @@
         <ul class="flex flex-col gap-4 mb-6">
             <!-- Logout Menu Item -->
             <li class="menu-item-inactive rounded-md ">
+                <a href="{{ route('admin.settings.index') }}" type="submit" class="menu-item group w-full text-left {{ Route::is('admin.settings.index') ? 'menu-item-active' : 'menu-item-inactive' }}">
+                    <i class="bi bi-gear text-xl text-center dark:text-white/90"></i>
+                    <span class="menu-item-text dark:text-white/90" :class="sidebarToggle ? 'lg:hidden' : ''">
+                        Settings
+                    </span>
+                </a>
+            </li>
+            <li class="menu-item-inactive rounded-md ">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="menu-item group w-full text-left">
