@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Notifications\AdminResetPasswordNotification;
+use Illuminate\Auth\Notifications\ResetPassword as DefaultResetPassword;
 use App\Traits\AuthorizationChecker;
 use App\Traits\HasGravatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -68,7 +70,7 @@ class User extends Authenticatable
     public static function roleHasPermissions(Role $role, $permissions): bool
     {
         foreach ($permissions as $permission) {
-            if (! $role->hasPermissionTo($permission->name)) {
+            if (!$role->hasPermissionTo($permission->name)) {
                 return false;
             }
         }
@@ -79,5 +81,21 @@ class User extends Authenticatable
     public function actionLogs()
     {
         return $this->hasMany(ActionLog::class, 'action_by');
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        // Check if the request is for the admin panel
+        if (request()->is('admin/*')) {
+            $this->notify(new AdminResetPasswordNotification($token));
+        } else {
+            $this->notify(new DefaultResetPassword($token));
+        }
     }
 }

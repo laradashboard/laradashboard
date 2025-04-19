@@ -36,7 +36,7 @@
                 ])
 
                 @if (auth()->user()->can('user.edit'))
-                    <a href="{{ route('admin.users.create') }}" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    <a href="{{ route('admin.users.create') }}" class="btn-primary">
                         <i class="bi bi-plus-circle mr-2"></i>
                         {{ __('New User') }}
                     </a>
@@ -81,9 +81,9 @@
                                     @endforeach
                                 </td>
                                 @php ld_apply_filters('user_list_page_table_row_before_action', '', $user) @endphp
-                                <td class="flex px-5 py-4 sm:px-6 text-center">
+                                <td class="flex px-5 py-4 sm:px-6 text-center gap-1">
                                     @if (auth()->user()->canBeModified($user))
-                                        <a data-tooltip-target="tooltip-edit-user-{{ $user->id }}" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2" href="{{ route('admin.users.edit', $user->id) }}">
+                                        <a data-tooltip-target="tooltip-edit-user-{{ $user->id }}" class="btn-default !p-3" href="{{ route('admin.users.edit', $user->id) }}">
                                             <i class="bi bi-pencil text-sm"></i>
                                         </a>
                                         <div id="tooltip-edit-user-{{ $user->id }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
@@ -92,7 +92,7 @@
                                         </div>
                                     @endif
                                     @if (auth()->user()->canBeModified($user, 'user.delete'))
-                                        <a data-modal-target="delete-modal-{{ $user->id }}" data-modal-toggle="delete-modal-{{ $user->id }}" data-tooltip-target="tooltip-delete-user-{{ $user->id }}" class="text-white bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2" href="javascript:void(0);">
+                                        <a data-modal-target="delete-modal-{{ $user->id }}" data-modal-toggle="delete-modal-{{ $user->id }}" data-tooltip-target="tooltip-delete-user-{{ $user->id }}" class="btn-danger !p-3" href="javascript:void(0);">
                                             <i class="bi bi-trash text-sm"></i>
                                         </a>
                                         <div id="tooltip-delete-user-{{ $user->id }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
@@ -125,6 +125,15 @@
                                                     </form>
                                                 </div>
                                             </div>
+                                        </div>
+                                    @endif
+                                    @if (auth()->user()->can('user.login_as') && $user->id != auth()->user()->id)
+                                        <a data-tooltip-target="tooltip-login-as-user-{{ $user->id }}" class="btn-warning !p-3" href="{{ route('admin.users.login-as', $user->id) }}">
+                                            <i class="bi bi-box-arrow-in-right text-sm"></i>
+                                        </a>
+                                        <div id="tooltip-login-as-user-{{ $user->id }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                            {{ __('Login as') }} {{ $user->name }}
+                                            <div class="tooltip-arrow" data-popper-arrow></div>
                                         </div>
                                     @endif
                                 </td>

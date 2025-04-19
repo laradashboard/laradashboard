@@ -26,12 +26,16 @@ class ModulesController extends Controller
      */
     public function index()
     {
+        $this->checkAuthorization(auth()->user(), ['module.view']);
+
         $modules = $this->getModules();
         return view('backend.pages.modules.index', compact('modules'));
     }
 
     public function upload(Request $request)
     {
+        $this->checkAuthorization(auth()->user(), ['module.create']);
+
         $request->validate([
             'module' => 'required|file|mimes:zip',
         ]);
@@ -82,8 +86,18 @@ class ModulesController extends Controller
     {
         $moduleStatuses = $this->getModuleStatuses();
 
-        if (!isset($moduleStatuses[$moduleName])) {
+        if (!isset($moduleStatuses[$moduleName]) && !File::exists($this->modulesPath . '/' . $moduleName)) {
             return response()->json(['success' => false, 'message' => 'Module not found.'], 404);
+        }
+
+        try {
+            // Just enable it first so that it would be in the $this->getModuleStatuses()
+            if (!isset($moduleStatuses[$moduleName])) {
+                Artisan::call('module:enable', ['module' => $moduleName]);
+                $moduleStatuses = $this->getModuleStatuses();
+            }
+        } catch (\Throwable $th) {
+            // SKIP.
         }
 
         // Toggle the status
@@ -155,6 +169,8 @@ class ModulesController extends Controller
 
     public function destroy(string $module)
     {
+        $this->checkAuthorization(auth()->user(), ['module.delete']);
+
         // Find the module in the system.
         $moduleData = ModuleFacade::find(strtolower($module));
 
@@ -163,7 +179,7 @@ class ModulesController extends Controller
             Artisan::call('module:disable', ['module' => $moduleData->getName()]);
 
             // Remove the module files.
-            $modulePath = base_path('Modules/'.$moduleData->getName());
+            $modulePath = base_path('Modules/' . $moduleData->getName());
             if (is_dir($modulePath)) {
                 \File::deleteDirectory($modulePath);
             }

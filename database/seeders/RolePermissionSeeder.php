@@ -52,6 +52,7 @@ class RolePermissionSeeder extends Seeder
                     'user.edit',
                     'user.delete',
                     'user.approve',
+                    'user.login_as',
                 ],
             ],
             [
@@ -89,6 +90,12 @@ class RolePermissionSeeder extends Seeder
                     'actionlog.view',
                 ],
             ],
+            [
+                'group_name' => 'settings',
+                'permissions' => [
+                    'settings.edit',
+                ],
+            ],
         ];
 
         // Create and Assign Permissions
@@ -105,10 +112,6 @@ class RolePermissionSeeder extends Seeder
         // Do same for the admin guard for tutorial purposes.
         $user = User::where('username', 'superadmin')->first();
         $roleSuperAdmin = $this->maybeCreateSuperAdminRole();
-
-        // Create Subscriber Role.
-        $userSubscriber = User::where('username', 'subscriber')->first();
-        $roleSubscriber = $this->maybeCreateSubscriberRole();
 
         // Create and Assign Permissions
         for ($i = 0; $i < count($permissions); $i++) {
@@ -135,21 +138,28 @@ class RolePermissionSeeder extends Seeder
         }
 
         // Assign subscriber role permission to subscriber user.
-        if ($userSubscriber) {
-            // Add profile permissions to subscriber role.
-            $subscriberPermissions = [
-                'profile.view',
-                'profile.edit',
-                'profile.delete',
-                'profile.update',
-            ];
+        $subscriberPermissions = [
+            'dashboard.view',
+            'profile.view',
+            'profile.edit',
+            'profile.delete',
+            'profile.update',
+        ];
 
-            // Add the permissions to the subscriber role.
-            foreach ($subscriberPermissions as $permission) {
-                $roleSubscriber->givePermissionTo($permission);
-            }
+        // Create Subscriber Role.
+        $roleSubscriber = $this->maybeCreateSubscriberRole();
 
-            $userSubscriber->assignRole('Subscriber');
+        // Add the permissions to the subscriber role.
+        foreach ($subscriberPermissions as $permission) {
+            $roleSubscriber->givePermissionTo($permission);
+        }
+
+        $this->command->info('Subscriber role permissions added successfully!');
+
+        // Added default subscriber role to the users.
+        $users = User::all();
+        foreach ($users as $user) {
+            $user->assignRole('Subscriber');
         }
 
         $this->command->info('Roles and Permissions created successfully!');

@@ -32,9 +32,9 @@ trait AuthorizationChecker
      *
      * @param  User  $user
      */
-    public function preventSuperAdminModification(User $user): void
+    public function preventSuperAdminModification(User|Authenticatable $user = null, $additionalPermission = 'user.edit'): void
     {
-        if (!$this->canBeModified($user)) {
+        if ($user && !$this->canBeModified($user, $additionalPermission)) {
             abort(403, 'Super Admin cannot be modified in demo mode.');
         }
     }

@@ -22,11 +22,11 @@ class RolesController extends Controller
         $query = Role::query();
 
         if (request()->has('search') && request()->input('search') !== '') {
-            $query->where('name', 'like', '%'.request()->input('search').'%');
+            $query->where('name', 'like', '%' . request()->input('search') . '%');
         }
 
         return view('backend.pages.roles.index', [
-            'roles' => $query->paginate(10),
+            'roles' => $query->paginate(config('settings.default_pagination') ?? 10),
         ]);
     }
 
@@ -48,7 +48,7 @@ class RolesController extends Controller
         $role = Role::create(['name' => $request->name]);
         $permissions = $request->input('permissions');
 
-        if (! empty($permissions)) {
+        if (!empty($permissions)) {
             $role->syncPermissions($permissions);
         }
 
@@ -64,7 +64,7 @@ class RolesController extends Controller
         $this->checkAuthorization(auth()->user(), ['role.edit']);
 
         $role = Role::findById($id);
-        if (! $role) {
+        if (!$role) {
             session()->flash('error', 'Role not found.');
 
             return back();
@@ -82,14 +82,14 @@ class RolesController extends Controller
         $this->checkAuthorization(auth()->user(), ['role.edit']);
 
         $role = Role::findById($id);
-        if (! $role) {
+        if (!$role) {
             session()->flash('error', 'Role not found.');
 
             return back();
         }
 
         $permissions = $request->input('permissions');
-        if (! empty($permissions)) {
+        if (!empty($permissions)) {
             $role->name = $request->name;
             $role->save();
             $role->syncPermissions($permissions);
@@ -107,7 +107,7 @@ class RolesController extends Controller
         $this->checkAuthorization(auth()->user(), ['role.delete']);
 
         $role = Role::findById($id);
-        if (! $role) {
+        if (!$role) {
             session()->flash('error', 'Role not found.');
 
             return back();

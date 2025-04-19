@@ -35,7 +35,7 @@
                 ])
 
                 @if (auth()->user()->can('role.create'))
-                    <a href="{{ route('admin.roles.create') }}" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-3 py-2 text-center">
+                    <a href="{{ route('admin.roles.create') }}" class="btn-primary">
                         <i class="bi bi-plus-circle mr-2"></i>
                         {{ __('New Role') }}
                     </a>
@@ -64,9 +64,9 @@
                                         </span>
                                     @endforeach
                                 </td>
-                                <td class="px-5 py-4 sm:px-6 text-center flex items-center justify-center">
+                                <td class="px-5 py-4 sm:px-6 text-center flex items-center justify-center gap-1">
                                     @if (auth()->user()->can('role.edit'))
-                                        <a data-tooltip-target="tooltip-edit-role-{{ $role->id }}" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-3 py-2 text-center mx-1 mb-2" href="{{ route('admin.roles.edit', $role->id) }}">
+                                        <a data-tooltip-target="tooltip-edit-role-{{ $role->id }}" class="btn-default !p-3" href="{{ route('admin.roles.edit', $role->id) }}">
                                             <i class="bi bi-pencil text-sm"></i>
                                         </a>
                                         <div id="tooltip-edit-role-{{ $role->id }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
@@ -76,7 +76,7 @@
                                     @endif
 
                                     @if (auth()->user()->can('role.delete'))
-                                        <a data-modal-target="delete-modal-{{ $role->id }}" data-modal-toggle="delete-modal-{{ $role->id }}" data-tooltip-target="tooltip-delete-role-{{ $role->id }}" class="text-white bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-3 py-2 text-center mx-1 mb-2" href="javascript:void(0);">
+                                        <a data-modal-target="delete-modal-{{ $role->id }}" data-modal-toggle="delete-modal-{{ $role->id }}" data-tooltip-target="tooltip-delete-role-{{ $role->id }}" class="btn-danger !p-3" href="javascript:void(0);">
                                             <i class="bi bi-trash text-sm"></i>
                                         </a>
                                         <div id="tooltip-delete-role-{{ $role->id }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">

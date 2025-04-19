@@ -1,7 +1,7 @@
 @extends('backend.layouts.app')
 
 @section('title')
-    {{ __('Modules - ' . config('app.name')) }}
+    {{ __('Modules - ' . config('settings.app_name') !== '' ? config('settings.app_name') : config('app.name')) }}
 @endsection
 
 @section('admin-content')
@@ -17,10 +17,10 @@
                 @if(count($modules) > 0)
                     <button
                         @click="showUploadArea = !showUploadArea"
-                        class="ml-4 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 btn-upload-module"
+                        class="ml-4 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:opacity-90 transition-all btn-upload-module"
                     >
                         <i class="bi bi-cloud-upload mr-2"></i>
-                        Upload Module
+                        {{ __('Upload Module') }}
                     </button>
                 @endif
             </h2>
@@ -28,7 +28,7 @@
                 <ol class="flex items-center gap-1.5">
                     <li>
                         <a class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" href="{{ route('admin.dashboard') }}">
-                            Home
+                            {{ __('Home') }}
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </li>
@@ -41,14 +41,14 @@
              @dragover.prevent
              @drop.prevent="$refs.uploadModule.files = $event.dataTransfer.files; $refs.uploadModule.dispatchEvent(new Event('change'))">
             <p class="text-center text-gray-600 dark:text-gray-400">
-                Drag and drop your module file here, or
+                {{ __('Drag and drop your module file here, or') }}
                 <button
                     @click="$refs.uploadModule.click()"
-                    class="text-blue-500 underline hover:text-blue-600"
+                    class="text-primary underline hover:text-blue-600"
                 >
-                    browse
+                    {{ __('browse') }}
                 </button>
-                to select a file.
+                {{ __('to select a file.') }}
             </p>
             <form action="{{ route('admin.modules.upload') }}" method="POST" enctype="multipart/form-data" class="hidden">
                 @csrf
@@ -67,7 +67,7 @@
         <p class="mt-4 text-gray-600 dark:text-gray-400">Drag and drop your module file here, or</p>
         <button
             @click="$refs.uploadModule.click()"
-            class="mt-4 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+            class="mt-4 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-blue-600"
         >
             <i class="bi bi-cloud-upload mr-2"></i>
             Upload
@@ -103,7 +103,7 @@
                                         data-modal-target="delete-modal-{{ $module['name'] }}" data-modal-toggle="delete-modal-{{ $module['name'] }}"
                                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white w-full px-2 text-left"
                                     >
-                                        Delete
+                                        {{ __('Delete') }}
                                     </button>
                                 </li>
                                 <li>
@@ -111,7 +111,7 @@
                                         onclick="toggleModuleStatus('{{ $module['name'] }}', event)"
                                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white w-full px-2 text-left"
                                     >
-                                        {{ $module['status'] ? 'Disable' : 'Enable' }}
+                                        {{ $module['status'] ? __('Disable') : __('Enable') }}
                                     </button>
                                 </li>
                             </ul>
@@ -146,10 +146,10 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                                    Yes, Confirm
+                                    {{ __('Yes, Confirm') }}
                                 </button>
                                 <button type="button" class="py-2.5 px-5 ml-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" data-modal-hide="delete-modal-{{ $module['name'] }}">
-                                    No, Cancel
+                                    {{ __('No, Cancel') }}
                                 </button>
                             </form>
                         </div>

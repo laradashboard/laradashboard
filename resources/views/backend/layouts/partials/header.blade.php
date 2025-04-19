@@ -1,5 +1,33 @@
-<header x-data="{ menuToggle: false }"
-    class="sticky top-0 flex w-full border-gray-200 bg-white lg:border-b dark:border-gray-800 dark:bg-gray-900">
+<header id="appHeader"
+
+x-data="{
+    menuToggle: false,
+    textColor: '',
+    isDark: document.documentElement.classList.contains('dark'),
+    init() {
+        this.updateBg();
+        this.updateColor();
+        const observer = new MutationObserver(() => {
+            this.updateBg();
+            this.updateColor();
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    },
+    updateBg() {
+        this.isDark = document.documentElement.classList.contains('dark');
+        const liteBg = '{{ config('settings.navbar_bg_lite') }}';
+        const darkBg = '{{ config('settings.navbar_bg_dark') }}';
+        this.$el.style.backgroundColor = this.isDark ? darkBg : liteBg;
+    },
+    updateColor() {
+        this.isDark = document.documentElement.classList.contains('dark');
+        this.textColor = this.isDark
+            ? '{{ config('settings.navbar_text_dark') }}'
+            : '{{ config('settings.navbar_text_lite') }}';
+    }
+}"
+x-init="init()"
+    class="sticky top-0 flex w-full border-gray-200 lg:border-b dark:border-gray-800">
     <div class="flex grow flex-col items-center justify-between lg:flex-row lg:px-6">
         <div
             class="flex w-full items-center justify-between gap-2 border-b border-gray-200 px-3 py-3 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4 dark:border-gray-800">
@@ -27,9 +55,9 @@
             <div class="flex items-center gap-2 2xsm:gap-3">
                 <!-- Dark Mode Toggler -->
                 @php echo ld_apply_filters('dark_mode_toggler_before_button', ''); @endphp
-                <button
+                <button id="darkModeToggle"
                     class="hover:text-dark-900 relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-                    @click.prevent="darkMode = !darkMode">
+                    @click.prevent="darkMode = !darkMode" @click="menuToggle = true">
                     <svg class="hidden dark:block" width="20" height="20" viewBox="0 0 20 20" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -53,7 +81,7 @@
                         <img src="{{ auth()->user()->getGravatarUrl() }}" alt="User" />
                     </span>
 
-                    <span class="mr-1 block text-theme-sm font-medium">
+                    <span class="mr-1 block font-medium" :style="`color: ${textColor}`">
                         {{ auth()->user()->name }}
                     </span>
 
@@ -107,6 +135,22 @@
                             Logout
                         </button>
                     </form>
+
+                    @if (session()->has('original_user_id'))
+                        @php
+                            $originalUser = \App\Models\User::find(session('original_user_id'));
+                        @endphp
+                        @if ($originalUser)
+                            <form method="POST" action="{{ route('admin.users.switch-back') }}" class="inline">
+                                @csrf
+                                <button type="submit"
+                                    class="group flex items-center gap-3 rounded-lg px-3 py-2 text-theme-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 mt-1 w-full">
+                                    <i class="bi bi-arrow-left"></i>
+                                    {{ __('Switch back to') }} {{ $originalUser->name }}
+                                </button>
+                            </form>
+                        @endif
+                    @endif
                 </div>
                 <!-- Dropdown End -->
             </div>
