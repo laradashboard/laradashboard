@@ -115,9 +115,11 @@
                                         </span>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </td>
+                                
                                 <?php ld_apply_filters('user_list_page_table_row_before_action', '', $user) ?>
+
                                 <td class="flex px-5 py-4 sm:px-6 text-center gap-1">
-                                    <?php if(auth()->user()->canBeModified($user)): ?>
+                                    <?php if(auth()->user()->canBeModified($user) && !($user->hasRole('superadmin') && config('app.demo_mode') == true)): ?>
                                         <a data-tooltip-target="tooltip-edit-user-<?php echo e($user->id); ?>" class="btn-default !p-3" href="<?php echo e(route('admin.users.edit', $user->id)); ?>">
                                             <i class="bi bi-pencil text-sm"></i>
                                         </a>
@@ -127,7 +129,7 @@
                                             <div class="tooltip-arrow" data-popper-arrow></div>
                                         </div>
                                     <?php endif; ?>
-                                    <?php if(auth()->user()->canBeModified($user, 'user.delete')): ?>
+                                    <?php if(auth()->user()->canBeModified($user, 'user.delete') && !($user->hasRole('superadmin') && config('app.demo_mode') == true)): ?>
                                         <a data-modal-target="delete-modal-<?php echo e($user->id); ?>" data-modal-toggle="delete-modal-<?php echo e($user->id); ?>" data-tooltip-target="tooltip-delete-user-<?php echo e($user->id); ?>" class="btn-danger !p-3" href="javascript:void(0);">
                                             <i class="bi bi-trash text-sm"></i>
                                         </a>

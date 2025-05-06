@@ -90,7 +90,7 @@
                                     </div>
                                 </td>
                                 <td class="px-5 py-4 sm:px-6 text-center flex items-center justify-center gap-1">
-                                    @if (auth()->user()->can('role.edit'))
+                                    @if (auth()->user()->can('role.edit')   && !($role->name =='superadmin' && config('app.demo_mode') == true))
                                         <a data-tooltip-target="tooltip-edit-role-{{ $role->id }}" class="btn-default !p-3" href="{{ route('admin.roles.edit', $role->id) }}">
                                             <i class="bi bi-pencil text-sm"></i>
                                         </a>
@@ -100,7 +100,7 @@
                                         </div>
                                     @endif
 
-                                    @if (auth()->user()->can('role.delete'))
+                                    @if (auth()->user()->can('role.delete')  && !($role->name =='superadmin' && config('app.demo_mode') == true))
                                         <a data-modal-target="delete-modal-{{ $role->id }}" data-modal-toggle="delete-modal-{{ $role->id }}" data-tooltip-target="tooltip-delete-role-{{ $role->id }}" class="btn-danger !p-3" href="javascript:void(0);">
                                             <i class="bi bi-trash text-sm"></i>
                                         </a>

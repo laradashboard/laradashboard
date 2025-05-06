@@ -135,7 +135,8 @@ return [
     */
 
 
-    'demo_mode' => env('DEMO_MODE', true),
+    'demo_mode' => filter_var(env('DEMO_MODE', true), FILTER_VALIDATE_BOOLEAN),
+
 
     'providers' => [
 

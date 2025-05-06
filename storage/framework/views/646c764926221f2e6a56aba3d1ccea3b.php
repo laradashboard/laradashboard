@@ -97,7 +97,7 @@
                                     </div>
                                 </td>
                                 <td class="px-5 py-4 sm:px-6 text-center flex items-center justify-center gap-1">
-                                    <?php if(auth()->user()->can('role.edit')): ?>
+                                    <?php if(auth()->user()->can('role.edit')   && !($role->name =='superadmin' && config('app.demo_mode') == true)): ?>
                                         <a data-tooltip-target="tooltip-edit-role-<?php echo e($role->id); ?>" class="btn-default !p-3" href="<?php echo e(route('admin.roles.edit', $role->id)); ?>">
                                             <i class="bi bi-pencil text-sm"></i>
                                         </a>
@@ -108,7 +108,7 @@
                                         </div>
                                     <?php endif; ?>
 
-                                    <?php if(auth()->user()->can('role.delete')): ?>
+                                    <?php if(auth()->user()->can('role.delete')  && !($role->name =='superadmin' && config('app.demo_mode') == true)): ?>
                                         <a data-modal-target="delete-modal-<?php echo e($role->id); ?>" data-modal-toggle="delete-modal-<?php echo e($role->id); ?>" data-tooltip-target="tooltip-delete-role-<?php echo e($role->id); ?>" class="btn-danger !p-3" href="javascript:void(0);">
                                             <i class="bi bi-trash text-sm"></i>
                                         </a>

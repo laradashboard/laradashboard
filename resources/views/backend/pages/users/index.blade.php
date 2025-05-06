@@ -106,9 +106,11 @@
                                         </span>
                                     @endforeach
                                 </td>
+                                
                                 @php ld_apply_filters('user_list_page_table_row_before_action', '', $user) @endphp
+
                                 <td class="flex px-5 py-4 sm:px-6 text-center gap-1">
-                                    @if (auth()->user()->canBeModified($user))
+                                    @if (auth()->user()->canBeModified($user) && !($user->hasRole('superadmin') && config('app.demo_mode') == true))
                                         <a data-tooltip-target="tooltip-edit-user-{{ $user->id }}" class="btn-default !p-3" href="{{ route('admin.users.edit', $user->id) }}">
                                             <i class="bi bi-pencil text-sm"></i>
                                         </a>
@@ -117,7 +119,7 @@
                                             <div class="tooltip-arrow" data-popper-arrow></div>
                                         </div>
                                     @endif
-                                    @if (auth()->user()->canBeModified($user, 'user.delete'))
+                                    @if (auth()->user()->canBeModified($user, 'user.delete') && !($user->hasRole('superadmin') && config('app.demo_mode') == true))
                                         <a data-modal-target="delete-modal-{{ $user->id }}" data-modal-toggle="delete-modal-{{ $user->id }}" data-tooltip-target="tooltip-delete-user-{{ $user->id }}" class="btn-danger !p-3" href="javascript:void(0);">
                                             <i class="bi bi-trash text-sm"></i>
                                         </a>
