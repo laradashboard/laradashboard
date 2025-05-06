@@ -91,6 +91,8 @@ class UsersController extends Controller
 
     public function update(UserRequest $request, int $id): RedirectResponse
     {
+        if (config('app.demo_mode') == true)  return back();
+        
         $this->checkAuthorization(auth()->user(), ['user.edit']);
 
         $user = User::findOrFail($id);

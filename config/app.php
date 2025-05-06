@@ -134,6 +134,9 @@ return [
     |
     */
 
+
+    'demo_mode' => env('DEMO_MODE', true),
+
     'providers' => [
 
         /*
