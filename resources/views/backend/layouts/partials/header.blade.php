@@ -27,7 +27,7 @@ x-data="{
     }
 }"
 x-init="init()"
-    class="sticky top-0 flex w-full border-gray-200 lg:border-b dark:border-gray-800">
+    class="sticky top-0 flex w-full border-gray-200 lg:border-b dark:border-gray-800 z-[9999]">
     <div class="flex grow flex-col items-center justify-between lg:flex-row lg:px-6">
         <div
             class="flex w-full items-center justify-between gap-2 border-b border-gray-200 px-3 py-3 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4 dark:border-gray-800">
@@ -76,7 +76,7 @@ x-init="init()"
                 @if (env('GITHUB_LINK'))
                     <a href="{{ env('GITHUB_LINK') }}" target="_blank"
                         class="hover:text-dark-900 relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
-                        <i class="bi bi-github text-xl"></i>
+                        <img src="{{ asset('images/icons/github.svg') }}" alt="GitHub" />
                     </a>
                 @endif
             </div>
@@ -104,7 +104,7 @@ x-init="init()"
 
                 <!-- Dropdown Start -->
                 <div x-show="dropdownOpen"
-                    class="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+                    class="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark z-50"
                     style="display: none">
                     <div>
                         <span class="block text-theme-sm font-medium text-gray-700 dark:text-gray-400">

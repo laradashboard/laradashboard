@@ -8,7 +8,7 @@
 @endphp
 
 <button id="dropdownLocalesButton" data-dropdown-toggle="dropdownLocales" data-dropdown-placement="bottom"
-    class="hover:text-dark-900 relative flex h-11 px-3 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white mt-3 ml-3"
+    class="hover:text-dark-900 relative flex h-11 px-3 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
     type="button">
     <img src="{{ $lang['icon'] }}" alt="{{ $lang['name'] }} flag" height="20" width="20"
         class="mr-2" />
