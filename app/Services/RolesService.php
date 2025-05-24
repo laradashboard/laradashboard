@@ -243,6 +243,12 @@ class RolesService
                     'profile.edit',
                     'profile.update',
                     'translations.view',
+                    // Add post and term related permissions for Editor
+                    'post.create',
+                    'post.view',
+                    'post.edit',
+                    'term.view',
+                    'term.create',
                 ];
 
             case 'subscriber':
@@ -252,6 +258,9 @@ class RolesService
                     'profile.view',
                     'profile.edit',
                     'profile.update',
+                    // Add basic content viewing for Subscriber
+                    'post.view',
+                    'term.view',
                 ];
         }
     }

@@ -18,7 +18,7 @@
     <li class="hover:menu-item-active">
         <button :style="`color: ${textColor}`" class="menu-item group w-full text-left {{ $isActive }}" type="button" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.menu-item-arrow').classList.toggle('rotate-180')">
             @if (!empty($item->icon))
-                <img src="{{ asset('images/icons/' . $item->icon) }}" alt="{!! $item->label !!}" class="menu-item-icon dark:invert">
+                <img src="{{ asset('images/icons/' . $item->icon) }}" alt="{!! $item->label !!}" class="menu-item-icon dark:invert w-5">
             @elseif (!empty($item->iconClass))
                 <i class="{{ $item->iconClass }} menu-item-icon"></i>
             @endif

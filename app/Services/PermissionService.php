@@ -94,6 +94,19 @@ class PermissionService
                     'translations.edit',
                 ],
             ],
+            [
+                'group_name' => 'post',
+                'permissions' => [
+                    'post.create',
+                    'post.view',
+                    'post.edit',
+                    'post.delete',
+                    'term.create',
+                    'term.view',
+                    'term.edit',
+                    'term.delete',
+                ],
+            ],
         ];
 
         return $permissions;

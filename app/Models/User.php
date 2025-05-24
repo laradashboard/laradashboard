@@ -69,4 +69,27 @@ class User extends Authenticatable
             $this->notify(new DefaultResetPassword($token));
         }
     }
+
+    /**
+     * Check if the user has any of the given permissions.
+     *
+     * @param array|string $permissions
+     * @return bool
+     */
+    public function hasAnyPermission($permissions): bool
+    {
+        if (empty($permissions)) {
+            return true;
+        }
+        
+        $permissions = is_array($permissions) ? $permissions : [$permissions];
+        
+        foreach ($permissions as $permission) {
+            if ($this->can($permission)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 }
