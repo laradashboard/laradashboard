@@ -27,7 +27,7 @@ x-data="{
     }
 }"
 x-init="init()"
-    class="sticky top-0 flex w-full border-gray-200 lg:border-b dark:border-gray-800 transition-all duration-300">
+    class="sticky top-0 flex w-full border-gray-200 lg:border-b dark:border-gray-800 transition-all duration-300 z-9">
     <div class="flex grow flex-col items-center justify-between lg:flex-row lg:px-6">
         <div
             class="flex w-full items-center justify-between gap-2 border-b border-gray-200 px-3 py-3 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4 dark:border-gray-800">
@@ -49,6 +49,9 @@ x-init="init()"
             class="w-full items-center justify-between gap-4 px-5 py-1 shadow-theme-md lg:flex lg:justify-end lg:px-0 lg:shadow-none">
             <div class="flex items-center gap-2 2xsm:gap-3">
                 <!-- Dark Mode Toggler -->
+                <div class="w-[100px]">
+                    @include('backend.layouts.partials.demo-mode-notice')
+                </div>
                 @php echo ld_apply_filters('dark_mode_toggler_before_button', ''); @endphp
                 <button id="darkModeToggle"
                     class="hover:text-dark-900 relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
@@ -75,7 +78,6 @@ x-init="init()"
                     </a>
                 @endif
             </div>
-            
 
             @include('backend.layouts.partials.locale-switcher')
 
@@ -86,7 +88,7 @@ x-init="init()"
                         <img src="{{ auth()->user()->getGravatarUrl() }}" alt="User" />
                     </span>
 
-                    <span class="mr-1 block font-medium" :style="`color: ${textColor}`">
+                    <span class="mr-1 block font-medium w-[100px]" :style="`color: ${textColor}`">
                         {{ auth()->user()->name }}
                     </span>
 
@@ -100,7 +102,7 @@ x-init="init()"
 
                 <!-- Dropdown Start -->
                 <div x-show="dropdownOpen"
-                    class="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border bg-gray-100 dark:bg-slate-800 border-gray-200  p-3 shadow-theme-lg dark:border-gray-800 z-100"
+                    class="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border bg-white dark:bg-slate-800 border-gray-200  p-3 shadow-theme-lg dark:border-gray-800 z-100"
                     style="display: none">
                     <div>
                         <span class="block text-theme-sm font-medium text-gray-700 dark:text-gray-400">

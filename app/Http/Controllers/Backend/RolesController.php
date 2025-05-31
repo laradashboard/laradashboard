@@ -6,11 +6,13 @@ namespace App\Http\Controllers\Backend;
 
 use App\Enums\ActionType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RoleRequest;
+use App\Http\Requests\Role\StoreRoleRequest;
+use App\Http\Requests\Role\UpdateRoleRequest;
 use App\Services\PermissionService;
 use App\Services\RolesService;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 class RolesController extends Controller
 {
@@ -22,31 +24,41 @@ class RolesController extends Controller
 
     public function index(): Renderable
     {
-        $this->checkAuthorization(auth()->user(), ['role.view']);
+        $this->checkAuthorization(Auth::user(), ['role.view']);
 
         $perPage = config('settings.default_pagination') ?? 10;
         $search = request()->input('search') !== '' ? request()->input('search') : null;
 
         return view('backend.pages.roles.index', [
             'roles' => $this->rolesService->getPaginatedRolesWithUserCount($search, intval($perPage)),
+            'breadcrumbs' => [
+                'title' => __('Roles'),
+            ]
         ]);
     }
 
     public function create(): Renderable
     {
-        $this->checkAuthorization(auth()->user(), ['role.create']);
+        $this->checkAuthorization(Auth::user(), ['role.create']);
 
         return view('backend.pages.roles.create', [
             'roleService' => $this->rolesService,
             'all_permissions' => $this->permissionService->getAllPermissionModels(),
             'permission_groups' => $this->permissionService->getDatabasePermissionGroups(),
+            'breadcrumbs' => [
+                'title' => __('New Role'),
+                'items' => [
+                    [
+                        'label' => __('Roles'),
+                        'url' => route('admin.roles.index'),
+                    ]
+                ]
+            ]
         ]);
     }
 
-    public function store(RoleRequest $request): RedirectResponse
+    public function store(StoreRoleRequest $request): RedirectResponse
     {
-        $this->checkAuthorization(auth()->user(), ['role.create']);
-
         $role = $this->rolesService->createRole($request->name, $request->input('permissions', []));
 
         session()->flash('success', __('Role has been created.'));
@@ -58,7 +70,7 @@ class RolesController extends Controller
 
     public function edit(int $id): Renderable|RedirectResponse
     {
-        $this->checkAuthorization(auth()->user(), ['role.edit']);
+        $this->checkAuthorization(Auth::user(), ['role.edit']);
 
         $role = $this->rolesService->findRoleById($id);
         if (!$role) {
@@ -72,13 +84,20 @@ class RolesController extends Controller
             'roleService' => $this->rolesService,
             'all_permissions' => $this->permissionService->getAllPermissionModels(),
             'permission_groups' => $this->permissionService->getDatabasePermissionGroups(),
+            'breadcrumbs' => [
+                'title' => __('Edit Role'),
+                'items' => [
+                    [
+                        'label' => __('Roles'),
+                        'url' => route('admin.roles.index'),
+                    ]
+                ]
+            ]
         ]);
     }
 
-    public function update(RoleRequest $request, int $id): RedirectResponse
+    public function update(UpdateRoleRequest $request, int $id): RedirectResponse
     {
-        $this->checkAuthorization(auth()->user(), ['role.edit']);
-
         $role = $this->rolesService->findRoleById($id);
 
         if (!$role) {
@@ -98,7 +117,7 @@ class RolesController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
-        $this->checkAuthorization(auth()->user(), ['role.delete']);
+        $this->checkAuthorization(Auth::user(), ['role.delete']);
 
         $role = $this->rolesService->findRoleById($id);
 

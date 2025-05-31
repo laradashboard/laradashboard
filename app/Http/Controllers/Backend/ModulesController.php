@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreModuleRequest;
+use App\Http\Requests\Module\StoreModuleRequest;
 use App\Services\Modules\ModuleService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ModulesController extends Controller
@@ -18,10 +19,13 @@ class ModulesController extends Controller
 
     public function index()
     {
-        $this->checkAuthorization(auth()->user(), ['module.view']);
+        $this->checkAuthorization(Auth::user(), ['module.view']);
 
         return view('backend.pages.modules.index', [
             'modules' => $this->moduleService->getModules(),
+            'breadcrumbs' => [
+                'title' => __('Modules'),
+            ]
         ]);
     }
 
@@ -31,8 +35,6 @@ class ModulesController extends Controller
             session()->flash('error', __('Module upload is restricted in demo mode. Please try on your local/live environment.'));
             return redirect()->route('admin.modules.index');
         }
-
-        $this->checkAuthorization(auth()->user(), ['module.create']);
 
         try {
             $this->moduleService->uploadModule($request);
@@ -48,11 +50,10 @@ class ModulesController extends Controller
     public function toggleStatus(string $moduleName): JsonResponse
     {
         if (config('app.demo_mode', false)) {
-            session()->flash('error', __('Module enabling/disabling is restricted in demo mode. Please try on your local/live environment.'));
-            return response()->json(['success' => false, 'message' => 'Demo mode is enabled, you can not change module status.'], 403);
+            return response()->json(['success' => false, 'message' => __('Module enabling/disabling is restricted in demo mode. Please try on your local/live environment.')], 403);
         }
 
-        $this->checkAuthorization(auth()->user(), ['module.edit']);
+        $this->checkAuthorization(Auth::user(), ['module.edit']);
 
         try {
             $newStatus = $this->moduleService->toggleModuleStatus($moduleName);
@@ -69,7 +70,7 @@ class ModulesController extends Controller
             return redirect()->route('admin.modules.index');
         }
 
-        $this->checkAuthorization(auth()->user(), ['module.delete']);
+        $this->checkAuthorization(Auth::user(), ['module.delete']);
 
         try {
             $this->moduleService->deleteModule($module);

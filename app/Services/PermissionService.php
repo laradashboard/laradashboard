@@ -94,6 +94,19 @@ class PermissionService
                     'translations.edit',
                 ],
             ],
+            [
+                'group_name' => 'post',
+                'permissions' => [
+                    'post.create',
+                    'post.view',
+                    'post.edit',
+                    'post.delete',
+                    'term.create',
+                    'term.view',
+                    'term.edit',
+                    'term.delete',
+                ],
+            ],
         ];
 
         return $permissions;
@@ -229,14 +242,66 @@ class PermissionService
      */
     public function getPaginatedPermissionsWithRoleCount(string $search = null, ?int $perPage): LengthAwarePaginator
     {
-        $query = Permission::query();
-
-        if ($search) {
-            $query->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('group_name', 'like', '%' . $search . '%');
+        // Check if we're sorting by role count
+        $sort = request()->query('sort');
+        $isRoleCountSort = ($sort === 'role_count' || $sort === '-role_count');
+        
+        // For role count sorting, we need to handle it separately
+        if ($isRoleCountSort) {
+            // Get all permissions matching the search criteria without any sorting
+            $query = \App\Models\Permission::query();
+            
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                      ->orWhere('group_name', 'like', '%' . $search . '%');
+                });
+            }
+            
+            $allPermissions = $query->get();
+            
+            // Add role count to each permission
+            foreach ($allPermissions as $permission) {
+                $roles = $permission->roles()->get();
+                $permission->role_count = $roles->count();
+                $permission->roles_list = $roles->pluck('name')->take(5)->implode(', ');
+                
+                if ($permission->role_count > 5) {
+                    $permission->roles_list .= ', ...';
+                }
+            }
+            
+            // Sort the collection by role_count
+            $direction = $sort === 'role_count' ? 'asc' : 'desc';
+            $sortedPermissions = $direction === 'asc' 
+                ? $allPermissions->sortBy('role_count') 
+                : $allPermissions->sortByDesc('role_count');
+            
+            // Manually paginate the collection
+            $page = request()->get('page', 1);
+            $offset = ($page - 1) * ($perPage ?? config('settings.default_pagination'));
+            $perPageValue = $perPage ?? config('settings.default_pagination');
+            
+            $paginatedPermissions = new \Illuminate\Pagination\LengthAwarePaginator(
+                $sortedPermissions->slice($offset, $perPageValue)->values(),
+                $sortedPermissions->count(),
+                $perPageValue,
+                $page,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
+            
+            return $paginatedPermissions;
         }
-
-        $permissions = $query->paginate($perPage ?? config('settings.default_pagination'));
+        
+        // For normal sorting by database columns
+        $filters = [
+            'search' => $search,
+            'sort_field' => 'name',
+            'sort_direction' => 'asc'
+        ];
+        
+        $permissions = \App\Models\Permission::applyFilters($filters)
+            ->paginateData(['per_page' => $perPage ?? config('settings.default_pagination')]);
 
         // Add role count and roles information to each permission.
         foreach ($permissions as $permission) {

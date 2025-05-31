@@ -17,7 +17,7 @@ trait AuthorizationChecker
      * @param  array|string  $permissions
      * @param  bool $ownPermissionCheck
      */
-    public function checkAuthorization($user, $permissions, $ownPermissionCheck = false): void
+    public function checkAuthorization($user, $permissions, $ownPermissionCheck = false): bool
     {
         if (is_null($user) || !$user->can($permissions)) {
             abort(403, 'Sorry !! You are unauthorized to perform this action.');
@@ -26,6 +26,8 @@ trait AuthorizationChecker
         if ($ownPermissionCheck && $user->id !== auth()->user()->id) {
             abort(403, 'Sorry !! You are unauthorized to perform this action.');
         }
+
+        return true;
     }
 
     /**

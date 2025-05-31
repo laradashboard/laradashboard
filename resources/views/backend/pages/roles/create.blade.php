@@ -1,38 +1,18 @@
 @extends('backend.layouts.app')
 
 @section('title')
-{{ __('New Role') }} | {{ config('app.name') }}
+    {{ $breadcrumbs['title'] }} | {{ config('app.name') }}
 @endsection
 
 @section('admin-content')
 <div class="p-6 mx-auto max-w-7xl">
-    <div x-data="{ pageName: '{{ __('New Role') }}' }">
-        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">{{ __('New Role') }}</h2>
-            <nav>
-                <ol class="flex items-center gap-1.5">
-                    <li>
-                        <a class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" href="{{ route('admin.dashboard') }}">
-                            {{ __('Home') }}
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" href="{{ route('admin.roles.index') }}">
-                            {{ __('Roles') }}
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                    <li class="text-sm text-gray-800 dark:text-white/90">{{ __('New Role') }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
+    <x-breadcrumbs :breadcrumbs="$breadcrumbs" />
+
+    {!! ld_apply_filters('roles_create_after_breadcrumbs', '') !!}
 
     <form action="{{ route('admin.roles.store') }}" method="POST">
         @csrf
         <div class="space-y-8">
-            @include('backend.layouts.partials.messages')
             <!-- Role Details Section -->
             <div class="rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-800 dark:bg-gray-900">
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">

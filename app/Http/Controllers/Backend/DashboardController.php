@@ -37,6 +37,11 @@ class DashboardController extends Controller
                     request()->get('chart_filter_period', 'last_12_months')
                 )->getData(true),
                 'user_history_data' => $this->userChartService->getUserHistoryData(),
+                'breadcrumbs' => [
+                    'title' => __('Dashboard'),
+                    'show_home' => false,
+                    'show_current' => false,
+                ]
             ]
         );
     }

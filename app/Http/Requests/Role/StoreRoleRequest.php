@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Role;
+use App\Http\Requests\FormRequest;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
-class RoleRequest extends FormRequest
+class StoreRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->checkAuthorization(Auth::user(), ['role.create']);
     }
 
     /**
@@ -23,12 +24,10 @@ class RoleRequest extends FormRequest
      */
     public function rules(): array
     {
-        $roleId = $this->route('role');
-
-        return [
-            'name' => 'required|max:100|unique:roles,name,'.$roleId,
+        return ld_apply_filters('role.store.validation.rules', [
+            'name' => 'required|max:100|unique:roles,name',
             'permissions' => 'required|array|min:1',
             'permissions.*' => 'string|exists:permissions,name',
-        ];
+        ]);
     }
 }

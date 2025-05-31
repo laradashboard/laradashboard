@@ -65,8 +65,13 @@ class TranslationController extends Controller
             'selectedGroup',
             'availableGroups',
             'allLanguages',
-            'translationStats'
-        ));
+            'translationStats',
+        ))
+            ->with([
+                'breadcrumbs' => [
+                    'title' => __('Translations'),
+                ],
+            ]);
     }
 
     /**

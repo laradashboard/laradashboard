@@ -9,25 +9,10 @@
 @endphp
 @section('admin-content')
     <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-        <div x-data="{ pageName: {{ __('Action Logs') }} }">
-            <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">{{ __('Action Logs') }}</h2>
-                <nav>
-                    <ol class="flex items-center gap-1.5">
-                        <li>
-                            <a class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-                                href="{{ route('admin.dashboard') }}">
-                                {{ __('Home') }}
-                                <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </li>
-                        <li class="text-sm text-gray-800 dark:text-white/90">{{ __('Action Logs') }}</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
+        <x-breadcrumbs :breadcrumbs="$breadcrumbs" />
 
-        <!-- Action Logs Table -->
+        {!! ld_apply_filters('action_logs_after_breadcrumbs', '') !!}
+
         <div class="space-y-6">
             <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
                 <div class="px-5 py-4 sm:px-6 sm:py-5 flex justify-between items-center">

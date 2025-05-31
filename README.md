@@ -9,7 +9,7 @@
 
 <img width="100%" alt="Lara Dashboard" src="https://github.com/user-attachments/assets/c56009a4-718f-43dc-bd1e-caad5417b05b"  />
 
-**Lara Dashboard** - A project which manages Role, Permissions and every actions of your Laravel application. A complete solution for Role based Access Control in Laravel with Tailwind CSS integrated with all starting features including dark/lite mode, charts, tables, logs, forms and so on...
+**⚡ Lara Dashboard** (Laravel 7.x - 12.x) - Manages Users, Roles, Permissions, Modules, Settings, Translations, Contents, System logs, Monitoring and every actions of your Laravel application. A complete solution for Laravel application with Tailwind CSS integrated with all starting features including modules, dark/lite mode, charts, tables, forms and more...
 
 **Demo:** https://demo.laradashboard.com/
 ```
@@ -35,6 +35,12 @@ password - 12345678
 * [![Alpine JS][AlpineJS.com]][AlpineJS-url]
 * [![React][React.js]][React-url]
 * [![MySQL][MySQL.com]][MySQL-url]
+* <a href="https://penguinui.com/">
+    <img src="https://res.cloudinary.com/ds8pgw1pf/image/upload/v1721401292/penguinui/main-assets/Logo.png" alt="Penguin UI" style="height: 30px;">
+   </a>
+* <a href="https://tailadmin.com" style="display: flex; align-items: center; text-decoration: none; color: #3d51e0;">
+    <img src="https://avatars.githubusercontent.com/u/95587422?v=4" alt="Tail Admin" style="height: 20px;"> <span style="color:#3d51e0; margin-left: 5px;">Tail Admin</span>
+   </a>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -70,6 +76,11 @@ password - 12345678
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 🔄 Versions:
+Latest version `v1.3.0` - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.3.0
+
+<details>
+<summary>View Old versions</summary>
+
 - Laravel `7.x` & PHP -`7.x`
     - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel7.x
     - Branch - https://github.com/ManiruzzamanAkash/laravel-role/tree/Laravel7.x
@@ -91,8 +102,12 @@ password - 12345678
 
 - v1.0.0 - Settings, Forget password and lots of refactorring
     - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.0.0
+- v1.2.0 - Translation Management, Dashboard Redesign, Role/User List improvements
+    - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.2.0
 
 More release tags - https://github.com/laradashboard/laradashboard/releases
+</details>
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -130,7 +145,7 @@ php artisan serve
 npm run dev
 ```
 
-So, You've got the project of Laravel Role & Permission Management on your http://localhost:8000
+So, You've got the project of Lara Dashboard on your local machine - http://localhost:8000
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -157,6 +172,12 @@ git remote set-url origin git@github.com:laradashboard/laradashboard.git
 1. Module Based Development - Custom Module Add/Enable/Disable/Delete
 1. Monitoring - Logging of every action of your application
 1. Monitoring - Laravel Pulse
+1. Translation Management - Add/Edit/Delete Language, Add/Edit/Delete Translation
+1. Settings - General, Site Appearance, Content, Integration settings
+1. Admin Menu - Add/Edit/Delete Menu, Submenu, Link
+1. Admin Impersonation - Login as another user and switch back to your original account
+1. Custom Error Pages - 404, 500, 503, 403
+1. Content Management System - Add/Edit/Delete Content, Content Category, Content Tag
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -360,7 +381,7 @@ Please visit at Lara Dashboard to get more premium moduels - https://laradashboa
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 🧩 Core modules
-- **User Avatar** - https://github.com/laradashboard/UserAvatar - A very simple module create an avatar for a user. Handle migration, entries/updates in user forms and so on. 
+- **User Avatar** - https://github.com/laradashboard/UserAvatar - A very simple module create an avatar for a user. Handle migration, entries/updates in user forms and so on.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -388,6 +409,7 @@ If you like my work you may consider buying me a ☕ / 🍕
 
 - Facebook Community - https://www.facebook.com/groups/laradashboard
 - Linkedin Community - https://www.linkedin.com/groups/14690156
+- Youtube channel (For tutorials) - https://www.youtube.com/@laradashboard
 - Maniruzzaman Akash - [@LinkedIn](https://www.linkedin.com/in/maniruzzamanakash) | manirujjamanakash@gmail.com
 
 

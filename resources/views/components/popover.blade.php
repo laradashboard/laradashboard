@@ -8,7 +8,6 @@
 ])
 
 <div x-data="{ open: false }" class="relative inline-block">
-    <!-- Trigger element that toggles the popover -->
     <button 
         @click="open = !open"
         type="button"
@@ -17,7 +16,6 @@
         {{ $trigger }}
     </button>
 
-    <!-- Popover content with focus trap -->
     <div
         x-show="open"
         x-trap="open"

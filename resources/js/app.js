@@ -17,7 +17,83 @@ import userGrowthChart from "./components/charts/user-growth-chart.js";
 import map01 from "./components/map-01";
 import "./components/calendar-init.js";
 import "./components/image-resize";
+import SlugGenerator from "./components/slug-generator";
+import * as Popper from '@popperjs/core';
 
+// Make Popper available globally with the correct structure
+window.Popper = Popper;
+
+// Register slug generator component with Alpine.
+Alpine.data('slugGenerator', (initialTitle = '', initialSlug = '') => {
+    return SlugGenerator.alpineComponent(initialTitle, initialSlug);
+});
+
+// Register advanced fields component with Alpine.
+Alpine.data('advancedFields', (initialMeta = {}) => {
+    return {
+        fields: [],
+        initialized: false,
+        
+        init() {
+            console.log('Advanced Fields Init - Initial meta:', initialMeta);
+            
+            // Convert initial meta object to array format
+            if (initialMeta && Object.keys(initialMeta).length > 0) {
+                this.fields = Object.entries(initialMeta).map(([key, data]) => {
+                    console.log('Processing field:', key, data);
+                    
+                    if (typeof data === 'object' && data !== null && data.value !== undefined) {
+                        return {
+                            key: key,
+                            value: data.value || '',
+                            type: data.type || 'input',
+                            default_value: data.default_value || ''
+                        };
+                    } else {
+                        // Handle legacy format where data is just the value
+                        return {
+                            key: key,
+                            value: typeof data === 'string' ? data : '',
+                            type: 'input',
+                            default_value: ''
+                        };
+                    }
+                });
+            }
+            
+            // If no fields exist, add one empty field
+            if (this.fields.length === 0) {
+                this.addField();
+            }
+            
+            this.initialized = true;
+            console.log('Final processed fields:', this.fields);
+        },
+        
+        addField() {
+            this.fields.push({
+                key: '',
+                value: '',
+                type: 'input',
+                default_value: ''
+            });
+            console.log('Added field, total fields:', this.fields.length);
+        },
+        
+        removeField(index) {
+            if (this.fields.length > 1) {
+                this.fields.splice(index, 1);
+            }
+            console.log('Removed field, total fields:', this.fields.length);
+        },
+        
+        get fieldsJson() {
+            return this.initialized ? JSON.stringify(this.fields) : '[]';
+        }
+    };
+});
+
+// Alpine plugins
 Alpine.plugin(persist);
 Alpine.plugin(focus);
 window.Alpine = Alpine;
@@ -123,3 +199,5 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+

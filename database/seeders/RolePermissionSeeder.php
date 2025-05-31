@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\PermissionService;
 use App\Services\RolesService;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Class RolePermissionSeeder.
@@ -29,6 +30,9 @@ class RolePermissionSeeder extends Seeder
      */
     public function run()
     {
+        // Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
         // Create all permissions
         $this->command->info('Creating permissions...');
         $this->permissionService->createPermissions();

@@ -19,7 +19,12 @@ class ProfilesController extends Controller
 
         $user = Auth::user();
 
-        return view('backend.pages.profile.edit', compact('user'));
+        return view('backend.pages.profile.edit', compact('user'))
+            ->with([
+                'breadcrumbs' => [
+                    'title' => __('Edit Profile'),
+                ],
+            ]);
     }
 
     public function update(Request $request): RedirectResponse

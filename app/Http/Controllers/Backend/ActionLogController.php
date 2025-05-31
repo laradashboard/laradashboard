@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Services\ActionLogService;
+use Illuminate\Support\Facades\Auth;
 
 class ActionLogController extends Controller
 {
@@ -15,10 +16,13 @@ class ActionLogController extends Controller
 
     public function index()
     {
-        $this->checkAuthorization(auth()->user(), ['actionlog.view']);
+        $this->checkAuthorization(Auth::user(), ['actionlog.view']);
 
         return view('backend.pages.action-logs.index', [
             'actionLogs' => $this->actionLogService->getActionLogs(),
+            'breadcrumbs' => [
+                'title' => __('Action Logs'),
+            ]
         ]);
     }
 }

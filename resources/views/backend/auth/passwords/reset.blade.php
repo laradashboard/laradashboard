@@ -16,7 +16,7 @@
             @csrf
             <input type="hidden" name="token" value="{{ $token }}">
             <div class="space-y-5">
-                @include('backend.layouts.partials.messages')
+                <x-messages />
                 <!-- Email -->
                 <div>
                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">

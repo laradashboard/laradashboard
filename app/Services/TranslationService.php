@@ -52,15 +52,7 @@ class TranslationService
                 File::put($path, '{}');
             } else {
                 // For English, create with default Laravel translations
-                $defaultTranslations = [
-                    'Welcome' => 'Welcome',
-                    'Dashboard' => 'Dashboard',
-                    'Login' => 'Login',
-                    'Logout' => 'Logout',
-                    'Register' => 'Register',
-                    'Password' => 'Password',
-                    'Email' => 'Email',
-                ];
+                $defaultTranslations = [];
                 File::put($path, json_encode($defaultTranslations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
             }
         }

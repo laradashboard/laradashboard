@@ -125,13 +125,56 @@ class RolesService
      */
     public function getPaginatedRolesWithUserCount(string $search = null, int $perPage = 10): LengthAwarePaginator
     {
-        $query = Role::query();
-
-        if ($search) {
-            $query->where('name', 'like', '%' . $search . '%');
+        // Check if we're sorting by user count
+        $sort = request()->query('sort');
+        $isUserCountSort = ($sort === 'user_count' || $sort === '-user_count');
+        
+        // For user count sorting, we need to handle it separately
+        if ($isUserCountSort) {
+            // Get all roles matching the search criteria without any sorting
+            $query = \App\Models\Role::query();
+            
+            if ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            }
+            
+            $allRoles = $query->get();
+            
+            // Add user count to each role
+            foreach ($allRoles as $role) {
+                $role->user_count = $this->countUsersInRole($role);
+            }
+            
+            // Sort the collection by user_count
+            $direction = $sort === 'user_count' ? 'asc' : 'desc';
+            $sortedRoles = $direction === 'asc' 
+                ? $allRoles->sortBy('user_count') 
+                : $allRoles->sortByDesc('user_count');
+            
+            // Manually paginate the collection
+            $page = request()->get('page', 1);
+            $offset = ($page - 1) * $perPage;
+            
+            $paginatedRoles = new \Illuminate\Pagination\LengthAwarePaginator(
+                $sortedRoles->slice($offset, $perPage)->values(),
+                $sortedRoles->count(),
+                $perPage,
+                $page,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
+            
+            return $paginatedRoles;
         }
-
-        $roles = $query->paginate($perPage);
+        
+        // For normal sorting by database columns
+        $filters = [
+            'search' => $search,
+            'sort_field' => 'name',
+            'sort_direction' => 'asc'
+        ];
+        
+        $roles = \App\Models\Role::applyFilters($filters)
+            ->paginateData(['per_page' => $perPage]);
 
         // Add user count to each role
         foreach ($roles as $role) {
@@ -243,6 +286,12 @@ class RolesService
                     'profile.edit',
                     'profile.update',
                     'translations.view',
+                    // Add post and term related permissions for Editor
+                    'post.create',
+                    'post.view',
+                    'post.edit',
+                    'term.view',
+                    'term.create',
                 ];
 
             case 'subscriber':
@@ -252,6 +301,9 @@ class RolesService
                     'profile.view',
                     'profile.edit',
                     'profile.update',
+                    // Add basic content viewing for Subscriber
+                    'post.view',
+                    'term.view',
                 ];
         }
     }

@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\SetupStorage::class,
+        Commands\CreatePlaceholderImages::class,
     ];
 
     /**

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Services\PermissionService;
 use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 
 class PermissionsController extends Controller
@@ -18,19 +19,22 @@ class PermissionsController extends Controller
 
     public function index(): Renderable
     {
-        $this->checkAuthorization(auth()->user(), ['role.view']);
+        $this->checkAuthorization(Auth::user(), ['role.view']);
 
         $perPage = config('settings.default_pagination') ?? 10;
         $search = request()->input('search') !== '' ? request()->input('search') : null;
 
         return view('backend.pages.permissions.index', [
             'permissions' => $this->permissionService->getPaginatedPermissionsWithRoleCount($search, intval($perPage)),
+            'breadcrumbs' => [
+                'title' => __('Permissions'),
+            ]
         ]);
     }
 
     public function show(int $id): Renderable
     {
-        $this->checkAuthorization(auth()->user(), ['role.view']);
+        $this->checkAuthorization(Auth::user(), ['role.view']);
 
         $permission = Permission::findById($id);
         $roles = $this->permissionService->getRolesForPermission($permission);
@@ -38,6 +42,15 @@ class PermissionsController extends Controller
         return view('backend.pages.permissions.show', [
             'permission' => $permission,
             'roles' => $roles,
+            'breadcrumbs' => [
+                'title' => __('Permission Details'),
+                'items' => [
+                    [
+                        'label' => __('Permissions'),
+                        'url' => route('admin.permissions.index'),
+                    ]
+                ]
+            ]
         ]);
     }
 }

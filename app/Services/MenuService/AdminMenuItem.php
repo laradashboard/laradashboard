@@ -4,7 +4,7 @@ namespace App\Services\MenuService;
 
 class AdminMenuItem
 {
-    public string $label;
+    public string $label = '';
     public ?string $icon = null;
     public ?string $iconClass = null;
     public ?string $route = null;
@@ -17,11 +17,27 @@ class AdminMenuItem
     public ?string $target = null;
     public int $priority = 1;
     public array $permissions = [];
+    public ?string $itemStyles = '';
     public ?string $htmlData = null;
+    public string $title = '';
 
     public function setLabel(string $label): self
     {
         $this->label = $label;
+        if (empty($this->title)) {
+            $this->title = $label;
+        }
+
+        return $this;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+        if (empty($this->label)) {
+            $this->label = $title;
+        }
+
         return $this;
     }
 
@@ -30,7 +46,7 @@ class AdminMenuItem
         $this->icon = $icon;
         return $this;
     }
-    
+
     public function setIconClass(?string $iconClass): self
     {
         $this->iconClass = $iconClass;
@@ -73,9 +89,15 @@ class AdminMenuItem
         return $this;
     }
 
-    public function setPermissions(string | array $permissions): self
+    public function setPermissions(string|array $permissions): self
     {
         $this->permissions = is_array($permissions) ? $permissions : [$permissions];
+        return $this;
+    }
+
+    public function setItemStyles(?string $styles): self
+    {
+        $this->itemStyles = $styles;
         return $this;
     }
 
@@ -128,6 +150,8 @@ class AdminMenuItem
             $method = 'set' . ucfirst($key);
             if (method_exists($this, $method)) {
                 $this->$method($value);
+            } elseif (property_exists($this, $key)) {
+                $this->$key = $value;
             }
         }
 
@@ -138,6 +162,7 @@ class AdminMenuItem
     {
         return [
             'label' => $this->label,
+            'title' => $this->title,
             'icon' => $this->icon,
             'iconClass' => $this->iconClass,
             'route' => $this->route,

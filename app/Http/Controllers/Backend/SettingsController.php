@@ -11,6 +11,7 @@ use App\Services\EnvWriter;
 use App\Services\SettingService;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SettingsController extends Controller
 {
@@ -23,10 +24,16 @@ class SettingsController extends Controller
 
     public function index($tab = null): Renderable
     {
-        $this->checkAuthorization(auth()->user(), ['settings.edit']);
+        $this->checkAuthorization(Auth::user(), ['settings.edit']);
 
         $tab = $tab ?? request()->input('tab', 'general');
-        return view('backend.pages.settings.index', compact("tab"));
+
+        return view('backend.pages.settings.index', compact("tab"))
+            ->with([
+                'breadcrumbs' => [
+                    'title' => __('Settings'),
+                ],
+            ]);
     }
 
     public function store(Request $request)
@@ -39,7 +46,7 @@ class SettingsController extends Controller
             $fields = $request->all();
         }
 
-        $this->checkAuthorization(auth()->user(), ['settings.edit']);
+        $this->checkAuthorization(Auth::user(), ['settings.edit']);
 
         $uploadPath = 'uploads/settings';
 
@@ -60,16 +67,5 @@ class SettingsController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Settings saved successfully.');
-    }
-
-    private function maybeWriteKeysToEnvFile(Request $request)
-    {
-        try {
-            $this->envWriter->maybeWriteKeysToEnvFile($request->all());
-        } catch (\Throwable $th) {
-            $this->storeActionLog(ActionType::EXCEPTION, [
-                'settings' => $th->getMessage(),
-            ]);
-        }
     }
 }

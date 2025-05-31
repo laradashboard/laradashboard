@@ -1,40 +1,20 @@
 @extends('backend.layouts.app')
 
 @section('title')
-    {{ __('Edit Role') }} | {{ config('app.name') }}
+    {{ $breadcrumbs['title'] }} | {{ config('app.name') }}
 @endsection
 
 @section('admin-content')
 
 <div class="p-4 mx-auto max-w-[var(--breakpoint-2xl)] md:p-6">
-    <div x-data="{ pageName: '{{ __('Edit Role') }}' }">
-        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">{{ __('Edit Role') }}</h2>
-            <nav>
-                <ol class="flex items-center gap-1.5">
-                    <li>
-                        <a class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" href="{{ route('admin.dashboard') }}">
-                            {{ __('Home') }}
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" href="{{ route('admin.roles.index') }}">
-                            {{ __('Roles') }}
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                    <li class="text-sm text-gray-800 dark:text-white/90">{{ __('Edit Role') }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
+    <x-breadcrumbs :breadcrumbs="$breadcrumbs" />
+
+    {!! ld_apply_filters('roles_edit_after_breadcrumbs', '') !!}
 
     <form action="{{ route('admin.roles.update', $role->id) }}" method="POST">
         @method('PUT')
         @csrf
         <div class="space-y-8">
-            @include('backend.layouts.partials.messages')
             <!-- Role Details Section -->
             <div class="rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-800 dark:bg-gray-900">
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
@@ -61,7 +41,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Permissions Section -->
             <div class="rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-800 dark:bg-gray-900">
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
@@ -92,7 +72,7 @@
                             @endphp
                             @foreach ($permissions as $permission)
                             <div>
-                                <input type="checkbox" id="checkPermission{{ $permission->id }}" name="permissions[]" value="{{ $permission->name }}" class="mr-2" 
+                                <input type="checkbox" id="checkPermission{{ $permission->id }}" name="permissions[]" value="{{ $permission->name }}" class="mr-2"
                                        {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
                                 <label for="checkPermission{{ $permission->id }}" class="capitalize text-sm text-gray-700 dark:text-gray-400">
                                     {{ $permission->name }}
