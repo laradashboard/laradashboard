@@ -3,10 +3,9 @@
 namespace App\Services\Content;
 
 use App\Models\Taxonomy;
-use App\Services\Content\PostType;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
 
 class ContentService
 {
@@ -28,7 +27,7 @@ class ContentService
             'supports_thumbnail' => true,
             'supports_excerpt' => true,
             'supports_custom_fields' => true,
-            'taxonomies' => []
+            'taxonomies' => [],
         ];
 
         $args = array_merge($defaults, $args);
@@ -53,10 +52,10 @@ class ContentService
 
         // Get current post types.
         $postTypes = $this->getPostTypes();
-        
+
         // Add or update post type.
         $postTypes[$postType->name] = $postType;
-        
+
         // Store in cache (using serialized array format).
         $postTypesArray = collect($postTypes)->map->toArray()->all();
         Cache::put('post_types', $postTypesArray, now()->addDay());
@@ -95,13 +94,13 @@ class ContentService
         }
 
         // Handle post types and update them to include this taxonomy.
-        if (!empty($postTypes)) {
+        if (! empty($postTypes)) {
             if (is_string($postTypes)) {
                 $postTypes = [$postTypes];
-            } elseif (!is_array($postTypes)) {
+            } elseif (! is_array($postTypes)) {
                 $postTypes = [];
             }
-            
+
             $args['post_types'] = $postTypes;
 
             // Update existing post types to include this taxonomy.
@@ -128,7 +127,7 @@ class ContentService
         foreach ($postTypeNames as $postTypeName) {
             if (isset($postTypes[$postTypeName])) {
                 $postType = $postTypes[$postTypeName];
-                if (!in_array($taxonomyName, $postType->taxonomies)) {
+                if (! in_array($taxonomyName, $postType->taxonomies)) {
                     $postType->taxonomies[] = $taxonomyName;
                     $updated = true;
                 }
@@ -145,19 +144,20 @@ class ContentService
     public function getPostTypes(): Collection
     {
         $postTypesArray = Cache::get('post_types', []);
-        
+
         // Convert arrays back to PostType objects
         $postTypes = collect();
         foreach ($postTypesArray as $name => $data) {
             $postTypes[$name] = new PostType($data);
         }
-        
+
         return $postTypes;
     }
 
     public function getPostType(?string $name): ?PostType
     {
         $postTypes = $this->getPostTypes();
+
         return $postTypes[$name] ?? null;
     }
 

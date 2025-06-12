@@ -7,25 +7,37 @@ use Illuminate\Support\Str;
 class PostType
 {
     public string $name = '';
+
     public string $label = '';
+
     public string $label_singular = '';
+
     public string $description = '';
+
     public bool $public = true;
+
     public bool $has_archive = true;
+
     public bool $hierarchical = false;
+
     public bool $show_in_menu = true;
+
     public bool $show_in_nav_menus = true;
+
     public bool $supports_title = true;
+
     public bool $supports_editor = true;
+
     public bool $supports_thumbnail = true;
+
     public bool $supports_excerpt = true;
+
     public bool $supports_custom_fields = true;
+
     public array $taxonomies = [];
 
     /**
      * Create a new post type instance
-     * 
-     * @param array $attributes
      */
     public function __construct(array $attributes = [])
     {
@@ -34,9 +46,6 @@ class PostType
 
     /**
      * Set post type attributes
-     * 
-     * @param array $attributes
-     * @return self
      */
     public function setAttributes(array $attributes): self
     {
@@ -47,11 +56,11 @@ class PostType
         }
 
         // Set defaults if not provided
-        if (empty($this->label) && !empty($this->name)) {
+        if (empty($this->label) && ! empty($this->name)) {
             $this->label = Str::plural(Str::title($this->name));
         }
 
-        if (empty($this->label_singular) && !empty($this->name)) {
+        if (empty($this->label_singular) && ! empty($this->name)) {
             $this->label_singular = Str::title($this->name);
         }
 
@@ -60,8 +69,6 @@ class PostType
 
     /**
      * Convert to array
-     * 
-     * @return array
      */
     public function toArray(): array
     {
@@ -86,24 +93,20 @@ class PostType
 
     /**
      * Check if the post type supports a feature
-     * 
-     * @param string $feature
-     * @return bool
      */
     public function supports(string $feature): bool
     {
-        $property = 'supports_' . $feature;
+        $property = 'supports_'.$feature;
+
         return property_exists($this, $property) ? $this->$property : false;
     }
 
     /**
      * Get icon for this post type
-     * 
-     * @return string
      */
     public function getIcon(): string
     {
-        return match($this->name) {
+        return match ($this->name) {
             'post' => 'bi bi-file-earmark-text',
             'page' => 'bi bi-file-earmark',
             default => 'bi bi-collection'

@@ -46,7 +46,7 @@ class TranslationService
     {
         $path = resource_path("lang/{$lang}.json");
 
-        if (!File::exists($path)) {
+        if (! File::exists($path)) {
             if ($lang !== 'en') {
                 // Create file with empty translations if it doesn't exist
                 File::put($path, '{}');
@@ -58,6 +58,7 @@ class TranslationService
         }
 
         $content = File::get($path);
+
         return json_decode($content, true) ?: [];
     }
 
@@ -69,19 +70,20 @@ class TranslationService
         $path = resource_path("lang/{$lang}/{$group}.php");
 
         // If the directory doesn't exist, create it
-        if (!File::exists(resource_path("lang/{$lang}"))) {
+        if (! File::exists(resource_path("lang/{$lang}"))) {
             File::makeDirectory(resource_path("lang/{$lang}"), 0755, true);
         }
 
         // If file doesn't exist but English version does, copy structure from English
-        if (!File::exists($path) && File::exists(resource_path("lang/en/{$group}.php"))) {
-            $enTranslations = include(resource_path("lang/en/{$group}.php"));
+        if (! File::exists($path) && File::exists(resource_path("lang/en/{$group}.php"))) {
+            $enTranslations = include resource_path("lang/en/{$group}.php");
 
             // Create file with empty translations or copy English structure
             $this->createGroupTranslationFile($lang, $group, $enTranslations);
 
+            // Check again after creating the file.
             if (File::exists($path)) {
-                return include($path);
+                return include $path;
             }
 
             return [];
@@ -89,7 +91,7 @@ class TranslationService
 
         // If file exists, return its contents
         if (File::exists($path)) {
-            return include($path);
+            return include $path;
         }
 
         // If no file exists, create a default structure based on group
@@ -157,15 +159,15 @@ class TranslationService
         // Create language file based on group
         if ($group === 'json') {
             // Copy from English or create new
-            if (File::exists(resource_path("lang/en.json"))) {
+            if (File::exists(resource_path('lang/en.json'))) {
                 // Read English JSON file
-                $englishContent = File::get(resource_path("lang/en.json"));
+                $englishContent = File::get(resource_path('lang/en.json'));
                 $englishTranslations = json_decode($englishContent, true) ?: [];
 
                 // Create a new array with the same keys but empty values
                 $emptyTranslations = [];
                 foreach ($englishTranslations as $key => $value) {
-                    $emptyTranslations[$key] = "";
+                    $emptyTranslations[$key] = '';
                 }
 
                 // Save the new JSON file with empty values
@@ -181,7 +183,7 @@ class TranslationService
             // Create group file
             if (File::exists(resource_path("lang/en/{$group}.php"))) {
                 // If English exists, copy structure but with empty values
-                $enTranslations = include(resource_path("lang/en/{$group}.php"));
+                $enTranslations = include resource_path("lang/en/{$group}.php");
                 $emptyTranslations = $this->createEmptyTranslations($enTranslations);
                 $this->createGroupTranslationFile($lang, $group, $emptyTranslations);
             } else {
@@ -221,11 +223,11 @@ class TranslationService
         $path = resource_path("lang/{$lang}/{$group}.php");
 
         // Prepare file content
-        $content = "<?php\n\nreturn " . $this->varExport($translations, true) . ";\n";
+        $content = "<?php\n\nreturn ".$this->varExport($translations, true).";\n";
 
         // Create the directory if it doesn't exist
         $directory = dirname($path);
-        if (!File::exists($directory)) {
+        if (! File::exists($directory)) {
             File::makeDirectory($directory, 0755, true);
         }
 
@@ -270,11 +272,11 @@ class TranslationService
         $path = resource_path("lang/{$lang}/{$group}.php");
 
         // Prepare file content
-        $content = "<?php\n\nreturn " . $this->varExport($translations, true) . ";\n";
+        $content = "<?php\n\nreturn ".$this->varExport($translations, true).";\n";
 
         // Create the directory if it doesn't exist
         $directory = dirname($path);
-        if (!File::exists($directory)) {
+        if (! File::exists($directory)) {
             File::makeDirectory($directory, 0755, true);
         }
 
@@ -303,13 +305,13 @@ class TranslationService
 
         // Check English directory for additional groups
         if ($lang !== 'en') {
-            $enPath = resource_path("lang/en");
+            $enPath = resource_path('lang/en');
             if (File::exists($enPath)) {
                 $files = File::files($enPath);
                 foreach ($files as $file) {
                     if ($file->getExtension() === 'php') {
                         $group = $file->getFilenameWithoutExtension();
-                        if (!in_array($group, $availableGroups)) {
+                        if (! in_array($group, $availableGroups)) {
                             $availableGroups[] = $group;
                         }
                     }
@@ -332,7 +334,7 @@ class TranslationService
             $totalKeys = count($enTranslations);
 
             foreach ($translations as $key => $value) {
-                if (isset($enTranslations[$key]) && !empty(trim((string)$value))) {
+                if (isset($enTranslations[$key]) && ! empty(trim((string) $value))) {
                     $nonEmptyTranslations++;
                 }
             }
@@ -348,7 +350,7 @@ class TranslationService
             'totalKeys' => $totalKeys,
             'translated' => $nonEmptyTranslations,
             'missing' => $missingTranslations,
-            'percentage' => $progressPercentage
+            'percentage' => $progressPercentage,
         ];
     }
 
@@ -364,10 +366,11 @@ class TranslationService
                 if (isset($translationArray[$key]) && is_array($translationArray[$key])) {
                     $count += $this->countNonEmptyTranslations($translationArray[$key], $value);
                 }
-            } else if (isset($translationArray[$key]) && !empty(trim((string)$translationArray[$key]))) {
+            } elseif (isset($translationArray[$key]) && ! empty(trim((string) $translationArray[$key]))) {
                 $count++;
             }
         }
+
         return $count;
     }
 
@@ -384,6 +387,7 @@ class TranslationService
                 $count++;
             }
         }
+
         return $count;
     }
 
@@ -424,6 +428,7 @@ class TranslationService
         }
 
         echo $export;
+
         return '';
     }
 
@@ -462,7 +467,7 @@ class TranslationService
                 if ($i === count($parts) - 1) {
                     $current[$part] = $value;
                 } else {
-                    if (!isset($current[$part]) || !is_array($current[$part])) {
+                    if (! isset($current[$part]) || ! is_array($current[$part])) {
                         $current[$part] = [];
                     }
                     $current = &$current[$part];

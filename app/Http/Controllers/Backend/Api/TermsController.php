@@ -8,9 +8,7 @@ use App\Services\Content\ContentService;
 use App\Services\PostService;
 use App\Services\TermService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Str;
 
 class TermsController extends Controller
 {
@@ -28,22 +26,22 @@ class TermsController extends Controller
     {
         // Check if taxonomy exists
         $taxonomy = $this->termService->getTaxonomy($taxonomyName);
-        if (!$taxonomy) {
+        if (! $taxonomy) {
             return response()->json([
-                'message' => __('Taxonomy not found')
+                'message' => __('Taxonomy not found'),
             ], 404);
         }
 
         $taxonomies = [];
         $post_type = $request->input('post_type', null);
         $postTypeModel = $this->contentService->getPostType($post_type);
-        if (!$postTypeModel) {
+        if (! $postTypeModel) {
             return response()->json([
-                'message' => __('Post type not found')
+                'message' => __('Post type not found'),
             ], 404);
         }
 
-        if (!empty($postTypeModel->taxonomies)) {
+        if (! empty($postTypeModel->taxonomies)) {
             $taxonomies = $this->contentService->getTaxonomies()
                 ->whereIn('name', $postTypeModel->taxonomies)
                 ->all();
@@ -54,6 +52,10 @@ class TermsController extends Controller
         // Get taxonomy label for message.
         $taxLabel = $this->termService->getTaxonomyLabel($taxonomyName, true);
 
+        // Get post if post_id is provided.
+        $postId = $request->input('post_id');
+        $post = $postId ? $this->postService->getPostById($postId) : null;
+
         return response()->json([
             'message' => __(':taxLabel created successfully.', ['taxLabel' => $taxLabel]),
             'term' => $term,
@@ -61,8 +63,8 @@ class TermsController extends Controller
             'post_type' => $postTypeModel->name,
             'content' => Blade::render('backend.pages.posts.partials.post-taxonomy-chooser', [
                 'taxonomy' => $taxonomy,
-                'post' => $this->postService->getPostById($request->input('post_id')),
-                'post_id' => $post->id ?? null,
+                'post' => $post,
+                'post_id' => $post ? $post->id : null,
                 'post_type' => $postTypeModel->name,
             ]),
         ], 201);

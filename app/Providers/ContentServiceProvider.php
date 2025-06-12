@@ -3,9 +3,9 @@
 namespace App\Providers;
 
 use App\Services\Content\ContentService;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\QueryException;
 
 class ContentServiceProvider extends ServiceProvider
 {
@@ -20,13 +20,13 @@ class ContentServiceProvider extends ServiceProvider
     {
         // Skip registering taxonomies if tables don't exist yet.
         try {
-            if (!Schema::hasTable('taxonomies')) {
+            if (! Schema::hasTable('taxonomies')) {
                 return;
             }
-            
+
             // Register default post types.
             $this->registerDefaultPostTypes();
-            
+
             // Register default taxonomies.
             $this->registerDefaultTaxonomies();
         } catch (QueryException $e) {
@@ -39,10 +39,11 @@ class ContentServiceProvider extends ServiceProvider
     protected function tablesExist(array $tables): bool
     {
         foreach ($tables as $table) {
-            if (!Schema::hasTable($table)) {
+            if (! Schema::hasTable($table)) {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -56,7 +57,7 @@ class ContentServiceProvider extends ServiceProvider
             'label' => 'Posts',
             'label_singular' => 'Post',
             'description' => 'Default post type for blog entries',
-            'taxonomies' => ['category', 'tag']
+            'taxonomies' => ['category', 'tag'],
         ]);
 
         // Register page type.
@@ -68,12 +69,12 @@ class ContentServiceProvider extends ServiceProvider
             'has_archive' => false,
             'hierarchical' => true,
             'supports_excerpt' => false,
-            'taxonomies' => []
+            'taxonomies' => [],
         ]);
 
         // Allow other plugins/modules to register post types.
         if (function_exists('ld_do_action')) {
-            ld_do_action ('register_post_types', $contentService);
+            ld_do_action('register_post_types', $contentService);
         }
     }
 
@@ -109,7 +110,7 @@ class ContentServiceProvider extends ServiceProvider
 
     protected function getPostTypeIcon(string $postType): string
     {
-        return match($postType) {
+        return match ($postType) {
             'post' => 'bi bi-file-post-fill',
             'page' => 'bi bi-file-earmark-post',
             default => 'bi bi-collection'
@@ -118,7 +119,7 @@ class ContentServiceProvider extends ServiceProvider
 
     protected function getTaxonomyIcon(string $taxonomy): string
     {
-        return match($taxonomy) {
+        return match ($taxonomy) {
             'category' => 'bi bi-folder',
             'tag' => 'bi bi-tags',
             default => 'bi bi-bookmark'

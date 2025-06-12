@@ -1,0 +1,7 @@
+{
+    "patches": {
+        "opis/closure": {
+            "Fix PHP 8.4 nullable parameter deprecation": "patches/opis-closure-php84.patch"
+        }
+    }
+}

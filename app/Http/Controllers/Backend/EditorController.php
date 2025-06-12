@@ -20,15 +20,15 @@ class EditorController extends Controller
         ]);
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+            $fileName = time().'_'.Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
 
             // Save file to public storage
-            $path = 'uploads/editor/' . date('Y/m');
+            $path = 'uploads/editor/'.date('Y/m');
             $file->move(public_path($path), $fileName);
 
             // Return the URL to Editor.
             return response()->json([
-                'location' => asset($path . '/' . $fileName)
+                'location' => asset($path.'/'.$fileName),
             ]);
         }
 

@@ -19,7 +19,7 @@ class PostMeta extends Model
         'meta_key',
         'meta_value',
         'type',
-        'default_value'
+        'default_value',
     ];
 
     /**

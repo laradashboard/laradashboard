@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -21,7 +20,7 @@ return new class extends Migration
             $table->string('type')->default('input'); // input, textarea, select, number, email, url, etc.
             $table->text('default_value')->nullable();
             $table->timestamps();
-            
+
             $table->index(['post_id', 'meta_key']);
         });
     }

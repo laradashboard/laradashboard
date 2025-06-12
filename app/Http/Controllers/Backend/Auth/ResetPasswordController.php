@@ -32,7 +32,6 @@ class ResetPasswordController extends Controller
     /**
      * Display the password reset form for the given token.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  string  $token
      * @return \Illuminate\View\View
      */

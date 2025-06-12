@@ -1,0 +1,33 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/nesbot/carbon/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+    paths:
+        - app
+        - config
+        - database
+        - routes
+        - tests
+
+    # Level 5 is a good starting point
+    level: 5
+    
+    # Turn off strict checking for PHPDoc types
+    treatPhpDocTypesAsCertain: false
+    
+    ignoreErrors:
+        # Access to undefined properties on Eloquent models
+        - '#Access to an undefined property#'
+        - '#Called ''env'' outside of the config directory#'
+        - '#Property .* is never read, only written#'
+        - '#Method .* is unused#'
+        - '#Method .* should return Illuminate\\(Contracts\\)?Pagination\\LengthAwarePaginator but returns Illuminate\\Database\\Eloquent\\Builder#'
+        - '#Function get_post_terms\(\) should return Illuminate\\Database\\Eloquent\\Collection but returns Illuminate\\Support\\Collection#'
+        - '#Result of static method TorMorten\\Eventy\\Events::filter\(\) \(void\) is used#'
+        - '#Parameter .* of method .* expects .*, .* given#'
+        - '#PHPDoc type .* of property .* is not covariant with PHPDoc type .* of overridden property#'
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder.*::items\(\)#'
+        - '#If condition is always false#'
+        - '#Offset .* in empty\(\) always exists and is (not falsy|always falsy)#'

@@ -11,10 +11,8 @@ class PostMetaService
 {
     /**
      * Get meta value for a post
-     * 
-     * @param int $postId
-     * @param string $key
-     * @param mixed $default
+     *
+     * @param  mixed  $default
      * @return mixed
      */
     public function getMeta(int $postId, string $key, $default = null)
@@ -22,41 +20,33 @@ class PostMetaService
         $meta = PostMeta::where('post_id', $postId)
             ->where('meta_key', $key)
             ->first();
-            
+
         return $meta ? $meta->meta_value : $default;
     }
 
     /**
      * Set meta value for a post
-     * 
-     * @param int $postId
-     * @param string $key
-     * @param mixed $value
-     * @param string $type
-     * @param mixed $defaultValue
-     * @return PostMeta
+     *
+     * @param  mixed  $value
+     * @param  mixed  $defaultValue
      */
     public function setMeta(int $postId, string $key, $value, string $type = 'input', $defaultValue = null): PostMeta
     {
         return PostMeta::updateOrCreate(
             [
                 'post_id' => $postId,
-                'meta_key' => $key
+                'meta_key' => $key,
             ],
             [
                 'meta_value' => $value,
                 'type' => $type,
-                'default_value' => $defaultValue
+                'default_value' => $defaultValue,
             ]
         );
     }
 
     /**
      * Delete meta for a post
-     * 
-     * @param int $postId
-     * @param string $key
-     * @return bool
      */
     public function deleteMeta(int $postId, string $key): bool
     {
@@ -67,9 +57,6 @@ class PostMetaService
 
     /**
      * Get all meta for a post
-     * 
-     * @param int $postId
-     * @return Collection
      */
     public function getAllMeta(int $postId): Collection
     {
@@ -78,9 +65,6 @@ class PostMetaService
 
     /**
      * Get all meta for a post as array with additional info
-     * 
-     * @param int $postId
-     * @return array
      */
     public function getAllMetaAsArray(int $postId): array
     {
@@ -91,8 +75,8 @@ class PostMetaService
                     $meta->meta_key => [
                         'value' => $meta->meta_value,
                         'type' => $meta->type,
-                        'default_value' => $meta->default_value
-                    ]
+                        'default_value' => $meta->default_value,
+                    ],
                 ];
             })
             ->toArray();
@@ -100,9 +84,6 @@ class PostMetaService
 
     /**
      * Get all meta for a post as simple key-value pairs
-     * 
-     * @param int $postId
-     * @return array
      */
     public function getAllMetaValues(int $postId): array
     {
@@ -113,21 +94,19 @@ class PostMetaService
 
     /**
      * Update multiple meta values for a post
-     * 
-     * @param int $postId
-     * @param array $metaData Array of key => value pairs or key => [value, type, default] arrays
-     * @return void
+     *
+     * @param  array  $metaData  Array of key => value pairs or key => [value, type, default] arrays
      */
     public function updateMultipleMeta(int $postId, array $metaData): void
     {
         foreach ($metaData as $key => $data) {
-            if (!empty($key)) {
+            if (! empty($key)) {
                 if (is_array($data)) {
                     $this->setMeta(
-                        $postId, 
-                        $key, 
-                        $data['value'] ?? '', 
-                        $data['type'] ?? 'input', 
+                        $postId,
+                        $key,
+                        $data['value'] ?? '',
+                        $data['type'] ?? 'input',
                         $data['default_value'] ?? null
                     );
                 } else {
@@ -139,9 +118,7 @@ class PostMetaService
 
     /**
      * Delete multiple meta values for a post
-     * 
-     * @param int $postId
-     * @param array $keys
+     *
      * @return int Number of deleted records
      */
     public function deleteMultipleMeta(int $postId, array $keys): int
@@ -153,16 +130,12 @@ class PostMetaService
 
     /**
      * Sync meta data - delete existing and create new
-     * 
-     * @param int $postId
-     * @param array $metaData
-     * @return void
      */
     public function syncMeta(int $postId, array $metaData): void
     {
         // Delete all existing meta for this post
         PostMeta::where('post_id', $postId)->delete();
-        
+
         // Create new meta
         $this->updateMultipleMeta($postId, $metaData);
     }

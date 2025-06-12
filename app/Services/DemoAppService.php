@@ -6,7 +6,7 @@ namespace App\Services;
 
 /**
  * This class is for demo app.
- * 
+ *
  * This class method will only be executed if the demo app is enabled in the .env file.
  *
  * Before every method, it will check if the demo app is enabled.

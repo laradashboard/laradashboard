@@ -9,8 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
-use App\Services\UserService;
 use App\Services\RolesService;
+use App\Services\UserService;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,7 +33,7 @@ class UsersController extends Controller
             'search' => request('search'),
             'role' => request('role'),
             'sort_field' => null,
-            'sort_direction' => null
+            'sort_direction' => null,
         ];
 
         return view('backend.pages.users.index', [
@@ -41,7 +41,7 @@ class UsersController extends Controller
             'roles' => $this->rolesService->getRolesDropdown(),
             'breadcrumbs' => [
                 'title' => __('Users'),
-            ]
+            ],
         ]);
     }
 
@@ -59,9 +59,9 @@ class UsersController extends Controller
                     [
                         'label' => __('Users'),
                         'url' => route('admin.users.index'),
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
     }
 
@@ -111,9 +111,9 @@ class UsersController extends Controller
                     [
                         'label' => __('Users'),
                         'url' => route('admin.users.index'),
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
     }
 
@@ -169,46 +169,46 @@ class UsersController extends Controller
 
         return back();
     }
-    
+
     /**
      * Delete multiple users at once
      */
     public function bulkDelete(Request $request): RedirectResponse
     {
         $this->checkAuthorization(Auth::user(), ['user.delete']);
-        
+
         $ids = $request->input('ids', []);
-        
+
         if (empty($ids)) {
             return redirect()->route('admin.users.index')
                 ->with('error', __('No users selected for deletion'));
         }
-        
+
         $users = User::whereIn('id', $ids)->get();
         $deletedCount = 0;
-        
+
         foreach ($users as $user) {
             // Skip super admin users
             if ($user->hasRole('superadmin')) {
                 continue;
             }
-            
+
             $user = ld_apply_filters('user_delete_before', $user);
             $user->delete();
             ld_apply_filters('user_delete_after', $user);
-            
+
             $this->storeActionLog(ActionType::DELETED, ['user' => $user]);
             ld_do_action('user_delete_after', $user);
-            
+
             $deletedCount++;
         }
-        
+
         if ($deletedCount > 0) {
             session()->flash('success', __(':count users deleted successfully', ['count' => $deletedCount]));
         } else {
             session()->flash('error', __('No users were deleted. Selected users may include protected accounts.'));
         }
-        
+
         return redirect()->route('admin.users.index');
     }
 }

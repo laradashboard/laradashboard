@@ -22,7 +22,7 @@ class ActionLogController extends Controller
             'actionLogs' => $this->actionLogService->getActionLogs(),
             'breadcrumbs' => [
                 'title' => __('Action Logs'),
-            ]
+            ],
         ]);
     }
 }

@@ -27,11 +27,11 @@ class UpdatePostRequest extends FormRequest
         if ($this->has('meta_keys')) {
             $metaKeys = $this->input('meta_keys', []);
             $sanitizedKeys = array_map(function ($key) {
-                return !empty($key) ? Str::slug($key, '_') : $key;
+                return ! empty($key) ? Str::slug($key, '_') : $key;
             }, $metaKeys);
-            
+
             $this->merge([
-                'meta_keys' => $sanitizedKeys
+                'meta_keys' => $sanitizedKeys,
             ]);
         }
     }
@@ -47,7 +47,7 @@ class UpdatePostRequest extends FormRequest
 
         return ld_apply_filters('post.update.validation.rules', [
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:posts,slug,' . $postId,
+            'slug' => 'nullable|string|max:255|unique:posts,slug,'.$postId,
             'content' => 'nullable|string',
             'excerpt' => 'nullable|string',
             'status' => 'required|in:draft,publish,pending,future,private',

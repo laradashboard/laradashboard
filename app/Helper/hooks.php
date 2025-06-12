@@ -26,12 +26,20 @@ function ld_add_action(string $hookName, $callback, $priority = 20, $args = 1)
  *
  * @see https://github.com/tormjens/eventy
  *
- * @param  mixed  $args
+ * @param  string  $hookName
+ * @param  mixed  ...$args
  * @return void
  */
-function ld_do_action(string $hookName, $args = null)
+function ld_do_action(string $hookName, ...$args): void
 {
-    Eventy::action($hookName, $args);
+    if (count($args) === 0) {
+        Eventy::action($hookName);
+    } elseif (count($args) === 1) {
+        Eventy::action($hookName, $args[0]);
+    } else {
+        // Handle multiple arguments by passing them as an array
+        Eventy::action($hookName, $args);
+    }
 }
 
 /**

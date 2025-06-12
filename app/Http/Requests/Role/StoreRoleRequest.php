@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 namespace App\Http\Requests\Role;
-use App\Http\Requests\FormRequest;
 
+use App\Http\Requests\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
 class StoreRoleRequest extends FormRequest

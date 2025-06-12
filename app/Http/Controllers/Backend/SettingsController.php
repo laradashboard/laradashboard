@@ -20,6 +20,7 @@ class SettingsController extends Controller
         private readonly EnvWriter $envWriter,
         private readonly CacheService $cacheService
     ) {
+        // The cacheService is used in the EnvWriter for cache clearing operations
     }
 
     public function index($tab = null): Renderable
@@ -28,7 +29,7 @@ class SettingsController extends Controller
 
         $tab = $tab ?? request()->input('tab', 'general');
 
-        return view('backend.pages.settings.index', compact("tab"))
+        return view('backend.pages.settings.index', compact('tab'))
             ->with([
                 'breadcrumbs' => [
                     'title' => __('Settings'),

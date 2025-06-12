@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
 use App\Services\DemoAppService;
-use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 
@@ -38,8 +37,10 @@ class LoginController extends Controller
 
     /**
      * show login form for admin guard
+     *
+     * @return \Illuminate\Contracts\Support\Renderable|\Illuminate\Http\RedirectResponse
      */
-    public function showLoginForm(): Renderable
+    public function showLoginForm()
     {
         if (Auth::guard('web')->check()) {
             return redirect()->route('admin.dashboard');
@@ -56,7 +57,7 @@ class LoginController extends Controller
     /**
      * Login admin.
      *
-     * @return void
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function login(LoginRequest $request)
     {
@@ -75,13 +76,14 @@ class LoginController extends Controller
         }
 
         session()->flash('error', __('auth.failed'));
+
         return back();
     }
 
     /**
      * logout admin guard
      *
-     * @return void
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function logout()
     {

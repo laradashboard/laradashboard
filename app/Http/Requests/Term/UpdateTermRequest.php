@@ -28,8 +28,8 @@ class UpdateTermRequest extends FormRequest
         $termId = $this->route('id');
 
         $rules = [
-            'name' => 'required|string|max:255|unique:terms,name,' . $termId,
-            'slug' => 'nullable|string|max:255|unique:terms,slug,' . $termId,
+            'name' => 'required|string|max:255|unique:terms,name,'.$termId,
+            'slug' => 'nullable|string|max:255|unique:terms,slug,'.$termId,
             'description' => 'nullable|string',
             'parent_id' => 'nullable|exists:terms,id',
         ];

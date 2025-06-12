@@ -5,18 +5,23 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    public function getUsers(array $filters = []): LengthAwarePaginator
+    /**
+     * Get users with filters
+     *
+     * @param array $filters
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getUsers(array $filters = [])
     {
         // Use the QueryBuilderTrait methods directly from the User model
-        return User::applyFilters($filters)
-            ->paginateData([
-                'per_page' => config('settings.default_pagination') ?? 10
-            ]);
+        $query = User::applyFilters($filters);
+        return $query->paginateData([
+            'per_page' => config('settings.default_pagination') ?? 10,
+        ]);
     }
 
     public function createUser(array $data): User

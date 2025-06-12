@@ -28,7 +28,7 @@ class PermissionsController extends Controller
             'permissions' => $this->permissionService->getPaginatedPermissionsWithRoleCount($search, intval($perPage)),
             'breadcrumbs' => [
                 'title' => __('Permissions'),
-            ]
+            ],
         ]);
     }
 
@@ -48,9 +48,9 @@ class PermissionsController extends Controller
                     [
                         'label' => __('Permissions'),
                         'url' => route('admin.permissions.index'),
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
     }
 }

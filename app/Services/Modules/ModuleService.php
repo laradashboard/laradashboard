@@ -16,6 +16,7 @@ use Nwidart\Modules\Module;
 class ModuleService
 {
     public string $modulesPath;
+
     public string $modulesStatusesPath;
 
     public function __construct()
@@ -34,7 +35,7 @@ class ModuleService
      */
     public function getModuleStatuses(): array
     {
-        if (!File::exists(path: $this->modulesStatusesPath)) {
+        if (! File::exists(path: $this->modulesStatusesPath)) {
             return [];
         }
 
@@ -49,15 +50,15 @@ class ModuleService
         $modules = [];
         $moduleStatuses = $this->getModuleStatuses();
 
-        if (!File::exists($this->modulesPath)) {
+        if (! File::exists($this->modulesPath)) {
             throw new ModuleException(__('Modules directory does not exist. Please ensure the "Modules" directory is present in the application root.'));
         }
 
         $moduleDirectories = File::directories($this->modulesPath);
 
         foreach ($moduleDirectories as $moduleDirectory) {
-            $moduleJsonPath = $moduleDirectory . '/module.json';
-            if (!File::exists($moduleJsonPath)) {
+            $moduleJsonPath = $moduleDirectory.'/module.json';
+            if (! File::exists($moduleJsonPath)) {
                 throw new ModuleException(__('Invalid module structure. Each module must have a module.json file.'));
             }
 
@@ -83,10 +84,10 @@ class ModuleService
         $filePath = $file->storeAs('modules', $file->getClientOriginalName());
 
         // Extract and install the module.
-        $modulePath = storage_path('app/' . $filePath);
-        $zip = new \ZipArchive;
+        $modulePath = storage_path('app/'.$filePath);
+        $zip = new \ZipArchive();
 
-        if (!$zip->open($modulePath)) {
+        if (! $zip->open($modulePath)) {
             throw new ModuleException(__('Module upload failed. The file may not be a valid zip archive.'));
         }
 
@@ -96,7 +97,7 @@ class ModuleService
 
         // Check valid module structure.
         $moduleName = str_replace('/', '', $moduleName);
-        if (!File::exists($this->modulesPath . '/' . $moduleName . '/module.json')) {
+        if (! File::exists($this->modulesPath.'/'.$moduleName.'/module.json')) {
             throw new ModuleException(__('Failed to find the module in the system. Please ensure the module has a valid module.json file.'));
         }
 
@@ -121,7 +122,7 @@ class ModuleService
             $callbackName = $enable ? 'module:enable' : 'module:disable';
             Artisan::call($callbackName, ['module' => $moduleName]);
         } catch (\Throwable $th) {
-            Log::error("Failed to toggle module {$moduleName}: " . $th->getMessage());
+            Log::error("Failed to toggle module {$moduleName}: ".$th->getMessage());
             throw new ModuleException(__('Failed to toggle module status. Please check the logs for more details.'));
         }
 
@@ -132,23 +133,23 @@ class ModuleService
     {
         $moduleStatuses = $this->getModuleStatuses();
 
-        if (!isset($moduleStatuses[$moduleName]) && !File::exists($this->modulesPath . '/' . $moduleName)) {
+        if (! isset($moduleStatuses[$moduleName]) && ! File::exists($this->modulesPath.'/'.$moduleName)) {
             throw new ModuleException(__('Module not found.'));
         }
 
         // Just enable it first so that it would be in the getModuleStatuses()
-        if (!isset($moduleStatuses[$moduleName])) {
+        if (! isset($moduleStatuses[$moduleName])) {
             Artisan::call('module:enable', ['module' => $moduleName]);
             $moduleStatuses = $this->getModuleStatuses();
         }
 
         // Toggle the status.
-        $moduleStatuses[$moduleName] = !$moduleStatuses[$moduleName];
+        $moduleStatuses[$moduleName] = ! $moduleStatuses[$moduleName];
 
         // Save the updated statuses.
         File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
 
-        $this->toggleModule($moduleName, !empty($moduleStatuses[$moduleName]));
+        $this->toggleModule($moduleName, ! empty($moduleStatuses[$moduleName]));
 
         return $moduleStatuses[$moduleName];
     }
@@ -157,7 +158,7 @@ class ModuleService
     {
         $module = $this->findModuleByName($moduleName);
 
-        if (!$module) {
+        if (! $module) {
             throw new ModuleException(__('Module not found.'), Response::HTTP_NOT_FOUND);
         }
 
@@ -165,9 +166,9 @@ class ModuleService
         Artisan::call('module:disable', ['module' => $module->getName()]);
 
         // Remove the module files.
-        $modulePath = base_path('Modules/' . $module->getName());
+        $modulePath = base_path('Modules/'.$module->getName());
 
-        if (!is_dir($modulePath)) {
+        if (! is_dir($modulePath)) {
             throw new ModuleException(__('Module directory does not exist. Please ensure the module is installed correctly.'));
         }
 

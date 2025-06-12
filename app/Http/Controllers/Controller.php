@@ -13,5 +13,9 @@ use Illuminate\Routing\Controller as BaseController;
 
 class Controller extends BaseController
 {
-    use AuthorizationChecker, AuthorizesRequests, DispatchesJobs, HasActionLogTrait, ValidatesRequests;
+    use AuthorizationChecker;
+    use AuthorizesRequests;
+    use DispatchesJobs;
+    use HasActionLogTrait;
+    use ValidatesRequests;
 }

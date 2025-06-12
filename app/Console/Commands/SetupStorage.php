@@ -50,7 +50,7 @@ class SetupStorage extends Command
         }
 
         $this->info('Storage setup completed successfully!');
-        
+
         return Command::SUCCESS;
     }
 }

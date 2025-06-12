@@ -4,8 +4,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Pulse\Support\PulseMigration;
 
-return new class extends PulseMigration
-{
+return new class () extends PulseMigration {
     /**
      * Run the migrations.
      */
@@ -24,6 +23,8 @@ return new class extends PulseMigration
                 'mariadb', 'mysql' => $table->char('key_hash', 16)->charset('binary')->virtualAs('unhex(md5(`key`))'),
                 'pgsql' => $table->uuid('key_hash')->storedAs('md5("key")::uuid'),
                 'sqlite' => $table->string('key_hash'),
+                'sqlsrv' => $table->string('key_hash'),
+                default => $table->string('key_hash'), // Default case for any other database driver
             };
             $table->mediumText('value');
 
@@ -41,6 +42,8 @@ return new class extends PulseMigration
                 'mariadb', 'mysql' => $table->char('key_hash', 16)->charset('binary')->virtualAs('unhex(md5(`key`))'),
                 'pgsql' => $table->uuid('key_hash')->storedAs('md5("key")::uuid'),
                 'sqlite' => $table->string('key_hash'),
+                'sqlsrv' => $table->string('key_hash'),
+                default => $table->string('key_hash'), // Default case for any other database driver
             };
             $table->bigInteger('value')->nullable();
 
@@ -60,6 +63,8 @@ return new class extends PulseMigration
                 'mariadb', 'mysql' => $table->char('key_hash', 16)->charset('binary')->virtualAs('unhex(md5(`key`))'),
                 'pgsql' => $table->uuid('key_hash')->storedAs('md5("key")::uuid'),
                 'sqlite' => $table->string('key_hash'),
+                'sqlsrv' => $table->string('key_hash'),
+                default => $table->string('key_hash'), // Default case for any other database driver
             };
             $table->string('aggregate');
             $table->decimal('value', 20, 2);

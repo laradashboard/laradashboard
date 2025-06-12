@@ -1,0 +1,78 @@
+name: LaraDashboard CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -ppassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, dom, fileinfo, mysql
+          coverage: xdebug
+
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Update .env for CI
+        run: |
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=testing" >> .env
+          echo "DB_USERNAME=root" >> .env
+          echo "DB_PASSWORD=password" >> .env
+          echo "APP_ENV=testing" >> .env
+          echo "SKIP_DB_CHECK_IN_CI=true" >> .env
+
+      - name: Wait for MySQL to be ready
+        run: |
+          echo "Waiting for MySQL..."
+          until mysqladmin ping -h 127.0.0.1 -u root -ppassword --silent; do
+            sleep 2
+          done
+
+      - name: Install Dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Install NPM Dependencies
+        run: npm install
+
+      - name: Build Assets
+        run: npm run build
+
+      - name: Generate Application Key
+        run: php artisan key:generate
+
+      - name: Set Directory Permissions
+        run: chmod -R 777 storage bootstrap/cache
+
+      - name: Run Migrations and Seed
+        run: php artisan migrate:fresh --seed --force
+
+      - name: Run Tests
+        run: composer run test

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Backend\Auth\ForgotPasswordController;
 use App\Http\Controllers\Backend\Auth\LoginController;
 use App\Http\Controllers\Backend\Auth\ResetPasswordController;
+
 /*
 |--------------------------------------------------------------------------
 | Auth Routes

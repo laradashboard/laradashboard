@@ -28,8 +28,8 @@ class UpdateUserRequest extends FormRequest
 
         return ld_apply_filters('user.update.validation.rules', [
             'name' => 'required|max:50',
-            'email' => 'required|max:100|email|unique:users,email,' . $userId,
-            'username' => 'required|max:100|unique:users,username,' . $userId,
+            'email' => 'required|max:100|email|unique:users,email,'.$userId,
+            'username' => 'required|max:100|unique:users,username,'.$userId,
             'password' => $userId ? 'nullable|min:6|confirmed' : 'required|min:6|confirmed',
         ], $userId);
     }

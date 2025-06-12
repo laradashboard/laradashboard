@@ -6,14 +6,12 @@ namespace App\Services;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Spatie\Permission\Models\Permission;
+use App\Models\Permission;
 
 class PermissionService
 {
     /**
      * Get all permissions organized by groups
-     * 
-     * @return array
      */
     public function getAllPermissions(): array
     {
@@ -114,9 +112,6 @@ class PermissionService
 
     /**
      * Get a specific set of permissions by group name
-     * 
-     * @param string $groupName
-     * @return array|null
      */
     public function getPermissionsByGroup(string $groupName): ?array
     {
@@ -133,8 +128,6 @@ class PermissionService
 
     /**
      * Get all permission group names
-     * 
-     * @return array
      */
     public function getPermissionGroups(): array
     {
@@ -145,22 +138,17 @@ class PermissionService
 
         return $groups;
     }
-    
+
     /**
      * Get all permission models from database
-     *
-     * @return Collection
      */
     public function getAllPermissionModels(): Collection
     {
         return Permission::all();
     }
-    
+
     /**
      * Get permissions by group name from database
-     *
-     * @param string $group_name
-     * @return Collection
      */
     public function getPermissionModelsByGroup(string $group_name): Collection
     {
@@ -168,11 +156,9 @@ class PermissionService
             ->where('group_name', $group_name)
             ->get();
     }
-    
+
     /**
      * Get permission groups from database
-     *
-     * @return Collection
      */
     public function getDatabasePermissionGroups(): Collection
     {
@@ -180,35 +166,31 @@ class PermissionService
             ->groupBy('group_name')
             ->get();
     }
-    
+
     /**
      * Create all permissions from the definitions
-     * 
+     *
      * @return array Created permissions
      */
     public function createPermissions(): array
     {
         $createdPermissions = [];
         $permissions = $this->getAllPermissions();
-        
+
         foreach ($permissions as $permissionGroup) {
             $groupName = $permissionGroup['group_name'];
-            
+
             foreach ($permissionGroup['permissions'] as $permissionName) {
                 $permission = $this->findOrCreatePermission($permissionName, $groupName);
                 $createdPermissions[] = $permission;
             }
         }
-        
+
         return $createdPermissions;
     }
-    
+
     /**
      * Find or create a permission
-     * 
-     * @param string $name
-     * @param string $groupName
-     * @return Permission
      */
     public function findOrCreatePermission(string $name, string $groupName): Permission
     {
@@ -221,12 +203,9 @@ class PermissionService
             ]
         );
     }
-    
+
     /**
      * Get all permission objects by their names
-     * 
-     * @param array $permissionNames
-     * @return array
      */
     public function getPermissionsByNames(array $permissionNames): array
     {
@@ -235,53 +214,53 @@ class PermissionService
 
     /**
      * Get paginated permissions with role count
-     *
-     * @param string|null $search
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
-    public function getPaginatedPermissionsWithRoleCount(string $search = null, ?int $perPage): LengthAwarePaginator
+    public function getPaginatedPermissionsWithRoleCount(?string $search, ?int $perPage): LengthAwarePaginator
     {
         // Check if we're sorting by role count
         $sort = request()->query('sort');
         $isRoleCountSort = ($sort === 'role_count' || $sort === '-role_count');
-        
+
         // For role count sorting, we need to handle it separately
         if ($isRoleCountSort) {
             // Get all permissions matching the search criteria without any sorting
             $query = \App\Models\Permission::query();
-            
+
             if ($search) {
-                $query->where(function($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%')
-                      ->orWhere('group_name', 'like', '%' . $search . '%');
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('group_name', 'like', '%'.$search.'%');
                 });
             }
-            
+
             $allPermissions = $query->get();
-            
+
             // Add role count to each permission
             foreach ($allPermissions as $permission) {
                 $roles = $permission->roles()->get();
-                $permission->role_count = $roles->count();
-                $permission->roles_list = $roles->pluck('name')->take(5)->implode(', ');
-                
-                if ($permission->role_count > 5) {
-                    $permission->roles_list .= ', ...';
+                $roleCount = $roles->count();
+                $rolesList = $roles->pluck('name')->take(5)->implode(', ');
+
+                if ($roleCount > 5) {
+                    $rolesList .= ', ...';
                 }
+
+                // Use dynamic properties instead of undefined properties
+                $permission->setAttribute('role_count', $roleCount);
+                $permission->setAttribute('roles_list', $rolesList);
             }
-            
+
             // Sort the collection by role_count
             $direction = $sort === 'role_count' ? 'asc' : 'desc';
-            $sortedPermissions = $direction === 'asc' 
-                ? $allPermissions->sortBy('role_count') 
+            $sortedPermissions = $direction === 'asc'
+                ? $allPermissions->sortBy('role_count')
                 : $allPermissions->sortByDesc('role_count');
-            
+
             // Manually paginate the collection
             $page = request()->get('page', 1);
             $offset = ($page - 1) * ($perPage ?? config('settings.default_pagination'));
             $perPageValue = $perPage ?? config('settings.default_pagination');
-            
+
             $paginatedPermissions = new \Illuminate\Pagination\LengthAwarePaginator(
                 $sortedPermissions->slice($offset, $perPageValue)->values(),
                 $sortedPermissions->count(),
@@ -289,29 +268,33 @@ class PermissionService
                 $page,
                 ['path' => request()->url(), 'query' => request()->query()]
             );
-            
+
             return $paginatedPermissions;
         }
-        
+
         // For normal sorting by database columns
         $filters = [
             'search' => $search,
             'sort_field' => 'name',
-            'sort_direction' => 'asc'
+            'sort_direction' => 'asc',
         ];
-        
-        $permissions = \App\Models\Permission::applyFilters($filters)
-            ->paginateData(['per_page' => $perPage ?? config('settings.default_pagination')]);
+
+        $query = \App\Models\Permission::applyFilters($filters);
+        $permissions = $query->paginateData(['per_page' => $perPage ?? config('settings.default_pagination')]);
 
         // Add role count and roles information to each permission.
-        foreach ($permissions as $permission) {
+        foreach ($permissions->items() as $permission) {
             $roles = $permission->roles()->get();
-            $permission->role_count = $roles->count();
-            $permission->roles_list = $roles->pluck('name')->take(5)->implode(', ');
-            
-            if ($permission->role_count > 5) {
-                $permission->roles_list .= ', ...';
+            $roleCount = $roles->count();
+            $rolesList = $roles->pluck('name')->take(5)->implode(', ');
+
+            if ($roleCount > 5) {
+                $rolesList .= ', ...';
             }
+
+            // Use dynamic properties instead of undefined properties
+            $permission->setAttribute('role_count', $roleCount);
+            $permission->setAttribute('roles_list', $rolesList);
         }
 
         return $permissions;
@@ -319,9 +302,6 @@ class PermissionService
 
     /**
      * Get roles for permission
-     * 
-     * @param Permission $permission
-     * @return Collection
      */
     public function getRolesForPermission(Permission $permission): Collection
     {

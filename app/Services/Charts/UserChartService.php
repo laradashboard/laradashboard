@@ -38,8 +38,6 @@ class UserChartService extends ChartService
 
     /**
      * Get user history data for the pie chart
-     *
-     * @return array
      */
     public function getUserHistoryData(): array
     {

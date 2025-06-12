@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Backend\ActionLogController;
 use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\LocaleController;
 use App\Http\Controllers\Backend\ModulesController;
 use App\Http\Controllers\Backend\PermissionsController;
-use App\Http\Controllers\Backend\RolesController;
-use App\Http\Controllers\Backend\UsersController;
-use App\Http\Controllers\Backend\SettingsController;
+use App\Http\Controllers\Backend\PostsController;
 use App\Http\Controllers\Backend\ProfilesController;
+use App\Http\Controllers\Backend\RolesController;
+use App\Http\Controllers\Backend\SettingsController;
+use App\Http\Controllers\Backend\TermsController;
 use App\Http\Controllers\Backend\TranslationController;
 use App\Http\Controllers\Backend\UserLoginAsController;
-use App\Http\Controllers\Backend\LocaleController;
-use App\Http\Controllers\Backend\PostsController;
-use App\Http\Controllers\Backend\TermsController;
+use App\Http\Controllers\Backend\UsersController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,7 +38,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('roles', RolesController::class);
     Route::delete('roles/delete/bulk-delete', [RolesController::class, 'bulkDelete'])->name('roles.bulk-delete');
-    
+
     // Permissions Routes.
     Route::get('/permissions', [PermissionsController::class, 'index'])->name('permissions.index');
     Route::get('/permissions/{id}', [PermissionsController::class, 'show'])->name('permissions.show');
@@ -66,9 +66,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
 
     // Action Log Routes.
     Route::get('/action-log', [ActionLogController::class, 'index'])->name('actionlog.index');
-    
+
     // Content Management Routes
-    
+
     // Posts/Pages Routes - Dynamic post types
     Route::get('/posts/{postType?}', [PostsController::class, 'index'])->name('posts.index');
     Route::get('/posts/{postType}/create', [PostsController::class, 'create'])->name('posts.create');
@@ -78,7 +78,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::put('/posts/{postType}/{id}', [PostsController::class, 'update'])->name('posts.update');
     Route::delete('/posts/{postType}/{id}', [PostsController::class, 'destroy'])->name('posts.destroy');
     Route::delete('/posts/{postType}/delete/bulk-delete', [PostsController::class, 'bulkDelete'])->name('posts.bulk-delete');
-    
+
     // Terms Routes (Categories, Tags, etc.)
     Route::get('/terms/{taxonomy}', [TermsController::class, 'index'])->name('terms.index');
     Route::get('/terms/{taxonomy}/{term}/edit', [TermsController::class, 'edit'])->name('terms.edit');

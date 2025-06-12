@@ -11,15 +11,15 @@ class Taxonomy extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 
-        'label', 
-        'label_singular', 
-        'description', 
-        'public', 
-        'hierarchical', 
-        'show_in_menu', 
+        'name',
+        'label',
+        'label_singular',
+        'description',
+        'public',
+        'hierarchical',
+        'show_in_menu',
         'show_featured_image',
-        'post_types'
+        'post_types',
     ];
 
     protected $casts = [
@@ -27,7 +27,7 @@ class Taxonomy extends Model
         'hierarchical' => 'boolean',
         'show_in_menu' => 'boolean',
         'show_featured_image' => 'boolean',
-        'post_types' => 'array'
+        'post_types' => 'array',
     ];
 
     /**

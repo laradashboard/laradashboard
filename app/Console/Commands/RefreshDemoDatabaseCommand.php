@@ -24,7 +24,6 @@ class RefreshDemoDatabaseCommand extends Command
     /**
      * Create a new command instance.
      *
-     * @param DemoAppService $demoAppService
      * @return void
      */
     public function __construct(private readonly DemoAppService $demoAppService)
@@ -39,8 +38,9 @@ class RefreshDemoDatabaseCommand extends Command
      */
     public function handle()
     {
-        if (!$this->demoAppService->isDemoAppEnabled()) {
+        if (! $this->demoAppService->isDemoAppEnabled()) {
             $this->info('Demo mode is not enabled. Skipping database refresh.');
+
             return 0;
         }
 
@@ -52,10 +52,11 @@ class RefreshDemoDatabaseCommand extends Command
         // Run module:seed with --all to seed all modules and --force to suppress confirmation prompts.
         $this->call('module:seed', [
             '--all' => true,
-            '--force' => true
+            '--force' => true,
         ]);
 
         $this->info('Database refreshed successfully!');
+
         return 0;
     }
 }

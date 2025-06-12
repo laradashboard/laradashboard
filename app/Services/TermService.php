@@ -7,7 +7,6 @@ namespace App\Services;
 use App\Models\Term;
 use App\Services\Content\ContentService;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -20,21 +19,24 @@ class TermService
 
     /**
      * Get terms with filters.
+     *
+     * @param array $filters
+     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getTerms(array $filters = []): LengthAwarePaginator
+    public function getTerms(array $filters = [])
     {
         // Set default taxonomy if not provided.
-        if (!isset($filters['taxonomy'])) {
+        if (! isset($filters['taxonomy'])) {
             $filters['taxonomy'] = 'category';
         }
 
         // Create base query with taxonomy filter.
         $query = Term::where('taxonomy', $filters['taxonomy']);
+        $query = $query->applyFilters($filters);
 
-        return $query->applyFilters($filters)
-            ->paginateData([
-                'per_page' => config('settings.default_pagination') ?? 20
-            ]);
+        return $query->paginateData([
+            'per_page' => config('settings.default_pagination') ?? 20,
+        ]);
     }
 
     /**
@@ -60,7 +62,6 @@ class TermService
             ->orderBy('name', 'asc')
             ->get();
     }
-
 
     /**
      * Get taxonomy model by name.
@@ -98,9 +99,14 @@ class TermService
     public function updateTerm(Term $term, array $data): Term
     {
         $term->name = $data['name'];
-        if ($term->slug !== $data['slug'] ?? '') {
-            $term->slug = $term->generateSlugFromString($data['slug'] ?? $data['name'] ?? '', $term->id);
+
+        // Generate slug if needed
+        $slug = $data['slug'] ?? '';
+        if ($term->slug !== $slug) {
+            $slugSource = !empty($slug) ? $slug : $data['name'];
+            $term->slug = $term->generateSlugFromString($slugSource, $term->getKey());
         }
+
         $term->description = $data['description'] ?? null;
         $term->parent_id = $data['parent_id'] ?? null;
 

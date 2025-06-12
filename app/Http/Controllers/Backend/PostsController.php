@@ -35,7 +35,7 @@ class PostsController extends Controller
         // Get post type.
         $postTypeModel = $this->contentService->getPostType($postType);
 
-        if (!$postTypeModel) {
+        if (! $postTypeModel) {
             return redirect()->route('admin.posts.index')->with('error', 'Post type not found');
         }
 
@@ -45,7 +45,7 @@ class PostsController extends Controller
             'search' => $request->search,
             'status' => $request->status,
             'category' => $request->category,
-            'tag' => $request->tag
+            'tag' => $request->tag,
         ];
 
         // Get posts with pagination using service.
@@ -59,7 +59,7 @@ class PostsController extends Controller
             ->with([
                 'breadcrumbs' => [
                     'title' => $postTypeModel->label,
-                ]
+                ],
             ]);
     }
 
@@ -70,13 +70,13 @@ class PostsController extends Controller
         // Get post type.
         $postTypeModel = $this->contentService->getPostType($postType);
 
-        if (!$postTypeModel) {
+        if (! $postTypeModel) {
             return redirect()->route('admin.posts.index')->with('error', 'Post type not found');
         }
 
         // Get taxonomies.
         $taxonomies = [];
-        if (!empty($postTypeModel->taxonomies)) {
+        if (! empty($postTypeModel->taxonomies)) {
             $taxonomies = $this->contentService->getTaxonomies()
                 ->whereIn('name', $postTypeModel->taxonomies)
                 ->all();
@@ -98,9 +98,9 @@ class PostsController extends Controller
                         [
                             'label' => $postTypeModel->label,
                             'url' => route('admin.posts.index', $postType),
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ]);
     }
 
@@ -109,7 +109,7 @@ class PostsController extends Controller
         // Get post type.
         $postTypeModel = $this->contentService->getPostType($postType);
 
-        if (!$postTypeModel) {
+        if (! $postTypeModel) {
             return redirect()->route('admin.posts.index')->with('error', 'Post type not found');
         }
 
@@ -130,10 +130,10 @@ class PostsController extends Controller
         }
 
         // Handle publish date
-        if ($request->has('schedule_post') && $request->schedule_post && !empty($request->published_at)) {
+        if ($request->has('schedule_post') && $request->schedule_post && ! empty($request->published_at)) {
             $post->status = 'future';
             $post->published_at = Carbon::parse($request->published_at);
-        } elseif ($request->status === 'future' && !empty($request->published_at)) {
+        } elseif ($request->status === 'future' && ! empty($request->published_at)) {
             $post->published_at = Carbon::parse($request->published_at);
         } elseif ($request->status === 'publish') {
             $post->published_at = now();
@@ -173,9 +173,9 @@ class PostsController extends Controller
                         [
                             'label' => $postTypeModel->label,
                             'url' => route('admin.posts.index', $postType),
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ]);
     }
 
@@ -191,13 +191,13 @@ class PostsController extends Controller
         // Get post type
         $postTypeModel = $this->contentService->getPostType($postType);
 
-        if (!$postTypeModel) {
+        if (! $postTypeModel) {
             return redirect()->route('admin.posts.index')->with('error', 'Post type not found');
         }
 
         // Get taxonomies
         $taxonomies = [];
-        if (!empty($postTypeModel->taxonomies)) {
+        if (! empty($postTypeModel->taxonomies)) {
             $taxonomies = $this->contentService->getTaxonomies()
                 ->whereIn('name', $postTypeModel->taxonomies)
                 ->all();
@@ -215,10 +215,13 @@ class PostsController extends Controller
         // Get selected terms
         $selectedTerms = [];
         foreach ($post->terms as $term) {
-            if (!isset($selectedTerms[$term->taxonomy])) {
-                $selectedTerms[$term->taxonomy] = [];
+            $taxonomyName = $term->getAttribute('taxonomy');
+            if ($taxonomyName && !isset($selectedTerms[$taxonomyName])) {
+                $selectedTerms[$taxonomyName] = [];
             }
-            $selectedTerms[$term->taxonomy][] = $term->id;
+            if ($taxonomyName) {
+                $selectedTerms[$taxonomyName][] = $term->id;
+            }
         }
 
         return view('backend.pages.posts.edit', compact('post', 'postType', 'postTypeModel', 'taxonomies', 'parentPosts', 'selectedTerms'))
@@ -229,9 +232,9 @@ class PostsController extends Controller
                         [
                             'label' => $postTypeModel->label,
                             'url' => route('admin.posts.index', $postType),
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ]);
     }
 
@@ -256,25 +259,25 @@ class PostsController extends Controller
         // Handle featured image.
         if ($request->hasFile('featured_image')) {
             // Delete old image if exists.
-            if (!empty($post->featured_image)) {
+            if (! empty($post->featured_image)) {
                 deleteImageFromPublic($post->featured_image);
             }
             $post->featured_image = storeImageAndGetUrl($request, 'featured_image', 'uploads/posts');
         } elseif ($request->has('remove_featured_image') && $request->remove_featured_image) {
             // Delete image if remove is checked.
-            if (!empty($post->featured_image)) {
+            if (! empty($post->featured_image)) {
                 deleteImageFromPublic($post->featured_image);
                 $post->featured_image = null;
             }
         }
 
         // Handle publish date.
-        if ($request->has('schedule_post') && $request->schedule_post && !empty($request->published_at)) {
+        if ($request->has('schedule_post') && $request->schedule_post && ! empty($request->published_at)) {
             $post->status = 'future';
             $post->published_at = \Carbon\Carbon::parse($request->published_at);
-        } elseif ($request->status === 'future' && !empty($request->published_at)) {
+        } elseif ($request->status === 'future' && ! empty($request->published_at)) {
             $post->published_at = \Carbon\Carbon::parse($request->published_at);
-        } elseif ($request->status === 'publish' && !$post->published_at) {
+        } elseif ($request->status === 'publish' && ! $post->published_at) {
             $post->published_at = now();
         }
 
@@ -302,7 +305,7 @@ class PostsController extends Controller
         $post = Post::where('post_type', $postType)->findOrFail($id);
 
         // Delete featured image if exists
-        if (!empty($post->featured_image)) {
+        if (! empty($post->featured_image)) {
             deleteImageFromPublic($post->featured_image);
         }
 
@@ -332,7 +335,7 @@ class PostsController extends Controller
 
         foreach ($posts as $post) {
             // Delete featured image if exists.
-            if (!empty($post->featured_image)) {
+            if (! empty($post->featured_image)) {
                 deleteImageFromPublic($post->featured_image);
             }
 
@@ -355,14 +358,14 @@ class PostsController extends Controller
         // Get current post type.
         $postTypeModel = $this->contentService->getPostType($post->post_type);
 
-        if (!$postTypeModel || empty($postTypeModel->taxonomies)) {
+        if (! $postTypeModel || empty($postTypeModel->taxonomies)) {
             return;
         }
 
         // Initialize empty arrays for each taxonomy.
         $termIds = [];
         foreach ($postTypeModel->taxonomies as $taxonomy) {
-            $termKey = 'taxonomy_' . $taxonomy;
+            $termKey = 'taxonomy_'.$taxonomy;
             if ($request->has($termKey)) {
                 $taxonomyTerms = $request->input($termKey);
                 if (is_array($taxonomyTerms)) {
@@ -389,7 +392,7 @@ class PostsController extends Controller
 
         // Add new meta.
         foreach ($metaKeys as $index => $key) {
-            if (!empty($key) && isset($metaValues[$index])) {
+            if (! empty($key) && isset($metaValues[$index])) {
                 $this->postMetaService->setMeta(
                     $post->id,
                     $key,

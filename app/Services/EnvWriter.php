@@ -27,8 +27,8 @@ class EnvWriter
         $file = preg_replace("/^$key=.*/m", "$key=$formattedValue", $file);
 
         // If the key doesn't exist, append it
-        if (!preg_match("/^$key=/m", $file)) {
-            $file .= PHP_EOL . "$key=$formattedValue";
+        if (! preg_match("/^$key=/m", $file)) {
+            $file .= PHP_EOL."$key=$formattedValue";
         }
 
         // Use file locking to prevent race conditions
@@ -47,6 +47,7 @@ class EnvWriter
         $path = base_path('.env');
         $file = file_get_contents($path);
         preg_match("/^$key=(.*)/m", $file, $matches);
+
         return isset($matches[1]) ? trim($matches[1]) : null;
     }
 
@@ -103,8 +104,8 @@ class EnvWriter
                     $formattedValue = "\"$value\"";
                     $file = preg_replace("/^$envKey=.*/m", "$envKey=$formattedValue", $file);
 
-                    if (!preg_match("/^$envKey=/m", $file)) {
-                        $file .= PHP_EOL . "$envKey=$formattedValue";
+                    if (! preg_match("/^$envKey=/m", $file)) {
+                        $file .= PHP_EOL."$envKey=$formattedValue";
                     }
 
                     $changesMade = true;

@@ -15,7 +15,7 @@ class Setting extends Model
         'option_value',
         'autoload',
     ];
-    
+
     /**
      * The "booted" method of the model.
      *
@@ -27,7 +27,7 @@ class Setting extends Model
             // Clear config cache when a setting is saved
             Artisan::call('config:clear');
         });
-        
+
         static::deleted(function ($setting) {
             // Clear config cache when a setting is deleted
             Artisan::call('config:clear');

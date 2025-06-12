@@ -92,7 +92,7 @@ class TranslationController extends Controller
         // Create language file and handle errors
         $result = $this->translationService->createLanguageFile($lang, $group);
 
-        if (!$result) {
+        if (! $result) {
             return redirect()
                 ->route('admin.translations.index', ['lang' => $lang, 'group' => $group])
                 ->with('error', "Translation file for {$lang} already exists.");
@@ -139,7 +139,7 @@ class TranslationController extends Controller
 
         $this->storeActionLog(ActionType::UPDATED, [
             'translations' => "Updated {$languageName} translations for group '{$group}'",
-            'count' => $translationCount
+            'count' => $translationCount,
         ]);
 
         return redirect()

@@ -13,10 +13,10 @@ trait HasActionLogTrait
     public function storeActionLog(ActionType $type, array $data, ?string $title = null): ?ActionLog
     {
         try {
-            if (!$title) {
+            if (! $title) {
                 $dataKey = key($data); // Get the first key of the data array
                 $name = Auth::user()->username ?? 'Unknown'; // Get the authenticated user's username, fallback to 'Unknown'
-                $title = ucfirst($dataKey) . ' ' . $type->value . ' by ' . $name;
+                $title = ucfirst($dataKey).' '.$type->value.' by '.$name;
             }
 
             $actionLog = ActionLog::create([

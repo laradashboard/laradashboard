@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 
 class StorePostRequest extends FormRequest
 {
-
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -28,11 +27,11 @@ class StorePostRequest extends FormRequest
         if ($this->has('meta_keys')) {
             $metaKeys = $this->input('meta_keys', []);
             $sanitizedKeys = array_map(function ($key) {
-                return !empty($key) ? Str::slug($key, '_') : $key;
+                return ! empty($key) ? Str::slug($key, '_') : $key;
             }, $metaKeys);
 
             $this->merge([
-                'meta_keys' => $sanitizedKeys
+                'meta_keys' => $sanitizedKeys,
             ]);
         }
     }

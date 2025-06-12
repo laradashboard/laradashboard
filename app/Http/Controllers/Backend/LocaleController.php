@@ -19,6 +19,7 @@ class LocaleController extends Controller
         Artisan::call('cache:clear');
 
         session()->flash('success', 'Language changed successfully!');
+
         return redirect()->back();
     }
 }

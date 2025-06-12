@@ -25,12 +25,12 @@ class RolesService
         return Role::pluck('name', 'id')->toArray();
     }
 
-    public function getPaginatedRoles(string $search = null, int $perPage = 10): LengthAwarePaginator
+    public function getPaginatedRoles(?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
         $query = Role::query();
 
         if ($search) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'like', '%'.$search.'%');
         }
 
         return $query->paginate($perPage);
@@ -45,9 +45,6 @@ class RolesService
 
     /**
      * Get permissions by group
-     * 
-     * @param string $groupName
-     * @return array|null
      */
     public function getPermissionsByGroup(string $groupName): ?array
     {
@@ -57,7 +54,7 @@ class RolesService
     public function roleHasPermissions(Role $role, $permissions): bool
     {
         foreach ($permissions as $permission) {
-            if (!$role->hasPermissionTo($permission->name)) {
+            if (! $role->hasPermissionTo($permission->name)) {
                 return false;
             }
         }
@@ -65,20 +62,35 @@ class RolesService
         return true;
     }
 
-    public function createRole(string $name, array $permissions = []): Role
+    /**
+     * Create a new role with permissions
+     *
+     * @param string $name
+     * @param array $permissions
+     * @return \Spatie\Permission\Models\Role
+     */
+    public function createRole(string $name, array $permissions = []): \Spatie\Permission\Models\Role
     {
+        /** @var \Spatie\Permission\Models\Role $role */
         $role = Role::create(['name' => $name, 'guard_name' => 'web']);
 
-        if (!empty($permissions)) {
+        if (! empty($permissions)) {
             $role->syncPermissions($permissions);
         }
 
         return $role;
     }
 
-    public function findRoleById(int $id): ?Role
+    /**
+     * Find a role by ID
+     *
+     * @param int $id
+     * @return \Spatie\Permission\Models\Role|null
+     */
+    public function findRoleById(int $id): ?\Spatie\Permission\Models\Role
     {
-        return Role::findById($id);
+        $role = Role::findById($id);
+        return $role instanceof \Spatie\Permission\Models\Role ? $role : null;
     }
 
     public function updateRole(Role $role, string $name, array $permissions = []): Role
@@ -86,7 +98,7 @@ class RolesService
         $role->name = $name;
         $role->save();
 
-        if (!empty($permissions)) {
+        if (! empty($permissions)) {
             $role->syncPermissions($permissions);
         }
 
@@ -100,15 +112,14 @@ class RolesService
 
     /**
      * Count users in a specific role
-     * 
-     * @param Role|string $role
-     * @return int
+     *
+     * @param  Role|string  $role
      */
     public function countUsersInRole($role): int
     {
         if (is_string($role)) {
             $role = Role::where('name', $role)->first();
-            if (!$role) {
+            if (! $role) {
                 return 0;
             }
         }
@@ -118,43 +129,40 @@ class RolesService
 
     /**
      * Get roles with user counts
-     * 
-     * @param string|null $search
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
-    public function getPaginatedRolesWithUserCount(string $search = null, int $perPage = 10): LengthAwarePaginator
+    public function getPaginatedRolesWithUserCount(?string $search = null, int $perPage = 10): LengthAwarePaginator
     {
         // Check if we're sorting by user count
         $sort = request()->query('sort');
         $isUserCountSort = ($sort === 'user_count' || $sort === '-user_count');
-        
+
         // For user count sorting, we need to handle it separately
         if ($isUserCountSort) {
             // Get all roles matching the search criteria without any sorting
             $query = \App\Models\Role::query();
-            
+
             if ($search) {
-                $query->where('name', 'like', '%' . $search . '%');
+                $query->where('name', 'like', '%'.$search.'%');
             }
-            
+
             $allRoles = $query->get();
-            
+
             // Add user count to each role
             foreach ($allRoles as $role) {
-                $role->user_count = $this->countUsersInRole($role);
+                $userCount = $this->countUsersInRole($role);
+                $role->setAttribute('user_count', $userCount);
             }
-            
+
             // Sort the collection by user_count
             $direction = $sort === 'user_count' ? 'asc' : 'desc';
-            $sortedRoles = $direction === 'asc' 
-                ? $allRoles->sortBy('user_count') 
+            $sortedRoles = $direction === 'asc'
+                ? $allRoles->sortBy('user_count')
                 : $allRoles->sortByDesc('user_count');
-            
+
             // Manually paginate the collection
             $page = request()->get('page', 1);
             $offset = ($page - 1) * $perPage;
-            
+
             $paginatedRoles = new \Illuminate\Pagination\LengthAwarePaginator(
                 $sortedRoles->slice($offset, $perPage)->values(),
                 $sortedRoles->count(),
@@ -162,23 +170,24 @@ class RolesService
                 $page,
                 ['path' => request()->url(), 'query' => request()->query()]
             );
-            
+
             return $paginatedRoles;
         }
-        
+
         // For normal sorting by database columns
         $filters = [
             'search' => $search,
             'sort_field' => 'name',
-            'sort_direction' => 'asc'
+            'sort_direction' => 'asc',
         ];
-        
-        $roles = \App\Models\Role::applyFilters($filters)
-            ->paginateData(['per_page' => $perPage]);
+
+        $query = \App\Models\Role::applyFilters($filters);
+        $roles = $query->paginateData(['per_page' => $perPage]);
 
         // Add user count to each role
-        foreach ($roles as $role) {
-            $role->user_count = $this->countUsersInRole($role);
+        foreach ($roles->items() as $role) {
+            $userCount = $this->countUsersInRole($role);
+            $role->setAttribute('user_count', $userCount);
         }
 
         return $roles;
@@ -186,8 +195,6 @@ class RolesService
 
     /**
      * Create predefined roles with their permissions
-     * 
-     * @return array
      */
     public function createPredefinedRoles(): array
     {
@@ -244,9 +251,6 @@ class RolesService
 
     /**
      * Get a specific predefined role's permissions
-     * 
-     * @param string $roleName
-     * @return array
      */
     public function getPredefinedRolePermissions(string $roleName): array
     {
@@ -261,6 +265,7 @@ class RolesService
                         $allPermissionNames[] = $permission;
                     }
                 }
+
                 return $allPermissionNames;
 
             case 'admin':
@@ -274,6 +279,7 @@ class RolesService
                         $allPermissionNames[] = $permission;
                     }
                 }
+
                 return array_diff($allPermissionNames, $adminExcludedPermissions);
 
             case 'editor':

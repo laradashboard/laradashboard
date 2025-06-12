@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 namespace App\Http\Requests\Role;
-use App\Http\Requests\FormRequest;
 
+use App\Http\Requests\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
 class UpdateRoleRequest extends FormRequest
@@ -27,7 +27,7 @@ class UpdateRoleRequest extends FormRequest
         $roleId = $this->route('role');
 
         return ld_apply_filters('role.update.validation.rules', [
-            'name' => 'required|max:100|unique:roles,name,' . $roleId,
+            'name' => 'required|max:100|unique:roles,name,'.$roleId,
             'permissions' => 'required|array|min:1',
             'permissions.*' => 'string|exists:permissions,name',
         ], $roleId);

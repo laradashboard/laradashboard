@@ -42,6 +42,7 @@ class SettingService
                 'option_value' => $optionValue,
                 'autoload' => $autoload ?? $setting->autoload,
             ]);
+
             return true;
         }
 

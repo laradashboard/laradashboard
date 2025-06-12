@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 
 trait AuthorizationChecker
@@ -13,17 +14,17 @@ trait AuthorizationChecker
     /**
      * Check if the user is authorized to perform the action.
      *
-     * @param  Authenticatable  $user
+     * @param  Authenticatable|User  $user
      * @param  array|string  $permissions
-     * @param  bool $ownPermissionCheck
+     * @param  bool  $ownPermissionCheck
      */
     public function checkAuthorization($user, $permissions, $ownPermissionCheck = false): bool
     {
-        if (is_null($user) || !$user->can($permissions)) {
+        if (empty($user) || ! $user->can($permissions)) {
             abort(403, 'Sorry !! You are unauthorized to perform this action.');
         }
 
-        if ($ownPermissionCheck && $user->id !== auth()->user()->id) {
+        if ($ownPermissionCheck && $this->getUserId($user) !== Auth::id()) {
             abort(403, 'Sorry !! You are unauthorized to perform this action.');
         }
 
@@ -31,14 +32,35 @@ trait AuthorizationChecker
     }
 
     /**
+     * Get the user ID safely from any user object.
+     *
+     * @param  Authenticatable|User  $user
+     * @return int|string|null
+     */
+    protected function getUserId($user)
+    {
+        // For User model, access id directly
+        if ($user instanceof User) {
+            return $user->id;
+        }
+
+        // For other Authenticatable implementations, use getAuthIdentifier()
+        if ($user instanceof Authenticatable) {
+            return $user->getAuthIdentifier();
+        }
+
+        return null;
+    }
+
+    /**
      * Prevent modification of the super admin in demo mode.
      *
      * @param  User  $user
-     * @param  string|array $additionalPermission
+     * @param  string|array  $additionalPermission
      */
-    public function preventSuperAdminModification(User|Authenticatable $user = null, $additionalPermission = 'user.edit'): void
+    public function preventSuperAdminModification(User|Authenticatable|null $user = null, $additionalPermission = 'user.edit'): void
     {
-        if ($user && !$this->canBeModified($user, $additionalPermission)) {
+        if ($user && ! $this->canBeModified($user, $additionalPermission)) {
             abort(403, 'Superadmin cannot be modified in demo mode.');
         }
     }

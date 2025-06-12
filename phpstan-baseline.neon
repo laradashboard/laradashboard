@@ -1,0 +1,10 @@
+parameters:
+	ignoreErrors:
+		# Laravel model property PHPDoc type covariance issues
+		- '#PHPDoc type array(\<.*\>)? of property .* is not covariant with PHPDoc type .* of overridden property#'
+		
+		# Method exists checks that PHPStan knows are always true
+		- '#Call to function method_exists\(\) with \$this\(.+\) and .+ will always evaluate to true.#'
+		
+		# LengthAwarePaginator contract vs concrete class
+		- '#PHPDoc tag @return with type Illuminate\\Contracts\\Pagination\\LengthAwarePaginator is not subtype of native type Illuminate\\Pagination\\LengthAwarePaginator.#'

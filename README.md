@@ -12,145 +12,167 @@
 **⚡ Lara Dashboard** CMS By Laravel (7.x - 12.x) - Manages Users, Roles, Permissions, Modules, Settings, Translations, Contents(Post, Page, Category, Tags), System logs, Monitoring and every actions of your Laravel application. A complete CMS solution for Laravel application with Tailwind CSS integrated with all starting features including modules, dark/lite mode, charts, tables, forms, lots of components and many more. By our preimium modules, you can get more features like CRM, HRM, Course Management and so on.
 
 **Demo:** https://demo.laradashboard.com/
+
 ```
 Email - superadmin@example.com
 password - 12345678
 ```
 
 ## 📋 Requirements:
-- Spatie role permission package  `^6.4`
-- PHPUnit test package `^11.x`
-- Tailwind CSS >= 4.x
-- Laravel Modules - https://laravelmodules.com/docs/12/getting-started/introduction
-- Laravel Events (A WordPress like action/filter hooks) - https://github.com/tormjens/eventy
+
+-   Spatie role permission package `^6.4`
+-   PHPUnit test package `^11.x`
+-   Tailwind CSS >= 4.x
+-   Laravel Modules - https://laravelmodules.com/docs/12/getting-started/introduction
+-   Laravel Events (A WordPress like action/filter hooks) - https://github.com/tormjens/eventy
+-   PHP 8.3 or 8.4
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### 🛠️ Built With
 
-* [![PHP][PHP.com]][PHP-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Tailwind CSS][TailwindCSS.com]][TailwindCSS-url]
-* [![JavaScript][JavaScript.com]][JavaScript-url]
-* [![Alpine JS][AlpineJS.com]][AlpineJS-url]
-* [![React][React.js]][React-url]
-* [![MySQL][MySQL.com]][MySQL-url]
-* <a href="https://penguinui.com/">
-    <img src="https://res.cloudinary.com/ds8pgw1pf/image/upload/v1721401292/penguinui/main-assets/Logo.png" alt="Penguin UI" style="height: 30px;">
-   </a>
-* <a href="https://tailadmin.com" style="display: flex; align-items: center; text-decoration: none; color: #3d51e0;">
-    <img src="https://avatars.githubusercontent.com/u/95587422?v=4" alt="Tail Admin" style="height: 20px;"> <span style="color:#3d51e0; margin-left: 5px;">Tail Admin</span>
-   </a>
+-   [![PHP][PHP.com]][PHP-url]
+-   [![Laravel][Laravel.com]][Laravel-url]
+-   [![Tailwind CSS][TailwindCSS.com]][TailwindCSS-url]
+-   [![JavaScript][JavaScript.com]][JavaScript-url]
+-   [![Alpine JS][AlpineJS.com]][AlpineJS-url]
+-   [![React][React.js]][React-url]
+-   [![MySQL][MySQL.com]][MySQL-url]
+-   <a href="https://penguinui.com/">
+      <img src="https://res.cloudinary.com/ds8pgw1pf/image/upload/v1721401292/penguinui/main-assets/Logo.png" alt="Penguin UI" style="height: 30px;">
+     </a>
+-   <a href="https://tailadmin.com" style="display: flex; align-items: center; text-decoration: none; color: #3d51e0;">
+      <img src="https://avatars.githubusercontent.com/u/95587422?v=4" alt="Tail Admin" style="height: 20px;"> <span style="color:#3d51e0; margin-left: 5px;">Tail Admin</span>
+     </a>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 📝 Changelog
+
 **[v1.5.0] - 2025-06-01**
-- **Feature**: Content Management System (CMS) with Content(Post/Page), Content Category, Content Tag management.
-- **Feature**: Post/Page activity chart in Dashboard.
-- **Feature**: Bulk delete for Users, Roles, Posts, Categories, Tags.
-- **Enhancement**: Sorting features for Users, Roles, Permissions, Posts, Categories, Tags.
-- **Enhancement**: Components - Confirm delete, Success/Error messages, Toast, Text Editor, Breadcrumbs, Action dropdown.
-- **Fix**: System dark mode issues.
-- **Fix**: Modules refactorring in demo mode.
+
+-   **Feature**: Content Management System (CMS) with Content(Post/Page), Content Category, Content Tag management.
+-   **Feature**: Post/Page activity chart in Dashboard.
+-   **Feature**: Bulk delete for Users, Roles, Posts, Categories, Tags.
+-   **Enhancement**: Sorting features for Users, Roles, Permissions, Posts, Categories, Tags.
+-   **Enhancement**: Components - Confirm delete, Success/Error messages, Toast, Text Editor, Breadcrumbs, Action dropdown.
+-   **Fix**: System dark mode issues.
+-   **Fix**: Modules refactorring in demo mode.
 
 **[v1.3.0] - 2025-05-18**
-- **Feature**: Admin Menu architecture with more extendible way.
-- **Feature**: Permission List and detail page.
-- **Enhancement**: Improved module compatibility.
+
+-   **Feature**: Admin Menu architecture with more extendible way.
+-   **Feature**: Permission List and detail page.
+-   **Enhancement**: Improved module compatibility.
 
 **[v1.2.0] - 2025-05-12**
-- **Feature - Translation Management**: Added Translation management sytem with supporting 21 languages by default and possibility to add any in a second.
-- **Enhancement - Dashboard Redesign**: Dashboard redesigned with new card, user history chart, several more design improvements.
-- **Enhancement**: Role list page, user list page to add links of users list sorting by role and role edit page linkings.
-- **Enhancement**: Cleanup code base to use services, requests more, use SOLID whenever needed.
-- **Fix**: Fixed #109 Submenu dropdown icon doesn't change on open/close submenu of a menu item.
-- **Fix**: Fixed #105 Sidebar Icon not working good if collapsed.
-- **Fix**: Fixed #93 Theme primary color, secondary color was not working.
-- **Fix**: Fixed #99 Superadmin role shouldn't be edited.
-- **Fix**: Fixed Mobile responsive has some issues.
-- **Fix**: Fixed Sidebar toggle was not persistent issue.
-- **Fix**: Fixed Role create -> selecting permission group can't check the permissions in that group checkboxes automatically.
+
+-   **Feature - Translation Management**: Added Translation management sytem with supporting 21 languages by default and possibility to add any in a second.
+-   **Enhancement - Dashboard Redesign**: Dashboard redesigned with new card, user history chart, several more design improvements.
+-   **Enhancement**: Role list page, user list page to add links of users list sorting by role and role edit page linkings.
+-   **Enhancement**: Cleanup code base to use services, requests more, use SOLID whenever needed.
+-   **Fix**: Fixed #109 Submenu dropdown icon doesn't change on open/close submenu of a menu item.
+-   **Fix**: Fixed #105 Sidebar Icon not working good if collapsed.
+-   **Fix**: Fixed #93 Theme primary color, secondary color was not working.
+-   **Fix**: Fixed #99 Superadmin role shouldn't be edited.
+-   **Fix**: Fixed Mobile responsive has some issues.
+-   **Fix**: Fixed Sidebar toggle was not persistent issue.
+-   **Fix**: Fixed Role create -> selecting permission group can't check the permissions in that group checkboxes automatically.
 
 **[v1.0.0] - 2025-04-21**
-- **Feature - Forget Password Management**: Enhanced the forget password functionality for better reliability and user experience.
-- **Feature - Settings Management**: Added comprehensive settings management features, including API support.
-- **Enhancement - Role-Based Access Control (RBAC) Improvements**: Improved authorization mechanisms and role-based access control.
-- **Feature - Admin Impersonation**: Administrators can now log in as other users and switch back to their original accounts seamlessly.
-- **Enhancement - UI/UX Enhancements**: Updated the role create/edit form for a more intuitive and user-friendly experience.
-- **Enhancement - User Profile and Management Enhancements**: Refactored user-related operations to utilize `UserService` and `RolesService` for better separation of concerns and maintainability.
-- **Docs - Documentation and Configuration Updates**:
-  - Updated `.env.example` to include a `GITHUB_LINK` variable for improved project visibility.
+
+-   **Feature - Forget Password Management**: Enhanced the forget password functionality for better reliability and user experience.
+-   **Feature - Settings Management**: Added comprehensive settings management features, including API support.
+-   **Enhancement - Role-Based Access Control (RBAC) Improvements**: Improved authorization mechanisms and role-based access control.
+-   **Feature - Admin Impersonation**: Administrators can now log in as other users and switch back to their original accounts seamlessly.
+-   **Enhancement - UI/UX Enhancements**: Updated the role create/edit form for a more intuitive and user-friendly experience.
+-   **Enhancement - User Profile and Management Enhancements**: Refactored user-related operations to utilize `UserService` and `RolesService` for better separation of concerns and maintainability.
+-   **Docs - Documentation and Configuration Updates**:
+    -   Updated `.env.example` to include a `GITHUB_LINK` variable for improved project visibility.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 🔄 Versions:
+
 Latest version `v1.5.0` - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.5.0
 
 <details>
 <summary>View Old versions</summary>
 
-- Laravel `7.x` & PHP -`7.x`
-    - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel7.x
-    - Branch - https://github.com/ManiruzzamanAkash/laravel-role/tree/Laravel7.x
+-   Laravel `7.x` & PHP -`7.x`
 
-- Laravel `9.7` & PHP - `8.x`
-    - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel9.x
+    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel7.x
+    -   Branch - https://github.com/ManiruzzamanAkash/laravel-role/tree/Laravel7.x
 
-- Laravel `11.x`
-    - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v11.x-main
+-   Laravel `9.7` & PHP - `8.x`
 
-- Laravel `12.x` & PHP >= `8.3`
-    - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel12.x
+    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel9.x
 
-- Laravel `12.x` & Tail Admin Template Integration
-    - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel12.x-tailadmin
+-   Laravel `11.x`
 
-- Laravel `12.x` & Module & Action Log integration
-    - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel12.x-module-logs
+    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v11.x-main
 
-- v1.0.0 - Settings, Forget password and lots of refactorring
-    - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.0.0
-- v1.2.0 - Translation Management, Dashboard Redesign, Role/User List improvements
-    - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.2.0
-- v1.3.0 - Admin Menu architecture, Permission List and detail page
-    - Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.3.0
+-   Laravel `12.x` & PHP >= `8.3`
+
+    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel12.x
+
+-   Laravel `12.x` & Tail Admin Template Integration
+
+    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel12.x-tailadmin
+
+-   Laravel `12.x` & Module & Action Log integration
+
+    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel12.x-module-logs
+
+-   v1.0.0 - Settings, Forget password and lots of refactorring
+    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.0.0
+-   v1.2.0 - Translation Management, Dashboard Redesign, Role/User List improvements
+    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.2.0
+-   v1.3.0 - Admin Menu architecture, Permission List and detail page
+    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.3.0
 
 More release tags - https://github.com/laradashboard/laradashboard/releases
-</details>
 
+</details>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 🚀 Project Setup
+
 **Clone and Go Project**
+
 ```console
 git clone git@github.com:laradashboard/laradashboard.git
 cd laradashboard
 ```
 
 **Install Composer & Node Dependencies**
+
 ```console
 composer install
 npm install
 ```
 
 **Database & env creation**
-- Create database called - `laradashboard`
-- Create `.env` file by copying `.env.example` file
+
+-   Create database called - `laradashboard`
+-   Create `.env` file by copying `.env.example` file
 
 **Generate Artisan Key or necessary linkings**
+
 ```console
 php artisan key:generate
 php artisan storage:link
 ```
 
 **Migrate Database with seeder**
+
 ```console
 php artisan migrate:fresh --seed && php artisan module:seed
 ```
 
 **Run Project**
+
 ```php
 php artisan serve
 npm run dev
@@ -161,7 +183,9 @@ So, You've got the project of Lara Dashboard on your local machine - http://loca
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 🔄 Previously From laravel-role
+
 We were previously at https://github.com/ManiruzzamanAkash/laravel-role, so you need to change the URL if you moved from there
+
 ```console
 git remote set-url origin git@github.com:laradashboard/laradashboard.git
 ```
@@ -169,6 +193,7 @@ git remote set-url origin git@github.com:laradashboard/laradashboard.git
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## ⚙️ How it works
+
 1. Login using Super Admin Credential -
     1. Email - `superadmin@example.com`
     1. Password - `12345678`
@@ -193,6 +218,7 @@ git remote set-url origin git@github.com:laradashboard/laradashboard.git
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 📧 Email setup
+
 You can use mailtrap to test emails easily - https://mailtrap.io/ (first need to create mailtrap account and can )
 
 ```bash
@@ -209,13 +235,38 @@ MAIL_FROM_NAME="${APP_NAME}"
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 📚 Documentation
+
 https://laradashboard.com/docs/
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Tests
+
+We've used Laravel Pint, Larastan(PHPstan), PHPUnit for formatting, static analysis and testing.
+
+```bash
+composer run test
+```
+
+**Format:** To format the code, we've used `pint`. You can run the following command to format the code:
+
+```bash
+composer run format
+```
+
+You can also run individual commands for each tool (optional):
+
+```bash
+composer run pint
+composer run phpstan
+composer run phpunit
+```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 📸 Screenshots
 
 ### 🔐 Login & Authentication
+
 <table>
   <tr>
     <td width="50%">
@@ -230,6 +281,7 @@ https://laradashboard.com/docs/
 </table>
 
 ### 📊 Dashboard
+
 <table>
   <tr>
     <td width="50%">
@@ -250,6 +302,7 @@ https://laradashboard.com/docs/
 </table>
 
 ### 🔑 Role Management
+
 <table>
   <tr>
     <td width="50%">
@@ -280,6 +333,7 @@ https://laradashboard.com/docs/
 </table>
 
 ### 👥 User Management
+
 <table>
   <tr>
     <td width="50%">
@@ -304,6 +358,7 @@ https://laradashboard.com/docs/
 </table>
 
 ### 📝 Content Management - CMS
+
 <table>
   <tr>
     <td width="50%">
@@ -348,6 +403,7 @@ https://laradashboard.com/docs/
 </table>
 
 ### 🧩 Module Management
+
 <table>
   <tr>
     <td width="50%">
@@ -362,6 +418,7 @@ https://laradashboard.com/docs/
 </table>
 
 ### ⚙️ Settings Pages
+
 <table>
   <tr>
     <td width="50%">
@@ -386,6 +443,7 @@ https://laradashboard.com/docs/
 </table>
 
 ### 🌐 Translations Pages
+
 <table>
   <tr>
     <td width="50%">
@@ -409,6 +467,7 @@ https://laradashboard.com/docs/
 </table>
 
 ### 📊 Monitoring
+
 <table>
   <tr>
     <td width="50%">
@@ -423,6 +482,7 @@ https://laradashboard.com/docs/
 </table>
 
 ### 🔧 Other Pages / Sections
+
 <table>
   <tr>
     <td width="50%">
@@ -439,17 +499,20 @@ https://laradashboard.com/docs/
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 🔗 Live Demo
+
 https://demo.laradashboard.com
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## ✨ Premium Features
+
 Please visit at Lara Dashboard to get more premium moduels - https://laradashboard.com. Premium modules included CRM, HRM, Course Managements and so on.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 🧩 Core modules
-- **User Avatar** - https://github.com/laradashboard/UserAvatar - A very simple module create an avatar for a user. Handle migration, entries/updates in user forms and so on.
+
+-   **User Avatar** - https://github.com/laradashboard/UserAvatar - A very simple module create an avatar for a user. Handle migration, entries/updates in user forms and so on.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -460,11 +523,13 @@ Want to contribute? Fork the project, make your changes, and submit a pull reque
 Please be sure to read our [Contribution Guide](CONTRIBUTING.md) before submitting your PR.
 
 ### 🌟 Top contributors:
+
 <a href="https://github.com/laradashboard/laradashboard/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=laradashboard/laradashboard" alt="contrib.rocks image" />
 </a>
 
 ## 💖 Support
+
 If you like my work you may consider buying me a ☕ / 🍕
 
 <a href="https://www.patreon.com/maniruzzaman" target="_blank" title="Buy Me A Coffee">
@@ -475,16 +540,15 @@ If you like my work you may consider buying me a ☕ / 🍕
 
 ## 📞 Connect
 
-- Join Facebook Community (For any questions, latest updates) - https://www.facebook.com/groups/laradashboard
-- Linkedin Community - https://www.linkedin.com/groups/14690156
-- Youtube channel (For tutorials) - https://www.youtube.com/@laradashboard
-- Maniruzzaman Akash - [@LinkedIn](https://www.linkedin.com/in/maniruzzamanakash) | manirujjamanakash@gmail.com
-
+-   Join Facebook Community (For any questions, latest updates) - https://www.facebook.com/groups/laradashboard
+-   Linkedin Community - https://www.linkedin.com/groups/14690156
+-   Youtube channel (For tutorials) - https://www.youtube.com/@laradashboard
+-   Maniruzzaman Akash - [@LinkedIn](https://www.linkedin.com/in/maniruzzamanakash) | manirujjamanakash@gmail.com
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/laradashboard/laradashboard.svg?style=for-the-badge
 [contributors-url]: https://github.com/laradashboard/laradashboard/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/laradashboard/laradashboard.svg?style=for-the-badge

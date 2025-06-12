@@ -1,0 +1,13 @@
+diff --git a/functions.php b/functions.php
+index 1234567..abcdef0 100644
+--- a/functions.php
++++ b/functions.php
+@@ -29,7 +29,7 @@ function serialize($data)
+  * @param array|null $options Unserialization options
+  * @return mixed
+  */
+-function unserialize($data, $options = null)
++function unserialize($data, ?array $options = null)
+ {
+     return \Opis\Closure\ReflectionClosure::unserialize($data, $options);
+ }

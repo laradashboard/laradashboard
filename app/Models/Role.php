@@ -11,18 +11,14 @@ class Role extends SpatieRole
 
     /**
      * Get searchable columns for the model.
-     *
-     * @return array
      */
     protected function getSearchableColumns(): array
     {
         return ['name'];
     }
-    
+
     /**
      * Get columns that should be excluded from sorting.
-     *
-     * @return array
      */
     protected function getExcludedSortColumns(): array
     {

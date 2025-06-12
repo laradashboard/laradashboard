@@ -25,7 +25,7 @@ class ModulesController extends Controller
             'modules' => $this->moduleService->getModules(),
             'breadcrumbs' => [
                 'title' => __('Modules'),
-            ]
+            ],
         ]);
     }
 
@@ -33,6 +33,7 @@ class ModulesController extends Controller
     {
         if (config('app.demo_mode', false)) {
             session()->flash('error', __('Module upload is restricted in demo mode. Please try on your local/live environment.'));
+
             return redirect()->route('admin.modules.index');
         }
 
@@ -57,6 +58,7 @@ class ModulesController extends Controller
 
         try {
             $newStatus = $this->moduleService->toggleModuleStatus($moduleName);
+
             return response()->json(['success' => true, 'status' => $newStatus]);
         } catch (\Throwable $th) {
             return response()->json(['success' => false, 'message' => $th->getMessage()], 404);
@@ -67,6 +69,7 @@ class ModulesController extends Controller
     {
         if (config('app.demo_mode', false)) {
             session()->flash('error', 'Module deletion is restricted in demo mode. Please try on your local/live environment.');
+
             return redirect()->route('admin.modules.index');
         }
 

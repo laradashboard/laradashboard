@@ -34,7 +34,7 @@ class RolesController extends Controller
             'roles' => $this->rolesService->getPaginatedRolesWithUserCount($search, intval($perPage)),
             'breadcrumbs' => [
                 'title' => __('Roles'),
-            ]
+            ],
         ]);
     }
 
@@ -52,9 +52,9 @@ class RolesController extends Controller
                     [
                         'label' => __('Roles'),
                         'url' => route('admin.roles.index'),
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
     }
 
@@ -74,7 +74,7 @@ class RolesController extends Controller
         $this->checkAuthorization(Auth::user(), ['role.edit']);
 
         $role = $this->rolesService->findRoleById($id);
-        if (!$role) {
+        if (! $role) {
             session()->flash('error', __('Role not found.'));
 
             return back();
@@ -91,9 +91,9 @@ class RolesController extends Controller
                     [
                         'label' => __('Roles'),
                         'url' => route('admin.roles.index'),
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
     }
 
@@ -101,8 +101,9 @@ class RolesController extends Controller
     {
         $role = $this->rolesService->findRoleById($id);
 
-        if (!$role) {
+        if (! $role) {
             session()->flash('error', __('Role not found.'));
+
             return back();
         }
 
@@ -122,8 +123,9 @@ class RolesController extends Controller
 
         $role = $this->rolesService->findRoleById($id);
 
-        if (!$role) {
+        if (! $role) {
             session()->flash('error', __('Role not found.'));
+
             return back();
         }
 
@@ -135,47 +137,47 @@ class RolesController extends Controller
 
         return redirect()->route('admin.roles.index');
     }
-    
+
     /**
      * Delete multiple roles at once
      */
     public function bulkDelete(Request $request): RedirectResponse
     {
         $this->checkAuthorization(Auth::user(), ['role.delete']);
-        
+
         $ids = $request->input('ids', []);
-        
+
         if (empty($ids)) {
             return redirect()->route('admin.roles.index')
                 ->with('error', __('No roles selected for deletion'));
         }
-        
+
         $deletedCount = 0;
-        
+
         foreach ($ids as $id) {
-            $role = $this->rolesService->findRoleById((int)$id);
-            
-            if (!$role) {
+            $role = $this->rolesService->findRoleById((int) $id);
+
+            if (! $role) {
                 continue;
             }
-            
+
             // Skip Superadmin role.
             if ($role->name === 'Superadmin') {
                 continue;
             }
-            
+
             $this->rolesService->deleteRole($role);
             $this->storeActionLog(ActionType::DELETED, ['role' => $role]);
-            
+
             $deletedCount++;
         }
-        
+
         if ($deletedCount > 0) {
             session()->flash('success', __(':count roles deleted successfully', ['count' => $deletedCount]));
         } else {
             session()->flash('error', __('No roles were deleted. Selected roles may include protected roles.'));
         }
-        
+
         return redirect()->route('admin.roles.index');
     }
 }
