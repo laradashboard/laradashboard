@@ -12,7 +12,8 @@
                 <div x-data="slugGenerator('{{ old('title', $post->title ?? '') }}', '{{ old('slug', $post->slug ?? '') }}')">
                     <!-- Title -->
                     <div>
-                        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Title') }}</label>
+                        <label for="title"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Title') }}</label>
                         <input type="text" name="title" id="title" required x-model="title" maxlength="255"
                             class="form-control">
                     </div>
@@ -22,7 +23,8 @@
                     <div class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400">
                         <span class="mr-1">{{ __('Permalink') }}:</span>
                         <span class="flex-1 truncate" x-show="!showSlugEdit">
-                            <span class="text-gray-400">{{ url('/') }}/</span><span class="font-medium text-primary" x-text="slug || '{{ __('auto-generated') }}'"></span>
+                            <span class="text-gray-400">{{ url('/') }}/</span><span
+                                class="font-medium text-primary" x-text="slug || '{{ __('auto-generated') }}'"></span>
                         </span>
                         <div class="flex-1" x-show="showSlugEdit">
                             <input type="text" name="slug" id="slug" x-model="slug" maxlength="200"
@@ -31,12 +33,14 @@
                         </div>
                         <div class="ml-2 flex space-x-1">
                             <!-- Edit/Save Button -->
-                            <button type="button" @click="toggleSlugEdit()" class="text-xs text-primary hover:underline">
+                            <button type="button" @click="toggleSlugEdit()"
+                                class="text-xs text-primary hover:underline">
                                 <span x-show="!showSlugEdit">{{ __('Edit') }}</span>
                                 <span x-show="showSlugEdit">{{ __('OK') }}</span>
                             </button>
                             <!-- Generate Button -->
-                            <button type="button" @click="generateSlug()" class="text-xs text-primary hover:underline ml-2">
+                            <button type="button" @click="generateSlug()"
+                                class="text-xs text-primary hover:underline ml-2">
                                 {{ __('Generate') }}
                             </button>
                         </div>
@@ -44,42 +48,43 @@
                     {!! ld_apply_filters('post_form_after_slug', '') !!}
                 </div>
 
-                @if($postTypeModel->supports_editor)
-                <div class="mt-1">
-                    <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Content') }}</label>
-                    <textarea name="content" id="content" rows="10">{!! old('content', $post->content ?? '') !!}</textarea>
-                </div>
+                @if ($postTypeModel->supports_editor)
+                    <div class="mt-1">
+                        <label for="content"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Content') }}</label>
+                        <textarea name="content" id="content" rows="10">{!! old('content', $post->content ?? '') !!}</textarea>
+                    </div>
                 @endif
                 {!! ld_apply_filters('post_form_after_content', '') !!}
 
-                @if($postTypeModel->supports_excerpt)
-                <div class="mt-1">
-                    <label for="excerpt" class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Excerpt') }}</label>
-                    <textarea name="excerpt" id="excerpt" rows="3"
-                        class="w-full rounded-lg border border-gray-300 bg-transparent p-4 text-sm text-gray-800 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">{{ old('excerpt', $post->excerpt ?? '') }}</textarea>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('A short summary of the content') }}. {{ __('Leave empty to auto-generate from content') }}</p>
-                </div>
+                @if ($postTypeModel->supports_excerpt)
+                    <div class="mt-1">
+                        <label for="excerpt"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Excerpt') }}</label>
+                        <textarea name="excerpt" id="excerpt" rows="3"
+                            class="w-full rounded-lg border border-gray-300 bg-transparent p-4 text-sm text-gray-800 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">{{ old('excerpt', $post->excerpt ?? '') }}</textarea>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {{ __('A short summary of the content') }}.
+                            {{ __('Leave empty to auto-generate from content') }}</p>
+                    </div>
                 @endif
                 {!! ld_apply_filters('post_form_after_excerpt', '') !!}
 
-                @if($postTypeModel->supports_thumbnail)
-                <div class="mt-1">
-                    <label for="featured_image" class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Featured Image') }}</label>
-                    @if(isset($post) && $post->featured_image)
-                        <div class="mb-4">
-                            <img src="{{ $post->featured_image }}" alt="{{ $post->title }}" class="max-h-48 rounded-lg">
-                            <div class="mt-2">
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="remove_featured_image" id="remove_featured_image" class="mr-2">
-                                    <span class="text-sm text-gray-700 dark:text-gray-400">{{ __('Remove featured image') }}</span>
-                                </label>
-                            </div>
-                        </div>
-                    @endif
-                    <input type="file" name="featured_image" id="featured_image" accept="image/*"
-                        class="focus:border-ring-brand-300 cursor-pointer focus:file:ring-brand-300 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:px-4 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 px-4">
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Select an image to represent this post') }}</p>
-                </div>
+                @if ($postTypeModel->supports_thumbnail)
+                    <x-inputs.file-input 
+                        name="featured_image" 
+                        id="featured_image" 
+                        accept="image/*"
+                        label="{{ __('Featured Image') }}"
+                        :existingAttachment="isset($post) && $post->featured_image ? $post->featured_image : null"
+                        :existingAltText="isset($post) ? $post->title : ''"
+                        :removeCheckboxLabel="__('Remove featured image')"
+                        class="mt-1"
+                    >
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {{ __('Select an image to represent this post') }}
+                        </p>
+                    </x-inputs.file-input>
                 @endif
                 {!! ld_apply_filters('post_form_after_featured_image', '') !!}
             </div>
@@ -108,43 +113,38 @@
                     $currentStatus = old('status', $post->status ?? 'draft');
                 @endphp
 
-                <x-inputs.combobox
-                    name="status"
-                    label="{{ __('Status') }}"
-                    :options="$statusOptions"
-                    :selected="$currentStatus"
-                    :multiple="false"
-                    :searchable="false"
-                    x-model="status" />
+                <x-inputs.combobox name="status" label="{{ __('Status') }}" :options="$statusOptions" :selected="$currentStatus"
+                    :multiple="false" :searchable="false" x-model="status" />
 
                 {!! ld_apply_filters('post_form_after_status', '') !!}
 
                 <!-- Publish Date (for scheduled posts) -->
-                <div x-data="{ 
-                        showSchedule: {{ isset($post) && (old('status', $post->status) === 'future' || $post->published_at) ? 'true' : 'false' }},
-                        status: '{{ old('status', $post->status ?? 'draft') }}',
-                        init() {
-                            this.$watch('status', value => {
-                                if (value === 'future') {
-                                    this.showSchedule = true;
-                                }
-                            });
-                        }
-                    }">
+                <div x-data="{
+                    showSchedule: {{ isset($post) && (old('status', $post->status) === 'future' || $post->published_at) ? 'true' : 'false' }},
+                    status: '{{ old('status', $post->status ?? 'draft') }}',
+                    init() {
+                        this.$watch('status', value => {
+                            if (value === 'future') {
+                                this.showSchedule = true;
+                            }
+                        });
+                    }
+                }">
                     <div class="mb-2">
-                        <input type="checkbox" id="schedule_post" name="schedule_post" x-model="showSchedule" 
-                            x-on:change="if(showSchedule && status !== 'future') status = 'future'; $dispatch('input', status)" class="mr-2">
-                        <label for="schedule_post" class="text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Schedule this post') }}</label>
+                        <input type="checkbox" id="schedule_post" name="schedule_post" x-model="showSchedule"
+                            x-on:change="if(showSchedule && status !== 'future') status = 'future'; $dispatch('input', status)"
+                            class="mr-2">
+                        <label for="schedule_post"
+                            class="text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Schedule this post') }}</label>
                     </div>
                     <div x-show="showSchedule" class="mt-2">
-                        <x-inputs.datetime-picker
-                            id="published_at"
-                            name="published_at"
-                            :label="__('Publish Date')"
-                            :value="old('published_at', isset($post) && $post->published_at ? $post->published_at->format('Y-m-d H:i') : now()->addDay()->format('Y-m-d H:i'))"
-                            :min-date="now()->format('Y-m-d')"
-                            :help-text="__('Schedule when this post should be published')"
-                        />
+                        <x-inputs.datetime-picker id="published_at" name="published_at" :label="__('Publish Date')"
+                            :value="old(
+                                'published_at',
+                                isset($post) && $post->published_at
+                                    ? $post->published_at->format('Y-m-d H:i')
+                                    : now()->addDay()->format('Y-m-d H:i'),
+                            )" :min-date="now()->format('Y-m-d')" :help-text="__('Schedule when this post should be published')" />
                     </div>
                 </div>
                 {!! ld_apply_filters('post_form_after_publish_date', '') !!}
@@ -153,39 +153,36 @@
             </div>
         </div>
 
-        @if($postTypeModel->hierarchical)
-        <!-- Parent -->
-        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-            <div class="px-4 py-3 sm:px-6 sm:py-3 border-b border-gray-100 dark:border-gray-800">
-                <h3 class="text-base font-medium text-gray-800 dark:text-white">{{ __('Parent') }}</h3>
+        @if ($postTypeModel->hierarchical)
+            <!-- Parent -->
+            <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+                <div class="px-4 py-3 sm:px-6 sm:py-3 border-b border-gray-100 dark:border-gray-800">
+                    <h3 class="text-base font-medium text-gray-800 dark:text-white">{{ __('Parent') }}</h3>
+                </div>
+                <div class="p-3 space-y-2 sm:p-4">
+                    @php
+                        $parentOptions = [['value' => '', 'label' => __('None')]];
+                        foreach ($parentPosts as $id => $title) {
+                            $parentOptions[] = [
+                                'value' => $id,
+                                'label' => $title,
+                            ];
+                        }
+                    @endphp
+
+                    <x-inputs.combobox name="parent_id" 
+                    :label="__('Parent ' . $postTypeModel->label_singular)" 
+                    :placeholder="__('Select Parent')" :options="$parentOptions"
+                    :selected="old('parent_id', $post->parent_id ?? '')" 
+                    :searchable="false" />
+                </div>
             </div>
-            <div class="p-3 space-y-2 sm:p-4">
-                @php
-                    $parentOptions = [['value' => '', 'label' => __('None')]];
-                    foreach($parentPosts as $id => $title) {
-                        $parentOptions[] = [
-                            'value' => $id,
-                            'label' => $title
-                        ];
-                    }
-                @endphp
-                
-                <x-inputs.combobox 
-                    name="parent_id"
-                    :label="__('Parent {$postTypeModel->label_singular}')"
-                    :placeholder="__('Select Parent')"
-                    :options="$parentOptions"
-                    :selected="old('parent_id', $post->parent_id ?? '')"
-                    :searchable="false"
-                />
-            </div>
-        </div>
         @endif
         {!! ld_apply_filters('post_form_after_content_parent', '') !!}
 
         <!-- Taxonomies -->
-        @if(!empty($taxonomies))
-            @foreach($taxonomies as $taxonomy)
+        @if (!empty($taxonomies))
+            @foreach ($taxonomies as $taxonomy)
                 @include('backend.pages.posts.partials.post-taxonomy-chooser', [
                     'taxonomy' => $taxonomy,
                     'post_type' => $postType,
@@ -194,5 +191,3 @@
         @endif
     </div>
 </div>
-
-{!! ld_apply_filters('inside_post_form_end', '') !!}

@@ -77,14 +77,18 @@ class RolesService
         return $role;
     }
 
-    /**
-     * Find a role by ID
-     */
-    public function findRoleById(int $id): ?\Spatie\Permission\Models\Role
+    public function findRoleById(int $id): ?Role
     {
         $role = Role::findById($id);
 
-        return $role instanceof \Spatie\Permission\Models\Role ? $role : null;
+        return $role instanceof Role ? $role : null;
+    }
+
+    public function findRoleByName(string $name): ?Role
+    {
+        $role = Role::findByName($name);
+
+        return $role instanceof Role ? $role : null;
     }
 
     public function updateRole(Role $role, string $name, array $permissions = []): Role

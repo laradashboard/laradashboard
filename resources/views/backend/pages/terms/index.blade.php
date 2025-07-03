@@ -125,7 +125,7 @@
                                     <td class="px-5 py-4 sm:px-6">
                                         <div class="flex items-center">
                                             <div>
-                                            @if($taxonomyModel->show_featured_image && $termItem->featured_image)
+                                                @if($taxonomyModel->show_featured_image && $termItem->featured_image)
                                                     <img src="{{ Storage::url($termItem->featured_image) }}" alt="{{ $termItem->name }}" class="w-10 rounded mr-3">
                                                 @elseif($taxonomyModel->show_featured_image)
                                                     <div class="w-10 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center mr-3">

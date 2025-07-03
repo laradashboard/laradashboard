@@ -19,11 +19,11 @@
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Full Name') }}</label>
-                            <input type="text" name="name" id="name" required autofocus value="{{ old('name') }}" placeholder="{{ __('Enter Full Name') }}" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
+                            <input type="text" name="name" id="name" required autofocus value="{{ old('name') }}" placeholder="{{ __('Enter Full Name') }}" class="form-control">
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('User Email') }}</label>
-                            <input type="email" name="email" id="email" required value="{{ old('email') }}" placeholder="{{ __('Enter Email') }}" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
+                            <input type="email" name="email" id="email" required value="{{ old('email') }}" placeholder="{{ __('Enter Email') }}" class="form-control">
                         </div>
                         <div>
                             <x-inputs.password
@@ -55,7 +55,7 @@
                         <div>
                             <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Username') }}</label>
 
-                            <input type="text" name="username" id="username" required value="{{ old('username') }}" placeholder="{{ __('Enter Username') }}" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
+                            <input type="text" name="username" id="username" required value="{{ old('username') }}" placeholder="{{ __('Enter Username') }}" class="form-control">
                         </div>
                         {!! ld_apply_filters('after_username_field', '', null) !!}
                     </div>

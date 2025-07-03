@@ -12,11 +12,10 @@
                     {{ __('Site Name') }}
                 </label>
                 <input type="text" name="app_name" placeholder="{{ __('Enter site name') }}"
-                    value="{{ config('settings.app_name') ?? '' }}"
-                    @if (config('app.demo_mode', false)) disabled @endif
-                    class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
-                    data-tooltip-target="tooltip-app-name">
-                <div id="tooltip-app-name" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                    value="{{ config('settings.app_name') ?? '' }}" @if (config('app.demo_mode', false)) disabled @endif
+                    class="form-control" data-tooltip-target="tooltip-app-name">
+                <div id="tooltip-app-name" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
                     {{ __('Editing site name is disabled in demo mode.') }}
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>
@@ -27,62 +26,50 @@
             <!-- Column 1: Site Logo Full Lite and Dark -->
             <div>
                 <div class="mt-2">
-                    @if (config('settings.site_logo_lite') !== '' && !empty(config('settings.site_logo_lite')))
-                        <img src="{{ config('settings.site_logo_lite') ?? '' }}" alt="" class="bg-gray-200 p-2 dark:bg-gray-800 max-h-[80px]">
-                    @endif
-                    <div class="w-full mt-2">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            {{ __('Site Logo Full (Lite Version)') }}
-                        </label>
-                        <input type="file" name="site_logo_lite"
-                            class="focus:border-ring-brand-300 cursor-pointer focus:file:ring-brand-300 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:px-4 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 px-4">
-                    </div>
+                    <x-inputs.file-input 
+                        name="site_logo_lite" 
+                        id="site_logo_lite"
+                        label="{{ __('Site Logo Full (Lite Version)') }}"
+                        :existingAttachment="config('settings.site_logo_lite') !== '' && !empty(config('settings.site_logo_lite')) ? config('settings.site_logo_lite') : null"
+                        :existingAltText="''"
+                    />
                 </div>
 
                 <div class="mt-2">
-                    @if (config('settings.site_logo_dark') !== '' && !empty(config('settings.site_logo_dark')))
-                        <img src="{{ config('settings.site_logo_dark') ?? '' }}" alt="" class="bg-gray-200 p-2 dark:bg-gray-800 max-h-[80px]">
-                    @endif
-                    <div class="w-full mt-4">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            {{ __('Site Logo Full (Dark Version)') }}
-                        </label>
-                        <input type="file" name="site_logo_dark"
-                            class="focus:border-ring-brand-300 cursor-pointer focus:file:ring-brand-300 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:px-4 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 px-4">
-                    </div>
+                    <x-inputs.file-input 
+                        name="site_logo_dark" 
+                        id="site_logo_dark"
+                        label="{{ __('Site Logo Full (Dark Version)') }}"
+                        :existingAttachment="config('settings.site_logo_dark') !== '' && !empty(config('settings.site_logo_dark')) ? config('settings.site_logo_dark') : null"
+                        :existingAltText="''"
+                    />
                 </div>
             </div>
 
             <!-- Column 2: Site Icon and Favicon -->
             <div>
                 <div class="mt-2">
-                    @if (config('settings.site_icon') !== '' && !empty(config('settings.site_icon')))
-                        <img src="{{ config('settings.site_icon') ?? '' }}" alt="" class="bg-gray-200 p-2 dark:bg-gray-800 max-h-[80px]">
-                    @endif
-                    <div class="w-full">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            {{ __('Site Icon') }}
-                        </label>
-                        <input type="file" name="site_icon"
-                            class="focus:border-ring-brand-300 cursor-pointer focus:file:ring-brand-300 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:px-4 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 px-4">
-                    </div>
+                    <x-inputs.file-input 
+                        name="site_icon" 
+                        id="site_icon"
+                        label="{{ __('Site Icon') }}"
+                        :existingAttachment="config('settings.site_icon') !== '' && !empty(config('settings.site_icon')) ? config('settings.site_icon') : null"
+                        :existingAltText="''"
+                    />
                 </div>
 
                 <div class="mt-2">
-                    @if (config('settings.site_favicon') !== '' && !empty(config('settings.site_favicon')))
-                        <img src="{{ config('settings.site_favicon') ?? '' }}" alt="" class="bg-gray-200 p-2 dark:bg-gray-800 max-h-[80px]">
-                    @endif
-                    <div class="w-full mt-4">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            {{ __('Site Favicon') }}
-                        </label>
-                        <input type="file" name="site_favicon"
-                            class="focus:border-ring-brand-300 cursor-pointer focus:file:ring-brand-300 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:px-4 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 px-4">
-                    </div>
+                    <x-inputs.file-input 
+                        name="site_favicon" 
+                        id="site_favicon"
+                        label="{{ __('Site Favicon') }}"
+                        :existingAttachment="config('settings.site_favicon') !== '' && !empty(config('settings.site_favicon')) ? config('settings.site_favicon') : null"
+                        :existingAltText="''"
+                    />
                 </div>
             </div>
         </div>
     </div>
     @php echo ld_apply_filters('settings_general_tab_before_section_end', '') @endphp
 </div>
-@php echo ld_apply_filters('settings_general_tab_after_section_end', '') @endphp
+

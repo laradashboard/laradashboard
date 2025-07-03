@@ -298,7 +298,7 @@
                                                     :label="__('Edit')" 
                                                 />
                                             @endif
-                                            {!! ld_apply_filters('admin_post_actions_after_edit', '', $post, $postType) !!}
+                                            {!! ld_apply_filters('admin_post_actions_after_edit', '', $post) !!}
                                             
                                             @if (auth()->user()->can('post.view'))
                                                 <x-buttons.action-item 
@@ -307,7 +307,7 @@
                                                     :label="__('View')" 
                                                 />
                                             @endif
-                                            {!! ld_apply_filters('admin_post_actions_after_view', '', $post, $postType) !!}
+                                            {!! ld_apply_filters('admin_post_actions_after_view', '', $post) !!}
 
                                             @if (auth()->user()->can('post.delete'))
                                                 <div x-data="{ deleteModalOpen: false }">
@@ -331,7 +331,7 @@
                                                     />
                                                 </div>
                                             @endif
-                                            {!! ld_apply_filters('admin_post_actions_after_delete', '', $post, $postType) !!}
+                                            {!! ld_apply_filters('admin_post_actions_after_delete', '', $post) !!}
                                         </x-buttons.action-buttons>
                                     </td>
                                 </tr>
