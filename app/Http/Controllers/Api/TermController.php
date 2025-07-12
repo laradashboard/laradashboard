@@ -64,7 +64,7 @@ class TermController extends ApiController
         $this->logAction('Term Created', $term);
 
         return $this->resourceResponse(
-            new TermResource($term->load('taxonomy')),
+            new TermResource($term->load('taxonomyModel')),
             ucfirst($taxonomy) . ' term created successfully',
             201
         );
@@ -79,8 +79,8 @@ class TermController extends ApiController
     {
         $this->checkAuthorization(Auth::user(), ['term.view']);
 
-        $term = Term::with(['taxonomy', 'parent', 'children'])
-            ->whereHas('taxonomy', function ($query) use ($taxonomy) {
+        $term = Term::with(['taxonomyModel', 'parent', 'children'])
+            ->whereHas('taxonomyModel', function ($query) use ($taxonomy) {
                 $query->where('name', $taxonomy);
             })
             ->findOrFail($id);
@@ -98,7 +98,7 @@ class TermController extends ApiController
      */
     public function update(UpdateTermRequest $request, string $taxonomy, int $id): JsonResponse
     {
-        $term = Term::whereHas('taxonomy', function ($query) use ($taxonomy) {
+        $term = Term::whereHas('taxonomyModel', function ($query) use ($taxonomy) {
             $query->where('name', $taxonomy);
         })->findOrFail($id);
 
@@ -107,7 +107,7 @@ class TermController extends ApiController
         $this->logAction('Term Updated', $updatedTerm);
 
         return $this->resourceResponse(
-            new TermResource($updatedTerm->load('taxonomy')),
+            new TermResource($updatedTerm->load('taxonomyModel')),
             ucfirst($taxonomy) . ' term updated successfully'
         );
     }
@@ -121,7 +121,7 @@ class TermController extends ApiController
     {
         $this->checkAuthorization(Auth::user(), ['term.delete']);
 
-        $term = Term::whereHas('taxonomy', function ($query) use ($taxonomy) {
+        $term = Term::whereHas('taxonomyModel', function ($query) use ($taxonomy) {
             $query->where('name', $taxonomy);
         })->findOrFail($id);
 
@@ -147,7 +147,9 @@ class TermController extends ApiController
         $this->checkAuthorization(Auth::user(), ['term.delete']);
 
         $request->validate([
+            /** @example [1, 2, 3] */
             'ids' => 'required|array|min:1',
+            /** @example 1 */
             'ids.*' => 'integer|exists:terms,id',
         ]);
 
@@ -159,7 +161,7 @@ class TermController extends ApiController
             return $this->errorResponse('Cannot delete terms with assigned posts', 400);
         }
 
-        $deletedCount = Term::whereHas('taxonomy', function ($query) use ($taxonomy) {
+        $deletedCount = Term::whereHas('taxonomyModel', function ($query) use ($taxonomy) {
             $query->where('name', $taxonomy);
         })->whereIn('id', $termIds)->delete();
 

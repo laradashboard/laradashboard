@@ -27,9 +27,16 @@ class UpdateUserRequest extends FormRequest
         $userId = $this->route('user');
 
         return ld_apply_filters('user.update.validation.rules', [
+            /** @example "Jane Smith" */
             'name' => 'required|max:50',
+
+            /** @example "jane.smith@example.com" */
             'email' => 'required|max:100|email|unique:users,email,'.$userId,
+
+            /** @example "janesmith456" */
             'username' => 'required|max:100|unique:users,username,'.$userId,
+
+            /** @example "newPassword789" */
             'password' => $userId ? 'nullable|min:6|confirmed' : 'required|min:6|confirmed',
         ], $userId);
     }

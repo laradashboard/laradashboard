@@ -20,7 +20,7 @@ class PostController extends ApiController
     }
 
     /**
-     * Display a listing of posts for a specific post type.
+     * Display a listing of posts for a specific post-type.
      *
      * @tags Posts
      */
@@ -98,6 +98,7 @@ class PostController extends ApiController
      */
     public function update(UpdatePostRequest $request, string $postType, int $id): JsonResponse
     {
+
         $post = Post::where('post_type', $postType)->findOrFail($id);
 
         $updatedPost = $this->postService->updatePost($post, $request->validated());
@@ -138,7 +139,9 @@ class PostController extends ApiController
         $this->checkAuthorization(Auth::user(), ['post.delete']);
 
         $request->validate([
+            /** @example [1, 2, 3] */
             'ids' => 'required|array|min:1',
+            /** @example 1 */
             'ids.*' => 'integer|exists:posts,id',
         ]);
 

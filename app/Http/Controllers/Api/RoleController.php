@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Enums\ActionType;
+use App\Http\Requests\Role\BulkDeleteRoleRequest;
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
@@ -144,15 +145,8 @@ class RoleController extends ApiController
      *
      * @tags Roles
      */
-    public function bulkDelete(Request $request): JsonResponse
+    public function bulkDelete(BulkDeleteRoleRequest $request): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['role.delete']);
-
-        $request->validate([
-            'ids' => 'required|array|min:1',
-            'ids.*' => 'integer|exists:roles,id',
-        ]);
-
         $roleIds = $request->input('ids');
 
         // Check if any roles have users assigned

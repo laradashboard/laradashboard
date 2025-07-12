@@ -44,14 +44,15 @@ class SettingController extends ApiController
         $this->checkAuthorization(Auth::user(), ['settings.edit']);
 
         $request->validate([
+            /** @example {"site_name": "My Laravel Dashboard", "site_description": "A powerful admin dashboard"} */
             'settings' => 'required|array',
         ]);
 
-        $settings = $request->input('settings');
+        $settings = $request->input('settings', []);
         $updatedSettings = [];
 
         foreach ($settings as $key => $value) {
-            $setting = $this->settingService->updateOrCreateSetting($key, $value);
+            $setting = $this->settingService->updateOrCreateSetting((string) $key, $value);
             $updatedSettings[] = $setting;
         }
 

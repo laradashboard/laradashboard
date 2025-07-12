@@ -27,8 +27,13 @@ class UpdateRoleRequest extends FormRequest
         $roleId = $this->route('role');
 
         return ld_apply_filters('role.update.validation.rules', [
+            /** @example "Senior Content Writer" */
             'name' => 'required|max:100|unique:roles,name,'.$roleId,
+
+            /** @example ["post.create", "post.edit", "post.delete", "user.view"] */
             'permissions' => 'required|array|min:1',
+
+            /** @example "user.view" */
             'permissions.*' => 'string|exists:permissions,name',
         ], $roleId);
     }

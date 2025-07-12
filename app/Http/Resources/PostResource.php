@@ -28,7 +28,7 @@ class PostResource extends JsonResource
             'published_at' => $this->published_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'author' => new UserResource($this->whenLoaded('author')),
+            'author' => new UserResource($this->whenLoaded('user')),
             'terms' => TermResource::collection($this->whenLoaded('terms')),
             'meta' => $this->whenLoaded('postMeta', function () {
                 return $this->postMeta->pluck('meta_value', 'meta_key');

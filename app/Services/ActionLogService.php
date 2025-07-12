@@ -9,23 +9,23 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class ActionLogService
 {
-    public function getPaginatedActionLogs(): LengthAwarePaginator
+    public function getPaginatedActionLogs(?array $filters = null, ?int $perPage = null): LengthAwarePaginator
     {
         $query = ActionLog::with('user');
-        $search = request()->input('search');
+        $search = $filters['search'] ?? request()->input('search');
 
         if ($search) {
             $query->where('type', 'like', "%{$search}%")
                 ->orWhere('title', 'like', "%{$search}%");
         }
 
-        $type = request()->input('type');
+        $type = $filters['type'] ?? request()->input('type');
         if ($type) {
             $query->where('type', $type);
         }
 
-        $dateFrom = request()->input('date_from');
-        $dateTo = request()->input('date_to');
+        $dateFrom = $filters['date_from'] ?? request()->input('date_from');
+        $dateTo = $filters['date_to'] ?? request()->input('date_to');
         if ($dateFrom) {
             $query->where('created_at', '>=', $dateFrom);
         }
@@ -33,7 +33,7 @@ class ActionLogService
             $query->where('created_at', '<=', $dateTo);
         }
 
-        return $query->latest()->paginate(20);
+        return $query->latest()->paginate($perPage ?? 20);
     }
 
     /**

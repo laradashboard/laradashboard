@@ -22,8 +22,8 @@ class TermResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'parent_id' => $this->parent_id,
-            'taxonomy' => $this->whenLoaded('taxonomy', function () {
-                return $this->taxonomy->name;
+            'taxonomy' => $this->whenLoaded('taxonomyModel', function () {
+                return $this->taxonomyModel->name;
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

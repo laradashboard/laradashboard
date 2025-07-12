@@ -28,9 +28,16 @@ class UpdateTermRequest extends FormRequest
         $termId = $this->route('id');
 
         $rules = [
+            /** @example "Web Development" */
             'name' => 'required|string|max:255|unique:terms,name,'.$termId,
+
+            /** @example "web-development" */
             'slug' => 'nullable|string|max:255|unique:terms,slug,'.$termId,
+
+            /** @example "Topics related to web development and programming." */
             'description' => 'nullable|string',
+
+            /** @example null */
             'parent_id' => 'nullable|exists:terms,id',
         ];
 
@@ -39,6 +46,7 @@ class UpdateTermRequest extends FormRequest
         $taxonomyModel = app(ContentService::class)->getTaxonomies()->where('name', $taxonomyName)->first();
 
         if ($taxonomyModel && $taxonomyModel->show_featured_image) {
+            /** @example null */
             $rules['featured_image'] = 'nullable|image|max:2048';
         }
 

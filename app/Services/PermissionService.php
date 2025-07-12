@@ -169,7 +169,7 @@ class PermissionService
 
         // Add the permissions to each group.
         foreach ($groups as $group) {
-            $group->permissions = $this->getPermissionModelsByGroup($group->name);
+            $group->setAttribute('permissions', $this->getPermissionModelsByGroup($group->name));
         }
 
         return $groups;

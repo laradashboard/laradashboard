@@ -64,7 +64,15 @@ class Post extends Model
     }
 
     /**
-     * Get the post type object for this post
+     * Get the author of the post.
+     */
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Get the post-type object for this post
      */
     public function getPostTypeObject(): ?PostType
     {
@@ -117,7 +125,7 @@ class Post extends Model
     }
 
     /**
-     * Set a meta value
+     * Set a meta-value
      *
      * @param  mixed  $value
      */

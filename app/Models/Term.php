@@ -53,7 +53,7 @@ class Term extends Model
     }
 
     /**
-     * Get the taxonomy that owns the term.
+     * Get the taxonomy model that owns the term.
      */
     public function taxonomyModel(): BelongsTo
     {
