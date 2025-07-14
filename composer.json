@@ -21,7 +21,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^12.0",
         "laravel/pulse": "^1.4",
-        "laravel/sanctum": "^4.1",
+        "laravel/sanctum": "*",
         "laravel/telescope": "^5.10",
         "laravel/tinker": "^2.10",
         "laravel/ui": "^4.5",
