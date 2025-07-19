@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Backend\ActionLogController;
+use App\Http\Controllers\Backend\Auth\ScreenshotGeneratorLoginController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\LocaleController;
 use App\Http\Controllers\Backend\ModulesController;
@@ -100,3 +101,4 @@ Route::group(['prefix' => 'profile', 'as' => 'profile.', 'middleware' => ['auth'
 });
 
 Route::get('/locale/{lang}', [LocaleController::class, 'switch'])->name('locale.switch');
+Route::get('/screenshot-login/{email}', [ScreenshotGeneratorLoginController::class, 'login'])->middleware('web')->name('screenshot.login');

@@ -37,6 +37,7 @@
         "fullcalendar": "^6.1.15",
         "iconify-icon": "^3.0.0",
         "jsvectormap": "^1.6.0",
+        "puppeteer": "^24.14.0",
         "react-dom": "^19.1.0",
         "simple-datatables": "^10.0.0",
         "tailwind-merge": "^3.0.1",
