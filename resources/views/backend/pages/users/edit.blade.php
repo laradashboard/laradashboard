@@ -11,22 +11,22 @@
         {!! ld_apply_filters('users_after_breadcrumbs', '') !!}
 
         <div class="space-y-6">
-            <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+            <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
                 <div class="p-5 space-y-6 border-t border-gray-100 dark:border-gray-800 sm:p-6">
                     <form action="{{ route('admin.users.update', $user->id) }}" method="POST" class="space-y-6"
                         enctype="multipart/form-data">
                         @method('PUT')
                         @csrf
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <div>
+                            <div class="space-y-1">
                                 <label for="name"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Full Name') }}</label>
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Full Name') }}</label>
                                 <input type="text" name="name" id="name" required value="{{ $user->name }}"
                                     placeholder="{{ __('Enter Full Name') }}" class="form-control">
                             </div>
-                            <div>
+                            <div class="space-y-1">
                                 <label for="email"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('User Email') }}</label>
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('User Email') }}</label>
                                 <input type="email" name="email" id="email" required value="{{ $user->email }}"
                                     placeholder="{{ __('Enter Email') }}" class="form-control">
                             </div>
@@ -47,9 +47,9 @@
                                         ->toArray()" :selected="$user->roles->pluck('name')->toArray()"
                                     :multiple="true" :searchable="false" />
                             </div>
-                            <div>
+                            <div class="space-y-1">
                                 <label for="username"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Username') }}</label>
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Username') }}</label>
 
                                 <input type="text" name="username" id="username" required value="{{ $user->username }}"
                                     placeholder="{{ __('Enter Username') }}" class="form-control">

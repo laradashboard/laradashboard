@@ -1,0 +1,34 @@
+@layer utilities {
+    /* For Remove Date Icon */
+    input[type="date"]::-webkit-inner-spin-button,
+    input[type="time"]::-webkit-inner-spin-button,
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        display: none;
+        -webkit-appearance: none;
+    }
+}
+
+/* Input date icon utilities */
+.input-date-icon::-webkit-inner-spin-button,
+.input-date-icon::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    -webkit-appearance: none;
+}
+
+/* Toast notification utilities */
+@utility toast-success {
+    @apply border-success-200 bg-success-50 text-success-800 dark:border-success-800 dark:bg-success-900/20 dark:text-success-200;
+}
+
+@utility toast-error {
+    @apply border-error-200 bg-error-50 text-error-800 dark:border-error-800 dark:bg-error-900/20 dark:text-error-200;
+}
+
+@utility toast-warning {
+    @apply border-warning-200 bg-warning-50 text-warning-800 dark:border-warning-800 dark:bg-warning-900/20 dark:text-warning-200;
+}
+
+@utility toast-info {
+    @apply border-blue-light-200 bg-blue-light-50 text-blue-light-800 dark:border-blue-light-800 dark:bg-blue-light-900/20 dark:text-blue-light-200;
+}

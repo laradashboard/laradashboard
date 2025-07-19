@@ -13,20 +13,20 @@
     $id = $id ?? $name;
 @endphp
 
-<div {{ $attributes->merge(['class' => 'mb-4']) }}>
+<div {{ $attributes->merge(['class' => 'mb-4 space-y-1']) }}>
     <label for="{{ $id }}"
-        class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $label }}</label>
+        class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ $label }}</label>
     @if ($existingAttachment)
         <div class="mb-4">
-            <img src="{{ $existingAttachment }}" alt="{{ $existingAltText }}" class="max-h-48 rounded-lg">
+            <img src="{{ $existingAttachment }}" alt="{{ $existingAltText }}" class="max-h-48 rounded-md">
 
             @if($removeCheckboxLabel)
                 <div class="mt-2">
                     <label class="flex items-center">
                         <input type="checkbox" name="{{ $removeCheckboxName }}" id="{{ $removeCheckboxName }}"
-                            class="mr-2">
+                            class="form-checkbox mr-2">
                         <span
-                            class="text-sm text-gray-700 dark:text-gray-400">{{ $removeCheckboxLabel }}</span>
+                            class="text-sm text-gray-700 dark:text-gray-300">{{ $removeCheckboxLabel }}</span>
                     </label>
                 </div>
             @endif

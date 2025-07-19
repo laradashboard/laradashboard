@@ -162,14 +162,7 @@
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.3" />
-  <component name="PhpStan">
-    <PhpStan_settings>
-      <PhpStanConfiguration tool_path="$PROJECT_DIR$/vendor/bin/phpstan" />
-    </PhpStan_settings>
-  </component>
   <component name="PhpStanOptionsConfiguration">
-    <option name="config" value="$PROJECT_DIR$/phpstan.neon" />
-    <option name="memoryLimit" value="5G" />
     <option name="transferred" value="true" />
   </component>
   <component name="PhpUnit">

@@ -1,19 +1,13 @@
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "vite";
+import laravel from "laravel-vite-plugin";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import collectModuleAssetsPaths from "./vite-module-loader";
 
-let paths = [
-    'resources/css/app.css',
-    'resources/js/app.js',
-];
+const paths = ["resources/css/app.css", "resources/js/app.js"];
 
-// Precompute all paths synchronously.
-let allPaths = [];
-(async () => {
-    allPaths = await collectModuleAssetsPaths(paths, 'Modules');
-})();
+// Use top-level await to properly load module assets
+let allPaths = await collectModuleAssetsPaths(paths, "Modules");
 
 if (allPaths.length === 0) {
     allPaths = paths;
@@ -29,7 +23,7 @@ export default defineConfig({
         tailwindcss(),
     ],
     esbuild: {
-        jsx: 'automatic',
+        jsx: "automatic",
         // drop: ['console', 'debugger'],
     },
 });

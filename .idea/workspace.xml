@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="chore: add i18n-ally configuration for locales paths">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Helpers/crm_helpers.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Helpers/crm_helpers.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/ContactActivitiesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/ContactActivitiesController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/ContactGroupsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/ContactGroupsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/ContactTagsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/ContactTagsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/ContactsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/ContactsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/DealActivitiesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/DealActivitiesController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/DealsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/DealsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/PipelinesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/PipelinesController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/SettingsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/SettingsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/StagesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/StagesController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/TicketsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/TicketsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Requests/ContactActivityRequest.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Requests/ContactActivityRequest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Requests/CrmSettingRequest.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Requests/CrmSettingRequest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Models/CrmSetting.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Models/CrmSetting.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Providers/CrmServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Providers/CrmServiceProvider.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Providers/CrmSettingsServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Providers/CrmSettingsServiceProvider.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Services/ContactActivityService.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Services/ContactActivityService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Services/ContactService.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Services/ContactService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Services/CrmPipelineService.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Services/CrmPipelineService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Services/CrmService.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Services/CrmService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Services/CrmStageService.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Services/CrmStageService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Services/DealActivityService.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Services/DealActivityService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/database/migrations/2025_07_01_000001_create_crm_settings_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/database/migrations/2025_07_01_000001_create_crm_settings_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/database/migrations/2025_07_15_000001_drop_crm_settings_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/database/migrations/2025_07_15_000001_drop_crm_settings_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/database/seeders/CrmSettingsSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/database/seeders/CrmSettingsSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/activities/create.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/activities/create.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/activities/partials/activities-table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/activities/partials/activities-table.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/activities/partials/activity-edit-drawer.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/activities/partials/activity-edit-drawer.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/deals/partials/preview/deal-task-modal.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/deals/partials/preview/deal-task-modal.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/routes/web.php" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerConfigs">
+    <option name="configs">
+      <option value="$PROJECT_DIR$/Modules/TaskManager/composer.json" />
+      <option value="$PROJECT_DIR$/Modules/UserAvatar/composer.json" />
+    </option>
+  </component>
+  <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/laravel/pulse" />
+      <path value="$PROJECT_DIR$/vendor/laravel/prompts" />
+      <path value="$PROJECT_DIR$/vendor/laravel/serializable-closure" />
+      <path value="$PROJECT_DIR$/vendor/laravel/framework" />
+      <path value="$PROJECT_DIR$/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/vendor/nwidart/laravel-modules" />
+      <path value="$PROJECT_DIR$/vendor/mockery/mockery" />
+      <path value="$PROJECT_DIR$/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/vendor/phpstan/phpstan" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/vendor/symfony/clock" />
+      <path value="$PROJECT_DIR$/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/vendor/symfony/css-selector" />
+      <path value="$PROJECT_DIR$/vendor/symfony/routing" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php83" />
+      <path value="$PROJECT_DIR$/vendor/symfony/mailer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/mime" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/vendor/symfony/event-dispatcher-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/vendor/symfony/error-handler" />
+      <path value="$PROJECT_DIR$/vendor/symfony/var-dumper" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-foundation" />
+      <path value="$PROJECT_DIR$/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/vendor/symfony/translation-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/uid" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-kernel" />
+      <path value="$PROJECT_DIR$/vendor/symfony/translation" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-uuid" />
+      <path value="$PROJECT_DIR$/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/vendor/cweagans/composer-patches" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/inflector" />
+      <path value="$PROJECT_DIR$/vendor/fakerphp/faker" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/sql-formatter" />
+      <path value="$PROJECT_DIR$/vendor/livewire/livewire" />
+      <path value="$PROJECT_DIR$/vendor/tormjens/eventy" />
+      <path value="$PROJECT_DIR$/vendor/hamcrest/hamcrest-php" />
+      <path value="$PROJECT_DIR$/vendor/larastan/larastan" />
+      <path value="$PROJECT_DIR$/vendor/phpoption/phpoption" />
+      <path value="$PROJECT_DIR$/vendor/ralouphie/getallheaders" />
+      <path value="$PROJECT_DIR$/vendor/carbonphp/carbon-doctrine-types" />
+      <path value="$PROJECT_DIR$/vendor/fruitcake/php-cors" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/vendor/wikimedia/composer-merge-plugin" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/uri-template" />
+      <path value="$PROJECT_DIR$/vendor/nunomaduro/collision" />
+      <path value="$PROJECT_DIR$/vendor/tijsverkoyen/css-to-inline-styles" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/promises" />
+      <path value="$PROJECT_DIR$/vendor/nunomaduro/termwind" />
+      <path value="$PROJECT_DIR$/vendor/dragonmantank/cron-expression" />
+      <path value="$PROJECT_DIR$/vendor/graham-campbell/result-type" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
+      <path value="$PROJECT_DIR$/vendor/psr/simple-cache" />
+      <path value="$PROJECT_DIR$/vendor/psr/clock" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-factory" />
+      <path value="$PROJECT_DIR$/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/vendor/psy/psysh" />
+      <path value="$PROJECT_DIR$/vendor/filp/whoops" />
+      <path value="$PROJECT_DIR$/vendor/psr/event-dispatcher" />
+      <path value="$PROJECT_DIR$/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/vendor/brick/math" />
+      <path value="$PROJECT_DIR$/vendor/opis/closure" />
+      <path value="$PROJECT_DIR$/vendor/voku/portable-ascii" />
+      <path value="$PROJECT_DIR$/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/vendor/iamcal/sql-parser" />
+      <path value="$PROJECT_DIR$/vendor/nette/schema" />
+      <path value="$PROJECT_DIR$/vendor/nette/utils" />
+      <path value="$PROJECT_DIR$/vendor/league/uri" />
+      <path value="$PROJECT_DIR$/vendor/league/commonmark" />
+      <path value="$PROJECT_DIR$/vendor/league/config" />
+      <path value="$PROJECT_DIR$/vendor/league/mime-type-detection" />
+      <path value="$PROJECT_DIR$/vendor/league/uri-interfaces" />
+      <path value="$PROJECT_DIR$/vendor/nesbot/carbon" />
+      <path value="$PROJECT_DIR$/vendor/league/flysystem-local" />
+      <path value="$PROJECT_DIR$/vendor/league/flysystem" />
+      <path value="$PROJECT_DIR$/vendor/rector/rector" />
+      <path value="$PROJECT_DIR$/vendor/spatie/laravel-package-tools" />
+      <path value="$PROJECT_DIR$/vendor/ramsey/collection" />
+      <path value="$PROJECT_DIR$/vendor/ramsey/uuid" />
+      <path value="$PROJECT_DIR$/vendor/spatie/backtrace" />
+      <path value="$PROJECT_DIR$/vendor/spatie/laravel-query-builder" />
+      <path value="$PROJECT_DIR$/vendor/spatie/laravel-ignition" />
+      <path value="$PROJECT_DIR$/vendor/spatie/laravel-permission" />
+      <path value="$PROJECT_DIR$/vendor/spatie/flare-client-php" />
+      <path value="$PROJECT_DIR$/vendor/spatie/ignition" />
+      <path value="$PROJECT_DIR$/vendor/spatie/error-solutions" />
+      <path value="$PROJECT_DIR$/vendor/dflydev/dot-access-data" />
+      <path value="$PROJECT_DIR$/vendor/egulias/email-validator" />
+      <path value="$PROJECT_DIR$/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/vendor/vlucas/phpdotenv" />
+      <path value="$PROJECT_DIR$/vendor/laravel/pint" />
+      <path value="$PROJECT_DIR$/vendor/laravel/tinker" />
+      <path value="$PROJECT_DIR$/vendor/laravel/ui" />
+      <path value="$PROJECT_DIR$/vendor/laravel/sail" />
+      <path value="$PROJECT_DIR$/vendor/dedoc/scramble" />
+      <path value="$PROJECT_DIR$/vendor/laravel/sanctum" />
+      <path value="$PROJECT_DIR$/vendor/phpstan/phpdoc-parser" />
+      <path value="$PROJECT_DIR$/vendor/_laravel_idea" />
+      <path value="$PROJECT_DIR$/vendor/beyondcode/laravel-dump-server" />
+      <path value="$PROJECT_DIR$/vendor/laravel/telescope" />
+      <path value="$PROJECT_DIR$/Modules/TaskManager/vendor/composer" />
+      <path value="$PROJECT_DIR$/Modules/UserAvatar/vendor/composer" />
+    </include_path>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2zaOra5kQw0WATn4pRmtsua18zc" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;fix/api-ready&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/mostafizur/Code/projects/laradashboard&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="Main" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" scope="XML" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-PS-251.26927.60" />
+        <option value="bundled-php-predefined-a98d8de5180a-e5747d4f5a45-com.jetbrains.php.sharedIndexes-PS-251.26927.60" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="" />
+      <created>1751965917368</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1751965917368</updated>
+      <workItem from="1751965919481" duration="9818000" />
+      <workItem from="1752066841269" duration="8827000" />
+      <workItem from="1752153313751" duration="1889000" />
+      <workItem from="1752309082222" duration="5850000" />
+      <workItem from="1752462369107" duration="1928000" />
+      <workItem from="1752487029257" duration="5618000" />
+      <workItem from="1752503074649" duration="186000" />
+      <workItem from="1752503357010" duration="5187000" />
+      <workItem from="1752564227235" duration="2275000" />
+      <workItem from="1752582108269" duration="1665000" />
+      <workItem from="1752585885648" duration="22853000" />
+      <workItem from="1752721552055" duration="304000" />
+    </task>
+    <task id="LOCAL-00001" summary="fix: update various files for improved functionality and structure">
+      <option name="closed" value="true" />
+      <created>1751989431811</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1751989431811</updated>
+    </task>
+    <task id="LOCAL-00002" summary="chore: integrate Laravel Telescope for application monitoring and debugging">
+      <option name="closed" value="true" />
+      <created>1751989854179</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1751989854179</updated>
+    </task>
+    <task id="LOCAL-00003" summary="chore: remove debug call from PostController update method">
+      <option name="closed" value="true" />
+      <created>1751990693159</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1751990693159</updated>
+    </task>
+    <task id="LOCAL-00004" summary="refactor: improve attribute setting, parameterize filters, and add type hint in services">
+      <option name="closed" value="true" />
+      <created>1752077086609</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1752077086609</updated>
+    </task>
+    <task id="LOCAL-00005" summary="refactor: add examples in request classes for better clarity">
+      <option name="closed" value="true" />
+      <created>1752322316227</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1752322316227</updated>
+    </task>
+    <task id="LOCAL-00006" summary="refactor: project structure and improve config logic&#10;&#10;Updated Vite configurations for CRM and TaskManager modules to ensure better reliability and clarity. Refactored Laravel Blade templates to improve readability and maintainability, including adjustments to locale switcher and header partials. Removed unnecessary styles and optimized the use of dynamic asset paths.">
+      <option name="closed" value="true" />
+      <created>1752582202150</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1752582202150</updated>
+    </task>
+    <task id="LOCAL-00007" summary="refactor: enhance UI components and integrate iconify for improved visuals">
+      <option name="closed" value="true" />
+      <created>1752583201004</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1752583201004</updated>
+    </task>
+    <task id="LOCAL-00008" summary="chore: add i18n-ally configuration for locales paths">
+      <option name="closed" value="true" />
+      <created>1752583328099</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1752583328099</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="fix: update various files for improved functionality and structure" />
+    <MESSAGE value="chore: integrate Laravel Telescope for application monitoring and debugging" />
+    <MESSAGE value="chore: remove debug call from PostController update method" />
+    <MESSAGE value="refactor: improve attribute setting, parameterize filters, and add type hint in services" />
+    <MESSAGE value="Refactor UserAvatar module and update project configurations&#10;&#10;Adjust UserAvatar module by fixing syntax inconsistencies and refining code structure in service providers and migrations. Update IDE configuration files to include UserAvatar and TaskManager modules with proper directory mappings and module settings." />
+    <MESSAGE value="refactor: add examples in request classes for better clarity" />
+    <MESSAGE value="refactor: project structure and improve config logic&#10;&#10;Updated Vite configurations for CRM and TaskManager modules to ensure better reliability and clarity. Refactored Laravel Blade templates to improve readability and maintainability, including adjustments to locale switcher and header partials. Removed unnecessary styles and optimized the use of dynamic asset paths." />
+    <MESSAGE value="refactor: enhance UI components and integrate iconify for improved visuals" />
+    <MESSAGE value="chore: add i18n-ally configuration for locales paths" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: add i18n-ally configuration for locales paths" />
+  </component>
+</project>

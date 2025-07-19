@@ -5,15 +5,15 @@
         {{ __(ucfirst(str_replace("_", " ", $currentFilter))) }}
     </span>
 
-    <button 
-        id="dropdownDefaultButton" 
+    <button
+        id="dropdownDefaultButton"
         @click="open = !open"
-        class="btn-primary flex items-center justify-center gap-2" 
+        class="btn-primary flex items-center justify-center gap-2"
         type="button"
     >
-        <i class="bi bi-sliders"></i>
+        <iconify-icon icon="lucide:sliders"></iconify-icon>
         {{ __('Filter') }}
-        <i class="bi bi-chevron-down"></i>
+        <iconify-icon icon="lucide:chevron-down"></iconify-icon>
     </button>
 
     <div
@@ -22,7 +22,7 @@
         x-trap="open"
         @click.outside="open = false"
         @keydown.escape="open = false"
-        class="z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700"
+        class="z-10 bg-white divide-y divide-gray-100 rounded-md shadow-sm w-44 dark:bg-gray-700"
     >
         <ul
             class="py-2 text-sm text-gray-700 dark:text-gray-200"

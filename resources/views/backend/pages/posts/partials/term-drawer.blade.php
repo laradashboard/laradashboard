@@ -1,6 +1,6 @@
 @props(['taxonomy', 'taxonomyName', 'post_id' => null, 'post_type' => null])
 
-<div x-data="termDrawer('{{ $taxonomyName }}')" x-trap="isOpen" class="relative" 
+<div x-data="termDrawer('{{ $taxonomyName }}')" x-trap="isOpen" class="relative"
      data-post-id="{{ $post_id }}" data-post-type="{{ $post_type }}">
 
     <button
@@ -8,12 +8,12 @@
         @click="openDrawer"
         class="btn-default !p-0 !w-8 !h-8 !bg-transparent"
     >
-        <i class="bi bi-plus-circle"></i>
+        <iconify-icon icon="lucide:plus-circle"></iconify-icon>
     </button>
 
     <!-- Overlay Background -->
-    <div 
-        x-show="isOpen" 
+    <div
+        x-show="isOpen"
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"
@@ -40,13 +40,13 @@
         <div
             class="px-5 py-4 sm:px-6 sm:py-5 flex justify-between items-center border-b border-gray-200 dark:border-gray-700"
         >
-            <h3 class="text-base font-medium text-gray-900 dark:text-white">
+            <h3 class="text-base font-medium text-gray-700 dark:text-white">
                 {{ __("Add New :taxonomy", ['taxonomy' => $taxonomy->label_singular]) }}
             </h3>
             <button
                 type="button"
                 @click="isOpen = false"
-                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200"
             >
                 <svg
                     class="w-5 h-5"
@@ -70,7 +70,7 @@
             <div>
                 <label
                     for="term_name"
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >{{ __("Name") }} <span class="text-red-500">*</span></label
                 >
                 <input
@@ -90,7 +90,7 @@
             <div>
                 <label
                     for="term_description"
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >{{ __("Description") }}</label
                 >
                 <textarea
@@ -136,7 +136,7 @@
                     :disabled="isSubmitting"
                 >
                     <span x-show="!isSubmitting">
-                        <i class="bi bi-check-circle mr-2"></i>
+                        <iconify-icon icon="lucide:check-circle" class="mr-2"></iconify-icon>
                         {{ __("Save") }}
                     </span>
                     <span x-show="isSubmitting" class="flex items-center">
@@ -168,7 +168,7 @@
                     @click="isOpen = false"
                     class="btn-default"
                 >
-                    <i class="bi bi-x-circle mr-2"></i>
+                    <iconify-icon icon="lucide:x-circle" class="mr-2"></iconify-icon>
 
                     {{ __("Cancel") }}
                 </button>

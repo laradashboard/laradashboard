@@ -107,9 +107,9 @@ class PostType
     public function getIcon(): string
     {
         return match ($this->name) {
-            'post' => 'bi bi-file-earmark-text',
-            'page' => 'bi bi-file-earmark',
-            default => 'bi bi-collection'
+            'post' => 'lucide:file-text',
+            'page' => 'lucide:file',
+            default => 'lucide:files'
         };
     }
 }

@@ -15,7 +15,7 @@
 @if (!$disabled)
 <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
     @if(!empty($title))
-    <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+    <h2 class="text-xl font-semibold text-gray-700 dark:text-white/90">
         {{ __($title) }}
 
         {!! $title_after !!}
@@ -24,7 +24,7 @@
 
     @if(count($items) || ($show_home || $show_current))
     <nav>
-        <ol class="flex items-center gap-1.5">
+        <ol class="flex items-center gap-1.5 pe-2">
             @if($show_home)
                 <li>
                     <a
@@ -32,7 +32,7 @@
                         href="{{ route('admin.dashboard') }}"
                     >
                         {{ __("Home") }}
-                        <i class="bi bi-chevron-right"></i>
+                        <iconify-icon icon="lucide:chevron-right"></iconify-icon>
                     </a>
                 </li>
             @endif
@@ -44,13 +44,13 @@
                         href="{{ $item['url'] }}"
                     >
                         {{ __($item['label']) }}
-                        <i class="bi bi-chevron-right"></i>
+                        <iconify-icon icon="lucide:chevron-right"></iconify-icon>
                     </a>
                 </li>
             @endforeach
 
             @if($show_current)
-                <li class="text-sm text-gray-800 dark:text-white/90">
+                <li class="text-sm text-gray-700 dark:text-white/90">
                     {{ __($title) }}
                 </li>
             @endif

@@ -9,14 +9,14 @@
 <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6" x-data="{ selectedUsers: [], selectAll: false, bulkDeleteModalOpen: false }">
     <x-breadcrumbs :breadcrumbs="$breadcrumbs">
         <x-slot name="title_after">
-            @if (auth()->user()->can('user.edit'))
+            {{-- @if (auth()->user()->can('user.edit'))
                 <a href="{{ route('admin.users.create') }}" class="btn-primary ml-2">
-                    <i class="bi bi-plus-circle mr-2"></i>
+                    <iconify-icon icon="lucide:plus-circle" class="mr-2"></iconify-icon>
                     {{ __('New User') }}
                 </a>
-            @endif
+            @endif --}}
             @if (request('role'))
-                <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-800 dark:text-white">{{ ucfirst(request('role')) }}</span>
+                <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full dark:bg-gray-800 dark:text-white">{{ ucfirst(request('role')) }}</span>
             @endif
         </x-slot>
     </x-breadcrumbs>
@@ -24,51 +24,52 @@
     {!! ld_apply_filters('users_after_breadcrumbs', '') !!}
 
     <div class="space-y-6">
-        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-          <div class="px-5 py-4 sm:px-6 sm:py-5 flex gap-3 md:gap-1 flex-col md:flex-row justify-between items-center">
-                <h3 class="text-base font-medium text-gray-800 dark:text-white/90 hidden md:block">{{ __('Users') }}</h3>
+        <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+          <div class="px-5 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row justify-between items-center gap-3">
+                {{-- <h3 class="text-base font-medium text-gray-700 dark:text-white/90">{{ __('Users') }}</h3> --}}
 
                 @include('backend.partials.search-form', [
                     'placeholder' => __('Search by name or email'),
                 ])
-
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-2">
                     <!-- Bulk Actions dropdown -->
                     <div class="flex items-center justify-center" x-show="selectedUsers.length > 0">
-                        <button id="bulkActionsButton" data-dropdown-toggle="bulkActionsDropdown" class="btn-danger flex items-center justify-center gap-2 text-sm" type="button">
-                            <i class="bi bi-trash"></i>
+                        <button id="bulkActionsButton" data-dropdown-toggle="bulkActionsDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
+                            <iconify-icon icon="lucide:more-vertical"></iconify-icon>
                             <span>{{ __('Bulk Actions') }} (<span x-text="selectedUsers.length"></span>)</span>
-                            <i class="bi bi-chevron-down"></i>
+                            <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                         </button>
 
                         <!-- Bulk Actions dropdown menu -->
-                        <div id="bulkActionsDropdown" class="z-10 hidden w-48 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
-                            <h6 class="mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('Bulk Actions') }}</h6>
+                        <div id="bulkActionsDropdown" class="z-10 hidden w-48 p-2 bg-white rounded-md shadow dark:bg-gray-700">
+                            {{-- <h6 class="mb-2 text-sm font-medium text-gray-700 dark:text-white border-b border-gray-200 dark:border-gray-600 pb-2">{{ __('Actions') }}</h6> --}}
                             <ul class="space-y-2">
-                                <li class="cursor-pointer text-sm text-red-600 dark:text-red-400 hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded"
+                                <li class="cursor-pointer flex items-center gap-1 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500 dark:hover:text-red-50 px-2 py-1.5 rounded transition-colors duration-300"
                                     @click="bulkDeleteModalOpen = true">
-                                    <i class="bi bi-trash mr-1"></i> {{ __('Delete Selected') }}
+                                    <iconify-icon icon="lucide:trash"></iconify-icon> {{ __('Delete Selected') }}
                                 </li>
                             </ul>
                         </div>
                     </div>
+                  </div>
 
                     <div class="flex items-center justify-center">
-                        <button id="roleDropdownButton" data-dropdown-toggle="roleDropdown" class="btn-default flex items-center justify-center gap-2" type="button">
-                            <i class="bi bi-sliders"></i>
+                        <button id="roleDropdownButton" data-dropdown-toggle="roleDropdown" class="btn-secondary flex items-center justify-center gap-2" type="button">
+                            <iconify-icon icon="lucide:sliders"></iconify-icon>
                             {{ __('Filter by Role') }}
-                            <i class="bi bi-chevron-down"></i>
+                            <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                         </button>
 
                         <!-- Dropdown menu -->
-                        <div id="roleDropdown" class="z-10 hidden w-56 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
+                        <div id="roleDropdown" class="z-10 hidden w-56 p-3 bg-white rounded-md shadow dark:bg-gray-700">
                             <ul class="space-y-2">
-                                <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded"
+                                <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded"
                                     onclick="handleRoleFilter('')">
                                     {{ __('All Roles') }}
                                 </li>
                                 @foreach ($roles as $id => $name)
-                                    <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded {{ request('role') === $name ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
+                                    <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ request('role') === $name ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
                                         onclick="handleRoleFilter('{{ $name }}')">
                                         {{ ucfirst($name) }}
                                     </li>
@@ -76,22 +77,29 @@
                             </ul>
                         </div>
                     </div>
+
+                    @if (auth()->user()->can('user.edit'))
+                    <a href="{{ route('admin.users.create') }}" class="btn-primary flex items-center gap-2">
+                        <iconify-icon icon="feather:plus" height="16"></iconify-icon>
+                        {{ __('New User') }}
+                    </a>
+                    @endif
                 </div>
             </div>
             <div class="space-y-3 border-t border-gray-100 dark:border-gray-800 overflow-x-auto overflow-y-visible">
-                <table id="dataTable" class="w-full dark:text-gray-400">
+                <table id="dataTable" class="w-full dark:text-gray-300">
                     <thead class="bg-light text-capitalize">
                         <tr class="border-b border-gray-100 dark:border-gray-800">
-                            <th width="5%" class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white text-left px-5">
+                            <th width="5%" class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white text-left px-5 sm:px-6">
                                 <div class="flex items-center">
-                                    <input 
-                                        type="checkbox" 
-                                        class="form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" 
+                                    <input
+                                        type="checkbox"
+                                        class="form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         x-model="selectAll"
                                         @click="
                                             selectAll = !selectAll;
-                                            selectedUsers = selectAll ? 
-                                                [...document.querySelectorAll('.user-checkbox')].map(cb => cb.value) : 
+                                            selectedUsers = selectAll ?
+                                                [...document.querySelectorAll('.user-checkbox')].map(cb => cb.value) :
                                                 [];
                                         "
                                     >
@@ -102,11 +110,11 @@
                                     {{ __('Name') }}
                                     <a href="{{ request()->fullUrlWithQuery(['sort' => request()->sort === 'name' ? '-name' : 'name']) }}" class="ml-1">
                                         @if(request()->sort === 'name')
-                                            <i class="bi bi-sort-alpha-down text-primary"></i>
+                                            <iconify-icon icon="lucide:sort-asc" class="text-primary"></iconify-icon>
                                         @elseif(request()->sort === '-name')
-                                            <i class="bi bi-sort-alpha-up text-primary"></i>
+                                            <iconify-icon icon="lucide:sort-desc" class="text-primary"></iconify-icon>
                                         @else
-                                            <i class="bi bi-arrow-down-up text-gray-400"></i>
+                                            <iconify-icon icon="lucide:arrow-up-down" class="text-gray-400"></iconify-icon>
                                         @endif
                                     </a>
                                 </div>
@@ -116,11 +124,11 @@
                                     {{ __('Email') }}
                                     <a href="{{ request()->fullUrlWithQuery(['sort' => request()->sort === 'email' ? '-email' : 'email']) }}" class="ml-1">
                                         @if(request()->sort === 'email')
-                                            <i class="bi bi-sort-alpha-down text-primary"></i>
+                                            <iconify-icon icon="lucide:sort-asc" class="text-primary"></iconify-icon>
                                         @elseif(request()->sort === '-email')
-                                            <i class="bi bi-sort-alpha-up text-primary"></i>
+                                            <iconify-icon icon="lucide:sort-desc" class="text-primary"></iconify-icon>
                                         @else
-                                            <i class="bi bi-arrow-down-up text-gray-400"></i>
+                                            <iconify-icon icon="lucide:arrow-up-down" class="text-gray-400"></iconify-icon>
                                         @endif
                                     </a>
                                 </div>
@@ -135,9 +143,9 @@
                         @forelse ($users as $user)
                             <tr class="{{ $loop->index + 1 != count($users) ?  'border-b border-gray-100 dark:border-gray-800' : '' }}">
                                 <td class="px-5 py-4 sm:px-6">
-                                    <input 
-                                        type="checkbox" 
-                                        class="user-checkbox form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" 
+                                    <input
+                                        type="checkbox"
+                                        class="user-checkbox form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         value="{{ $user->id }}"
                                         x-model="selectedUsers"
                                         {{ !auth()->user()->canBeModified($user, 'user.delete') ? 'disabled' : '' }}
@@ -148,11 +156,11 @@
                                         <img src="{{ ld_apply_filters('user_list_page_avatar_item', $user->getGravatarUrl(40), $user) }}" alt="{{ $user->name }}" class="w-10 h-10 rounded-full mr-3">
                                         <div class="flex flex-col">
                                             <span>{{ $user->name }}</span>
-                                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ $user->username }}</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-300">{{ $user->username }}</span>
                                         </div>
                                     </a>
                                     @if (auth()->user()->canBeModified($user))
-                                    <div id="tooltip-user-{{ $user->id }}" href="{{ route('admin.users.edit', $user->id) }}" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                    <div id="tooltip-user-{{ $user->id }}" href="{{ route('admin.users.edit', $user->id) }}" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
                                         {{ __('Edit User') }}
                                         <div class="tooltip-arrow" data-popper-arrow></div>
                                     </div>
@@ -161,12 +169,12 @@
                                 <td class="px-5 py-4 sm:px-6">{{ $user->email }}</td>
                                 <td class="px-5 py-4 sm:px-6">
                                     @foreach ($user->roles as $role)
-                                        <span class="capitalize inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-800 dark:text-white">
+                                        <span class="capitalize inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full dark:bg-gray-800 dark:text-white">
                                             @if (auth()->user()->can('role.edit'))
                                                 <a href="{{ route('admin.roles.edit', $role->id) }}" data-tooltip-target="tooltip-role-{{ $role->id }}-{{ $user->id }}" class="hover:text-primary">
                                                     {{ $role->name }}
                                                 </a>
-                                                <div id="tooltip-role-{{ $role->id }}-{{ $user->id }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                                <div id="tooltip-role-{{ $role->id }}-{{ $user->id }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
                                                     {{ __('Edit') }} {{ $role->name }} {{ __('Role') }}
                                                     <div class="tooltip-arrow" data-popper-arrow></div>
                                                 </div>
@@ -180,23 +188,23 @@
                                 <td class="px-5 py-4 sm:px-6 flex justify-center">
                                     <x-buttons.action-buttons :label="__('Actions')" :show-label="false" align="right">
                                         @if (auth()->user()->canBeModified($user))
-                                            <x-buttons.action-item 
-                                                :href="route('admin.users.edit', $user->id)" 
-                                                icon="pencil" 
-                                                :label="__('Edit')" 
+                                            <x-buttons.action-item
+                                                :href="route('admin.users.edit', $user->id)"
+                                                icon="pencil"
+                                                :label="__('Edit')"
                                             />
                                         @endif
-                                        
+
                                         @if (auth()->user()->canBeModified($user, 'user.delete'))
                                             <div x-data="{ deleteModalOpen: false }">
-                                                <x-buttons.action-item 
+                                                <x-buttons.action-item
                                                     type="modal-trigger"
                                                     modal-target="deleteModalOpen"
-                                                    icon="trash" 
-                                                    :label="__('Delete')" 
+                                                    icon="trash"
+                                                    :label="__('Delete')"
                                                     class="text-red-600 dark:text-red-400"
                                                 />
-                                                
+
                                                 <x-modals.confirm-delete
                                                     id="delete-modal-{{ $user->id }}"
                                                     title="{{ __('Delete User') }}"
@@ -209,12 +217,12 @@
                                                 />
                                             </div>
                                         @endif
-                                        
+
                                         @if (auth()->user()->can('user.login_as') && $user->id != auth()->user()->id)
-                                            <x-buttons.action-item 
-                                                :href="route('admin.users.login-as', $user->id)" 
-                                                icon="box-arrow-in-right" 
-                                                :label="__('Login as')" 
+                                            <x-buttons.action-item
+                                                :href="route('admin.users.login-as', $user->id)"
+                                                icon="box-arrow-in-right"
+                                                :label="__('Login as')"
                                             />
                                         @endif
                                     </x-buttons.action-buttons>
@@ -224,7 +232,7 @@
                         @empty
                             <tr>
                                 <td colspan="5" class="text-center py-4">
-                                    <p class="text-gray-500 dark:text-gray-400">{{ __('No users found') }}</p>
+                                    <p class="text-gray-500 dark:text-gray-300">{{ __('No users found') }}</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -239,24 +247,24 @@
     </div>
 
     <!-- Bulk Delete Confirmation Modal -->
-    <div 
-        x-cloak 
-        x-show="bulkDeleteModalOpen" 
-        x-transition.opacity.duration.200ms 
-        x-trap.inert.noscroll="bulkDeleteModalOpen" 
-        x-on:keydown.esc.window="bulkDeleteModalOpen = false" 
-        x-on:click.self="bulkDeleteModalOpen = false" 
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-md" 
-        role="dialog" 
-        aria-modal="true" 
+    <div
+        x-cloak
+        x-show="bulkDeleteModalOpen"
+        x-transition.opacity.duration.200ms
+        x-trap.inert.noscroll="bulkDeleteModalOpen"
+        x-on:keydown.esc.window="bulkDeleteModalOpen = false"
+        x-on:click.self="bulkDeleteModalOpen = false"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-md"
+        role="dialog"
+        aria-modal="true"
         aria-labelledby="bulk-delete-modal-title"
     >
-        <div 
-            x-show="bulkDeleteModalOpen" 
-            x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity" 
-            x-transition:enter-start="opacity-0 scale-50" 
-            x-transition:enter-end="opacity-100 scale-100" 
-            class="flex max-w-md flex-col gap-4 overflow-hidden rounded-lg border border-outline border-gray-100 dark:border-gray-800 bg-white text-on-surface dark:border-outline-dark dark:bg-gray-700 dark:text-gray-400"
+        <div
+            x-show="bulkDeleteModalOpen"
+            x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity"
+            x-transition:enter-start="opacity-0 scale-50"
+            x-transition:enter-end="opacity-100 scale-100"
+            class="flex max-w-md flex-col gap-4 overflow-hidden rounded-md border border-outline border-gray-100 dark:border-gray-800 bg-white text-on-surface dark:border-outline-dark dark:bg-gray-700 dark:text-gray-300"
         >
             <div class="flex items-center justify-between border-b border-gray-100 px-4 py-2 dark:border-gray-800">
                 <div class="flex items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 p-1">
@@ -264,13 +272,13 @@
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                     </svg>
                 </div>
-                <h3 id="bulk-delete-modal-title" class="font-semibold tracking-wide text-gray-800 dark:text-white">
+                <h3 id="bulk-delete-modal-title" class="font-semibold tracking-wide text-gray-700 dark:text-white">
                     {{ __('Delete Selected Users') }}
                 </h3>
-                <button 
-                    x-on:click="bulkDeleteModalOpen = false" 
-                    aria-label="close modal" 
-                    class="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg p-1 dark:hover:bg-gray-600 dark:hover:text-white"
+                <button
+                    x-on:click="bulkDeleteModalOpen = false"
+                    aria-label="close modal"
+                    class="text-gray-400 hover:bg-gray-200 hover:text-gray-700 rounded-md p-1 dark:hover:bg-gray-600 dark:hover:text-white"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="1.4" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -278,8 +286,8 @@
                 </button>
             </div>
             <div class="px-4 text-center">
-                <p class="text-gray-500 dark:text-gray-400">
-                    {{ __('Are you sure you want to delete the selected users?') }} 
+                <p class="text-gray-500 dark:text-gray-300">
+                    {{ __('Are you sure you want to delete the selected users?') }}
                     {{ __('This action cannot be undone.') }}
                 </p>
             </div>
@@ -287,22 +295,22 @@
                 <form id="bulk-delete-form" action="{{ route('admin.users.bulk-delete') }}" method="POST">
                     @method('DELETE')
                     @csrf
-                    
+
                     <template x-for="id in selectedUsers" :key="id">
                         <input type="hidden" name="ids[]" :value="id">
                     </template>
 
-                    <button 
-                        type="button" 
-                        x-on:click="bulkDeleteModalOpen = false" 
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+                    <button
+                        type="button"
+                        x-on:click="bulkDeleteModalOpen = false"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
                     >
                         {{ __('No, Cancel') }}
                     </button>
 
-                    <button 
-                        type="submit" 
-                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-800"
+                    <button
+                        type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-800"
                     >
                         {{ __('Yes, Delete') }}
                     </button>

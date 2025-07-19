@@ -1,8 +1,8 @@
 <div class="flex items-start mb-2 {{ $level > 0 ? 'ml-' . ($level * 4) : '' }}">
-    <input type="checkbox" name="taxonomy_{{ $taxonomy->name }}[]" id="term_{{ $term->id }}" value="{{ $term->id }}" 
-        class="mt-1 h-4 w-4 text-brand-500 border-gray-300 rounded focus:ring-brand-400 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-brand-500"
+    <input type="checkbox" name="taxonomy_{{ $taxonomy->name }}[]" id="term_{{ $term->id }}" value="{{ $term->id }}"
+        class="form-checkbox mt-1 h-4 w-4 text-brand-500 border-gray-300 rounded focus:ring-brand-400 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-brand-500"
         {{ in_array($term->id, old('taxonomy_' . $taxonomy->name, $selectedTerms)) ? 'checked' : '' }}>
-    <label for="term_{{ $term->id }}" class="ml-2 block text-sm text-gray-700 dark:text-gray-400">
+    <label for="term_{{ $term->id }}" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
         {{ $term->name }}
     </label>
 </div>

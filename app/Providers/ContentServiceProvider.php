@@ -111,18 +111,18 @@ class ContentServiceProvider extends ServiceProvider
     protected function getPostTypeIcon(string $postType): string
     {
         return match ($postType) {
-            'post' => 'bi bi-file-post-fill',
-            'page' => 'bi bi-file-earmark-post',
-            default => 'bi bi-collection'
+            'post' => 'lucide:file-text',
+            'page' => 'lucide:file',
+            default => 'lucide:files'
         };
     }
 
     protected function getTaxonomyIcon(string $taxonomy): string
     {
         return match ($taxonomy) {
-            'category' => 'bi bi-folder',
-            'tag' => 'bi bi-tags',
-            default => 'bi bi-bookmark'
+            'category' => 'lucide:folder',
+            'tag' => 'lucide:tags',
+            default => 'lucide:bookmark'
         };
     }
 }

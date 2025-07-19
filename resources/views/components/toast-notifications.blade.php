@@ -32,35 +32,35 @@
                 )
             }, 300);
         },
-    }" 
+    }"
     x-on:notify.window="addNotification({
         variant: $event.detail.variant,
         title: $event.detail.title,
         message: $event.detail.message,
     })"
     class="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex max-w-full flex-col gap-3 md:right-4 md:left-auto md:max-w-sm"
-    x-on:mouseenter="$dispatch('pause-auto-dismiss')" 
+    x-on:mouseenter="$dispatch('pause-auto-dismiss')"
     x-on:mouseleave="$dispatch('resume-auto-dismiss')">
-    
+
     <template x-for="(notification, index) in notifications" x-bind:key="notification.id">
         <div>
             <!-- Success Notification -->
-            <template x-if="notification.variant === 'success'">                
-                <div x-data="{ isVisible: false, timeout: null }" 
-                     x-cloak 
-                     x-show="isVisible" 
-                     class="pointer-events-auto relative rounded-lg border border-success-200 bg-white text-gray-800 dark:border-success-800 dark:bg-gray-800 dark:text-gray-200 shadow-lg" 
-                     role="alert" 
-                     x-on:pause-auto-dismiss.window="clearTimeout(timeout)" 
-                     x-on:resume-auto-dismiss.window="timeout = setTimeout(() => {(isVisible = false), removeNotification(notification.id) }, displayDuration)" 
-                     x-init="$nextTick(() => { isVisible = true }), (timeout = setTimeout(() => { isVisible = false, removeNotification(notification.id)}, displayDuration))" 
-                     x-transition:enter="transition duration-300 ease-out" 
-                     x-transition:enter-end="translate-y-0 opacity-100" 
-                     x-transition:enter-start="translate-y-2 opacity-0" 
-                     x-transition:leave="transition duration-300 ease-in" 
-                     x-transition:leave-end="translate-x-full opacity-0" 
+            <template x-if="notification.variant === 'success'">
+                <div x-data="{ isVisible: false, timeout: null }"
+                     x-cloak
+                     x-show="isVisible"
+                     class="pointer-events-auto relative rounded-md border border-success-200 bg-white text-gray-700 dark:border-success-800 dark:bg-gray-800 dark:text-gray-200 shadow-lg"
+                     role="alert"
+                     x-on:pause-auto-dismiss.window="clearTimeout(timeout)"
+                     x-on:resume-auto-dismiss.window="timeout = setTimeout(() => {(isVisible = false), removeNotification(notification.id) }, displayDuration)"
+                     x-init="$nextTick(() => { isVisible = true }), (timeout = setTimeout(() => { isVisible = false, removeNotification(notification.id)}, displayDuration))"
+                     x-transition:enter="transition duration-300 ease-out"
+                     x-transition:enter-end="translate-y-0 opacity-100"
+                     x-transition:enter-start="translate-y-2 opacity-0"
+                     x-transition:leave="transition duration-300 ease-in"
+                     x-transition:leave-end="translate-x-full opacity-0"
                      x-transition:leave-start="translate-x-0 opacity-100">
-                    <div class="flex w-full items-center gap-3 bg-success-50 dark:bg-success-900/20 rounded-lg p-4">
+                    <div class="flex w-full items-center gap-3 bg-success-50 dark:bg-success-900/20 rounded-md p-4">
                         <!-- Icon -->
                         <div class="rounded-full bg-success-100 dark:bg-success-800/30 p-1.5 text-success-600 dark:text-success-400" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
@@ -75,9 +75,9 @@
                         </div>
 
                         <!-- Dismiss Button -->
-                        <button type="button" 
-                                class="ml-auto text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" 
-                                aria-label="dismiss notification" 
+                        <button type="button"
+                                class="ml-auto text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                                aria-label="dismiss notification"
                                 x-on:click="(isVisible = false), removeNotification(notification.id)">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -88,22 +88,22 @@
             </template>
 
             <!-- Error/Danger Notification -->
-            <template x-if="notification.variant === 'error' || notification.variant === 'danger'">                
-                <div x-data="{ isVisible: false, timeout: null }" 
-                     x-cloak 
-                     x-show="isVisible" 
-                     class="pointer-events-auto relative rounded-lg border border-error-200 bg-white text-gray-800 dark:border-error-800 dark:bg-gray-800 dark:text-gray-200 shadow-lg" 
-                     role="alert" 
-                     x-on:pause-auto-dismiss.window="clearTimeout(timeout)" 
-                     x-on:resume-auto-dismiss.window="timeout = setTimeout(() => {(isVisible = false), removeNotification(notification.id) }, displayDuration)" 
-                     x-init="$nextTick(() => { isVisible = true }), (timeout = setTimeout(() => { isVisible = false, removeNotification(notification.id)}, displayDuration))" 
-                     x-transition:enter="transition duration-300 ease-out" 
-                     x-transition:enter-end="translate-y-0 opacity-100" 
-                     x-transition:enter-start="translate-y-2 opacity-0" 
-                     x-transition:leave="transition duration-300 ease-in" 
-                     x-transition:leave-end="translate-x-full opacity-0" 
+            <template x-if="notification.variant === 'error' || notification.variant === 'danger'">
+                <div x-data="{ isVisible: false, timeout: null }"
+                     x-cloak
+                     x-show="isVisible"
+                     class="pointer-events-auto relative rounded-md border border-error-200 bg-white text-gray-700 dark:border-error-800 dark:bg-gray-800 dark:text-gray-200 shadow-lg"
+                     role="alert"
+                     x-on:pause-auto-dismiss.window="clearTimeout(timeout)"
+                     x-on:resume-auto-dismiss.window="timeout = setTimeout(() => {(isVisible = false), removeNotification(notification.id) }, displayDuration)"
+                     x-init="$nextTick(() => { isVisible = true }), (timeout = setTimeout(() => { isVisible = false, removeNotification(notification.id)}, displayDuration))"
+                     x-transition:enter="transition duration-300 ease-out"
+                     x-transition:enter-end="translate-y-0 opacity-100"
+                     x-transition:enter-start="translate-y-2 opacity-0"
+                     x-transition:leave="transition duration-300 ease-in"
+                     x-transition:leave-end="translate-x-full opacity-0"
                      x-transition:leave-start="translate-x-0 opacity-100">
-                    <div class="flex w-full items-center gap-3 bg-error-50 dark:bg-error-900/20 rounded-lg p-4">
+                    <div class="flex w-full items-center gap-3 bg-error-50 dark:bg-error-900/20 rounded-md p-4">
                         <!-- Icon -->
                         <div class="rounded-full bg-error-100 dark:bg-error-800/30 p-1.5 text-error-600 dark:text-error-400" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
@@ -118,9 +118,9 @@
                         </div>
 
                         <!-- Dismiss Button -->
-                        <button type="button" 
-                                class="ml-auto text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" 
-                                aria-label="dismiss notification" 
+                        <button type="button"
+                                class="ml-auto text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                                aria-label="dismiss notification"
                                 x-on:click="(isVisible = false), removeNotification(notification.id)">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -131,22 +131,22 @@
             </template>
 
             <!-- Warning Notification -->
-            <template x-if="notification.variant === 'warning'">                
-                <div x-data="{ isVisible: false, timeout: null }" 
-                     x-cloak 
-                     x-show="isVisible" 
-                     class="pointer-events-auto relative rounded-lg border border-warning-200 bg-white text-gray-800 dark:border-warning-800 dark:bg-gray-800 dark:text-gray-200 shadow-lg" 
-                     role="alert" 
-                     x-on:pause-auto-dismiss.window="clearTimeout(timeout)" 
-                     x-on:resume-auto-dismiss.window="timeout = setTimeout(() => {(isVisible = false), removeNotification(notification.id) }, displayDuration)" 
-                     x-init="$nextTick(() => { isVisible = true }), (timeout = setTimeout(() => { isVisible = false, removeNotification(notification.id)}, displayDuration))" 
-                     x-transition:enter="transition duration-300 ease-out" 
-                     x-transition:enter-end="translate-y-0 opacity-100" 
-                     x-transition:enter-start="translate-y-2 opacity-0" 
-                     x-transition:leave="transition duration-300 ease-in" 
-                     x-transition:leave-end="translate-x-full opacity-0" 
+            <template x-if="notification.variant === 'warning'">
+                <div x-data="{ isVisible: false, timeout: null }"
+                     x-cloak
+                     x-show="isVisible"
+                     class="pointer-events-auto relative rounded-md border border-warning-200 bg-white text-gray-700 dark:border-warning-800 dark:bg-gray-800 dark:text-gray-200 shadow-lg"
+                     role="alert"
+                     x-on:pause-auto-dismiss.window="clearTimeout(timeout)"
+                     x-on:resume-auto-dismiss.window="timeout = setTimeout(() => {(isVisible = false), removeNotification(notification.id) }, displayDuration)"
+                     x-init="$nextTick(() => { isVisible = true }), (timeout = setTimeout(() => { isVisible = false, removeNotification(notification.id)}, displayDuration))"
+                     x-transition:enter="transition duration-300 ease-out"
+                     x-transition:enter-end="translate-y-0 opacity-100"
+                     x-transition:enter-start="translate-y-2 opacity-0"
+                     x-transition:leave="transition duration-300 ease-in"
+                     x-transition:leave-end="translate-x-full opacity-0"
                      x-transition:leave-start="translate-x-0 opacity-100">
-                    <div class="flex w-full items-center gap-3 bg-warning-50 dark:bg-warning-900/20 rounded-lg p-4">
+                    <div class="flex w-full items-center gap-3 bg-warning-50 dark:bg-warning-900/20 rounded-md p-4">
                         <!-- Icon -->
                         <div class="rounded-full bg-warning-100 dark:bg-warning-800/30 p-1.5 text-warning-600 dark:text-warning-400" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
@@ -161,9 +161,9 @@
                         </div>
 
                         <!-- Dismiss Button -->
-                        <button type="button" 
-                                class="ml-auto text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" 
-                                aria-label="dismiss notification" 
+                        <button type="button"
+                                class="ml-auto text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                                aria-label="dismiss notification"
                                 x-on:click="(isVisible = false), removeNotification(notification.id)">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -174,22 +174,22 @@
             </template>
 
             <!-- Info Notification -->
-            <template x-if="notification.variant === 'info'">                
-                <div x-data="{ isVisible: false, timeout: null }" 
-                     x-cloak 
-                     x-show="isVisible" 
-                     class="pointer-events-auto relative rounded-lg border border-blue-light-200 bg-white text-gray-800 dark:border-blue-light-800 dark:bg-gray-800 dark:text-gray-200 shadow-lg" 
-                     role="alert" 
-                     x-on:pause-auto-dismiss.window="clearTimeout(timeout)" 
-                     x-on:resume-auto-dismiss.window="timeout = setTimeout(() => {(isVisible = false), removeNotification(notification.id) }, displayDuration)" 
-                     x-init="$nextTick(() => { isVisible = true }), (timeout = setTimeout(() => { isVisible = false, removeNotification(notification.id)}, displayDuration))" 
-                     x-transition:enter="transition duration-300 ease-out" 
-                     x-transition:enter-end="translate-y-0 opacity-100" 
-                     x-transition:enter-start="translate-y-2 opacity-0" 
-                     x-transition:leave="transition duration-300 ease-in" 
-                     x-transition:leave-end="translate-x-full opacity-0" 
+            <template x-if="notification.variant === 'info'">
+                <div x-data="{ isVisible: false, timeout: null }"
+                     x-cloak
+                     x-show="isVisible"
+                     class="pointer-events-auto relative rounded-md border border-blue-light-200 bg-white text-gray-700 dark:border-blue-light-800 dark:bg-gray-800 dark:text-gray-200 shadow-lg"
+                     role="alert"
+                     x-on:pause-auto-dismiss.window="clearTimeout(timeout)"
+                     x-on:resume-auto-dismiss.window="timeout = setTimeout(() => {(isVisible = false), removeNotification(notification.id) }, displayDuration)"
+                     x-init="$nextTick(() => { isVisible = true }), (timeout = setTimeout(() => { isVisible = false, removeNotification(notification.id)}, displayDuration))"
+                     x-transition:enter="transition duration-300 ease-out"
+                     x-transition:enter-end="translate-y-0 opacity-100"
+                     x-transition:enter-start="translate-y-2 opacity-0"
+                     x-transition:leave="transition duration-300 ease-in"
+                     x-transition:leave-end="translate-x-full opacity-0"
                      x-transition:leave-start="translate-x-0 opacity-100">
-                    <div class="flex w-full items-center gap-3 bg-blue-light-50 dark:bg-blue-light-900/20 rounded-lg p-4">
+                    <div class="flex w-full items-center gap-3 bg-blue-light-50 dark:bg-blue-light-900/20 rounded-md p-4">
                         <!-- Icon -->
                         <div class="rounded-full bg-blue-light-100 dark:bg-blue-light-800/30 p-1.5 text-blue-light-600 dark:text-blue-light-400" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
@@ -204,9 +204,9 @@
                         </div>
 
                         <!-- Dismiss Button -->
-                        <button type="button" 
-                                class="ml-auto text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" 
-                                aria-label="dismiss notification" 
+                        <button type="button"
+                                class="ml-auto text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                                aria-label="dismiss notification"
                                 x-on:click="(isVisible = false), removeNotification(notification.id)">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>

@@ -73,7 +73,7 @@ if (! function_exists('storeImageAndGetUrl')) {
         }
 
         if ($file) {
-            $fileName = uniqid($fileKey.'_').'.'.$file->getClientOriginalExtension();
+            $fileName = uniqid($fileKey . '_') . '.' . $file->getClientOriginalExtension();
             $targetPath = public_path($path);
 
             if (! file_exists($targetPath)) {
@@ -82,7 +82,7 @@ if (! function_exists('storeImageAndGetUrl')) {
 
             $file->move($targetPath, $fileName);
 
-            return asset($path.'/'.$fileName);
+            return asset($path . '/' . $fileName);
         }
 
         return null;
@@ -96,12 +96,12 @@ if (! function_exists('deleteImageFromPublic')) {
         $filePath = ltrim($urlParts['path'], '/');
         if (File::exists(public_path($filePath))) {
             if (File::delete(public_path($filePath))) {
-                Log::info('File deleted successfully: '.$filePath);
+                Log::info('File deleted successfully: ' . $filePath);
             } else {
-                Log::error('Failed to delete file: '.$filePath);
+                Log::error('Failed to delete file: ' . $filePath);
             }
         } else {
-            Log::warning('File does not exist: '.$filePath);
+            Log::warning('File does not exist: ' . $filePath);
         }
     }
 }
@@ -277,9 +277,9 @@ if (! function_exists('get_post_type_icon')) {
     function get_post_type_icon(string $postType): string
     {
         return match ($postType) {
-            'post' => 'bi bi-file-earmark-text',
-            'page' => 'bi bi-file-earmark',
-            default => 'bi bi-collection'
+            'post' => 'lucide:file-text',
+            'page' => 'lucide:file',
+            default => 'lucide:files'
         };
     }
 }
@@ -294,9 +294,9 @@ if (! function_exists('get_taxonomy_icon')) {
     function get_taxonomy_icon(string $taxonomy): string
     {
         return match ($taxonomy) {
-            'category' => 'bi bi-folder',
-            'tag' => 'bi bi-tags',
-            default => 'bi bi-bookmark'
+            'category' => 'lucide:folder',
+            'tag' => 'lucide:tags',
+            default => 'lucide:bookmark'
         };
     }
 }
@@ -314,14 +314,14 @@ if (! function_exists('svg_icon')) {
 
             return Str::replaceFirst(
                 '<svg',
-                '<svg class="'.e($classes).'"',
+                '<svg class="' . e($classes) . '"',
                 $svg
             );
         }
 
-        // Fallback: Bootstrap icon
+        // Fallback: Iconify icon
         if ($fallback) {
-            return '<i class="bi bi-'.e($fallback).' '.e($classes).'"></i>';
+            return '<iconify-icon icon="lucide:' . e($fallback) . '" class="' . e($classes) . '"></iconify-icon>';
         }
 
         // If no SVG and no fallback.
@@ -345,7 +345,7 @@ if (! function_exists('generate_unique_slug')) {
         $slug = Str::slug($string);
 
         if (empty($slug)) {
-            $slug = 'item-'.uniqid();
+            $slug = 'item-' . uniqid();
         }
 
         $original_slug = $slug;
@@ -358,7 +358,7 @@ if (! function_exists('generate_unique_slug')) {
         }
 
         while ($query->exists()) {
-            $slug = $original_slug.'-'.$i++;
+            $slug = $original_slug . '-' . $i++;
             $query = DB::table($table)->where($column, $slug);
 
             if ($except_id !== null) {
@@ -385,7 +385,7 @@ if (! function_exists('generate_secure_password')) {
         $numbers = '0123456789';
         $specialChars = '!@#$%^&*()-_=+[]{}|;:,.<>?';
 
-        $characterPool = $uppercase.$lowercase.$numbers;
+        $characterPool = $uppercase . $lowercase . $numbers;
         if ($includeSpecialChars) {
             $characterPool .= $specialChars;
         }

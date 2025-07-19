@@ -22,40 +22,40 @@
                 <div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-4 md:gap-6">
                     {!! ld_apply_filters('dashboard_cards_before_users', '') !!}
                     @include('backend.pages.dashboard.partials.card', [
-                        'icon_svg' => asset('images/icons/user.svg'),
+                        "icon" => 'heroicons:user-group',
+                        'icon_bg' => '#635BFF',
                         'label' => __('Users'),
                         'value' => $total_users,
-                        'bg' => '#635BFF',
                         'class' => 'bg-white',
                         'url' => route('admin.users.index'),
                         'enable_full_div_click' => true,
                     ])
                     {!! ld_apply_filters('dashboard_cards_after_users', '') !!}
                     @include('backend.pages.dashboard.partials.card', [
-                        'icon_svg' => asset('images/icons/key.svg'),
+                        'icon' => 'heroicons:key',
+                        'icon_bg' => '#00D7FF',
                         'label' => __('Roles'),
                         'value' => $total_roles,
-                        'bg' => '#00D7FF',
                         'class' => 'bg-white',
                         'url' => route('admin.roles.index'),
                         'enable_full_div_click' => true,
                     ])
                     {!! ld_apply_filters('dashboard_cards_after_roles', '') !!}
                     @include('backend.pages.dashboard.partials.card', [
-                        'icon' => 'bi bi-shield-check',
+                        'icon' => 'bi:shield-check',
+                        'icon_bg' => '#FF4D96',
                         'label' => __('Permissions'),
                         'value' => $total_permissions,
-                        'bg' => '#FF4D96',
                         'class' => 'bg-white',
                         'url' => route('admin.permissions.index'),
                         'enable_full_div_click' => true,
                     ])
                     {!! ld_apply_filters('dashboard_cards_after_permissions', '') !!}
                     @include('backend.pages.dashboard.partials.card', [
-                        'icon' => 'bi bi-translate',
+                        'icon' => 'heroicons:language',
+                        'icon_bg' => '#22C55E',
                         'label' => __('Translations'),
                         'value' => $languages['total'] . ' / ' . $languages['active'],
-                        'bg' => '#22C55E',
                         'class' => 'bg-white',
                         'url' => route('admin.translations.index'),
                         'enable_full_div_click' => true,
@@ -81,7 +81,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="mt-6">
             <div class="grid grid-cols-12 gap-4 md:gap-6">
                 <div class="col-span-12">

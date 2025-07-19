@@ -1,0 +1,171 @@
+@utility menu-item {
+    @apply relative flex items-center gap-3 px-4 py-2 rounded-md font-medium text-theme-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out;
+}
+
+@utility menu-item-active {
+    @apply bg-brand-100 text-brand-500 hover:bg-brand-100 hover:text-brand-500 dark:bg-brand-500 dark:text-brand-25 dark:hover:bg-brand-500;
+}
+
+/* @utility menu-item-inactive {
+    @apply text-gray-300 hover:text-gray-300;
+} */
+
+@utility menu-item-icon-active {
+    @apply fill-brand-500 dark:fill-brand-400;
+}
+
+@utility menu-item-icon-inactive {
+    @apply fill-gray-400 group-hover:fill-gray-300;
+}
+
+@utility menu-item-icon {
+    @apply flex items-center justify-center;
+}
+
+@utility menu-item-text {
+    @apply flex items-center;
+}
+
+@utility menu-item-arrow {
+    @apply absolute top-1/2 right-2.5 -translate-y-1/2;
+}
+
+@utility menu-item-arrow-active {
+    @apply rotate-180 stroke-brand-500 dark:stroke-brand-400;
+}
+
+@utility menu-item-arrow-inactive {
+    @apply stroke-gray-500 group-hover:stroke-gray-700 dark:stroke-gray-400 dark:group-hover:stroke-gray-300;
+}
+
+@utility menu-dropdown-item {
+    @apply text-theme-sm relative flex items-center gap-3 rounded-md px-3 py-2.5 font-medium;
+}
+
+@utility menu-dropdown-item-active {
+    @apply bg-brand-500/[0.12] text-brand-400;
+}
+
+@utility menu-dropdown-item-inactive {
+    @apply text-gray-300 hover:bg-white/5;
+}
+
+@utility menu-dropdown-badge {
+    @apply text-brand-500 dark:text-brand-400 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
+}
+
+@utility menu-dropdown-badge-active {
+    @apply bg-brand-100 dark:bg-brand-500/20;
+}
+
+@utility menu-dropdown-badge-inactive {
+    @apply bg-brand-50 group-hover:bg-brand-100 dark:bg-brand-500/15 dark:group-hover:bg-brand-500/20;
+}
+
+/* @utility submenu {
+    @apply mr-2 mb-2;
+} */
+
+@utility no-scrollbar {
+    /* Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+@utility custom-scrollbar {
+    &::-webkit-scrollbar {
+        @apply size-1.5;
+    }
+
+    &::-webkit-scrollbar-track {
+        @apply rounded-full;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        @apply bg-gray-200 rounded-full;
+    }
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #344054;
+}
+
+.app-sidebar-minified .submenu {
+    @apply hidden;
+}
+
+.app-sidebar-minified .menu-group-heading {
+    @apply hidden;
+}
+
+.submenu li .menu-item {
+    @apply pl-12;
+}
+
+/* .submenu .menu-item,
+.submenu li,
+.submenu li:hover,
+.submenu li:hover a {
+    @apply rounded-md bg-transparent text-primary dark:text-white py-1 px-0 mx-0 my-0;
+} */
+
+.submenu .menu-item-active {
+    @apply text-brand-500 bg-transparent hover:bg-brand-100 dark:hover:bg-brand-500/20;
+}
+
+/* .submenu li:hover a:hover,
+.submenu li:hover a:hover .menu-item-text {
+    @apply text-primary dark:text-white;
+} */
+
+@media (min-width: 1024px) {
+    .app-sidebar-minified .menu-item .menu-item-text,
+    .app-sidebar-minified .menu-item .menu-item-arrow {
+        display: none;
+    }
+    /* .app-sidebar-minified .menu-item .menu-item-icon {
+        margin-left: 10px;
+    } */
+}
+@media (max-width: 1023px) {
+    .app-sidebar-minified .menu-item .menu-item-text,
+    .app-sidebar-minified .menu-item .menu-item-arrow {
+        display: inline-block;
+    }
+}
+/* .menu-item .menu-item-arrow {
+    margin-right: 10px;
+} */
+.sidebar:hover {
+    width: 290px;
+}
+.sidebar:hover .logo {
+    display: block;
+}
+.sidebar:hover .logo-icon {
+    display: none;
+}
+.sidebar:hover .sidebar-header {
+    justify-content: space-between;
+}
+.sidebar:hover .menu-group-title {
+    display: block;
+}
+.sidebar:hover .menu-group-icon {
+    display: none;
+}
+
+.sidebar:hover .menu-item-text {
+    display: inline;
+}
+
+.sidebar:hover .menu-item-arrow {
+    display: block;
+}
+
+.sidebar:hover .menu-dropdown {
+    display: flex;
+}

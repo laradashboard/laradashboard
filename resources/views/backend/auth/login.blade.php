@@ -7,10 +7,10 @@
 @section('admin-content')
 <div>
     <div class="mb-5 sm:mb-8">
-      <h1 class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+      <h1 class="mb-2 font-semibold text-gray-700 text-title-sm dark:text-white/90 sm:text-title-md">
         {{ __('Sign In') }}
       </h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400">
+      <p class="text-sm text-gray-500 dark:text-gray-300">
         {{ __('Enter your email and password to sign in!') }}
       </p>
     </div>
@@ -19,75 +19,58 @@
         @csrf
         <div class="space-y-5">
           <x-messages />
-          <!-- Email -->
+
           <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              {{ __('Email') }} <span class="text-error-500">*</span>
-            </label>
-            <input autofocus type="text" id="email" name="email" autocomplete="username" placeholder="info@gmail.com" class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800">
+            <label class="form-label">{{ __('Email') }}</label>
+            <input autofocus type="text" id="email" name="email" autocomplete="username" placeholder="{{ __('Enter your email') }}" class="dark:bg-dark-900 h-11 w-full rounded-md border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-700 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" value="{{ old('email') ?? config('app.demo_mode', false) ? 'superadmin@example.com' : '' }}" required>
           </div>
-          <!-- Password -->
-          <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              {{ __('Password') }} <span class="text-error-500">*</span>
-            </label>
-            <div x-data="{ showPassword: false }" class="relative">
-              <input :type="showPassword ? 'text' : 'password'" autocomplete="current-password" name="password" placeholder="{{ __('Enter your password') }}" class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" type="password">
-              <span @click="showPassword = !showPassword" class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400">
-                <svg x-show="!showPassword" class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0002 13.8619C7.23361 13.8619 4.86803 12.1372 3.92328 9.70241C4.86804 7.26761 7.23361 5.54297 10.0002 5.54297C12.7667 5.54297 15.1323 7.26762 16.0771 9.70243C15.1323 12.1372 12.7667 13.8619 10.0002 13.8619ZM10.0002 4.04297C6.48191 4.04297 3.49489 6.30917 2.4155 9.4593C2.3615 9.61687 2.3615 9.78794 2.41549 9.94552C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C13.5184 15.3619 16.5055 13.0957 17.5849 9.94555C17.6389 9.78797 17.6389 9.6169 17.5849 9.45932C16.5055 6.30919 13.5184 4.04297 10.0002 4.04297ZM9.99151 7.84413C8.96527 7.84413 8.13333 8.67606 8.13333 9.70231C8.13333 10.7286 8.96527 11.5605 9.99151 11.5605H10.0064C11.0326 11.5605 11.8646 10.7286 11.8646 9.70231C11.8646 8.67606 11.0326 7.84413 10.0064 7.84413H9.99151Z" fill="#98A2B3"></path>
-                </svg>
-                <svg x-show="showPassword" class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M4.63803 3.57709C4.34513 3.2842 3.87026 3.2842 3.57737 3.57709C3.28447 3.86999 3.28447 4.34486 3.57737 4.63775L4.85323 5.91362C3.74609 6.84199 2.89363 8.06395 2.4155 9.45936C2.3615 9.61694 2.3615 9.78801 2.41549 9.94558C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C11.255 15.3619 12.4422 15.0737 13.4994 14.5598L15.3625 16.4229C15.6554 16.7158 16.1302 16.7158 16.4231 16.4229C16.716 16.13 16.716 15.6551 16.4231 15.3622L4.63803 3.57709ZM12.3608 13.4212L10.4475 11.5079C10.3061 11.5423 10.1584 11.5606 10.0064 11.5606H9.99151C8.96527 11.5606 8.13333 10.7286 8.13333 9.70237C8.13333 9.5461 8.15262 9.39434 8.18895 9.24933L5.91885 6.97923C5.03505 7.69015 4.34057 8.62704 3.92328 9.70247C4.86803 12.1373 7.23361 13.8619 10.0002 13.8619C10.8326 13.8619 11.6287 13.7058 12.3608 13.4212ZM16.0771 9.70249C15.7843 10.4569 15.3552 11.1432 14.8199 11.7311L15.8813 12.7925C16.6329 11.9813 17.2187 11.0143 17.5849 9.94561C17.6389 9.78803 17.6389 9.61696 17.5849 9.45938C16.5055 6.30925 13.5184 4.04303 10.0002 4.04303C9.13525 4.04303 8.30244 4.17999 7.52218 4.43338L8.75139 5.66259C9.1556 5.58413 9.57311 5.54303 10.0002 5.54303C12.7667 5.54303 15.1323 7.26768 16.0771 9.70249Z" fill="#98A2B3"></path>
-                </svg>
-              </span>
-            </div>
-          </div>
-          <!-- Checkbox -->
+
+          <x-inputs.password 
+            name="password" 
+            label="{{ __('Password') }}"
+            placeholder="{{ __('Enter your password') }}" 
+            value="{{ (config('app.demo_mode', false) ? '12345678' : '') }}" 
+            required
+          />
+
           <div class="flex items-center justify-between">
-            <div x-data="{ checkboxToggle: false }">
-              <label for="checkboxLabelOne" class="flex items-center text-sm font-normal text-gray-700 cursor-pointer select-none dark:text-gray-400">
-                <div class="relative">
-                  <input type="checkbox" id="checkboxLabelOne" class="sr-only" @change="checkboxToggle = !checkboxToggle" :checked="checkboxToggle" name="remember" />
-                  <div :class="checkboxToggle ? 'border-brand-500 bg-brand-500' : 'bg-transparent border-gray-300 dark:border-gray-700'" class="mr-3 flex h-5 w-5 items-center justify-center rounded-md border-[1.25px] bg-transparent border-gray-300 dark:border-gray-700">
-                    <span :class="checkboxToggle ? '' : 'opacity-0'" class="opacity-0">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white" stroke-width="1.94437" stroke-linecap="round" stroke-linejoin="round"></path>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-                {{ __('Remember Me') }}
-              </label>
-            </div>
+            <label for="remember" class="flex items-center justify-center gap-2 text-sm font-medium has-checked:text-gray-900 dark:has-checked:text-white has-disabled:cursor-not-allowed">
+                <span class="relative flex items-center">
+                    <input id="remember" name="remember" type="checkbox" class="before:content[''] peer relative size-4 appearance-none overflow-hidden rounded-sm border border-outline bg-surface-alt before:absolute before:inset-0 checked:border-primary checked:before:bg-primary focus:outline-2 focus:outline-offset-2 focus:outline-outline-strong checked:focus:outline-primary active:outline-offset-0 disabled:cursor-not-allowed dark:border-outline-dark dark:bg-surface-dark-alt dark:checked:border-primary-dark dark:checked:before:bg-primary-dark dark:focus:outline-outline-dark-strong dark:checked:focus:outline-primary-dark" checked/>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="4" class="pointer-events-none invisible absolute left-1/2 top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 text-white peer-checked:visible">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                    </svg>
+                </span>
+                <span class="form-label mb-0">{{ __('Remember me') }}</span>
+            </label>
             <a href="{{ route('admin.password.request') }}" class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">{{ __('Forgot password?') }}</a>
           </div>
-          <!-- Button -->
+
           <div>
             <button type="submit" class="btn-primary w-full ">
               {{ __('Sign In') }}
-              <i class="bi bi-box-arrow-in-right ml-2"></i>
+              <iconify-icon icon="lucide:log-in" class="ml-2"></iconify-icon>
             </button>
           </div>
           @if (config('app.demo_mode', false))
-          <div x-data="{ showDemoCredentials: true }" class="mt-4 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-            <button 
-              type="button" 
-              @click="showDemoCredentials = !showDemoCredentials" 
+          <div x-data="{ showDemoCredentials: false }" class="mt-4 border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+            <button
+              type="button"
+              @click="showDemoCredentials = !showDemoCredentials"
               class="flex justify-between items-center w-full px-4 py-3 text-sm font-medium text-left text-brand-600 dark:text-brand-400 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <span>
-                <i class="bi bi-info-circle mr-2"></i>
+                <iconify-icon icon="lucide:info" class="mr-2"></iconify-icon>
                 {{ __('Demo Credentials') }}
               </span>
-              <i :class="showDemoCredentials ? 'bi bi-chevron-up' : 'bi bi-chevron-down'"></i>
+              <iconify-icon :icon="showDemoCredentials ? 'lucide:chevron-up' : 'lucide:chevron-down'"></iconify-icon>
             </button>
-            
+
             <div x-show="showDemoCredentials" x-transition class="px-4 py-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
               <div class="mb-3">
-                <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('Use these credentials to explore the demo:') }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300">{{ __('Use these credentials to explore the demo:') }}</p>
               </div>
-              <div class="grid grid-cols-1 gap-2 mb-3 text-gray-500 dark:text-gray-400">
+              <div class="grid grid-cols-1 gap-2 mb-3 text-gray-500 dark:text-gray-300">
                 <div class="flex items-center">
                   <span class="w-20 text-xs font-medium">{{ __('Email:') }}</span>
                   <code class="px-2 py-1 text-xs font-mono bg-gray-100 dark:bg-gray-800 rounded">superadmin@example.com</code>
@@ -97,13 +80,13 @@
                   <code class="px-2 py-1 text-xs font-mono bg-gray-100 dark:bg-gray-800 rounded">12345678</code>
                 </div>
               </div>
-              <button 
-                type="button" 
-                id="fill-demo-credentials" 
+              <button
+                type="button"
+                id="fill-demo-credentials"
                 class="!text-xs btn-default"
               >
                 {{ __('Login Now') }}
-                <i class="bi bi-box-arrow-in-right ml-1"></i>
+                <iconify-icon icon="lucide:log-in" class="ml-1"></iconify-icon>
               </button>
             </div>
           </div>
@@ -113,6 +96,7 @@
     </div>
 </div>
 @endsection
+
 @if (config('app.demo_mode', false))
     @push('scripts')
         <script>
@@ -120,7 +104,6 @@
               console.log('clicked');
                 document.getElementById('email').value = 'superadmin@example.com';
                 document.querySelector('input[name="password"]').value = '12345678';
-                // Submit the form.
                 document.querySelector('form').submit();
             });
         </script>

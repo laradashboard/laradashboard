@@ -3,12 +3,12 @@
     'position' => 'bottom',
     'width' => 'max-w-xs',
     'trigger' => 'click', // 'hover' or 'click'
-    'triggerClass' => 'text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors',
+    'triggerClass' => 'text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors',
     'contentClass' => '',
 ])
 
 <div x-data="{ open: false }" class="relative inline-block">
-    <button 
+    <button
         @click="open = !open"
         type="button"
         class="cursor-pointer {{ $triggerClass }}"
@@ -27,7 +27,7 @@
         x-transition:leave-end="opacity-0 scale-95"
         @click.away="open = false"
         @keydown.escape.window="open = false"
-        class="absolute z-50 {{ $width }} bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-0 text-sm text-gray-700 dark:text-gray-300
+        class="absolute z-50 {{ $width }} bg-white dark:bg-gray-800 rounded-md shadow-xl border border-gray-200 dark:border-gray-700 p-0 text-sm text-gray-700 dark:text-gray-300
             {{ $position === 'top' ? 'bottom-full mb-2' : '' }}
             {{ $position === 'bottom' ? 'top-full mt-2' : '' }}
             {{ $position === 'left' ? 'right-full mr-2' : '' }}

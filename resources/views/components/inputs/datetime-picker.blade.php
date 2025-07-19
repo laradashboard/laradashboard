@@ -58,7 +58,7 @@
     }
 }">
     @if ($label)
-        <label for="{{ $id }}" class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+        <label for="{{ $id }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ $label }}
             @if ($required)
                 <span class="text-red-500">*</span>
@@ -68,7 +68,7 @@
 
     <div class="relative">
         <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-            <i class="bi bi-calendar text-gray-400 dark:text-gray-500 z-1"></i>
+            <iconify-icon icon="lucide:calendar" class="text-gray-400 dark:text-gray-500 z-1"></iconify-icon>
         </div>
         <input x-ref="datetimePicker" type="text" id="{{ $id }}" name="{{ $name }}"
             value="{{ $value ?: now()->format($dateFormat) }}" placeholder="{{ $placeholder }}"
@@ -76,6 +76,6 @@
     </div>
 
     @if ($helpText)
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $helpText }}</p>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-300">{{ $helpText }}</p>
     @endif
 </div>

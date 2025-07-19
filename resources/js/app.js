@@ -1,4 +1,5 @@
 import './bootstrap';
+import 'iconify-icon/dist/iconify-icon.min.js';
 import "jsvectormap/dist/jsvectormap.min.css";
 import "flatpickr/dist/flatpickr.min.css";
 import "dropzone/dist/dropzone.css";
@@ -23,17 +24,17 @@ import * as Popper from '@popperjs/core';
 // Make Popper available globally with the correct structure
 window.Popper = Popper;
 
-// Register slug generator component with Alpine.
+// Register a slug generator component with Alpine.
 Alpine.data('slugGenerator', (initialTitle = '', initialSlug = '') => {
     return SlugGenerator.alpineComponent(initialTitle, initialSlug);
 });
 
-// Register advanced fields component with Alpine.
+// Register an advanced fields component with Alpine.
 Alpine.data('advancedFields', (initialMeta = {}) => {
     return {
         fields: [],
         initialized: false,
-        
+
         init() {
             // Convert initial meta object to array format.
             if (initialMeta && Object.keys(initialMeta).length > 0) {
@@ -56,15 +57,15 @@ Alpine.data('advancedFields', (initialMeta = {}) => {
                     }
                 });
             }
-            
+
             // If no fields exist, add one empty field.
             if (this.fields.length === 0) {
                 this.addField();
             }
-            
+
             this.initialized = true;
         },
-        
+
         addField() {
             this.fields.push({
                 key: '',
@@ -73,13 +74,13 @@ Alpine.data('advancedFields', (initialMeta = {}) => {
                 default_value: ''
             });
         },
-        
+
         removeField(index) {
             if (this.fields.length > 1) {
                 this.fields.splice(index, 1);
             }
         },
-        
+
         get fieldsJson() {
             return this.initialized ? JSON.stringify(this.fields) : '[]';
         }

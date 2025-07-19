@@ -13,9 +13,9 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Form Column -->
         <div class="lg:col-span-1 space-y-6">
-            <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
                 <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-gray-100 dark:border-gray-800">
-                    <h3 class="text-base font-medium text-gray-800 dark:text-white/90">
+                    <h3 class="text-base font-medium text-gray-700 dark:text-white/90">
                         {{ $term ? __("Edit {$taxonomyModel->label_singular}") : __("Add New {$taxonomyModel->label_singular}") }}
                     </h3>
                 </div>
@@ -29,49 +29,49 @@
 
         <!-- Terms List Column -->
         <div class="lg:col-span-2 space-y-6">
-            <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
                 <div class="px-5 py-4 sm:px-6 sm:py-5 flex justify-between items-center border-b border-gray-100 dark:border-gray-800">
-                    <h3 class="text-base font-medium text-gray-800 dark:text-white/90">{{ __($taxonomyModel->label) }}</h3>
+                    <h3 class="text-base font-medium text-gray-700 dark:text-white/90">{{ __($taxonomyModel->label) }}</h3>
                     <div class="flex items-center gap-2">
                         <!-- Bulk Actions dropdown -->
                         <div class="flex items-center justify-center" x-show="selectedTerms.length > 0">
                             <button id="bulkActionsButton" data-dropdown-toggle="bulkActionsDropdown" class="btn-danger flex items-center justify-center gap-2 text-sm" type="button">
-                                <i class="bi bi-trash"></i>
+                                <iconify-icon icon="lucide:trash"></iconify-icon>
                                 <span>{{ __('Bulk Actions') }} (<span x-text="selectedTerms.length"></span>)</span>
-                                <i class="bi bi-chevron-down"></i>
+                                <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                             </button>
 
                             <!-- Bulk Actions dropdown menu -->
-                            <div id="bulkActionsDropdown" class="z-10 hidden w-48 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
-                                <h6 class="mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('Bulk Actions') }}</h6>
+                            <div id="bulkActionsDropdown" class="z-10 hidden w-48 p-3 bg-white rounded-md shadow dark:bg-gray-700">
+                                <h6 class="mb-2 text-sm font-medium text-gray-700 dark:text-white">{{ __('Bulk Actions') }}</h6>
                                 <ul class="space-y-2">
                                     <li class="cursor-pointer text-sm text-red-600 dark:text-red-400 hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded"
                                         @click="bulkDeleteModalOpen = true">
-                                        <i class="bi bi-trash mr-1"></i> {{ __('Delete Selected') }}
+                                        <iconify-icon icon="lucide:trash" class="mr-1"></iconify-icon> {{ __('Delete Selected') }}
                                     </li>
                                 </ul>
                             </div>
                         </div>
-                        
+
                         @include('backend.partials.search-form', [
                             'placeholder' => __("Search {$taxonomyModel->label}"),
                         ])
                     </div>
                 </div>
                 <div class="space-y-3 border-t border-gray-100 dark:border-gray-800 overflow-x-auto overflow-y-visible">
-                    <table id="dataTable" class="w-full dark:text-gray-400">
+                    <table id="dataTable" class="w-full dark:text-gray-300">
                         <thead class="bg-light text-capitalize">
                             <tr class="border-b border-gray-100 dark:border-gray-800">
-                                <th width="5%" class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white text-left px-5">
+                                <th width="5%" class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white text-left px-5 sm:px-6">
                                     <div class="flex items-center">
-                                        <input 
-                                            type="checkbox" 
-                                            class="form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" 
+                                        <input
+                                            type="checkbox"
+                                            class="form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                             x-model="selectAll"
                                             @click="
                                                 selectAll = !selectAll;
-                                                selectedTerms = selectAll ? 
-                                                    [...document.querySelectorAll('.term-checkbox')].map(cb => cb.value) : 
+                                                selectedTerms = selectAll ?
+                                                    [...document.querySelectorAll('.term-checkbox')].map(cb => cb.value) :
                                                     [];
                                             "
                                         >
@@ -82,11 +82,11 @@
                                         {{ __('Name') }}
                                         <a href="{{ request()->fullUrlWithQuery(['sort' => request()->sort === 'name' ? '-name' : 'name']) }}" class="ml-1">
                                             @if(request()->sort === 'name')
-                                                <i class="bi bi-sort-alpha-down text-primary"></i>
+                                                <iconify-icon icon="lucide:sort-asc" class="text-primary"></iconify-icon>
                                             @elseif(request()->sort === '-name')
-                                                <i class="bi bi-sort-alpha-up text-primary"></i>
+                                                <iconify-icon icon="lucide:sort-desc" class="text-primary"></iconify-icon>
                                             @else
-                                                <i class="bi bi-arrow-down-up text-gray-400"></i>
+                                                <iconify-icon icon="lucide:arrow-up-down" class="text-gray-400"></iconify-icon>
                                             @endif
                                         </a>
                                     </div>
@@ -99,11 +99,11 @@
                                         {{ __('Count') }}
                                         <a href="{{ request()->fullUrlWithQuery(['sort' => request()->sort === 'post_count' ? '-post_count' : 'post_count']) }}" class="ml-1">
                                             @if(request()->sort === 'post_count')
-                                                <i class="bi bi-sort-numeric-down text-primary"></i>
+                                                <iconify-icon icon="lucide:sort-asc" class="text-primary"></iconify-icon>
                                             @elseif(request()->sort === '-post_count')
-                                                <i class="bi bi-sort-numeric-up text-primary"></i>
+                                                <iconify-icon icon="lucide:sort-desc" class="text-primary"></iconify-icon>
                                             @else
-                                                <i class="bi bi-arrow-down-up text-gray-400"></i>
+                                                <iconify-icon icon="lucide:arrow-up-down" class="text-gray-400"></iconify-icon>
                                             @endif
                                         </a>
                                     </div>
@@ -115,9 +115,9 @@
                             @forelse ($terms as $termItem)
                                 <tr class="{{ $loop->index + 1 != count($terms) ?  'border-b border-gray-100 dark:border-gray-800' : '' }}">
                                     <td class="px-5 py-4 sm:px-6">
-                                        <input 
-                                            type="checkbox" 
-                                            class="term-checkbox form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" 
+                                        <input
+                                            type="checkbox"
+                                            class="term-checkbox form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                             value="{{ $termItem->id }}"
                                             x-model="selectedTerms"
                                         >
@@ -129,7 +129,7 @@
                                                     <img src="{{ Storage::url($termItem->featured_image) }}" alt="{{ $termItem->name }}" class="w-10 rounded mr-3">
                                                 @elseif($taxonomyModel->show_featured_image)
                                                     <div class="w-10 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center mr-3">
-                                                        <i class="bi bi-image text-gray-400"></i>
+                                                        <iconify-icon icon="lucide:image" class="text-gray-400"></iconify-icon>
                                                     </div>
                                                 @endif
                                             </div>
@@ -149,11 +149,11 @@
                                     <td class="px-5 py-4 sm:px-6">
                                         @if($termItem->parent)
                                             @if (auth()->user()->can('term.edit'))
-                                                <a href="{{ route('admin.terms.edit', ['taxonomy' => $taxonomy, 'term' => $termItem->parent->id]) }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
+                                                <a href="{{ route('admin.terms.edit', ['taxonomy' => $taxonomy, 'term' => $termItem->parent->id]) }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
                                                     {{ $termItem->parent->name }}
                                                 </a>
                                             @else
-                                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ $termItem->parent->name }}</span>
+                                                <span class="text-sm text-gray-600 dark:text-gray-300">{{ $termItem->parent->name }}</span>
                                             @endif
                                         @else
                                             <span class="text-sm text-gray-400">{{ __('None') }}</span>
@@ -175,7 +175,7 @@
 
                                             @if (auth()->user()->can('term.delete'))
                                                 <div x-data="{ deleteModalOpen: false }">
-                                                    <x-buttons.action-item 
+                                                    <x-buttons.action-item
                                                         type="modal-trigger"
                                                         modal-target="deleteModalOpen"
                                                         icon="trash"
@@ -201,7 +201,7 @@
                             @empty
                                 <tr class="border-b border-gray-100 dark:border-gray-800">
                                     <td colspan="{{ $taxonomyModel->hierarchical ? '5' : '4' }}" class="px-5 py-4 sm:px-6 text-center">
-                                        <span class="text-gray-500 dark:text-gray-400">{{ __('No') }} {{ strtolower($taxonomyModel->label) }} {{ __('found') }}</span>
+                                        <span class="text-gray-500 dark:text-gray-300">{{ __('No') }} {{ strtolower($taxonomyModel->label) }} {{ __('found') }}</span>
                                     </td>
                                 </tr>
                             @endforelse
@@ -217,24 +217,24 @@
     </div>
 
     <!-- Bulk Delete Confirmation Modal -->
-    <div 
-        x-cloak 
-        x-show="bulkDeleteModalOpen" 
-        x-transition.opacity.duration.200ms 
-        x-trap.inert.noscroll="bulkDeleteModalOpen" 
-        x-on:keydown.esc.window="bulkDeleteModalOpen = false" 
-        x-on:click.self="bulkDeleteModalOpen = false" 
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-md" 
-        role="dialog" 
-        aria-modal="true" 
+    <div
+        x-cloak
+        x-show="bulkDeleteModalOpen"
+        x-transition.opacity.duration.200ms
+        x-trap.inert.noscroll="bulkDeleteModalOpen"
+        x-on:keydown.esc.window="bulkDeleteModalOpen = false"
+        x-on:click.self="bulkDeleteModalOpen = false"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-md"
+        role="dialog"
+        aria-modal="true"
         aria-labelledby="bulk-delete-modal-title"
     >
-        <div 
-            x-show="bulkDeleteModalOpen" 
-            x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity" 
-            x-transition:enter-start="opacity-0 scale-50" 
-            x-transition:enter-end="opacity-100 scale-100" 
-            class="flex max-w-md flex-col gap-4 overflow-hidden rounded-lg border border-outline border-gray-100 dark:border-gray-800 bg-white text-on-surface dark:border-outline-dark dark:bg-gray-700 dark:text-gray-400"
+        <div
+            x-show="bulkDeleteModalOpen"
+            x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity"
+            x-transition:enter-start="opacity-0 scale-50"
+            x-transition:enter-end="opacity-100 scale-100"
+            class="flex max-w-md flex-col gap-4 overflow-hidden rounded-md border border-outline border-gray-100 dark:border-gray-800 bg-white text-on-surface dark:border-outline-dark dark:bg-gray-700 dark:text-gray-300"
         >
             <div class="flex items-center justify-between border-b border-gray-100 px-4 py-2 dark:border-gray-800">
                 <div class="flex items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 p-1">
@@ -242,13 +242,13 @@
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                     </svg>
                 </div>
-                <h3 id="bulk-delete-modal-title" class="font-semibold tracking-wide text-gray-800 dark:text-white">
+                <h3 id="bulk-delete-modal-title" class="font-semibold tracking-wide text-gray-700 dark:text-white">
                     {{ __('Delete Selected') }} {{ $taxonomyModel->label }}
                 </h3>
-                <button 
-                    x-on:click="bulkDeleteModalOpen = false" 
-                    aria-label="close modal" 
-                    class="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg p-1 dark:hover:bg-gray-600 dark:hover:text-white"
+                <button
+                    x-on:click="bulkDeleteModalOpen = false"
+                    aria-label="close modal"
+                    class="text-gray-400 hover:bg-gray-200 hover:text-gray-700 rounded-md p-1 dark:hover:bg-gray-600 dark:hover:text-white"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="1.4" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -256,8 +256,8 @@
                 </button>
             </div>
             <div class="px-4 text-center">
-                <p class="text-gray-500 dark:text-gray-400">
-                    {{ __('Are you sure you want to delete the selected') }} {{ strtolower($taxonomyModel->label) }}? 
+                <p class="text-gray-500 dark:text-gray-300">
+                    {{ __('Are you sure you want to delete the selected') }} {{ strtolower($taxonomyModel->label) }}?
                     {{ __('This action cannot be undone.') }}
                 </p>
             </div>
@@ -265,22 +265,22 @@
                 <form id="bulk-delete-form" action="{{ route('admin.terms.bulk-delete', $taxonomy) }}" method="POST">
                     @method('DELETE')
                     @csrf
-                    
+
                     <template x-for="id in selectedTerms" :key="id">
                         <input type="hidden" name="ids[]" :value="id">
                     </template>
 
-                    <button 
-                        type="button" 
-                        x-on:click="bulkDeleteModalOpen = false" 
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+                    <button
+                        type="button"
+                        x-on:click="bulkDeleteModalOpen = false"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
                     >
                         {{ __('No, Cancel') }}
                     </button>
 
-                    <button 
-                        type="submit" 
-                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-800"
+                    <button
+                        type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-800"
                     >
                         {{ __('Yes, Delete') }}
                     </button>

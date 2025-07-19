@@ -8,11 +8,11 @@
             </svg>
         </div>
         <div class="ml-2">
-            <p class="text-xs font-medium sm:text-sm text-balance text-black dark:text-white">
+            <p class="text-xs font-medium sm:text-sm text-balance text-gray-700 dark:text-white">
                 {!! __($message) !!}
             </p>
         </div>
-        <button class="ml-auto text-black dark:text-white" aria-label="dismiss alert" onclick="this.parentElement.remove()">
+        <button class="ml-auto text-gray-700 dark:text-white" aria-label="dismiss alert" onclick="this.parentElement.remove()">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2.5" class="size-4 shrink-0">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>

@@ -21,9 +21,9 @@ $positionClass = $positions[$position] ?? $positions['top'];
         {{ $slot }}
     </div>
 
-    <div 
+    <div
         id="{{ $id }}"
-        class="pointer-events-none {{ $positionClass }} absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+        class="pointer-events-none {{ $positionClass }} absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700"
         role="tooltip"
     >
         @if($title)

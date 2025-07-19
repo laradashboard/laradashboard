@@ -2,42 +2,34 @@
     $enable_full_div_click = $enable_full_div_click ?? true;
 @endphp
 
-<div class="{{ $class ?? 'bg-white' }} dark:bg-slate-800 w-full h-[160px] rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden p-6 pb-0 {{ $enable_full_div_click ? 'cursor-pointer hover:shadow-lg transition-shadow duration-300' : '' }}"
+<div class="relative overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6 dark:bg-gray-800 {{ $enable_full_div_click ? 'cursor-pointer hover:shadow-lg transition-shadow duration-300' : '' }}"
     @if($enable_full_div_click)
         onclick="window.location.href='{{ $url ?? '#' }}'"
     @endif
 >
-    <div class="flex justify-between">
-        <p class="text-[#090909] dark:text-gray-100 text-sm font-medium">{{ $label }}</p>
-
-        <div class="">
-            <button type="button" data-tooltip-target="tooltip-card-{{ Str::slug($label) }}" data-tooltip-placement="bottom"
-                onclick="window.location.href='{{ $url ?? '#' }}'"
-                class="inline-flex items-center justify-center text-gray-500 w-8 h-8 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm">
-                <img src="{{ asset('/images/icons/move.svg') }}" class="dark:invert">
-            </button>
-            <div id="tooltip-card-{{ Str::slug($label) }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                {{ __('View') }} {{ $label }}
-                <div class="tooltip-arrow" data-popper-arrow></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex mt-6 gap-6 items-center">
-        <div class="bg-white rounded-lg border border-[#EFEFFF] shadow-sm w-10 h-10 items-center flex justify-center">
+    <dt>
+        <div class="absolute rounded-md bg-indigo-500 h-12 w-12 flex items-center justify-center" style="background: {{ $icon_bg ?? '#6366F1' }};">
             @if(!empty($icon))
-                <i class="{{ $icon }}"></i>
+                <iconify-icon icon="{{ $icon }}" class="size-6 text-white" height="24" width="24"></iconify-icon>
             @elseif(!empty($icon_svg))
-                <img src="{{ $icon_svg }}" alt="">
+                <img src="{{ $icon_svg }}" alt="" class="size-6 text-white">
+            @else
+                <svg class="size-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                </svg>
             @endif
         </div>
+        <p class="ml-16 truncate text-sm font-medium text-gray-500 dark:text-gray-300">{{ $label }}</p>
+    </dt>
+    <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+        <p class="text-2xl font-semibold text-gray-800 dark:text-gray-100">{!! $value ?? 0 !!}</p>
 
-        <div class="text-[#090909] dark:text-gray-100 text-xl md:text-3xl font-medium">
-            {!! $value ?? 0 !!}
+        <div class="absolute inset-x-0 bottom-0 bg-gray-50 dark:bg-gray-700 px-4 py-4 sm:px-6">
+            <div class="text-sm">
+                <a href="{{ $url ?? '#' }}" class="font-medium flex items-center text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">View all
+                    <iconify-icon icon="heroicons:arrow-right" class="inline-block ml-1" width="16" height="16"></iconify-icon>
+                    <span class="sr-only"> {{ $label }} stats</span></a>
+            </div>
         </div>
-    </div>
-
-    <div class="flex justify-end">
-        <div class="-mt-10 w-20 h-40 rounded-full blur-3xl" style="background: {{ $bg ?? '' }};"></div>
-    </div>
+    </dd>
 </div>

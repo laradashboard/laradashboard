@@ -1,19 +1,19 @@
 @csrf
 
 <div x-data="slugGenerator('{{ old('name', $term ? $term->name : '') }}', '{{ old('slug', $term ? $term->slug : '') }}')">
-    <div>
-        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
+    <div class="space-y-1">
+        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {{ __('Name') }}
             <span class="text-red-500">*</span>
         </label>
         <input type="text" name="name" id="name" required x-model="title" class="form-control">
     </div>
 
-    <div class="mt-2">
-        <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
+    <div class="mt-2 space-y-1">
+        <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {{ __('Slug') }}
             <button type="button" @click="toggleSlugEdit"
-                class="ml-2 text-xs text-gray-500 dark:text-gray-400 hover:text-brand-500 dark:hover:text-brand-400">
+                class="ml-2 text-xs text-gray-500 dark:text-gray-300 hover:text-brand-500 dark:hover:text-brand-400">
                 <span x-show="!showSlugEdit">{{ __('Edit') }}</span>
                 <span x-show="showSlugEdit">{{ __('Hide') }}</span>
             </button>
@@ -30,9 +30,9 @@
     </div>
 
     <!-- Description -->
-    <div class="mt-2">
+    <div class="mt-2 space-y-1">
         <label for="description"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{ __('Description') }}</label>
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Description') }}</label>
         <textarea name="description" id="description" rows="3" class="form-control !h-30">{{ old('description', $term ? $term->description : '') }}</textarea>
     </div>
     @if ($taxonomyModel->show_featured_image)

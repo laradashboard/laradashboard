@@ -11,10 +11,11 @@ trait HasGravatar
      */
     public function getGravatarUrl(int $size = 80): string
     {
-        $email = strtolower(trim($this->email));
-        $hash = md5($email);
-        $fallback = 'mp'; // Options: 'mp', 'identicon', 'monsterid', 'wavatar', 'retro', 'robohash', 'blank'
+        $hash = md5(strtolower(trim($this->email)));
 
-        return "https://www.gravatar.com/avatar/{$hash}?s={$size}&d={$fallback}";
+        // Fallback with UI Avatars if not gravatar is set.
+        $uiAvatarUrl = urlencode("https://ui-avatars.com/api/{$this->name}/{$size}/635bff/fff/2");
+
+        return "https://www.gravatar.com/avatar/{$hash}?d={$uiAvatarUrl}";
     }
 }

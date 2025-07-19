@@ -3,7 +3,7 @@
     'isOpen' => false,
     'title' => null,
     'btnClass' => 'btn-primary',
-    'btnIcon' => 'bi bi-plus-circle',
+    'btnIcon' => 'lucide:plus-circle',
     'width' => 'sm:w-120',
     'drawerId' => null,
     'headerBtn' => null,
@@ -40,7 +40,7 @@
     @if ($btn)
         <button type="button" @click="open = true" class="{{ $btnClass }}">
             @if ($btnIcon)
-                <i class="{{ $btnIcon }} mr-2"></i>
+                <iconify-icon icon="{{ $btnIcon }}" class="mr-2"></iconify-icon>
             @endif
             {{ $btn }}
         </button>
@@ -64,7 +64,7 @@
         <div
             class="px-5 py-4 sm:px-6 sm:py-5 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div class="flex items-center">
-                <h3 class="text-base font-medium text-gray-900 dark:text-white">
+                <h3 class="text-base font-medium text-gray-700 dark:text-white">
                     {{ $title ?? $btn }}
                 </h3>
                 @if ($headerBtn)
@@ -74,7 +74,7 @@
                 @endif
             </div>
             <button type="button" @click="close()"
-                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -95,13 +95,13 @@
             @else
                 <div class="flex justify-between items-center">
                     @if ($footerText)
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <div class="text-sm text-gray-600 dark:text-gray-300">
                             {{ $footerText }}
                         </div>
                     @endif
                     <div class="ml-auto">
                         <button type="button" @click="close()" class="btn-default mr-2">
-                            <i class="bi bi-x-circle mr-1"></i>
+                            <iconify-icon icon="lucide:x-circle" class="mr-1"></iconify-icon>
                             {{ __('Cancel') }}
                         </button>
                         @if ($footerBtn)

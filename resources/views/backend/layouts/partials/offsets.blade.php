@@ -125,7 +125,7 @@
                             <div class="s-sw-title">
                                 <h5>Notifications</h5>
                                 <div class="s-swtich">
-                                    <input type="checkbox" id="switch1" />
+                                    <input type="checkbox" id="switch1" class="form-checkbox" />
                                     <label for="switch1">Toggle</label>
                                 </div>
                             </div>
@@ -135,7 +135,7 @@
                             <div class="s-sw-title">
                                 <h5>Show recent activity</h5>
                                 <div class="s-swtich">
-                                    <input type="checkbox" id="switch2" />
+                                    <input type="checkbox" id="switch2" class="form-checkbox" />
                                     <label for="switch2">Toggle</label>
                                 </div>
                             </div>
@@ -145,7 +145,7 @@
                             <div class="s-sw-title">
                                 <h5>Show your emails</h5>
                                 <div class="s-swtich">
-                                    <input type="checkbox" id="switch3" />
+                                    <input type="checkbox" id="switch3" class="form-checkbox" />
                                     <label for="switch3">Toggle</label>
                                 </div>
                             </div>
@@ -155,7 +155,7 @@
                             <div class="s-sw-title">
                                 <h5>Show Task statistics</h5>
                                 <div class="s-swtich">
-                                    <input type="checkbox" id="switch4" />
+                                    <input type="checkbox" id="switch4" class="form-checkbox" />
                                     <label for="switch4">Toggle</label>
                                 </div>
                             </div>
@@ -165,7 +165,7 @@
                             <div class="s-sw-title">
                                 <h5>Notifications</h5>
                                 <div class="s-swtich">
-                                    <input type="checkbox" id="switch5" />
+                                    <input type="checkbox" id="switch5" class="form-checkbox" />
                                     <label for="switch5">Toggle</label>
                                 </div>
                             </div>

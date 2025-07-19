@@ -9,31 +9,31 @@
 ])
 
 @if($type === 'link')
-    <a 
-        href="{{ $href }}" 
+    <a
+        href="{{ $href }}"
         {{ $attributes->merge(['class' => 'flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ' . $class]) }}
         role="menuitem"
     >
         @if($icon)
-            <i class="bi bi-{{ $icon }} text-base"></i>
+            <iconify-icon icon="{{ $icon }}" class="text-base"></iconify-icon>
         @endif
         {{ $label }}
     </a>
 @elseif($type === 'button')
-    <button 
+    <button
         {{ $attributes->merge(['class' => 'flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ' . $class]) }}
-        @if($onClick) 
+        @if($onClick)
             onclick="{{ $onClick }}"
         @endif
         role="menuitem"
     >
         @if($icon)
-            <i class="bi bi-{{ $icon }} text-base"></i>
+            <iconify-icon icon="{{ $icon }}" class="text-base"></iconify-icon>
         @endif
         {{ $label }}
     </button>
 @elseif($type === 'modal-trigger')
-    <button 
+    <button
         {{ $attributes->merge(['class' => 'flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ' . $class]) }}
         @if($modalTarget)
             x-on:click="{{ $modalTarget }} = true"
@@ -41,7 +41,7 @@
         role="menuitem"
     >
         @if($icon)
-            <i class="bi bi-{{ $icon }} text-base"></i>
+            <iconify-icon icon="{{ $icon }}" class="text-base"></iconify-icon>
         @endif
         {{ $label }}
     </button>

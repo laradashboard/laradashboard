@@ -16,9 +16,9 @@
         @csrf
         <div class="space-y-8">
             <!-- Role Details Section -->
-            <div class="rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-800 dark:bg-gray-900">
+            <div class="rounded-md border border-gray-200 bg-white shadow-md dark:border-gray-800 dark:bg-gray-900">
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-white">
                         {{ __('Role Details') }}
                     </h3>
                     <x-buttons.submit-buttons
@@ -29,7 +29,7 @@
                 <div class="p-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
+                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {{ __('Role Name') }}
                             </label>
                             <input required autofocus name="name" value="{{ $role->name }}" type="text" placeholder="{{ __('Enter a Role Name') }}" class="mt-2 form-control">
@@ -39,16 +39,16 @@
             </div>
 
             <!-- Permissions Section -->
-            <div class="rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-800 dark:bg-gray-900">
+            <div class="rounded-md border border-gray-200 bg-white shadow-md dark:border-gray-800 dark:bg-gray-900">
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-white">
                         {{ __('Permissions') }}
                     </h3>
                 </div>
                 <div class="p-4">
                     <div class="mb-4">
-                        <input type="checkbox" id="checkPermissionAll" class="mr-2" {{ $roleService->roleHasPermissions($role, $all_permissions) ? 'checked' : '' }}>
-                        <label for="checkPermissionAll" class="text-sm text-gray-700 dark:text-gray-400">
+                        <input type="checkbox" id="checkPermissionAll" class="form-checkbox mr-2" {{ $roleService->roleHasPermissions($role, $all_permissions) ? 'checked' : '' }}>
+                        <label for="checkPermissionAll" class="text-sm text-gray-700 dark:text-gray-300">
                             {{ __('Select All') }}
                         </label>
                     </div>
@@ -57,8 +57,8 @@
                     @foreach ($permission_groups as $group)
                     <div class="mb-6">
                         <div class="flex items-center mb-2">
-                            <input type="checkbox" id="group{{ $i }}Management" class="mr-2" {{ $roleService->roleHasPermissions($role, $roleService->getPermissionsByGroupName($group->name)) ? 'checked' : '' }}>
-                            <label for="group{{ $i }}Management" class="capitalize text-sm font-medium text-gray-700 dark:text-gray-400">
+                            <input type="checkbox" id="group{{ $i }}Management" class="form-checkbox mr-2" {{ $roleService->roleHasPermissions($role, $roleService->getPermissionsByGroupName($group->name)) ? 'checked' : '' }}>
+                            <label for="group{{ $i }}Management" class="capitalize text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {{ ucfirst($group->name) }}
                             </label>
                         </div>
@@ -68,9 +68,9 @@
                             @endphp
                             @foreach ($permissions as $permission)
                             <div>
-                                <input type="checkbox" id="checkPermission{{ $permission->id }}" name="permissions[]" value="{{ $permission->name }}" class="mr-2"
+                                <input type="checkbox" id="checkPermission{{ $permission->id }}" name="permissions[]" value="{{ $permission->name }}" class="form-checkbox mr-2"
                                        {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
-                                <label for="checkPermission{{ $permission->id }}" class="capitalize text-sm text-gray-700 dark:text-gray-400">
+                                <label for="checkPermission{{ $permission->id }}" class="capitalize text-sm text-gray-700 dark:text-gray-300">
                                     {{ $permission->name }}
                                 </label>
                             </div>

@@ -10,7 +10,7 @@
 
         {!! ld_apply_filters('translation_after_breadcrumbs', '') !!}
 
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6 dark:bg-gray-800">
+        <div class="bg-white p-6 rounded-md shadow-md mb-6 dark:bg-gray-800">
             <div class="flex flex-col sm:flex-row mb-6 gap-4 justify-between">
                 <div class="flex items-start sm:items-center gap-4">
                     <div class="flex items-center">
@@ -18,7 +18,7 @@
                             {{ __('Language:') }}
                         </label>
                         <select id="language-select"
-                                class="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                                class="h-11 rounded-md border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-700 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                                 onchange="updateLocation()">
                             @foreach($languages as $code => $language)
                                 <option value="{{ $code }}" {{ $selectedLang === $code ? 'selected' : '' }}>{{ $language['name'] }}</option>
@@ -31,7 +31,7 @@
                             {{ __('Translation Group') }}:
                         </label>
                         <select id="group-select"
-                                class="h-11 rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                                class="h-11 rounded-md border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-700 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                                 onchange="updateLocation()">
                             @foreach($availableGroups as $group)
                                 <option value="{{ $group }}" {{ $selectedGroup === $group ? 'selected' : '' }}>
@@ -45,14 +45,14 @@
                 <div class="place-items-end mt-4 sm:mt-0">
                     @if(auth()->user()->can('translations.edit'))
                         <button data-modal-target="add-language-modal" data-modal-toggle="add-language-modal" class="btn-primary">
-                            <i class="bi bi-plus-circle mr-2"></i>{{ __('New Language') }}
+                            <iconify-icon icon="lucide:plus-circle" class="mr-2"></iconify-icon>{{ __('New Language') }}
                         </button>
                     @endif
                 </div>
             </div>
 
             <div class="mb-4">
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
                     {{ __('Total Keys:') }} <span class="font-medium">{{ $translationStats['totalKeys'] }}</span> |
                     {{ __('Translated') }}: <span class="font-medium">{{ $translationStats['translated'] }}</span> |
                     {{ __('Missing:') }} <span class="font-medium">{{ $translationStats['missing'] }}</span>
@@ -70,7 +70,7 @@
 
                     <div class="mb-4 flex justify-end">
                         <button type="submit" class="btn-primary">
-                            <i class="bi bi-save mr-2"></i> {{ __('Save Translations') }}
+                            <iconify-icon icon="lucide:save" class="mr-2"></iconify-icon> {{ __('Save Translations') }}
                         </button>
                     </div>
 
@@ -78,13 +78,13 @@
                         <table class="min-w-full border divide-y divide-gray-200 dark:divide-gray-700 dark:border-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-800">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                                         {{ __('Key') }}
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                                         {{ __('English Text') }}
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                                         {{ $languages[$selectedLang]['name'] ?? ucfirst($selectedLang) }} {{ __('Translation') }}
                                     </th>
                                 </tr>
@@ -93,13 +93,13 @@
                                 @foreach($enTranslations as $key => $value)
                                     @if(!is_array($value))
                                         <tr class="{{ !isset($translations[$key]) ? 'bg-yellow-50 dark:bg-yellow-900/20' : '' }}">
-                                            <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                                            <td class="px-6 py-4 text-sm font-medium text-gray-700 dark:text-white">
                                                 {{ $key }}
                                             </td>
-                                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-400">
+                                            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                                                 {{ $value }}
                                             </td>
-                                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-400">
+                                            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                                                 <textarea name="translations[{{ $key }}]" rows="1"
                                                     class="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                                                     placeholder="">{{ $translations[$key] ?? '' }}</textarea>
@@ -107,20 +107,20 @@
                                         </tr>
                                     @else
                                         <tr class="bg-gray-100 dark:bg-gray-800">
-                                            <td colspan="3" class="px-6 py-2 text-sm font-medium text-gray-900 dark:text-white">
+                                            <td colspan="3" class="px-6 py-2 text-sm font-medium text-gray-700 dark:text-white">
                                                 <strong>{{ $key }}</strong>
                                             </td>
                                         </tr>
                                         @foreach($value as $nestedKey => $nestedValue)
                                             @if(!is_array($nestedValue))
                                                 <tr class="{{ !isset($translations[$key][$nestedKey]) ? 'bg-yellow-50 dark:bg-yellow-900/20' : '' }}">
-                                                    <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white pl-12">
+                                                    <td class="px-6 py-4 text-sm font-medium text-gray-700 dark:text-white pl-12">
                                                         {{ $nestedKey }}
                                                     </td>
-                                                    <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                                    <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300">
                                                         {{ $nestedValue }}
                                                     </td>
-                                                    <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                                    <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300">
                                                         <textarea name="translations[{{ $key }}][{{ $nestedKey }}]" rows="1"
                                                             class="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                                                             placeholder="">{{ $translations[$key][$nestedKey] ?? '' }}</textarea>
@@ -128,19 +128,19 @@
                                                 </tr>
                                             @else
                                                 <tr class="bg-gray-50 dark:bg-gray-700">
-                                                    <td colspan="3" class="px-6 py-1 text-sm font-medium text-gray-900 dark:text-white pl-12">
+                                                    <td colspan="3" class="px-6 py-1 text-sm font-medium text-gray-700 dark:text-white pl-12">
                                                         <strong>{{ $key }}.{{ $nestedKey }}</strong>
                                                     </td>
                                                 </tr>
                                                 @foreach($nestedValue as $deepKey => $deepValue)
                                                     <tr class="{{ !isset($translations[$key][$nestedKey][$deepKey]) ? 'bg-yellow-50 dark:bg-yellow-900/20' : '' }}">
-                                                        <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white pl-16">
+                                                        <td class="px-6 py-4 text-sm font-medium text-gray-700 dark:text-white pl-16">
                                                             {{ $deepKey }}
                                                         </td>
-                                                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300">
                                                             {{ $deepValue }}
                                                         </td>
-                                                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300">
                                                             <textarea name="translations[{{ $key }}][{{ $nestedKey }}][{{ $deepKey }}]" rows="1"
                                                                 class="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                                                                 placeholder="">{{ $translations[$key][$nestedKey][$deepKey] ?? '' }}</textarea>
@@ -157,7 +157,7 @@
 
                     <div class="mt-6 flex justify-end">
                         <button type="submit" class="btn-primary">
-                            <i class="bi bi-save mr-2"></i> {{ __('Save Translations') }}
+                            <iconify-icon icon="lucide:save" class="mr-2"></iconify-icon> {{ __('Save Translations') }}
                         </button>
                     </div>
                 </form>
@@ -165,7 +165,7 @@
                 <div class="bg-blue-50 p-4 rounded-md dark:bg-blue-900/20">
                     <div class="flex">
                         <div class="flex-shrink-0">
-                            <i class="bi bi-info-circle text-blue-500"></i>
+                            <iconify-icon icon="lucide:info" class="text-blue-500"></iconify-icon>
                         </div>
                         <div class="ml-3">
                             <p class="text-sm text-blue-700 dark:text-blue-300">

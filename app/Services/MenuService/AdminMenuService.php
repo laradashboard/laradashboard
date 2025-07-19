@@ -96,7 +96,7 @@ class AdminMenuService
     {
         $this->addMenuItem([
             'label' => __('Dashboard'),
-            'icon' => 'dashboard.svg',
+            'icon' => 'lucide:layout-dashboard',
             'route' => route('admin.dashboard'),
             'active' => Route::is('admin.dashboard'),
             'id' => 'dashboard',
@@ -113,7 +113,7 @@ class AdminMenuService
 
         $this->addMenuItem([
             'label' => __('Roles & Permissions'),
-            'icon' => 'key.svg',
+            'icon' => 'lucide:key',
             'id' => 'roles-submenu',
             'active' => Route::is('admin.roles.*') || Route::is('admin.permissions.*'),
             'priority' => 20,
@@ -144,8 +144,8 @@ class AdminMenuService
         ]);
 
         $this->addMenuItem([
-            'label' => __('User'),
-            'icon' => 'user.svg',
+            'label' => __('Users'),
+            'icon' => 'feather:users',
             'id' => 'users-submenu',
             'active' => Route::is('admin.users.*'),
             'priority' => 20,
@@ -170,7 +170,7 @@ class AdminMenuService
 
         $this->addMenuItem([
             'label' => __('Modules'),
-            'icon' => 'three-dice.svg',
+            'icon' => 'lucide:boxes',
             'route' => route('admin.modules.index'),
             'active' => Route::is('admin.modules.index'),
             'id' => 'modules',
@@ -180,7 +180,7 @@ class AdminMenuService
 
         $this->addMenuItem([
             'label' => __('Monitoring'),
-            'icon' => 'tv.svg',
+            'icon' => 'lucide:monitor',
             'id' => 'monitoring-submenu',
             'active' => Route::is('admin.actionlog.*'),
             'priority' => 40,
@@ -206,7 +206,7 @@ class AdminMenuService
 
         $this->addMenuItem([
             'label' => __('Settings'),
-            'icon' => 'settings.svg',
+            'icon' => 'lucide:settings',
             'id' => 'settings-submenu',
             'active' => Route::is('admin.settings.*') || Route::is('admin.translations.*'),
             'priority' => 1,
@@ -231,18 +231,18 @@ class AdminMenuService
 
         $this->addMenuItem([
             'label' => __('Logout'),
-            'icon' => 'logout.svg',
+            'icon' => 'lucide:log-out',
             'route' => route('admin.dashboard'),
             'active' => false,
             'id' => 'logout',
             'priority' => 1,
             'html' => '
-                <li class="hover:menu-item-active">
-                    <form method="POST" action="'.route('logout').'">
-                        '.csrf_field().'
-                        <button type="submit" class="menu-item group w-full text-left menu-item-inactive text-black dark:text-white hover:text-black">
-                            <img src="'.asset('images/icons/logout.svg').'" alt="Logout" class="menu-item-icon dark:invert">
-                            <span class="menu-item-text">'.__('Logout').'</span>
+                <li>
+                    <form method="POST" action="' . route('logout') . '">
+                        ' . csrf_field() . '
+                        <button type="submit" class="menu-item group w-full text-left menu-item-inactive text-gray-700 dark:text-white hover:text-gray-700">
+                            <iconify-icon icon="lucide:log-out" class="menu-item-icon " width="16" height="16"></iconify-icon>
+                            <span class="menu-item-text">' . __('Logout') . '</span>
                         </button>
                     </form>
                 </li>
@@ -280,8 +280,8 @@ class AdminMenuService
                     'title' => __("All {$type->label}"),
                     'route' => 'admin.posts.index',
                     'params' => $typeName,
-                    'active' => request()->is('admin/posts/'.$typeName) ||
-                        (request()->is('admin/posts/'.$typeName.'/*') && ! request()->is('admin/posts/'.$typeName.'/create')),
+                    'active' => request()->is('admin/posts/' . $typeName) ||
+                        (request()->is('admin/posts/' . $typeName . '/*') && ! request()->is('admin/posts/' . $typeName . '/create')),
                     'priority' => 10,
                     'permissions' => 'post.view',
                 ],
@@ -289,7 +289,7 @@ class AdminMenuService
                     'title' => __('Add New'),
                     'route' => 'admin.posts.create',
                     'params' => $typeName,
-                    'active' => request()->is('admin/posts/'.$typeName.'/create'),
+                    'active' => request()->is('admin/posts/' . $typeName . '/create'),
                     'priority' => 20,
                     'permissions' => 'post.create',
                 ],
@@ -305,7 +305,7 @@ class AdminMenuService
                         'title' => __($taxonomy->label),
                         'route' => 'admin.terms.index',
                         'params' => $taxonomy->name,
-                        'active' => request()->is('admin/terms/'.$taxonomy->name.'*'),
+                        'active' => request()->is('admin/terms/' . $taxonomy->name . '*'),
                         'priority' => 30 + $taxonomy->id, // Prioritize after standard items
                         'permissions' => 'term.view',
                     ];
@@ -315,9 +315,9 @@ class AdminMenuService
             // Set up menu item with all children.
             $menuItem = [
                 'title' => __($type->label),
-                'iconClass' => get_post_type_icon($typeName),
-                'id' => 'post-type-'.$typeName,
-                'active' => request()->is('admin/posts/'.$typeName.'*') ||
+                'icon' => get_post_type_icon($typeName),
+                'id' => 'post-type-' . $typeName,
+                'active' => request()->is('admin/posts/' . $typeName . '*') ||
                     (! empty($type->taxonomies) && $this->isCurrentTermBelongsToPostType($type->taxonomies)),
                 'priority' => 10,
                 'permissions' => 'post.view',
@@ -362,7 +362,7 @@ class AdminMenuService
             });
 
             // Apply filters that might add/modify menu items.
-            $filteredItems = ld_apply_filters('sidebar_menu_'.strtolower($group), $filteredItems);
+            $filteredItems = ld_apply_filters('sidebar_menu_' . strtolower($group), $filteredItems);
 
             // Only add the group if it has items after filtering.
             if (! empty($filteredItems)) {
@@ -395,13 +395,13 @@ class AdminMenuService
         $html = '';
         foreach ($groupItems as $menuItem) {
             $filterKey = $menuItem->id ?? Str::slug($menuItem->label) ?? '';
-            $html .= ld_apply_filters('sidebar_menu_before_'.$filterKey, '');
+            $html .= ld_apply_filters('sidebar_menu_before_' . $filterKey, '');
 
             $html .= view('backend.layouts.partials.menu-item', [
                 'item' => $menuItem,
             ])->render();
 
-            $html .= ld_apply_filters('sidebar_menu_after_'.$filterKey, '');
+            $html .= ld_apply_filters('sidebar_menu_after_' . $filterKey, '');
         }
 
         return $html;
