@@ -1,3 +1,4 @@
+@persist('admin_sidebar')
 @php
     $menuService = app(\App\Services\MenuService\AdminMenuService::class);
     $menuGroups = $menuService->getMenu();
@@ -65,3 +66,5 @@
         });
     });
 </script>
+
+@endpersist

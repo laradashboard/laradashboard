@@ -1,5 +1,5 @@
+@persist('admin_header')
 <header id="appHeader"
-
 x-data="{
     menuToggle: false,
     textColor: '',
@@ -132,3 +132,4 @@ x-init="init()"
     </div>
 </header>
 <!-- End Header -->
+@endpersist

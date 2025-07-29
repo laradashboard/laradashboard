@@ -37,7 +37,7 @@
     @endphp
 
     <li class="menu-item-{{ $item->id }}" style="{!! $item->itemStyles !!}">
-        <a wire:navigate :style="`color: ${textColor}`" href="{{ $item->route ?? '#' }}" class="menu-item group {{ $isActive }}" {!! $target !!}>
+        <a wire:navigate wire:navigate.hover :style="`color: ${textColor}`" href="{{ $item->route ?? '#' }}" class="menu-item group {{ $isActive }}" {!! $target !!}>
             @if (!empty($item->icon))
                 <iconify-icon icon="{{ $item->icon }}" class="menu-item-icon" width="18" height="18"></iconify-icon>
             @elseif (!empty($item->iconClass))
