@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Traits;
+namespace App\Concerns;
 
 use App\Enums\ActionType;
 use App\Models\ActionLog;

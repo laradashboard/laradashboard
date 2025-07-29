@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Traits\HasUniqueSlug;
-use App\Traits\QueryBuilderTrait;
+use App\Concerns\HasUniqueSlug;
+use App\Concerns\QueryBuilderTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

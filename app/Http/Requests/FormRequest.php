@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use App\Traits\AuthorizationChecker;
+use App\Concerns\AuthorizationChecker;
 use Illuminate\Foundation\Http\FormRequest as LaravelFormRequest;
 
 /**

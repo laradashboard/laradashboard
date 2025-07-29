@@ -8,7 +8,7 @@ use App\Enums\ActionType;
 use App\Models\Post;
 use App\Models\Term;
 use App\Services\Content\ContentService;
-use App\Traits\HasActionLogTrait;
+use App\Concerns\HasActionLogTrait;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;

@@ -141,7 +141,7 @@ class PermissionService
     }
 
     /**
-     * Get all permission models from database
+     * Get all permission models from a database
      */
     public function getAllPermissionModels(): Collection
     {
@@ -149,7 +149,7 @@ class PermissionService
     }
 
     /**
-     * Get permissions by group name from database
+     * Get permissions by group name from a database
      */
     public function getPermissionModelsByGroup(string $group_name): Collection
     {
