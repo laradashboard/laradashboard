@@ -54,7 +54,7 @@
 @endonce
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('livewire:navigated', function() {
         const editorId = '{{ $editorId }}';
         const editorType = '{{ $type }}';
         const textareaElement = document.getElementById(editorId);

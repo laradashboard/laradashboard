@@ -47,7 +47,7 @@
 
 <script>
     // Ensure drawer triggers work in the sidebar
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('livewire:navigated', function() {
         // Handle drawer trigger clicks
         document.querySelectorAll('[data-drawer-trigger]').forEach(function(element) {
             element.addEventListener('click', function(e) {

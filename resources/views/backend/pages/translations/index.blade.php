@@ -182,7 +182,7 @@
 
     @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('livewire:navigated', function() {
             // Auto-resize textareas based on content
             const textareas = document.querySelectorAll('textarea');
             textareas.forEach(textarea => {

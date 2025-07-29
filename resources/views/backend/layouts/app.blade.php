@@ -73,7 +73,7 @@ x-init="
 
     @stack('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('livewire:navigated', function() {
             const html = document.documentElement;
             const darkModeToggle = document.getElementById('darkModeToggle');
             const header = document.getElementById('appHeader');
@@ -164,7 +164,7 @@ x-init="
         };
         
         // Initialize all drawer triggers on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('livewire:navigated', function() {
             document.querySelectorAll('[data-drawer-trigger]').forEach(function(element) {
                 element.addEventListener('click', function(e) {
                     const drawerId = this.getAttribute('data-drawer-trigger');

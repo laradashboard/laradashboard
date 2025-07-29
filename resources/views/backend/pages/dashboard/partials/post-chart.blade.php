@@ -12,7 +12,7 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('livewire:navigated', function() {
         // Post data from the server
         const postData = @json($post_stats);
 

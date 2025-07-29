@@ -125,7 +125,7 @@ if (dropzoneArea.length) {
 }
 
 // Document Loaded
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("livewire:navigated", () => {
     chart01();
     chart02();
     chart03();
@@ -140,7 +140,7 @@ if (year) {
 }
 
 // For Copy//
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("livewire:navigated", () => {
     const copyInput = document.getElementById("copy-input");
     if (copyInput) {
         // Select the copy button and input field
@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("livewire:navigated", function () {
     const searchInput = document.getElementById("search-input");
     const searchButton = document.getElementById("search-button");
 

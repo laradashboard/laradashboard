@@ -20,7 +20,7 @@
     </div>
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('livewire:navigated', function () {
         setTimeout(function () {
             const successMessage = document.getElementById('success-message');
             if (successMessage) {
