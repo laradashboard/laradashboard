@@ -30,7 +30,7 @@
 
 <body x-data="{ 
     page: 'ecommerce', 
-    loaded: true, 
+    loaded: $persist(true), 
     darkMode: false, 
     stickyMenu: false, 
     sidebarToggle: $persist(false), 
@@ -39,9 +39,18 @@
 x-init="
     darkMode = JSON.parse(localStorage.getItem('darkMode')) ?? false;
     $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)));
-    $watch('sidebarToggle', value => localStorage.setItem('sidebarToggle', JSON.stringify(value)))
+    $watch('sidebarToggle', value => localStorage.setItem('sidebarToggle', JSON.stringify(value)));
+    if (loaded) { setTimeout(() => loaded = false, 500); }
 " 
 :class="{ 'dark bg-gray-900': darkMode === true }">
+    <!-- Preloader -->
+    <div x-show="loaded"
+        class="fixed left-0 top-0 z-999999 flex h-screen w-screen items-center justify-center bg-white dark:bg-black">
+        <div class="h-16 w-16 animate-spin rounded-full border-4 border-solid border-brand-500 border-t-transparent">
+        </div>
+    </div>
+    <!-- End Preloader -->
+
     <!-- Page Wrapper -->
     <div class="flex h-screen overflow-hidden">
         @include('backend.layouts.partials.sidebar-logo')
