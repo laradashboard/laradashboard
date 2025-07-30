@@ -65,7 +65,7 @@
             {{ __('Drag and drop your module file here, or') }}
             <button
                 @click="$refs.uploadModule.click()"
-                class="text-primary underline hover:text-blue-600"
+                class="text-primary underline hover:text-primary"
             >
                 {{ __('browse') }}
             </button>

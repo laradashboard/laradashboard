@@ -24,7 +24,7 @@
 
             <p class="mt-2 text-sm text-gray-500 dark:text-gray-300">
                 {{ __('Learn more about Google Analytics and how to set it up:') }}
-                <a href="https://analytics.google.com/" target="_blank" class="text-blue-500 hover:underline">
+                <a href="https://analytics.google.com/" target="_blank" class="text-primary hover:underline">
                     {{ __('Google Analytics') }}
                 </a>
             </p>

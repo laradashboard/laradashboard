@@ -74,7 +74,7 @@
                                 <iconify-icon icon="lucide:grid"></iconify-icon>
                                 <span class="hidden sm:inline">{{ __('Category') }}</span>
                                 @if(request('category'))
-                                    <span class="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900/20 dark:text-blue-400">
+                                    <span class="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900/20 dark:text-primary">
                                         {{ $categories->where('id', request('category'))->first()?->name }}
                                     </span>
                                 @endif

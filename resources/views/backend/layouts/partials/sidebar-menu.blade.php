@@ -1,8 +1,6 @@
 @php
     $menuService = app(\App\Services\MenuService\AdminMenuService::class);
     $menuGroups = $menuService->getMenu();
-    // $sidebarTextDark = config('settings.sidebar_text_dark', '#ffffff');
-    // $sidebarTextLite = config('settings.sidebar_text_lite', '#090909');
 @endphp
 
 <nav

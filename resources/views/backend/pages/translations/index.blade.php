@@ -165,10 +165,10 @@
                 <div class="bg-blue-50 p-4 rounded-md dark:bg-blue-900/20">
                     <div class="flex">
                         <div class="flex-shrink-0">
-                            <iconify-icon icon="lucide:info" class="text-blue-500"></iconify-icon>
+                            <iconify-icon icon="lucide:info" class="text-primary"></iconify-icon>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-blue-700 dark:text-blue-300">
+                            <p class="text-sm text-blue-700 dark:text-primary">
                                 {{ __('The base JSON translations for English cannot be edited. Please select another language or group to translate.') }}
                             </p>
                         </div>

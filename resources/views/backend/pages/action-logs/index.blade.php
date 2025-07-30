@@ -73,7 +73,7 @@
                                     <td class="px-5 py-4 sm:px-6 text-left">
                                         {{ $log->user->name . ' (' . $log->user->username . ')' ?? '' }}</td>
                                     <td class="px-5 py-4 sm:px-6 text-left">
-                                        <button id="expand-btn-{{ $log->id }}" class="text-blue-500 text-sm mt-2"
+                                        <button id="expand-btn-{{ $log->id }}" class="text-primary text-sm mt-2"
                                             data-modal-target="json-modal-{{ $log->id }}"
                                             data-modal-toggle="json-modal-{{ $log->id }}">
                                             {{ __('Expand JSON') }}

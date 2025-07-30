@@ -176,9 +176,6 @@ class UsersController extends Controller
         return back();
     }
 
-    /**
-     * Delete multiple users at once
-     */
     public function bulkDelete(Request $request): RedirectResponse
     {
         $this->checkAuthorization(Auth::user(), ['user.delete']);
@@ -190,7 +187,6 @@ class UsersController extends Controller
                 ->with('error', __('No users selected for deletion'));
         }
 
-        // Prevent deleting current user.
         if (in_array(Auth::id(), $ids)) {
             // Remove current user from the deletion list.
             $ids = array_filter($ids, fn ($id) => $id != Auth::id());
@@ -207,7 +203,6 @@ class UsersController extends Controller
         $deletedCount = 0;
 
         foreach ($users as $user) {
-            // Skip super admin users
             if ($user->hasRole('superadmin')) {
                 continue;
             }
