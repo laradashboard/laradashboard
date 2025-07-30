@@ -32,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Handle "/" route redirection.
         if (
+            ! $this->app->runningInConsole() &&
             request()->is('/') &&
             ld_apply_filters('admin_site_only', true)
         ) {

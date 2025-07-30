@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="feat: implement screenshot generation with user session handling">
-      <change beforePath="$PROJECT_DIR$/.idea/laradashboard.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/laradashboard.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Console/Commands/GenerateScreenshots.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Console/Commands/GenerateScreenshots.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo-screenshots-2/00-Login-Page-Lite-Mode.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo-screenshots-2/01-Forget-password.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo-screenshots-2/03-Dashboard-Page-lite-Mode.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo-screenshots-2/05-Role-List-Lite.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo-screenshots-2/06-Role-List-Dark.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo-screenshots-2/11-User-List-Dark-Mode.png" beforeDir="false" />
-    </list>
+    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="fix: prevent loading in console for admin route redirection and update include paths" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -177,6 +166,7 @@
       <path value="$PROJECT_DIR$/Modules/UserAvatar/vendor/composer" />
       <path value="$PROJECT_DIR$/vendor/spatie/temporary-directory" />
       <path value="$PROJECT_DIR$/vendor/spatie/browsershot" />
+      <path value="$PROJECT_DIR$/vendor/mhmiton/laravel-modules-livewire" />
     </include_path>
   </component>
   <component name="ProjectColorInfo">{
@@ -188,23 +178,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "fix/api-ready",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/Users/mostafizur/Code/projects/laradashboard",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;fix/api-ready&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/mostafizur/Code/projects/laradashboard&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="Main" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
       <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" scope="XML" use_alternative_configuration_file="true" />
@@ -240,6 +230,7 @@
       <workItem from="1752721552055" duration="304000" />
       <workItem from="1752979964542" duration="2824000" />
       <workItem from="1752996350224" duration="2634000" />
+      <workItem from="1753757813189" duration="309000" />
     </task>
     <task id="LOCAL-00001" summary="fix: update various files for improved functionality and structure">
       <option name="closed" value="true" />
@@ -313,7 +304,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752981432425</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="fix: prevent loading in console for admin route redirection and update include paths">
+      <option name="closed" value="true" />
+      <created>1753758101641</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1753758101641</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -330,6 +329,7 @@
     <MESSAGE value="refactor: enhance UI components and integrate iconify for improved visuals" />
     <MESSAGE value="chore: add i18n-ally configuration for locales paths" />
     <MESSAGE value="feat: implement screenshot generation with user session handling" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: implement screenshot generation with user session handling" />
+    <MESSAGE value="fix: prevent loading in console for admin route redirection and update include paths" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: prevent loading in console for admin route redirection and update include paths" />
   </component>
 </project>
