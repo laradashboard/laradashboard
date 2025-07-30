@@ -53,7 +53,7 @@
                         <label for="content"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Content') }}</label>
 <div>
-                            <textarea name="content" id="content" rows="10">{!! old('content', $post->content ?? '') !!}</textarea>
+                            <textarea name="content" id="content" class="form-control-textarea" rows="10">{!! old('content', $post->content ?? '') !!}</textarea>
 </div>
                     </div>
                 @endif

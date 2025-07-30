@@ -70,12 +70,25 @@
 
     <!-- Chart Section with ApexCharts - Increased height -->
     <div class="h-60" id="area-chart"></div>
+</div>
 
-    <!-- ApexCharts JS -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+@push('scripts')
+<!-- ApexCharts JS -->
+<script data-navigate-once>
+    // Helper to load ApexCharts dynamically if not present
+    function loadApexCharts(callback) {
+        if (window.ApexCharts) {
+            callback();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/apexcharts";
+        script.onload = callback;
+        document.head.appendChild(script);
+    }
 
-    <script data-navigate-once>
-        document.addEventListener('livewire:navigated', function() {
+    document.addEventListener('livewire:navigated', function() {
+        loadApexCharts(function() {
             // Pass the current filter to JavaScript
             const currentFilter = "{{ $currentFilter }}";
 
@@ -348,11 +361,21 @@
                 }]
             };
 
-            if (document.getElementById("area-chart") && typeof ApexCharts !== 'undefined') {
-                document.getElementById("area-chart").style.minHeight = "300px"; // Increased minimum height
-                const chart = new ApexCharts(document.getElementById("area-chart"), options);
-                chart.render();
+            // Remove any existing ApexCharts instance before rendering
+            if (window.areaChartInstance && typeof window.areaChartInstance.destroy === 'function') {
+                window.areaChartInstance.destroy();
+            }
+            const chartEl = document.getElementById("area-chart");
+            if (chartEl) {
+                chartEl.innerHTML = ""; // Clear previous chart DOM
+            }
+
+            if (chartEl && typeof ApexCharts !== 'undefined') {
+                chartEl.style.minHeight = "300px";
+                window.areaChartInstance = new ApexCharts(chartEl, options);
+                window.areaChartInstance.render();
             }
         });
-    </script>
-</div>
+    });
+</script>
+@endpush

@@ -12,140 +12,162 @@
 
 @push('scripts')
 <script data-navigate-once>
+    function loadApexCharts(callback) {
+        if (window.ApexCharts) {
+            callback();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/apexcharts";
+        script.onload = callback;
+        document.head.appendChild(script);
+    }
+
     document.addEventListener('livewire:navigated', function() {
-        // Post data from the server
-        const postData = @json($post_stats);
+        loadApexCharts(function() {
+            // Post data from the server
+            const postData = @json($post_stats);
 
-        // Chart options
-        const options = {
-            series: [
-                {
-                    name: '{{ __("Published") }}',
-                    data: postData.published
+            // Chart options
+            const options = {
+                series: [
+                    {
+                        name: '{{ __("Published") }}',
+                        data: postData.published
+                    },
+                    {
+                        name: '{{ __("Draft") }}',
+                        data: postData.draft
+                    }
+                ],
+                chart: {
+                    type: 'bar',
+                    height: 320,
+                    stacked: true,
+                    fontFamily: 'var(--font-sans)',
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: false,
+                            zoom: false,
+                            zoomin: false,
+                            zoomout: false,
+                            pan: false,
+                            reset: false
+                        }
+                    },
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 800
+                    }
                 },
-                {
-                    name: '{{ __("Draft") }}',
-                    data: postData.draft
-                }
-            ],
-            chart: {
-                type: 'bar',
-                height: 320,
-                stacked: true,
-                fontFamily: 'var(--font-sans)',
-                toolbar: {
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        borderRadius: 5,
+                        dataLabels: {
+                            total: {
+                                enabled: false
+                            }
+                        }
+                    },
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    width: 2,
+                    colors: ['transparent']
+                },
+                xaxis: {
+                    categories: postData.labels,
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    },
+                    labels: {
+                        style: {
+                            colors: '#64748b',
+                            fontFamily: 'var(--font-sans)'
+                        }
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: '{{ __("Number of Posts") }}',
+                        style: {
+                            color: '#64748b',
+                            fontFamily: 'var(--font-sans)'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            colors: '#64748b',
+                            fontFamily: 'var(--font-sans)'
+                        }
+                    }
+                },
+                fill: {
+                    opacity: 1,
+                    colors: ['#635bff', '#fb923c']
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return val + " {{ __('posts') }}"
+                        }
+                    },
+                    style: {
+                        fontFamily: 'var(--font-sans)'
+                    }
+                },
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'right',
+                    offsetY: -30,
+                    fontFamily: 'var(--font-sans)',
+                    markers: {
+                        width: 12,
+                        height: 12,
+                        radius: 12
+                    }
+                },
+                grid: {
                     show: true,
-                    tools: {
-                        download: true,
-                        selection: false,
-                        zoom: false,
-                        zoomin: false,
-                        zoomout: false,
-                        pan: false,
-                        reset: false
-                    }
+                    borderColor: '#e2e8f0',
+                    strokeDashArray: 4,
+                    position: 'back'
                 },
-                animations: {
-                    enabled: true,
-                    easing: 'easeinout',
-                    speed: 800
-                }
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    columnWidth: '55%',
-                    borderRadius: 5,
-                    dataLabels: {
-                        total: {
-                            enabled: false
+                responsive: [
+                    {
+                        breakpoint: 480,
+                        options: {
+                            legend: {
+                                position: 'bottom',
+                                offsetY: 0
+                            }
                         }
                     }
-                },
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                width: 2,
-                colors: ['transparent']
-            },
-            xaxis: {
-                categories: postData.labels,
-                axisBorder: {
-                    show: false
-                },
-                axisTicks: {
-                    show: false
-                },
-                labels: {
-                    style: {
-                        colors: '#64748b',
-                        fontFamily: 'var(--font-sans)'
-                    }
-                }
-            },
-            yaxis: {
-                title: {
-                    text: '{{ __("Number of Posts") }}',
-                    style: {
-                        color: '#64748b',
-                        fontFamily: 'var(--font-sans)'
-                    }
-                },
-                labels: {
-                    style: {
-                        colors: '#64748b',
-                        fontFamily: 'var(--font-sans)'
-                    }
-                }
-            },
-            fill: {
-                opacity: 1,
-                colors: ['#635bff', '#fb923c']
-            },
-            tooltip: {
-                y: {
-                    formatter: function (val) {
-                        return val + " {{ __('posts') }}"
-                    }
-                },
-                style: {
-                    fontFamily: 'var(--font-sans)'
-                }
-            },
-            legend: {
-                position: 'top',
-                horizontalAlign: 'right',
-                offsetY: -30,
-                fontFamily: 'var(--font-sans)',
-                markers: {
-                    width: 12,
-                    height: 12,
-                    radius: 12
-                }
-            },
-            grid: {
-                show: true,
-                borderColor: '#e2e8f0',
-                strokeDashArray: 4,
-                position: 'back'
-            },
-            responsive: [
-                {
-                    breakpoint: 480,
-                    options: {
-                        legend: {
-                            position: 'bottom',
-                            offsetY: 0
-                        }
-                    }
-                }
-            ]
-        };
+                ]
+            };
 
-        const chart = new ApexCharts(document.querySelector("#post-activity-chart"), options);
-        chart.render();
+            // Remove any existing ApexCharts instance before rendering
+            if (window.postActivityChartInstance && typeof window.postActivityChartInstance.destroy === 'function') {
+                window.postActivityChartInstance.destroy();
+            }
+            const chartEl = document.querySelector("#post-activity-chart");
+            if (chartEl) {
+                chartEl.innerHTML = "";
+            }
+
+            window.postActivityChartInstance = new ApexCharts(chartEl, options);
+            window.postActivityChartInstance.render();
+        });
     });
 </script>
 @endpush
