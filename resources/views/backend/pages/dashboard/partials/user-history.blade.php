@@ -17,7 +17,7 @@
     <!-- Donut Chart -->
     <div class="" id="donut-chart"></div>
 
-    <script>
+    <script data-navigate-once>
         document.addEventListener('livewire:navigated', function() {
             // Get user counts from controller data
             const newUsers = @json($user_history_data['new_users'] ?? 0);

@@ -11,7 +11,7 @@
 </div>
 
 @push('scripts')
-<script>
+<script data-navigate-once>
     document.addEventListener('livewire:navigated', function() {
         // Post data from the server
         const postData = @json($post_stats);

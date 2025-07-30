@@ -20,8 +20,6 @@
     </style>
     @endif
 
-    @include('backend.layouts.partials.integration-scripts')
-
     @yield('styles')
 </head>
 
@@ -99,7 +97,9 @@ $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(valu
 
     @stack('scripts')
 
+    @include('backend.layouts.partials.integration-scripts')
     @if (!empty(config('settings.global_custom_js')))
+
     <script>
         {!! config('settings.global_custom_js') !!}
     </script>

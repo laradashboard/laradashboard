@@ -74,7 +74,7 @@
     <!-- ApexCharts JS -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-    <script>
+    <script data-navigate-once>
         document.addEventListener('livewire:navigated', function() {
             // Pass the current filter to JavaScript
             const currentFilter = "{{ $currentFilter }}";

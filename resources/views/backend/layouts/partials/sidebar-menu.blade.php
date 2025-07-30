@@ -45,7 +45,7 @@
     @endforeach
 </nav>
 
-<script>
+<script data-navigate-once>
     // Ensure drawer triggers work in the sidebar
     document.addEventListener('livewire:navigated', function() {
         // Handle drawer trigger clicks

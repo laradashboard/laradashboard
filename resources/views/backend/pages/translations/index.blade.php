@@ -181,7 +181,7 @@
     @include('backend.pages.translations.create')
 
     @push('scripts')
-    <script>
+    <script data-navigate-once>
         document.addEventListener('livewire:navigated', function() {
             // Auto-resize textareas based on content
             const textareas = document.querySelectorAll('textarea');

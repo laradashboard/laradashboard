@@ -25,8 +25,6 @@
     </style>
     @endif
 
-    @include('backend.layouts.partials.integration-scripts')
-    
     @php echo ld_apply_filters('admin_head', ''); @endphp
 </head>
 
@@ -69,10 +67,11 @@ x-init="
         </div>
     </div>
 
+    @include('backend.layouts.partials.integration-scripts')
     {!! ld_apply_filters('admin_footer_before', '') !!}
 
     @stack('scripts')
-    <script>
+    <script data-navigate-once>
         document.addEventListener('livewire:navigated', function() {
             const html = document.documentElement;
             const darkModeToggle = document.getElementById('darkModeToggle');
@@ -129,13 +128,13 @@ x-init="
     </script>
     
     @if (!empty(config('settings.global_custom_js')))
-    <script>
+    <script data-navigate-once>
         {!! config('settings.global_custom_js') !!}
     </script>
     @endif
 
     <!-- Global drawer handling script -->
-    <script>
+    <script data-navigate-once>
         // Define the global drawer opener function
         window.openDrawer = function(drawerId) {
             // Method 1: Try using the LaraDrawers registry if available

@@ -53,7 +53,7 @@
 <script src="{{ asset('vendor/quill/quill.min.js') }}"></script>
 @endonce
 
-<script>
+<script data-navigate-once>
     document.addEventListener('livewire:navigated', function() {
         const editorId = '{{ $editorId }}';
         const editorType = '{{ $type }}';
