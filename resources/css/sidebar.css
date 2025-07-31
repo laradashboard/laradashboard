@@ -62,6 +62,14 @@
     @apply bg-brand-50 group-hover:bg-brand-100 dark:bg-brand-500/15 dark:group-hover:bg-brand-500/20;
 }
 
+@utility menu-item-parent-active {
+    @apply bg-brand-100 text-brand-500 font-semibold dark:bg-brand-500/20 dark:text-brand-100;
+}
+
+.menu-item-parent:has(.menu-item-active) button {
+    @apply menu-item-parent-active;
+}
+
 /* @utility submenu {
     @apply mr-2 mb-2;
 } */

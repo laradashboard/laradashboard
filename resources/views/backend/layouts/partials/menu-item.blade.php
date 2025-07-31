@@ -9,22 +9,54 @@
 @elseif (!empty($item->children))
     @php
         $submenuId = $item->id ?? \Str::slug($item->label) . '-submenu';
-        $isActive = $item->active ? 'menu-item-active' : '';
+        $isParentActive = ''; // $item->active ? 'menu-item-parent-active' : '';
         $showSubmenu = app(\App\Services\MenuService\AdminMenuService::class)->shouldExpandSubmenu($item);
-        $rotateClass = $showSubmenu ? 'rotate-180' : '';
     @endphp
 
-    <li class="menu-item-{{ $item->id }}" style="{!! $item->itemStyles !!}">
-        <button :style="`color: ${textColor}`" class="menu-item group w-full text-left {{ $isActive }}" type="button" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.menu-item-arrow').classList.toggle('rotate-180')">
+    <li class="menu-item-{{ $item->id }} menu-item-parent"
+        style="{!! $item->itemStyles !!}"
+        x-data="{
+            open: {{ $showSubmenu ? 'true' : 'false' }},
+            submenuId: '{{ $submenuId }}',
+            init() {
+                window.addEventListener('sidebar:submenu-open', (e) => {
+                    if (e.detail !== this.submenuId) {
+                        this.open = false;
+                    }
+                });
+            }
+        }"
+    >
+        <button
+            :style="`color: ${textColor}`"
+            class="menu-item group w-full text-left {{ $isParentActive }}"
+            type="button"
+            @click="
+                open = !open;
+                if (open) {
+                    window.dispatchEvent(new CustomEvent('sidebar:submenu-open', { detail: submenuId }));
+                }
+            "
+        >
             @if (!empty($item->icon))
                 <iconify-icon icon="{{ $item->icon }}" class="menu-item-icon" width="18" height="18"></iconify-icon>
             @elseif (!empty($item->iconClass))
                 <iconify-icon icon="lucide:circle" class="menu-item-icon" width="18" height="18"></iconify-icon>
             @endif
             <span class="menu-item-text">{!! $item->label !!}</span>
-            <iconify-icon icon="lucide:chevron-down" class="menu-item-arrow transition-transform duration-300 {{ $rotateClass }} w-4 h-4"></iconify-icon>
+            <iconify-icon
+                icon="lucide:chevron-down"
+                class="menu-item-arrow transition-transform duration-300 w-4 h-4"
+                :class="open ? 'rotate-180' : ''"
+            ></iconify-icon>
         </button>
-        <ul id="{{ $submenuId }}" class="submenu space-y-1 mt-1 overflow-hidden {{ $showSubmenu ? '' : 'hidden' }}">
+        <ul
+            id="{{ $submenuId }}"
+            class="submenu space-y-1 mt-1 overflow-hidden"
+            x-show="open"
+            x-transition
+            style="display: none;"
+        >
             @foreach($item->children as $child)
                 @include('backend.layouts.partials.menu-item', ['item' => $child])
             @endforeach
@@ -37,7 +69,12 @@
     @endphp
 
     <li class="menu-item-{{ $item->id }}" style="{!! $item->itemStyles !!}">
-        <a wire:navigate wire:navigate.hover :style="`color: ${textColor}`" href="{{ $item->route ?? '#' }}" class="menu-item group {{ $isActive }}" {!! $target !!}>
+        <a wire:navigate wire:navigate.hover :style="`color: ${textColor}`"
+           href="{{ $item->route ?? '#' }}"
+           class="menu-item group menu-item-inactive"
+           wire:current.exact="menu-item-active"
+           {!! $target !!}
+        >
             @if (!empty($item->icon))
                 <iconify-icon icon="{{ $item->icon }}" class="menu-item-icon" width="18" height="18"></iconify-icon>
             @elseif (!empty($item->iconClass))

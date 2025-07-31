@@ -2,28 +2,11 @@
 @php
     $menuService = app(\App\Services\MenuService\AdminMenuService::class);
     $menuGroups = $menuService->getMenu();
-    // $sidebarTextDark = config('settings.sidebar_text_dark', '#ffffff');
-    // $sidebarTextLite = config('settings.sidebar_text_lite', '#090909');
 @endphp
 
 <nav
-    x-data="{
-        isDark: document.documentElement.classList.contains('dark'),
-        textColor: '',
-        init() {
-            this.updateColor();
-            const observer = new MutationObserver(() => this.updateColor());
-            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-        },
-        updateColor() {
-            this.isDark = document.documentElement.classList.contains('dark');
-        },
-        openDrawer(drawerId) {
-            if (typeof window.openDrawer === 'function') {
-                window.openDrawer(drawerId);
-            }
-        }
-    }"
+    id="sidebarNav"
+    x-data="sidebarNavData"
     x-init="init()"
     class="transition-all duration-300 ease-in-out px-4"
 >
@@ -45,6 +28,36 @@
     @endforeach
 </nav>
 
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('sidebarNavData', () => ({
+            isDark: document.documentElement.classList.contains('dark'),
+            textColor: '',
+            openSubmenuId: null,
+            init() {
+                this.updateColor();
+                const observer = new MutationObserver(() => this.updateColor());
+                observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+                // Set openSubmenuId to the initially open submenu if any.
+                this.$nextTick(() => {
+                    const initiallyOpen = document.querySelector('ul.submenu:not(.hidden)');
+                    if (initiallyOpen) {
+                        this.openSubmenuId = initiallyOpen.id;
+                    }
+                });
+            },
+            updateColor() {
+                this.isDark = document.documentElement.classList.contains('dark');
+            },
+            openDrawer(drawerId) {
+                if (typeof window.openDrawer === 'function') {
+                    window.openDrawer(drawerId);
+                }
+            }
+        }));
+    });
+</script>
 <script data-navigate-once>
     // Ensure drawer triggers work in the sidebar
     document.addEventListener('livewire:navigated', function() {
@@ -66,5 +79,6 @@
         });
     });
 </script>
+@endpush
 
 @endpersist
