@@ -35,7 +35,7 @@
                                         <div class="flex items-center">
                                             <span class="text-gray-700 dark:text-white">{{ $role->name }}</span>
                                         </div>
-                                        <a href="{{ route('admin.roles.edit', $role->id) }}" class="text-primary hover:underline text-sm">
+                                        <a href="{{ route('admin.roles.edit', $role->id) }}" wire:navigate class="text-primary hover:underline text-sm">
                                             <iconify-icon icon="lucide:eye" class="mr-1"></iconify-icon> {{ __('View Role') }}
                                         </a>
                                     </div>
