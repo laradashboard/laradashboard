@@ -19,122 +19,126 @@
 
                 <div class="flex items-center gap-3">
                     <!-- Bulk Actions dropdown -->
-                    <div class="flex items-center justify-center" x-show="selectedPosts.length > 0">
-                        <button id="bulkActionsButton" data-dropdown-toggle="bulkActionsDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
-                            <iconify-icon icon="lucide:more-vertical"></iconify-icon>
-                            <span>{{ __('Bulk Actions') }} (<span x-text="selectedPosts.length"></span>)</span>
-                            <iconify-icon icon="lucide:chevron-down"></iconify-icon>
-                        </button>
-
-                        <!-- Bulk Actions dropdown menu -->
-                        <div id="bulkActionsDropdown" class="z-10 hidden w-48 p-2 bg-white rounded-md shadow dark:bg-gray-700">
-                            <ul class="space-y-2">
-                                <li class="cursor-pointer flex items-center gap-1 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500 dark:hover:text-red-50 px-2 py-1.5 rounded transition-colors duration-300"
-                                    @click="bulkDeleteModalOpen = true">
-                                    <iconify-icon icon="lucide:trash"></iconify-icon> {{ __('Delete Selected') }}
-                                </li>
-                            </ul>
+                    <div class="flex items-center justify-center" x-show="selectedPosts.length > 0" x-data="{ open: false }">
+                        <div @click.away="open = false" class="relative">
+                            <button @click="open = !open" type="button" class="btn-secondary flex items-center justify-center gap-2 text-sm">
+                                <iconify-icon icon="lucide:more-vertical"></iconify-icon>
+                                <span>{{ __('Bulk Actions') }} (<span x-text="selectedPosts.length"></span>)</span>
+                                <iconify-icon icon="lucide:chevron-down"></iconify-icon>
+                            </button>
+                            <div x-show="open" x-transition class="z-10 absolute mt-2 w-48 p-2 bg-white rounded-md shadow dark:bg-gray-700">
+                                <ul class="space-y-2">
+                                    <li class="cursor-pointer flex items-center gap-1 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500 dark:hover:text-red-50 px-2 py-1.5 rounded transition-colors duration-300"
+                                        @click="bulkDeleteModalOpen = true; open = false">
+                                        <iconify-icon icon="lucide:trash"></iconify-icon> {{ __('Delete Selected') }}
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Status Filter dropdown -->
-                    <div class="flex items-center justify-center">
-                        <button id="statusDropdownButton" data-dropdown-toggle="statusDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
-                            <iconify-icon icon="lucide:filter"></iconify-icon>
-                            <span class="hidden sm:inline">{{ __('Status') }}</span>
-                            @if(request('status'))
-                                <span class="px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded-full dark:bg-red-900/20 dark:text-red-400">
-                                    {{ ucfirst(request('status')) }}
-                                </span>
-                            @endif
-                            <iconify-icon icon="lucide:chevron-down"></iconify-icon>
-                        </button>
-
-                        <!-- Status dropdown menu -->
-                        <div id="statusDropdown" class="z-10 hidden w-48 p-2 bg-white rounded-md shadow dark:bg-gray-700">
-                            <ul class="space-y-2">
-                                <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ !request('status') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                    onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'search' => request('search'), 'category' => request('category'), 'tag' => request('tag')]) }}'">
-                                    {{ __('All Status') }}
-                                </li>
-                                @foreach (['draft', 'publish', 'pending', 'future', 'private'] as $status)
-                                    <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $status === request('status') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                        onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => $status, 'search' => request('search'), 'category' => request('category'), 'tag' => request('tag')]) }}'">
-                                        {{ ucfirst($status) }}
+                    <div class="flex items-center justify-center" x-data="{ open: false }">
+                        <div @click.away="open = false" class="relative">
+                            <button @click="open = !open" type="button" class="btn-secondary flex items-center justify-center gap-2 text-sm">
+                                <iconify-icon icon="lucide:filter"></iconify-icon>
+                                <span class="hidden sm:inline">{{ __('Status') }}</span>
+                                @if(request('status'))
+                                    <span class="px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded-full dark:bg-red-900/20 dark:text-red-400">
+                                        {{ ucfirst(request('status')) }}
+                                    </span>
+                                @endif
+                                <iconify-icon icon="lucide:chevron-down"></iconify-icon>
+                            </button>
+                            <div x-show="open" x-transition class="z-10 absolute mt-2 w-48 p-2 bg-white rounded-md shadow dark:bg-gray-700">
+                                <ul class="space-y-2">
+                                    <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ !request('status') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
+                                        @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'search' => request('search'), 'category' => request('category'), 'tag' => request('tag')]) }}'">
+                                        {{ __('All Status') }}
                                     </li>
-                                @endforeach
-                            </ul>
+                                    @foreach (['draft', 'publish', 'pending', 'future', 'private'] as $status)
+                                        <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $status === request('status') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
+                                            @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => $status, 'search' => request('search'), 'category' => request('category'), 'tag' => request('tag')]) }}'">
+                                            {{ ucfirst($status) }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
                         </div>
                     </div>
 
                     @if($postType === 'post' && count($categories) > 0)
                         <!-- Category Filter dropdown -->
-                        <div class="flex items-center justify-center">
-                            <button id="categoryDropdownButton" data-dropdown-toggle="categoryDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
-                                <iconify-icon icon="lucide:grid"></iconify-icon>
-                                <span class="hidden sm:inline">{{ __('Category') }}</span>
-                                @if(request('category'))
-                                    <span class="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900/20 dark:text-blue-400">
-                                        {{ $categories->where('id', request('category'))->first()?->name }}
-                                    </span>
-                                @endif
-                                <iconify-icon icon="lucide:chevron-down"></iconify-icon>
-                            </button>
+                        <div class="flex items-center justify-center" x-data="{ open: false }">
+                            <div @click.away="open = false" class="relative">
+                                <button @click="open = !open" type="button" class="btn-secondary flex items-center justify-center gap-2 text-sm">
+                                    <iconify-icon icon="lucide:grid"></iconify-icon>
+                                    <span class="hidden sm:inline">{{ __('Category') }}</span>
+                                    @if(request('category'))
+                                        <span class="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900/20 dark:text-blue-400">
+                                            {{ $categories->where('id', request('category'))->first()?->name }}
+                                        </span>
+                                    @endif
+                                    <iconify-icon icon="lucide:chevron-down"></iconify-icon>
+                                </button>
 
-                            <!-- Category dropdown menu -->
-                            <div id="categoryDropdown" class="z-10 hidden w-56 p-2 bg-white rounded-md shadow dark:bg-gray-700">
-                                <ul class="space-y-2 max-h-48 overflow-y-auto">
-                                    <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ !request('category') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                        onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'tag' => request('tag')]) }}'">
-                                        {{ __('All Categories') }}
-                                    </li>
-                                    @foreach ($categories as $category)
-                                        <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $category->id == request('category') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                            onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => $category->id, 'tag' => request('tag')]) }}'">
-                                            {{ $category->name }}
-                                            <span class="text-xs text-gray-500 dark:text-gray-300">({{ $category->posts->count() ?? 0 }})</span>
+                                <!-- Category dropdown menu -->
+                                <div x-show="open" x-transition class="z-10 absolute mt-2 w-56 p-2 bg-white rounded-md shadow dark:bg-gray-700">
+                                    <ul class="space-y-2 max-h-48 overflow-y-auto">
+                                        <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ !request('category') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
+                                            @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'tag' => request('tag')]) }}'">
+                                            {{ __('All Categories') }}
                                         </li>
-                                    @endforeach
-                                </ul>
+                                        @foreach ($categories as $category)
+                                            <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $category->id == request('category') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
+                                                @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => $category->id, 'tag' => request('tag')]) }}'">
+                                                {{ $category->name }}
+                                                <span class="text-xs text-gray-500 dark:text-gray-300">({{ $category->posts->count() ?? 0 }})</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     @endif
 
                     @if($postType === 'post' && isset($tags) && count($tags) > 0)
-                        <div class="flex items-center justify-center">
-                            <button id="tagDropdownButton" data-dropdown-toggle="tagDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
-                                <iconify-icon icon="lucide:tags"></iconify-icon>
-                                <span class="hidden sm:inline">{{ __('Tags') }}</span>
-                                @if(request('tag'))
-                                    <span class="px-2 py-0.5 text-xs bg-green-100 text-green-800 rounded-full dark:bg-green-900/20 dark:text-green-400">
-                                        {{ $tags->where('id', request('tag'))->first()?->name }}
-                                    </span>
-                                @endif
-                                <iconify-icon icon="lucide:chevron-down"></iconify-icon>
-                            </button>
+                        <div class="flex items-center justify-center" x-data="{ open: false }">
+                            <div @click.away="open = false" class="relative">
+                                <button @click="open = !open" type="button" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
+                                    <iconify-icon icon="lucide:tags"></iconify-icon>
+                                    <span class="hidden sm:inline">{{ __('Tags') }}</span>
+                                    @if(request('tag'))
+                                        <span class="px-2 py-0.5 text-xs bg-green-100 text-green-800 rounded-full dark:bg-green-900/20 dark:text-green-400">
+                                            {{ $tags->where('id', request('tag'))->first()?->name }}
+                                        </span>
+                                    @endif
+                                    <iconify-icon icon="lucide:chevron-down"></iconify-icon>
+                                </button>
 
-                            <!-- Tags dropdown menu -->
-                            <div id="tagDropdown" class="z-10 hidden w-56 p-3 bg-white rounded-md shadow dark:bg-gray-700">
-                                <h6 class="mb-2 text-sm font-medium text-gray-700 dark:text-white">{{ __('Filter by Tags') }}</h6>
-                                <ul class="space-y-2 max-h-48 overflow-y-auto">
-                                    <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded {{ !request('tag') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                        onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => request('category')]) }}'">
-                                        {{ __('All Tags') }}
-                                    </li>
-                                    @foreach ($tags as $tag)
-                                        <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded {{ $tag->id == request('tag') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                            onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => request('category'), 'tag' => $tag->id]) }}'">
-                                            {{ $tag->name }}
-                                            <span class="text-xs text-gray-500 dark:text-gray-300">({{ $tag->posts->count() ?? 0 }})</span>
+                                <!-- Tags dropdown menu -->
+                                <div x-show="open" x-transition class="z-10 absolute mt-2 w-56 p-3 bg-white rounded-md shadow dark:bg-gray-700">
+                                    <h6 class="mb-2 text-sm font-medium text-gray-700 dark:text-white">{{ __('Filter by Tags') }}</h6>
+                                    <ul class="space-y-2 max-h-48 overflow-y-auto">
+                                        <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded {{ !request('tag') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
+                                            @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => request('category')]) }}'">
+                                            {{ __('All Tags') }}
                                         </li>
-                                    @endforeach
-                                </ul>
+                                        @foreach ($tags as $tag)
+                                            <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded {{ $tag->id == request('tag') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
+                                                @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => request('category'), 'tag' => $tag->id]) }}'">
+                                                {{ $tag->name }}
+                                                <span class="text-xs text-gray-500 dark:text-gray-300">({{ $tag->posts->count() ?? 0 }})</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     @endif
 
                     @if (auth()->user()->can('post.create'))
-                    <a href="{{ route('admin.posts.create', $postType) }}" class="btn-primary flex items-center gap-2">
+                    <a href="{{ route('admin.posts.create', $postType) }}" wire:navigate class="btn-primary flex items-center gap-2">
                         <iconify-icon icon="feather:plus" height="16"></iconify-icon>
                         {{ __("New {$postTypeModel->label_singular}") }}
                     </a>
