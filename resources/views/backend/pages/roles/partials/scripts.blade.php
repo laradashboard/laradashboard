@@ -1,5 +1,5 @@
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("livewire:navigated", function () {
         // Get the main "Select All" checkbox
         const checkPermissionAll = document.getElementById("checkPermissionAll");
 

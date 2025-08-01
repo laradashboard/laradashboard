@@ -20,24 +20,22 @@
                         'placeholder' => __('Search by title or type'),
                     ])
 
-                    <div class="flex items-center gap-3">
-                        <div class="flex items-center justify-center">
-                            <button id="dropdownDefault" data-dropdown-toggle="dropdown" class="btn-secondary flex items-center justify-center gap-2" type="button">
+                    <div class="flex items-center justify-center" x-data="{ open: false }">
+                        <div @click.away="open = false" class="relative">
+                            <button @click="open = !open" type="button" class="btn-secondary flex items-center justify-center gap-2">
                                 <iconify-icon icon="lucide:sliders"></iconify-icon>
                                 {{ __('Filter') }}
                                 <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                             </button>
-
-                            <!-- Dropdown menu -->
-                            <div id="dropdown" class="z-10 hidden w-56 p-2 bg-white rounded-md shadow dark:bg-gray-700">
+                            <div x-show="open" x-transition class="z-10 absolute mt-2 w-56 p-2 bg-white rounded-md shadow dark:bg-gray-700">
                                 <ul class="space-y-2">
                                     <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded"
-                                    onclick="handleSelect('')">
+                                        @click="open = false; handleSelect('')">
                                         {{ __('All') }}
                                     </li>
                                     @foreach (\App\Enums\ActionType::cases() as $type)
                                         <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $type->value === request('type') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                            onclick="handleSelect('{{ $type->value }}')">
+                                            @click="open = false; handleSelect('{{ $type->value }}')">
                                             {{ __(ucfirst($type->value)) }}
                                         </li>
                                     @endforeach

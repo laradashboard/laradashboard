@@ -19,8 +19,8 @@
         </button>
     </div>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
+<script data-navigate-once>
+    document.addEventListener('livewire:navigated', function () {
         setTimeout(function () {
             const successMessage = document.getElementById('success-message');
             if (successMessage) {

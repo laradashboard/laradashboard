@@ -45,8 +45,8 @@
 @endsection
 
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
+<script data-navigate-once>
+    document.addEventListener('livewire:navigated', function () {
         const tabButtons = document.querySelectorAll('[role="tab"]');
 
         function setActiveTab(tabKey) {

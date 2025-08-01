@@ -19,22 +19,22 @@
                <div class="flex items-center gap-3">
                  <div class="flex items-center gap-2">
                     <!-- Bulk Actions dropdown -->
-                    <div class="flex items-center justify-center" x-show="selectedRoles.length > 0">
-                        <button id="bulkActionsButton" data-dropdown-toggle="bulkActionsDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
-                            <iconify-icon icon="lucide:more-vertical"></iconify-icon>
-                            <span>{{ __('Bulk Actions') }} (<span x-text="selectedRoles.length"></span>)</span>
-                            <iconify-icon icon="lucide:chevron-down"></iconify-icon>
+                    <div class="flex items-center justify-center" x-show="selectedRoles.length > 0" x-data="{ open: false }">
+                      <div @click.away="open = false" class="relative">
+                        <button @click="open = !open" type="button" class="btn-secondary flex items-center justify-center gap-2 text-sm">
+                          <iconify-icon icon="lucide:more-vertical"></iconify-icon>
+                          <span>{{ __('Bulk Actions') }} (<span x-text="selectedRoles.length"></span>)</span>
+                          <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                         </button>
-
-                        <!-- Bulk Actions dropdown menu -->
-                        <div id="bulkActionsDropdown" class="z-10 hidden w-48 p-2 bg-white rounded-md shadow dark:bg-gray-700">
-                            <ul class="space-y-2">
-                                <li class="cursor-pointer flex items-center gap-1 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500 dark:hover:text-red-50 px-2 py-1.5 rounded transition-colors duration-300"
-                                    @click="bulkDeleteModalOpen = true">
-                                    <iconify-icon icon="lucide:trash" ></iconify-icon> {{ __('Delete Selected') }}
-                                </li>
-                            </ul>
+                        <div x-show="open" x-transition class="z-10 absolute mt-2 w-48 p-2 bg-white rounded-md shadow dark:bg-gray-700">
+                          <ul class="space-y-2">
+                            <li class="cursor-pointer flex items-center gap-1 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500 dark:hover:text-red-50 px-2 py-1.5 rounded transition-colors duration-300"
+                                @click="bulkDeleteModalOpen = true; open = false">
+                              <iconify-icon icon="lucide:trash"></iconify-icon> {{ __('Delete Selected') }}
+                            </li>
+                          </ul>
                         </div>
+                      </div>
                     </div>
                 </div>
 

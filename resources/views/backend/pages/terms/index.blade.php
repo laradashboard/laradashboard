@@ -34,22 +34,22 @@
                     <h3 class="text-base font-medium text-gray-700 dark:text-white/90">{{ __($taxonomyModel->label) }}</h3>
                     <div class="flex items-center gap-2">
                         <!-- Bulk Actions dropdown -->
-                        <div class="flex items-center justify-center" x-show="selectedTerms.length > 0">
-                            <button id="bulkActionsButton" data-dropdown-toggle="bulkActionsDropdown" class="btn-danger flex items-center justify-center gap-2 text-sm" type="button">
-                                <iconify-icon icon="lucide:trash"></iconify-icon>
-                                <span>{{ __('Bulk Actions') }} (<span x-text="selectedTerms.length"></span>)</span>
-                                <iconify-icon icon="lucide:chevron-down"></iconify-icon>
-                            </button>
-
-                            <!-- Bulk Actions dropdown menu -->
-                            <div id="bulkActionsDropdown" class="z-10 hidden w-48 p-3 bg-white rounded-md shadow dark:bg-gray-700">
-                                <h6 class="mb-2 text-sm font-medium text-gray-700 dark:text-white">{{ __('Bulk Actions') }}</h6>
-                                <ul class="space-y-2">
-                                    <li class="cursor-pointer text-sm text-red-600 dark:text-red-400 hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded"
-                                        @click="bulkDeleteModalOpen = true">
-                                        <iconify-icon icon="lucide:trash" class="mr-1"></iconify-icon> {{ __('Delete Selected') }}
-                                    </li>
-                                </ul>
+                        <div class="flex items-center justify-center" x-show="selectedTerms.length > 0" x-data="{ open: false }">
+                            <div @click.away="open = false" class="relative">
+                                <button @click="open = !open" type="button" class="btn-danger flex items-center justify-center gap-2 text-sm">
+                                    <iconify-icon icon="lucide:trash"></iconify-icon>
+                                    <span>{{ __('Bulk Actions') }} (<span x-text="selectedTerms.length"></span>)</span>
+                                    <iconify-icon icon="lucide:chevron-down"></iconify-icon>
+                                </button>
+                                <div x-show="open" x-transition class="z-10 absolute mt-2 w-48 p-3 bg-white rounded-md shadow dark:bg-gray-700">
+                                    <h6 class="mb-2 text-sm font-medium text-gray-700 dark:text-white">{{ __('Bulk Actions') }}</h6>
+                                    <ul class="space-y-2">
+                                        <li class="cursor-pointer text-sm text-red-600 dark:text-red-400 hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded"
+                                            @click="bulkDeleteModalOpen = true; open = false">
+                                            <iconify-icon icon="lucide:trash" class="mr-1"></iconify-icon> {{ __('Delete Selected') }}
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
 

@@ -80,7 +80,7 @@
                                 <td class="px-5 py-4 sm:px-6">
                                     @if ($permission->role_count > 0)
                                         <div class="flex items-center">
-                                            <a href="{{ route('admin.permissions.show', $permission->id) }}" class="text-primary hover:underline">
+                                            <a href="{{ route('admin.permissions.show', $permission->id) }}" wire:navigate class="text-primary hover:underline">
                                                 <span class="badge">{{ $permission->role_count }}</span>
                                                 {{ $permission->roles_list }}
                                             </a>

@@ -309,7 +309,7 @@
             </label>
             <textarea name="global_custom_js" rows="6"
                 class="w-full rounded-md border border-gray-300 bg-transparent p-4 text-sm text-gray-700 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
-                placeholder="document.addEventListener('DOMContentLoaded', function() { /* Your code */ });">{{ config('settings.global_custom_js') }}</textarea>
+                placeholder="document.addEventListener('livewire:navigated', function() { /* Your code */ });">{{ config('settings.global_custom_js') }}</textarea>
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-300">
                 {{ __('Add custom JavaScript that will be loaded on all pages') }}
             </p>

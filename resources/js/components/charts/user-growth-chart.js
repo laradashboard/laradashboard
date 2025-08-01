@@ -5,6 +5,15 @@ const userGrowthLabels_Labels = typeof userGrowthLabels !== 'undefined' ? userGr
 
 // ===== User Growth Chart.
 const userGrowthChart = () => {
+  if (window.userGrowthChartInstance && typeof window.userGrowthChartInstance.destroy === 'function') {
+    window.userGrowthChartInstance.destroy();
+  }
+
+  const chartSelector = document.querySelectorAll("#user-growth-chart");
+  if (chartSelector.length) {
+    chartSelector[0].innerHTML = "";
+  }
+
   const chartOneOptions = {
     series: [
       {
@@ -82,14 +91,12 @@ const userGrowthChart = () => {
     },
   };
 
-  const chartSelector = document.querySelectorAll("#user-growth-chart");
-
   if (chartSelector.length) {
-    const chartFour = new ApexCharts(
+    window.userGrowthChartInstance = new ApexCharts(
       document.querySelector("#user-growth-chart"),
       chartOneOptions,
     );
-    chartFour.render();
+    window.userGrowthChartInstance.render();
   }
 };
 
