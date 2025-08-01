@@ -5,7 +5,7 @@
 @endsection
 
 @section('admin-content')
-    <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+    <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6" x-data="{ addLanguageModalOpen: false }">
         <x-breadcrumbs :breadcrumbs="$breadcrumbs" />
 
         {!! ld_apply_filters('translation_after_breadcrumbs', '') !!}
@@ -44,7 +44,12 @@
 
                 <div class="place-items-end mt-4 sm:mt-0">
                     @if(auth()->user()->can('translations.edit'))
-                        <button data-modal-target="add-language-modal" data-modal-toggle="add-language-modal" class="btn-primary" id="add-language-button">
+                        <button
+                            type="button"
+                            x-on:click="addLanguageModalOpen = true"
+                            class="btn-primary"
+                            id="add-language-button"
+                        >
                             <iconify-icon icon="lucide:plus-circle" class="mr-2"></iconify-icon>{{ __('New Language') }}
                         </button>
                     @endif
@@ -176,32 +181,17 @@
                 </div>
             @endif
         </div>
+
+        @include('backend.pages.translations.create')
     </div>
-
-    @include('backend.pages.translations.create')
-
-    @push('scripts')
-    <script data-navigate-once>
-        document.addEventListener('livewire:navigated', function() {
-            // Auto-resize textareas based on content
-            const textareas = document.querySelectorAll('textarea');
-            textareas.forEach(textarea => {
-                textarea.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = (this.scrollHeight) + 'px';
-                });
-
-                // Initialize height
-                textarea.style.height = 'auto';
-                textarea.style.height = (textarea.scrollHeight) + 'px';
-            });
-        });
-
-        function updateLocation() {
-            const lang = document.getElementById('language-select').value;
-            const group = document.getElementById('group-select').value;
-            window.location.href = '{{ route('admin.translations.index') }}?lang=' + lang + '&group=' + group;
-        }
-    </script>
-    @endpush
 @endsection
+
+@push('scripts')
+<script data-navigate-once>
+    function updateLocation() {
+        const lang = document.getElementById('language-select').value;
+        const group = document.getElementById('group-select').value;
+        window.location.href = '{{ route('admin.translations.index') }}?lang=' + lang + '&group=' + group;
+    }
+</script>
+@endpush

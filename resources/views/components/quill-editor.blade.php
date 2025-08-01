@@ -59,7 +59,6 @@
         const customToolbar = @json($customToolbar);
 
         if (!textareaElement) {
-            console.error(`Textarea with ID "${editorId}" not found`);
             return;
         }
 

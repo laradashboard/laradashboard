@@ -31,7 +31,7 @@
     @endif
 
     @if (!empty($cancelLabel) && !empty($cancelUrl))
-        <a href="{{ $cancelUrl }}" class="{{ $classNames['cancel'] ?? 'btn-default' }}">
+        <a href="{{ $cancelUrl }}" class="{{ $classNames['cancel'] ?? 'btn-default' }}" wire:navigate>
             @if ($showIcon)
                 <iconify-icon icon="lucide:x-circle" class="mr-2"></iconify-icon>
             @endif
