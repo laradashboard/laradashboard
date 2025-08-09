@@ -6,7 +6,7 @@ namespace App\Models;
 
 use App\Services\Content\ContentService;
 use App\Services\Content\PostType;
-use App\Traits\QueryBuilderTrait;
+use App\Concerns\QueryBuilderTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

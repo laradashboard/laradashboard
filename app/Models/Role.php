@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Traits\QueryBuilderTrait;
+use App\Concerns\QueryBuilderTrait;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole

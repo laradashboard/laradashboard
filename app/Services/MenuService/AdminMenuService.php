@@ -249,6 +249,16 @@ class AdminMenuService
             ',
         ], __('More'));
 
+        $this->addMenuItem([
+            'label' => __('Media Library'),
+            'icon' => 'lucide:image',
+            'route' => route('admin.media.index'),
+            'active' => Route::is('admin.media.*'),
+            'id' => 'media',
+            'priority' => 15,
+            'permissions' => 'media.view',
+        ], 'Content');
+
         $this->groups = ld_apply_filters('admin_menu_groups_before_sorting', $this->groups);
 
         $this->sortMenuItemsByPriority();

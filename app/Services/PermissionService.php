@@ -106,6 +106,15 @@ class PermissionService
                     'term.delete',
                 ],
             ],
+            [
+                'group_name' => 'media',
+                'permissions' => [
+                    'media.create',
+                    'media.view',
+                    'media.edit',
+                    'media.delete',
+                ],
+            ],
         ];
 
         return $permissions;
@@ -141,7 +150,7 @@ class PermissionService
     }
 
     /**
-     * Get all permission models from database
+     * Get all permission models from a database
      */
     public function getAllPermissionModels(): Collection
     {
@@ -149,7 +158,7 @@ class PermissionService
     }
 
     /**
-     * Get permissions by group name from database
+     * Get permissions by group name from a database
      */
     public function getPermissionModelsByGroup(string $group_name): Collection
     {

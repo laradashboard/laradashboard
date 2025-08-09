@@ -103,7 +103,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach ($modules as $module)
                     <div tabindex="0" class="rounded-md border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-brand-800 transition-all duration-200 hover:shadow-md">
-                        <div class="flex justify-between" x-data="{ deleteModalOpen: false, errorModalOpen: false, errorMessage: '' }">
+                        <div class="flex justify-between" x-data="{ deleteModalOpen: false, errorModalOpen: false, errorMessage: '', dropdownOpen: false }">
                             <div class="py-3">
                                 <h2>
                                     <i class="bi {{ $module->icon }} text-3xl text-gray-500 dark:text-gray-300"></i>
@@ -113,32 +113,41 @@
                                 </h3>
                             </div>
 
+                            <div class="relative">
+                                <button @click="dropdownOpen = !dropdownOpen" class="inline-flex items-center h-9 p-2 text-sm font-medium text-center text-gray-700 bg-white rounded-md hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
+                                    <iconify-icon icon="lucide:more-vertical"></iconify-icon>
+                                </button>
 
-                            <button id="dropdownMenuIconButton" data-dropdown-toggle="dropdownMore-{{ $module->name }}" class="inline-flex items-right h-9 p-2 text-sm font-medium text-center text-gray-700 bg-white rounded-md hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
-                                <iconify-icon icon="lucide:more-vertical"></iconify-icon>
-                            </button>
-
-                            <div id="dropdownMore-{{ $module->name }}" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-md shadow-sm w-44 dark:bg-gray-700 dark:divide-gray-600">
-                                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuIconButton">
-                                    <li>
-                                        <div>
+                                <div x-show="dropdownOpen" 
+                                     @click.away="dropdownOpen = false"
+                                     x-transition:enter="transition ease-out duration-100"
+                                     x-transition:enter-start="transform opacity-0 scale-95"
+                                     x-transition:enter-end="transform opacity-100 scale-100"
+                                     x-transition:leave="transition ease-in duration-75"
+                                     x-transition:leave-start="transform opacity-100 scale-100"
+                                     x-transition:leave-end="transform opacity-0 scale-95"
+                                     class="absolute top-full right-0 z-10 w-44 bg-white divide-y divide-gray-100 rounded-md shadow-lg dark:bg-gray-700 dark:divide-gray-600 mt-2">
+                                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                                        <li>
                                             <button
-                                                x-on:click="deleteModalOpen = true"
-                                                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white w-full px-2 text-left"
+                                                @click="deleteModalOpen = true; dropdownOpen = false"
+                                                class="flex items-center w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-left"
                                             >
+                                                <iconify-icon icon="lucide:trash" class="mr-2 text-red-500"></iconify-icon>
                                                 {{ __('Delete') }}
                                             </button>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <button
-                                            onclick="toggleModuleStatus('{{ $module->name }}', event)"
-                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white w-full px-2 text-left"
-                                        >
-                                            {{ $module->status ? __('Disable') : __('Enable') }}
-                                        </button>
-                                    </li>
-                                </ul>
+                                        </li>
+                                        <li>
+                                            <button
+                                                @click="toggleModuleStatus('{{ $module->name }}', $event); dropdownOpen = false"
+                                                class="flex items-center w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-left"
+                                            >
+                                                <iconify-icon icon="{{ $module->status ? 'lucide:toggle-left' : 'lucide:toggle-right' }}" class="mr-2 {{ $module->status ? 'text-green-500' : 'text-gray-500' }}"></iconify-icon>
+                                                {{ $module->status ? __('Disable') : __('Enable') }}
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
 
                             <x-modals.confirm-delete
@@ -197,11 +206,15 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const button = event.target;
-                button.textContent = data.status ? '{{ __("Disable") }}' : '{{ __("Enable") }}';
-
+                // Show success toast
+                if (window.showToast) {
+                    window.showToast('success', '{{ __("Success") }}', data.message || '{{ __("Module status updated successfully") }}');
+                }
+                
                 // Refresh the page to show updated status
-                window.location.reload();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
                 // Show error modal instead of alert
                 if (moduleElement && Alpine) {
