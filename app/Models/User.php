@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Notifications\AdminResetPasswordNotification;
-use App\Traits\AuthorizationChecker;
-use App\Traits\HasGravatar;
-use App\Traits\QueryBuilderTrait;
+use App\Concerns\AuthorizationChecker;
+use App\Concerns\HasGravatar;
+use App\Concerns\QueryBuilderTrait;
 use Illuminate\Auth\Notifications\ResetPassword as DefaultResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;

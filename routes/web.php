@@ -6,6 +6,7 @@ use App\Http\Controllers\Backend\ActionLogController;
 use App\Http\Controllers\Backend\Auth\ScreenshotGeneratorLoginController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\LocaleController;
+use App\Http\Controllers\Backend\MediaController;
 use App\Http\Controllers\Backend\ModulesController;
 use App\Http\Controllers\Backend\PermissionsController;
 use App\Http\Controllers\Backend\PostsController;
@@ -87,6 +88,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::put('/terms/{taxonomy}/{id}', [TermsController::class, 'update'])->name('terms.update');
     Route::delete('/terms/{taxonomy}/{id}', [TermsController::class, 'destroy'])->name('terms.destroy');
     Route::delete('/terms/{taxonomy}/delete/bulk-delete', [TermsController::class, 'bulkDelete'])->name('terms.bulk-delete');
+
+    // Media Routes.
+    Route::prefix('media')->name('media.')->group(function () {
+        Route::get('/', [MediaController::class, 'index'])->name('index');
+        Route::post('/', [MediaController::class, 'store'])->name('store');
+        Route::delete('/{id}', [MediaController::class, 'destroy'])->name('destroy');
+        Route::delete('/', [MediaController::class, 'bulkDelete'])->name('bulk-delete');
+    });
 
     // Editor Upload Route
     Route::post('/editor/upload', [App\Http\Controllers\Backend\EditorController::class, 'upload'])->name('editor.upload');

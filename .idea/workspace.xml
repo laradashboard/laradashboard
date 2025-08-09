@@ -4,7 +4,36 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< HEAD
+    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="feat: implement screenshot generation with user session handling">
+      <change afterPath="$PROJECT_DIR$/app/Contacts/MediaInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Contacts/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Services/MediaLibraryService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Traits/HasMediaLibrary.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/View/Components/MediaImage.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/database/migrations/2025_07_27_045826_create_media_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/components/media-image.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Feature/MediaLibraryTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/InvoiceController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/InvoiceController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/ProductController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Controllers/ProductController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Http/Requests/ProductRequest.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Http/Requests/ProductRequest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/app/Models/Product.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/app/Models/Product.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/database/migrations/2025_07_21_000001_create_products_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/database/migrations/2025_07_21_000001_create_products_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/products/create.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/products/create.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/products/edit.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/products/edit.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/products/show.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Crm/resources/views/pages/products/show.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Services/PermissionService.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Services/PermissionService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules_statuses.json" beforeDir="false" afterPath="$PROJECT_DIR$/modules_statuses.json" afterDir="false" />
+    </list>
+=======
     <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="fix: prevent loading in console for admin route redirection and update include paths" />
+>>>>>>> main
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -166,7 +195,14 @@
       <path value="$PROJECT_DIR$/Modules/UserAvatar/vendor/composer" />
       <path value="$PROJECT_DIR$/vendor/spatie/temporary-directory" />
       <path value="$PROJECT_DIR$/vendor/spatie/browsershot" />
+<<<<<<< HEAD
+      <path value="$PROJECT_DIR$/vendor/spatie/image" />
+      <path value="$PROJECT_DIR$/vendor/spatie/image-optimizer" />
+      <path value="$PROJECT_DIR$/vendor/spatie/laravel-medialibrary" />
+      <path value="$PROJECT_DIR$/vendor/maennchen/zipstream-php" />
+=======
       <path value="$PROJECT_DIR$/vendor/mhmiton/laravel-modules-livewire" />
+>>>>>>> main
     </include_path>
   </component>
   <component name="ProjectColorInfo">{
@@ -230,7 +266,14 @@
       <workItem from="1752721552055" duration="304000" />
       <workItem from="1752979964542" duration="2824000" />
       <workItem from="1752996350224" duration="2634000" />
+<<<<<<< HEAD
+      <workItem from="1753590993298" duration="1360000" />
+      <workItem from="1753592361793" duration="13000" />
+      <workItem from="1753592442205" duration="3018000" />
+      <workItem from="1753598275459" duration="5026000" />
+=======
       <workItem from="1753757813189" duration="309000" />
+>>>>>>> main
     </task>
     <task id="LOCAL-00001" summary="fix: update various files for improved functionality and structure">
       <option name="closed" value="true" />

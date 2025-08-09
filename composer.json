@@ -29,6 +29,7 @@
         "mhmiton/laravel-modules-livewire": "^5.1",
         "nwidart/laravel-modules": "^12.0",
         "spatie/browsershot": "^5.0",
+        "spatie/laravel-medialibrary": "^11.13",
         "spatie/laravel-permission": "^6.4",
         "spatie/laravel-query-builder": "^6.3",
         "tormjens/eventy": "^0.8.0"
@@ -123,6 +124,10 @@
             "@phpstan",
             "@phpunit",
             "@type-check"
+        ],
+        "fresh:seed": [
+            "@php artisan migrate:fresh --seed",
+            "@php artisan module:seed"
         ]
     },
     "minimum-stability": "beta",

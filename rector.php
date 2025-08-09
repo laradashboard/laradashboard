@@ -11,7 +11,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
         __DIR__.'/app/Models',
         __DIR__.'/app/Services',
-        __DIR__.'/app/Traits',
+        __DIR__ . '/app/Concerns',
         __DIR__.'/app/Providers',
         __DIR__.'/app/Http',
         __DIR__.'/app/View',

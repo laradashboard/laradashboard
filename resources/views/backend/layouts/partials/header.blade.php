@@ -51,8 +51,8 @@ x-init="init()"
         <div :class="menuToggle ? 'flex' : 'hidden'"
             class="w-full items-center justify-between gap-4 px-5 py-1 shadow-theme-md lg:flex lg:justify-end lg:px-0 lg:shadow-none">
             <div class="flex items-center gap-1">
-                @include('backend.layouts.partials.locale-switcher')
                 @include('backend.layouts.partials.demo-mode-notice')
+                @include('backend.layouts.partials.locale-switcher')
                 @php echo ld_apply_filters('dark_mode_toggler_before_button', ''); @endphp
                 <button id="darkModeToggle"
                     class="hover:text-dark-900 relative flex items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white p-2 dark-mode-toggle"
