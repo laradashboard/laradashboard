@@ -8,7 +8,7 @@ use App\Concerns\HandlesMediaOperations;
 use App\Support\Helper\MediaHelper;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Http\Request;
-use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
+use App\Models\Media as SpatieMedia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -129,10 +129,11 @@ class MediaLibraryService
                 'disk' => 'public',
                 'conversions_disk' => 'public',
                 'size' => $file->getSize(),
-                'manipulations' => '[]',
-                'custom_properties' => '[]',
-                'generated_conversions' => '[]',
-                'responsive_images' => '[]',
+                // Store as arrays; our model accessors will handle casting safely
+                'manipulations' => [],
+                'custom_properties' => [],
+                'generated_conversions' => [],
+                'responsive_images' => [],
                 'order_column' => null,
             ]);
 
