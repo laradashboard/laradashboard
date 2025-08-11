@@ -79,10 +79,19 @@ trait HasUniqueSlug
     /**
      * Generate unique slug for a specific label/string.
      */
-    public function generateSlugFromString(string $label, string $columnName = 'slug', string $separator = '-', $model = null): string
+    public function generateSlugFromString(string $label, string $table = 'users', string $columnName = 'slug', ?string $separator = '-'): string
     {
         $baseSlug = Str::slug($label, $separator);
 
-        return $this->generateUniqueSlug($model ?? $this, $columnName, $separator, $baseSlug);
+        // Create a new model instance for the specified table
+        $model = new class ($table) extends Model {
+            protected $table;
+            public function __construct($table)
+            {
+                $this->table = $table;
+            }
+        };
+
+        return $this->generateUniqueSlug($model, $columnName, $separator, $baseSlug);
     }
 }

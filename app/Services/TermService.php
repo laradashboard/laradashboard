@@ -67,7 +67,7 @@ class TermService
     {
         $term = new Term();
         $term->name = $data['name'];
-        $term->slug = $term->generateSlugFromString($data['slug'] ?? $data['name'] ?? '');
+        $term->slug = $term->generateSlugFromString($data['slug'] ?? $data['name'] ?? '', 'terms');
         $term->taxonomy = $taxonomy;
         $term->description = $data['description'] ?? null;
         $term->parent_id = $data['parent_id'] ?? null;
@@ -96,7 +96,7 @@ class TermService
         $slug = $data['slug'] ?? '';
         if ($term->slug !== $slug) {
             $slugSource = ! empty($slug) ? $slug : $data['name'];
-            $term->slug = $term->generateSlugFromString($slugSource, 'slug');
+            $term->slug = $term->generateSlugFromString($slugSource, 'terms');
         }
 
         $term->description = $data['description'] ?? null;

@@ -28,6 +28,7 @@
         "livewire/livewire": "^3.6",
         "mhmiton/laravel-modules-livewire": "^5.1",
         "nwidart/laravel-modules": "^12.0",
+        "phpoffice/phpspreadsheet": "^2.0",
         "spatie/browsershot": "^5.0",
         "spatie/laravel-medialibrary": "^11.13",
         "spatie/laravel-permission": "^6.4",

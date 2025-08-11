@@ -10,7 +10,6 @@ use App\Services\Modules\ModuleService;
 use App\Services\PasswordService;
 use App\Services\SlugService;
 use Illuminate\Foundation\Vite;
-use Illuminate\Database\Eloquent\Model;
 
 function get_module_asset_paths(): array
 {
@@ -169,20 +168,20 @@ function svg_icon(string $name, string $classes = '', string $fallback = ''): st
  * Generate a unique slug for a given string.
  *
  * @param  string  $string  The base string to generate the slug from
+ * @param  string  $table   The table name to check for uniqueness
  * @param  string  $column  The column name to check for uniqueness (default: 'slug')
  * @param  string  $separator  The separator to use in the slug (default: '-')
- * @param  Model|null  $model  The model instance if checking against an existing record
  *
  * @return string  The generated unique slug
  */
-function generate_unique_slug(string $string, string $column = 'slug', string $separator = '-', $model = null): string
+function generate_unique_slug(string $string, string $table = 'users', string $column = 'slug', string $separator = '-'): string
 {
     return app(SlugService::class)
         ->generateSlugFromString(
             $string,
+            $table,
             $column,
-            $separator,
-            $model
+            $separator
         );
 }
 

@@ -178,6 +178,15 @@ class MediaLibraryService
         return $deleteCount;
     }
 
+    /**
+     * Upload a media file from request and attach it to a model
+     *
+     * @param HasMedia $model
+     * @param Request $request
+     * @param string $fieldName
+     * @param string $collection
+     * @return \App\Models\Media|null
+     */
     public function uploadFromRequest(
         HasMedia $model,
         Request $request,
@@ -197,11 +206,14 @@ class MediaLibraryService
                     }
                 }
 
-                return $model->addMedia($file)
+                $media = $model->addMedia($file)
                     ->sanitizingFileName(function ($fileName) {
                         return $this->sanitizeFilename($fileName);
                     })
                     ->toMediaCollection($collection);
+
+                // Convert to App\Models\Media instance by refetching it
+                return SpatieMedia::find($media->id);
             }
         }
 
@@ -243,12 +255,17 @@ class MediaLibraryService
 
     /**
      * Associate existing media with a model by URL or ID
+     *
+     * @param HasMedia $model
+     * @param string $mediaUrlOrId
+     * @param string $collection
+     * @return \App\Models\Media|null
      */
     public function associateExistingMedia(
         HasMedia $model,
         string $mediaUrlOrId,
         string $collection = 'default'
-    ): ?SpatieMedia {
+    ): ?\App\Models\Media {
         $media = null;
 
         // Try to find media by ID first (most reliable)
@@ -300,7 +317,8 @@ class MediaLibraryService
                     ->usingFileName($media->file_name)
                     ->toMediaCollection($collection);
 
-                return $copiedMedia;
+                // Convert to App\Models\Media instance by refetching it
+                return SpatieMedia::find($copiedMedia->id);
             } else {
                 // Try alternative paths for different storage structures
                 $alternativePaths = [
@@ -318,7 +336,9 @@ class MediaLibraryService
                             ->usingName($media->name)
                             ->usingFileName($media->file_name)
                             ->toMediaCollection($collection);
-                        return $copiedMedia;
+
+                        // Convert to App\Models\Media instance by refetching it
+                        return SpatieMedia::find($copiedMedia->id);
                     }
                 }
 
