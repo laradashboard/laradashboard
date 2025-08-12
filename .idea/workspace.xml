@@ -5,12 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="feat: implement post management actions with Spatie Query Builder integration">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Api/Auth/AuthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Api/Auth/AuthController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Api/PostController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Api/PostController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/factories/PostFactory.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/factories/PostFactory.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/Api/EmailCampaignController.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/Api/EmailCampaignController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/ContactsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/ContactsController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/EmailCampaignsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/EmailCampaignsController.php" afterDir="false" />
@@ -19,6 +13,13 @@
       <change beforePath="$PROJECT_DIR$/modules/crm/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/routes/api.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/task-manager/app/Livewire/Components/StatusChangeButton.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/task-manager/app/Livewire/Components/StatusChangeButton.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/task-manager/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/modules/task-manager/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules_statuses.json" beforeDir="false" afterPath="$PROJECT_DIR$/modules_statuses.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Feature/Api/AuthenticationTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Feature/Api/AuthenticationTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Feature/Api/BaseApiTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/ApiTestUtils.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Feature/Api/ComprehensiveApiTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Feature/Api/ComprehensiveApiTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Feature/Api/PostManagementTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Feature/Api/PostManagementTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Feature/Api/RolePermissionTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Feature/Api/RolePermissionTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Feature/Api/UserManagementTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Feature/Api/UserManagementTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -203,24 +204,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "fix/api-ready",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/Users/mostafizur/Code/projects/laradashboard/app",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "ml.llm.LLMThirdPartyAiProvidersConfigurable",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;fix/api-ready&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/mostafizur/Code/projects/laradashboard/app&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMThirdPartyAiProvidersConfigurable&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/app" />
@@ -284,6 +285,7 @@
       <workItem from="1754881276507" duration="125000" />
       <workItem from="1754881417945" duration="2286000" />
       <workItem from="1754884425439" duration="10082000" />
+      <workItem from="1754921781090" duration="2310000" />
     </task>
     <task id="LOCAL-00001" summary="fix: update various files for improved functionality and structure">
       <option name="closed" value="true" />

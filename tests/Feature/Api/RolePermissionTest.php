@@ -2,17 +2,49 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestUtils;
+use Tests\TestCase;
 
-class RolePermissionTest extends BaseApiTest
+class RolePermissionTest extends TestCase
 {
+    use RefreshDatabase;
+    use WithFaker;
+    use ApiTestUtils;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create basic roles if they don't exist
+        $this->createRoles();
+
+        // Create permissions
+        $this->createPermissions();
+
+        // Create test users
+        $this->user = User::factory()->create();
+        $this->adminUser = User::factory()->create();
+
+        // Assign permissions to users
+        $this->assignPermissions();
+
+        // Assign admin role to admin user if role system exists
+        if (class_exists(Role::class)) {
+            $adminRole = Role::firstOrCreate(['name' => 'admin']);
+            $this->adminUser->assignRole($adminRole);
+        }
+    }
+
     protected function createPermissions(): void
     {
-        // Call parent method first to create base permissions
-        parent::createPermissions();
+        // Call trait method first to create base permissions
+        $this->createBasePermissions();
 
         if (class_exists(Permission::class)) {
             // Create additional role-specific permissions
@@ -20,6 +52,33 @@ class RolePermissionTest extends BaseApiTest
             Permission::firstOrCreate(['name' => 'create-users']);
             Permission::firstOrCreate(['name' => 'edit-users']);
             Permission::firstOrCreate(['name' => 'delete-users']);
+        }
+    }
+
+    /**
+     * Create base permissions from trait
+     */
+    private function createBasePermissions(): void
+    {
+        if (class_exists(Permission::class)) {
+            // User permissions
+            Permission::firstOrCreate(['name' => 'user.view']);
+            Permission::firstOrCreate(['name' => 'user.create']);
+            Permission::firstOrCreate(['name' => 'user.edit']);
+            Permission::firstOrCreate(['name' => 'user.delete']);
+
+            // Post permissions
+            Permission::firstOrCreate(['name' => 'post.view']);
+            Permission::firstOrCreate(['name' => 'post.create']);
+            Permission::firstOrCreate(['name' => 'post.edit']);
+            Permission::firstOrCreate(['name' => 'post.delete']);
+
+            // Role/Permission management permissions
+            Permission::firstOrCreate(['name' => 'role.view']);
+            Permission::firstOrCreate(['name' => 'role.create']);
+            Permission::firstOrCreate(['name' => 'role.edit']);
+            Permission::firstOrCreate(['name' => 'role.delete']);
+            Permission::firstOrCreate(['name' => 'permission.view']);
         }
     }
 

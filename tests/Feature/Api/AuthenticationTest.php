@@ -3,11 +3,43 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestUtils;
+use Tests\TestCase;
 
-class AuthenticationTest extends BaseApiTest
+class AuthenticationTest extends TestCase
 {
+    use RefreshDatabase;
+    use WithFaker;
+    use ApiTestUtils;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create basic roles if they don't exist
+        $this->createRoles();
+
+        // Create permissions
+        $this->createPermissions();
+
+        // Create test users
+        $this->user = User::factory()->create();
+        $this->adminUser = User::factory()->create();
+
+        // Assign permissions to users
+        $this->assignPermissions();
+
+        // Assign admin role to admin user if role system exists
+        if (class_exists(\App\Models\Role::class)) {
+            $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+            $this->adminUser->assignRole($adminRole);
+        }
+    }
+
     #[Test]
     public function user_can_login_with_valid_credentials()
     {

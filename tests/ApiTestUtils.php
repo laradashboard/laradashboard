@@ -1,45 +1,15 @@
 <?php
 
-namespace Tests\Feature\Api;
+namespace Tests;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Role;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Models\User;
 use Spatie\Permission\Models\Permission;
 
-class BaseApiTest extends TestCase
+trait ApiTestUtils
 {
-    use RefreshDatabase;
-    use WithFaker;
-
     protected User $user;
     protected User $adminUser;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Create basic roles if they don't exist
-        $this->createRoles();
-
-        // Create permissions
-        $this->createPermissions();
-
-        // Create test users
-        $this->user = User::factory()->create();
-        $this->adminUser = User::factory()->create();
-
-        // Assign permissions to users
-        $this->assignPermissions();
-
-        // Assign admin role to admin user if role system exists
-        if (class_exists(Role::class)) {
-            $adminRole = Role::firstOrCreate(['name' => 'admin']);
-            $this->adminUser->assignRole($adminRole);
-        }
-    }
 
     /**
      * Create basic roles for testing

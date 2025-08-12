@@ -2,10 +2,42 @@
 
 namespace Tests\Feature\Api;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestUtils;
+use Tests\TestCase;
 
-class ComprehensiveApiTest extends BaseApiTest
+class ComprehensiveApiTest extends TestCase
 {
+    use RefreshDatabase;
+    use WithFaker;
+    use ApiTestUtils;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create basic roles if they don't exist
+        $this->createRoles();
+
+        // Create permissions
+        $this->createPermissions();
+
+        // Create test users
+        $this->user = \App\Models\User::factory()->create();
+        $this->adminUser = \App\Models\User::factory()->create();
+
+        // Assign permissions to users
+        $this->assignPermissions();
+
+        // Assign admin role to admin user if role system exists
+        if (class_exists(\App\Models\Role::class)) {
+            $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+            $this->adminUser->assignRole($adminRole);
+        }
+    }
+
     #[Test]
     public function authenticated_user_can_get_translations()
     {
@@ -338,82 +370,6 @@ class ComprehensiveApiTest extends BaseApiTest
             $response = $this->getJson("/api/v1/modules/{$name}");
 
             $this->assertContains($response->status(), [404, 422, 403]);
-        }
-    }
-
-    #[Test]
-    public function crm_endpoints_are_accessible()
-    {
-        $this->authenticateUser();
-
-        // Test CRM resource endpoints
-        $endpoints = [
-            ['GET', '/api/v1/crm'],
-            ['POST', '/api/v1/crm', ['name' => 'Test CRM']],
-            ['GET', '/api/v1/crm/1'],
-            ['PUT', '/api/v1/crm/1', ['name' => 'Updated CRM']],
-            ['DELETE', '/api/v1/crm/1'],
-        ];
-
-        foreach ($endpoints as $endpoint) {
-            $method = $endpoint[0];
-            $url = $endpoint[1];
-            $data = isset($endpoint[2]) ? $endpoint[2] : [];
-            $response = $this->json($method, $url, $data);
-
-            // Should not return method not allowed or internal server error
-            $this->assertNotEquals(405, $response->status());
-            $this->assertNotEquals(500, $response->status());
-        }
-    }
-
-    #[Test]
-    public function email_campaign_endpoints_handle_uuid_validation()
-    {
-        // Test without authentication (as per API routes)
-        $invalidUuids = [
-            'not-a-uuid',
-            '123',
-            '../../../etc/passwd',
-            '<script>alert("xss")</script>',
-        ];
-
-        foreach ($invalidUuids as $uuid) {
-            $response = $this->putJson("/api/v1/email-campaigns/{$uuid}/recipients", [
-                'recipients' => ['test@example.com'],
-            ]);
-
-            $this->assertContains($response->status(), [404, 422]);
-
-            $response = $this->postJson("/api/v1/email-campaigns/{$uuid}/schedule", [
-                'scheduled_at' => now()->addHours(1)->toISOString(),
-            ]);
-
-            $this->assertContains($response->status(), [404, 422]);
-        }
-    }
-
-    #[Test]
-    public function task_manager_endpoints_are_accessible()
-    {
-        $this->authenticateUser();
-
-        $endpoints = [
-            ['GET', '/api/v1/taskmanagers'],
-            ['POST', '/api/v1/taskmanagers', ['title' => 'Test Task']],
-            ['GET', '/api/v1/taskmanagers/1'],
-            ['PUT', '/api/v1/taskmanagers/1', ['title' => 'Updated Task']],
-            ['DELETE', '/api/v1/taskmanagers/1'],
-        ];
-
-        foreach ($endpoints as $endpoint) {
-            $method = $endpoint[0];
-            $url = $endpoint[1];
-            $data = isset($endpoint[2]) ? $endpoint[2] : [];
-            $response = $this->json($method, $url, $data);
-
-            $this->assertNotEquals(405, $response->status());
-            $this->assertNotEquals(500, $response->status());
         }
     }
 

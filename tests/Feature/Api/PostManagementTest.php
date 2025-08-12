@@ -3,10 +3,42 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Post;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestUtils;
+use Tests\TestCase;
 
-class PostManagementTest extends BaseApiTest
+class PostManagementTest extends TestCase
 {
+    use RefreshDatabase;
+    use WithFaker;
+    use ApiTestUtils;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create basic roles if they don't exist
+        $this->createRoles();
+
+        // Create permissions
+        $this->createPermissions();
+
+        // Create test users
+        $this->user = \App\Models\User::factory()->create();
+        $this->adminUser = \App\Models\User::factory()->create();
+
+        // Assign permissions to users
+        $this->assignPermissions();
+
+        // Assign admin role to admin user if role system exists
+        if (class_exists(\App\Models\Role::class)) {
+            $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+            $this->adminUser->assignRole($adminRole);
+        }
+    }
+
     #[Test]
     public function authenticated_user_can_list_posts()
     {
