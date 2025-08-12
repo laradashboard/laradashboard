@@ -199,11 +199,14 @@ class MediaLibraryService
                     }
                 }
 
-                return $model->addMedia($file)
+                $spatieMedia = $model->addMedia($file)
                     ->sanitizingFileName(function ($fileName) {
                         return $this->sanitizeFilename($fileName);
                     })
                     ->toMediaCollection($collection);
+
+                // Convert to App\Models\Media
+                return SpatieMedia::find($spatieMedia->id);
             }
         }
 
@@ -300,7 +303,8 @@ class MediaLibraryService
                     ->usingFileName($media->file_name)
                     ->toMediaCollection($collection);
 
-                return $copiedMedia;
+                // Convert to App\Models\Media
+                return SpatieMedia::find($copiedMedia->id);
             } else {
                 // Try alternative paths for different storage structures
                 $alternativePaths = [
@@ -318,7 +322,8 @@ class MediaLibraryService
                             ->usingName($media->name)
                             ->usingFileName($media->file_name)
                             ->toMediaCollection($collection);
-                        return $copiedMedia;
+                        // Convert to App\Models\Media
+                        return SpatieMedia::find($copiedMedia->id);
                     }
                 }
 
@@ -329,7 +334,7 @@ class MediaLibraryService
                 ]);
             }
         } catch (\Exception $e) {
-            Log::error('Failed to associate existing SpatieMedia: ' . $e->getMessage(), [
+            Log::error('Failed to associate existing Media model: ' . $e->getMessage(), [
                 'media_id' => $media->id,
                 'exception' => $e,
             ]);
