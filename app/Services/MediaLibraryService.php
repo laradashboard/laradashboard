@@ -8,7 +8,7 @@ use App\Concerns\HandlesMediaOperations;
 use App\Support\Helper\MediaHelper;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Http\Request;
-use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
+use App\Models\Media as SpatieMedia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -44,6 +44,9 @@ class MediaLibraryService
                 case 'videos':
                     $query->where('mime_type', 'like', 'video/%');
                     break;
+                case 'audio':
+                    $query->where('mime_type', 'like', 'audio/%');
+                    break;
                 case 'documents':
                     $query->whereNotIn('mime_type', function ($q) {
                         $q->select('mime_type')
@@ -70,8 +73,7 @@ class MediaLibraryService
             $item->icon = $this->getMediaIcon($item->mime_type);
             return $item;
         });
-
-        // Get statistics
+        
         $stats = $this->getMediaStatistics();
 
         return [
@@ -86,8 +88,10 @@ class MediaLibraryService
             'total' => SpatieMedia::count(),
             'images' => SpatieMedia::where('mime_type', 'like', 'image/%')->count(),
             'videos' => SpatieMedia::where('mime_type', 'like', 'video/%')->count(),
+            'audio' => SpatieMedia::where('mime_type', 'like', 'audio/%')->count(),
             'documents' => SpatieMedia::whereNotLike('mime_type', 'image/%')
                 ->whereNotLike('mime_type', 'video/%')
+                ->whereNotLike('mime_type', 'audio/%')
                 ->count(),
             'total_size' => $this->formatFileSize((int) SpatieMedia::sum('size')),
         ];
@@ -162,7 +166,6 @@ class MediaLibraryService
         $media = SpatieMedia::whereIn('id', $ids)->get();
 
         foreach ($media as $item) {
-            // Delete the physical file - construct path manually to avoid Spatie method issues
             $filePath = 'media/' . $item->file_name;
 
             if (Storage::disk($item->disk)->exists($filePath)) {
@@ -182,7 +185,7 @@ class MediaLibraryService
         Request $request,
         string $fieldName,
         string $collection = 'default'
-    ): ?SpatieMedia {
+    ): SpatieMedia|null {
         if ($request->hasFile($fieldName)) {
             $file = $request->file($fieldName);
 
@@ -215,9 +218,7 @@ class MediaLibraryService
     ): void {
         if ($request->hasFile($requestKey)) {
             foreach ($request->file($requestKey) as $file) {
-                // Security checks
                 if ($this->isSecureFile($file)) {
-                    // Check demo mode restrictions
                     if (config('app.demo_mode', false)) {
                         $mimeType = $file->getMimeType();
                         if (! MediaHelper::isAllowedInDemoMode($mimeType)) {
@@ -247,7 +248,7 @@ class MediaLibraryService
         HasMedia $model,
         string $mediaUrlOrId,
         string $collection = 'default'
-    ): ?SpatieMedia {
+    ): SpatieMedia|null {
         $media = null;
 
         // Try to find media by ID first (most reliable)
@@ -328,7 +329,7 @@ class MediaLibraryService
                 ]);
             }
         } catch (\Exception $e) {
-            Log::error('Failed to associate existing media: ' . $e->getMessage(), [
+            Log::error('Failed to associate existing SpatieMedia: ' . $e->getMessage(), [
                 'media_id' => $media->id,
                 'exception' => $e,
             ]);
