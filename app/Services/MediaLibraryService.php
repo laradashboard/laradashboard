@@ -73,7 +73,7 @@ class MediaLibraryService
             $item->icon = $this->getMediaIcon($item->mime_type);
             return $item;
         });
-        
+
         $stats = $this->getMediaStatistics();
 
         return [
