@@ -8,7 +8,7 @@ use App\Concerns\HandlesMediaOperations;
 use App\Support\Helper\MediaHelper;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Http\Request;
-use App\Models\Media as SpatieMedia;
+use App\Models\Media;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -24,7 +24,7 @@ class MediaLibraryService
         string $direction = 'desc',
         int $perPage = 24
     ): array {
-        $query = SpatieMedia::query()->latest();
+        $query = Media::query()->latest();
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -78,13 +78,13 @@ class MediaLibraryService
     public function getMediaStatistics(): array
     {
         return [
-            'total' => SpatieMedia::count(),
-            'images' => SpatieMedia::where('mime_type', 'like', 'image/%')->count(),
-            'videos' => SpatieMedia::where('mime_type', 'like', 'video/%')->count(),
-            'documents' => SpatieMedia::whereNotLike('mime_type', 'image/%')
+            'total' => Media::count(),
+            'images' => Media::where('mime_type', 'like', 'image/%')->count(),
+            'videos' => Media::where('mime_type', 'like', 'video/%')->count(),
+            'documents' => Media::whereNotLike('mime_type', 'image/%')
                 ->whereNotLike('mime_type', 'video/%')
                 ->count(),
-            'total_size' => $this->formatFileSize((int) SpatieMedia::sum('size')),
+            'total_size' => $this->formatFileSize((int) Media::sum('size')),
         ];
     }
 
@@ -108,7 +108,7 @@ class MediaLibraryService
 
             $path = $file->storeAs('media', $safeFileName, 'public');
 
-            $mediaItem = SpatieMedia::create([
+            $mediaItem = Media::create([
                 'model_type' => '',
                 'model_id' => 0,
                 'uuid' => Str::uuid(),
@@ -134,7 +134,7 @@ class MediaLibraryService
 
     public function deleteMedia(int $id): bool
     {
-        $media = SpatieMedia::findOrFail($id);
+        $media = Media::findOrFail($id);
 
         $filePath = 'media/' . $media->file_name;
 
@@ -148,7 +148,7 @@ class MediaLibraryService
     public function bulkDeleteMedia(array $ids): int
     {
         $deleteCount = 0;
-        $media = SpatieMedia::whereIn('id', $ids)->get();
+        $media = Media::whereIn('id', $ids)->get();
 
         foreach ($media as $item) {
             $filePath = 'media/' . $item->file_name;
@@ -170,7 +170,7 @@ class MediaLibraryService
         Request $request,
         string $fieldName,
         string $collection = 'default'
-    ): ?SpatieMedia {
+    ): ?Media {
         if ($request->hasFile($fieldName)) {
             $file = $request->file($fieldName);
 
@@ -228,19 +228,19 @@ class MediaLibraryService
         HasMedia $model,
         string $mediaUrlOrId,
         string $collection = 'default'
-    ): ?SpatieMedia {
+    ): ?Media {
         $media = null;
 
         if (is_numeric($mediaUrlOrId)) {
-            $media = SpatieMedia::find($mediaUrlOrId);
+            $media = Media::find($mediaUrlOrId);
         } else {
             $urlPath = parse_url($mediaUrlOrId, PHP_URL_PATH);
             $fileName = basename($urlPath);
 
-            $media = SpatieMedia::where('file_name', $fileName)->first();
+            $media = Media::where('file_name', $fileName)->first();
 
             if (! $media) {
-                $media = SpatieMedia::where('disk', 'public')
+                $media = Media::where('disk', 'public')
                     ->get()
                     ->first(function ($item) use ($mediaUrlOrId) {
                         try {
