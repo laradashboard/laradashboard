@@ -81,8 +81,10 @@ class MediaLibraryService
             'total' => Media::count(),
             'images' => Media::where('mime_type', 'like', 'image/%')->count(),
             'videos' => Media::where('mime_type', 'like', 'video/%')->count(),
+            'audio' => Media::where('mime_type', 'like', 'audio/%')->count(),
             'documents' => Media::whereNotLike('mime_type', 'image/%')
                 ->whereNotLike('mime_type', 'video/%')
+                ->whereNotLike('mime_type', 'audio/%')
                 ->count(),
             'total_size' => $this->formatFileSize((int) Media::sum('size')),
         ];
