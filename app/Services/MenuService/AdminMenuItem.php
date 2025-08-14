@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MenuService;
+
+use Illuminate\Support\Facades\Auth;
 
 class AdminMenuItem
 {
@@ -149,7 +153,7 @@ class AdminMenuItem
             return true;
         }
 
-        $user = auth()->user();
+        $user = Auth::user();
         foreach ($this->permissions as $permission) {
             if ($user && $user->can($permission)) {
                 return true;

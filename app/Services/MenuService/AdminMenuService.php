@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\MenuService;
 
 use App\Services\Content\ContentService;
@@ -104,68 +106,16 @@ class AdminMenuService
             'permissions' => 'dashboard.view',
         ]);
 
-        // Content Management Menu from registered post types
-        try {
-            $this->registerPostTypesInMenu();
-        } catch (\Exception $e) {
-            // Skip if there's an error
-        }
+        $this->registerPostTypesInMenu(null);
 
         $this->addMenuItem([
-            'label' => __('Roles & Permissions'),
-            'icon' => 'lucide:key',
-            'id' => 'roles-submenu',
-            'active' => Route::is('admin.roles.*') || Route::is('admin.permissions.*'),
-            'priority' => 20,
-            'permissions' => ['role.create', 'role.view', 'role.edit', 'role.delete'],
-            'children' => [
-                [
-                    'label' => __('Roles'),
-                    'route' => route('admin.roles.index'),
-                    'active' => Route::is('admin.roles.index') || Route::is('admin.roles.edit'),
-                    'priority' => 10,
-                    'permissions' => 'role.view',
-                ],
-                [
-                    'label' => __('New Role'),
-                    'route' => route('admin.roles.create'),
-                    'active' => Route::is('admin.roles.create'),
-                    'priority' => 20,
-                    'permissions' => 'role.create',
-                ],
-                [
-                    'label' => __('Permissions'),
-                    'route' => route('admin.permissions.index'),
-                    'active' => Route::is('admin.permissions.index') || Route::is('admin.permissions.show'),
-                    'priority' => 30,
-                    'permissions' => 'role.view',
-                ],
-            ],
-        ]);
-
-        $this->addMenuItem([
-            'label' => __('Users'),
-            'icon' => 'feather:users',
-            'id' => 'users-submenu',
-            'active' => Route::is('admin.users.*'),
-            'priority' => 20,
-            'permissions' => ['user.create', 'user.view', 'user.edit', 'user.delete'],
-            'children' => [
-                [
-                    'label' => __('Users'),
-                    'route' => route('admin.users.index'),
-                    'active' => Route::is('admin.users.index') || Route::is('admin.users.edit'),
-                    'priority' => 20,
-                    'permissions' => 'user.view',
-                ],
-                [
-                    'label' => __('New User'),
-                    'route' => route('admin.users.create'),
-                    'active' => Route::is('admin.users.create'),
-                    'priority' => 10,
-                    'permissions' => 'user.create',
-                ],
-            ],
+            'label' => __('Media Library'),
+            'icon' => 'lucide:image',
+            'route' => route('admin.media.index'),
+            'active' => Route::is('admin.media.*'),
+            'id' => 'media',
+            'priority' => 35,
+            'permissions' => 'media.view',
         ]);
 
         $this->addMenuItem([
@@ -174,7 +124,7 @@ class AdminMenuService
             'route' => route('admin.modules.index'),
             'active' => Route::is('admin.modules.index'),
             'id' => 'modules',
-            'priority' => 30,
+            'priority' => 40,
             'permissions' => 'module.view',
         ]);
 
@@ -183,14 +133,14 @@ class AdminMenuService
             'icon' => 'lucide:monitor',
             'id' => 'monitoring-submenu',
             'active' => Route::is('admin.actionlog.*'),
-            'priority' => 40,
+            'priority' => 50,
             'permissions' => ['pulse.view', 'actionlog.view'],
             'children' => [
                 [
                     'label' => __('Action Logs'),
                     'route' => route('admin.actionlog.index'),
                     'active' => Route::is('admin.actionlog.index'),
-                    'priority' => 20,
+                    'priority' => 10,
                     'permissions' => 'actionlog.view',
                 ],
                 [
@@ -198,11 +148,46 @@ class AdminMenuService
                     'route' => route('pulse'),
                     'active' => false,
                     'target' => '_blank',
-                    'priority' => 10,
+                    'priority' => 20,
                     'permissions' => 'pulse.view',
                 ],
             ],
         ]);
+
+        $this->addMenuItem(
+            [
+                'label' => __('Access Control'),
+                'icon' => 'lucide:key',
+                'id' => 'access-control-submenu',
+                'active' => Route::is('admin.roles.*') || Route::is('admin.permissions.*') || Route::is('admin.users.*'),
+                'priority' => 30,
+                'permissions' => ['role.create', 'role.view', 'role.edit', 'role.delete', 'user.create', 'user.view', 'user.edit', 'user.delete'],
+                'children' => [
+                    [
+                        'label' => __('Users'),
+                        'route' => route('admin.users.index'),
+                        'active' => Route::is('admin.users.index') || Route::is('admin.users.edit'),
+                        'priority' => 10,
+                        'permissions' => 'user.view',
+                    ],
+                    [
+                        'label' => __('Roles'),
+                        'route' => route('admin.roles.index'),
+                        'active' => Route::is('admin.roles.index') || Route::is('admin.roles.edit'),
+                        'priority' => 20,
+                        'permissions' => 'role.view',
+                    ],
+                    [
+                        'label' => __('Permissions'),
+                        'route' => route('admin.permissions.index'),
+                        'active' => Route::is('admin.permissions.index') || Route::is('admin.permissions.show'),
+                        'priority' => 30,
+                        'permissions' => 'role.view',
+                    ],
+                ],
+            ],
+            __('More')
+        );
 
         $this->addMenuItem([
             'label' => __('Settings'),
@@ -235,7 +220,7 @@ class AdminMenuService
             'route' => route('admin.dashboard'),
             'active' => false,
             'id' => 'logout',
-            'priority' => 1,
+            'priority' => 10000,
             'html' => '
                 <li>
                     <form method="POST" action="' . route('logout') . '">
@@ -249,16 +234,6 @@ class AdminMenuService
             ',
         ], __('More'));
 
-        $this->addMenuItem([
-            'label' => __('Media Library'),
-            'icon' => 'lucide:image',
-            'route' => route('admin.media.index'),
-            'active' => Route::is('admin.media.*'),
-            'id' => 'media',
-            'priority' => 15,
-            'permissions' => 'media.view',
-        ], 'Content');
-
         $this->groups = ld_apply_filters('admin_menu_groups_before_sorting', $this->groups);
 
         $this->sortMenuItemsByPriority();
@@ -268,8 +243,9 @@ class AdminMenuService
 
     /**
      * Register post types in the menu
+     * Move to main group if $group is null
      */
-    protected function registerPostTypesInMenu(): void
+    protected function registerPostTypesInMenu(?string $group = 'Content'): void
     {
         $contentService = app(ContentService::class);
         $postTypes = $contentService->getPostTypes();
@@ -334,7 +310,7 @@ class AdminMenuService
                 'children' => $children,
             ];
 
-            $this->addMenuItem($menuItem, 'Content');
+            $this->addMenuItem($menuItem, $group ?: __('Main'));
         }
     }
 
