@@ -26,7 +26,6 @@ class MediaLibraryService
     ): array {
         $query = SpatieMedia::query()->latest();
 
-        // Apply search filter
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -35,7 +34,6 @@ class MediaLibraryService
             });
         }
 
-        // Apply type filter
         if ($type) {
             switch ($type) {
                 case 'images':
@@ -43,9 +41,6 @@ class MediaLibraryService
                     break;
                 case 'videos':
                     $query->where('mime_type', 'like', 'video/%');
-                    break;
-                case 'audio':
-                    $query->where('mime_type', 'like', 'audio/%');
                     break;
                 case 'documents':
                     $query->whereNotIn('mime_type', function ($q) {
@@ -58,12 +53,10 @@ class MediaLibraryService
             }
         }
 
-        // Apply sorting
         if (in_array($sort, ['name', 'size', 'created_at', 'mime_type'])) {
             $query->orderBy($sort, $direction);
         }
 
-        // Paginate results
         $media = $query->paginate($perPage)->withQueryString();
 
         // Enhance media items with additional information
@@ -88,10 +81,8 @@ class MediaLibraryService
             'total' => SpatieMedia::count(),
             'images' => SpatieMedia::where('mime_type', 'like', 'image/%')->count(),
             'videos' => SpatieMedia::where('mime_type', 'like', 'video/%')->count(),
-            'audio' => SpatieMedia::where('mime_type', 'like', 'audio/%')->count(),
             'documents' => SpatieMedia::whereNotLike('mime_type', 'image/%')
                 ->whereNotLike('mime_type', 'video/%')
-                ->whereNotLike('mime_type', 'audio/%')
                 ->count(),
             'total_size' => $this->formatFileSize((int) SpatieMedia::sum('size')),
         ];
@@ -102,12 +93,10 @@ class MediaLibraryService
         $uploadedFiles = [];
 
         foreach ($files as $file) {
-            // Skip files that don't pass security checks
             if (! $this->isSecureFile($file)) {
                 continue;
             }
 
-            // Check demo mode restrictions.
             if (config('app.demo_mode', false)) {
                 $mimeType = $file->getMimeType();
                 if (! MediaHelper::isAllowedInDemoMode($mimeType)) {
@@ -115,16 +104,13 @@ class MediaLibraryService
                 }
             }
 
-            // Generate a secure filename
             $safeFileName = $this->generateUniqueFilename($file->getClientOriginalName());
 
-            // Store the file with a secure name
             $path = $file->storeAs('media', $safeFileName, 'public');
 
-            // Create media record directly in the media table for standalone uploads
             $mediaItem = SpatieMedia::create([
-                'model_type' => '', // Empty for standalone media
-                'model_id' => 0,   // 0 for standalone media
+                'model_type' => '',
+                'model_id' => 0,
                 'uuid' => Str::uuid(),
                 'collection_name' => 'uploads',
                 'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
@@ -133,10 +119,10 @@ class MediaLibraryService
                 'disk' => 'public',
                 'conversions_disk' => 'public',
                 'size' => $file->getSize(),
-                'manipulations' => '[]',
-                'custom_properties' => '[]',
-                'generated_conversions' => '[]',
-                'responsive_images' => '[]',
+                'manipulations' => [],
+                'custom_properties' => [],
+                'generated_conversions' => [],
+                'responsive_images' => [],
                 'order_column' => null,
             ]);
 
@@ -150,7 +136,6 @@ class MediaLibraryService
     {
         $media = SpatieMedia::findOrFail($id);
 
-        // Delete the physical file - construct path manually to avoid Spatie method issues
         $filePath = 'media/' . $media->file_name;
 
         if (Storage::disk($media->disk)->exists($filePath)) {
@@ -185,13 +170,11 @@ class MediaLibraryService
         Request $request,
         string $fieldName,
         string $collection = 'default'
-    ): SpatieMedia|null {
+    ): ?SpatieMedia {
         if ($request->hasFile($fieldName)) {
             $file = $request->file($fieldName);
 
-            // Security checks
             if ($file && $this->isSecureFile($file)) {
-                // Check demo mode restrictions
                 if (config('app.demo_mode', false)) {
                     $mimeType = $file->getMimeType();
                     if (! MediaHelper::isAllowedInDemoMode($mimeType)) {
@@ -199,14 +182,11 @@ class MediaLibraryService
                     }
                 }
 
-                $spatieMedia = $model->addMedia($file)
+                return $model->addMedia($file)
                     ->sanitizingFileName(function ($fileName) {
                         return $this->sanitizeFilename($fileName);
                     })
                     ->toMediaCollection($collection);
-
-                // Convert to App\Models\Media
-                return SpatieMedia::find($spatieMedia->id);
             }
         }
 
@@ -244,28 +224,21 @@ class MediaLibraryService
         $model->clearMediaCollection($collection);
     }
 
-    /**
-     * Associate existing media with a model by URL or ID
-     */
     public function associateExistingMedia(
         HasMedia $model,
         string $mediaUrlOrId,
         string $collection = 'default'
-    ): SpatieMedia|null {
+    ): ?SpatieMedia {
         $media = null;
 
-        // Try to find media by ID first (most reliable)
         if (is_numeric($mediaUrlOrId)) {
             $media = SpatieMedia::find($mediaUrlOrId);
         } else {
-            // Extract file name from URL path
             $urlPath = parse_url($mediaUrlOrId, PHP_URL_PATH);
             $fileName = basename($urlPath);
 
-            // Try to find media by file name
             $media = SpatieMedia::where('file_name', $fileName)->first();
 
-            // If not found, try by full URL pattern
             if (! $media) {
                 $media = SpatieMedia::where('disk', 'public')
                     ->get()
@@ -284,14 +257,10 @@ class MediaLibraryService
             return null;
         }
 
-        // Copy the media file to associate it with the model
         try {
-            // For standalone media (model_id = 0), construct the correct path
             if ($media->model_id == 0) {
-                // Standalone media is stored in media/ directory
                 $mediaPath = storage_path('app/public/media/' . $media->file_name);
             } else {
-                // Model-attached media uses the default path
                 $mediaPath = $media->getPath();
             }
 
@@ -303,10 +272,8 @@ class MediaLibraryService
                     ->usingFileName($media->file_name)
                     ->toMediaCollection($collection);
 
-                // Convert to App\Models\Media
-                return SpatieMedia::find($copiedMedia->id);
+                return $copiedMedia;
             } else {
-                // Try alternative paths for different storage structures
                 $alternativePaths = [
                     storage_path('app/public/' . $media->file_name),
                     storage_path('app/public/uploads/' . $media->file_name),
@@ -322,8 +289,7 @@ class MediaLibraryService
                             ->usingName($media->name)
                             ->usingFileName($media->file_name)
                             ->toMediaCollection($collection);
-                        // Convert to App\Models\Media
-                        return SpatieMedia::find($copiedMedia->id);
+                        return $copiedMedia;
                     }
                 }
 
@@ -334,7 +300,7 @@ class MediaLibraryService
                 ]);
             }
         } catch (\Exception $e) {
-            Log::error('Failed to associate existing Media model: ' . $e->getMessage(), [
+            Log::error('Failed to associate existing media: ' . $e->getMessage(), [
                 'media_id' => $media->id,
                 'exception' => $e,
             ]);
