@@ -182,11 +182,12 @@ class MediaLibraryService
                     }
                 }
 
-                return $model->addMedia($file)
+                $spatieMedia = $model->addMedia($file)
                     ->sanitizingFileName(function ($fileName) {
                         return $this->sanitizeFilename($fileName);
                     })
                     ->toMediaCollection($collection);
+                return Media::find($spatieMedia->id);
             }
         }
 
@@ -265,14 +266,14 @@ class MediaLibraryService
             }
 
             if (file_exists($mediaPath)) {
-                $copiedMedia = $model
+                $spatieMedia = $model
                     ->addMedia($mediaPath)
                     ->preservingOriginal()
                     ->usingName($media->name)
                     ->usingFileName($media->file_name)
                     ->toMediaCollection($collection);
 
-                return $copiedMedia;
+                return Media::find($spatieMedia->id);
             } else {
                 $alternativePaths = [
                     storage_path('app/public/' . $media->file_name),
@@ -283,13 +284,13 @@ class MediaLibraryService
 
                 foreach ($alternativePaths as $altPath) {
                     if (file_exists($altPath)) {
-                        $copiedMedia = $model
+                        $spatieMedia = $model
                             ->addMedia($altPath)
                             ->preservingOriginal()
                             ->usingName($media->name)
                             ->usingFileName($media->file_name)
                             ->toMediaCollection($collection);
-                        return $copiedMedia;
+                        return Media::find($spatieMedia->id);
                     }
                 }
 
