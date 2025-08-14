@@ -1,0 +1,45 @@
+@extends('backend.layouts.app')
+
+@section('title', __('{{modelName}} List'))
+
+@section('content')
+    <div class="mb-6 flex items-center justify-between">
+        <h1 class="text-2xl font-bold">{{ __('{{modelName}} List') }}</h1>
+        <a href="{{ route('{{resourceName}}.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> {{ __('Add {{modelName}}') }}
+        </a>
+    </div>
+
+    <div class="overflow-x-auto bg-white dark:bg-gray-900 rounded shadow">
+        <table class="table-auto w-full">
+            <thead>
+                <tr>
+                    {{tableHeaders}}
+                    <th>{{ __('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($items as $item)
+                    <tr>
+                        {{tableRows}}
+                        <td class="flex gap-2">
+                            <a href="{{ route('{{resourceName}}.edit', $item) }}" class="btn btn-sm btn-warning">{{ __('Edit') }}</a>
+                            <form action="{{ route('{{resourceName}}.destroy', $item) }}" method="POST" onsubmit="return confirm('{{ __('Are you sure?') }}');" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger">{{ __('Delete') }}</button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="100%" class="text-center py-4">{{ __('No {{modelName}} found.') }}</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+        <div class="mt-4">
+            {{ $items->links() }}
+        </div>
+    </div>
+@endsection

@@ -1,0 +1,14 @@
+@extends('backend.layouts.app')
+
+@section('title', __('{{modelName}} Details'))
+
+@section('content')
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold">{{ __('{{modelName}} Details') }}</h1>
+    </div>
+    <div class="bg-white dark:bg-gray-900 rounded shadow p-6">
+        {{fields}}
+        <a href="{{ route('{{resourceName}}.edit', $item) }}" class="btn btn-warning">{{ __('Edit') }}</a>
+        <a href="{{ route('{{resourceName}}.index') }}" class="btn btn-secondary">{{ __('Back') }}</a>
+    </div>
+@endsection
