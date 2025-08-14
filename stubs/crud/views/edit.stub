@@ -1,0 +1,15 @@
+@extends('backend.layouts.app')
+
+@section('title', __('Edit {{modelName}}'))
+
+@section('content')
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold">{{ __('Edit {{modelName}}') }}</h1>
+    </div>
+    <form action="{{ route('{{resourceName}}.update', $item) }}" method="POST" class="bg-white dark:bg-gray-900 rounded shadow p-6">
+        @csrf
+        @method('PUT')
+        {{fields}}
+        <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
+    </form>
+@endsection
