@@ -2,26 +2,22 @@
 
 namespace App\Providers;
 
-use App\Services\MenuService\AdminMenuService;
+use App\Services\MenuService;
 use Illuminate\Support\ServiceProvider;
 
 class MenuServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     */
-    public function register(): void
+    public function register()
     {
-        $this->app->singleton('admin.menu', function ($app) {
-            return new AdminMenuService();
+        $this->app->singleton(MenuService::class, function ($app) {
+            return new MenuService();
         });
     }
 
-    /**
-     * Bootstrap services.
-     */
-    public function boot(): void
+    public function boot()
     {
-        //
+        $this->app->booted(function () {
+            $this->app->make(MenuService::class)->bootstrap();
+        });
     }
 }

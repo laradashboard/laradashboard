@@ -32,7 +32,8 @@
     >
         <a href="{{ route('admin.dashboard') }}">
             <span class="logo transition-opacity duration-300" :class="sidebarToggle && !isHovered ? 'hidden opacity-0' : 'opacity-100'">
-                <img
+                Callingo
+                <!-- <img
                     class="dark:hidden max-h-[80px]"
                     src="{{ config('settings.site_logo_lite') ?? asset('images/logo/lara-dashboard.png') }}"
                     alt="{{ config('app.name') }}"
@@ -41,14 +42,14 @@
                     class="hidden dark:block max-h-[80px]"
                     src="{{ config('settings.site_logo_dark') ?? '/images/logo/lara-dashboard-dark.png' }}"
                     alt="{{ config('app.name') }}"
-                />
+                /> -->
             </span>
-            <img
+            <!-- <img
                 class="logo-icon w-20 lg:w-12 transition-opacity duration-300"
                 :class="sidebarToggle && !isHovered ? 'lg:block opacity-100' : 'hidden opacity-0'"
                 src="{{ config('settings.site_icon') ?? '/images/logo/icon.png' }}"
                 alt="{{ config('app.name') }}"
-            />
+            /> -->
         </a>
     </div>
     <!-- End Sidebar Header -->

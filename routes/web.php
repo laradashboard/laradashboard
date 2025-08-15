@@ -17,6 +17,10 @@ use App\Http\Controllers\Backend\TermsController;
 use App\Http\Controllers\Backend\TranslationController;
 use App\Http\Controllers\Backend\UserLoginAsController;
 use App\Http\Controllers\Backend\UsersController;
+use App\Http\Controllers\Backend\CourseController;
+use App\Http\Controllers\Backend\LessonResultController;
+use App\Http\Controllers\Backend\PaymentController;
+use App\Http\Controllers\Backend\UserCourseController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
@@ -119,3 +123,51 @@ Route::group(['prefix' => 'profile', 'as' => 'profile.', 'middleware' => ['auth'
 
 Route::get('/locale/{lang}', [LocaleController::class, 'switch'])->name('locale.switch');
 Route::get('/screenshot-login/{email}', [ScreenshotGeneratorLoginController::class, 'login'])->middleware('web')->name('screenshot.login');
+
+// Admin routes
+Route::middleware(['auth'])->group(function () {
+    Route::resource('courses', CourseController::class);
+    Route::resource('user-courses', UserCourseController::class);
+    Route::resource('lesson-results', LessonResultController::class);
+    Route::resource('payments', PaymentController::class);
+    
+    Route::get('/admin/dashboard', function () {
+        $todayLessons = \App\Models\LessonResult::whereDate('course_date', today())
+            ->with(['userCourse.course', 'userCourse.user'])
+            ->get();
+            
+        return view('admin.dashboard', compact('todayLessons'));
+    })->name('admin.dashboard');
+});
+
+// Teacher routes
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('teacher')->group(function () {
+        Route::get('/upcoming-lessons', [LessonResultController::class, 'upcomingLessons'])->name('teacher.upcoming-lessons');
+        Route::get('/lesson-history', [LessonResultController::class, 'lessonHistory'])->name('teacher.lesson-history');
+        Route::get('/add-note/{lessonResult}', [LessonResultController::class, 'addNote'])->name('teacher.add-note');
+        Route::post('/save-note/{lessonResult}', [LessonResultController::class, 'saveNote'])->name('teacher.save-note');
+    });
+});
+
+// Student routes
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('student')->group(function () {
+        Route::get('/my-courses', [UserCourseController::class, 'myCourses'])->name('student.my-courses');
+        Route::get('/enroll/{course}', [UserCourseController::class, 'enroll'])->name('student.enroll');
+        Route::post('/process-enrollment/{course}', [UserCourseController::class, 'processEnrollment'])->name('student.process-enrollment');
+        Route::get('/courses/{course}/enroll', [UserCourseController::class, 'enroll'])->name('student.enroll');
+    
+        // Payment process
+        Route::get('/enrollments/{userCourse}/payment', [PaymentController::class, 'create'])->name('student.payment');
+        Route::post('/enrollments/{userCourse}/payment', [PaymentController::class, 'store'])->name('student.payment.store');
+    });
+    
+    Route::resource('payments', PaymentController::class)->only(['create', 'store']);
+});
+
+// Common routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+    Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
+});

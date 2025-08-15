@@ -232,9 +232,30 @@ class RolesService
             'translations.view',
         ];
 
-        $roles['editor'] = $this->createRole('Editor', $editorPermissions);
+        // $roles['editor'] = $this->createRole('Editor', $editorPermissions);
 
-        // 4. Subscriber role - basic user role
+        // // 4. Subscriber role - basic user role
+        // $subscriberPermissions = [
+        //     'dashboard.view',
+        //     'profile.view',
+        //     'profile.edit',
+        //     'profile.update',
+        // ];
+
+        // $roles['subscriber'] = $this->createRole('Subscriber', $subscriberPermissions);
+
+        // $contactPermissions = [
+        //     'dashboard.view',
+        //     'profile.view',
+        //     'profile.edit',
+        //     'profile.update',
+        // ];
+
+        // $roles['contact'] = $this->createRole('Contact', $contactPermissions);
+        
+        $roles['teacher'] = $this->createRole('teacher', $editorPermissions);
+
+        // 4. teacher role - basic user role
         $subscriberPermissions = [
             'dashboard.view',
             'profile.view',
@@ -242,16 +263,15 @@ class RolesService
             'profile.update',
         ];
 
-        $roles['subscriber'] = $this->createRole('Subscriber', $subscriberPermissions);
+        $roles['student'] = $this->createRole('student', $editorPermissions);
 
-        $contactPermissions = [
+        // 4. teacher role - basic user role
+        $subscriberPermissions = [
             'dashboard.view',
             'profile.view',
             'profile.edit',
             'profile.update',
         ];
-
-        $roles['contact'] = $this->createRole('Contact', $contactPermissions);
 
         return $roles;
     }

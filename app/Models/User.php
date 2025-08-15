@@ -114,4 +114,9 @@ class User extends Authenticatable
     {
         return [];
     }
+
+    public function userCourses()
+    {
+        return $this->hasMany(UserCourse::class);
+    }
 }

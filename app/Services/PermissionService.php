@@ -24,13 +24,42 @@ class PermissionService
                 ],
             ],
             [
-                'group_name' => 'blog',
+                'group_name' => 'courses',
                 'permissions' => [
-                    'blog.create',
-                    'blog.view',
-                    'blog.edit',
-                    'blog.delete',
-                    'blog.approve',
+                    'courses.view',
+                    'courses.create',
+                    'courses.edit',
+                    'courses.delete',
+                ],
+            ],
+            [
+                'group_name' => 'user_courses',
+                'permissions' => [
+                    'user_courses.view',
+                    'user_courses.create',
+                    'user_courses.edit',
+                    'user_courses.delete',
+                    'user_courses.manage_lessons',
+                ],
+            ],
+            [
+                'group_name' => 'lesson_results',
+                'permissions' => [
+                    'lesson_results.view',
+                    'lesson_results.create',
+                    'lesson_results.edit',
+                    'lesson_results.delete',
+                    'lesson_results.add_notes',
+                ],
+            ],
+            [
+                'group_name' => 'payments',
+                'permissions' => [
+                    'payments.view',
+                    'payments.create',
+                    'payments.edit',
+                    'payments.delete',
+                    'payments.process',
                 ],
             ],
             [
@@ -55,28 +84,12 @@ class PermissionService
                 ],
             ],
             [
-                'group_name' => 'module',
-                'permissions' => [
-                    'module.create',
-                    'module.view',
-                    'module.edit',
-                    'module.delete',
-                ],
-            ],
-            [
                 'group_name' => 'profile',
                 'permissions' => [
                     'profile.view',
                     'profile.edit',
                     'profile.delete',
                     'profile.update',
-                ],
-            ],
-            [
-                'group_name' => 'monitoring',
-                'permissions' => [
-                    'pulse.view',
-                    'actionlog.view',
                 ],
             ],
             [
@@ -115,6 +128,32 @@ class PermissionService
                     'media.delete',
                 ],
             ],
+            [
+                'group_name' => 'monitoring',
+                'permissions' => [
+                    'pulse.view',
+                    'actionlog.view',
+                ],
+            ],
+            [
+                'group_name' => 'module',
+                'permissions' => [
+                    'module.create',
+                    'module.view',
+                    'module.edit',
+                    'module.delete',
+                ],
+            ],
+            [
+                'group_name' => 'blog',
+                'permissions' => [
+                    'blog.create',
+                    'blog.view',
+                    'blog.edit',
+                    'blog.delete',
+                    'blog.approve',
+                ],
+            ]
         ];
 
         return $permissions;
@@ -349,5 +388,39 @@ class PermissionService
         }
 
         return $query->get();
+    }
+
+    /**
+     * Assign default permissions to roles
+     */
+    public function assignDefaultPermissions(): void
+    {
+        // Admin permissions
+        $adminRole = Role::findByName('admin');
+        $adminRole->givePermissionTo([
+            'courses.view', 'courses.create', 'courses.edit', 'courses.delete',
+            'user_courses.view', 'user_courses.create', 'user_courses.edit', 'user_courses.delete', 'user_courses.manage_lessons',
+            'lesson_results.view', 'lesson_results.create', 'lesson_results.edit', 'lesson_results.delete', 'lesson_results.add_notes',
+            'payments.view', 'payments.create', 'payments.edit', 'payments.delete', 'payments.process',
+            'user.view', 'user.create', 'user.edit', 'user.delete',
+            'role.view', 'role.create', 'role.edit', 'role.delete',
+            'settings.view', 'settings.edit',
+        ]);
+
+        // Teacher permissions
+        $teacherRole = Role::findByName('teacher');
+        $teacherRole->givePermissionTo([
+            'user_courses.view', 'user_courses.manage_lessons',
+            'lesson_results.view', 'lesson_results.create', 'lesson_results.edit', 'lesson_results.add_notes',
+        ]);
+
+        // Student permissions
+        $studentRole = Role::findByName('student');
+        $studentRole->givePermissionTo([
+            'courses.view',
+            'user_courses.view', // To view their own enrollments
+            'lesson_results.view', // To view their own lesson results
+            'payments.create', // To make payments
+        ]);
     }
 }
