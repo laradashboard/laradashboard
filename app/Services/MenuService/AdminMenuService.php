@@ -194,7 +194,7 @@ class AdminMenuService
             'icon' => 'lucide:settings',
             'id' => 'settings-submenu',
             'active' => Route::is('admin.settings.*') || Route::is('admin.translations.*'),
-            'priority' => 1,
+            'priority' => 40,
             'permissions' => ['settings.edit', 'translations.view'],
             'children' => [
                 [

@@ -90,7 +90,11 @@
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
         ],
+        "post-install-cmd": [
+            "@protect-local-files"
+        ],
         "post-update-cmd": [
+            "@protect-local-files",
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "@php artisan vendor:publish --tag=livewire:assets --ansi --force"
         ],
@@ -99,6 +103,9 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "protect-local-files": [
+            "bash scripts/protect-local-files.sh"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",

@@ -42,7 +42,7 @@
                            name="files[]" 
                            multiple 
                            @if(config('app.demo_mode', false))
-                           accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.rtf"
+                           accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.rtf"
                            @else
                            accept="*"
                            @endif
@@ -55,7 +55,7 @@
                         @if(config('app.demo_mode', false))
                         <p class="text-orange-600 dark:text-orange-400 font-medium">
                             <iconify-icon icon="lucide:info" class="inline w-3 h-3 mr-1"></iconify-icon>
-                            {{ __('Demo Mode: Only images, videos, PDFs, and documents are allowed.') }}
+                            {{ __('Demo Mode: Only images, audios, videos, PDFs, and documents are allowed.') }}
                         </p>
                         @endif
                     </div>

@@ -11,7 +11,7 @@
 
 **⚡ Lara Dashboard** CMS By Laravel (7.x - 12.x) - Manages Users, Roles, Permissions, Modules, Settings, Translations, Contents(Post, Page, Category, Tags), System logs, Monitoring, Rest API's and every actions of your Laravel application. A complete CMS solution for Laravel application with Tailwind CSS integrated with all starting features including modules, dark/lite mode, charts, tables, forms, lots of components and many more. By our preimium modules, you can get more features like CRM, HRM, Course Management and so on.
 
-**Demo:** https://demo.laradashboard.com/
+**Demo:** https://laradashboard.com/try-demo/
 
 ```
 Email - superadmin@example.com
@@ -598,7 +598,7 @@ Visit the [Laravel Boost documentation](https://github.com/laravel/boost).
 
 ## 🔗 Live Demo
 
-https://demo.laradashboard.com
+https://laradashboard.com/try-demo/
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

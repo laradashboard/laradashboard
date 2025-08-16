@@ -274,6 +274,13 @@ class MediaHelper
             'video/3gpp',
             'video/x-ms-wmv',
 
+            // Audios
+            'audio/mpeg',
+            'audio/wav',
+            'audio/ogg',
+            'audio/aac',
+            'audio/flac',
+
             // PDFs
             'application/pdf',
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Concerns\HandlesMediaOperations;
+use App\Models\Media;
 use App\Support\Helper\MediaHelper;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Http\Request;
@@ -44,12 +45,16 @@ class MediaLibraryService
                 case 'videos':
                     $query->where('mime_type', 'like', 'video/%');
                     break;
+                case 'audio':
+                    $query->where('mime_type', 'like', 'audio/%');
+                    break;
                 case 'documents':
                     $query->whereNotIn('mime_type', function ($q) {
                         $q->select('mime_type')
                             ->from('media')
                             ->where('mime_type', 'like', 'image/%')
-                            ->orWhere('mime_type', 'like', 'video/%');
+                            ->orWhere('mime_type', 'like', 'video/%')
+                            ->orWhere('mime_type', 'like', 'audio/%');
                     });
                     break;
             }
@@ -86,8 +91,10 @@ class MediaLibraryService
             'total' => SpatieMedia::count(),
             'images' => SpatieMedia::where('mime_type', 'like', 'image/%')->count(),
             'videos' => SpatieMedia::where('mime_type', 'like', 'video/%')->count(),
+            'audio' => SpatieMedia::where('mime_type', 'like', 'audio/%')->count(),
             'documents' => SpatieMedia::whereNotLike('mime_type', 'image/%')
                 ->whereNotLike('mime_type', 'video/%')
+                ->whereNotLike('mime_type', 'audio/%')
                 ->count(),
             'total_size' => $this->formatFileSize((int) SpatieMedia::sum('size')),
         ];
@@ -144,7 +151,7 @@ class MediaLibraryService
 
     public function deleteMedia(int $id): bool
     {
-        $media = SpatieMedia::findOrFail($id);
+        $media = Media::findOrFail($id);
 
         // Delete the physical file - construct path manually to avoid Spatie method issues
         $filePath = 'media/' . $media->file_name;
@@ -159,7 +166,7 @@ class MediaLibraryService
     public function bulkDeleteMedia(array $ids): int
     {
         $deleteCount = 0;
-        $media = SpatieMedia::whereIn('id', $ids)->get();
+        $media = Media::whereIn('id', $ids)->get();
 
         foreach ($media as $item) {
             // Delete the physical file - construct path manually to avoid Spatie method issues
