@@ -19,18 +19,17 @@
                <div class="flex items-center gap-3">
                  <div class="flex items-center gap-2">
                     <!-- Bulk Actions dropdown -->
-                    <div class="flex items-center justify-center" x-show="selectedRoles.length > 0">
-                        <button id="bulkActionsButton" data-dropdown-toggle="bulkActionsDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
+                    <div class="relative flex items-center justify-center" x-show="selectedRoles.length > 0" x-data="{ open: false }">
+                        <button @click="open = !open" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
                             <iconify-icon icon="lucide:more-vertical"></iconify-icon>
                             <span>{{ __('Bulk Actions') }} (<span x-text="selectedRoles.length"></span>)</span>
                             <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                         </button>
-
-                        <!-- Bulk Actions dropdown menu -->
-                        <div id="bulkActionsDropdown" class="z-10 hidden w-48 p-2 bg-white rounded-md shadow dark:bg-gray-700">
+                        <div x-show="open" @click.outside="open = false" x-transition
+                             class="absolute right-0 mt-2 top-10 w-48 rounded-md shadow bg-white dark:bg-gray-700 z-10 p-2">
                             <ul class="space-y-2">
                                 <li class="cursor-pointer flex items-center gap-1 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500 dark:hover:text-red-50 px-2 py-1.5 rounded transition-colors duration-300"
-                                    @click="bulkDeleteModalOpen = true">
+                                    @click="open = false; bulkDeleteModalOpen = true">
                                     <iconify-icon icon="lucide:trash" ></iconify-icon> {{ __('Delete Selected') }}
                                 </li>
                             </ul>
@@ -50,7 +49,7 @@
                 <table id="dataTable" class="table">
                     <thead class="table-thead">
                         <tr class="table-tr">
-                            <th width="5%" class="table-thead-th">
+                            <th width="3%" class="table-thead-th">
                                 <div class="flex items-center">
                                     <input
                                         type="checkbox"
@@ -100,7 +99,7 @@
                     <tbody>
                         @forelse ($roles as $role)
                             <tr class="{{ $loop->index + 1 != count($roles) ?  'table-tr' : '' }}">
-                                <td class="table-td">
+                                <td class="table-td table-td-checkbox">
                                     <input
                                         type="checkbox"
                                         class="role-checkbox form-checkbox"

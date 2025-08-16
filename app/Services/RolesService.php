@@ -211,7 +211,8 @@ class RolesService
         // 2. Admin role - has almost all permissions except some critical ones
         $adminPermissions = $allPermissionNames;
         $adminExcludedPermissions = [
-            'user.delete', // Cannot delete users
+            'user.delete', // Cannot delete users.
+            'user.login_as', // Cannot login as other users.
         ];
 
         $adminPermissions = array_diff($adminPermissions, $adminExcludedPermissions);

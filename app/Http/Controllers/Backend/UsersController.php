@@ -21,7 +21,9 @@ class UsersController extends Controller
 {
     public function __construct(
         private readonly UserService $userService,
-        private readonly RolesService $rolesService
+        private readonly RolesService $rolesService,
+        private readonly \App\Services\LanguageService $languageService,
+        private readonly \App\Services\TimezoneService $timezoneService,
     ) {
     }
 
@@ -53,6 +55,8 @@ class UsersController extends Controller
 
         return view('backend.pages.users.create', [
             'roles' => $this->rolesService->getRolesDropdown(),
+            'locales' => $this->languageService->getLanguages(),
+            'timezones' => $this->timezoneService->getTimezones(),
             'breadcrumbs' => [
                 'title' => __('New User'),
                 'items' => [
@@ -79,6 +83,18 @@ class UsersController extends Controller
         $user->save();
         /** @var User $user */
         $user = ld_apply_filters('user_store_after_save', $user, $request);
+
+        // Save user metadata for additional information
+        $metaFields = ['display_name', 'bio', 'timezone', 'locale'];
+        foreach ($metaFields as $field) {
+            if ($request->has($field) && $request->input($field)) {
+                $user->userMeta()->create([
+                    'meta_key' => $field,
+                    'meta_value' => $request->input($field),
+                    'type' => 'string',
+                ]);
+            }
+        }
 
         if ($request->roles) {
             $roles = array_filter($request->roles);
@@ -139,6 +155,21 @@ class UsersController extends Controller
 
         /** @var User $user */
         $user = ld_apply_filters('user_update_after_save', $user, $request);
+
+        // Update user metadata for additional information
+        $metaFields = ['display_name', 'bio', 'timezone', 'locale'];
+        foreach ($metaFields as $field) {
+            if ($request->has($field)) {
+                $user->userMeta()->updateOrCreate(
+                    ['meta_key' => $field],
+                    [
+                        'meta_value' => $request->input($field) ?? '',
+                        'type' => 'string',
+                    ]
+                );
+            }
+        }
+
         ld_do_action('user_update_after', $user);
 
         $user->roles()->detach();

@@ -21,23 +21,22 @@
                     ])
 
                     <div class="flex items-center gap-3">
-                        <div class="flex items-center justify-center">
-                            <button id="dropdownDefault" data-dropdown-toggle="dropdown" class="btn-secondary flex items-center justify-center gap-2" type="button">
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="btn-secondary flex items-center justify-center gap-2" type="button">
                                 <iconify-icon icon="lucide:sliders"></iconify-icon>
                                 {{ __('Filter') }}
                                 <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                             </button>
-
-                            <!-- Dropdown menu -->
-                            <div id="dropdown" class="z-10 hidden w-56 p-2 bg-white rounded-md shadow dark:bg-gray-700">
-                                <ul class="space-y-2">
+                            <div x-show="open" @click.outside="open = false" x-transition
+                                 class="absolute right-0 mt-2 w-56 rounded-md shadow bg-white dark:bg-gray-700 z-10">
+                                <ul class="space-y-2 p-2">
                                     <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded"
-                                    onclick="handleSelect('')">
+                                        @click="open = false; handleSelect('')">
                                         {{ __('All') }}
                                     </li>
                                     @foreach (\App\Enums\ActionType::cases() as $type)
                                         <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $type->value === request('type') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                            onclick="handleSelect('{{ $type->value }}')">
+                                            @click="open = false; handleSelect('{{ $type->value }}')">
                                             {{ __(ucfirst($type->value)) }}
                                         </li>
                                     @endforeach
@@ -55,19 +54,19 @@
                                 <th class="table-thead-th">{{ __('Title') }}</th>
                                 <th class="table-thead-th">{{ __('Action By') }}</th>
                                 <th class="table-thead-th">{{ __('Data') }}</th>
-                                <th class="table-thead-th table-thead-th-last">{{ __('Date') }}</th>
+                                <th class="table-thead-th table-thead-th-last text-right">{{ __('Date') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($actionLogs as $log)
 
                                 <tr class="{{ $loop->index + 1 != count($actionLogs) ?  'table-tr' : '' }}">
-                                    <td class="table-td text-left">{{ $loop->index + 1 }}</td>
-                                    <td class="table-td text-left">{{ __(ucfirst($log->type)) }}</td>
-                                    <td class="table-td text-left">{{ $log->title }}</td>
-                                    <td class="table-td text-left">
+                                    <td class="table-td table-td-checkbox">{{ $loop->index + 1 }}</td>
+                                    <td class="table-td">{{ __(ucfirst($log->type)) }}</td>
+                                    <td class="table-td">{{ $log->title }}</td>
+                                    <td class="table-td">
                                         {{ $log->user->name . ' (' . $log->user->username . ')' ?? '' }}</td>
-                                    <td class="table-td text-left">
+                                    <td class="table-td">
                                         <button id="expand-btn-{{ $log->id }}" class="text-primary text-sm mt-2"
                                             data-modal-target="json-modal-{{ $log->id }}"
                                             data-modal-toggle="json-modal-{{ $log->id }}">
@@ -77,7 +76,7 @@
                                         <x-action-log-modal :log="$log" />
                                     </td>
 
-                                    <td class="table-td text-left">
+                                    <td class="table-td text-right">
                                         {{ $log->created_at->format('d M Y H:i A') }}
                                     </td>
                                 </tr>

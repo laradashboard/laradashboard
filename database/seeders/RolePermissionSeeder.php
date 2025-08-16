@@ -39,16 +39,23 @@ class RolePermissionSeeder extends Seeder
         $this->command->info('Creating predefined roles...');
         $roles = $this->rolesService->createPredefinedRoles();
 
-        // Assign superadmin role to superadmin user if exists
-        $user = User::where('username', 'superadmin')->first();
-        if ($user) {
+        // Assign superadmin role to the user with superadmin.
+        $superadmin = User::where('username', 'superadmin')->first();
+        if ($superadmin) {
             $this->command->info('Assigning Superadmin role to superadmin user...');
-            $user->assignRole($roles['superadmin']);
+            $superadmin->assignRole($roles['superadmin']);
+        }
+
+        // Add same roles to Admin users for now, only don't assign user delete permission.
+        $admin = User::where('username', 'admin')->first();
+        if ($admin) {
+            $this->command->info('Assigning Admin role to admin user...');
+            $admin->assignRole($roles['admin']);
         }
 
         // Assign random roles to other users
         $this->command->info('Assigning random roles to other users...');
-        $availableRoles = ['Admin', 'Editor', 'Subscriber', 'Contact']; // Exclude Superadmin from random assignment
+        $availableRoles = ['Editor', 'Subscriber', 'Contact']; // Exclude Admin, Superadmin from random assignment.
         $users = User::all();
 
         foreach ($users as $user) {

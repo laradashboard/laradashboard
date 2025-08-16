@@ -18,66 +18,27 @@
                         enctype="multipart/form-data">
                         @method('PUT')
                         @csrf
-                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <div class="space-y-1">
-                                <label for="first_name"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('First Name') }}</label>
-                                <input type="text" name="first_name" id="first_name" required value="{{ $user->first_name }}"
-                                    placeholder="{{ __('Enter First Name') }}" class="form-control">
-                            </div>
-                            <div class="space-y-1">
-                                <label for="last_name"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Last Name') }}</label>
-                                <input type="text" name="last_name" id="last_name" required value="{{ $user->last_name }}"
-                                    placeholder="{{ __('Enter Last Name') }}" class="form-control">
-                            </div>
-                            <div class="space-y-1">
-                                <label for="username"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Username') }}</label>
-
-                                <input type="text" name="username" id="username" required value="{{ $user->username }}"
-                                    placeholder="{{ __('Enter Username') }}" class="form-control">
-                            </div>
-                            <div class="space-y-1">
-                                <label for="email"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('User Email') }}</label>
-                                <input type="email" name="email" id="email" required value="{{ $user->email }}"
-                                    placeholder="{{ __('Enter Email') }}" class="form-control">
-                            </div>
-                            <div>
-                                <x-inputs.password name="password" label="{{ __('Password (Optional)') }}"
-                                    placeholder="{{ __('Enter Password') }}" />
-                            </div>
-                            <div>
-                                <x-inputs.password name="password_confirmation"
-                                    label="{{ __('Confirm Password (Optional)') }}"
-                                    placeholder="{{ __('Confirm Password') }}" />
-                            </div>
-                            <div>
-                                <x-inputs.combobox name="roles[]" label="{{ __('Assign Roles') }}"
-                                    placeholder="{{ __('Select Roles') }}" :options="collect($roles)
-                                        ->map(fn($name, $id) => ['value' => $name, 'label' => ucfirst($name)])
-                                        ->values()
-                                        ->toArray()" :selected="$user->roles->pluck('name')->toArray()"
-                                    :multiple="true" :searchable="false" />
-                            </div>
-
-                            <div>
-                                <x-media-selector
-                                    name="avatar_id"
-                                    label="{{ __('Avatar') }}"
-                                    :multiple="false"
-                                    allowedTypes="images"
-                                    :existingMedia="$user->avatar_id ? [['id' => $user->avatar_id, 'url' => $user->avatar_url, 'name' => $user->avatar->name]] : []"
-                                    :required="false"
-                                    height="150px"
-                                />
-                            </div>
-                            {!! ld_apply_filters('after_username_field', '', $user) !!}
-                        </div>
-                        <div class="mt-6">
-                            <x-buttons.submit-buttons cancelUrl="{{ route('admin.users.index') }}" />
-                        </div>
+                        
+                        @php
+                            // Load user metadata for additional information
+                            $userMeta = $user->userMeta()->pluck('meta_value', 'meta_key')->toArray();
+                            
+                            // Load localization data
+                            $locales = app(\App\Services\LanguageService::class)->getLanguages();
+                            $timezones = app(\App\Services\TimezoneService::class)->getTimezones();
+                        @endphp
+                        
+                        @include('backend.pages.users.partials.form', [
+                            'user' => $user,
+                            'roles' => $roles,
+                            'timezones' => $timezones,
+                            'locales' => $locales,
+                            'userMeta' => $userMeta,
+                            'mode' => 'edit',
+                            'showUsername' => true,
+                            'showRoles' => true,
+                            'showAdditional' => true
+                        ])
                     </form>
                 </div>
             </div>

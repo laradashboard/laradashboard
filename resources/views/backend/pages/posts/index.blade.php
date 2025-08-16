@@ -19,18 +19,17 @@
 
                 <div class="flex items-center gap-3">
                     <!-- Bulk Actions dropdown -->
-                    <div class="flex items-center justify-center" x-show="selectedPosts.length > 0">
-                        <button id="bulkActionsButton" data-dropdown-toggle="bulkActionsDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
+                    <div class="relative flex items-center justify-center" x-show="selectedPosts.length > 0" x-data="{ open: false }">
+                        <button @click="open = !open" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
                             <iconify-icon icon="lucide:more-vertical"></iconify-icon>
                             <span>{{ __('Bulk Actions') }} (<span x-text="selectedPosts.length"></span>)</span>
                             <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                         </button>
-
-                        <!-- Bulk Actions dropdown menu -->
-                        <div id="bulkActionsDropdown" class="z-10 hidden w-48 p-2 bg-white rounded-md shadow dark:bg-gray-700">
+                        <div x-show="open" @click.outside="open = false" x-transition
+                             class="absolute right-0 mt-2 top-10 w-48 rounded-md shadow bg-white dark:bg-gray-700 z-10 p-2">
                             <ul class="space-y-2">
                                 <li class="cursor-pointer flex items-center gap-1 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500 dark:hover:text-red-50 px-2 py-1.5 rounded transition-colors duration-300"
-                                    @click="bulkDeleteModalOpen = true">
+                                    @click="open = false; bulkDeleteModalOpen = true">
                                     <iconify-icon icon="lucide:trash"></iconify-icon> {{ __('Delete Selected') }}
                                 </li>
                             </ul>
@@ -38,8 +37,8 @@
                     </div>
 
                     <!-- Status Filter dropdown -->
-                    <div class="flex items-center justify-center">
-                        <button id="statusDropdownButton" data-dropdown-toggle="statusDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
+                    <div class="relative flex items-center justify-center" x-data="{ open: false }">
+                        <button @click="open = !open" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
                             <iconify-icon icon="lucide:filter"></iconify-icon>
                             <span class="hidden sm:inline">{{ __('Status') }}</span>
                             @if(request('status'))
@@ -49,17 +48,16 @@
                             @endif
                             <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                         </button>
-
-                        <!-- Status dropdown menu -->
-                        <div id="statusDropdown" class="z-10 hidden w-48 p-2 bg-white rounded-md shadow dark:bg-gray-700">
+                        <div x-show="open" @click.outside="open = false" x-transition
+                             class="absolute right-0 mt-2 top-10 w-48 rounded-md shadow bg-white dark:bg-gray-700 z-10 p-2">
                             <ul class="space-y-2">
                                 <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ !request('status') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                    onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'search' => request('search'), 'category' => request('category'), 'tag' => request('tag')]) }}'">
+                                    @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'search' => request('search'), 'category' => request('category'), 'tag' => request('tag')]) }}'">
                                     {{ __('All Status') }}
                                 </li>
                                 @foreach (['draft', 'publish', 'pending', 'future', 'private'] as $status)
                                     <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $status === request('status') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                        onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => $status, 'search' => request('search'), 'category' => request('category'), 'tag' => request('tag')]) }}'">
+                                        @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => $status, 'search' => request('search'), 'category' => request('category'), 'tag' => request('tag')]) }}'">
                                         {{ ucfirst($status) }}
                                     </li>
                                 @endforeach
@@ -69,8 +67,8 @@
 
                     @if($postType === 'post' && count($categories) > 0)
                         <!-- Category Filter dropdown -->
-                        <div class="flex items-center justify-center">
-                            <button id="categoryDropdownButton" data-dropdown-toggle="categoryDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
+                        <div class="relative flex items-center justify-center" x-data="{ open: false }">
+                            <button @click="open = !open" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
                                 <iconify-icon icon="lucide:grid"></iconify-icon>
                                 <span class="hidden sm:inline">{{ __('Category') }}</span>
                                 @if(request('category'))
@@ -80,17 +78,16 @@
                                 @endif
                                 <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                             </button>
-
-                            <!-- Category dropdown menu -->
-                            <div id="categoryDropdown" class="z-10 hidden w-56 p-2 bg-white rounded-md shadow dark:bg-gray-700">
-                                <ul class="space-y-2 max-h-48 overflow-y-auto">
+                            <div x-show="open" @click.outside="open = false" x-transition
+                                 class="absolute right-0 mt-2 top-10 w-56 rounded-md shadow bg-white dark:bg-gray-700 z-10 p-2 max-h-48 overflow-y-auto">
+                                <ul class="space-y-2">
                                     <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ !request('category') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                        onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'tag' => request('tag')]) }}'">
+                                        @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'tag' => request('tag')]) }}'">
                                         {{ __('All Categories') }}
                                     </li>
                                     @foreach ($categories as $category)
                                         <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $category->id == request('category') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                            onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => $category->id, 'tag' => request('tag')]) }}'">
+                                            @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => $category->id, 'tag' => request('tag')]) }}'">
                                             {{ $category->name }}
                                             <span class="text-xs text-gray-500 dark:text-gray-300">({{ $category->posts->count() ?? 0 }})</span>
                                         </li>
@@ -101,8 +98,9 @@
                     @endif
 
                     @if($postType === 'post' && isset($tags) && count($tags) > 0)
-                        <div class="flex items-center justify-center">
-                            <button id="tagDropdownButton" data-dropdown-toggle="tagDropdown" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
+                        <!-- Tags dropdown -->
+                        <div class="relative flex items-center justify-center" x-data="{ open: false }">
+                            <button @click="open = !open" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
                                 <iconify-icon icon="lucide:tags"></iconify-icon>
                                 <span class="hidden sm:inline">{{ __('Tags') }}</span>
                                 @if(request('tag'))
@@ -112,18 +110,17 @@
                                 @endif
                                 <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                             </button>
-
-                            <!-- Tags dropdown menu -->
-                            <div id="tagDropdown" class="z-10 hidden w-56 p-3 bg-white rounded-md shadow dark:bg-gray-700">
+                            <div x-show="open" @click.outside="open = false" x-transition
+                                 class="absolute right-0 mt-2 top-10 w-56 rounded-md shadow bg-white dark:bg-gray-700 z-10 p-3 max-h-48 overflow-y-auto">
                                 <h6 class="mb-2 text-sm font-medium text-gray-700 dark:text-white">{{ __('Filter by Tags') }}</h6>
-                                <ul class="space-y-2 max-h-48 overflow-y-auto">
+                                <ul class="space-y-2">
                                     <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded {{ !request('tag') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                        onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => request('category')]) }}'">
+                                        @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => request('category')]) }}'">
                                         {{ __('All Tags') }}
                                     </li>
                                     @foreach ($tags as $tag)
                                         <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded {{ $tag->id == request('tag') ? 'bg-gray-200 dark:bg-gray-600' : '' }}"
-                                            onclick="window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => request('category'), 'tag' => $tag->id]) }}'">
+                                            @click="open = false; window.location.href='{{ route('admin.posts.index', ['postType' => $postType, 'status' => request('status'), 'search' => request('search'), 'category' => request('category'), 'tag' => $tag->id]) }}'">
                                             {{ $tag->name }}
                                             <span class="text-xs text-gray-500 dark:text-gray-300">({{ $tag->posts->count() ?? 0 }})</span>
                                         </li>
@@ -146,7 +143,7 @@
                 <table id="dataTable" class="table min-w-full">
                     <thead class="table-thead">
                         <tr class="table-tr">
-                            <th width="5%" class="table-thead-th">
+                            <th width="3%" class="table-thead-th">
                                 <div class="flex items-center">
                                     <input
                                         type="checkbox"
@@ -213,7 +210,7 @@
                     <tbody>
                         @forelse ($posts as $post)
                             <tr class="{{ $loop->index + 1 != count($posts) ?  'table-tr' : '' }}">
-                                <td class="table-td">
+                                <td class="table-td table-td-checkbox">
                                     <input
                                         type="checkbox"
                                         class="post-checkbox form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"

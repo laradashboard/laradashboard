@@ -75,22 +75,6 @@
                     </div>
                 @endif
                 {!! ld_apply_filters('post_form_after_excerpt', '') !!}
-
-                @if ($postTypeModel->supports_thumbnail)
-                    <x-media-selector 
-                        name="featured_image" 
-                        label="{{ __('Featured Image') }}"
-                        :multiple="false"
-                        allowedTypes="images"
-                        :existingMedia="isset($post) && $post->hasFeaturedImage() ? $post->getFeaturedImageUrl() : null"
-                        :existingAltText="isset($post) ? $post->title : ''"
-                        removeCheckboxName="remove_featured_image"
-                        removeCheckboxLabel="{{ __('Remove featured image') }}"
-                        :showPreview="true"
-                        class="mt-1"
-                    />
-                @endif
-                {!! ld_apply_filters('post_form_after_featured_image', '') !!}
             </div>
         </div>
 
@@ -158,6 +142,24 @@
                 {!! ld_apply_filters('post_form_after_submit_buttons', '') !!}
             </div>
         </div>
+
+        @if ($postTypeModel->supports_thumbnail)
+            <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-3 space-y-2 sm:p-4">
+                <x-media-selector
+                    name="featured_image"
+                    label="{{ __('Featured Image') }}"
+                    :multiple="false"
+                    allowedTypes="images"
+                    :existingMedia="isset($post) && $post->hasFeaturedImage() ? $post->getFeaturedImageUrl() : null"
+                    :existingAltText="isset($post) ? $post->title : ''"
+                    removeCheckboxName="remove_featured_image"
+                    removeCheckboxLabel="{{ __('Remove featured image') }}"
+                    :showPreview="true"
+                    class="mt-1"
+                />
+            </div>
+        @endif
+        {!! ld_apply_filters('post_form_after_featured_image', '') !!}
 
         @if ($postTypeModel->hierarchical)
             <!-- Parent -->

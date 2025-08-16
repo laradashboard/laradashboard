@@ -21,7 +21,7 @@
                 <table id="dataTable" class="table">
                     <thead class="table-thead">
                         <tr class="table-tr">
-                            <th width="5%" class="table-thead-th">{{ __('Sl') }}</th>
+                            <th width="3%" class="table-thead-th">{{ __('Sl') }}</th>
                             <th width="20%" class="table-thead-th">
                                 <div class="flex items-center">
                                     {{ __('Name') }}
@@ -70,7 +70,7 @@
                     <tbody>
                         @forelse ($permissions as $permission)
                             <tr class="{{ $loop->index + 1 != count($permissions) ?  'table-tr' : '' }}">
-                                <td class="table-td">{{ $loop->index + 1 }}</td>
+                                <td class="table-td table-td-checkbox">{{ $loop->index + 1 }}</td>
                                 <td class="table-td">
                                     {{ ucfirst($permission->name) }}
                                 </td>

@@ -34,19 +34,18 @@
                     <h3 class="text-base font-medium text-gray-700 dark:text-white/90">{{ __($taxonomyModel->label) }}</h3>
                     <div class="flex items-center gap-2">
                         <!-- Bulk Actions dropdown -->
-                        <div class="flex items-center justify-center" x-show="selectedTerms.length > 0">
-                            <button id="bulkActionsButton" data-dropdown-toggle="bulkActionsDropdown" class="btn-danger flex items-center justify-center gap-2 text-sm" type="button">
+                        <div class="relative flex items-center justify-center" x-show="selectedTerms.length > 0" x-data="{ open: false }">
+                            <button @click="open = !open" class="btn-danger flex items-center justify-center gap-2 text-sm" type="button">
                                 <iconify-icon icon="lucide:trash"></iconify-icon>
                                 <span>{{ __('Bulk Actions') }} (<span x-text="selectedTerms.length"></span>)</span>
                                 <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                             </button>
-
-                            <!-- Bulk Actions dropdown menu -->
-                            <div id="bulkActionsDropdown" class="z-10 hidden w-48 p-3 bg-white rounded-md shadow dark:bg-gray-700">
+                            <div x-show="open" @click.outside="open = false" x-transition
+                                 class="absolute right-0 top-10 mt-2 w-48 rounded-md shadow bg-white dark:bg-gray-700 z-10 p-3">
                                 <h6 class="mb-2 text-sm font-medium text-gray-700 dark:text-white">{{ __('Bulk Actions') }}</h6>
                                 <ul class="space-y-2">
                                     <li class="cursor-pointer text-sm text-red-600 dark:text-red-400 hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1 rounded"
-                                        @click="bulkDeleteModalOpen = true">
+                                        @click="open = false; bulkDeleteModalOpen = true">
                                         <iconify-icon icon="lucide:trash" class="mr-1"></iconify-icon> {{ __('Delete Selected') }}
                                     </li>
                                 </ul>
@@ -62,7 +61,7 @@
                     <table id="dataTable" class="table">
                         <thead class="table-thead">
                             <tr class="table-tr">
-                                <th width="5%" class="table-thead-th">
+                                <th width="3%" class="table-thead-th">
                                     <div class="flex items-center">
                                         <input
                                             type="checkbox"
@@ -114,7 +113,7 @@
                         <tbody>
                             @forelse ($terms as $termItem)
                                 <tr class="{{ $loop->index + 1 != count($terms) ?  'table-tr' : '' }}">
-                                    <td class="table-td">
+                                    <td class="table-td table-td-checkbox">
                                         <input
                                             type="checkbox"
                                             class="term-checkbox form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"

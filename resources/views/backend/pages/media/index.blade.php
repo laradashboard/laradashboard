@@ -13,12 +13,12 @@
         bulkActionsDropdownOpen: false,
         viewMode: localStorage.getItem('mediaViewMode') || 'grid',
         uploadModalOpen: false,
-    
+
         toggleViewMode() {
             this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
             localStorage.setItem('mediaViewMode', this.viewMode);
         },
-    
+
         showSingleDeleteModal(id) {
             this.selectedMedia = [id.toString()];
             this.bulkDeleteModalOpen = true;
@@ -252,7 +252,7 @@
                                 @foreach ($media as $item)
                                     <div
                                         class="relative group border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800">
-                                        <div class="absolute top-2 left-2 z-10 transition-opacity duration-200" 
+                                        <div class="absolute top-2 left-2 z-10 transition-opacity duration-200"
                                              :class="selectedMedia.includes('{{ $item->id }}') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
                                             <input type="checkbox" value="{{ $item->id }}" x-model="selectedMedia"
                                                 class="form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
@@ -265,8 +265,8 @@
                                                     loading="lazy">
                                             @elseif(str_starts_with($item->mime_type, 'video/'))
                                                 <div class="w-full h-full bg-black rounded-lg overflow-hidden relative">
-                                                    <video 
-                                                        class="w-full h-full object-cover" 
+                                                    <video
+                                                        class="w-full h-full object-cover"
                                                         preload="metadata"
                                                         style="background: linear-gradient(135deg, rgb(147 51 234 / 0.1) 0%, rgb(147 51 234 / 0.2) 100%)"
                                                         muted
@@ -362,7 +362,7 @@
                                                     <iconify-icon icon="lucide:eye" class="text-sm"></iconify-icon>
                                                 </button>
                                             @endif
-                                            <a href="{{ $item->url ?? asset('storage/media/' . $item->file_name) }}" 
+                                            <a href="{{ $item->url ?? asset('storage/media/' . $item->file_name) }}"
                                                 download="{{ $item->name }}"
                                                 class="p-2 bg-white/90 backdrop-blur-sm rounded-md text-gray-700 hover:bg-white transition-colors shadow-lg"
                                                 title="{{ __('Download') }}">
@@ -407,47 +407,41 @@
                     <!-- List View -->
                     <div x-show="viewMode === 'list'" class="overflow-x-auto">
                         @if ($media->count() > 0)
-                            <table class="w-full">
-                                <thead class="bg-gray-50 dark:bg-gray-800">
-                                    <tr class="border-b border-gray-100 dark:border-gray-800">
-                                        <th width="5%"
-                                            class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white text-left px-5 sm:px-6">
+                            <table class="table">
+                                <thead class="table-thead">
+                                    <tr class="table-tr">
+                                        <th width="3%" class="table-thead-th">
                                             <input type="checkbox" x-model="selectAll"
                                                 @click="selectAll = !selectAll; selectedMedia = selectAll ? [...document.querySelectorAll('.media-checkbox')].map(cb => cb.value) : [];"
                                                 class="form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                         </th>
-                                        <th
-                                            class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        <th class="table-thead-th">
                                             {{ __('File') }}
                                         </th>
-                                        <th
-                                            class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        <th class="table-thead-th">
                                             {{ __('Type') }}
                                         </th>
-                                        <th
-                                            class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        <th class="table-thead-th">
                                             {{ __('Size') }}
                                         </th>
-                                        <th
-                                            class="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        <th class="table-thead-th">
                                             {{ __('Date') }}
                                         </th>
-                                        <th
-                                            class="px-5 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        <th class="table-thead-th table-thead-th-last">
                                             {{ __('Actions') }}
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tbody class="table-tbody">
                                     @foreach ($media as $item)
-                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                                            <td class="px-5 py-4 sm:px-6">
+                                        <tr class="table-tr">
+                                            <td class="table-td table-td-checkbox">
                                                 <input type="checkbox" value="{{ $item->id }}"
                                                     x-model="selectedMedia"
                                                     class="media-checkbox form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 transition-opacity duration-200"
                                                     :class="selectedMedia.includes('{{ $item->id }}') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
                                             </td>
-                                            <td class="px-5 py-4 flex items-center">
+                                            <td class="table-td">
                                                 <div class="flex-shrink-0 h-12 w-12 mr-3">
                                                     @if (str_starts_with($item->mime_type, 'image/'))
                                                         <img src="{{ $item->url ?? asset('storage/media/' . $item->file_name) }}"
@@ -478,19 +472,19 @@
                                                     </p>
                                                 </div>
                                             </td>
-                                            <td class="px-5 py-4 text-sm text-gray-900 dark:text-white">
+                                            <td class="table-td">
                                                 <span
                                                     class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
                                                     {{ strtoupper(pathinfo($item->file_name, PATHINFO_EXTENSION)) }}
                                                 </span>
                                             </td>
-                                            <td class="px-5 py-4 text-sm text-gray-900 dark:text-white">
+                                            <td class="table-td">
                                                 {{ $item->human_readable_size }}
                                             </td>
-                                            <td class="px-5 py-4 text-sm text-gray-900 dark:text-white">
+                                            <td class="table-td">
                                                 {{ $item->created_at->format('M d, Y') }}
                                             </td>
-                                            <td class="px-5 py-4 text-center">
+                                            <td class="table-td text-center">
                                                 <div class="flex items-center justify-center gap-2">
                                                     @if (str_starts_with($item->mime_type, 'image/'))
                                                         <button
@@ -521,7 +515,7 @@
                                                             <iconify-icon icon="lucide:eye" class="text-sm"></iconify-icon>
                                                         </button>
                                                     @endif
-                                                    <a href="{{ $item->url ?? asset('storage/media/' . $item->file_name) }}" 
+                                                    <a href="{{ $item->url ?? asset('storage/media/' . $item->file_name) }}"
                                                         download="{{ $item->name }}"
                                                         class="text-blue-400 hover:text-blue-600 dark:hover:text-blue-300"
                                                         title="{{ __('Download') }}">
@@ -586,9 +580,9 @@
     <div id="videoModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75"
         onclick="closeVideoModal()">
         <div class="max-w-6xl max-h-[90vh] p-4" onclick="event.stopPropagation()">
-            <video id="modalVideo" 
-                   class="max-w-full max-h-full" 
-                   controls 
+            <video id="modalVideo"
+                   class="max-w-full max-h-full"
+                   controls
                    preload="metadata"
                    style="outline: none;"
                    onloadstart="this.volume=0.5">
@@ -611,18 +605,18 @@
                     <h3 id="modalAudioTitle" class="text-xl font-semibold text-green-800 dark:text-green-200 mb-2"></h3>
                     <p class="text-green-600 dark:text-green-400 text-sm">Audio Player</p>
                 </div>
-                
+
                 <!-- Audio Player -->
                 <div class="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg p-4">
-                    <audio id="modalAudio" 
-                           class="w-full mb-4" 
-                           controls 
+                    <audio id="modalAudio"
+                           class="w-full mb-4"
+                           controls
                            preload="metadata"
                            style="height: 40px;"
                            onloadstart="this.volume=0.5">
                         <!-- Source will be set dynamically -->
                     </audio>
-                    
+
                     <!-- Audio Info -->
                     <div id="modalAudioInfo" class="text-sm text-green-700 dark:text-green-300 space-y-1">
                         <!-- Audio details will be inserted here -->
@@ -647,7 +641,7 @@
                         <h3 id="modalPdfTitle" class="text-lg font-semibold text-gray-900 dark:text-white"></h3>
                     </div>
                     <div class="flex items-center gap-2">
-                        <a id="pdfDownloadLink" href="#" download 
+                        <a id="pdfDownloadLink" href="#" download
                            class="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm flex items-center gap-2">
                             <iconify-icon icon="lucide:download" class="text-sm"></iconify-icon>
                             {{ __('Download') }}
@@ -658,11 +652,11 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- PDF Viewer -->
                 <div class="h-full bg-gray-100 dark:bg-gray-900">
-                    <iframe id="modalPdfViewer" 
-                            src="" 
+                    <iframe id="modalPdfViewer"
+                            src=""
                             class="w-full h-full border-0"
                             style="min-height: 600px;">
                     </iframe>

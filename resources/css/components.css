@@ -149,4 +149,8 @@
     .table-td {
         @apply px-5 py-4 sm:px-6;
     }
+
+    .table-td-checkbox {
+        @apply p-2 px-5;
+    }
 }
