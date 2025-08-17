@@ -7,9 +7,6 @@
 /public/build-*
 /storage/*.key
 /vendor
-.env
-.env.local
-.env.production
 .env.backup
 .phpunit.result.cache
 Homestead.json
@@ -27,3 +24,4 @@ public/images/.DS_Store
 
 # Exclude release builds
 /releases
+config.bat

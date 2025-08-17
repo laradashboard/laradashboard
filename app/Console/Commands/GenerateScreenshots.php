@@ -275,6 +275,11 @@ class GenerateScreenshots extends Command
                 'url' => '/admin/settings?tab=integrations',
                 'mode' => 'lite',
             ],
+            [
+                'name' => '44-Settings-Performance-Security',
+                'url' => '/admin/settings?tab=performance-security',
+                'mode' => 'lite',
+            ],
 
             // Translation pages
             [
