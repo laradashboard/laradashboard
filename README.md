@@ -49,6 +49,14 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v2.2.0] - 2025-08-17**
+
+-   **Feat:** Media library manager.
+-   **Feat:** Improved user / profile UI/UX with lots of options.
+-   **Feat:** Implement reCAPTCHA and custom admin login integration with configurable page settings.
+-   **Enhancement:** Update menu structure.
+-   **Fix:** Several small UI bugs.
+
 **[v2.0.1] - 2025-07-27**
 
 -   **Feat:** Refactor Lara Dashboard whole Admin UI - Icons, Accessibility, Components, Pages, Layouts and so on.
@@ -515,6 +523,12 @@ Visit the [Laravel Boost documentation](https://github.com/laravel/boost).
     <td width="50%">
       <strong>Integration Settings</strong><br/>
       <img width="100%" alt="Integration Settings" src="/demo-screenshots/43-Settings-Integration.png"/>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Performance & Security Settings</strong><br/>
+      <img width="100%" alt="Performance & Security Settings" src="/demo-screenshots/44-Settings-Performance-Security.png"/>
     </td>
   </tr>
 </table>
