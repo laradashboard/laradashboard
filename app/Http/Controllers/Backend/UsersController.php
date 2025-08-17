@@ -31,6 +31,12 @@ class UsersController extends Controller
     {
         $this->checkAuthorization(Auth::user(), ['user.view']);
 
+        // Check if PowerGrid is available, fallback to original implementation
+        if (class_exists(\App\Livewire\UserTable::class)) {
+            return view('livewire.user-table');
+        }
+
+        // Fallback to original implementation
         $filters = [
             'search' => request('search'),
             'role' => request('role'),
