@@ -7,9 +7,8 @@ namespace App\Concerns;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
-use PowerComponents\LivewirePowerGrid\Components\SetUp\Footer;
-use PowerComponents\LivewirePowerGrid\Components\SetUp\Header;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 
 trait HasDataTableFeatures
@@ -20,13 +19,13 @@ trait HasDataTableFeatures
     public function setUp(): array
     {
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()
+            // Exportable::exportable('export')
+            //    ->striped()
+            //    ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            PowerGrid::header()
                 ->showSearchInput()
-                ->showToggleColumns(),
-            Footer::make()
+                ->showSoftDeletes(showMessage: true),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];
@@ -38,10 +37,10 @@ trait HasDataTableFeatures
     protected function getExtensibleColumns(): array
     {
         $baseColumns = $this->getBaseColumns();
-        
+
         // Apply hook filters for column customization
         $columns = ld_apply_filters($this->getHookPrefix() . '_table_columns', $baseColumns);
-        
+
         return $columns;
     }
 
@@ -51,10 +50,10 @@ trait HasDataTableFeatures
     protected function getExtensibleActions(): array
     {
         $baseActions = $this->getBaseActions();
-        
+
         // Apply hook filters for action customization
         $actions = ld_apply_filters($this->getHookPrefix() . '_table_actions', $baseActions);
-        
+
         return $actions;
     }
 
@@ -64,10 +63,10 @@ trait HasDataTableFeatures
     protected function getExtensibleFilters(): array
     {
         $baseFilters = $this->getBaseFilters();
-        
+
         // Apply hook filters for filter customization
         $filters = ld_apply_filters($this->getHookPrefix() . '_table_filters', $baseFilters);
-        
+
         return $filters;
     }
 
@@ -78,10 +77,10 @@ trait HasDataTableFeatures
     {
         // Apply base filters first
         $query = $this->applyBaseQueryFilters($query);
-        
+
         // Apply hook filters for custom query modifications
         $query = ld_apply_filters($this->getHookPrefix() . '_table_query', $query);
-        
+
         return $query;
     }
 
@@ -95,7 +94,7 @@ trait HasDataTableFeatures
                 ->class('btn-sm btn-secondary')
                 ->icon('heroicon-o-pencil')
                 ->route('admin.' . $this->getRouteName() . '.edit', fn ($row) => $row->id),
-                
+
             Button::make('delete', 'Delete')
                 ->class('btn-sm btn-danger')
                 ->icon('heroicon-o-trash')
@@ -113,7 +112,7 @@ trait HasDataTableFeatures
         return [
             Filter::datepicker('created_at')
                 ->label('Created Date'),
-                
+
             Filter::inputText('search')
                 ->operators(['contains'])
                 ->placeholder('Search...'),
@@ -135,16 +134,16 @@ trait HasDataTableFeatures
     {
         return Column::make('Created At', 'created_at')
             ->sortable()
-            ->searchable()
-            ->format(fn ($value) => $value ? $value->format('M j, Y H:i') : '');
+            ->searchable();
+        // ->format(fn ($value) => $value ? $value->format('M j, Y H:i') : '');
     }
 
-    protected function formatUpdatedAtColumn(): Column
-    {
-        return Column::make('Updated At', 'updated_at')
-            ->sortable()
-            ->format(fn ($value) => $value ? $value->format('M j, Y H:i') : '');
-    }
+    // protected function formatUpdatedAtColumn(): Column
+    // {
+    //     return Column::make('Updated At', 'updated_at')
+    //         ->sortable()
+    //         ->format(fn ($value) => $value ? $value->format('M j, Y H:i') : '');
+    // }
 
     /**
      * Bulk actions support
@@ -180,9 +179,9 @@ trait HasDataTableFeatures
         }
 
         $this->checkboxValues = [];
-        
+
         session()->flash('success', __(':count items deleted successfully', [
-            'count' => count($this->checkboxValues)
+            'count' => count($this->checkboxValues),
         ]));
     }
 
@@ -193,12 +192,12 @@ trait HasDataTableFeatures
     {
         $model = $this->getModelClass();
         $item = $model::findOrFail($id);
-        
+
         // Apply delete hook filters
         $item = ld_apply_filters($this->getHookPrefix() . '_before_delete', $item);
         $item->delete();
         ld_do_action($this->getHookPrefix() . '_after_delete', $item);
-        
+
         session()->flash('success', __('Item deleted successfully'));
     }
 
@@ -208,7 +207,7 @@ trait HasDataTableFeatures
     protected function canPerformAction(string $action, $item = null): bool
     {
         $permission = $this->getPermissionPrefix() . '.' . $action;
-        
+
         return auth()->user()->can($permission);
     }
 

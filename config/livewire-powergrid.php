@@ -1,33 +1,84 @@
 <?php
 
+use Illuminate\Support\Js;
+
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Theme
     |--------------------------------------------------------------------------
     |
     | PowerGrid supports Tailwind and Bootstrap 5 themes.
-    | Configure the theme used in your application.
-    |
+    | Configure here the theme of your choice.
     */
-    'theme' => 'tailwind',
+
+    'theme' => \PowerComponents\LivewirePowerGrid\Themes\Tailwind::class,
+    // 'theme' => \PowerComponents\LivewirePowerGrid\Themes\DaisyUI::class,
+    // 'theme' => \PowerComponents\LivewirePowerGrid\Themes\Bootstrap5::class,
+
+    'cache_ttl' => null,
+
+    'icon_resources' => [
+        'paths' => [
+            // 'default' => 'resources/views/components/icons',
+            // 'outline' => 'vendor/wireui/wireui/resources/views/components/icons/outline',
+            // 'solid'   => 'vendor/wireui/wireui/resources/views/components/icons/solid',
+        ],
+
+        'allowed' => [
+            // 'pencil',
+        ],
+
+        'attributes' => ['class' => 'w-5 text-red-600'],
+    ],
 
     /*
     |--------------------------------------------------------------------------
     | Plugins
     |--------------------------------------------------------------------------
     |
-    | Plugins used by PowerGrid.
+    | Plugins used: flatpickr.js to datepicker.
     |
     */
+
     'plugins' => [
+        /*
+         * https://flatpickr.js.org
+         */
         'flatpickr' => [
             'locales' => [
                 'pt_BR' => [
-                    'locale'     => 'pt',
+                    'locale' => 'pt',
                     'dateFormat' => 'd/m/Y H:i',
                     'enableTime' => true,
-                    'time_24hr'  => true,
+                    'time_24hr' => true,
+                ],
+            ],
+        ],
+
+        'select' => [
+            'default' => 'tom',
+
+            /*
+             * TomSelect Options
+             * https://tom-select.js.org
+             */
+            'tom' => [
+                'plugins' => [
+                    'clear_button' => [
+                        'title' => 'Remove all selected options',
+                    ],
+                ],
+            ],
+
+            /*
+             * Slim Select options
+             * https://slimselectjs.com/
+             */
+            'slim' => [
+                'settings' => [
+                    'alwaysOpen' => false,
                 ],
             ],
         ],
@@ -35,235 +86,79 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Cached Views
+    | Filters
     |--------------------------------------------------------------------------
     |
-    | If enabled, PowerGrid will cache the component's view.
+    | PowerGrid supports inline and outside filters.
+    | 'inline': Filters data inside the table.
+    | 'outside': Filters data outside the table.
+    | 'null'
     |
     */
-    'cached_views' => false,
+
+    'filter' => 'inline',
 
     /*
     |--------------------------------------------------------------------------
-    | Filter
+    | Filters Attributes
     |--------------------------------------------------------------------------
-    |
-    | PowerGrid filter configuration.
-    |
+
+    | You can add custom attributes to the filters.
+    | The key is the filter type and the value is a callback function.
+    | like: input_text, select, datetime, etc.
+    | The callback function receives the field and title as parameters.
+    | The callback function must return an array with the attributes.
     */
-    'filter' => [
-        'date_picker' => [
-            'enabled' => true,
-            'format'  => 'Y-m-d',
-        ],
-        'multi_select' => [
-            'enabled' => true,
-            'max_options' => 10,
-        ],
-        'select' => [
-            'enabled' => true,
-        ],
-        'boolean' => [
-            'enabled' => true,
-        ],
-        'input_text' => [
-            'enabled' => true,
-        ],
-        'number' => [
-            'enabled' => true,
-        ],
+
+    'filter_attributes' => [
+        'input_text' => \PowerComponents\LivewirePowerGrid\FilterAttributes\InputText::class,
+        'boolean' => \PowerComponents\LivewirePowerGrid\FilterAttributes\Boolean::class,
+        'number' => \PowerComponents\LivewirePowerGrid\FilterAttributes\Number::class,
+        'select' => \PowerComponents\LivewirePowerGrid\FilterAttributes\Select::class,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Exportable
+    | Persisting
     |--------------------------------------------------------------------------
     |
-    | PowerGrid export configuration.
+    | PowerGrid supports persisting of the filters, columns and sorting.
+    | 'session': persist in the session.
+    | 'cache': persist with cache.
+    | 'cookies': persist with cookies (default).
     |
     */
+
+    'persist_driver' => 'cookies',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Exportable class
+    |--------------------------------------------------------------------------
+    |
+    |
+    */
+
     'exportable' => [
-        'default' => 'openspout',
-        'drivers' => [
-            'openspout' => [
-                'xlsx' => \PowerComponents\LivewirePowerGrid\Components\Exports\OpenSpout\ExportToXLSX::class,
-                'csv'  => \PowerComponents\LivewirePowerGrid\Components\Exports\OpenSpout\ExportToCSV::class,
-            ],
+        'default' => 'openspout_v4',
+        'openspout_v4' => [
+            'xlsx' => \PowerComponents\LivewirePowerGrid\Components\Exports\OpenSpout\v4\ExportToXLS::class,
+            'csv' => \PowerComponents\LivewirePowerGrid\Components\Exports\OpenSpout\v4\ExportToCsv::class,
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Livewire
+    | Auto-Discover Models
     |--------------------------------------------------------------------------
     |
-    | Livewire configuration for PowerGrid.
+    | PowerGrid will search for Models in the directories listed below.
+    | These Models be listed as options when you run the
+    | "artisan powergrid:create" command.
     |
     */
-    'livewire' => [
-        'lazy' => false,
-    ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Responsive table
-    |--------------------------------------------------------------------------
-    |
-    | Default responsive table breakpoint.
-    |
-    */
-    'responsive_table' => [
-        'enabled' => true,
-        'breakpoint' => 'md',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Feature Flags
-    |--------------------------------------------------------------------------
-    |
-    | Enable/disable PowerGrid features.
-    |
-    */
-    'features' => [
-        'bulk_actions' => true,
-        'checkbox' => true,
-        'radio' => true,
-        'click_to_edit' => true,
-        'lazy_loading' => true,
-        'search' => true,
-        'filters' => true,
-        'pagination' => true,
-        'per_page' => true,
-        'exportable' => true,
-        'show_columns' => true,
-        'responsive' => true,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Default Pagination
-    |--------------------------------------------------------------------------
-    |
-    | Default number of records per page.
-    |
-    */
-    'pagination' => [
-        'per_page' => 15,
-        'per_page_values' => [10, 15, 25, 50, 100],
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Row Actions
-    |--------------------------------------------------------------------------
-    |
-    | Row actions configuration.
-    |
-    */
-    'row_actions' => [
-        'enabled' => true,
-        'view' => 'livewire-powergrid::components.actions',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Checkbox Actions
-    |--------------------------------------------------------------------------
-    |
-    | Checkbox actions configuration.
-    |
-    */
-    'checkbox_actions' => [
-        'enabled' => true,
-        'view' => 'livewire-powergrid::components.checkbox-actions',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Action Rules
-    |--------------------------------------------------------------------------
-    |
-    | Action rules configuration.
-    |
-    */
-    'action_rules' => [
-        'enabled' => true,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Listeners
-    |--------------------------------------------------------------------------
-    |
-    | PowerGrid listeners configuration.
-    |
-    */
-    'listeners' => [
-        'enabled' => true,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Multi Sort
-    |--------------------------------------------------------------------------
-    |
-    | Enable multi-column sorting.
-    |
-    */
-    'multi_sort' => [
-        'enabled' => false,
-        'max_columns' => 3,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Icons
-    |--------------------------------------------------------------------------
-    |
-    | Icon configuration for PowerGrid components.
-    |
-    */
-    'icons' => [
-        'search' => 'heroicon-o-magnifying-glass',
-        'filter' => 'heroicon-o-funnel',
-        'export' => 'heroicon-o-arrow-down-tray',
-        'columns' => 'heroicon-o-view-columns',
-        'refresh' => 'heroicon-o-arrow-path',
-        'edit' => 'heroicon-o-pencil',
-        'delete' => 'heroicon-o-trash',
-        'view' => 'heroicon-o-eye',
-        'add' => 'heroicon-o-plus',
-        'sort_asc' => 'heroicon-o-chevron-up',
-        'sort_desc' => 'heroicon-o-chevron-down',
-        'pagination_first' => 'heroicon-o-chevron-double-left',
-        'pagination_previous' => 'heroicon-o-chevron-left',
-        'pagination_next' => 'heroicon-o-chevron-right',
-        'pagination_last' => 'heroicon-o-chevron-double-right',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | CSS Classes
-    |--------------------------------------------------------------------------
-    |
-    | CSS classes used by PowerGrid components.
-    |
-    */
-    'css_classes' => [
-        'table' => 'min-w-full divide-y divide-gray-200 dark:divide-gray-700',
-        'thead' => 'bg-gray-50 dark:bg-gray-800',
-        'tbody' => 'bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700',
-        'tr' => 'hover:bg-gray-50 dark:hover:bg-gray-800',
-        'th' => 'px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider',
-        'td' => 'px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100',
-        'button' => [
-            'primary' => 'inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150',
-            'secondary' => 'inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150',
-            'danger' => 'inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150',
-        ],
-        'input' => 'block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm',
-        'select' => 'block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm',
-        'checkbox' => 'h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600',
+    'auto_discover_models_paths' => [
+        app_path('Models'),
     ],
 ];

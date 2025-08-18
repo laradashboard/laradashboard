@@ -28,6 +28,8 @@
         "livewire/livewire": "^3.6",
         "mhmiton/laravel-modules-livewire": "^5.1",
         "nwidart/laravel-modules": "^12.0",
+        "openspout/openspout": "^4.0",
+        "power-components/livewire-powergrid": "^6.5",
         "spatie/browsershot": "^5.0",
         "spatie/laravel-medialibrary": "^11.13",
         "spatie/laravel-permission": "^6.4",
@@ -36,6 +38,7 @@
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^2.1",
+        "composer/composer": "^2.8",
         "fakerphp/faker": "^1.24",
         "larastan/larastan": "^3.0",
         "laravel/boost": "^1.0",
