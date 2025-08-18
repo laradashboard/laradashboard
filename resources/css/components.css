@@ -153,4 +153,9 @@
     .table-td-checkbox {
         @apply p-2 px-5;
     }
+
+    /* Only apply flex and gap-2 to divs whose direct child is .parent-need-flex */
+    div:has(> .parent-need-flex) {
+        @apply flex gap-2;
+    }
 }

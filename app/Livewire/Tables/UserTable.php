@@ -31,6 +31,7 @@ final class UserTable extends PowerGridComponent
             PowerGrid::exportable(fileName: 'users')
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             PowerGrid::header()
+                ->includeViewOnBottom('components.table.user.header')
                 ->showSearchInput()
                 ->showToggleColumns(),
             PowerGrid::footer()
