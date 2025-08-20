@@ -76,6 +76,6 @@
     </div>
 
     @if ($helpText)
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-300">{{ $helpText }}</p>
+        <p class="form-help">{{ $helpText }}</p>
     @endif
 </div>
