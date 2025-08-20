@@ -217,6 +217,7 @@ return [
         App\Providers\MenuServiceProvider::class,
         App\Providers\ModuleServiceProvider::class,
         App\Providers\AdminRoutingServiceProvider::class,
+        App\Providers\PageGeneratorServiceProvider::class,
     ],
 
     /*
