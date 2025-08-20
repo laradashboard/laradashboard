@@ -86,6 +86,18 @@
         @apply h-10 inline-flex w-full items-center justify-between gap-2 whitespace-nowrap border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 rounded-md;
     }
 
+    .form-radio {
+        @apply h-4 w-4 text-primary border-gray-300 focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600;
+    }
+
+    .form-help {
+        @apply mt-1 text-sm text-gray-500 dark:text-gray-400;
+    }
+
+    .form-error-message {
+        @apply mt-1 text-sm text-red-600 dark:text-red-400;
+    }
+
     /* Checkbox styles */
     .tableCheckbox:checked ~ span span {
         @apply opacity-100;

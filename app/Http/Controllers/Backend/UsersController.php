@@ -9,6 +9,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
+use App\PageGenerator\Traits\HasPageGenerator;
+use App\Pages\User\UserCreate;
+use App\Pages\User\UserList;
+use Illuminate\Http\Response;
 use App\Services\RolesService;
 use App\Services\UserService;
 use Illuminate\Contracts\Support\Renderable;
@@ -18,6 +22,8 @@ use Illuminate\Support\Facades\Auth;
 
 class UsersController extends Controller
 {
+    use HasPageGenerator;
+
     public function __construct(
         private readonly UserService $userService,
         private readonly RolesService $rolesService,
@@ -26,28 +32,38 @@ class UsersController extends Controller
     ) {
     }
 
-    public function index(): Renderable
+    public function index(UserList $page): Response|Renderable
     {
-        $this->authorize('viewAny', User::class);
+        // Method 1:
+        // $this->authorize('viewAny', User::class);
+        // $page = app(UserList::class, ['request' => request(), 'rolesService' => $this->rolesService]);
+        // return $this->renderPage($page);
 
-        $filters = [
-            'search' => request('search'),
-            'role' => request('role'),
-            'sort_field' => null,
-            'sort_direction' => null,
-        ];
+        // Method 2:
+        // return app(UserList::class, [request()]);
 
-        return view('backend.pages.users.index', [
-            'users' => $this->userService->getUsers($filters),
-            'roles' => $this->rolesService->getRolesDropdown(),
-            'breadcrumbs' => [
-                'title' => __('Users'),
-            ],
-        ]);
+        // Method 3:
+        return $page;
+
+        // $filters = [
+        //     'search' => request('search'),
+        //     'role' => request('role'),
+        //     'sort_field' => null,
+        //     'sort_direction' => null,
+        // ];
+
+        // return view('backend.pages.users.index', [
+        //     'users' => $this->userService->getUsers($filters),
+        //     'roles' => $this->rolesService->getRolesDropdown(),
+        //     'breadcrumbs' => [
+        //         'title' => __('Users'),
+        //     ],
+        // ]);
     }
 
-    public function create(): Renderable
+    public function create(UserCreate $page): Renderable
     {
+        return $page;
         $this->authorize('create', User::class);
 
         ld_do_action('user_create_page_before');
