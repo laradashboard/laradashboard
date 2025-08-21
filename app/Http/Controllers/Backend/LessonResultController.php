@@ -90,7 +90,7 @@ class LessonResultController extends Controller
             ->orderBy('course_date')
             ->get();
 
-        return view('teacher.upcoming-lessons', compact('lessons'));
+        return view('backend.pages.teacher.upcoming-lessons', compact('lessons'));
     }
 
     public function lessonHistory()
@@ -103,12 +103,12 @@ class LessonResultController extends Controller
             ->orderBy('course_date', 'desc')
             ->get();
 
-        return view('teacher.lesson-history', compact('lessons'));
+        return view('backend.pages.teacher.lesson-history', compact('lessons'));
     }
 
     public function addNote(LessonResult $lessonResult)
     {
-        return view('teacher.add-note', compact('lessonResult'));
+        return view('backend.pages.teacher.add-note', compact('lessonResult'));
     }
 
     public function saveNote(Request $request, LessonResult $lessonResult)

@@ -1,6 +1,7 @@
-@extends('layouts.app')
+@extends('backend.layouts.app')
 
-@section('content')
+
+@section('admin-content')
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-3xl mx-auto bg-white rounded-lg shadow overflow-hidden">
         <div class="p-6">

@@ -58,7 +58,7 @@ class MenuService
             (new AdminMenuItem())->setAttributes([
                 'label' => __('All Enrollments'),
                 'route' => route('user-courses.index'),
-                'active' => Route::is('user-courses.index'),
+                'active' => Route::is('user-courses.*'),
                 'priority' => 1,
                 'id' => 'user_courses_index',
                 'permissions' => ['user_courses.view'],

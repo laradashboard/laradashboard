@@ -131,13 +131,13 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('lesson-results', LessonResultController::class);
     Route::resource('payments', PaymentController::class);
     
-    Route::get('/admin/dashboard', function () {
-        $todayLessons = \App\Models\LessonResult::whereDate('course_date', today())
-            ->with(['userCourse.course', 'userCourse.user'])
-            ->get();
+    // Route::get('/admin/dashboard', function () {
+    //     $todayLessons = \App\Models\LessonResult::whereDate('course_date', today())
+    //         ->with(['userCourse.course', 'userCourse.user'])
+    //         ->get();
             
-        return view('admin.dashboard', compact('todayLessons'));
-    })->name('admin.dashboard');
+    //     return view('admin.dashboard', compact('todayLessons'));
+    // })->name('admin.dashboard');
 });
 
 // Teacher routes
@@ -170,4 +170,5 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
+    Route::get('/user-courses/{userCourse}/receipt', [UserCourseController::class, 'showReceipt'])->name('user-courses.show-receipt');
 });

@@ -35,6 +35,7 @@
         "tormjens/eventy": "^0.8.0"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.16",
         "beyondcode/laravel-dump-server": "^2.1",
         "fakerphp/faker": "^1.24",
         "larastan/larastan": "^3.0",

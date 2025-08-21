@@ -1,6 +1,7 @@
-@extends('layouts.app')
+@extends('backend.layouts.app')
 
-@section('content')
+
+@section('admin-content')
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-2xl font-bold mb-6">Upcoming Lessons</h1>
 

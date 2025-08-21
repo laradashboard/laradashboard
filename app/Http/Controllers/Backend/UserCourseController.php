@@ -13,8 +13,11 @@ class UserCourseController extends Controller
 {
     public function index()
     {
-        $userCourses = UserCourse::with(['user', 'course'])->get();
-        return view('user-courses.index', compact('userCourses'));
+        $userCourses = UserCourse::with(['user', 'course', 'teacher'])
+            ->latest()
+            ->paginate(10);
+            
+        return view('backend.pages.enrollments.index', compact('userCourses'));
     }
 
     public function create()
@@ -54,26 +57,57 @@ class UserCourseController extends Controller
 
     public function edit(UserCourse $userCourse)
     {
-        $users = User::all();
-        $courses = Course::all();
-        return view('user-courses.edit', compact('userCourse', 'users', 'courses'));
+        return view('backend.pages.enrollments.edit', [
+            'enrollment' => $userCourse,
+            'courses' => Course::all(),
+            'users' => User::role('student')->get(),
+            'teachers' => User::role('teacher')->get() 
+        ]);
     }
 
     public function update(Request $request, UserCourse $userCourse)
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'course_id' => 'required|exists:courses,id',
-            'lesson_day' => 'required|in:even,odd,every',
-            'lesson_hour' => 'required|date_format:H:i',
-            'status' => 'required|string',
-            'lesson_count' => 'required|integer',
-        ]);
+        try {
+            $validated = $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'course_id' => 'required|exists:courses,id',
+                'teacher_id' => 'required|exists:users,id',
+                'lesson_day' => 'required|in:even,odd,every',
+                'lesson_hour' => 'required|date_format:H:i',
+                'status' => 'required|in:pending_payment,approved,rejected,completed',
+                'lesson_count' => 'required|integer|min:1',
+                'payment_status' => 'required_if:status,approved|in:pending_verification,verified,failed',
+            ]);
 
-        $userCourse->update($validated);
+            // Explicitly set each field to ensure proper formatting
+            $userCourse->update([
+                'user_id' => $validated['user_id'],
+                'course_id' => $validated['course_id'],
+                'teacher_id' => $validated['teacher_id'],
+                'lesson_day' => $validated['lesson_day'],
+                'lesson_hour' => $validated['lesson_hour'] . ':00', // Add seconds for DB storage
+                'status' => $validated['status'],
+                'lesson_count' => $validated['lesson_count'],
+                'payment_status' => $validated['payment_status'] ?? null, // Ensure null if not provided
+            ]);
 
-        return redirect()->route('user-courses.index')->with('success', 'User course updated successfully.');
-    }
+            return redirect()
+                ->route('user-courses.index')
+                ->with('success', 'Enrollment updated successfully.');
+
+        } catch (\Exception $e) {
+            \Log::error('Update failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all()
+            ]);
+            
+            return back()
+                ->withInput()
+                ->with('error', 'Update failed: ' . $e->getMessage());
+        }
+    }   
+
 
     public function destroy(UserCourse $userCourse)
     {
@@ -115,6 +149,13 @@ class UserCourseController extends Controller
 
         // return redirect()->route('payment.create', $userCourse);
     }
-    
+    public function showReceipt(UserCourse $userCourse)
+    {
+        if (!$userCourse->payment_receipt_path) {
+            abort(404);
+        }
+
+        return response()->file(storage_path('app/' . $userCourse->payment_receipt_path));
+    }    
 
 }
