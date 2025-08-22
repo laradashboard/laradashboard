@@ -3,7 +3,7 @@
 @section('admin-content')
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Upcoming Lessons</h1>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{__('Upcoming Lessons')}}</h1>
     </div>
 
     @if($upcomingLessons->count() > 0)

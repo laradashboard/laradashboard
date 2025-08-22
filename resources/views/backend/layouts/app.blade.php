@@ -51,7 +51,7 @@ x-init="
 
     <!-- Page Wrapper with smooth fade-in -->
     <div class="app-container flex h-screen overflow-hidden">
-        @include('backend.layouts.partials.sidebar-logo')
+        
 
         <!-- Content Area -->
         <div class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto bg-white dark:bg-gray-900">
@@ -88,6 +88,7 @@ x-init="
             </main>
             <!-- End Main Content -->
         </div>
+        @include('backend.layouts.partials.sidebar-logo')
     </div>
 
     {!! ld_apply_filters('admin_footer_before', '') !!}

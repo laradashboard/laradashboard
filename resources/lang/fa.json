@@ -67,6 +67,7 @@
     "Delete": "حذف",
     "Delete Role": "حذف نقش",
     "Delete Selected": "حذف موارد انتخاب شده",
+    "Delete Tag": "حذف تگ",
     "Delete User": "حذف کاربر",
     "Deleted": "حذف شده",
     "Demo Mode": "حالت نمایشی",
@@ -269,5 +270,21 @@
     "You are not authorized to view this page": "شما مجاز به مشاهده این صفحه نیستید",
     "You do not have permission to access this page": "شما مجاز به دسترسی به این صفحه نیستید",
     "You must be logged in to view this page": "برای مشاهده این صفحه باید وارد شوید",
-    "users": "کاربران"
+    "users": "کاربران",
+    "All Courses": "دوره ها",
+    "Today's Lessons": "تماس های امروز",
+    "Access Control": "مدیریت دسترسی ها",
+    "Upcoming Lessons": "جلسات پیش رو",
+    "Lesson History": "تاریخچه جلسات",
+    "": "",
+    "": "",
+    "": "",
+    "": "",
+    "": "",
+    "": "",
+    "": "",
+    "": "",
+    "": "",
+    "": ""
+    
 }
