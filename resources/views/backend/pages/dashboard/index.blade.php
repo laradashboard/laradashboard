@@ -1,15 +1,6 @@
 @extends('backend.layouts.app')
 
-@section('title')
-   {{ $breadcrumbs['title'] }} | {{ config('app.name') }}
-@endsection
 
-@section('before_vite_build')
-    <script>
-        var userGrowthData = @json($user_growth_data['data']);
-        var userGrowthLabels = @json($user_growth_data['labels']);
-    </script>
-@endsection
 
 @section('admin-content')
     <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
@@ -67,32 +58,7 @@
 
         {!! ld_apply_filters('dashboard_cards_after', '') !!}
 
-        <div class="mt-6">
-            <div class="grid grid-cols-12 gap-4 md:gap-6">
-                <div class="col-span-12">
-                    <div class="grid grid-cols-12 gap-4 md:gap-6">
-                        <div class="col-span-12 md:col-span-8">
-                            @include('backend.pages.dashboard.partials.user-growth')
-                        </div>
-                        <div class="col-span-12 md:col-span-4">
-                            @include('backend.pages.dashboard.partials.user-history')
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="mt-6">
-            <div class="grid grid-cols-12 gap-4 md:gap-6">
-                <div class="col-span-12">
-                    <div class="grid grid-cols-12 gap-4 md:gap-6">
-                        @include('backend.pages.dashboard.partials.post-chart')
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {!! ld_apply_filters('dashboard_after', '') !!}
     </div>
 @endsection
 

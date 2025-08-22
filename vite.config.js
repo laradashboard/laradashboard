@@ -26,7 +26,7 @@ export default defineConfig({
         host: '0.0.0.0', // listen on all interfaces
         port: 5173,
         hmr: {
-            host: '46.249.102.131', // use your server IP or domain
+            host: '127.0.0.1', // use your server IP or domain
             protocol: 'ws',         // can be 'wss' if HTTPS
         },
     },

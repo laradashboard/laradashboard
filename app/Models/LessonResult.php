@@ -19,6 +19,7 @@ class LessonResult extends Model
     {
         return $this->belongsTo(UserCourse::class);
     }
+    
 
     public function user()
     {

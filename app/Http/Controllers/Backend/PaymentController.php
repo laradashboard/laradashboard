@@ -7,6 +7,8 @@ use App\Models\Payment;
 use App\Models\UserCourse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -16,37 +18,93 @@ class PaymentController extends Controller
         return view('payments.index', compact('payments'));
     }
 
-    public function create(UserCourse $userCourse)
+
+
+    // In PaymentController
+    public function create()
     {
-        return view('backend.pages.student.payment', compact('userCourse'));
-    }
-
-    public function store(Request $request, UserCourse $userCourse)
-    {
-        $request->validate([
-            'payment_receipt' => 'required|file|mimes:jpeg,png,pdf|max:2048',
-        ]);
-
-        // Store receipt
-        $path = $request->file('payment_receipt')->store('payment-receipts');
-
-        // Create payment record
-        Payment::create([
-            'user_id' => auth()->id(),
-            'user_course_id' => $userCourse->id,
-            'status' => 'pending_verification',
-            'type' => 'bank_transfer',
-            'receipt_path' => $path,
-        ]);
-
-        // Update enrollment status
-        $userCourse->update([
-            'status' => 'approved'
-        ]);
+        // Check if there's pending enrollment data
+        $enrollmentData = session('pending_enrollment');
         
-        return redirect()->route('student.my-courses')
-            ->with('success', 'Payment submitted successfully! Your enrollment is now active.');
+        if (!$enrollmentData) {
+            return redirect()->route('courses.index')
+                ->with('error', 'No pending enrollment found. Please select a course first.');
+        }
+
+        // Get the course details
+        $course = UserCourse::findOrFail($enrollmentData['course_id']);
+
+        return view('backend.pages.student.payment', compact('course', 'enrollmentData'));
     }
+
+    public function store(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Get enrollment data from session
+            $enrollmentData = session('pending_enrollment');
+            
+            if (!$enrollmentData) {
+                throw new \Exception('Enrollment session expired. Please start over.');
+            }
+
+            // Validate payment receipt
+            $validated = $request->validate([
+                'payment_receipt' => 'required|file|mimes:jpeg,png,pdf,jpg|max:2048',
+            ]);
+
+            // Get course details
+            $course = UserCourse::findOrFail($enrollmentData['course_id']);
+            $fileName = 'receipt_' . time() . '_' . Str::random(10) . '.' . $request->file('payment_receipt')->getClientOriginalExtension();
+            $path = $request->file('payment_receipt')->storeAs('payment-receipts', $fileName);
+            
+            // 1. CREATE USERCOURSE RECORD (only here, after payment validation)
+
+            $userCourse = UserCourse::create([
+                'user_id' => auth()->id(),
+                'course_id' => $enrollmentData['course_id'],
+                'buy_date' => now(),
+                'lesson_day' => $enrollmentData['lesson_day'],
+                'lesson_hour' => $enrollmentData['lesson_hour'],
+                'status' => 'approved',
+                'lesson_count' => $enrollmentData['lesson_count'],
+                'payment_status' => 'pending_verification',
+                'payment_receipt_path' => $path
+            ]);
+
+            // 2. Store payment receipt
+            
+
+            // 3. Create payment record
+            $payment = Payment::create([
+                'user_id' => auth()->id(),
+                'user_course_id' => $userCourse->id,
+                'status' => 'pending_verification',
+                'type' => 'bank_transfer',
+                'receipt_path' => $path,
+                'amount' => $enrollmentData['course_price'],
+            ]);
+
+            // Commit transaction
+            DB::commit();
+
+            // Clear the session data
+            session()->forget('pending_enrollment');
+
+            return redirect()->route('student.my-courses')
+                ->with('success', 'Enrollment and payment completed successfully!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return back()->withErrors($e->validator)->withInput();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
 
     public function show(Payment $payment)
     {

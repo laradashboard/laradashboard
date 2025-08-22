@@ -208,71 +208,42 @@ class RolesService
 
         $roles['superadmin'] = $this->createRole('Superadmin', $allPermissionNames);
 
-        // 2. Admin role - has almost all permissions except some critical ones
-        $adminPermissions = $allPermissionNames;
-        $adminExcludedPermissions = [
-            'user.delete', // Cannot delete users
-        ];
-
-        $adminPermissions = array_diff($adminPermissions, $adminExcludedPermissions);
-        $roles['admin'] = $this->createRole('Admin', $adminPermissions);
-
-        // 3. Editor role - can manage content but not users/settings
-        $editorPermissions = [
+        $adminPermissions = [
             'dashboard.view',
-            // Blog permissions
-            'blog.create',
-            'blog.view',
-            'blog.edit',
-            // Profile permissions
             'profile.view',
             'profile.edit',
             'profile.update',
-            // Translations
-            'translations.view',
+            'user.create',
+            'user.view',
+            'user.edit',
+            'user.delete',
+            'courses.list',
+            'lesson_results.todayLessons',
+            'user_courses.allEnrollments'
+
         ];
-
-        // $roles['editor'] = $this->createRole('Editor', $editorPermissions);
-
-        // // 4. Subscriber role - basic user role
-        // $subscriberPermissions = [
-        //     'dashboard.view',
-        //     'profile.view',
-        //     'profile.edit',
-        //     'profile.update',
-        // ];
-
-        // $roles['subscriber'] = $this->createRole('Subscriber', $subscriberPermissions);
-
-        // $contactPermissions = [
-        //     'dashboard.view',
-        //     'profile.view',
-        //     'profile.edit',
-        //     'profile.update',
-        // ];
-
-        // $roles['contact'] = $this->createRole('Contact', $contactPermissions);
+        $roles['admin'] = $this->createRole('admin', $adminPermissions);
         
-        $roles['teacher'] = $this->createRole('teacher', $editorPermissions);
-
-        // 4. teacher role - basic user role
-        $subscriberPermissions = [
+        $teacherPermissions = [
             'dashboard.view',
             'profile.view',
             'profile.edit',
             'profile.update',
+            'lesson_results.history',
+            'lesson_results.upcoming'
         ];
+        $roles['teacher'] = $this->createRole('teacher', $teacherPermissions);
 
-        $roles['student'] = $this->createRole('student', $editorPermissions);
-
-        // 4. teacher role - basic user role
-        $subscriberPermissions = [
+        $studentPermissions = [
             'dashboard.view',
             'profile.view',
             'profile.edit',
             'profile.update',
+            'courses.mines',
+            'courses.list',
         ];
 
+        $roles['student'] = $this->createRole('student', $studentPermissions);
         return $roles;
     }
 

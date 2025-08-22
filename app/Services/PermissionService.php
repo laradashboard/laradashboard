@@ -30,6 +30,8 @@ class PermissionService
                     'courses.create',
                     'courses.edit',
                     'courses.delete',
+                    'courses.list',
+                    'courses.mines',
                 ],
             ],
             [
@@ -40,6 +42,7 @@ class PermissionService
                     'user_courses.edit',
                     'user_courses.delete',
                     'user_courses.manage_lessons',
+                    'user_courses.allEnrollments',
                 ],
             ],
             [
@@ -50,6 +53,9 @@ class PermissionService
                     'lesson_results.edit',
                     'lesson_results.delete',
                     'lesson_results.add_notes',
+                    'lesson_results.upcoming',
+                    'lesson_results.history',
+                    'lesson_results.todayLessons'
                 ],
             ],
             [
@@ -393,34 +399,34 @@ class PermissionService
     /**
      * Assign default permissions to roles
      */
-    public function assignDefaultPermissions(): void
-    {
-        // Admin permissions
-        $adminRole = Role::findByName('admin');
-        $adminRole->givePermissionTo([
-            'courses.view', 'courses.create', 'courses.edit', 'courses.delete',
-            'user_courses.view', 'user_courses.create', 'user_courses.edit', 'user_courses.delete', 'user_courses.manage_lessons',
-            'lesson_results.view', 'lesson_results.create', 'lesson_results.edit', 'lesson_results.delete', 'lesson_results.add_notes',
-            'payments.view', 'payments.create', 'payments.edit', 'payments.delete', 'payments.process',
-            'user.view', 'user.create', 'user.edit', 'user.delete',
-            'role.view', 'role.create', 'role.edit', 'role.delete',
-            'settings.view', 'settings.edit',
-        ]);
+    // public function assignDefaultPermissions(): void
+    // {
+    //     // Admin permissions
+    //     $adminRole = Role::findByName('admin');
+    //     $adminRole->givePermissionTo([
+    //         'courses.view', 'courses.create', 'courses.edit', 'courses.delete',
+    //         'user_courses.view', 'user_courses.create', 'user_courses.edit', 'user_courses.delete', 'user_courses.manage_lessons',
+    //         'lesson_results.view', 'lesson_results.create', 'lesson_results.edit', 'lesson_results.delete', 'lesson_results.add_notes',
+    //         'payments.view', 'payments.create', 'payments.edit', 'payments.delete', 'payments.process',
+    //         'user.view', 'user.create', 'user.edit', 'user.delete',
+    //         'role.view', 'role.create', 'role.edit', 'role.delete',
+    //         'settings.view', 'settings.edit',
+    //     ]);
 
-        // Teacher permissions
-        $teacherRole = Role::findByName('teacher');
-        $teacherRole->givePermissionTo([
-            'user_courses.view', 'user_courses.manage_lessons',
-            'lesson_results.view', 'lesson_results.create', 'lesson_results.edit', 'lesson_results.add_notes',
-        ]);
+    //     // Teacher permissions
+    //     $teacherRole = Role::findByName('teacher');
+    //     $teacherRole->givePermissionTo([
+    //         'user_courses.view', 'user_courses.manage_lessons',
+    //         'lesson_results.view', 'lesson_results.create', 'lesson_results.edit', 'lesson_results.add_notes',
+    //     ]);
 
-        // Student permissions
-        $studentRole = Role::findByName('student');
-        $studentRole->givePermissionTo([
-            'courses.view',
-            'user_courses.view', // To view their own enrollments
-            'lesson_results.view', // To view their own lesson results
-            'payments.create', // To make payments
-        ]);
-    }
+    //     // Student permissions
+    //     $studentRole = Role::findByName('student');
+    //     $studentRole->givePermissionTo([
+    //         'courses.view',
+    //         'user_courses.view', // To view their own enrollments
+    //         'lesson_results.view', // To view their own lesson results
+    //         'payments.create', // To make payments
+    //     ]);
+    // }
 }

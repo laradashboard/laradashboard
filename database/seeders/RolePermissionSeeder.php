@@ -67,7 +67,7 @@ class RolePermissionSeeder extends Seeder
         $users = User::all();
 
         foreach ($users as $user) {
-            if (! $user->hasRole('Superadmin')) {
+            if (! $user->hasRole('Superadmin') and ! $user->hasRole('student') and ! $user->hasRole('teacher') and ! $user->hasRole('admin')) {
                 // Get a random role from the available roles
                 $randomRole = $availableRoles[array_rand($availableRoles)];
                 $user->assignRole($randomRole);

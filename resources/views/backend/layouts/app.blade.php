@@ -64,6 +64,22 @@ x-init="
 
             <!-- Main Content -->
             <main>
+                <!-- @if (session('success'))
+                    <div class="m-4">
+                        <x-alerts.success  :message="session('success')" class="m-4"/>
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="m-4">
+                        <x-alerts.error :message="session('error')" class="m-4"/>
+                    </div>
+                @endif
+                @if ($errors->any())
+                    <div class="m-4">
+                        <x-alerts.errors  :errors="$errors" class="m-4"/>
+                    </div>
+                @endif -->
+
                 @yield('admin-content')
 
                 @isset($slot)

@@ -8,7 +8,7 @@ use App\Models\Course;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
+use Illuminate\Support\Facades\DB;
 class UserCourseController extends Controller
 {
     public function index()
@@ -127,6 +127,7 @@ class UserCourseController extends Controller
         return view('backend.pages.student.enroll', compact('course'));
     }
 
+    // In UserCourseController or EnrollmentController
     public function processEnrollment(Request $request, Course $course)
     {
         $validated = $request->validate([
@@ -134,21 +135,22 @@ class UserCourseController extends Controller
             'lesson_hour' => 'required|date_format:H:i',
         ]);
 
-        $userCourse = UserCourse::create([
-            'user_id' => auth()->id(),
-            'course_id' => $course->id,
-            'buy_date' => now(),
-            'lesson_day' => $validated['lesson_day'],
-            'lesson_hour' => $validated['lesson_hour'],
-            'status' => 'pending_payment',
-            'lesson_count' => $course->lesson_count,
+        // Store enrollment data in session
+        session([
+            'pending_enrollment' => [
+                'course_id' => $course->id,
+                'lesson_day' => $validated['lesson_day'],
+                'lesson_hour' => $validated['lesson_hour'],
+                'lesson_count' => $course->lesson_count,
+                'course_price' => $course->price,
+                'created_at' => now(),
+            ]
         ]);
 
-        // Redirect to payment page
-        return redirect()->route('student.payment', $userCourse);
-
-        // return redirect()->route('payment.create', $userCourse);
+        // Redirect directly to payment
+        return redirect()->route('student.payment');
     }
+    
     public function showReceipt(UserCourse $userCourse)
     {
         if (!$userCourse->payment_receipt_path) {

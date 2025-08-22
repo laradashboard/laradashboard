@@ -44,7 +44,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('roles', RolesController::class);
     Route::delete('roles/delete/bulk-delete', [RolesController::class, 'bulkDelete'])->name('roles.bulk-delete');
-
+    Route::get('/today-lessons', [LessonResultController::class, 'todayLessons'])->name('today-lessons');
     // Permissions Routes.
     Route::get('/permissions', [PermissionsController::class, 'index'])->name('permissions.index');
     Route::get('/permissions/{id}', [PermissionsController::class, 'show'])->name('permissions.show');
@@ -130,14 +130,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('user-courses', UserCourseController::class);
     Route::resource('lesson-results', LessonResultController::class);
     Route::resource('payments', PaymentController::class);
-    
-    // Route::get('/admin/dashboard', function () {
-    //     $todayLessons = \App\Models\LessonResult::whereDate('course_date', today())
-    //         ->with(['userCourse.course', 'userCourse.user'])
-    //         ->get();
-            
-    //     return view('admin.dashboard', compact('todayLessons'));
-    // })->name('admin.dashboard');
 });
 
 // Teacher routes
@@ -145,8 +137,11 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('teacher')->group(function () {
         Route::get('/upcoming-lessons', [LessonResultController::class, 'upcomingLessons'])->name('teacher.upcoming-lessons');
         Route::get('/lesson-history', [LessonResultController::class, 'lessonHistory'])->name('teacher.lesson-history');
-        Route::get('/add-note/{lessonResult}', [LessonResultController::class, 'addNote'])->name('teacher.add-note');
-        Route::post('/save-note/{lessonResult}', [LessonResultController::class, 'saveNote'])->name('teacher.save-note');
+        Route::get('/add-note/{userCourse}/{lessonDate}', [LessonResultController::class, 'addNote'])->name('teacher.add-note');
+        Route::post('/save-note/{userCourse}', [LessonResultController::class, 'saveNote'])->name('teacher.save-note');
+        Route::get('/edit-note/{lessonResult}', [LessonResultController::class, 'editNote'])->name('teacher.edit-note');
+        Route::put('/update-note/{lessonResult}', [LessonResultController::class, 'updateNote'])->name('teacher.update-note');
+        Route::delete('/delete-note/{lessonResult}', [LessonResultController::class, 'deleteNote'])->name('teacher.delete-note');
     });
 });
 
@@ -156,14 +151,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/my-courses', [UserCourseController::class, 'myCourses'])->name('student.my-courses');
         Route::get('/enroll/{course}', [UserCourseController::class, 'enroll'])->name('student.enroll');
         Route::post('/process-enrollment/{course}', [UserCourseController::class, 'processEnrollment'])->name('student.process-enrollment');
-        Route::get('/courses/{course}/enroll', [UserCourseController::class, 'enroll'])->name('student.enroll');
-    
+        Route::post('/courses/{course}/enroll', [UserCourseController::class, 'processEnrollment'])->name('student.process-enrollment');    
         // Payment process
         Route::get('/enrollments/{userCourse}/payment', [PaymentController::class, 'create'])->name('student.payment');
         Route::post('/enrollments/{userCourse}/payment', [PaymentController::class, 'store'])->name('student.payment.store');
     });
     
-    Route::resource('payments', PaymentController::class)->only(['create', 'store']);
+    Route::get('/payment', [PaymentController::class, 'create'])->name('student.payment');
+
+    Route::post('/payment', [PaymentController::class, 'store'])->name('student.payment.store');
 });
 
 // Common routes

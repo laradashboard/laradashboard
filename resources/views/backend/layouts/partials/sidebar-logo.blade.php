@@ -27,11 +27,11 @@
 >
     <!-- Sidebar Header -->
     <div
-        :class="sidebarToggle && !isHovered ? 'justify-center' : 'justify-between'"
-        class="justify-center flex items-center gap-2 sidebar-header py-5 px-6 h-[100px] transition-all duration-300"
+        :class="sidebarToggle"
+        class="justify-center flex items-center gap-2 py-5 px-6 h-[100px] transition-all "
     >
         <a href="{{ route('admin.dashboard') }}">
-            <span class="logo transition-opacity duration-300" :class="sidebarToggle && !isHovered ? 'hidden opacity-0' : 'opacity-100'">
+            <span class="logo transition-opacity" :class="sidebarToggle && !isHovered ? 'hidden opacity-0' : 'opacity-100'">
                 Callingo
                 <!-- <img
                     class="dark:hidden max-h-[80px]"

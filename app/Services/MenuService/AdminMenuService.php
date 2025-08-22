@@ -153,7 +153,69 @@ class AdminMenuService
                 ],
             ],
         ]);
-
+        $this->addMenuItem([
+            'label' => __('All Courses'),
+            'icon' => 'lucide:boxes',
+            'route' => route('courses.index'),
+            'active' => Route::is('courses.index'),
+            'priority' => 1,
+            'id' => 'courses_index',
+            'permissions' => ['courses.list'],
+        ]);
+        $this->addMenuItem([
+            'label' => __('My Courses'),
+            'icon' => 'lucide:boxes',
+            'route' => route('student.my-courses'),
+            'active' => Route::is('student.my-courses'),
+            'id' => 'my_courses',
+            'priority' => 20,
+            'permissions' => ['courses.mines'],
+        ]);
+        $this->addMenuItem([
+            'icon' => 'lucide:boxes',
+            'label' => __('Add New Course'),
+            'route' => route('courses.create'),
+            'active' => Route::is('courses.create'),
+            'priority' => 2,
+            'id' => 'courses_create',
+            'permissions' => ['courses.create'],
+        ]);
+        $this->addMenuItem([
+            'icon' => 'lucide:boxes',
+            'label' => __('All Enrollments'),
+            'route' => route('user-courses.index'),
+            'active' => Route::is('user-courses.*'),
+            'priority' => 1,
+            'id' => 'user_courses_index',
+            'permissions' => ['user_courses.allEnrollments'],
+        ]);
+        $this->addMenuItem([
+            'icon' => 'lucide:boxes',
+            'label' => __("Today's Lessons"),
+            'route' => route('admin.today-lessons'),
+            'active' => Route::is('admin.today-lessons'),
+            'id' => 'today_lessons',
+            'priority' => 30,
+            'permissions' => ['lesson_results.todayLessons'],
+        ]);
+        $this->addMenuItem([
+            'icon' => 'lucide:boxes',
+            'label' => __('Upcoming Lessons'),
+            'route' => route('teacher.upcoming-lessons'),
+            'active' => Route::is('teacher.upcoming-lessons'),
+            'id' => 'upcoming_lessons',
+            'priority' => 10,
+            'permissions' => ['lesson_results.upcoming'],
+        ]);
+        $this->addMenuItem([
+            'label' => __('Lesson History'),
+            'icon' => 'lucide:boxes',
+            'route' => route('teacher.lesson-history'),
+            'active' => Route::is('teacher.lesson-history'),
+            'id' => 'lesson_history',
+            'priority' => 20,
+            'permissions' => ['lesson_results.history'],
+        ]);
         $this->addMenuItem(
             [
                 'label' => __('Access Control'),
