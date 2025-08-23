@@ -26,7 +26,7 @@ class LoginRequest extends FormRequest
     {
         return [
             /** @example "superadmin@example.com" */
-            'email' => 'required|max:50|email',
+            'phone' => 'required|max:50',
 
             /** @example "12345678" */
             'password' => 'required',

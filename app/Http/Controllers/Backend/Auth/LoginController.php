@@ -55,20 +55,30 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request): RedirectResponse|Response
     {
-        if (Auth::guard('web')->attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
-            $this->demoAppService->maybeSetDemoLocaleToEnByDefault();
-            session()->flash('success', 'Successfully Logged in!');
+        $credentialsList = [
+            // ['email' => $request->email, 'password' => $request->password],
+            // ['username' => $request->email, 'password' => $request->password],
+            ['phone' => $request->phone, 'password' => $request->password], // added phone
+        ];
+        foreach ($credentialsList as $credentials) {
+            if (Auth::guard('web')->attempt($credentials, $request->remember)) {
+                // $this->demoAppService->maybeSetDemoLocaleToEnByDefault();
 
-            return redirect()->route('admin.dashboard');
+                // Auto-verify phone in development
+                if (isset($credentials['phone'])) {
+                    $user = Auth::guard('web')->user();
+                    if (!$user->phone_verified_at) {
+                        $user->phone_verified_at = now();
+                        $user->save();
+                    }
+                }
+
+                session()->flash('success', 'Successfully Logged in!');
+                return redirect()->route('admin.dashboard');
+            }else {
+                \Log::info('Attempt failed', $credentials);
+            }
         }
-
-        if (Auth::guard('web')->attempt(['username' => $request->email, 'password' => $request->password], $request->remember)) {
-            $this->demoAppService->maybeSetDemoLocaleToEnByDefault();
-            session()->flash('success', 'Successfully Logged in!');
-
-            return redirect()->route('admin.dashboard');
-        }
-
         return $this->sendFailedLoginResponse($request);
     }
 

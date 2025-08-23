@@ -15,6 +15,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+use Laravel\Fortify\Features;
+use Laravel\Fortify\Contracts\PhoneVerification;
+use Laravel\Fortify\Fortify;
+use Laravel\Fortify\TwoFactorAuthenticationProvider;
+
+
 class User extends Authenticatable
 {
     use AuthorizationChecker;
@@ -35,6 +41,8 @@ class User extends Authenticatable
         'email',
         'password',
         'username',
+        'phone',
+        'phone_verified_at', // add this
     ];
 
     /**
@@ -56,7 +64,15 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
+    
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            if ($user->phone && app()->environment(['local', 'development'])) {
+                $user->phone_verified_at = now();
+            }
+        });
+    }
     public function actionLogs()
     {
         return $this->hasMany(ActionLog::class, 'action_by');

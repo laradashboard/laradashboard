@@ -11,7 +11,7 @@
         {{ __('Sign In') }}
       </h1>
       <p class="text-sm text-gray-500 dark:text-gray-300">
-        {{ __('Enter your email and password to sign in!') }}
+        {{ __('Enter your phone number and password to sign in!') }}
       </p>
     </div>
     <div>
@@ -21,8 +21,8 @@
           <x-messages />
 
           <div>
-            <label class="form-label">{{ __('Email') }}</label>
-            <input autofocus type="text" id="email" name="email" autocomplete="username" placeholder="{{ __('Enter your email') }}" class="dark:bg-dark-900 h-11 w-full rounded-md border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-700 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" value="{{ old('email') ?? config('app.demo_mode', false) ? 'superadmin@example.com' : '' }}" required>
+            <label class="form-label">{{ __('Phone Number') }}</label>
+            <input autofocus type="text" id="phone" name="phone" autocomplete="username" placeholder="{{ __('Enter your phone') }}" class="dark:bg-dark-900 h-11 w-full rounded-md border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-700 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" value="{{ old('phone') ?? config('app.demo_mode', false) ? '' : '' }}" required>
           </div>
 
           <x-inputs.password 
