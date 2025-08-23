@@ -12,6 +12,7 @@ on:
 
 jobs:
   claude-review:
+    if: github.event.pull_request.draft != true
     # Optional: Filter by PR author
     # if: |
     #   github.event.pull_request.user.login == 'external-contributor' ||

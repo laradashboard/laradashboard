@@ -6,6 +6,7 @@ on:
 
 jobs:
   code-review:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft != true
     runs-on: ubuntu-latest
     permissions:
       contents: read
