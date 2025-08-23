@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\ActionLogResource;
+use App\Models\ActionLog;
 use App\Services\ActionLogService;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ActionLogController extends ApiController
 {
@@ -31,7 +31,7 @@ class ActionLogController extends ApiController
     #[QueryParameter('sort', description: 'Sort logs by field (prefix with - for descending).', type: 'string', example: '-created_at')]
     public function index(Request $request): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['actionlog.view']);
+        $this->authorize('viewAny', ActionLog::class);
 
         $filters = $request->only(['search', 'type', 'user_id', 'date_from', 'date_to', 'sort']);
         $perPage = (int) ($request->input('per_page') ?? config('settings.default_pagination', 10));
@@ -60,13 +60,13 @@ class ActionLogController extends ApiController
      */
     public function show(int $id): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['actionlog.view']);
-
         $actionLog = $this->actionLogService->getActionLogById($id);
 
         if (! $actionLog) {
             return $this->errorResponse('Action log not found', 404);
         }
+
+        $this->authorize('view', $actionLog);
 
         return $this->resourceResponse(
             new ActionLogResource($actionLog),

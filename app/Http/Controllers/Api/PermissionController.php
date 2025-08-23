@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\PermissionResource;
+use App\Models\Permission;
 use App\Services\PermissionService;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PermissionController extends ApiController
 {
@@ -26,7 +26,7 @@ class PermissionController extends ApiController
     #[QueryParameter('group_name', description: 'Filter permissions by group name.', type: 'string', example: 'user')]
     public function index(Request $request): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['role.view']);
+        $this->authorize('viewAny', Permission::class);
 
         $search = $request->input('search');
         $groupName = $request->input('group_name');
@@ -46,13 +46,13 @@ class PermissionController extends ApiController
      */
     public function show(int $id): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['role.view']);
-
         $permission = $this->permissionService->getPermissionById($id);
 
         if (! $permission) {
             return $this->errorResponse('Permission not found', 404);
         }
+
+        $this->authorize('view', $permission);
 
         return $this->resourceResponse(
             new PermissionResource($permission),
@@ -67,7 +67,7 @@ class PermissionController extends ApiController
      */
     public function groups(): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['role.view']);
+        $this->authorize('viewAny', \Spatie\Permission\Models\Permission::class);
 
         $groups = $this->permissionService->getDatabasePermissionGroups();
 

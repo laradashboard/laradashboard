@@ -13,7 +13,6 @@ use App\Services\TermService;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class TermController extends ApiController
 {
@@ -32,7 +31,7 @@ class TermController extends ApiController
     #[QueryParameter('sort', description: 'Sort terms by field (prefix with - for descending).', type: 'string', example: 'name')]
     public function index(Request $request, string $taxonomy): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['term.view']);
+        $this->authorize('viewAny', Term::class);
 
         $filters = $request->only(['search', 'parent_id']);
         $filters['taxonomy'] = $taxonomy;
@@ -63,6 +62,8 @@ class TermController extends ApiController
      */
     public function store(StoreTermRequest $request, string $taxonomy): JsonResponse
     {
+        $this->authorize('create', Term::class);
+
         $data = $request->validated();
 
         $term = $this->termService->createTerm($data, $taxonomy);
@@ -83,13 +84,13 @@ class TermController extends ApiController
      */
     public function show(string $taxonomy, int $id): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['term.view']);
-
         $term = Term::with(['taxonomyModel', 'parent', 'children'])
             ->whereHas('taxonomyModel', function ($query) use ($taxonomy) {
                 $query->where('name', $taxonomy);
             })
             ->findOrFail($id);
+
+        $this->authorize('view', $term);
 
         return $this->resourceResponse(
             new TermResource($term),
@@ -108,6 +109,8 @@ class TermController extends ApiController
             $query->where('name', $taxonomy);
         })->findOrFail($id);
 
+        $this->authorize('update', $term);
+
         $updatedTerm = $this->termService->updateTerm($term, $request->validated());
 
         $this->logAction('Term Updated', $updatedTerm);
@@ -125,11 +128,11 @@ class TermController extends ApiController
      */
     public function destroy(string $taxonomy, int $id): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['term.delete']);
-
         $term = Term::whereHas('taxonomyModel', function ($query) use ($taxonomy) {
             $query->where('name', $taxonomy);
         })->findOrFail($id);
+
+        $this->authorize('delete', $term);
 
         // Check if term has posts
         if ($term->posts()->count() > 0) {
@@ -151,6 +154,8 @@ class TermController extends ApiController
     public function bulkDelete(BulkDeleteTermRequest $request, string $taxonomy): JsonResponse
     {
         $termIds = $request->input('ids');
+
+        $this->authorize('delete', Term::class);
 
         // Check if any terms have posts assigned
         $termsWithPosts = Term::whereIn('id', $termIds)->whereHas('posts')->count();

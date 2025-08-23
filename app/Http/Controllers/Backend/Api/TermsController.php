@@ -27,6 +27,8 @@ class TermsController extends Controller
     #[ExcludeRouteFromDocs]
     public function store(StoreTermRequest $request, string $taxonomyName): JsonResponse
     {
+        $this->authorize('create', \App\Models\Term::class);
+
         // Check if taxonomy exists
         $taxonomy = $this->termService->getTaxonomy($taxonomyName);
         if (! $taxonomy) {
@@ -95,6 +97,8 @@ class TermsController extends Controller
             ], 404);
         }
 
+        $this->authorize('update', $term);
+
         $taxonomies = [];
         $post_type = $request->input('post_type', null);
         $postTypeModel = $this->contentService->getPostType($post_type);
@@ -154,6 +158,8 @@ class TermsController extends Controller
                 'message' => __('Term not found'),
             ], 404);
         }
+
+        $this->authorize('delete', $term);
 
         // Check if term can be deleted
         $errors = $this->termService->canDeleteTerm($term);

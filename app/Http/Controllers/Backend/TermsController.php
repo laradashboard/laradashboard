@@ -20,7 +20,7 @@ class TermsController extends Controller
 
     public function index(Request $request, string $taxonomy)
     {
-        $this->checkAuthorization(auth()->user(), ['term.view']);
+        $this->authorize('viewAny', Term::class);
 
         // Get taxonomy using service
         $taxonomyModel = $this->termService->getTaxonomy($taxonomy);
@@ -62,6 +62,7 @@ class TermsController extends Controller
 
     public function store(StoreTermRequest $request, string $taxonomy)
     {
+        $this->authorize('create', Term::class);
         // Get taxonomy using service
         $taxonomyModel = $this->termService->getTaxonomy($taxonomy);
 
@@ -91,6 +92,8 @@ class TermsController extends Controller
         // Get term using service
         $term = $this->termService->getTermById((int) $id, $taxonomy);
 
+        $this->authorize('update', $term);
+
         // Update term using service
         $this->termService->updateTerm($term, $request->validated());
 
@@ -103,8 +106,6 @@ class TermsController extends Controller
 
     public function destroy(string $taxonomy, string $id)
     {
-        $this->checkAuthorization(auth()->user(), ['term.delete']);
-
         // Get taxonomy using service
         $taxonomyModel = $this->termService->getTaxonomy($taxonomy);
 
@@ -114,6 +115,8 @@ class TermsController extends Controller
 
         // Get term using service
         $term = $this->termService->getTermById((int) $id, $taxonomy);
+
+        $this->authorize('delete', $term);
 
         // Get taxonomy label for messages
         $taxLabel = $this->termService->getTaxonomyLabel($taxonomy, true);
@@ -140,8 +143,6 @@ class TermsController extends Controller
 
     public function edit(string $taxonomy, string $term)
     {
-        $this->checkAuthorization(auth()->user(), ['term.edit']);
-
         // Get taxonomy using service
         $taxonomyModel = $this->termService->getTaxonomy($taxonomy);
 
@@ -151,6 +152,8 @@ class TermsController extends Controller
 
         // Get term using service
         $term = $this->termService->getTermById((int) $term, $taxonomy);
+
+        $this->authorize('update', $term);
 
         // Get parent terms for hierarchical taxonomies.
         $parentTerms = [];
@@ -177,7 +180,7 @@ class TermsController extends Controller
      */
     public function bulkDelete(Request $request, string $taxonomy)
     {
-        $this->checkAuthorization(auth()->user(), ['term.delete']);
+        $this->authorize('bulkDelete', Term::class);
 
         // Get taxonomy using service
         $taxonomyModel = $this->termService->getTaxonomy($taxonomy);

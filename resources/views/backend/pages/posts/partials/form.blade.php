@@ -15,10 +15,11 @@
                         <div class="flex items-center justify-between">
                             <label for="title"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Title') }}</label>
-                            <!-- AI Generator Button -->
+                            @can('ai_content.generate')
                             <div x-data="{ aiModalOpen: false }">
                                 @include('backend.pages.posts.partials.ai-content-generator')
                             </div>
+                            @endcan
                         </div>
                         <input type="text" name="title" id="title" required x-model="title" maxlength="255"
                             class="form-control">

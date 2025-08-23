@@ -14,11 +14,23 @@
         <testsuite name="Smoke">
             <directory>tests/Smoke</directory>
         </testsuite>
+        <testsuite name="Modules">
+            <directory suffix="Test.php">./modules/*/tests/Feature</directory>
+            <directory suffix="Test.php">./modules/*/tests/Unit</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
             <directory>app</directory>
+            <directory>modules</directory>
         </include>
+        <exclude>
+            <directory suffix=".php">./modules/*/config</directory>
+            <directory suffix=".php">./modules/*/database</directory>
+            <directory suffix=".php">./modules/*/resources</directory>
+            <directory suffix=".php">./modules/*/routes</directory>
+            <directory suffix=".php">./modules/*/tests</directory>
+        </exclude>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>

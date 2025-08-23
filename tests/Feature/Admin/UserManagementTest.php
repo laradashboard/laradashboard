@@ -62,7 +62,7 @@ class UserManagementTest extends TestCase
                 'username' => 'johndoe',
                 'password' => 'password123',
                 'password_confirmation' => 'password123',
-                'roles' => [$role->id],
+                'roles' => ['editor'],
             ]);
 
         $response->assertRedirect();
@@ -96,7 +96,7 @@ class UserManagementTest extends TestCase
                 'last_name' => 'Name',
                 'email' => 'updated@example.com',
                 'username' => 'updateduser',
-                'roles' => [$role->id],
+                'roles' => ['editor'],
             ]);
 
         $response->assertRedirect();
@@ -147,6 +147,7 @@ class UserManagementTest extends TestCase
             ->post('/admin/users', [
                 'first_name' => 'New',
                 'last_name' => 'User',
+                'username' => 'newuser',
                 'email' => 'newuser@example.com',
                 'password' => 'password123',
                 'password_confirmation' => 'password123',

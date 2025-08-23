@@ -6,10 +6,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Setting\UpdateSettingsRequest;
 use App\Http\Resources\SettingResource;
+use App\Models\Setting;
 use App\Services\SettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class SettingController extends ApiController
 {
@@ -24,7 +24,7 @@ class SettingController extends ApiController
      */
     public function index(Request $request): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['settings.view']);
+        $this->authorize('viewAny', \App\Models\Setting::class);
         $settings = $this->settingService->getAllSettings(
             $request->input('search'),
             $request->integer('autoload')
@@ -43,13 +43,13 @@ class SettingController extends ApiController
      */
     public function show(string $option_name): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['settings.view']);
-
         $setting = $this->settingService->getSettingByKey($option_name);
 
         if (! $setting) {
             return $this->errorResponse('Setting not found', 404);
         }
+
+        $this->authorize('view', $setting);
 
         return $this->resourceResponse(
             new SettingResource($setting),
@@ -64,6 +64,8 @@ class SettingController extends ApiController
      */
     public function update(UpdateSettingsRequest $request): JsonResponse
     {
+        $this->authorize('update', Setting::class);
+
         $settings = $request->input('settings', []);
         $updatedSettings = [];
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\Post;
 
 use App\Http\Requests\FormRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class StorePostRequest extends FormRequest
@@ -15,7 +14,8 @@ class StorePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->checkAuthorization(Auth::user(), ['post.create']);
+        // Authorization is handled by the controller using policies.
+        return true;
     }
 
     /**

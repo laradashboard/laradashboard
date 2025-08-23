@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Enums\ActionType;
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use App\Services\LanguageService;
 use App\Services\TranslationService;
 use Illuminate\Contracts\View\View;
@@ -34,7 +35,7 @@ class TranslationController extends Controller
      */
     public function index(): View
     {
-        $this->checkAuthorization(auth()->user(), ['translations.view']);
+        $this->authorize('viewAny', Setting::class);
 
         $languages = $this->languages;
         $groups = $this->translationService->getGroups();
@@ -79,7 +80,7 @@ class TranslationController extends Controller
      */
     public function create(Request $request): RedirectResponse
     {
-        $this->checkAuthorization(auth()->user(), ['translations.edit']);
+        $this->authorize('update', Setting::class);
 
         $request->validate([
             'language_code' => 'required|string|max:10',
@@ -114,7 +115,7 @@ class TranslationController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
-        $this->checkAuthorization(auth()->user(), ['translations.edit']);
+        $this->authorize('update', Setting::class);
 
         $lang = $request->input('lang', 'bn');
         $group = $request->input('group', 'json');

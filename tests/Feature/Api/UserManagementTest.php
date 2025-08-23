@@ -475,7 +475,7 @@ class UserManagementTest extends TestCase
                 'username' => 'janedoe',
                 'password' => 'password123',
                 'password_confirmation' => 'password123',
-                'roles' => [$role->id],
+                'roles' => ['test-role'],
             ]);
 
             $response->assertStatus(201);

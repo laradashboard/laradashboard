@@ -6,7 +6,6 @@ namespace App\Http\Requests\Term;
 
 use App\Http\Requests\FormRequest;
 use App\Services\Content\ContentService;
-use Illuminate\Support\Facades\Auth;
 
 class UpdateTermRequest extends FormRequest
 {
@@ -15,7 +14,8 @@ class UpdateTermRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->checkAuthorization(Auth::user(), ['term.edit']);
+        // Authorization is handled by the controller using policies
+        return true;
     }
 
     /**

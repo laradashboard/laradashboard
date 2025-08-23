@@ -14,9 +14,8 @@ class UserLoginAsController extends Controller
 {
     public function loginAs(int $id): RedirectResponse
     {
-        $this->checkAuthorization(auth()->user(), ['user.login_as']);
-
         $user = User::findOrFail($id);
+        $this->authorize('loginAs', $user);
 
         Session::put('original_user_id', auth()->id());
         Auth::login($user);

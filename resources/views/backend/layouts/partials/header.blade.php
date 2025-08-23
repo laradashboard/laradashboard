@@ -75,7 +75,7 @@ x-init="init()"
                 <a class="flex items-center text-gray-700 dark:text-gray-300" href="#"
                     @click.prevent="dropdownOpen = ! dropdownOpen">
                     <span class="mr-3 h-8 w-8 overflow-hidden rounded-full">
-                        <img src="{{ auth()->user()->avatar ? auth()->user()->avatar->getUrl() : auth()->user()->getGravatarUrl() }}" alt="User" />
+                        <img src="{{ auth()->user()->avatar_url ? auth()->user()->avatar_url : auth()->user()->getGravatarUrl() }}" alt="User" />
                     </span>
                 </a>
 

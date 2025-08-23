@@ -204,7 +204,7 @@ class RoleManagementTest extends TestCase
         // Get the Superadmin role
         $superadminRole = Role::where('name', 'Superadmin')->first();
 
-        // The test expects this to fail with a redirect because Superadmin can't be deleted.
+        // The test expects this to fail with 403 because Superadmin can't be deleted.
         $response = $this->actingAs($this->admin)
             ->from('/admin/roles')
             ->delete("/admin/roles/{$superadminRole->id}");
@@ -253,12 +253,15 @@ class RoleManagementTest extends TestCase
                 'name' => 'UpdatedRole',
                 'permissions' => ['role.view'],
             ])
-            ->assertStatus(403);
+            ->assertStatus(403);  // PUT requests return 403 for unauthorized access
 
         // Test delete access
         $this->actingAs($this->regularUser)
             ->delete("/admin/roles/{$role->id}")
-            ->assertStatus(403);
+            ->assertStatus(403);  // DELETE requests return 403 for unauthorized access
+
+        // Verify the role still exists
+        $this->assertDatabaseHas('roles', ['id' => $role->id]);
     }
 
     #[Test]

@@ -6,9 +6,9 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Module\StoreModuleRequest;
+use App\Models\Module;
 use App\Services\Modules\ModuleService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ModulesController extends Controller
@@ -19,7 +19,7 @@ class ModulesController extends Controller
 
     public function index()
     {
-        $this->checkAuthorization(Auth::user(), ['module.view']);
+        $this->authorize('viewAny', Module::class);
 
         return view('backend.pages.modules.index', [
             'modules' => $this->moduleService->getPaginatedModules(),
@@ -31,6 +31,7 @@ class ModulesController extends Controller
 
     public function store(StoreModuleRequest $request): RedirectResponse
     {
+        $this->authorize('create', Module::class);
         if (config('app.demo_mode', false)) {
             session()->flash('error', __('Module upload is restricted in demo mode. Please try on your local/live environment.'));
 
@@ -54,7 +55,12 @@ class ModulesController extends Controller
             return response()->json(['success' => false, 'message' => __('Module enabling/disabling is restricted in demo mode. Please try on your local/live environment.')], 403);
         }
 
-        $this->checkAuthorization(Auth::user(), ['module.edit']);
+        $module = $this->moduleService->getModuleByName($moduleName);
+        if (! $module) {
+            return response()->json(['success' => false, 'message' => __('Module not found.')], 404);
+        }
+
+        $this->authorize('update', $module);
 
         try {
             $newStatus = $this->moduleService->toggleModuleStatus($moduleName);
@@ -73,7 +79,13 @@ class ModulesController extends Controller
             return redirect()->route('admin.modules.index');
         }
 
-        $this->checkAuthorization(Auth::user(), ['module.delete']);
+        $moduleModel = $this->moduleService->getModuleByName($module);
+        if (! $moduleModel) {
+            session()->flash('error', __('Module not found.'));
+            return redirect()->route('admin.modules.index');
+        }
+
+        $this->authorize('delete', $moduleModel);
 
         try {
             $this->moduleService->deleteModule($module);

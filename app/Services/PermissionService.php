@@ -115,6 +115,12 @@ class PermissionService
                     'media.delete',
                 ],
             ],
+            [
+                'group_name' => 'ai_content',
+                'permissions' => [
+                    'ai_content.generate',
+                ],
+            ],
         ];
 
         return $permissions;

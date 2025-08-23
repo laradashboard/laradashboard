@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Services\PermissionService;
 use Illuminate\Contracts\Support\Renderable;
-use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 
 class PermissionsController extends Controller
@@ -19,7 +18,7 @@ class PermissionsController extends Controller
 
     public function index(): Renderable
     {
-        $this->checkAuthorization(Auth::user(), ['role.view']);
+        $this->authorize('viewAny', Permission::class);
 
         $perPage = config('settings.default_pagination') ?? 10;
         $search = request()->input('search') !== '' ? request()->input('search') : null;
@@ -34,9 +33,8 @@ class PermissionsController extends Controller
 
     public function show(int $id): Renderable
     {
-        $this->checkAuthorization(Auth::user(), ['role.view']);
-
         $permission = Permission::findById($id);
+        $this->authorize('view', $permission);
         $roles = $this->permissionService->getRolesForPermission($permission);
 
         return view('backend.pages.permissions.show', [

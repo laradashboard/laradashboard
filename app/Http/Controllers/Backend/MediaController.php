@@ -11,7 +11,6 @@ use App\Http\Requests\Backend\MediaUploadRequest;
 use App\Models\Media;
 use App\Services\MediaLibraryService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class MediaController extends Controller
 {
@@ -21,7 +20,7 @@ class MediaController extends Controller
 
     public function index(Request $request)
     {
-        $this->checkAuthorization(Auth::user(), ['media.view']);
+        $this->authorize('viewAny', Media::class);
 
         // Check for PHP upload limit errors first
         $phpError = MediaHelper::checkPhpUploadError();
@@ -84,7 +83,7 @@ class MediaController extends Controller
 
     public function store(MediaUploadRequest $request)
     {
-        $this->checkAuthorization(Auth::user(), ['media.create']);
+        $this->authorize('create', Media::class);
 
         if (config('app.demo_mode', false) && Media::count() > 10) {
             return response()->json([
@@ -132,7 +131,8 @@ class MediaController extends Controller
 
     public function destroy($id)
     {
-        $this->checkAuthorization(Auth::user(), ['media.delete']);
+        $media = Media::findOrFail($id);
+        $this->authorize('delete', $media);
 
         $this->mediaLibraryService->deleteMedia($id);
 
@@ -144,7 +144,7 @@ class MediaController extends Controller
 
     public function bulkDelete(MediaBulkDeleteRequest $request)
     {
-        $this->checkAuthorization(Auth::user(), ['media.delete']);
+        $this->authorize('bulkDelete', Media::class);
 
         $this->mediaLibraryService->bulkDeleteMedia($request->ids);
 
@@ -153,7 +153,7 @@ class MediaController extends Controller
 
     public function api(Request $request)
     {
-        $this->checkAuthorization(Auth::user(), ['media.view']);
+        $this->authorize('viewAny', Media::class);
 
         $result = $this->mediaLibraryService->getMediaList(
             $request->get('search'),
@@ -218,7 +218,7 @@ class MediaController extends Controller
      */
     public function getUploadLimits()
     {
-        $this->checkAuthorization(Auth::user(), ['media.view']);
+        $this->authorize('viewAny', Media::class);
 
         $limits = MediaHelper::getUploadLimits();
 

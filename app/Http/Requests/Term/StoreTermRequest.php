@@ -7,7 +7,6 @@ namespace App\Http\Requests\Term;
 use App\Http\Requests\FormRequest;
 use App\Services\Content\ContentService;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Support\Facades\Auth;
 
 class StoreTermRequest extends FormRequest
 {
@@ -16,7 +15,8 @@ class StoreTermRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->checkAuthorization(Auth::user(), ['term.create']);
+        // Authorization is handled by the controller using policies.
+        return true;
     }
 
     /**

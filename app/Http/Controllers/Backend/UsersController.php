@@ -15,7 +15,6 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -29,7 +28,7 @@ class UsersController extends Controller
 
     public function index(): Renderable
     {
-        $this->checkAuthorization(Auth::user(), ['user.view']);
+        $this->authorize('viewAny', User::class);
 
         // Fallback to original implementation
         $filters = [
@@ -50,7 +49,7 @@ class UsersController extends Controller
 
     public function create(): Renderable
     {
-        $this->checkAuthorization(Auth::user(), ['user.create']);
+        $this->authorize('create', User::class);
 
         ld_do_action('user_create_page_before');
 
@@ -72,47 +71,9 @@ class UsersController extends Controller
 
     public function store(StoreUserRequest $request): RedirectResponse
     {
-        $user = new User();
-        $user->first_name = $request->first_name;
-        $user->last_name = $request->last_name;
-        $user->username = $request->username;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->avatar_id = $request->avatar_id;
+        $this->authorize('create', User::class);
 
-        $user = ld_apply_filters('user_store_before_save', $user, $request);
-        $user->save();
-        /** @var User $user */
-        $user = ld_apply_filters('user_store_after_save', $user, $request);
-
-        // Save user metadata for additional information
-        $metaFields = ['display_name', 'bio', 'timezone', 'locale'];
-        foreach ($metaFields as $field) {
-            if ($request->has($field) && $request->input($field)) {
-                $user->userMeta()->create([
-                    'meta_key' => $field,
-                    'meta_value' => $request->input($field),
-                    'type' => 'string',
-                ]);
-            }
-        }
-
-        // Handle social links metadata
-        $socialFields = ['social_facebook', 'social_x', 'social_youtube', 'social_linkedin', 'social_website'];
-        foreach ($socialFields as $field) {
-            if ($request->has($field) && $request->input($field)) {
-                $user->userMeta()->create([
-                    'meta_key' => $field,
-                    'meta_value' => $request->input($field),
-                    'type' => 'string',
-                ]);
-            }
-        }
-
-        if ($request->roles) {
-            $roles = array_filter($request->roles);
-            $user->assignRole($roles);
-        }
+        $user = $this->userService->createUserWithMetadata($request->validated(), $request);
 
         $this->storeActionLog(ActionType::CREATED, ['user' => $user]);
 
@@ -125,9 +86,8 @@ class UsersController extends Controller
 
     public function edit(int $id): Renderable
     {
-        $this->checkAuthorization(Auth::user(), ['user.edit']);
-
         $user = User::with('avatar')->findOrFail($id);
+        $this->authorize('update', $user);
 
         ld_do_action('user_edit_page_before');
 
@@ -151,59 +111,11 @@ class UsersController extends Controller
     public function update(UpdateUserRequest $request, int $id): RedirectResponse
     {
         $user = User::findOrFail($id);
+        $this->authorize('update', $user);
 
-        // Prevent editing of super admin in demo mode
-        $this->preventSuperAdminModification($user);
-
-        $user->first_name = $request->first_name;
-        $user->last_name = $request->last_name;
-        $user->email = $request->email;
-        $user->username = $request->username;
-        $user->avatar_id = $request->avatar_id;
-        if ($request->password) {
-            $user->password = Hash::make($request->password);
-        }
-        $user = ld_apply_filters('user_update_before_save', $user, $request);
-        $user->save();
-
-        /** @var User $user */
-        $user = ld_apply_filters('user_update_after_save', $user, $request);
-
-        // Update user metadata for additional information
-        $metaFields = ['display_name', 'bio', 'timezone', 'locale'];
-        foreach ($metaFields as $field) {
-            if ($request->has($field)) {
-                $user->userMeta()->updateOrCreate(
-                    ['meta_key' => $field],
-                    [
-                        'meta_value' => $request->input($field) ?? '',
-                        'type' => 'string',
-                    ]
-                );
-            }
-        }
-
-        // Update social links metadata
-        $socialFields = ['social_facebook', 'social_x', 'social_youtube', 'social_linkedin', 'social_website'];
-        foreach ($socialFields as $field) {
-            if ($request->has($field)) {
-                $user->userMeta()->updateOrCreate(
-                    ['meta_key' => $field],
-                    [
-                        'meta_value' => $request->input($field) ?? '',
-                        'type' => 'string',
-                    ]
-                );
-            }
-        }
+        $user = $this->userService->updateUserWithMetadata($user, $request->validated(), $request);
 
         ld_do_action('user_update_after', $user);
-
-        $user->roles()->detach();
-        if ($request->roles) {
-            $roles = array_filter($request->roles);
-            $user->assignRole($roles);
-        }
 
         $this->storeActionLog(ActionType::UPDATED, ['user' => $user]);
 
@@ -214,17 +126,15 @@ class UsersController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
-        $this->checkAuthorization(Auth::user(), ['user.delete']);
         $user = $this->userService->getUserById($id);
 
-        // Prevent deletion of super admin in demo mode
-        $this->preventSuperAdminModification($user);
-
-        // Prevent users from deleting themselves.
+        // Check if user is trying to delete themselves
         if (Auth::id() === $user->id) {
             session()->flash('error', __('You cannot delete your own account.'));
             return back();
         }
+
+        $this->authorize('delete', $user);
 
         $user = ld_apply_filters('user_delete_before', $user);
         $user->delete();
@@ -240,7 +150,7 @@ class UsersController extends Controller
 
     public function bulkDelete(Request $request): RedirectResponse
     {
-        $this->checkAuthorization(Auth::user(), ['user.delete']);
+        $this->authorize('bulkDelete', User::class);
 
         $ids = $request->input('ids', []);
 

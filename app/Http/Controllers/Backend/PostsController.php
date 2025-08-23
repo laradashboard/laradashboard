@@ -34,7 +34,7 @@ class PostsController extends Controller
 
     public function index(Request $request, string $postType = 'post'): RedirectResponse|Renderable
     {
-        $this->checkAuthorization(Auth::user(), ['post.view']);
+        $this->authorize('viewAny', Post::class);
 
         // Get post type.
         $postTypeModel = $this->contentService->getPostType($postType);
@@ -69,7 +69,7 @@ class PostsController extends Controller
 
     public function create(string $postType = 'post'): RedirectResponse|Renderable
     {
-        $this->checkAuthorization(Auth::user(), ['post.create']);
+        $this->authorize('create', Post::class);
 
         // Get post type.
         $postTypeModel = $this->contentService->getPostType($postType);
@@ -110,6 +110,8 @@ class PostsController extends Controller
 
     public function store(StorePostRequest $request, string $postType = 'post'): RedirectResponse
     {
+        $this->authorize('create', Post::class);
+
         // Get post type.
         $postTypeModel = $this->contentService->getPostType($postType);
 
@@ -171,9 +173,8 @@ class PostsController extends Controller
      */
     public function show(string $postType, string $id): Renderable
     {
-        $this->checkAuthorization(Auth::user(), ['post.view']);
-
         $post = Post::where('post_type', $postType)->findOrFail($id);
+        $this->authorize('view', $post);
         $postTypeModel = $this->contentService->getPostType($postType);
 
         return view('backend.pages.posts.show', compact('post', 'postType', 'postTypeModel'))
@@ -192,12 +193,12 @@ class PostsController extends Controller
 
     public function edit(string $postType, string $id): RedirectResponse|Renderable
     {
-        $this->checkAuthorization(Auth::user(), ['post.edit']);
-
         // Get post with postMeta relationship.
         $post = Post::with(['postMeta', 'terms'])
             ->where('post_type', $postType)
             ->findOrFail($id);
+
+        $this->authorize('update', $post);
 
         // Get post type
         $postTypeModel = $this->contentService->getPostType($postType);
@@ -254,10 +255,9 @@ class PostsController extends Controller
      */
     public function update(UpdatePostRequest $request, string $postType, string $id)
     {
-        $this->checkAuthorization(Auth::user(), ['post.edit']);
-
         // Get post.
         $post = Post::where('post_type', $postType)->findOrFail($id);
+        $this->authorize('update', $post);
 
         // Update post.
         $post->title = $request->title;
@@ -311,8 +311,8 @@ class PostsController extends Controller
      */
     public function destroy(string $postType, string $id): RedirectResponse
     {
-        $this->checkAuthorization(Auth::user(), ['post.delete']);
         $post = Post::where('post_type', $postType)->findOrFail($id);
+        $this->authorize('delete', $post);
 
         ld_do_action('post_before_deleted', $post);
         $post->delete();
@@ -327,7 +327,7 @@ class PostsController extends Controller
      */
     public function bulkDelete(Request $request, string $postType): RedirectResponse
     {
-        $this->checkAuthorization(Auth::user(), ['post.delete']);
+        $this->authorize('bulkDelete', Post::class);
 
         $ids = $request->input('ids', []);
 

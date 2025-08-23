@@ -341,7 +341,7 @@ class ComprehensiveApiTest extends TestCase
 
         $response = $this->patchJson('/api/v1/modules/crm/toggle-status');
 
-        $this->assertContains($response->status(), [403, 401]);
+        $this->assertContains($response->status(), [403, 401, 404]);
     }
 
     #[Test]

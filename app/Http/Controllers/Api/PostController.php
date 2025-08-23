@@ -38,7 +38,7 @@ class PostController extends ApiController
     #[QueryParameter('sort', description: 'Sort posts by field (prefix with - for descending).', type: 'string', example: '-created_at')]
     public function index(Request $request, string $postType = 'post')
     {
-        $this->checkAuthorization(Auth::user(), ['post.view']);
+        $this->authorize('viewAny', Post::class);
 
         $filters = $request->only(['search', 'status', 'author', 'term']);
         $filters['post_type'] = $postType;
@@ -77,6 +77,8 @@ class PostController extends ApiController
         $data['post_type'] = $postType;
         $data['author_id'] = Auth::id();
 
+        $this->authorize('create', Post::class);
+
         $post = $this->postService->createPost($data);
 
         $this->logAction('Post Created', $post);
@@ -95,11 +97,11 @@ class PostController extends ApiController
      */
     public function show(string $postType, int $id): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['post.view']);
-
         $post = Post::with(['author', 'terms', 'postMeta'])
             ->where('post_type', $postType)
             ->findOrFail($id);
+
+        $this->authorize('view', $post);
 
         return $this->resourceResponse(
             new PostResource($post),
@@ -115,6 +117,8 @@ class PostController extends ApiController
     public function update(UpdatePostRequest $request, string $postType, int $id): JsonResponse
     {
         $post = Post::where('post_type', $postType)->findOrFail($id);
+
+        $this->authorize('update', $post);
 
         $updatedPost = $this->postService->updatePost($post, $request->validated());
 
@@ -133,9 +137,8 @@ class PostController extends ApiController
      */
     public function destroy(string $postType, int $id): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['post.delete']);
-
         $post = Post::where('post_type', $postType)->findOrFail($id);
+        $this->authorize('delete', $post);
 
         $post->delete();
 
@@ -151,6 +154,8 @@ class PostController extends ApiController
      */
     public function bulkDelete(BulkDeletePostRequest $request, string $postType): JsonResponse
     {
+        $this->authorize('bulkDelete', Post::class);
+
         $postIds = $request->input('ids');
 
         $deletedCount = Post::where('post_type', $postType)

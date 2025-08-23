@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Media;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -15,6 +16,8 @@ class EditorController extends Controller
      */
     public function upload(Request $request)
     {
+        $this->authorize('create', Media::class);
+
         // Validate the uploaded file
         $validated = $request->validate([
             'file' => 'required|file|mimes:jpg,jpeg,png,gif|max:2048', // Allow only image files up to 2MB

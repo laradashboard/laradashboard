@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Post;
 use App\Services\AiContentGeneratorService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +21,8 @@ class AiContentController extends Controller
 
     public function generateContent(Request $request): JsonResponse
     {
+        $this->authorize('create', Post::class);
+
         $validator = Validator::make($request->all(), [
             'prompt' => 'required|string|min:10|max:1000',
             'provider' => 'nullable|string|in:openai,claude',

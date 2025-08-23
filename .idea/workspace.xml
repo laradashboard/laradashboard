@@ -4,10 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="refactor: enhance searchable select component with improved styling and search placeholder">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/backend/pages/profile/edit.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/backend/pages/profile/edit.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/components/searchable-select.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/components/searchable-select.blade.php" afterDir="false" />
+    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/modules/crm/.github/workflows/test.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/tests.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/ContactsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/ContactsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/EmailCampaignsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/EmailCampaignsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/EmailTemplatesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Http/Controllers/EmailTemplatesController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/app/Services/ContactService.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Services/ContactService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/resources/views/pages/contacts/partials/contact-sidebar-form.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/resources/views/pages/contacts/partials/contact-sidebar-form.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/resources/views/pages/deals/partials/deals-making-drawer.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/resources/views/pages/deals/partials/deals-making-drawer.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/resources/views/pages/tickets/partials/ticket-making-drawer.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/resources/views/pages/tickets/partials/ticket-making-drawer.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/tests/Feature/ContactActivitiesControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/tests/Feature/ContactGroupsControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/tests/Feature/ContactsControllerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/tests/Feature/ContactsControllerTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/tests/Feature/DealsControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/tests/Feature/EmailCampaignsControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/tests/Feature/TicketsControllerTest.php" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,19 +40,7 @@
     <execution />
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="McpProjectState">
-    <option name="mcpServerConfigStates">
-      <list>
-        <McpServerConfigState>
-          <option name="args" value="$PROJECT_DIR$/../../../../maniruzzamanakash/workspace/laradashboard/artisan boost:mcp" />
-          <option name="command" value="php" />
-          <option name="name" value="laravel-boost" />
-          <option name="path" value="$PROJECT_DIR$/.junie/mcp/mcp.json" />
-        </McpServerConfigState>
-      </list>
-    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/modules/crm" />
   </component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP">
     <include_path>
@@ -190,9 +190,6 @@
       <path value="$PROJECT_DIR$/vendor/spatie/image-optimizer" />
       <path value="$PROJECT_DIR$/vendor/spatie/laravel-medialibrary" />
       <path value="$PROJECT_DIR$/vendor/maennchen/zipstream-php" />
-      <path value="$PROJECT_DIR$/vendor/laravel/mcp" />
-      <path value="$PROJECT_DIR$/vendor/laravel/boost" />
-      <path value="$PROJECT_DIR$/vendor/laravel/roster" />
     </include_path>
   </component>
   <component name="ProblemsViewState">
@@ -211,7 +208,6 @@
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;fix/api-ready&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -221,7 +217,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;junie.mcp&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMThirdPartyAiProvidersConfigurable&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
@@ -252,8 +248,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-PS-252.23892.419" />
-        <option value="bundled-php-predefined-a98d8de5180a-c72577f2c82f-com.jetbrains.php.sharedIndexes-PS-252.23892.419" />
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-PS-251.27812.52" />
+        <option value="bundled-php-predefined-a98d8de5180a-e5747d4f5a45-com.jetbrains.php.sharedIndexes-PS-251.27812.52" />
       </set>
     </attachedChunks>
   </component>
@@ -290,10 +286,6 @@
       <workItem from="1754881417945" duration="2286000" />
       <workItem from="1754884425439" duration="10082000" />
       <workItem from="1754921781090" duration="2310000" />
-      <workItem from="1755099509987" duration="6403000" />
-      <workItem from="1755145350284" duration="755000" />
-      <workItem from="1755154690866" duration="3859000" />
-      <workItem from="1755328769777" duration="433000" />
     </task>
     <task id="LOCAL-00001" summary="fix: update various files for improved functionality and structure">
       <option name="closed" value="true" />
@@ -415,15 +407,7 @@
       <option name="project" value="LOCAL" />
       <updated>1754808618287</updated>
     </task>
-    <task id="LOCAL-00016" summary="refactor: update form classes for consistency and improve styling">
-      <option name="closed" value="true" />
-      <created>1755177798202</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1755177798202</updated>
-    </task>
-    <option name="localTasksCounter" value="17" />
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -447,10 +431,7 @@
     <MESSAGE value="refactor: add module paths for CRM, Task Manager, and User Avatar in project configuration" />
     <MESSAGE value="refactor: add ModuleServiceProvider to application service providers" />
     <MESSAGE value="feat: implement post management actions with Spatie Query Builder integration" />
-    <MESSAGE value="feat: update user model to include first and last name, add user metadata functionality" />
-    <MESSAGE value="refactor: update form classes for consistency and improve styling" />
-    <MESSAGE value="refactor: enhance searchable select component with improved styling and search placeholder" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: enhance searchable select component with improved styling and search placeholder" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement post management actions with Spatie Query Builder integration" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

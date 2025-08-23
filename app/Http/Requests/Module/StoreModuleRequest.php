@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\Module;
 
 use App\Http\Requests\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class StoreModuleRequest extends FormRequest
 {
@@ -14,7 +13,8 @@ class StoreModuleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->checkAuthorization(Auth::user(), ['module.create']);
+        // Authorization is handled by the controller using policies.
+        return true;
     }
 
     /**

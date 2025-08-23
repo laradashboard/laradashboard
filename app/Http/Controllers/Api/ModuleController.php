@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\ModuleResource;
+use App\Models\Module;
 use App\Services\Modules\ModuleService;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ModuleController extends ApiController
 {
@@ -25,7 +25,7 @@ class ModuleController extends ApiController
     #[QueryParameter('per_page', description: 'Number of modules per page.', type: 'int', default: 15, example: 20)]
     public function index(Request $request): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['module.view']);
+        $this->authorize('viewAny', Module::class);
 
         $perPage = (int) ($request->input('per_page') ?? config('settings.default_pagination', 15));
         return $this->resourceResponse(
@@ -41,13 +41,13 @@ class ModuleController extends ApiController
      */
     public function show(string $name): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['module.view']);
-
         $module = $this->moduleService->getModuleByName($name);
 
         if (! $module) {
             return $this->errorResponse('Module not found', 404);
         }
+
+        $this->authorize('view', $module);
 
         return $this->resourceResponse(
             new ModuleResource($module),
@@ -62,14 +62,14 @@ class ModuleController extends ApiController
      */
     public function toggleStatus(Request $request, string $name): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['module.edit']);
-
         $module = $this->moduleService->getModuleByName($name);
         $previousStatus = $module ? $module->status ?? false : false;
 
         if (! $module) {
             return $this->errorResponse('Module not found', 404);
         }
+
+        $this->authorize('update', $module);
 
         try {
             $this->moduleService->toggleModuleStatus(
@@ -95,13 +95,13 @@ class ModuleController extends ApiController
      */
     public function destroy(string $name): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['module.delete']);
-
         $module = $this->moduleService->getModuleByName($name);
 
         if (! $module) {
             return $this->errorResponse('Module not found', 404);
         }
+
+        $this->authorize('delete', $module);
 
         try {
             $this->moduleService->deleteModule($module->name);

@@ -13,7 +13,6 @@ use App\Services\RolesService;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends ApiController
@@ -32,7 +31,7 @@ class RoleController extends ApiController
     #[QueryParameter('sort', description: 'Sort roles by field (prefix with - for descending).', type: 'string', example: '-created_at')]
     public function index(Request $request): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['role.view']);
+        $this->authorize('viewAny', Role::class);
 
         $search = $request->input('search');
         $perPage = (int) ($request->input('per_page') ?? config('settings.default_pagination', 10));
@@ -61,6 +60,8 @@ class RoleController extends ApiController
      */
     public function store(StoreRoleRequest $request): JsonResponse
     {
+        $this->authorize('create', Role::class);
+
         $role = $this->rolesService->create($request->validated());
 
         $this->storeActionLog(
@@ -82,12 +83,12 @@ class RoleController extends ApiController
      */
     public function show(int $id): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['role.view']);
-
         $role = Role::with('permissions')->find($id);
         if (! $role) {
             return $this->errorResponse('Role not found', 404);
         }
+
+        $this->authorize('view', $role);
 
         return $this->resourceResponse(
             new RoleResource($role),
@@ -103,6 +104,11 @@ class RoleController extends ApiController
     public function update(UpdateRoleRequest $request, int $id): JsonResponse
     {
         $role = Role::findOrFail($id);
+        if (! $role) {
+            return $this->errorResponse('Role not found', 404);
+        }
+        $this->authorize('update', $role);
+
         $updatedRole = $this->rolesService->update($role, $request->validated());
 
         $this->storeActionLog(
@@ -123,12 +129,12 @@ class RoleController extends ApiController
      */
     public function destroy(int $id): JsonResponse
     {
-        $this->checkAuthorization(Auth::user(), ['role.delete']);
-
         $role = Role::find($id);
         if (! $role) {
             return $this->errorResponse('Role not found', 404);
         }
+
+        $this->authorize('delete', $role);
 
         if ($role->users()->count() > 0) {
             return $this->errorResponse('Cannot delete role with assigned users', 400);
@@ -151,6 +157,8 @@ class RoleController extends ApiController
      */
     public function bulkDelete(BulkDeleteRoleRequest $request): JsonResponse
     {
+        $this->authorize('bulkDelete', Role::class);
+
         $roleIds = $request->input('ids');
 
         $rolesWithUsers = Role::whereIn('id', $roleIds)

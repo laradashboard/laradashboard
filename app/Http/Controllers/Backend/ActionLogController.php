@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActionLog;
 use App\Services\ActionLogService;
-use Illuminate\Support\Facades\Auth;
 
 class ActionLogController extends Controller
 {
@@ -16,7 +16,7 @@ class ActionLogController extends Controller
 
     public function index()
     {
-        $this->checkAuthorization(Auth::user(), ['actionlog.view']);
+        $this->authorize('viewAny', ActionLog::class);
 
         return view('backend.pages.action-logs.index', [
             'actionLogs' => $this->actionLogService->getPaginatedActionLogs(),
