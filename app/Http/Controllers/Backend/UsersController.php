@@ -30,6 +30,7 @@ class UsersController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
+        // Fallback to original implementation
         $filters = [
             'search' => request('search'),
             'role' => request('role'),

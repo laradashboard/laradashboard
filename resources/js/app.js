@@ -3,6 +3,7 @@ import 'iconify-icon/dist/iconify-icon.min.js';
 import "jsvectormap/dist/jsvectormap.min.css";
 import "flatpickr/dist/flatpickr.min.css";
 import "dropzone/dist/dropzone.css";
+import './../../vendor/power-components/livewire-powergrid/dist/powergrid';
 
 import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm';
 
