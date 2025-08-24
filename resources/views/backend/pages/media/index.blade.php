@@ -255,7 +255,7 @@
                                         <div class="absolute top-2 left-2 z-10 transition-opacity duration-200"
                                              :class="selectedMedia.includes('{{ $item->id }}') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
                                             <input type="checkbox" value="{{ $item->id }}" x-model="selectedMedia"
-                                                class="form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                                class="form-checkbox">
                                         </div>
 
                                         <div class="aspect-square">
@@ -413,7 +413,7 @@
                                         <th width="3%" class="table-thead-th">
                                             <input type="checkbox" x-model="selectAll"
                                                 @click="selectAll = !selectAll; selectedMedia = selectAll ? [...document.querySelectorAll('.media-checkbox')].map(cb => cb.value) : [];"
-                                                class="form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                                class="form-checkbox">
                                         </th>
                                         <th class="table-thead-th">
                                             {{ __('File') }}
@@ -438,7 +438,7 @@
                                             <td class="table-td table-td-checkbox">
                                                 <input type="checkbox" value="{{ $item->id }}"
                                                     x-model="selectedMedia"
-                                                    class="media-checkbox form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 transition-opacity duration-200"
+                                                    class="media-checkbox form-checkbox"
                                                     :class="selectedMedia.includes('{{ $item->id }}') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
                                             </td>
                                             <td class="table-td">

@@ -63,15 +63,15 @@
 
     /* Inputs */
     .form-control {
-        @apply rounded border-0 px-4 py-2.5 text-sm leading-5 text-gray-800 ring-1 ring-gray-200 h-10 w-full placeholder:text-gray-400 focus:ring-2 focus:ring-brand-600 disabled:cursor-not-allowed disabled:opacity-50 dark:ring-gray-700 dark:focus:border-brand-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30;
+        @apply rounded border-0 px-4 py-2.5 text-sm leading-5 text-gray-800 ring-1 ring-gray-200 h-10 w-full placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:ring-gray-700 dark:focus:border-brand-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30;
     }
 
     .form-control-file {
-        @apply cursor-pointer focus:file:ring-brand-600 ring-1 ring-gray-200 w-full overflow-hidden rounded-md border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:px-4 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 px-4 focus:ring-2 focus:ring-brand-600 focus-visible:ring-2 focus-visible:ring-brand-600;
+        @apply cursor-pointer focus:file:ring-primary ring-1 ring-gray-200 w-full overflow-hidden rounded-md border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:px-4 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 px-4 focus:ring-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus-visible:ring-2 focus-visible:ring-primary;
     }
 
     .form-control-textarea {
-        @apply rounded border-0 px-4 py-2.5 text-sm leading-5 text-gray-800 ring-1 ring-gray-200 w-full placeholder:text-gray-400 focus:ring-2 focus:ring-brand-600 disabled:cursor-not-allowed disabled:opacity-50 dark:ring-gray-700 dark:focus:border-brand-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30;
+        @apply rounded border-0 px-4 py-2.5 text-sm leading-5 text-gray-800 ring-1 ring-gray-200 w-full placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:ring-gray-700 dark:focus:border-brand-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30;
     }
 
     .form-label {
@@ -79,7 +79,21 @@
     }
 
     .form-checkbox {
-        @apply h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600;
+        @apply h-4 w-4 border checked:border-primary text-primary border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-primary dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600;
+        appearance: none;
+        print-color-adjust: exact;
+        --tw-shadow: 0 0 #0000;
+        background-origin: border-box;
+        flex-shrink: 0;
+    }
+
+    .form-checkbox:checked {
+       @apply bg-primary;
+        print-color-adjust: exact;
+        background-image: url("data:image/svg+xml,%3csvg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 12'%3e %3cpath stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M1 5.917 5.724 10.5 15 1.5'/%3e %3c/svg%3e");
+        background-repeat: no-repeat;
+        background-size: .55em .55em;
+        background-position: 50%;
     }
 
     .form-control-combobox {
