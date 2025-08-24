@@ -36,7 +36,7 @@ class DashboardController extends Controller
                     'active' => number_format(count($this->languageService->getActiveLanguages())),
                 ],
                 'user_growth_data' => $this->userChartService->getUserGrowthData(
-                    request()->get('chart_filter_period', 'last_12_months')
+                    request()->get('chart_filter_period', 'last_6_months')
                 )->getData(true),
                 'user_history_data' => $this->userChartService->getUserHistoryData(),
                 'post_stats' => $this->postChartService->getPostActivityData(

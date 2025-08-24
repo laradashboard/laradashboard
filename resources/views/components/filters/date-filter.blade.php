@@ -33,6 +33,20 @@
                 <a
                     href="{{
                         route('admin.dashboard')
+                    }}?chart_filter_period=last_6_months"
+                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{
+                        $currentFilter === 'last_6_months'
+                            ? 'bg-blue-100 dark:bg-gray-600'
+                            : ''
+                    }}"
+                >
+                    <span class="ml-2"> {{ __('Last 6 months') }}</span>
+                </a>
+            </li>
+            <li>
+                <a
+                    href="{{
+                        route('admin.dashboard')
                     }}?chart_filter_period=last_12_Months"
                     class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{
                         $currentFilter === 'last_12_months'

@@ -54,13 +54,13 @@ x-init="
         @include('backend.layouts.partials.sidebar-logo')
 
         <!-- Content Area -->
-        <div class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto bg-white dark:bg-gray-900">
+        <div class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto bg-body dark:bg-gray-900">
             <!-- Small Device Overlay -->
             <div @click="sidebarToggle = false" :class="sidebarToggle ? 'block lg:hidden' : 'hidden'"
                 class="fixed w-full h-screen z-9 bg-gray-900/50"></div>
             <!-- End Small Device Overlay -->
 
-            @include('backend.layouts.partials.header')
+            @include('backend.layouts.partials.header.index')
 
             <!-- Main Content -->
             <main>

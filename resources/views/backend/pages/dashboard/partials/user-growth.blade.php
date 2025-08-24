@@ -1,6 +1,6 @@
-@php $currentFilter = request()->get('chart_filter_period', 'last_12_months'); @endphp
+@php $currentFilter = request()->get('chart_filter_period', 'last_6_months'); @endphp
 
-<div class="rounded-md shadow-sm border border-gray-200 dark:border-gray-700 p-4 py-6 z-1 dark:bg-gray-800">
+<div class="rounded-md shadow-sm border border-gray-200 dark:border-gray-700 p-4 py-6 z-1 bg-white dark:bg-gray-800">
     <!-- Header Section -->
     <div class="flex justify-between items-center">
         <h3 class="text-lg font-semibold text-gray-700 dark:text-white">
@@ -22,6 +22,12 @@
                 <div x-show="open" @click.outside="open = false" x-transition
                      class="absolute right-0 mt-2 w-44 rounded-md shadow-sm bg-white dark:bg-gray-700 z-10">
                     <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                        <li>
+                            <a href="{{ route('admin.dashboard') }}?chart_filter_period=last_6_months"
+                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_6_months' ? 'bg-blue-100 dark:bg-gray-600' : '' }}">
+                                <span class="ml-2"> {{ __('Last 6 months') }}</span>
+                            </a>
+                        </li>
                         <li>
                             <a href="{{ route('admin.dashboard') }}?chart_filter_period=last_12_months"
                                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_12_months' ? 'bg-blue-100 dark:bg-gray-600' : '' }}">
