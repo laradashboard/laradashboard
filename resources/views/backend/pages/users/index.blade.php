@@ -83,7 +83,7 @@
                                 <div class="flex items-center">
                                     <input
                                         type="checkbox"
-                                        class="form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        class="form-checkbox"
                                         x-model="selectAll"
                                         @click="
                                             selectAll = !selectAll;
@@ -134,7 +134,7 @@
                                 <td class="table-td table-td-checkbox">
                                     <input
                                         type="checkbox"
-                                        class="user-checkbox form-checkbox h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        class="user-checkbox form-checkbox"
                                         value="{{ $user->id }}"
                                         x-model="selectedUsers"
                                         {{ !auth()->user()->canBeModified($user, 'user.delete') ? 'disabled' : '' }}

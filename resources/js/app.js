@@ -9,7 +9,6 @@ import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.e
 import focus from '@alpinejs/focus'
 import flatpickr from "flatpickr";
 import Dropzone from "dropzone";
-import 'flowbite';
 
 import chart01 from "./components/charts/chart-01";
 import chart02 from "./components/charts/chart-02";
