@@ -17,7 +17,9 @@
 
     {!! ld_apply_filters('users_after_breadcrumbs', '') !!}
 
-    <livewire:tables.user-table />
+    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg mb-6 py-3 px-6">
+        <livewire:tables.user-table />
+    </div>
 
     <!-- Bulk Delete Confirmation Modal -->
     <div

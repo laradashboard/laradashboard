@@ -10,11 +10,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Blade;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
+// use PowerComponents\LivewirePowerGrid\Components\SetUp\Responsive;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use Livewire\Attributes\On;
+use PowerComponents\LivewirePowerGrid\Button;
 
 final class UserTable extends PowerGridComponent
 {
@@ -22,17 +25,25 @@ final class UserTable extends PowerGridComponent
 
     public string $tableName = 'user-table-q0kavd-table';
     public bool $showFilters = false;
+    public bool $showBulkDeleteModal = false;
+    public bool $deferLoading = true;
+
+    // public string $loadingComponent = 'components.loading.loader';
+    public string $loadingComponent = 'components.loading.users-loading';
 
     public function setUp(): array
     {
         $this->showCheckBox();
 
         return [
+            // PowerGrid::responsive()
+            //     ->fixedColumns('name', 'email', 'actions', Responsive::ACTIONS_COLUMN_NAME),
             PowerGrid::exportable(fileName: 'users')
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             PowerGrid::header()
                 ->includeViewOnBottom('components.table.user.header')
                 ->showSearchInput()
+                ->withoutLoading()
                 ->showToggleColumns(),
             PowerGrid::footer()
                 ->showPerPage()
@@ -48,7 +59,7 @@ final class UserTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [
-            'roles' => [ // Define the relationship search
+            'roles' => [
                 'name',
             ],
         ];
@@ -186,6 +197,35 @@ final class UserTable extends PowerGridComponent
         return $query->whereHas('roles', function ($q) use ($value) {
             $q->where('roles.id', $value);
         });
+    }
+
+    public function header(): array
+    {
+        return [
+            Button::add('bulk-delete')
+                ->slot(
+                    '
+                    <iconify-icon icon="mdi:trash-can-outline" class="mr-2"></iconify-icon>
+                    Bulk delete (<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)
+                    '
+                )
+                ->class('btn-default')
+                ->dispatch('openBulkDeleteModal.' . $this->tableName, []),
+        ];
+    }
+
+    #[On('openBulkDeleteModal.{tableName}')]
+    public function openBulkDeleteModal(): void
+    {
+        $this->showBulkDeleteModal = true;
+    }
+
+    #[On('bulkDelete.{tableName}')]
+    public function bulkDelete(): void
+    {
+        User::whereIn('id', $this->checkboxValues)->delete();
+        $this->showBulkDeleteModal = false;
+        $this->js('alert("Users deleted successfully.")');
     }
 
     public function boot(): void
