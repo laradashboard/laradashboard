@@ -92,21 +92,7 @@
                         <!-- <li><a href="#table-demo" class="sidebar-link block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800">Table</a></li> -->
                         <li><a href="#alerts-demo" class="sidebar-link block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-sm">Alerts</a></li>
                         <li><a href="#buttons-demo" class="sidebar-link block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-sm">Buttons</a></li>
-                        <!-- <li><a href="#drawer-demo" class="sidebar-link block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800">Drawer</a></li> -->
                         <li><a href="#media-demo" class="sidebar-link block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800">Media</a></li>
-                    </ul>
-                </nav>
-
-                <nav class="py-6 px-4">
-                    <!-- <h3 class="font-bold mb-4">
-                        {{ __('Other usage') }}
-                    </h3> -->
-                    <ul class="space-y-2">
-                        <!-- <li>
-                            <a href="#" class="sidebar-link block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
-                                {{ __('Render a page') }}
-                            </a>
-                        </li> -->
                     </ul>
                 </nav>
             </aside>
