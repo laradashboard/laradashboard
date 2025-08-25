@@ -26,8 +26,9 @@
     @endif
 
     <!-- Toggle Button -->
-    <button type="button"
-        x-on:click="isOpen = !isOpen"
+    <button
+        type="button"
+        @click="isOpen = !isOpen"
         class="inline-flex items-center gap-2 whitespace-nowrap rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium tracking-wide transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 dark:focus-visible:outline-primary-400"
         aria-haspopup="true"
         x-on:keydown.space.prevent="openedWithKeyboard = true"
