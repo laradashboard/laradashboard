@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="feat: add task hooks for task manager module">
+    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="feat: implement landing page template with customizable blocks and styles">
+      <change afterPath="$PROJECT_DIR$/modules/site/Templates/Template.php.bak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Api/UserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Api/UserController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Backend/UsersController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Backend/UsersController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/site/tests/Feature/RootRouteTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/Templates/Template.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/Templates/Template.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/app/Http/Controllers/LandingPageController.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Http/Controllers/LandingPageController.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -447,7 +447,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755927535720</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="feat: implement landing page template with customizable blocks and styles">
+      <option name="closed" value="true" />
+      <created>1756130318379</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1756130318379</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -475,7 +483,8 @@
     <MESSAGE value="feat: add before and after save hooks for posts and users" />
     <MESSAGE value="feat: add content hooks for CRM module" />
     <MESSAGE value="feat: add task hooks for task manager module" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add task hooks for task manager module" />
+    <MESSAGE value="feat: implement landing page template with customizable blocks and styles" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement landing page template with customizable blocks and styles" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
