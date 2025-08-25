@@ -30,7 +30,7 @@ class MediaPolicy extends BasePolicy
      */
     public function create(User $user): bool
     {
-        return $this->checkPermission($user, 'media.upload');
+        return $this->checkPermission($user, 'media.create');
     }
 
     /**
