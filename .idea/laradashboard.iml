@@ -175,6 +175,8 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/laravel/boost" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/laravel/mcp" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/laravel/roster" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-php84" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-php85" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -4,11 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="feat: implement landing page template with customizable blocks and styles">
-      <change afterPath="$PROJECT_DIR$/modules/site/Templates/Template.php.bak" afterDir="false" />
+    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="feat: simplify block structure and introduce HasChildren trait for better child management">
+      <change beforePath="$PROJECT_DIR$/.idea/laradashboard.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/laradashboard.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/site/Templates/Template.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/Templates/Template.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/app/Enums/Hooks/ContentHook.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Enums/Hooks/ContentHook.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crm/app/Providers/CrmServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Providers/CrmServiceProvider.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/site/app/Http/Controllers/LandingPageController.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Http/Controllers/LandingPageController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/app/Support/Traits/HasChildren.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Support/Traits/HasChildren.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/app/Templates/Template.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Templates/Template.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/routes/web.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/task-manager/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/modules/task-manager/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/backend/layouts/partials/header/right-menu.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/backend/layouts/partials/header/right-menu.blade.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,6 +34,13 @@
   <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
     <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
     <execution />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="PHP File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/modules/site" />
@@ -194,6 +208,8 @@
       <path value="$PROJECT_DIR$/vendor/laravel/mcp" />
       <path value="$PROJECT_DIR$/vendor/laravel/boost" />
       <path value="$PROJECT_DIR$/vendor/laravel/roster" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php85" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php84" />
     </include_path>
   </component>
   <component name="ProblemsViewState">
@@ -216,22 +232,26 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;fix/api-ready&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/mostafizur/Code/projects/laradashboard/app&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/mostafizur/Code/projects/laradashboard/modules/site/config&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/modules/site/config" />
       <recent name="$PROJECT_DIR$/app" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/modules/site/app/Livewire" />
+      <recent name="$PROJECT_DIR$/modules/site/app/Livewire/Editor" />
+      <recent name="$PROJECT_DIR$/modules/site/resources/views/editor/partials" />
       <recent name="$PROJECT_DIR$/app/Support" />
     </key>
   </component>
@@ -253,8 +273,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-PS-252.23892.419" />
-        <option value="bundled-php-predefined-a98d8de5180a-c72577f2c82f-com.jetbrains.php.sharedIndexes-PS-252.23892.419" />
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-PS-252.25557.128" />
+        <option value="bundled-php-predefined-a98d8de5180a-ce40d0652d34-com.jetbrains.php.sharedIndexes-PS-252.25557.128" />
       </set>
     </attachedChunks>
   </component>
@@ -294,6 +314,12 @@
       <workItem from="1755757789827" duration="1120000" />
       <workItem from="1755828967840" duration="4302000" />
       <workItem from="1755859529376" duration="2506000" />
+      <workItem from="1756388782219" duration="6336000" />
+      <workItem from="1756457906596" duration="3840000" />
+      <workItem from="1756472969171" duration="10399000" />
+      <workItem from="1756566715254" duration="5431000" />
+      <workItem from="1756963313296" duration="13485000" />
+      <workItem from="1757146241047" duration="1624000" />
     </task>
     <task id="LOCAL-00001" summary="fix: update various files for improved functionality and structure">
       <option name="closed" value="true" />
@@ -455,7 +481,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756130318379</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="feat: simplify block structure and introduce HasChildren trait for better child management">
+      <option name="closed" value="true" />
+      <created>1756569715903</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1756569715903</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -484,7 +518,8 @@
     <MESSAGE value="feat: add content hooks for CRM module" />
     <MESSAGE value="feat: add task hooks for task manager module" />
     <MESSAGE value="feat: implement landing page template with customizable blocks and styles" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: implement landing page template with customizable blocks and styles" />
+    <MESSAGE value="feat: simplify block structure and introduce HasChildren trait for better child management" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: simplify block structure and introduce HasChildren trait for better child management" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
