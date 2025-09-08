@@ -4,18 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="feat: simplify block structure and introduce HasChildren trait for better child management">
-      <change beforePath="$PROJECT_DIR$/.idea/laradashboard.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/laradashboard.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+    <list default="true" id="6cadf016-0aae-48a6-86dc-29b055ce6180" name="Changes" comment="feat: simplify block structure and enhance template management with caching">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crm/app/Enums/Hooks/ContentHook.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Enums/Hooks/ContentHook.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crm/app/Providers/CrmServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crm/app/Providers/CrmServiceProvider.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/site/app/Http/Controllers/LandingPageController.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Http/Controllers/LandingPageController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/site/app/Support/Traits/HasChildren.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Support/Traits/HasChildren.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/site/app/Templates/Template.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Templates/Template.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/site/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/routes/web.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/task-manager/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/modules/task-manager/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/backend/layouts/partials/header/right-menu.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/backend/layouts/partials/header/right-menu.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/app/Blocks/Block.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Blocks/Block.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/app/Blocks/Button.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Blocks/Button.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/app/Blocks/Grid.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Blocks/Grid.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/app/Blocks/Heading.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Blocks/Heading.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/app/Blocks/Image.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Blocks/Image.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/app/Blocks/Text.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Blocks/Text.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/app/Providers/SiteServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/app/Providers/SiteServiceProvider.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/config/editor.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/config/editor.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/site/resources/views/components/canvas-area.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/modules/site/resources/views/components/canvas-area.blade.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -319,7 +318,8 @@
       <workItem from="1756472969171" duration="10399000" />
       <workItem from="1756566715254" duration="5431000" />
       <workItem from="1756963313296" duration="13485000" />
-      <workItem from="1757146241047" duration="1624000" />
+      <workItem from="1757146241047" duration="4532000" />
+      <workItem from="1757316484656" duration="3935000" />
     </task>
     <task id="LOCAL-00001" summary="fix: update various files for improved functionality and structure">
       <option name="closed" value="true" />
@@ -489,7 +489,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756569715903</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="feat: simplify block structure and enhance template management with caching">
+      <option name="closed" value="true" />
+      <created>1757150027598</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1757150027598</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -519,7 +527,8 @@
     <MESSAGE value="feat: add task hooks for task manager module" />
     <MESSAGE value="feat: implement landing page template with customizable blocks and styles" />
     <MESSAGE value="feat: simplify block structure and introduce HasChildren trait for better child management" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: simplify block structure and introduce HasChildren trait for better child management" />
+    <MESSAGE value="feat: simplify block structure and enhance template management with caching" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: simplify block structure and enhance template management with caching" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
