@@ -36,9 +36,9 @@
                 <iconify-icon icon="lucide:circle" class="menu-item-icon" width="18" height="18"></iconify-icon>
             @endif
             <span class="menu-item-text">{!! $item->label !!}</span>
-            <iconify-icon icon="{{ $chevronIcon }}" class="menu-item-arrow transition-all duration-300 w-4 h-4"></iconify-icon>
+            <iconify-icon icon="{{ $chevronIcon }}" class="menu-item-arrow transition-all duration-300 w-4 h-4" style="transform: {{ $showSubmenu ? 'rotate(180deg)' : 'rotate(0deg)' }}"></iconify-icon>
         </button>
-        <ul id="{{ $submenuId }}" class="submenu space-y-1 mt-1 overflow-hidden {{ $showSubmenu ? '' : 'hidden' }}">
+        <ul id="{{ $submenuId }}" class="submenu space-y-1 mt-1 overflow-hidden {{ $showSubmenu ? 'submenu-expanded' : 'submenu-collapsed' }}">
             @foreach($item->children as $child)
                 @include('backend.layouts.partials.sidebar.menu-item', ['item' => $child])
             @endforeach
