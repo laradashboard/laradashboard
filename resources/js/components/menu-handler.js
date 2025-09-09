@@ -17,24 +17,32 @@ window.handleMenuItemClick = function (buttonElement, submenuId, firstChildRoute
     
     if (!submenu || !arrowIcon) return;
     
-    // Toggle submenu visibility
-    const isHidden = submenu.classList.contains('hidden');
+    // Toggle submenu visibility with smooth animation
+    const isExpanded = submenu.classList.contains('submenu-expanded');
     
-    if (isHidden) {
+    if (!isExpanded) {
         // Expanding submenu
-        submenu.classList.remove('hidden');
+        submenu.classList.remove('submenu-collapsed');
+        submenu.classList.add('submenu-expanded');
         arrowIcon.setAttribute('icon', 'lucide:chevron-up');
+        
+        // Add rotation animation to arrow
+        arrowIcon.style.transform = 'rotate(180deg)';
         
         // If there's a first child route, we're not currently on a child page, and we're not already on that route, navigate to it
         if (firstChildRoute && !isOnChildPage && window.location.href !== firstChildRoute) {
             // Small delay to allow the submenu to expand first
             setTimeout(() => {
                 window.location.href = firstChildRoute;
-            }, 100);
+            }, 350); // Increased delay to match animation duration + stagger
         }
     } else {
         // Collapsing submenu
-        submenu.classList.add('hidden');
+        submenu.classList.remove('submenu-expanded');
+        submenu.classList.add('submenu-collapsed');
         arrowIcon.setAttribute('icon', 'lucide:chevron-right');
+        
+        // Remove rotation from arrow
+        arrowIcon.style.transform = 'rotate(0deg)';
     }
 };
