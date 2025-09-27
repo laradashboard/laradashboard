@@ -13,15 +13,15 @@
         if (is_array($value)) {
             // If already an array, implode to comma-separated
             $processedValue = implode(', ', $value);
-        } elseif (is_string($value) && substr($value, 0, 1) === '[' && substr($value, -1) === ']') {
+        } elseif (is_string($value) && str_starts_with($value, '[') && str_ends_with($value, ']')) {
             try {
-                $decodedValue = json_decode($value, true);
+                $decodedValue = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
                 if (is_array($decodedValue)) {
                     $processedValue = implode(', ', $decodedValue);
                 } else {
-                    $processedValue = $value;
+                    $processedValue = $value; // Keep original if not valid JSON array
                 }
-            } catch (\Exception $e) {
+            } catch (\JsonException $e) {
                 $processedValue = $value;
             }
         } else {
@@ -61,7 +61,7 @@
             });
 
             function initializeTagInputs() {
-                document.querySelectorAll('[id$="-input"][id^="{{ $name }}"]').forEach(tagInput => {
+                document.querySelectorAll('[id$="-input"]').forEach(tagInput => {
                     const inputName = tagInput.id.replace('-input', '');
                     const tagsInput = document.getElementById(inputName);
                     const tagsContainer = document.getElementById(inputName + '-container');
@@ -122,16 +122,25 @@
                 const badge = document.createElement('span');
                 badge.className =
                     'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200';
-                badge.innerHTML = `${tag} <button type="button" class="ml-1 inline-flex items-center justify-center h-4 w-4 rounded-full hover:bg-primary-200 dark:hover:bg-primary-800 focus:outline-none">
-                    <iconify-icon icon="heroicons:x-mark" class="h-3 w-3"></iconify-icon>
-                    <span class="sr-only">Remove tag</span>
-                </button>`;
-
-                badge.addEventListener('click', function() {
+                
+                // Create tag text span to safely add content
+                const tagText = document.createElement('span');
+                tagText.textContent = tag;
+                badge.appendChild(tagText);
+                
+                // Create remove button separately
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'ml-1 inline-flex items-center justify-center h-4 w-4 rounded-full hover:bg-primary-200 dark:hover:bg-primary-800 focus:outline-none';
+                removeBtn.innerHTML = '<iconify-icon icon="heroicons:x-mark" class="h-3 w-3"></iconify-icon><span class="sr-only">Remove tag</span>';
+                
+                // Add event listener to the button only
+                removeBtn.addEventListener('click', function() {
                     removeTag(tag, tagsInput);
                     badge.remove();
                 });
-
+                
+                badge.appendChild(removeBtn);
                 tagsContainer.appendChild(badge);
             }
 
