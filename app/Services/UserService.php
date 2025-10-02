@@ -32,6 +32,23 @@ class UserService
         return $user;
     }
 
+    public function pluck(string ...$columns): Collection
+    {
+        if (empty($columns)) {
+            throw new InvalidArgumentException('At least one column must be provided to pluck.');
+        }
+
+        if (count($columns) === 1) {
+            return User::query()->pluck($columns[0]);
+        }
+
+        if (count($columns) === 2) {
+            return User::query()->pluck($columns[1], $columns[0]);
+        }
+
+        return User::query()->get($columns)->map(fn(User $user) => $user->only($columns));
+    }
+
     public function getUserById(int $id): User
     {
         return User::findOrFail($id);
@@ -207,7 +224,7 @@ class UserService
         $allFields = collect($this->getUserMetadataFieldGroups())->flatten();
 
         $metadataToProcess = $allFields
-            ->map(fn ($field) => $this->prepareMetadataRecord($user, $field, $data, $operation, $request))
+            ->map(fn($field) => $this->prepareMetadataRecord($user, $field, $data, $operation, $request))
             ->filter()
             ->values();
 
