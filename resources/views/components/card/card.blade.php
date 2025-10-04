@@ -8,12 +8,12 @@
     <template x-if="!loading">
         <div>
             @isset($header)
-                <div class="py-4 md:px-8 space-y-6 sm:p-4 border-b font-semibold flex justify-between items-center {{ $headerClass ?? '' }}">
+                <div class="py-4 md:px-8 space-y-6 sm:p-4 border-b border-gray-200 dark:border-gray-8 font-semibold flex justify-between items-center {{ $headerClass ?? '' }}">
                     {{ $header }}
                 </div>
             @endisset
 
-            <div class="py-4 md:px-8 space-y-6 sm:p-4 {{ isset($footer) ? 'border-b' : '' }} {{ $bodyClass ?? '' }}">
+            <div class="py-4 md:px-8 space-y-6 sm:p-4 {{ isset($footer) ? 'border-b border-gray-200 dark:border-gray-800' : '' }} {{ $bodyClass ?? '' }}">
                 {{ $slot }}
             </div>
 

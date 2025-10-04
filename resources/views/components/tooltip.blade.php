@@ -16,11 +16,22 @@ $positions = [
 ];
 $positionClass = $positions[$position] ?? $positions['top'];
 
+$arrowPositions = [
+    'top' => 'top-full -mt-1.5',
+    'bottom' => 'bottom-full -mb-1.5',
+    'left' => 'left-full -ml-1 top-1/2 -translate-y-1/2',
+    'right' => 'right-full -mr-1 top-1/2 -translate-y-1/2',
+];
+$arrowPositionClass = $arrowPositions[$position] ?? $arrowPositions['top'];
+
 $arrowAlignClass = [
     'left' => 'left-4',
     'center' => 'left-1/2 -translate-x-1/2',
     'right' => 'right-4',
 ][$arrowAlign] ?? 'left-1/2 -translate-x-1/2';
+
+// Only apply horizontal alignment for top/bottom positions
+$arrowAlignClass = in_array($position, ['top', 'bottom']) ? $arrowAlignClass : '';
 
 $tooltipBg = 'bg-gray-900 text-white dark:bg-gray-700 dark:text-gray-100';
 @endphp
@@ -69,13 +80,8 @@ $tooltipBg = 'bg-gray-900 text-white dark:bg-gray-700 dark:text-gray-100';
         <div
             x-show="open"
             x-transition.opacity.duration.150ms
-            class="absolute w-2.5 h-2.5 rotate-45 {{ $tooltipBg }} {{ $arrowAlignClass }}"
-            @class([
-                'top-full -mt-1' => $position === 'top',
-                'bottom-full -mb-1' => $position === 'bottom',
-                'left-full -ml-1 top-1/2 -translate-y-1/2' => $position === 'left',
-                'right-full -mr-1 top-1/2 -translate-y-1/2' => $position === 'right',
-            ])>
+            class="absolute w-2.5 h-2.5 rotate-45 {{ $tooltipBg }} {{ $arrowPositionClass }} {{ $arrowAlignClass }}"
+        >
         </div>
     </div>
 </div>

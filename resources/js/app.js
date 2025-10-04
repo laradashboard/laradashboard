@@ -285,3 +285,6 @@ import './term-drawer.js';
 
 // Prevent navigation if form is dirty (unsaved changes).
 import './prevent-dirty-form-changes.js';
+
+// Import menu handling functionality
+import './components/menu-handler.js';

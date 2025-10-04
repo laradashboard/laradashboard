@@ -51,7 +51,7 @@ x-init="
 
     <!-- Page Wrapper with smooth fade-in -->
     <div class="app-container flex h-screen overflow-hidden">
-        @include('backend.layouts.partials.sidebar-logo')
+        @include('backend.layouts.partials.sidebar.logo')
 
         <!-- Content Area -->
         <div class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto bg-body dark:bg-gray-900">

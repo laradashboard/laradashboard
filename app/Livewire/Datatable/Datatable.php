@@ -303,17 +303,16 @@ abstract class Datatable extends Component
             case 'cursor':
                 return $query->cursorPaginate($perPage);
             case 'simple':
-                return $query->simplePaginate($perPage);
+                return $query->simplePaginate($perPage)->onEachSide($this->paginateOnEachSlide);
             case 'default':
             default:
-                return $query->paginate($perPage);
+                return $query->paginate($perPage)->onEachSide($this->paginateOnEachSlide);
         }
     }
 
     protected function getData(): CursorPaginator|LengthAwarePaginator|Paginator
     {
-        return $this->getPaginatedData($this->buildQuery())
-            ->onEachSide($this->paginateOnEachSlide);
+        return$this->getPaginatedData($this->buildQuery());
     }
 
     protected function buildQuery(): QueryBuilder

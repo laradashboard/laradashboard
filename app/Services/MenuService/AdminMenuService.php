@@ -384,7 +384,7 @@ class AdminMenuService
             $filterKey = $menuItem->id ?? Str::slug($menuItem->label) ?: '';
             $html .= Hook::applyFilters(AdminFilterHook::SIDEBAR_MENU_BEFORE->value . $filterKey, '');
 
-            $html .= view('backend.layouts.partials.menu-item', [
+            $html .= view('backend.layouts.partials.sidebar.menu-item', [
                 'item' => $menuItem,
             ])->render();
 

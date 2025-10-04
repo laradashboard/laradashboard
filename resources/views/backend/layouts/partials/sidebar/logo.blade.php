@@ -56,7 +56,7 @@
     <div
         class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar"
     >
-        @include('backend.layouts.partials.sidebar-menu')
+        @include('backend.layouts.partials.sidebar.menu')
     </div>
 </aside>
 <!-- End Sidebar -->
