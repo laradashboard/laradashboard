@@ -91,6 +91,7 @@
                     <ul class="space-y-2">
                         <li><a href="#forms-demo" class="sidebar-link flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-sm"><iconify-icon icon="lucide:form-input" class="inline-block mr-2"></iconify-icon> {{ __('Forms') }}</a></li>
                         <li><a href="#dropdown-demo" class="sidebar-link flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-sm"><iconify-icon icon="lucide:chevron-down" class="inline-block mr-2"></iconify-icon> {{ __('Dropdown') }}</a></li>
+                        <li><a href="#arrow-link-demo" class="sidebar-link flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-sm"><iconify-icon icon="lucide:arrow-right" class="inline-block mr-2"></iconify-icon> {{ __('Arrow Link') }}</a></li>
                         <li><a href="#alerts-demo" class="sidebar-link flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-sm"><iconify-icon icon="lucide:alert-circle" class="inline-block mr-2"></iconify-icon> {{ __('Alerts') }}</a></li>
                         <li><a href="#buttons-demo" class="sidebar-link flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-sm"><iconify-icon icon="lucide:mouse-pointer-click" class="inline-block mr-2"></iconify-icon> {{ __('Buttons') }}</a></li>
                         <li><a href="#media-demo" class="sidebar-link flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-sm"><iconify-icon icon="lucide:image" class="inline-block mr-2"></iconify-icon> {{ __('Media') }}</a></li>
@@ -107,6 +108,9 @@
                 </section>
                 <section id="dropdown-demo" class="scroll-mt-20 mt-10">
                     @include('demo.dropdown')
+                </section>
+                <section id="arrow-link-demo" class="scroll-mt-20 mt-10">
+                    @include('demo.arrow-link')
                 </section>
                 <section id="alerts-demo" class="scroll-mt-20 mt-10">
                     @include('demo.alerts')
@@ -141,7 +145,7 @@
 
         <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const sectionIds = ['forms-demo', 'dropdown-demo', 'alerts-demo', 'buttons-demo', 'media-demo', 'card-demo', 'datatable-demo', 'modal-demo', 'drawer-demo'];
+            const sectionIds = ['forms-demo', 'dropdown-demo', 'arrow-link-demo', 'alerts-demo', 'buttons-demo', 'media-demo', 'card-demo', 'datatable-demo', 'modal-demo', 'drawer-demo'];
             const sidebarLinks = Array.from(document.querySelectorAll('.sidebar-link'));
 
             function setActiveSidebar(hash) {
