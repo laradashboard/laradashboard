@@ -23,17 +23,16 @@
         @endforeach
     </ul>
 </div>
-<div id="default-styled-tab-content">
-    @foreach ($tabs as $key => $tab)
-        {!! Hook::applyFilters(SettingFilterHook::SETTINGS_TAB_CONTENT_BEFORE->value . $key, '') !!}
-        <div class="hidden rounded-md dark:bg-gray-800 mb-3" id="{{ $key }}" role="tabpanel"
-            aria-labelledby="{{ $key }}-tab">
-            @if (isset($tab['view']))
-                @include($tab['view'], $tab['data'] ?? [])
-            @else
-                {!! $tab['content'] !!}
-            @endif
-        </div>
-        {!! Hook::applyFilters(SettingFilterHook::SETTINGS_TAB_CONTENT_AFTER->value . $key, '') !!}
-    @endforeach
-</div>
+
+@foreach ($tabs as $key => $tab)
+    {!! Hook::applyFilters(SettingFilterHook::SETTINGS_TAB_CONTENT_BEFORE->value . $key, '') !!}
+    <div class="hidden rounded-md dark:bg-gray-800 mb-3" id="{{ $key }}" role="tabpanel"
+        aria-labelledby="{{ $key }}-tab">
+        @if (isset($tab['view']))
+            @include($tab['view'], $tab['data'] ?? [])
+        @else
+            {!! $tab['content'] !!}
+        @endif
+    </div>
+    {!! Hook::applyFilters(SettingFilterHook::SETTINGS_TAB_CONTENT_AFTER->value . $key, '') !!}
+@endforeach

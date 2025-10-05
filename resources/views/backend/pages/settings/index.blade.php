@@ -2,44 +2,42 @@
     {!! Hook::applyFilters(SettingFilterHook::SETTINGS_AFTER_BREADCRUMBS, '') !!}
 
     <div class="space-y-6">
-        <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div class="px-5 py-4 sm:px-6 sm:py-5">
-                <form
-                    method="POST"
-                    action="{{ route('admin.settings.store') }}"
-                    enctype="multipart/form-data"
-                    data-prevent-unsaved-changes
-                >
-                    @csrf
-                    @include('backend.pages.settings.tabs', [
-                        'tabs' => Hook::applyFilters(SettingFilterHook::SETTINGS_TABS, [
-                            'general' => [
-                                'title' => __('General Settings'),
-                                'view' => 'backend.pages.settings.general-tab',
-                            ],
-                            'appearance' => [
-                                'title' => __('Site Appearance'),
-                                'view' => 'backend.pages.settings.appearance-tab',
-                            ],
-                            'content' => [
-                                'title' => __('Content Settings'),
-                                'view' => 'backend.pages.settings.content-settings',
-                            ],
-                            'integrations' => [
-                                'title' => __('Integrations'),
-                                'view' => 'backend.pages.settings.integration-settings',
-                            ],
-                            'performance-security' => [
-                                'title' => __('Performance & Security'),
-                                'view' => 'backend.pages.settings.performance-security-tab',
-                            ],
-                        ]),
-                    ])
+        <form
+            method="POST"
+            action="{{ route('admin.settings.store') }}"
+            enctype="multipart/form-data"
+            data-prevent-unsaved-changes
+        >
+            @csrf
+            @include('backend.pages.settings.tabs', [
+                'tabs' => Hook::applyFilters(SettingFilterHook::SETTINGS_TABS, [
+                    'general' => [
+                        'title' => __('General Settings'),
+                        'view' => 'backend.pages.settings.general-tab',
+                    ],
+                    'appearance' => [
+                        'title' => __('Site Appearance'),
+                        'view' => 'backend.pages.settings.appearance-tab',
+                    ],
+                    'content' => [
+                        'title' => __('Content Settings'),
+                        'view' => 'backend.pages.settings.content-settings',
+                    ],
+                    'integrations' => [
+                        'title' => __('Integrations'),
+                        'view' => 'backend.pages.settings.integration-settings',
+                    ],
+                    'performance-security' => [
+                        'title' => __('Performance & Security'),
+                        'view' => 'backend.pages.settings.performance-security-tab',
+                    ],
+                ]),
+            ])
 
-                    <x-buttons.submit-buttons  />
-                </form>
+            <div class="mt-4">
+                <x-buttons.submit-buttons  />
             </div>
-        </div>
+        </form>
     </div>
 
     @push('scripts')
