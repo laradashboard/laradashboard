@@ -7,67 +7,75 @@
 ])
 
 @once
-<link rel="stylesheet" href="{{ asset('vendor/quill/quill.min.css') }}" />
-<style>
-    .ql-editor {
-        min-height: {{ $height }};
-        @if($maxHeight !== '-1')
-        max-height: {{ $maxHeight }};
-        @endif
-        overflow-y: auto;
-    }
-    .ql-toolbar.ql-snow {
-        border-radius: 10px 10px 0px 0px;
-        margin-bottom: 0px;
-    }
-    /* Create a container for Quill to target */
-    .quill-container {
-        border: 1px solid #ccc;
-        border-radius: 0 0 10px 10px;
-        background: transparent;
-    }
-    .dark .quill-container {
-        border-color: #4b5563;
-        color: #e5e7eb;
-    }
-    .dark .ql-snow {
-        border-color: #4b5563;
-    }
-    .dark .ql-toolbar.ql-snow .ql-picker-label,
-    .dark .ql-toolbar.ql-snow .ql-picker-options,
-    .dark .ql-toolbar.ql-snow button,
-    .dark .ql-toolbar.ql-snow span {
-        color: #e5e7eb;
-    }
-    .dark .ql-snow .ql-stroke {
-        stroke: #e5e7eb;
-    }
-    .dark .ql-snow .ql-fill {
-        fill: #e5e7eb;
-    }
-    .dark .ql-editor.ql-blank::before {
-        color: rgba(255, 255, 255, 0.6);
-    }
+    <link rel="stylesheet" href="{{ asset('vendor/quill/quill.min.css') }}" />
+    <style>
+        .ql-toolbar.ql-snow {
+            border-radius: 10px 10px 0px 0px;
+            margin-bottom: 0px;
+        }
 
-    /* Alternative using iconify icon */
-    .ql-toolbar .ql-media-modal {
-        width: 28px;
-        height: 28px;
-    }
-    
-    .ql-toolbar .ql-media-modal:after {
-        content: '';
-        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>');
-        background-size: 18px;
-        background-repeat: no-repeat;
-        background-position: center;
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-</style>
+        /* Create a container for Quill to target */
+        .quill-container {
+            border: 1px solid #ccc;
+            border-radius: 0 0 10px 10px;
+            background: transparent;
 
-<script src="{{ asset('vendor/quill/quill.min.js') }}"></script>
+            height: {{ $height }};
+            min-height: {{ $height }};
+
+            @if ($maxHeight !== '-1')
+                max-height: {{ $maxHeight }};
+            @endif
+            overflow-y: auto;
+        }
+
+        .dark .quill-container {
+            border-color: #4b5563;
+            color: #e5e7eb;
+        }
+
+        .dark .ql-snow {
+            border-color: #4b5563;
+        }
+
+        .dark .ql-toolbar.ql-snow .ql-picker-label,
+        .dark .ql-toolbar.ql-snow .ql-picker-options,
+        .dark .ql-toolbar.ql-snow button,
+        .dark .ql-toolbar.ql-snow span {
+            color: #e5e7eb;
+        }
+
+        .dark .ql-snow .ql-stroke {
+            stroke: #e5e7eb;
+        }
+
+        .dark .ql-snow .ql-fill {
+            fill: #e5e7eb;
+        }
+
+        .dark .ql-editor.ql-blank::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Alternative using iconify icon */
+        .ql-toolbar .ql-media-modal {
+            width: 28px;
+            height: 28px;
+        }
+
+        .ql-toolbar .ql-media-modal:after {
+            content: '';
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>');
+            background-size: 18px;
+            background-repeat: no-repeat;
+            background-position: center;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+
+    <script src="{{ asset('vendor/quill/quill.min.js') }}"></script>
 @endonce
 
 <script>
@@ -95,35 +103,63 @@
         const toolbarConfigs = {
             full: [
                 ['bold', 'italic', 'underline', 'strike'],
-                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                [{
+                    'header': [1, 2, 3, 4, 5, 6, false]
+                }],
                 ['blockquote'],
-                [{ 'align': [] }],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                [{ 'indent': '-1' }, { 'indent': '+1' }],
-                [{ 'color': [] }, { 'background': [] }],
-                [{ 'font': [] }],
+                [{
+                    'align': []
+                }],
+                [{
+                    'list': 'ordered'
+                }, {
+                    'list': 'bullet'
+                }],
+                [{
+                    'indent': '-1'
+                }, {
+                    'indent': '+1'
+                }],
+                [{
+                    'color': []
+                }, {
+                    'background': []
+                }],
+                [{
+                    'font': []
+                }],
                 ['link', 'media-modal', 'video', 'code-block']
             ],
             basic: [
                 ['bold', 'italic', 'underline'],
-                [{ 'header': [1, 2, 3, false] }],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                [{
+                    'header': [1, 2, 3, false]
+                }],
+                [{
+                    'list': 'ordered'
+                }, {
+                    'list': 'bullet'
+                }],
                 ['link', 'media-modal']
             ],
             minimal: [
                 ['bold', 'italic'],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }]
+                [{
+                    'list': 'ordered'
+                }, {
+                    'list': 'bullet'
+                }]
             ]
         };
 
         // Select toolbar configuration based on type or use custom if provided
         const toolbarConfig = customToolbar ? JSON.parse(customToolbar) :
-                             (toolbarConfigs[editorType] || toolbarConfigs.basic);
+            (toolbarConfigs[editorType] || toolbarConfigs.basic);
 
         // Custom media modal handler
         const mediaModalHandler = function() {
             const modalId = `quillMediaModal_${editorId}`;
-            
+
             // Open media modal using the existing component (single selection for editor)
             openMediaModal(modalId, false, 'all', `handleQuillMediaSelect_${editorId}`);
         };
@@ -149,7 +185,7 @@
             if (files.length > 0) {
                 const file = files[0];
                 const range = quill.getSelection(true);
-                
+
                 if (file.mime_type && file.mime_type.startsWith('image/')) {
                     // Insert image
                     quill.insertEmbed(range.index, 'image', file.url, 'user');
@@ -157,7 +193,7 @@
                     // Insert as link for non-image files
                     quill.insertText(range.index, file.name, 'link', file.url, 'user');
                 }
-                
+
                 // Move cursor after inserted content
                 quill.setSelection(range.index + 1);
             }
@@ -174,9 +210,11 @@
         // Update textarea on editor change for form submission
         quill.on('text-change', function() {
             textareaElement.value = quill.root.innerHTML;
-            
+
             // Trigger form change detection for the unsaved changes warning
-            const event = new Event('input', { bubbles: true });
+            const event = new Event('input', {
+                bubbles: true
+            });
             textareaElement.dispatchEvent(event);
         });
 
@@ -192,11 +230,5 @@
 </script>
 
 <!-- Include the media modal component for Quill editor -->
-<x-media-modal 
-    :id="'quillMediaModal_' . $editorId" 
-    title="Select Media for Editor"
-    :multiple="false"
-    allowedTypes="all"
-    buttonText="Select Media"
-    buttonClass="hidden"
-/>
+<x-media-modal :id="'quillMediaModal_' . $editorId" title="Select Media for Editor" :multiple="false" allowedTypes="all"
+    buttonText="Select Media" buttonClass="hidden" />
