@@ -3,7 +3,7 @@
     'label' => 'Tags',
     'value' => '',
     'placeholder' => 'Add and press Enter',
-    'hint' => 'Press Enter to add',
+    'hint' => '',
 ])
 
 @php
@@ -31,26 +31,32 @@
     }
 @endphp
 
-<div
-    {{ $attributes->merge(['class' => 'rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm']) }}>
-    <div class="p-4">
-        <input type="hidden" id="{{ $name }}" name="{{ $name }}" value="{{ $processedValue }}">
+<div class="mb-4">
+    @if($label)
+        <label class="form-label" for="{{ $name }}">{{ __($label) }}</label>
+    @endif
+    
+    <div
+        {{ $attributes->merge(['class' => 'rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]']) }}>
+        <div class="p-4">
+            <input type="hidden" id="{{ $name }}" name="{{ $name }}" value="{{ $processedValue }}">
 
-        <div class="mb-2">
-            <div class="flex flex-wrap items-center gap-2 mb-2" id="{{ $name }}-container">
-            </div>
+            <div class="mb-2">
+                <div class="flex flex-wrap items-center gap-2 mb-2" id="{{ $name }}-container">
+                </div>
 
-            <div class="relative">
-                <input type="text" id="{{ $name }}-input"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    placeholder="{{ __($placeholder) }}">
+                <div class="relative">
+                    <input type="text" id="{{ $name }}-input"
+                        class="form-control"
+                        placeholder="{{ __($placeholder) }}">
+                </div>
             </div>
         </div>
-        <p class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-            <iconify-icon icon="heroicons:information-circle" class="h-4 w-4 mt-2"></iconify-icon>
-            {{ __($hint) }}
-        </p>
     </div>
+    
+    @if($hint)
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __($hint) }}</p>
+    @endif
 </div>
 
 @once
