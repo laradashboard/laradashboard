@@ -1,8 +1,12 @@
 @php
     $enable_full_div_click = $enable_full_div_click ?? true;
+    $cardStatus = $status ?? null;
+    $currentStatus = request()->query('status');
+    $isActive = !empty($cardStatus) && $currentStatus === $cardStatus;
+    $activeClass = $isActive ? 'border-indigo-500 dark:border-indigo-400 border-2 shadow-lg' : '';
 @endphp
 
-<div class="relative overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6 dark:bg-gray-800 {{ $enable_full_div_click ? 'cursor-pointer hover:shadow-lg transition-shadow duration-300' : '' }}"
+<div class="relative overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6 dark:bg-gray-800 {{ $enable_full_div_click ? 'cursor-pointer hover:shadow-lg transition-shadow duration-300' : '' }} {{ $activeClass }}"
     @if($enable_full_div_click)
         onclick="window.location.href='{{ $url ?? '#' }}'"
     @endif
