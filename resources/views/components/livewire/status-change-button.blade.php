@@ -8,6 +8,9 @@
             @elseif($model->{$actionField} == 'waiting') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
             @elseif($model->{$actionField} == 'resolved') bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200
             @elseif($model->{$actionField} == 'closed') bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+            @elseif($model->{$actionField} == 'low') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+            @elseif($model->{$actionField} == 'medium') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+            @elseif($model->{$actionField} == 'high') bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
             @elseif($model->{$actionField} == true || $model->{$actionField} === 'completed' || $model->{$actionField} === 'active') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
             @else bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 @endif
             flex items-center gap-1"
@@ -44,6 +47,9 @@
                     @elseif($key == 'waiting') text-yellow-700 dark:text-yellow-400
                     @elseif($key == 'resolved') text-purple-700 dark:text-purple-400
                     @elseif($key == 'closed') text-gray-700 dark:text-gray-400
+                    @elseif($key == 'low') text-green-700 dark:text-green-400
+                    @elseif($key == 'medium') text-yellow-700 dark:text-yellow-400
+                    @elseif($key == 'high') text-red-700 dark:text-red-400
                     @elseif($key == true || $key === 'completed' || $key === 'active') text-green-700 dark:text-green-400
                     @else text-yellow-700 dark:text-yellow-400 @endif"
                 type="button"
