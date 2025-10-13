@@ -126,8 +126,7 @@
 
             function createTagBadge(tag, tagsInput, tagsContainer) {
                 const badge = document.createElement('span');
-                badge.className =
-                    'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200';
+                badge.className = 'badge';
                 
                 // Create tag text span to safely add content
                 const tagText = document.createElement('span');

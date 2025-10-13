@@ -10,6 +10,7 @@
     :data="$data"
     :newResourceLinkPermission="$newResourceLinkPermission"
     :newResourceLinkRouteName="$newResourceLinkRouteName"
+    :customNewResourceLink="$this->getCustomNewResourceLink()"
     :newResourceLinkRouteUrl="$this->getCreateRouteUrl()"
     :newResourceLinkLabel="$newResourceLinkLabel"
 />

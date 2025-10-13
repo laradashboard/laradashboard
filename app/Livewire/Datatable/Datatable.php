@@ -289,6 +289,11 @@ abstract class Datatable extends Component
         return $routes;
     }
 
+    protected function getCustomNewResourceLink(): string|Renderable
+    {
+        return '';
+    }
+
     protected function getSettingsPaginatorUi(): string
     {
         return config('settings.default_pagination_ui', 'default');

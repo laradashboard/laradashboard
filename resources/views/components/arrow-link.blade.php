@@ -6,7 +6,7 @@ $underline = $underline ?? false;
 
 $colors = [
     'blue' => 'text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200',
-    'primary' => 'text-primary hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-200',
+    'primary' => 'font-medium flex items-center text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300',
     'green' => 'text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200',
     'red' => 'text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200',
     'gray' => 'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200',
