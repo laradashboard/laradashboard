@@ -178,7 +178,8 @@
             }
         });
 
-        window['quill_' + editorId] = quill;
+        // Use window['quill-' + editorId] for global reference
+        window['quill-' + editorId] = quill;
 
         // Create media selection handler function for this specific editor
         window[`handleQuillMediaSelect_${editorId}`] = function(files) {
@@ -202,6 +203,7 @@
         // Set initial content from textarea
         if (initialContent) {
             quill.clipboard.dangerouslyPasteHTML(initialContent);
+            textareaElement.value = quill.root.innerHTML;
         }
 
         // Hide textarea visually but keep it in the DOM for form submission
