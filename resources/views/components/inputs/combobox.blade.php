@@ -12,6 +12,7 @@
     'queryParam' => null,
     'refreshPage' => false,
     'onchange' => null,
+    'wireModel' => null,
 ])
 
 @php
@@ -44,6 +45,10 @@
             }
         }
     }
+    
+    // Check if this is a Livewire component
+    $isLivewire = $attributes->has('wire:model') || $attributes->has('wire:model.live') || $attributes->has('wire:model.defer');
+    $wireModelAttribute = $attributes->whereStartsWith('wire:model')->first();
 @endphp
 
 <div x-data="comboboxData({
@@ -245,6 +250,12 @@ function comboboxData({
                 if (onchange && typeof window[onchange] === 'function') {
                     window[onchange]();
                 }
+                
+                // Livewire support
+                @if($isLivewire && $wireModelAttribute)
+                    @this.set('{{ $wireModelAttribute }}', option.value);
+                @endif
+                
                 const event = new CustomEvent('combobox-change', {
                     detail: {
                         name: name,
@@ -270,6 +281,12 @@ function comboboxData({
             if (onchange && typeof window[onchange] === 'function') {
                 window[onchange]();
             }
+            
+            // Livewire support
+            @if($isLivewire && $wireModelAttribute)
+                @this.set('{{ $wireModelAttribute }}', this.selectedOptions);
+            @endif
+            
             const option = this.allOptions.find(opt => opt.value == optionValue);
             if (option) {
                 const event = new CustomEvent('combobox-change', {
