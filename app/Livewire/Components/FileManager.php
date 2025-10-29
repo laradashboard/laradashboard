@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Storage;
 use Modules\Crm\Models\TicketAttachment;
 use Illuminate\Support\Facades\URL;
 
-
-
 class FileManager extends Component
 {
     use WithFileUploads;
@@ -24,8 +22,11 @@ class FileManager extends Component
     public $files = [];
     public $attachmentModelClass = null;
     public $foreignKey = 'ticket_id';
+    public $isCreateMode = false;
+    public $tempFiles = [];
+    public $isReadOnly = false;
 
-    protected $listeners = ['refreshFiles' => 'loadFiles'];
+    protected $listeners = ['refreshFiles' => 'loadFiles', 'clearTempFiles' => 'clearTempFiles'];
 
     public function updatedFile()
     {
@@ -34,12 +35,13 @@ class FileManager extends Component
         }
     }
 
-    public function mount($model, $fieldname, $path, $isDeletable = false, $attachmentModelClass = null, $foreignKey = null)
+    public function mount($model = null, $fieldname = 'attachments', $path = 'uploads', $isDeletable = false, $attachmentModelClass = null, $foreignKey = null, $isCreateMode = false)
     {
         $this->model = $model;
         $this->fieldname = $fieldname;
         $this->path = $path;
         $this->isDeletable = $isDeletable;
+        $this->isCreateMode = $isCreateMode || !$model || !$model->exists;
         if ($attachmentModelClass) {
             $this->attachmentModelClass = $attachmentModelClass;
         }
@@ -51,7 +53,9 @@ class FileManager extends Component
 
     public function loadFiles()
     {
-        if ($this->attachmentModelClass) {
+        if ($this->isCreateMode) {
+            $this->files = $this->tempFiles;
+        } elseif ($this->attachmentModelClass && $this->model && $this->model->exists) {
             $attachmentModel = app($this->attachmentModelClass);
             $this->files = $attachmentModel->where($this->foreignKey, $this->model->id)
                 ->orderByDesc('id')
@@ -68,9 +72,11 @@ class FileManager extends Component
                         'uploaded_at' => $file->created_at,
                     ];
                 })->toArray();
-        } else {
+        } elseif ($this->model && $this->model->exists) {
             $fieldValue = $this->model->{$this->fieldname};
             $this->files = is_array($fieldValue) ? $fieldValue : ($fieldValue ? [$fieldValue] : []);
+        } else {
+            $this->files = [];
         }
     }
 
@@ -84,7 +90,21 @@ class FileManager extends Component
         $filename = date('Ymd_His_') . $this->file->getClientOriginalName();
         $storedPath = $this->file->storeAs($this->path, $filename, 'public');
 
-        if ($this->attachmentModelClass) {
+        $fileInfo = [
+            'name' => $this->file->getClientOriginalName(),
+            'path' => $storedPath,
+            'url' => asset('storage/' . $storedPath),
+            'size' => $this->file->getSize(),
+            'mime_type' => $this->file->getMimeType(),
+            'extension' => pathinfo($this->file->getClientOriginalName(), PATHINFO_EXTENSION),
+            'uploaded_at' => now()->toISOString(),
+        ];
+
+        if ($this->isCreateMode) {
+            $fileInfo['id'] = 'temp_' . uniqid();
+            $this->tempFiles[] = $fileInfo;
+            $this->dispatch('filesUpdated', $this->tempFiles);
+        } elseif ($this->attachmentModelClass && $this->model && $this->model->exists) {
             $attachmentModel = app($this->attachmentModelClass);
             $attachmentModel->create([
                 $this->foreignKey => $this->model->id,
@@ -93,15 +113,7 @@ class FileManager extends Component
                 'size' => $this->file->getSize(),
                 'mime_type' => $this->file->getMimeType(),
             ]);
-        } else {
-            $fileInfo = [
-                'name' => $this->file->getClientOriginalName(),
-                'path' => $storedPath,
-                'size' => $this->file->getSize(),
-                'mime_type' => $this->file->getMimeType(),
-                'extension' => pathinfo($this->file->getClientOriginalName(), PATHINFO_EXTENSION),
-                'uploaded_at' => now()->toISOString(),
-            ];
+        } elseif ($this->model && $this->model->exists) {
             $files = $this->model->{$this->fieldname} ?? [];
             $files[] = $fileInfo;
             $this->model->{$this->fieldname} = $files;
@@ -116,7 +128,17 @@ class FileManager extends Component
     public function deleteFile($fileId)
     {
         if ($this->isDeletable) {
-            if ($this->attachmentModelClass) {
+            if ($this->isCreateMode) {
+                $this->tempFiles = array_filter($this->tempFiles, function ($file) use ($fileId) {
+                    if ($file['id'] === $fileId) {
+                        Storage::disk('public')->delete($file['path']);
+                        return false;
+                    }
+                    return true;
+                });
+                $this->tempFiles = array_values($this->tempFiles);
+                $this->dispatch('filesUpdated', $this->tempFiles);
+            } elseif ($this->attachmentModelClass && $this->model && $this->model->exists) {
                 $attachmentModel = app($this->attachmentModelClass);
                 $attachment = $attachmentModel->where($this->foreignKey, $this->model->id)
                     ->where('id', $fileId)
@@ -124,9 +146,8 @@ class FileManager extends Component
                 if ($attachment) {
                     Storage::disk('public')->delete($attachment->path);
                     $attachment->delete();
-                    $this->loadFiles();
                 }
-            } else {
+            } elseif ($this->model && $this->model->exists) {
                 $files = $this->model->{$this->fieldname} ?? [];
                 $files = array_filter($files, function ($file) use ($fileId) {
                     return $file['path'] !== $fileId;
@@ -134,9 +155,23 @@ class FileManager extends Component
                 $this->model->{$this->fieldname} = array_values($files);
                 $this->model->save();
                 Storage::disk('public')->delete($fileId);
-                $this->loadFiles();
             }
+            $this->loadFiles();
         }
+    }
+
+    public function getTempFiles()
+    {
+        return $this->tempFiles;
+    }
+
+    public function clearTempFiles()
+    {
+        foreach ($this->tempFiles as $file) {
+            Storage::disk('public')->delete($file['path']);
+        }
+        $this->tempFiles = [];
+        $this->loadFiles();
     }
 
     public function render()
