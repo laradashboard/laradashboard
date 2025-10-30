@@ -7,7 +7,7 @@ import collectModuleAssetsPaths from "./vite-module-loader";
 const paths = ["resources/css/app.css", "resources/js/app.js"];
 
 // Use top-level await to properly load module assets
-let allPaths = await collectModuleAssetsPaths(paths, "Modules");
+let allPaths = await collectModuleAssetsPaths(paths, "modules");
 
 if (allPaths.length === 0) {
     allPaths = paths;

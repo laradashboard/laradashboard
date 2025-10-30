@@ -37,7 +37,7 @@ if [ ! -f "$EXCLUDE_FILE" ]; then
     cat > "$EXCLUDE_FILE" << EOL
 node_modules/
 demo-screenshots/
-Modules/
+modules/
 .git/
 .github/
 releases/
