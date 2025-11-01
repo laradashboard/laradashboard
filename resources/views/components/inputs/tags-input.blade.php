@@ -37,10 +37,9 @@
     @endif
     
     <div
-        {{ $attributes->merge(['class' => 'rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]']) }}>
-        <div class="p-4">
+        {{ $attributes->merge(['class' => 'rounded-md bg-white dark:bg-white/[0.03]']) }}>
+        <div class="p-2">
             <input type="hidden" id="{{ $name }}" name="{{ $name }}" value="{{ $processedValue }}">
-
             <div class="mb-2">
                 <div class="flex flex-wrap items-center gap-2 mb-2" id="{{ $name }}-container">
                 </div>
