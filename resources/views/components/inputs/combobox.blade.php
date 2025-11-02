@@ -69,7 +69,7 @@
     {{ $attributes->whereStartsWith('x-on:') }}>
 
     @if($label)
-        <label for="{{ $name }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label for="{{ $name }}" class="form-label">
             {{ __($label) }}
 
             @if($required)

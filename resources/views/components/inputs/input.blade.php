@@ -14,7 +14,13 @@
 ])
 <div>
     @if($label)
-        <label class="form-label" for="{{ $name }}">{{ $label }}</label>
+        <label class="form-label" for="{{ $name }}">
+            {{ $label }}
+
+            @if($required)
+                <span class="crm:text-red-500">*</span>
+            @endif
+        </label>
     @endif
     <input
         type="{{ $type }}"

@@ -20,6 +20,7 @@
             flex items-center gap-1"
     >
         {{ $options[$model->{$actionField}] ?? ucfirst(str_replace('_', ' ', $model->{$actionField})) }}
+        {{ empty($options[$model->{$actionField}]) || empty($model->{$actionField}) ? __('Status') : '' }}
         <iconify-icon
             icon="heroicons:chevron-down"
             class="w-3 h-3 ml-1"
