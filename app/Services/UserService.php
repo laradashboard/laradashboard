@@ -46,7 +46,7 @@ class UserService
             return User::query()->pluck($columns[1], $columns[0]);
         }
 
-        return User::query()->get($columns)->map(fn(User $user) => $user->only($columns));
+        return User::query()->get($columns)->map(fn (User $user) => $user->only($columns));
     }
 
     public function getUserById(int $id): User
@@ -224,7 +224,7 @@ class UserService
         $allFields = collect($this->getUserMetadataFieldGroups())->flatten();
 
         $metadataToProcess = $allFields
-            ->map(fn($field) => $this->prepareMetadataRecord($user, $field, $data, $operation, $request))
+            ->map(fn ($field) => $this->prepareMetadataRecord($user, $field, $data, $operation, $request))
             ->filter()
             ->values();
 

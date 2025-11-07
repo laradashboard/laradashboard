@@ -4,10 +4,7 @@ namespace App\Livewire\Components;
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use Modules\Crm\Models\TicketAttachment;
-use Illuminate\Support\Facades\URL;
 
 class FileManager extends Component
 {
@@ -41,7 +38,7 @@ class FileManager extends Component
         $this->fieldname = $fieldname;
         $this->path = $path;
         $this->isDeletable = $isDeletable;
-        $this->isCreateMode = $isCreateMode || !$model || !$model->exists;
+        $this->isCreateMode = $isCreateMode || ! $model || ! $model->exists;
         if ($attachmentModelClass) {
             $this->attachmentModelClass = $attachmentModelClass;
         }
@@ -85,7 +82,7 @@ class FileManager extends Component
         $this->validate([
             'file' => 'required|file|max:10240', // 10MB
         ]);
-        
+
         $this->loading = true;
         $filename = date('Ymd_His_') . $this->file->getClientOriginalName();
         $storedPath = $this->file->storeAs($this->path, $filename, 'public');
