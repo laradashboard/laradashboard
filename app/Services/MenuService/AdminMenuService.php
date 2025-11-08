@@ -194,7 +194,7 @@ class AdminMenuService
             'label' => __('Settings'),
             'icon' => 'lucide:settings',
             'id' => 'settings-submenu',
-            'active' => Route::is('admin.settings.*') || Route::is('admin.translations.*'),
+            'active' => Route::is('admin.settings.*') || Route::is('admin.translations.*') || Route::is('admin.email-templates.*'),
             'priority' => 40,
             'permissions' => ['settings.edit', 'translations.view'],
             'children' => [
@@ -203,6 +203,13 @@ class AdminMenuService
                     'route' => route('admin.settings.index'),
                     'active' => Route::is('admin.settings.index'),
                     'priority' => 20,
+                    'permissions' => 'settings.edit',
+                ],
+                [
+                    'label' => __('Email Templates'),
+                    'route' => route('admin.email-templates.index'),
+                    'active' => Route::is('admin.email-templates.*'),
+                    'priority' => 15,
                     'permissions' => 'settings.edit',
                 ],
                 [

@@ -1,0 +1,1 @@
+{{ Str::limit($emailTemplate->subject, 50) }}

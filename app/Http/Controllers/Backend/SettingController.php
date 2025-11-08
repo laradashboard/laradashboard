@@ -106,6 +106,8 @@ class SettingController extends Controller
 
         $this->envWriter->batchWriteKeysToEnvFile($fields);
 
+        // dd($fields);
+
         $this->storeActionLog(ActionType::UPDATED, [
             'settings' => $fields,
         ]);
