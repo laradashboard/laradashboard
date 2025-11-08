@@ -11,19 +11,62 @@
             <div class="w-full lg:w-3/12">
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                     <div class="mb-4">
-                        <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            {{ __('Template Type') }} <span class="text-red-500">*</span>
-                        </label>
-                        <select name="type" id="type" class="form-control" required>
-                            <option value="">{{ __('Select Template Type') }}</option>
-                            @foreach ($templateTypes ?? [] as $value => $label)
-                                <option value="{{ $value }}"
-                                    {{ old('type', $template->type->value ?? '') == $value ? 'selected' : '' }}>
-                                    {{ $label }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <x-inputs.combobox 
+                            label="{{ __('Template Type') }}" 
+                            name="type" 
+                            :options="$templateTypes ?? []" 
+                            placeholder="{{ __('Select Template Type') }}" 
+                            selected="{{ old('type', $selectedType ?? '') }}" 
+                            required />
                         @error('type')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        @php
+                            $headerOptions = ['' => __('No Header')];
+                            if(isset($template)) {
+                                foreach($headerTemplates ?? [] as $headerTemplate) {
+                                    $headerOptions[$headerTemplate->id] = $headerTemplate->name;
+                                }
+                            } else {
+                                foreach($availableTemplates ?? [] as $availableTemplate) {
+                                    $headerOptions[$availableTemplate->id] = $availableTemplate->name;
+                                }
+                            }
+                        @endphp
+                        <x-inputs.combobox 
+                            label="{{ __('Header Template') }}" 
+                            name="header_template_id" 
+                            :options="$headerOptions" 
+                            placeholder="{{ __('Select Header Template') }}" 
+                            selected="{{ old('header_template_id', $template->header_template_id ?? '') }}" />
+                        @error('header_template_id')
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        @php
+                            $footerOptions = ['' => __('No Footer')];
+                            if(isset($template)) {
+                                foreach($footerTemplates ?? [] as $footerTemplate) {
+                                    $footerOptions[$footerTemplate->id] = $footerTemplate->name;
+                                }
+                            } else {
+                                foreach($availableTemplates ?? [] as $availableTemplate) {
+                                    $footerOptions[$availableTemplate->id] = $availableTemplate->name;
+                                }
+                            }
+                        @endphp
+                        <x-inputs.combobox 
+                            label="{{ __('Footer Template') }}" 
+                            name="footer_template_id" 
+                            :options="$footerOptions" 
+                            placeholder="{{ __('Select Footer Template') }}" 
+                            selected="{{ old('footer_template_id', $template->footer_template_id ?? '') }}" />
+                        @error('footer_template_id')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>

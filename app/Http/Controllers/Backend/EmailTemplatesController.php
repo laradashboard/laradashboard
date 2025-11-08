@@ -48,10 +48,14 @@ class EmailTemplatesController extends Controller
             ->toArray();
 
         $availableTemplates = $this->emailTemplateService->getAllTemplates();
+        $headerTemplates = $this->emailTemplateService->getTemplatesByType(TemplateType::HEADER);
+        $footerTemplates = $this->emailTemplateService->getTemplatesByType(TemplateType::FOOTER);
 
         return view('backend.pages.email-templates.create', [
             'templateTypes' => $templateTypes,
             'availableTemplates' => $availableTemplates,
+            'headerTemplates' => $headerTemplates,
+            'footerTemplates' => $footerTemplates,
             'breadcrumbs' => [
                 'title' => __('Create Email Template'),
                 'items' => [
@@ -121,11 +125,16 @@ class EmailTemplatesController extends Controller
             ->toArray();
 
         $availableTemplates = $this->emailTemplateService->getAllTemplatesExcept($template->id);
+        $headerTemplates = $this->emailTemplateService->getAllTemplatesExcept($template->id);
+        $footerTemplates = $this->emailTemplateService->getAllTemplatesExcept($template->id);
 
         return view('backend.pages.email-templates.edit', [
             'template' => $template,
             'templateTypes' => $templateTypes,
+            'selectedType' => $template->type->value,
             'availableTemplates' => $availableTemplates,
+            'headerTemplates' => $headerTemplates,
+            'footerTemplates' => $footerTemplates,
             'breadcrumbs' => [
                 'title' => __('Edit Email Template'),
                 'items' => [
