@@ -30,18 +30,25 @@
         if (array_is_list($options)) {
             foreach ($options as $opt) {
                 if (is_array($opt) && isset($opt['value']) && isset($opt['label'])) {
+                    // Ensure value is a scalar (string, int, etc.)
+                    $value = is_array($opt['value']) ? json_encode($opt['value']) : $opt['value'];
                     $normalizedOptions[] = [
-                        'value' => $opt['value'],
+                        'value' => $value,
                         'label' => $opt['label'],
                         'description' => $opt['description'] ?? null
                     ];
                 } else {
-                    $normalizedOptions[] = ['value' => $opt, 'label' => $opt, 'description' => null];
+                    // Handle scalar values
+                    $value = is_array($opt) ? json_encode($opt) : $opt;
+                    $normalizedOptions[] = ['value' => $value, 'label' => $value, 'description' => null];
                 }
             }
         } else {
             foreach ($options as $key => $lbl) {
-                $normalizedOptions[] = ['value' => $key, 'label' => $lbl, 'description' => null];
+                // Ensure both key and label are scalars
+                $value = is_array($key) ? json_encode($key) : $key;
+                $label = is_array($lbl) ? json_encode($lbl) : $lbl;
+                $normalizedOptions[] = ['value' => $value, 'label' => $label, 'description' => null];
             }
         }
     }
