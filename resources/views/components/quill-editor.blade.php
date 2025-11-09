@@ -16,7 +16,7 @@
 
         /* Create a container for Quill to target */
         .quill-container {
-            border: 1px solid #ccc;
+            border: 1px solid var(--color-gray-200, currentColor);
             border-radius: 0 0 10px 10px;
             background: transparent;
 
@@ -29,13 +29,33 @@
             overflow-y: auto;
         }
 
+        .ql-container.ql-snow {
+            border: 1px solid var(--color-gray-200, currentColor);
+        }
+
+        .ql-toolbar.ql-snow {
+            border: 1px solid var(--color-gray-200, currentColor);
+        }
+
+        /* Wrapper styles - matches form-control */
+        .ql-toolbar.ql-snow + .quill-container {
+            transition: all 0.15s ease;
+        }
+
+        /* Focus state - matches form-control */
+        .ql-container.ql-snow:focus-within {
+            --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 0px var(--tw-ring-offset-color);
+            --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + 0px) var(--tw-ring-color);
+            --tw-ring-color: rgb(var(--color-primary) / 1);
+            box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+        }
+
         .dark .quill-container {
-            border-color: #4b5563;
             color: #e5e7eb;
         }
 
-        .dark .ql-snow {
-            border-color: #4b5563;
+        .dark .ql-toolbar.ql-snow {
+            border-bottom-color: rgb(55 65 81);
         }
 
         .dark .ql-toolbar.ql-snow .ql-picker-label,

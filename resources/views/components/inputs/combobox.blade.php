@@ -97,21 +97,43 @@
             ></iconify-icon>
         </button>
 
-        <!-- Hidden input -->
+        <!-- Hidden inputs based on mode -->
         <template x-if="multiple">
             <div>
                 <template x-for="(value, index) in selectedOptions" x-bind:key="index">
                     <input type="hidden" x-bind:name="'{{ str_replace('[]', '', $name) }}[' + index + ']'" x-bind:value="value" />
                 </template>
+                @if($required)
+                    <!-- Add a validation input for required multiple select -->
+                    <input 
+                        type="text" 
+                        x-bind:required="selectedOptions.length === 0"
+                        x-bind:value="selectedOptions.length > 0 ? 'valid' : ''"
+                        class="sr-only"
+                        style="position: absolute; pointer-events: none;"
+                        tabindex="-1"
+                        aria-hidden="true" />
+                @endif
             </div>
         </template>
 
-        <input x-show="!multiple"
-            name="{{ $name }}"
-            type="hidden"
-            x-ref="hiddenTextField"
-            x-bind:value="selectedOption"
-            @if($required) required @endif />
+        <!-- Hidden select for single selection -->
+        <template x-if="!multiple">
+            <select
+                name="{{ $name }}"
+                x-ref="hiddenTextField"
+                x-bind:value="selectedOption"
+                @if($required) required @endif
+                aria-hidden="true"
+                tabindex="-1"
+                class="sr-only"
+                style="position: absolute; pointer-events: none;">
+                <option value="">{{ __('Please select') }}</option>
+                @foreach($normalizedOptions as $opt)
+                    <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
+                @endforeach
+            </select>
+        </template>
 
         <div
             x-cloak
@@ -243,7 +265,9 @@ function comboboxData({
                 this.selectedOption = option.value + '';
                 this.isOpen = false;
                 this.openedWithKeyboard = false;
-                this.$refs.hiddenTextField.value = option.value;
+                if (this.$refs.hiddenTextField) {
+                    this.$refs.hiddenTextField.value = option.value;
+                }
                 if (this.queryParam) {
                     this.updateUrlParam(this.queryParam, option.value);
                 }
@@ -334,9 +358,38 @@ function comboboxData({
                         this.selectedOptions = paramValue.split(',');
                     } else {
                         this.selectedOption = paramValue;
-                        this.$refs.hiddenTextField.value = paramValue;
+                        if (this.$refs.hiddenTextField) {
+                            this.$refs.hiddenTextField.value = paramValue;
+                        }
                     }
                 }
+            }
+
+            // Trigger validation on the hidden select when form is submitted
+            const form = this.$el.closest('form');
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    // For single select, ensure the hidden select is in sync
+                    if (!this.multiple && this.$refs.hiddenTextField) {
+                        this.$refs.hiddenTextField.value = this.selectedOption || '';
+                        
+                        // Trigger HTML5 validation
+                        if (!this.$refs.hiddenTextField.checkValidity()) {
+                            e.preventDefault();
+                            this.$refs.hiddenTextField.reportValidity();
+                            
+                            // Focus the visible combobox button for better UX
+                            const button = this.$el.querySelector('[role="combobox"]');
+                            if (button) {
+                                setTimeout(() => {
+                                    button.focus();
+                                    button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }, 100);
+                            }
+                            return false;
+                        }
+                    }
+                });
             }
         }
     };
