@@ -12,8 +12,6 @@ use Illuminate\Http\RedirectResponse;
 use App\Services\EmailTemplateService;
 use App\Http\Requests\EmailTemplateRequest;
 use App\Enums\TemplateType;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class EmailTemplatesController extends Controller
 {
@@ -55,8 +53,9 @@ class EmailTemplatesController extends Controller
             'availableTemplates' => $availableTemplates,
             'headerTemplates' => $headerTemplates,
             'footerTemplates' => $footerTemplates,
+            'templateVariables' => \App\Models\EmailTemplate::getAvailableVariables(),
             'breadcrumbs' => [
-                'title' => __('Create Email Template'),
+                'title' => __('Create Template'),
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
                     ['label' => __('Email Templates'), 'url' => route('admin.email-templates.index')],
@@ -132,8 +131,9 @@ class EmailTemplatesController extends Controller
             'availableTemplates' => $availableTemplates,
             'headerTemplates' => $headerTemplates,
             'footerTemplates' => $footerTemplates,
+            'templateVariables' => \App\Models\EmailTemplate::getAvailableVariables(),
             'breadcrumbs' => [
-                'title' => __('Edit Email Template'),
+                'title' => __('Edit Template'),
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
                     ['label' => __('Email Templates'), 'url' => route('admin.email-templates.index')],

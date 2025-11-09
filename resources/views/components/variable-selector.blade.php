@@ -10,19 +10,17 @@
     $buttonId = $buttonId ?? 'var-btn-' . uniqid();
     $dropdownContainerId = $dropdownContainerId ?? 'dropdown-container-' . uniqid();
 @endphp
+<div class="w-full flex flex-row-reverse">
+    <button type="button" id="{{ $buttonId }}" class="btn-default w-56">
+        <span>{{ __($label) }}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
 
-<button type="button" id="{{ $buttonId }}"
-    class="ml-2 text-xs text-indigo-600 dark:text-indigo-400 border-none bg-transparent cursor-pointer focus:outline-none inline-flex items-center hover:text-indigo-700 dark:hover:text-indigo-300">
-    <span>{{ __($label) }}</span>
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1"
-        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M19 9l-7 7-7-7" />
-    </svg>
-</button>
-
-<!-- Dropdown will be inserted here via JS -->
-<div id="{{ $dropdownContainerId }}" class="relative w-full"></div>
+    <!-- Dropdown will be inserted here via JS -->
+    <div id="{{ $dropdownContainerId }}" class="relative w-full"></div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

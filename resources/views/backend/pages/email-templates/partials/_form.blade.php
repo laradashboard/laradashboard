@@ -6,11 +6,13 @@
         @method('PUT')
     @endif
 
-    <div class="container mx-auto px-4 mt-4">
-        <div class="flex flex-col lg:flex-row w-full gap-4">
-            <div class="w-full lg:w-3/12">
-                <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-                    <div class="mb-4">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Left Sidebar -->
+            <div class="w-full lg:w-80 lg:flex-shrink-0 space-y-6">
+                <!-- Settings Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="p-6 space-y-5">
                         <x-inputs.combobox 
                             label="{{ __('Template Type') }}" 
                             name="type" 
@@ -22,9 +24,7 @@
                         @error('type')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                         @enderror
-                    </div>
 
-                    <div class="mb-4">
                         @php
                             $headerOptions = ['' => __('No Header')];
                             if(isset($template)) {
@@ -46,9 +46,7 @@
                         @error('header_template_id')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                         @enderror
-                    </div>
 
-                    <div class="mb-4">
                         @php
                             $footerOptions = ['' => __('No Footer')];
                             if(isset($template)) {
@@ -70,173 +68,143 @@
                         @error('footer_template_id')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                         @enderror
-                    </div>
 
-                    <div class="mb-4">
-                        <label class="form-label cursor-pointer flex justify-between">
-                            <span>{{ __('Active Status') }}</span>
-                            <div>
-                                <input type="hidden" name="is_active" value="0">
-                                <input type="checkbox" id="is_active" name="is_active" value="1"
-                                    class="sr-only"
-                                    {{ old('is_active', $template->is_active ?? true) ? 'checked' : '' }}>
-                                <div class="relative">
-                                    <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                        <div class="pt-1">
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Active Status') }}</span>
+                                <div>
+                                    <input type="hidden" name="is_active" value="0">
+                                    <input type="checkbox" id="is_active" name="is_active" value="1"
+                                        class="sr-only peer"
+                                        {{ old('is_active', $template->is_active ?? true) ? 'checked' : '' }}>
+                                    <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                                 </div>
-                            </div>
-                        </label>
+                            </label>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="flex justify-end space-x-3 pt-6">
-                        <a href="{{ route('admin.email-templates.index') }}" class="btn btn-secondary">
+                <!-- Action Buttons -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                    <div class="flex flex-col gap-3">
+                        <button type="submit" class="btn btn-primary w-full justify-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            {{ isset($template) ? __('Update Template') : __('Create Template') }}
+                        </button>
+                        <a href="{{ route('admin.email-templates.index') }}" class="btn btn-secondary w-full justify-center">
                             {{ __('Cancel') }}
                         </a>
-                        <button type="submit" class="btn btn-primary">
-                            {{ isset($template) ? __('Update') : __('Create') }}
-                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="w-full lg:w-9/12">
-                <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-                    <!-- Basic Information -->
-                    <div class="mb-6">
-                        <h3 class="font-medium text-lg text-gray-800 dark:text-gray-200 mb-4">
-                            {{ __('Basic Information') }}
-                        </h3>
-
-                        <div class="grid grid-cols-1 gap-6">
+            <!-- Main Content -->
+            <div class="flex-1 min-w-0">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="p-6 lg:p-8 space-y-8">
+                        <!-- Template Name & Description -->
+                        <div class="space-y-5">
                             <div>
-                                <label for="template_name"
-                                    class="form-label">
+                                <label for="template_name" class="form-label">
                                     {{ __('Template Name') }} <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="template_name" name="name"
                                     class="form-control @error('name') border-red-500 @enderror"
                                     value="{{ old('name', $template->name ?? '') }}"
-                                    placeholder="{{ __('Enter template name...') }}" required>
+                                    placeholder="{{ __('e.g., Welcome Email, Newsletter Template') }}" required>
                                 @error('name')
-                                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                    <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label for="template_description"
-                                    class="form-label">
+                                <label for="template_description" class="form-label">
                                     {{ __('Description') }}
                                 </label>
-                                <textarea id="template_description" name="description" rows="3"
+                                <textarea id="template_description" name="description" rows="2"
                                     class="form-control @error('description') border-red-500 @enderror"
-                                    placeholder="{{ __('Optional description for this template...') }}">{{ old('description', $template->description ?? '') }}</textarea>
+                                    placeholder="{{ __('Brief description of when to use this template...') }}">{{ old('description', $template->description ?? '') }}</textarea>
                                 @error('description')
-                                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                    <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
                                 @enderror
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Email Content -->
-                    <div class="mb-6">
-                        <h3 class="font-medium text-lg text-gray-800 dark:text-gray-200 mb-4">
-                            {{ __('Email Content') }}
-                        </h3>
+                            @if (!isset($template))
+                                <div>
+                                    <label for="template_selector" class="form-label">
+                                        {{ __('Load from Existing Template') }}
+                                    </label>
+                                    <select id="template_selector" class="form-control"
+                                        onchange="loadTemplateContent(this.value)">
+                                        <option value="">{{ __('Start from scratch or select a template...') }}</option>
+                                        @foreach ($availableTemplates ?? [] as $availableTemplate)
+                                            <option value="{{ $availableTemplate->id }}">{{ $availableTemplate->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1.5">{{ __('Copy content from an existing template as a starting point') }}</p>
+                                </div>
+                                <div class="border-t border-gray-200 dark:border-gray-700"></div>
+                            @endif
 
-                        @if (!isset($template))
-                            <div class="mb-4">
-                                <label for="template_selector"
-                                    class="form-label">
-                                    {{ __('Load from Template') }}
-                                </label>
-                                <select id="template_selector" class="form-control"
-                                    onchange="loadTemplateContent(this.value)">
-                                    <option value="">{{ __('Select a template to load content...') }}
-                                    </option>
-                                    @foreach ($availableTemplates ?? [] as $availableTemplate)
-                                        <option value="{{ $availableTemplate->id }}">
-                                            {{ $availableTemplate->name }}</option>
-                                    @endforeach
-                                </select>
                             </div>
-                        @endif
 
-                        <div class="grid grid-cols-1 gap-6">
-                            <div>
-                                @php
-                                    $variables = [
-                                        ['label' => 'First Name', 'value' => '{{ first_name }}'],
-                                        ['label' => 'Last Name', 'value' => '{{ last_name }}'],
-                                        ['label' => 'Company', 'value' => '{{ company }}'],
-                                        ['label' => 'Email', 'value' => '{{ email }}'],
-                                        ['label' => 'Activity Title', 'value' => '{{ activity_title }}'],
-                                        [
-                                            'label' => 'Activity Description',
-                                            'value' => '{{ activity_description }}',
-                                        ],
-                                        ['label' => 'Due Date', 'value' => '{{ due_date }}'],
-                                    ];
-                                @endphp
-                                <label for="email_subject"
-                                    class="form-label">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="email_subject" class="form-label w-full">
                                     {{ __('Email Subject') }} <span class="text-red-500">*</span>
-                                    <x-variable-selector target-id="email_subject" :variables="$variables"
-                                        label="Add Variable" />
                                 </label>
-                                <div class="flex items-center">
-                                    <input type="text" id="email_subject" name="subject"
-                                        class="form-control @error('subject') border-red-500 @enderror"
-                                        value="{{ old('subject', $template->subject ?? '') }}"
-                                        placeholder="{{ __('Enter email subject line...') }}" required>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1">
-                                    {{ __('You can use variables like {first_name}, {last_name}, {company}, etc.') }}
-                                </p>
-                                @error('subject')
-                                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                                @enderror
+                                <x-variable-selector target-id="email_subject" :variables="$templateVariables ?? []" label="Add Variable" />
                             </div>
+                            <input type="text" id="email_subject" name="subject"
+                                class="form-control @error('subject') border-red-500 @enderror"
+                                value="{{ old('subject', $template->subject ?? '') }}"
+                                placeholder="{{ __('Your compelling email subject line...') }}" required>
+                            <p class="text-xs text-gray-500 mt-1.5">
+                                {{ __('Use variables like {first_name}, {company}, etc. for personalization') }}
+                            </p>
+                            @error('subject')
+                                <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                            <div>
-                                <div class="flex items-center justify-between mb-2">
-                                    <label for="body_html"
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        {{ __('HTML Content') }}
-                                        <x-variable-selector target-id="body_html" :variables="$variables"
-                                            label="Add Variable" />
-                                    </label>
-                                </div>
-                                <div class="overflow-hidden border border-gray-300 dark:border-gray-600 rounded-md">
-                                    <textarea name="body_html" id="body_html" rows="4" class="block w-full border-0 focus:ring-0 focus:outline-none"
-                                        placeholder="{{ __('Email body content...') }}">{{ old('body_html', $template->body_html ?? '') }}</textarea>
-                                </div>
-                                @push('scripts')
-                                    <x-quill-editor :height="'200px'" :editor-id="'body_html'" type="basic" />
-                                @endpush
-                                @error('body_html')
-                                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                                @enderror
+                        <div>
+                            <div class="flex items-center justify-between mb-2 w-full">
+                                <label for="body_html" class="form-label w-full">
+                                    {{ __('HTML Content') }}
+                                </label>
+                                <x-variable-selector target-id="body_html" :variables="$templateVariables ?? []" label="Add Variable" />
                             </div>
+                            <div class="rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+                                <textarea name="body_html" id="body_html" rows="4" 
+                                    class="block w-full border-0 focus:ring-0 focus:outline-none"
+                                    placeholder="{{ __('Compose your email content...') }}">{{ old('body_html', $template->body_html ?? '') }}</textarea>
+                            </div>
+                            @push('scripts')
+                                <x-quill-editor :height="'200px'" :editor-id="'body_html'" type="basic" />
+                            @endpush
+                            @error('body_html')
+                                <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                            <div>
-                                <div class="flex items-center justify-between mb-2">
-                                    <label for="body_text"
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        {{ __('Plain Text Content') }}
-                                        <x-variable-selector target-id="body_text" :variables="$variables"
-                                            label="Add Variable" />
-                                    </label>
-                                </div>
-                                <textarea id="body_text" name="body_text" rows="15"
-                                    class="form-control !h-auto @error('body_text') border-red-500 @enderror"
-                                    placeholder="{{ __('Enter plain text version of your email...') }}">{{ old('body_text', $template->body_text ?? '') }}</textarea>
-                                <p class="text-xs text-gray-500 mt-1">
-                                    {{ __('Plain text fallback for email clients that don\'t support HTML.') }}
-                                </p>
-                                @error('body_text')
-                                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                                @enderror
+                        <div>
+                            <div class="flex items-center justify-between mb-2 w-full">
+                                <label for="body_text" class="form-label w-full">
+                                    {{ __('Plain Text Version') }}
+                                </label>
+                                <x-variable-selector target-id="body_text" :variables="$templateVariables ?? []" label="Add Variable" />
                             </div>
+                            <textarea id="body_text" name="body_text" rows="12"
+                                class="form-control !h-auto @error('body_text') border-red-500 @enderror font-mono text-sm"
+                                placeholder="{{ __('Plain text version for email clients that don\'t support HTML...') }}">{{ old('body_text', $template->body_text ?? '') }}</textarea>
+                            <p class="text-xs text-gray-500 mt-1.5">
+                                {{ __('Fallback version for email clients without HTML support') }}
+                            </p>
+                            @error('body_text')
+                                <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -247,31 +215,6 @@
 
 @push('scripts')
     <script>
-        // Toggle switch functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggle = document.getElementById('is_active');
-            const toggleContainer = toggle.nextElementSibling;
-            const dot = toggleContainer.querySelector('.dot');
-            
-            function updateToggle() {
-                if (toggle.checked) {
-                    toggleContainer.firstElementChild.classList.remove('bg-gray-600');
-                    toggleContainer.firstElementChild.classList.add('bg-primary');
-                    dot.style.transform = 'translateX(24px)';
-                } else {
-                    toggleContainer.firstElementChild.classList.remove('bg-primary');
-                    toggleContainer.firstElementChild.classList.add('bg-gray-500');
-                    dot.style.transform = 'translateX(0px)';
-                }
-            }
-            
-            // Initial state
-            updateToggle();
-            
-            // Toggle on click
-            toggle.addEventListener('change', updateToggle);
-        });
-        
         async function loadTemplateContent(templateId) {
             if (!templateId) return;
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -120,5 +119,23 @@ class EmailTemplate extends Model
     public function scopeByType($query, TemplateType $type)
     {
         return $query->where('type', $type);
+    }
+
+    public static function getAvailableVariables(): array
+    {
+        return [
+            ['label' => 'First Name', 'value' => '{{ first_name }}'],
+            ['label' => 'Last Name', 'value' => '{{ last_name }}'],
+            ['label' => 'Full Name', 'value' => '{{ full_name }}'],
+            ['label' => 'Company', 'value' => '{{ company }}'],
+            ['label' => 'Email', 'value' => '{{ email }}'],
+            ['label' => 'Phone', 'value' => '{{ phone }}'],
+            ['label' => 'Job Title', 'value' => '{{ job_title }}'],
+            ['label' => 'Website', 'value' => '{{ website }}'],
+            ['label' => 'Industry', 'value' => '{{ industry }}'],
+            ['label' => 'Activity Title', 'value' => '{{ activity_title }}'],
+            ['label' => 'Activity Description', 'value' => '{{ activity_description }}'],
+            ['label' => 'Due Date', 'value' => '{{ due_date }}'],
+        ];
     }
 }

@@ -30,9 +30,6 @@
                     'email' => [
                         'title' => __('Email Settings'),
                         'view' => 'backend.pages.settings.email-tab',
-                        'data' => [
-                            'settings' => config('settings', []),
-                        ],
                     ],
                 ]),
             ])
