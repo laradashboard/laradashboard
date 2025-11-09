@@ -36,11 +36,6 @@ class EmailTemplateDatatable extends Datatable
         ];
     }
 
-    protected function getRouteParameters(): array
-    {
-        return [];
-    }
-
     protected function getItemRouteParameters($item): array
     {
         return ['email_template' => $item->id];

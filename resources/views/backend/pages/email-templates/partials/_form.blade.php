@@ -17,7 +17,8 @@
                             :options="$templateTypes ?? []" 
                             placeholder="{{ __('Select Template Type') }}" 
                             selected="{{ old('type', $selectedType ?? '') }}" 
-                            required />
+                            required
+                        />
                         @error('type')
                             <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                         @enderror
@@ -72,11 +73,9 @@
                     </div>
 
                     <div class="mb-4">
-                        <label
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Status') }}</label>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('Inactive') }}</span>
-                            <label class="relative inline-flex cursor-pointer">
+                        <label class="form-label cursor-pointer flex justify-between">
+                            <span>{{ __('Active Status') }}</span>
+                            <div>
                                 <input type="hidden" name="is_active" value="0">
                                 <input type="checkbox" id="is_active" name="is_active" value="1"
                                     class="sr-only"
@@ -85,9 +84,8 @@
                                     <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
                                     <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
                                 </div>
-                            </label>
-                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('Active') }}</span>
-                        </div>
+                            </div>
+                        </label>
                     </div>
 
                     <div class="flex justify-end space-x-3 pt-6">
@@ -112,7 +110,7 @@
                         <div class="grid grid-cols-1 gap-6">
                             <div>
                                 <label for="template_name"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    class="form-label">
                                     {{ __('Template Name') }} <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="template_name" name="name"
@@ -126,7 +124,7 @@
 
                             <div>
                                 <label for="template_description"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    class="form-label">
                                     {{ __('Description') }}
                                 </label>
                                 <textarea id="template_description" name="description" rows="3"
@@ -145,6 +143,24 @@
                             {{ __('Email Content') }}
                         </h3>
 
+                        @if (!isset($template))
+                            <div class="mb-4">
+                                <label for="template_selector"
+                                    class="form-label">
+                                    {{ __('Load from Template') }}
+                                </label>
+                                <select id="template_selector" class="form-control"
+                                    onchange="loadTemplateContent(this.value)">
+                                    <option value="">{{ __('Select a template to load content...') }}
+                                    </option>
+                                    @foreach ($availableTemplates ?? [] as $availableTemplate)
+                                        <option value="{{ $availableTemplate->id }}">
+                                            {{ $availableTemplate->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
                         <div class="grid grid-cols-1 gap-6">
                             <div>
                                 @php
@@ -162,7 +178,7 @@
                                     ];
                                 @endphp
                                 <label for="email_subject"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    class="form-label">
                                     {{ __('Email Subject') }} <span class="text-red-500">*</span>
                                     <x-variable-selector target-id="email_subject" :variables="$variables"
                                         label="Add Variable" />
@@ -180,24 +196,6 @@
                                     <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
-
-                            @if (!isset($template))
-                                <div class="mb-4">
-                                    <label for="template_selector"
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        {{ __('Load from Template') }}
-                                    </label>
-                                    <select id="template_selector" class="form-control"
-                                        onchange="loadTemplateContent(this.value)">
-                                        <option value="">{{ __('Select a template to load content...') }}
-                                        </option>
-                                        @foreach ($availableTemplates ?? [] as $availableTemplate)
-                                            <option value="{{ $availableTemplate->id }}">
-                                                {{ $availableTemplate->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            @endif
 
                             <div>
                                 <div class="flex items-center justify-between mb-2">
@@ -230,7 +228,7 @@
                                     </label>
                                 </div>
                                 <textarea id="body_text" name="body_text" rows="15"
-                                    class="form-control @error('body_text') border-red-500 @enderror"
+                                    class="form-control !h-auto @error('body_text') border-red-500 @enderror"
                                     placeholder="{{ __('Enter plain text version of your email...') }}">{{ old('body_text', $template->body_text ?? '') }}</textarea>
                                 <p class="text-xs text-gray-500 mt-1">
                                     {{ __('Plain text fallback for email clients that don\'t support HTML.') }}
@@ -247,18 +245,6 @@
     </div>
 </form>
 
-@push('styles')
-<style>
-.toggle-switch input:checked + div .dot {
-    transform: translateX(100%);
-    background-color: #48bb78;
-}
-.toggle-switch input:checked + div {
-    background-color: #48bb78;
-}
-</style>
-@endpush
-
 @push('scripts')
     <script>
         // Toggle switch functionality
@@ -270,11 +256,11 @@
             function updateToggle() {
                 if (toggle.checked) {
                     toggleContainer.firstElementChild.classList.remove('bg-gray-600');
-                    toggleContainer.firstElementChild.classList.add('bg-green-500');
+                    toggleContainer.firstElementChild.classList.add('bg-primary');
                     dot.style.transform = 'translateX(24px)';
                 } else {
-                    toggleContainer.firstElementChild.classList.remove('bg-green-500');
-                    toggleContainer.firstElementChild.classList.add('bg-gray-600');
+                    toggleContainer.firstElementChild.classList.remove('bg-primary');
+                    toggleContainer.firstElementChild.classList.add('bg-gray-500');
                     dot.style.transform = 'translateX(0px)';
                 }
             }

@@ -73,7 +73,7 @@
             {{ __($label) }}
 
             @if($required)
-                <span class="crm:text-red-500">*</span>
+                <span class="text-red-500">*</span>
             @endif
         </label>
     @endif

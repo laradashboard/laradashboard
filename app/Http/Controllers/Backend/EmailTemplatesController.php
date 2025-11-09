@@ -31,7 +31,6 @@ class EmailTemplatesController extends Controller
                 'title' => __('Email Templates'),
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
-                    ['label' => __('Email Templates')],
                 ],
             ],
         ]);
@@ -61,7 +60,6 @@ class EmailTemplatesController extends Controller
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
                     ['label' => __('Email Templates'), 'url' => route('admin.email-templates.index')],
-                    ['label' => __('Create')],
                 ],
             ],
         ]);
@@ -102,7 +100,6 @@ class EmailTemplatesController extends Controller
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
                     ['label' => __('Email Templates'), 'url' => route('admin.email-templates.index')],
-                    ['label' => $template->name],
                 ],
             ],
         ]);
@@ -140,7 +137,6 @@ class EmailTemplatesController extends Controller
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
                     ['label' => __('Email Templates'), 'url' => route('admin.email-templates.index')],
-                    ['label' => __('Edit')],
                 ],
             ],
         ]);
