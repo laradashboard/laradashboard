@@ -63,11 +63,6 @@ class EmailTemplate extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function campaigns(): HasMany
-    {
-        return $this->hasMany(EmailCampaign::class, 'template_id');
-    }
-
     public function emailLogs(): HasMany
     {
         return $this->hasMany(EmailLog::class, 'template_id');
