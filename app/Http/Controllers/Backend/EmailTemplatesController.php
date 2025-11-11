@@ -12,6 +12,8 @@ use Illuminate\Http\RedirectResponse;
 use App\Services\EmailTemplateService;
 use App\Http\Requests\EmailTemplateRequest;
 use App\Enums\TemplateType;
+use App\Models\EmailTemplate;
+use App\Models\Setting;
 
 class EmailTemplatesController extends Controller
 {
@@ -22,7 +24,7 @@ class EmailTemplatesController extends Controller
 
     public function index(): Renderable
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         return view('backend.pages.email-templates.index', [
             'breadcrumbs' => [
@@ -36,7 +38,7 @@ class EmailTemplatesController extends Controller
 
     public function create(): Renderable
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $templateTypes = collect(TemplateType::cases())
             ->mapWithKeys(function ($type) {
@@ -66,7 +68,7 @@ class EmailTemplatesController extends Controller
 
     public function store(EmailTemplateRequest $request): RedirectResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         try {
             $template = $this->emailTemplateService->createTemplate($request->validated());
@@ -84,7 +86,7 @@ class EmailTemplatesController extends Controller
 
     public function show(string $uuid): Renderable
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $template = $this->emailTemplateService->getTemplateByUuid($uuid);
 
@@ -106,7 +108,7 @@ class EmailTemplatesController extends Controller
 
     public function edit(string $id): Renderable
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $template = $this->emailTemplateService->getTemplateById((int) $id);
 
@@ -144,7 +146,7 @@ class EmailTemplatesController extends Controller
 
     public function update(EmailTemplateRequest $request, string $uuid): RedirectResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $template = $this->emailTemplateService->getTemplateByUuid($uuid);
 
@@ -168,7 +170,7 @@ class EmailTemplatesController extends Controller
 
     public function destroy(string $uuid): RedirectResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $template = $this->emailTemplateService->getTemplateByUuid($uuid);
 
@@ -191,7 +193,7 @@ class EmailTemplatesController extends Controller
 
     public function duplicate(string $uuid, Request $request): RedirectResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $template = $this->emailTemplateService->getTemplateByUuid($uuid);
 
@@ -218,7 +220,7 @@ class EmailTemplatesController extends Controller
 
     public function setDefault(string $uuid): RedirectResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $template = $this->emailTemplateService->getTemplateByUuid($uuid);
 
@@ -241,7 +243,7 @@ class EmailTemplatesController extends Controller
 
     public function preview(string $uuid): JsonResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $template = $this->emailTemplateService->getTemplateByUuid($uuid);
 
@@ -273,7 +275,7 @@ class EmailTemplatesController extends Controller
 
     public function uploadPreview(string $uuid, Request $request): JsonResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $template = $this->emailTemplateService->getTemplateByUuid($uuid);
 
@@ -300,14 +302,14 @@ class EmailTemplatesController extends Controller
 
     public function getByType(string $type): JsonResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         try {
             $templateType = TemplateType::from($type);
             $templates = $this->emailTemplateService->getTemplatesByType($templateType);
 
             return response()->json([
-                'templates' => $templates->map(function ($template) {
+                'templates' => $templates->map(function (EmailTemplate $template) {
                     return [
                         'id' => $template->id,
                         'uuid' => $template->uuid,
@@ -324,7 +326,7 @@ class EmailTemplatesController extends Controller
 
     public function getContent(string $id): JsonResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         try {
             $template = $this->emailTemplateService->getTemplateById((int) $id);

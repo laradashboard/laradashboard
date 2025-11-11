@@ -66,11 +66,6 @@ class EmailLog extends Model
         });
     }
 
-    public function campaign(): BelongsTo
-    {
-        return $this->belongsTo(EmailCampaign::class, 'campaign_id');
-    }
-
     public function template(): BelongsTo
     {
         return $this->belongsTo(EmailTemplate::class, 'template_id');

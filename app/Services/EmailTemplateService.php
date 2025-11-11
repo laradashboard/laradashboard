@@ -26,8 +26,8 @@ class EmailTemplateService
             $search = $filter['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('subject', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%");
+                    ->orWhere('subject', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%");
             });
         }
 
@@ -160,9 +160,9 @@ class EmailTemplateService
         DB::beginTransaction();
 
         try {
-            // Check if template is being used in any campaigns
-            if ($template->campaigns()->exists()) {
-                throw new \Exception('Cannot delete template that is being used in campaigns');
+            // Check if template is being used in any campaigns.
+            if (DB::table('email_campaigns')->where('template_id', $template->id)->exists()) {
+                throw new \Exception('Cannot delete template that is being used in campaigns. Please remove it from any campaigns before deleting.');
             }
 
             // Delete preview image if exists
