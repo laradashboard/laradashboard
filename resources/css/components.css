@@ -66,6 +66,21 @@
         @apply rounded border-0 px-4 py-2.5 text-sm leading-5 text-gray-800 ring-1 ring-gray-200 h-10 w-full placeholder:text-gray-400 focus:outline-primary focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:ring-gray-700 dark:focus:border-brand-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30;
     }
 
+    /* Select specific styling with chevron icon */
+    select.form-control {
+        @apply appearance-none cursor-pointer;
+        padding-right: 2.5rem;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2398a2b3' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 1.2rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+    }
+
+    /* Dark mode chevron for select */
+    .dark select.form-control {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2398a2b3' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    }
+
     .form-control-file {
         @apply cursor-pointer border-0 file:border-0 focus:file:ring-primary ring-1 ring-gray-200 h-10 w-full overflow-hidden rounded-md bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:-mt-0.5 file:border-collapse file:cursor-pointer dark:ring-gray-700 file:rounded-l-lg file:py-3 file:px-4 file:text-sm file:text-gray-700 placeholder:text-gray-400 file:bg-gray-100 hover:file:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:file:bg-white/[0.03] dark:file:text-gray-400 focus:ring-2 focus:ring-primary focus-visible:ring-2 focus-visible:ring-primary;
     }
