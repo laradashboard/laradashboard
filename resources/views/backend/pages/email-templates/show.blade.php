@@ -143,6 +143,12 @@
                         <h3 class="text-xs font-medium text-gray-900 dark:text-white">{{ __('Actions') }}</h3>
                     </div>
                     <div class="p-2 space-y-2">
+                        <a href="{{ route('admin.email-templates.preview-page', $template->uuid) }}" target="_blank" 
+                           class="w-full flex items-center justify-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">
+                            <iconify-icon icon="feather:eye" class="mr-1"></iconify-icon>
+                            {{ __('Preview Email') }}
+                        </a>
+                        
                         <a href="{{ route('admin.email-templates.edit', $template->id) }}" 
                            class="w-full flex items-center justify-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">
                             <iconify-icon icon="feather:edit-2" class="mr-1"></iconify-icon>
@@ -165,27 +171,22 @@
     </div>
 
     <script>
-        // Initialize with the first tab
         document.addEventListener('DOMContentLoaded', function() {
             switchTab('subject');
         });
         
         function switchTab(tabName) {
-            // Hide all content
             document.querySelectorAll('[id^="content-"]').forEach(el => {
                 el.classList.add('hidden');
             });
             
-            // Show selected content
             document.getElementById('content-' + tabName).classList.remove('hidden');
             
-            // Reset all tab buttons
             document.querySelectorAll('[id^="tab-"]').forEach(el => {
                 el.classList.remove('border-indigo-500', 'text-indigo-600', 'dark:text-indigo-400');
                 el.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
             });
             
-            // Highlight selected tab
             const selectedTab = document.getElementById('tab-' + tabName);
             selectedTab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
             selectedTab.classList.add('border-indigo-500', 'text-indigo-600', 'dark:text-indigo-400');
