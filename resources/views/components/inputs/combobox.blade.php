@@ -47,8 +47,8 @@
             foreach ($options as $key => $lbl) {
                 // Ensure both key and label are scalars
                 $value = is_array($key) ? json_encode($key) : $key;
-                $label = is_array($lbl) ? json_encode($lbl) : $lbl;
-                $normalizedOptions[] = ['value' => $value, 'label' => $label, 'description' => null];
+                $item_label = is_array($lbl) ? json_encode($lbl) : $lbl;
+                $normalizedOptions[] = ['value' => $value, 'label' => $item_label, 'description' => null];
             }
         }
     }
