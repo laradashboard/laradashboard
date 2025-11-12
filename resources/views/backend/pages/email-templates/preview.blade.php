@@ -7,7 +7,7 @@
                         <h3 class="text-base font-medium text-gray-700 dark:text-white/90">{{ __('Email Preview') }}</h3>
                         <span class="badge">{{ $template->name }}</span>
                     </div>
-                    <a href="{{ route('admin.email-templates.show', $template->uuid) }}" class="btn-default">
+                    <a href="{{ route('admin.email-templates.show', $template->id) }}" class="btn-default">
                         <iconify-icon icon="lucide:arrow-left" class="mr-2"></iconify-icon>
                         {{ __('Back to Template') }}
                     </a>

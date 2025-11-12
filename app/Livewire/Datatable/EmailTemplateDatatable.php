@@ -22,6 +22,7 @@ class EmailTemplateDatatable extends Datatable
     {
         return [
             'create' => 'admin.email-templates.create',
+            'view' => 'admin.email-templates.show',
             'edit' => 'admin.email-templates.edit',
             'delete' => 'admin.email-templates.destroy',
         ];
@@ -31,6 +32,7 @@ class EmailTemplateDatatable extends Datatable
     {
         return [
             'create' => 'settings.edit',
+            'view' => 'settings.edit',
             'edit' => 'settings.edit',
             'delete' => 'settings.edit',
         ];
@@ -38,7 +40,9 @@ class EmailTemplateDatatable extends Datatable
 
     protected function getItemRouteParameters($item): array
     {
-        return ['email_template' => $item->id];
+        return [
+            'email_template' => $item->id,
+        ];
     }
 
     protected function getHeaders(): array
@@ -128,9 +132,9 @@ class EmailTemplateDatatable extends Datatable
         return view('backend.pages.email-templates.partials.email-template-subject', compact('emailTemplate'));
     }
 
-    public function renderActionsColumn($item): Renderable
+    public function renderAfterActionView($emailTemplate): string|Renderable
     {
-        return view('backend.pages.email-templates.partials.actions', ['emailTemplate' => $item]);
+        return view('backend.pages.email-templates.partials.action-button-test', compact('emailTemplate'));
     }
 
     protected function handleBulkDelete(array $ids): int

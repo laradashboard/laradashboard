@@ -85,7 +85,7 @@ class EmailTemplatesController extends Controller
             }
 
             return redirect()
-                ->route('admin.email-templates.show', $template->uuid)
+                ->route('admin.email-templates.show', $template->id)
                 ->with('success', __('Email template created successfully.'));
         } catch (\Exception $e) {
             // If it's an AJAX request, return JSON error
@@ -103,11 +103,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function show(string $uuid): Renderable
+    public function show(int $id): Renderable
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateByUuid($uuid);
+        $template = $this->emailTemplateService->getTemplateById($id);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -193,11 +193,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function destroy(string $uuid): RedirectResponse
+    public function destroy(int $id): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateByUuid($uuid);
+        $template = $this->emailTemplateService->getTemplateById($id);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -216,11 +216,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function duplicate(string $uuid, Request $request): RedirectResponse
+    public function duplicate(int $id, Request $request): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateByUuid($uuid);
+        $template = $this->emailTemplateService->getTemplateById($id);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -243,11 +243,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function setDefault(string $uuid): RedirectResponse
+    public function setDefault(int $id): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateByUuid($uuid);
+        $template = $this->emailTemplateService->getTemplateById($id);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -266,11 +266,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function preview(string $uuid): JsonResponse
+    public function preview(int $id): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateByUuid($uuid);
+        $template = $this->emailTemplateService->getTemplateById($id);
 
         if (! $template) {
             return response()->json(['error' => 'Template not found'], 404);
@@ -301,11 +301,11 @@ class EmailTemplatesController extends Controller
         ]);
     }
 
-    public function previewPage(string $uuid): Renderable
+    public function previewPage(int $id): Renderable
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateByUuid($uuid);
+        $template = $this->emailTemplateService->getTemplateById($id);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -343,11 +343,11 @@ class EmailTemplatesController extends Controller
         ]);
     }
 
-    public function sendTestEmail(string $uuid, Request $request): JsonResponse
+    public function sendTestEmail(int $id, Request $request): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateByUuid($uuid);
+        $template = $this->emailTemplateService->getTemplateById($id);
 
         if (! $template) {
             return response()->json(['message' => 'Template not found'], 404);
@@ -358,7 +358,7 @@ class EmailTemplatesController extends Controller
         ]);
 
         try {
-            Log::info('Sending test email', ['uuid' => $uuid, 'email' => $request->input('email')]);
+            Log::info('Sending test email', ['id' => $id, 'email' => $request->input('email')]);
 
             $sampleData = [
                 'first_name' => 'John',
@@ -392,11 +392,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function uploadPreview(string $uuid, Request $request): JsonResponse
+    public function uploadPreview(int $id, Request $request): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateByUuid($uuid);
+        $template = $this->emailTemplateService->getTemplateById($id);
 
         if (! $template) {
             return response()->json(['error' => 'Template not found'], 404);

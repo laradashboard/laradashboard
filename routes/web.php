@@ -57,12 +57,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::get('email-templates/{id}/content', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'getContent'])->name('email-templates.content')->where('id', '[0-9]+');
     Route::post('email-templates/live-preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'livePreview'])->name('email-templates.live-preview');
     Route::resource('email-templates', \App\Http\Controllers\Backend\EmailTemplatesController::class);
-    Route::post('email-templates/{uuid}/duplicate', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'duplicate'])->name('email-templates.duplicate');
-    Route::post('email-templates/{uuid}/set-default', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'setDefault'])->name('email-templates.set-default');
-    Route::get('email-templates/{uuid}/preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'preview'])->name('email-templates.preview');
-    Route::get('email-templates/{uuid}/preview-page', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'previewPage'])->name('email-templates.preview-page');
-    Route::post('email-templates/{uuid}/send-test', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'sendTestEmail'])->name('email-templates.send-test');
-    Route::post('email-templates/{uuid}/upload-preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'uploadPreview'])->name('email-templates.upload-preview');
+    Route::post('email-templates/{id}/duplicate', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'duplicate'])->name('email-templates.duplicate');
+    Route::post('email-templates/{id}/set-default', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'setDefault'])->name('email-templates.set-default');
+    Route::get('email-templates/{id}/preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'preview'])->name('email-templates.preview');
+    Route::get('email-templates/{id}/preview-page', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'previewPage'])->name('email-templates.preview-page');
+    Route::post('email-templates/{id}/send-test', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'sendTestEmail'])->name('email-templates.send-test');
+    Route::post('email-templates/{id}/upload-preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'uploadPreview'])->name('email-templates.upload-preview');
 
     // Translation Routes.
     Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');

@@ -26,7 +26,7 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <a href="{{ route('admin.email-templates.preview-page', $template->uuid) }}" target="_blank" class="btn-default">
+                        <a href="{{ route('admin.email-templates.preview-page', $template->id) }}" target="_blank" class="btn-default">
                             <iconify-icon icon="lucide:eye" class="mr-2"></iconify-icon>
                             {{ __('Preview') }}
                         </a>
@@ -138,7 +138,7 @@
     </div>
 
     <!-- Test Email Modal Component -->
-    <x-modals.test-email :send-test-url="route('admin.email-templates.send-test', $template->uuid)" />
+    <x-modals.test-email :send-test-url="route('admin.email-templates.send-test', $template->id)" />
 
     <script>
         function switchTab(tabName) {

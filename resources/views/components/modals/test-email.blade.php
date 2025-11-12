@@ -1,9 +1,9 @@
 @props([
-    'templateUuid' => null,
+    'templateId' => null,
     'sendTestUrl' => null,
 ])
 
-<div x-data="testEmailModal(@js($templateUuid), @js($sendTestUrl))">
+<div x-data="testEmailModal(@js($templateId), @js($sendTestUrl))">
     <div
         x-cloak
         x-show="open"
@@ -15,11 +15,11 @@
         x-transition:leave-end="opacity-0"
         @keydown.escape.window="open && closeModal()"
         @click.self="closeModal()"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-md"
+        class="fixed inset-0 flex items-center justify-center bg-black/20 p-4 backdrop-blur-md"
         role="dialog"
         aria-modal="true"
         aria-labelledby="test-email-modal-title"
-        style="display: none;"
+        style="display: none; z-index: 10000;"
     >
         <div
             x-show="open"
@@ -104,12 +104,12 @@
 
 <script>
 document.addEventListener('alpine:init', () => {
-    Alpine.data('testEmailModal', (initialTemplateUuid = null, initialSendTestUrl = null) => ({
+    Alpine.data('testEmailModal', (initialTemplateId = null, initialSendTestUrl = null) => ({
         open: false,
         loading: false,
         errorMessage: '',
         successMessage: '',
-        templateUuid: initialTemplateUuid,
+        templateId: initialTemplateId,
         sendTestUrl: initialSendTestUrl,
         
         init() {
@@ -122,9 +122,12 @@ document.addEventListener('alpine:init', () => {
             });
             
             window.addEventListener('open-test-email-modal', (event) => {
-                this.templateUuid = event.detail?.uuid || this.templateUuid;
+                this.templateId = event.detail?.id || this.templateId;
                 this.sendTestUrl = event.detail?.url || this.sendTestUrl;
                 this.open = true;
+                
+                // Close any open dropdowns when modal opens
+                window.dispatchEvent(new CustomEvent('click'));
             });
         },
         
@@ -143,7 +146,7 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            if (!this.templateUuid && !this.sendTestUrl) {
+            if (!this.templateId && !this.sendTestUrl) {
                 this.errorMessage = '{{ __('Template not selected') }}';
                 return;
             }
@@ -152,7 +155,7 @@ document.addEventListener('alpine:init', () => {
             this.errorMessage = '';
             this.successMessage = '';
 
-            const url = this.sendTestUrl || `/admin/email-templates/${this.templateUuid}/send-test`;
+            const url = this.sendTestUrl || `/admin/email-templates/${this.templateId}/send-test`;
 
             fetch(url, {
                 method: 'POST',

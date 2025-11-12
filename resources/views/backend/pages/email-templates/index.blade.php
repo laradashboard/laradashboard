@@ -10,9 +10,9 @@
     <x-modals.test-email />
 
     <script>
-        function openTestEmailModal(uuid) {
+        function openTestEmailModal(id) {
             window.dispatchEvent(new CustomEvent('open-test-email-modal', {
-                detail: { uuid: uuid }
+                detail: { id: id }
             }));
         }
     </script>
