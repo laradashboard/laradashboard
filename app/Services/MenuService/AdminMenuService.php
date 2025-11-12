@@ -206,7 +206,7 @@ class AdminMenuService
                     'permissions' => 'settings.edit',
                 ],
                 [
-                    'label' => __('Email Templates'),
+                    'label' => __('Emails'),
                     'route' => route('admin.email-templates.index'),
                     'active' => Route::is('admin.email-templates.*'),
                     'priority' => 15,

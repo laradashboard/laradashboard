@@ -1,10 +1,17 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
-    <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-        <!-- Email Templates Table -->
-        <div class="space-y-6">
+    <div class="space-y-6">
+        @include('backend.pages.email-templates.partials.settings-view')
+
+        <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                {{ __('Email Templates') }}
+            </h3>
             <livewire:datatable.email-template-datatable lazy />
         </div>
     </div>
+
+    <!-- Email Settings Drawer -->
+    @include('backend.pages.email-templates.partials.settings-drawer')
 
     <!-- Test Email Modal Component -->
     <x-modals.test-email />

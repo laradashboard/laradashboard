@@ -27,10 +27,6 @@
                         'title' => __('Performance & Security'),
                         'view' => 'backend.pages.settings.performance-security-tab',
                     ],
-                    'email' => [
-                        'title' => __('Email Settings'),
-                        'view' => 'backend.pages.settings.email-tab',
-                    ],
                 ]),
             ])
 

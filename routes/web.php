@@ -52,6 +52,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
 
+    // Email Settings Management
+    Route::post('email-settings', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'updateEmailSettings'])->name('email-settings.update');
+
     // Email Templates Management
     Route::get('email-templates/by-type/{type}', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'getByType'])->name('email-templates.by-type');
     Route::get('email-templates/{id}/content', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'getContent'])->name('email-templates.content')->where('id', '[0-9]+');

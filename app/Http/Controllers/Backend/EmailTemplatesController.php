@@ -16,11 +16,16 @@ use App\Models\EmailTemplate;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use App\Services\SettingService;
+use App\Services\EnvWriter;
+use App\Enums\ActionType;
 
 class EmailTemplatesController extends Controller
 {
     public function __construct(
-        private readonly EmailTemplateService $emailTemplateService
+        private readonly EmailTemplateService $emailTemplateService,
+        private readonly SettingService $settingService,
+        private readonly EnvWriter $envWriter,
     ) {
     }
 
@@ -30,7 +35,7 @@ class EmailTemplatesController extends Controller
 
         return view('backend.pages.email-templates.index', [
             'breadcrumbs' => [
-                'title' => __('Email Templates'),
+                'title' => __('Emails'),
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
                 ],
@@ -62,7 +67,7 @@ class EmailTemplatesController extends Controller
                 'title' => __('Create Template'),
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
-                    ['label' => __('Email Templates'), 'url' => route('admin.email-templates.index')],
+                    ['label' => __('Emails'), 'url' => route('admin.email-templates.index')],
                 ],
             ],
         ]);
@@ -119,7 +124,7 @@ class EmailTemplatesController extends Controller
                 'title' => $template->name,
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
-                    ['label' => __('Email Templates'), 'url' => route('admin.email-templates.index')],
+                    ['label' => __('Emails'), 'url' => route('admin.email-templates.index')],
                 ],
             ],
         ]);
@@ -157,7 +162,7 @@ class EmailTemplatesController extends Controller
                 'title' => __('Edit Template'),
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
-                    ['label' => __('Email Templates'), 'url' => route('admin.email-templates.index')],
+                    ['label' => __('Emails'), 'url' => route('admin.email-templates.index')],
                 ],
             ],
         ]);
@@ -336,7 +341,7 @@ class EmailTemplatesController extends Controller
                 'title' => __('Preview Template'),
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
-                    ['label' => __('Email Templates'), 'url' => route('admin.email-templates.index')],
+                    ['label' => __('Emails'), 'url' => route('admin.email-templates.index')],
                     ['label' => $template->name, 'url' => route('admin.email-templates.edit', $template->id)],
                 ],
             ],
@@ -520,5 +525,44 @@ class EmailTemplatesController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function updateEmailSettings(Request $request): RedirectResponse
+    {
+        $this->authorize('manage', Setting::class);
+
+        $request->validate([
+            'email_from_email' => 'required|email',
+            'email_from_name' => 'required|string|max:255',
+            'email_reply_to_email' => 'nullable|email',
+            'email_reply_to_name' => 'nullable|string|max:255',
+            'email_utm_source_default' => 'nullable|string|max:255',
+            'email_utm_medium_default' => 'nullable|string|max:255',
+            'email_rate_limit_per_hour' => 'nullable|integer|min:1|max:10000',
+            'email_delay_seconds' => 'nullable|integer|min:0|max:60',
+        ]);
+
+        $fields = $request->only([
+            'email_from_email',
+            'email_from_name',
+            'email_reply_to_email',
+            'email_reply_to_name',
+            'email_utm_source_default',
+            'email_utm_medium_default',
+            'email_rate_limit_per_hour',
+            'email_delay_seconds',
+        ]);
+
+        foreach ($fields as $fieldName => $fieldValue) {
+            $this->settingService->addSetting($fieldName, $fieldValue);
+        }
+
+        $this->envWriter->batchWriteKeysToEnvFile($fields);
+
+        $this->storeActionLog(ActionType::UPDATED, [
+            'email_settings' => $fields,
+        ]);
+
+        return redirect()->back()->with('success', __('Email settings updated successfully.'));
     }
 }
