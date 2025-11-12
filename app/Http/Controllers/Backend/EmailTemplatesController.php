@@ -335,6 +335,14 @@ class EmailTemplatesController extends Controller
         return view('backend.pages.email-templates.preview', [
             'template' => $template,
             'rendered' => $rendered,
+            'breadcrumbs' => [
+                'title' => __('Preview Template'),
+                'items' => [
+                    ['label' => __('Settings'), 'url' => route('admin.settings.index')],
+                    ['label' => __('Email Templates'), 'url' => route('admin.email-templates.index')],
+                    ['label' => $template->name, 'url' => route('admin.email-templates.edit', $template->id)],
+                ],
+            ],
         ]);
     }
 

@@ -1,117 +1,55 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Email Preview - {{ $template->name }}</title>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 20px; 
-            background: #f5f5f5; 
-        }
-        .container { 
-            max-width: 800px; 
-            margin: 0 auto; 
-            background: white; 
-            border-radius: 8px; 
-            overflow: hidden; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-        }
-        .header { 
-            background: #4f46e5; 
-            color: white; 
-            padding: 20px; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .subject { 
-            background: #f8fafc; 
-            padding: 15px; 
-            border-bottom: 1px solid #e2e8f0; 
-            font-weight: bold;
-        }
-        .tabs { 
-            display: flex; 
-            border-bottom: 1px solid #e2e8f0; 
-        }
-        .tab { 
-            padding: 10px 20px; 
-            cursor: pointer; 
-            border-bottom: 2px solid transparent; 
-            background: #f8fafc;
-        }
-        .tab.active { 
-            border-bottom-color: #4f46e5; 
-            color: #4f46e5; 
-            background: white;
-        }
-        .tab-content { 
-            display: none; 
-            padding: 20px; 
-            min-height: 400px;
-        }
-        .tab-content.active { 
-            display: block; 
-        }
-        pre { 
-            white-space: pre-wrap; 
-            font-family: monospace; 
-            margin: 0;
-        }
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-        .btn {
-            padding: 8px 16px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .btn-primary {
-            background: #4f46e5;
-            color: white;
-        }
-        .btn-secondary {
-            background: #6b7280;
-            color: white;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>{{ $template->name }} - Email Preview</h1>
-            <div class="actions">
-                <a href="{{ route('admin.email-templates.edit', $template->id) }}" class="btn btn-secondary">Edit</a>
-                <a href="{{ route('admin.email-templates.index') }}" class="btn btn-primary">Back</a>
+<x-layouts.backend-layout :breadcrumbs="$breadcrumbs ?? ['title' => __('Email Preview')]">
+    <x-card>
+        <x-slot name="header">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                {{ $template->name }} - {{ __('Email Preview') }}
+            </h3>
+        </x-slot>
+
+        <div class="space-y-4">
+            <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <strong class="text-gray-700 dark:text-gray-300">{{ __('Subject') }}:</strong>
+                <span class="ml-2 text-gray-900 dark:text-white">{{ $rendered['subject'] }}</span>
+            </div>
+
+            <div class="border-b border-gray-200 dark:border-gray-700">
+                <nav class="-mb-px flex space-x-8">
+                    <button onclick="showTab('html')" class="preview-tab active border-b-2 border-primary py-2 px-1 text-sm font-medium text-primary">
+                        {{ __('HTML Preview') }}
+                    </button>
+                    <button onclick="showTab('text')" class="preview-tab border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
+                        {{ __('Plain Text') }}
+                    </button>
+                </nav>
+            </div>
+
+            <div id="html-tab" class="preview-tab-content active">
+                <div class="prose max-w-none dark:prose-invert">
+                    {!! $rendered['body_html'] !!}
+                </div>
+            </div>
+
+            <div id="text-tab" class="preview-tab-content hidden">
+                <pre class="whitespace-pre-wrap font-mono text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">{{ $rendered['body_text'] }}</pre>
             </div>
         </div>
-        <div class="subject">
-            Subject: {{ $rendered['subject'] }}
-        </div>
-        <div class="tabs">
-            <div class="tab active" onclick="showTab('html')">HTML Preview</div>
-            <div class="tab" onclick="showTab('text')">Plain Text</div>
-        </div>
-        <div id="html-tab" class="tab-content active">
-            {!! $rendered['body_html'] !!}
-        </div>
-        <div id="text-tab" class="tab-content">
-            <pre>{{ $rendered['body_text'] }}</pre>
-        </div>
-    </div>
-    
+    </x-card>
+
     <script>
         function showTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.preview-tab').forEach(t => {
+                t.classList.remove('active', 'border-primary', 'text-primary');
+                t.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+            });
+            document.querySelectorAll('.preview-tab-content').forEach(c => {
+                c.classList.add('hidden');
+                c.classList.remove('active');
+            });
+            
+            event.target.classList.add('active', 'border-primary', 'text-primary');
+            event.target.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+            document.getElementById(tab + '-tab').classList.remove('hidden');
             document.getElementById(tab + '-tab').classList.add('active');
         }
     </script>
-</body>
-</html>
+</x-layouts.backend-layout>
