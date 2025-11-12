@@ -14,6 +14,8 @@ use App\Http\Requests\EmailTemplateRequest;
 use App\Enums\TemplateType;
 use App\Models\EmailTemplate;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class EmailTemplatesController extends Controller
 {
@@ -172,23 +174,18 @@ class EmailTemplatesController extends Controller
         }
 
         try {
-            \Log::info('Updating email template', [
-                'template_id' => $id,
-                'validated_data' => $request->validated()
-            ]);
-            
             $this->emailTemplateService->updateTemplate($template, $request->validated());
 
             return redirect()
                 ->route('admin.email-templates.index')
                 ->with('success', __('Email template updated successfully.'));
         } catch (\Exception $e) {
-            \Log::error('Failed to update email template', [
+            Log::error('Failed to update email template', [
                 'template_id' => $id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return redirect()
                 ->back()
                 ->withInput()
@@ -361,7 +358,7 @@ class EmailTemplatesController extends Controller
         ]);
 
         try {
-            \Log::info('Sending test email', ['uuid' => $uuid, 'email' => $request->input('email')]);
+            Log::info('Sending test email', ['uuid' => $uuid, 'email' => $request->input('email')]);
 
             $sampleData = [
                 'first_name' => 'John',
@@ -377,20 +374,20 @@ class EmailTemplatesController extends Controller
             ];
 
             $rendered = $this->emailTemplateService->renderTemplate($template, $sampleData);
-            \Log::info('Template rendered', ['subject' => $rendered['subject']]);
+            Log::info('Template rendered', ['subject' => $rendered['subject']]);
 
-            \Mail::send([], [], function ($message) use ($rendered, $request) {
+            Mail::send([], [], function ($message) use ($rendered, $request) {
                 $message->to($request->input('email'))
                     ->from(config('mail.from.address'), config('mail.from.name'))
                     ->subject($rendered['subject'])
                     ->html($rendered['body_html']);
             });
 
-            \Log::info('Email sent successfully');
+            Log::info('Email sent successfully');
 
             return response()->json(['message' => 'Test email sent successfully']);
         } catch (\Exception $e) {
-            \Log::error('Failed to send test email', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            Log::error('Failed to send test email', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Failed to send test email: ' . $e->getMessage()], 500);
         }
     }
