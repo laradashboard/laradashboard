@@ -82,13 +82,13 @@ class EmailTemplateService
 
     public function getTemplateById(int $id): ?EmailTemplate
     {
-        return EmailTemplate::with(['creator', 'updater', 'emailLogs'])
+        return EmailTemplate::with(['creator', 'updater', 'emailLogs', 'headerTemplate', 'footerTemplate'])
             ->find($id);
     }
 
     public function getTemplateByUuid(string $uuid): ?EmailTemplate
     {
-        return EmailTemplate::with(['creator', 'updater', 'emailLogs'])
+        return EmailTemplate::with(['creator', 'updater', 'emailLogs', 'headerTemplate', 'footerTemplate'])
             ->where('uuid', $uuid)
             ->first();
     }

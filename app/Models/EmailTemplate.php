@@ -81,14 +81,47 @@ class EmailTemplate extends Model
     public function renderTemplate(array $data = []): array
     {
         $subject = $this->subject;
-        $bodyHtml = $this->body_html;
-        $bodyText = $this->body_text;
+        $bodyHtml = $this->body_html ?? '';
+        $bodyText = $this->body_text ?? '';
 
+        // Include header template if exists
+        if ($this->header_template_id && $this->headerTemplate) {
+            $headerHtml = $this->headerTemplate->body_html ?? '';
+            $headerText = $this->headerTemplate->body_text ?? '';
+            
+            // Replace variables in header
+            foreach ($data as $key => $value) {
+                $placeholder = '{{' . $key . '}}';
+                $headerHtml = str_replace($placeholder, $value, $headerHtml);
+                $headerText = str_replace($placeholder, $value, $headerText);
+            }
+            
+            $bodyHtml = $headerHtml . $bodyHtml;
+            $bodyText = $headerText . "\n\n" . $bodyText;
+        }
+
+        // Include footer template if exists
+        if ($this->footer_template_id && $this->footerTemplate) {
+            $footerHtml = $this->footerTemplate->body_html ?? '';
+            $footerText = $this->footerTemplate->body_text ?? '';
+            
+            // Replace variables in footer
+            foreach ($data as $key => $value) {
+                $placeholder = '{{' . $key . '}}';
+                $footerHtml = str_replace($placeholder, $value, $footerHtml);
+                $footerText = str_replace($placeholder, $value, $footerText);
+            }
+            
+            $bodyHtml = $bodyHtml . $footerHtml;
+            $bodyText = $bodyText . "\n\n" . $footerText;
+        }
+
+        // Replace variables in main content
         foreach ($data as $key => $value) {
             $placeholder = '{{' . $key . '}}';
             $subject = str_replace($placeholder, $value, $subject);
-            $bodyHtml = str_replace($placeholder, $value, $bodyHtml ?? '');
-            $bodyText = str_replace($placeholder, $value, $bodyText ?? '');
+            $bodyHtml = str_replace($placeholder, $value, $bodyHtml);
+            $bodyText = str_replace($placeholder, $value, $bodyText);
         }
 
         return [
@@ -101,6 +134,15 @@ class EmailTemplate extends Model
     public function extractVariables(): array
     {
         $content = $this->subject . ' ' . $this->body_html . ' ' . $this->body_text;
+        
+        // Include header and footer content for variable extraction
+        if ($this->headerTemplate) {
+            $content .= ' ' . $this->headerTemplate->body_html . ' ' . $this->headerTemplate->body_text;
+        }
+        if ($this->footerTemplate) {
+            $content .= ' ' . $this->footerTemplate->body_html . ' ' . $this->footerTemplate->body_text;
+        }
+        
         preg_match_all('/\{\{([^}]+)\}\}/', $content, $matches);
 
         return array_unique($matches[1]);
