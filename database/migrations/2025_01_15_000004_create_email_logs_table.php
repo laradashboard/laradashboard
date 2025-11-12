@@ -37,13 +37,11 @@ return new class () extends Migration {
             $table->string('provider')->nullable(); // Email service provider (e.g., SendGrid, Mailgun)
             $table->json('provider_response')->nullable();
             $table->unsignedBigInteger('sent_by')->nullable();
-            $table->foreign('campaign_id')->references('id')->on('email_campaigns')->onDelete('set null');
             $table->foreign('template_id')->references('id')->on('email_templates')->onDelete('set null');
             $table->foreign('sent_by')->references('id')->on('users')->onDelete('set null');
             $table->timestamps();
 
             $table->index(['to_email', 'status']);
-            $table->index(['campaign_id', 'status']);
             $table->index(['sent_at']);
         });
     }
