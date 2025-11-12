@@ -61,6 +61,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::post('email-templates/{uuid}/set-default', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'setDefault'])->name('email-templates.set-default');
     Route::get('email-templates/{uuid}/preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'preview'])->name('email-templates.preview');
     Route::get('email-templates/{uuid}/preview-page', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'previewPage'])->name('email-templates.preview-page');
+    Route::post('email-templates/{uuid}/send-test', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'sendTestEmail'])->name('email-templates.send-test');
     Route::post('email-templates/{uuid}/upload-preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'uploadPreview'])->name('email-templates.upload-preview');
 
     // Translation Routes.

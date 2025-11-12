@@ -31,9 +31,8 @@ class EmailTemplateRequest extends FormRequest
 
         // For update requests, make name unique except for current record
         if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
-            $templateId = $this->route('uuid') ?
-                \App\Models\EmailTemplate::where('uuid', $this->route('uuid'))->first()?->id :
-                null;
+            // Get the template ID from the route parameter
+            $templateId = $this->route('email_template');
 
             if ($templateId) {
                 $rules['name'] = 'required|string|max:255|unique:email_templates,name,' . $templateId;

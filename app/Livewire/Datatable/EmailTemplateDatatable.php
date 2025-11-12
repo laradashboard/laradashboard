@@ -128,6 +128,11 @@ class EmailTemplateDatatable extends Datatable
         return view('backend.pages.email-templates.partials.email-template-subject', compact('emailTemplate'));
     }
 
+    public function renderActionsColumn($item): Renderable
+    {
+        return view('backend.pages.email-templates.partials.actions', ['emailTemplate' => $item]);
+    }
+
     protected function handleBulkDelete(array $ids): int
     {
         $emailTemplates = EmailTemplate::whereIn('id', $ids)->where('is_default', false)->get();
