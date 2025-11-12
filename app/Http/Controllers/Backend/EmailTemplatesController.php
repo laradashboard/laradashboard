@@ -443,12 +443,12 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function getContent(string $id): JsonResponse
+    public function getContent(int $id): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
         try {
-            $template = $this->emailTemplateService->getTemplateById((int) $id);
+            $template = $this->emailTemplateService->getTemplateById($id);
 
             if (! $template) {
                 return response()->json(['error' => 'Template not found'], 404);
