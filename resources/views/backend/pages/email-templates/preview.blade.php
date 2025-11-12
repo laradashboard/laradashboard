@@ -1,55 +1,71 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs ?? ['title' => __('Email Preview')]">
-    <x-card>
-        <x-slot name="header">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                {{ $template->name }} - {{ __('Email Preview') }}
-            </h3>
-        </x-slot>
+    <div class="space-y-6">
+        <x-card>
+            <x-slot name="header">
+                <div class="flex items-center justify-between w-full">
+                    <div class="flex items-center gap-3">
+                        <h3 class="text-base font-medium text-gray-700 dark:text-white/90">{{ __('Email Preview') }}</h3>
+                        <span class="badge">{{ $template->name }}</span>
+                    </div>
+                    <a href="{{ route('admin.email-templates.show', $template->uuid) }}" class="btn-default">
+                        <iconify-icon icon="lucide:arrow-left" class="mr-2"></iconify-icon>
+                        {{ __('Back to Template') }}
+                    </a>
+                </div>
+            </x-slot>
 
-        <div class="space-y-4">
-            <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                <strong class="text-gray-700 dark:text-gray-300">{{ __('Subject') }}:</strong>
-                <span class="ml-2 text-gray-900 dark:text-white">{{ $rendered['subject'] }}</span>
-            </div>
-
-            <div class="border-b border-gray-200 dark:border-gray-700">
-                <nav class="-mb-px flex space-x-8">
-                    <button onclick="showTab('html')" class="preview-tab active border-b-2 border-primary py-2 px-1 text-sm font-medium text-primary">
-                        {{ __('HTML Preview') }}
-                    </button>
-                    <button onclick="showTab('text')" class="preview-tab border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
-                        {{ __('Plain Text') }}
-                    </button>
-                </nav>
-            </div>
-
-            <div id="html-tab" class="preview-tab-content active">
-                <div class="prose max-w-none dark:prose-invert">
-                    {!! $rendered['body_html'] !!}
+            <!-- Subject -->
+            <div class="mb-6">
+                <h4 class="text-lg font-medium text-gray-700 dark:text-white/90 mb-2">{{ __('Subject') }}</h4>
+                <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-md text-gray-700 dark:text-gray-300">
+                    {{ $rendered['subject'] }}
                 </div>
             </div>
 
-            <div id="text-tab" class="preview-tab-content hidden">
-                <pre class="whitespace-pre-wrap font-mono text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">{{ $rendered['body_text'] }}</pre>
+            <!-- Email Content Tabs -->
+            <div class="mb-6">
+                <div class="border-b border-gray-200 dark:border-gray-700 mb-4">
+                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                        <button onclick="showTab('html')" id="tab-html" class="border-b-2 border-primary py-2 px-1 text-sm font-medium text-primary">
+                            {{ __('HTML Preview') }}
+                        </button>
+                        <button onclick="showTab('text')" id="tab-text" class="border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
+                            {{ __('Plain Text') }}
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- HTML Preview Tab -->
+                <div id="content-html">
+                    <div class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-headings:text-gray-700 dark:prose-headings:text-white/90 prose-p:text-gray-700 dark:prose-p:text-gray-300">
+                        {!! $rendered['body_html'] !!}
+                    </div>
+                </div>
+
+                <!-- Plain Text Tab -->
+                <div id="content-text" class="hidden">
+                    <pre class="whitespace-pre-wrap font-mono text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-md text-gray-700 dark:text-gray-300">{{ $rendered['body_text'] }}</pre>
+                </div>
             </div>
-        </div>
-    </x-card>
+        </x-card>
+    </div>
 
     <script>
         function showTab(tab) {
-            document.querySelectorAll('.preview-tab').forEach(t => {
-                t.classList.remove('active', 'border-primary', 'text-primary');
-                t.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-            });
-            document.querySelectorAll('.preview-tab-content').forEach(c => {
+            document.querySelectorAll('[id^="content-"]').forEach(c => {
                 c.classList.add('hidden');
-                c.classList.remove('active');
             });
             
-            event.target.classList.add('active', 'border-primary', 'text-primary');
-            event.target.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-            document.getElementById(tab + '-tab').classList.remove('hidden');
-            document.getElementById(tab + '-tab').classList.add('active');
+            document.getElementById('content-' + tab).classList.remove('hidden');
+            
+            document.querySelectorAll('[id^="tab-"]').forEach(t => {
+                t.classList.remove('border-primary', 'text-primary');
+                t.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300', 'dark:text-gray-400', 'dark:hover:text-gray-300');
+            });
+            
+            const selectedTab = document.getElementById('tab-' + tab);
+            selectedTab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300', 'dark:text-gray-400', 'dark:hover:text-gray-300');
+            selectedTab.classList.add('border-primary', 'text-primary');
         }
     </script>
 </x-layouts.backend-layout>
