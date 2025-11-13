@@ -94,14 +94,12 @@
     </form>
 
     <x-slot name="footer">
-        <div class="flex justify-end space-x-3">
-            <button type="button" @click="close()" class="btn-default">
-                <iconify-icon icon="lucide:x-circle" class="mr-1"></iconify-icon>
-                {{ __('Cancel') }}
-            </button>
+        <div class="flex justify-between space-x-3">
             <button type="submit" form="email-settings-form" class="btn-primary">
-                <iconify-icon icon="lucide:save" class="mr-1"></iconify-icon>
                 {{ __('Save Settings') }}
+            </button>
+            <button type="button" @click="close()" class="btn-default">
+                {{ __('Cancel') }}
             </button>
         </div>
     </x-slot>
