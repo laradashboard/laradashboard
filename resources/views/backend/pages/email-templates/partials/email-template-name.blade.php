@@ -1,7 +1,7 @@
 <div class="flex items-center">
     <div>
         <div class="font-medium">
-            <a href="{{ route('admin.email-templates.edit', ['email_template' => $emailTemplate->id]) }}" 
+            <a href="{{ route('admin.email-templates.show', ['email_template' => $emailTemplate->id]) }}"
                class="hover:text-primary">
                 {{ $emailTemplate->name }}
             </a>
