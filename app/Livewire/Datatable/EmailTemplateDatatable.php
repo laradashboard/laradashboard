@@ -7,15 +7,45 @@ namespace App\Livewire\Datatable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\EmailTemplate;
+use App\Enums\TemplateType;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class EmailTemplateDatatable extends Datatable
 {
     public string $model = EmailTemplate::class;
+    public string $type = '';
+    public array $queryString = [
+        ...parent::QUERY_STRING_DEFAULTS,
+        'type' => [],
+    ];
 
     public function getSearchbarPlaceholder(): string
     {
         return __('Search by name or subject');
+    }
+
+    public function updatingType()
+    {
+        $this->resetPage();
+    }
+
+    public function getFilters(): array
+    {
+        return [
+            [
+                'id' => 'type',
+                'label' => __('Type'),
+                'filterLabel' => __('Filter by Type'),
+                'icon' => 'lucide:filter',
+                'allLabel' => __('All Types'),
+                'options' => collect(TemplateType::cases())
+                    ->mapWithKeys(function ($type) {
+                        return [$type->value => $type->label()];
+                    })
+                    ->toArray(),
+                'selected' => $this->type,
+            ],
+        ];
     }
 
     public function getRoutes(): array
@@ -77,13 +107,6 @@ class EmailTemplateDatatable extends Datatable
                 'sortBy' => 'is_active',
             ],
             [
-                'id' => 'is_default',
-                'title' => __('Default'),
-                'width' => '10%',
-                'sortable' => true,
-                'sortBy' => 'is_default',
-            ],
-            [
                 'id' => 'actions',
                 'title' => __('Action'),
                 'width' => '15%',
@@ -102,6 +125,9 @@ class EmailTemplateDatatable extends Datatable
                         ->orWhere('subject', 'like', "%{$this->search}%")
                         ->orWhere('description', 'like', "%{$this->search}%");
                 });
+            })
+            ->when($this->type, function ($query) {
+                $query->where('type', $this->type);
             });
 
         return $this->sortQuery($query);
