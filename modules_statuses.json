@@ -1,5 +1,6 @@
 {
     "crm": true,
     "taskManager": true,
-    "site": true
+    "site": true,
+    "Crm": true
 }

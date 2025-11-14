@@ -17,7 +17,7 @@ class EmailTemplateRequest extends FormRequest
     {
         $rules = [
             'name' => 'required|string|max:255',
-            'subject' => 'required|string|max:500',
+            'subject' => $this->input('type') === 'header' || $this->input('type') === 'footer' ? 'nullable|string|max:500' : 'required|string|max:500',
             'body_html' => 'nullable|string',
             'body_text' => 'nullable|string',
             'type' => ['required', 'string', Rule::in(TemplateType::getValues())],
@@ -49,7 +49,7 @@ class EmailTemplateRequest extends FormRequest
         return [
             'name.required' => 'Template name is required.',
             'name.unique' => 'A template with this name already exists.',
-            'subject.required' => 'Email subject is required.',
+            'subject.required' => 'Email subject is required for email templates.',
             'type.required' => 'Template type is required.',
             'type.in' => 'Invalid template type selected.',
             'body_html.required_without' => 'Either HTML body or text body is required.',

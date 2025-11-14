@@ -15,7 +15,7 @@ return new class () extends Migration {
             $table->id();
             $table->string('uuid')->unique();
             $table->string('name');
-            $table->string('subject');
+            $table->string('subject')->nullable();
             $table->longText('body_html')->nullable();
             $table->longText('body_text')->nullable();
             $table->string('type')->default(TemplateType::EMAIL->value);

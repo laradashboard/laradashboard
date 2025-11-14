@@ -121,7 +121,7 @@
                         @enderror
                     </div>
 
-                    <div>
+                    <div id="description-field">
                         <label for="template_description" class="form-label">{{ __('Description') }}</label>
                         <textarea id="template_description" name="description" rows="2" class="form-control @error('description') border-red-500 @enderror" placeholder="{{ __('Brief description of when to use this template...') }}">{{ old('description', $template->description ?? '') }}</textarea>
                         @error('description')
@@ -140,11 +140,10 @@
                             </select>
                             <p class="text-xs text-gray-500 mt-1.5">{{ __('Copy content from an existing template as a starting point') }}</p>
                         </div>
-                        <div class="border-t border-gray-200 dark:border-gray-700"></div>
                     @endif
                 </div>
 
-                <div>
+                <div id="subject-field">
                     <div class="flex items-center justify-between mb-2">
                         <label for="email_subject" class="form-label w-full">
                             {{ __('Email Subject') }} <span class="text-red-500">*</span>
@@ -187,3 +186,52 @@
         </div>
     </div>
 </form>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Listen for combobox changes
+    document.addEventListener('combobox-change', function(event) {
+        if (event.detail.name === 'type') {
+            toggleFieldsBasedOnType(event.detail.value);
+        }
+    });
+    
+    // Also listen for direct select changes
+    const typeSelect = document.querySelector('select[name="type"]');
+    if (typeSelect) {
+        typeSelect.addEventListener('change', function() {
+            toggleFieldsBasedOnType(this.value);
+        });
+        // Initial call
+        toggleFieldsBasedOnType(typeSelect.value);
+    }
+});
+
+function toggleFieldsBasedOnType(selectedType) {
+    if (!selectedType) {
+        const typeSelect = document.querySelector('select[name="type"]');
+        selectedType = typeSelect ? typeSelect.value : '';
+    }
+    
+    const subjectField = document.getElementById('subject-field');
+    const descriptionField = document.getElementById('description-field');
+    
+    const shouldHide = (selectedType === 'header' || selectedType === 'footer');
+    
+    [subjectField, descriptionField].forEach(field => {
+        if (field) {
+            field.style.display = shouldHide ? 'none' : 'block';
+            
+            // Handle required attributes
+            const requiredInputs = field.querySelectorAll('[required]');
+            requiredInputs.forEach(input => {
+                if (shouldHide) {
+                    input.removeAttribute('required');
+                    input.dataset.wasRequired = 'true';
+                } else if (input.dataset.wasRequired) {
+                    input.setAttribute('required', 'required');
+                }
+            });
+        }
+    });
+}
+</script>
