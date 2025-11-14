@@ -1,5 +1,3 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
-    <div class="p-4 mx-auto">
-        @include('backend.pages.email-templates.partials._form')
-    </div>
+    @include('backend.pages.email-templates.partials._form')
 </x-layouts.backend-layout>
