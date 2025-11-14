@@ -234,4 +234,31 @@ function toggleFieldsBasedOnType(selectedType) {
         }
     });
 }
+
+function loadTemplateContent(templateId) {
+    if (!templateId) return;
+    
+    fetch(`/admin/email-templates/${templateId}/content`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.subject) {
+                document.getElementById('email_subject').value = data.subject;
+            }
+            if (data.body_html) {
+                // For text editor, set the content
+                const htmlEditor = document.getElementById('body_html');
+                if (htmlEditor) {
+                    htmlEditor.value = data.body_html;
+                    // Trigger change event for text editor
+                    htmlEditor.dispatchEvent(new Event('change'));
+                }
+            }
+            if (data.body_text) {
+                document.getElementById('body_text').value = data.body_text;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading template content:', error);
+        });
+}
 </script>
