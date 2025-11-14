@@ -7,10 +7,16 @@
                         <h3 class="text-base font-medium text-gray-700 dark:text-white/90">{{ __('Email Preview') }}</h3>
                         <span class="badge">{{ $template->name }}</span>
                     </div>
-                    <a href="{{ route('admin.email-templates.show', $template->id) }}" class="btn-default">
-                        <iconify-icon icon="lucide:arrow-left" class="mr-2"></iconify-icon>
-                        {{ __('Back to Template') }}
-                    </a>
+                    <div class="flex gap-2">
+                        <button onclick="openTestEmailModal()" class="btn-default">
+                            <iconify-icon icon="lucide:mail" class="mr-2"></iconify-icon>
+                            {{ __('Send Test') }}
+                        </button>
+                        <a href="{{ route('admin.email-templates.show', $template->id) }}" class="btn-default">
+                            <iconify-icon icon="lucide:arrow-left" class="mr-2"></iconify-icon>
+                            {{ __('Back to Template') }}
+                        </a>
+                    </div>
                 </div>
             </x-slot>
 
@@ -50,6 +56,9 @@
         </x-card>
     </div>
 
+    <!-- Test Email Modal Component -->
+    <x-modals.test-email :send-test-url="route('admin.email-templates.send-test', $template->id)" />
+
     <script>
         function showTab(tab) {
             document.querySelectorAll('[id^="content-"]').forEach(c => {
@@ -66,6 +75,10 @@
             const selectedTab = document.getElementById('tab-' + tab);
             selectedTab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300', 'dark:text-gray-400', 'dark:hover:text-gray-300');
             selectedTab.classList.add('border-primary', 'text-primary');
+        }
+
+        function openTestEmailModal() {
+            window.dispatchEvent(new CustomEvent('open-test-email-modal'));
         }
     </script>
 </x-layouts.backend-layout>
