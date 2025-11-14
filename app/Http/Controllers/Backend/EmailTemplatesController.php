@@ -459,9 +459,25 @@ class EmailTemplatesController extends Controller
                 return response()->json(['error' => 'Template not found'], 404);
             }
 
+            // Load header and footer templates
+            $template->load(['headerTemplate', 'footerTemplate']);
+
+            // Combine header, body, and footer content
+            $combinedHtml = '';
+            
+            if ($template->headerTemplate) {
+                $combinedHtml .= $template->headerTemplate->body_html;
+            }
+            
+            $combinedHtml .= $template->body_html;
+            
+            if ($template->footerTemplate) {
+                $combinedHtml .= $template->footerTemplate->body_html;
+            }
+
             return response()->json([
                 'subject' => $template->subject,
-                'body_html' => $template->body_html,
+                'body_html' => $combinedHtml,
                 'body_text' => $template->body_text,
             ]);
         } catch (\Exception $e) {
