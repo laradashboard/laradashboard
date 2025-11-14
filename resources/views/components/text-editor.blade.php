@@ -87,8 +87,8 @@
 
         // Toolbar configurations based on type
         const toolbarConfigs = {
-            full: customToolbar || 'undo redo | styles | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | forecolor backcolor | link customMedia image media table | code codesample | blockquote hr | removeformat | fullscreen',
-            basic: customToolbar || 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link customMedia image | removeformat',
+            full: customToolbar || 'undo redo | styles | bold italic underline strikethrough customMedia | alignleft aligncenter alignright alignjustify code | bullist numlist | outdent indent | forecolor backcolor | link image media table | codesample | blockquote hr | removeformat | fullscreen',
+            basic: customToolbar || 'undo redo | bold italic underline customMedia | alignleft aligncenter alignright | bullist numlist | link customMedia image | removeformat code',
             minimal: customToolbar || 'bold italic | bullist numlist'
         };
 
