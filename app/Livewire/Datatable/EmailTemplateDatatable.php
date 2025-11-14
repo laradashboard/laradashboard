@@ -79,6 +79,12 @@ class EmailTemplateDatatable extends Datatable
     {
         return [
             [
+                'id' => 'preview',
+                'title' => __('Preview'),
+                'width' => '10%',
+                'sortable' => false,
+            ],
+            [
                 'id' => 'name',
                 'title' => __('Name'),
                 'width' => '20%',
@@ -88,7 +94,7 @@ class EmailTemplateDatatable extends Datatable
             [
                 'id' => 'subject',
                 'title' => __('Subject'),
-                'width' => '25%',
+                'width' => '20%',
                 'sortable' => true,
                 'sortBy' => 'subject',
             ],
@@ -109,7 +115,7 @@ class EmailTemplateDatatable extends Datatable
             [
                 'id' => 'actions',
                 'title' => __('Action'),
-                'width' => '15%',
+                'width' => '10%',
                 'sortable' => false,
                 'is_action' => true,
             ],
@@ -131,6 +137,11 @@ class EmailTemplateDatatable extends Datatable
             });
 
         return $this->sortQuery($query);
+    }
+
+    public function renderPreviewColumn(EmailTemplate $emailTemplate): Renderable
+    {
+        return view('backend.pages.email-templates.partials.email-template-preview', compact('emailTemplate'));
     }
 
     public function renderNameColumn(EmailTemplate $emailTemplate): Renderable

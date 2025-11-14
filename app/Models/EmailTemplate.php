@@ -131,6 +131,23 @@ class EmailTemplate extends Model
         ];
     }
 
+    public function getRawEmailTemplate(): string
+    {
+        $html = '';
+
+        if ($this->header_template_id && $this->headerTemplate) {
+            $html .= $this->headerTemplate->body_html ?? '';
+        }
+
+        $html .= $this->body_html ?? '';
+
+        if ($this->footer_template_id && $this->footerTemplate) {
+            $html .= $this->footerTemplate->body_html ?? '';
+        }
+
+        return $html;
+    }
+
     public function extractVariables(): array
     {
         $content = $this->subject . ' ' . $this->body_html . ' ' . $this->body_text;

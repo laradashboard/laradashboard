@@ -16,6 +16,7 @@
     <!-- Test Email Modal Component -->
     <x-modals.test-email />
 
+    @push('scripts')
     <script>
         function openTestEmailModal(id) {
             window.dispatchEvent(new CustomEvent('open-test-email-modal', {
@@ -23,4 +24,5 @@
             }));
         }
     </script>
+    @endpush
 </x-layouts.backend-layout>
