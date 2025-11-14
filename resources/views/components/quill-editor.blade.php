@@ -1,102 +1,74 @@
 @props([
     'editorId' => 'editor',
-    'height' => '100px',
+    'height' => '400px',
     'maxHeight' => '500px',
     'type' => 'full', // Options: 'full', 'basic', 'minimal'
     'customToolbar' => null, // For custom toolbar configuration
+    'menubar' => false, // Show/hide menubar (File, Edit, View, etc.) - null = auto based on type, true = show, false = hide
 ])
 
 @once
-    <link rel="stylesheet" href="{{ asset('vendor/quill/quill.min.css') }}" />
     <style>
-        .ql-toolbar.ql-snow {
-            border-radius: 10px 10px 0px 0px;
-            margin-bottom: 0px;
+        /* TinyMCE container styles */
+        .tox-tinymce {
+            border-radius: 10px !important;
+            border: 1px solid var(--color-gray-200, #e5e7eb) !important;
         }
 
-        /* Create a container for Quill to target */
-        .quill-container {
-            border: 1px solid var(--color-gray-200, currentColor);
-            border-radius: 0 0 10px 10px;
-            background: transparent;
-
-            height: {{ $height }};
-            min-height: {{ $height }};
-
-            @if ($maxHeight !== '-1')
-                max-height: {{ $maxHeight }};
-            @endif
-            overflow-y: auto;
+        /* Dark mode support */
+        .dark .tox-tinymce {
+            border-color: rgb(55 65 81) !important;
         }
 
-        .ql-container.ql-snow {
-            border: 1px solid var(--color-gray-200, currentColor);
+        /* Toolbar styling */
+        .tox .tox-toolbar {
+            background: transparent !important;
         }
 
-        .ql-toolbar.ql-snow {
-            border: 1px solid var(--color-gray-200, currentColor);
+        /* Editor content area */
+        .tox .tox-edit-area {
+            border: none !important;
         }
 
-        /* Wrapper styles - matches form-control */
-        .ql-toolbar.ql-snow + .quill-container {
-            transition: all 0.15s ease;
-        }
-
-        /* Focus state - matches form-control */
-        .ql-container.ql-snow:focus-within {
+        /* Focus state */
+        .tox.tox-tinymce:focus-within {
             --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 0px var(--tw-ring-offset-color);
             --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + 0px) var(--tw-ring-color);
             --tw-ring-color: rgb(var(--color-primary) / 1);
             box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
         }
 
-        .dark .quill-container {
-            color: #e5e7eb;
+        /* Status bar */
+        .tox .tox-statusbar {
+            border-top: 1px solid var(--color-gray-200, #e5e7eb) !important;
         }
 
-        .dark .ql-toolbar.ql-snow {
-            border-bottom-color: rgb(55 65 81);
+        .dark .tox .tox-statusbar {
+            border-top-color: rgb(55 65 81) !important;
         }
 
-        .dark .ql-toolbar.ql-snow .ql-picker-label,
-        .dark .ql-toolbar.ql-snow .ql-picker-options,
-        .dark .ql-toolbar.ql-snow button,
-        .dark .ql-toolbar.ql-snow span {
-            color: #e5e7eb;
+        /* Hide upgrade/premium buttons and promotions */
+        .tox-promotion,
+        .tox-promotion-link,
+        .tox .tox-statusbar__path,
+        .tox .tox-statusbar a[href*="upgrade"],
+        .tox .tox-statusbar a[href*="tiny.cloud"],
+        .tox-statusbar__upgrade,
+        button[title*="Upgrade"],
+        a[title*="Upgrade"],
+        .tox-promotion-container {
+            display: none !important;
         }
 
-        .dark .ql-snow .ql-stroke {
-            stroke: #e5e7eb;
-        }
-
-        .dark .ql-snow .ql-fill {
-            fill: #e5e7eb;
-        }
-
-        .dark .ql-editor.ql-blank::before {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* Alternative using iconify icon */
-        .ql-toolbar .ql-media-modal {
-            width: 28px;
-            height: 28px;
-        }
-
-        .ql-toolbar .ql-media-modal:after {
-            content: '';
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>');
-            background-size: 18px;
-            background-repeat: no-repeat;
-            background-position: center;
-            width: 100%;
-            height: 100%;
-            display: block;
+        /* Hide help button if needed */
+        button[title="Help"],
+        .tox-tbtn[aria-label="Help"] {
+            display: none !important;
         }
     </style>
 
-    <script src="{{ asset('vendor/quill/quill.min.js') }}"></script>
-    <script src="{{ asset('vendor/quill/quill-resize-image.min.js') }}"></script>
+    <!-- TinyMCE Self-Hosted (Open Source) -->
+    <script src="{{ asset('vendor/tinymce/tinymce.min.js') }}"></script>
 @endonce
 
 @push('scripts')
@@ -104,174 +76,246 @@
     document.addEventListener('DOMContentLoaded', function() {
         const editorId = '{{ $editorId }}';
         const editorType = '{{ $type }}';
-        const textareaElement = document.getElementById(editorId);
         const customToolbar = @json($customToolbar);
+        const menubarProp = @json($menubar);
+        const textareaElement = document.getElementById(editorId);
 
         if (!textareaElement) {
             console.error(`Textarea with ID "${editorId}" not found`);
             return;
         }
 
-        // Create a div after the textarea to host Quill
-        const quillContainer = document.createElement('div');
-        quillContainer.id = `quill-${editorId}`;
-        quillContainer.className = 'quill-container';
-        textareaElement.insertAdjacentElement('afterend', quillContainer);
-
-        // Store original textarea content
-        const initialContent = textareaElement.value || '';
-
-        // Define toolbar configurations based on type (removed default image handler)
+        // Toolbar configurations based on type
         const toolbarConfigs = {
-            full: [
-                ['bold', 'italic', 'underline', 'strike'],
-                [{
-                    'header': [1, 2, 3, 4, 5, 6, false]
-                }],
-                ['blockquote'],
-                [{
-                    'align': []
-                }],
-                [{
-                    'list': 'ordered'
-                }, {
-                    'list': 'bullet'
-                }],
-                [{
-                    'indent': '-1'
-                }, {
-                    'indent': '+1'
-                }],
-                [{
-                    'color': []
-                }, {
-                    'background': []
-                }],
-                [{
-                    'font': []
-                }],
-                ['link', 'media-modal', 'video', 'code-block']
-            ],
-            basic: [
-                ['bold', 'italic', 'underline'],
-                [{
-                    'header': [1, 2, 3, false]
-                }],
-                [{
-                    'list': 'ordered'
-                }, {
-                    'list': 'bullet'
-                }],
-                ['link', 'media-modal']
-            ],
-            minimal: [
-                ['bold', 'italic'],
-                [{
-                    'list': 'ordered'
-                }, {
-                    'list': 'bullet'
-                }]
-            ]
+            full: customToolbar || 'undo redo | styles | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | forecolor backcolor | link customMedia image media table | code codesample | blockquote hr | removeformat | fullscreen',
+            basic: customToolbar || 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link customMedia image | removeformat',
+            minimal: customToolbar || 'bold italic | bullist numlist'
         };
 
-        // Select toolbar configuration based on type or use custom if provided
-        const toolbarConfig = customToolbar ? JSON.parse(customToolbar) :
-            (toolbarConfigs[editorType] || toolbarConfigs.basic);
-
-        // Custom media modal handler
-        const mediaModalHandler = function() {
-            const modalId = `quillMediaModal_${editorId}`;
-
-            // Open media modal using the existing component (single selection for editor)
-            openMediaModal(modalId, false, 'all', `handleQuillMediaSelect_${editorId}`);
+        const pluginsConfigs = {
+            full: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code fullscreen quickbars',
+            basic: 'autolink link image lists wordcount',
+            minimal: 'lists'
         };
 
-        // Register the resize module before initializing Quill
-        if (typeof window.QuillResizeImage !== 'undefined') {
-            Quill.register("modules/resize", window.QuillResizeImage);
+        // Parse height value
+        let heightValue = '{{ $height }}';
+        const heightMatch = heightValue.match(/(\d+)px/);
+        const numericHeight = heightMatch ? parseInt(heightMatch[1]) : 400;
+
+        // Determine menubar visibility
+        let showMenubar;
+        if (menubarProp === null) {
+            // Auto: show for full mode, hide for others
+            showMenubar = editorType === 'full';
         } else {
-            console.warn('QuillResizeImage module not loaded');
+            // Use explicit prop value
+            showMenubar = menubarProp === true;
         }
 
-        // Initialize Quill on the container div
-        const quill = new Quill(`#quill-${editorId}`, {
-            theme: "snow",
-            placeholder: '{{ __('Type here...') }}',
-            modules: {
-                toolbar: {
-                    container: toolbarConfig,
-                    handlers: {
-                        'media-modal': mediaModalHandler
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: `#${editorId}`,
+            height: numericHeight,
+            menubar: showMenubar,
+            plugins: pluginsConfigs[editorType] || pluginsConfigs.basic,
+            toolbar: toolbarConfigs[editorType] || toolbarConfigs.basic,
+
+            // Content styling
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; }',
+
+            // Skin - auto-detect dark mode
+            skin: document.documentElement.classList.contains('dark') ? 'oxide-dark' : 'oxide',
+            content_css: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
+
+            // Preserve all HTML
+            valid_elements: '*[*]',
+            extended_valid_elements: '*[*]',
+            valid_children: '+body[style],+body[script],+body[div]',
+            verify_html: false,
+
+            // Allow all attributes
+            allow_unsafe_link_target: true,
+            allow_script_urls: true,
+            allow_html_in_named_anchor: true,
+
+            // Image handling
+            image_advtab: true,
+            image_title: true,
+            automatic_uploads: false,
+            file_picker_types: 'image media',
+
+            // Media embed
+            media_live_embeds: true,
+
+            // Code editor
+            code_dialog_height: 450,
+            code_dialog_width: 1000,
+
+            // Quick toolbar
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote',
+            quickbars_insert_toolbar: false,
+
+            // Context menu
+            contextmenu: 'link image table',
+
+            // Paste options
+            paste_data_images: true,
+            paste_as_text: false,
+
+            // Browser spellcheck
+            browser_spellcheck: true,
+
+            // Status bar
+            statusbar: editorType === 'full',
+            elementpath: editorType === 'full',
+            branding: false,
+            promotion: false,
+
+            // Disable premium features promotion
+            toolbar_mode: 'sliding',
+            toolbar_sticky: false,
+
+            // Custom style formats (for full mode)
+            style_formats: [
+                { title: 'Headings', items: [
+                    { title: 'Heading 1', format: 'h1' },
+                    { title: 'Heading 2', format: 'h2' },
+                    { title: 'Heading 3', format: 'h3' },
+                    { title: 'Heading 4', format: 'h4' },
+                    { title: 'Heading 5', format: 'h5' },
+                    { title: 'Heading 6', format: 'h6' }
+                ]},
+                { title: 'Inline', items: [
+                    { title: 'Bold', format: 'bold' },
+                    { title: 'Italic', format: 'italic' },
+                    { title: 'Underline', format: 'underline' },
+                    { title: 'Strikethrough', format: 'strikethrough' },
+                    { title: 'Code', format: 'code' }
+                ]},
+                { title: 'Blocks', items: [
+                    { title: 'Paragraph', format: 'p' },
+                    { title: 'Blockquote', format: 'blockquote' },
+                    { title: 'Div', format: 'div' },
+                    { title: 'Pre', format: 'pre' }
+                ]},
+                { title: 'Containers', items: [
+                    { title: 'Card', block: 'div', classes: 'card', wrapper: true },
+                    { title: 'Alert', block: 'div', classes: 'alert', wrapper: true },
+                    { title: 'Button', inline: 'span', classes: 'button' }
+                ]}
+            ],
+
+            // Setup callback
+            setup: function(editor) {
+                // Store editor reference
+                window['tinymce-' + editorId] = editor;
+
+                // Sync with textarea on change
+                editor.on('change keyup paste', function() {
+                    textareaElement.value = editor.getContent();
+
+                    // Trigger form change detection
+                    const event = new Event('input', { bubbles: true });
+                    textareaElement.dispatchEvent(event);
+                });
+
+                // Add custom button for media modal
+                editor.ui.registry.addButton('customMedia', {
+                    icon: 'gallery',
+                    tooltip: 'Media Library',
+                    onAction: function() {
+                        // Check if media modal function exists
+                        if (typeof openMediaModal === 'function') {
+                            const modalId = `tinyMediaModal_${editorId}`;
+                            openMediaModal(modalId, false, 'all', `handleTinyMediaSelect_${editorId}`);
+                        } else {
+                            console.error('openMediaModal function not found');
+                            alert('Media library is not available. Please ensure the media-modal component is loaded.');
+                        }
                     }
-                },
-                resize: typeof window.QuillResizeImage !== 'undefined' ? {
-                    locale: {
-                        center: "center",
-                        floatLeft: "left",
-                        floatRight: "right",
-                        restore: "restore",
-                        altTip: "Press and hold alt to lock ratio!",
-                        inputTip: "Press enter key to apply change!"
+                });
+
+                // Create media selection handler
+                window[`handleTinyMediaSelect_${editorId}`] = function(files) {
+                    if (files.length > 0) {
+                        const file = files[0];
+
+                        // Insert based on file type
+                        if (file.mime_type && file.mime_type.startsWith('image/')) {
+                            // Insert image
+                            editor.insertContent(`<img src="${file.url}" alt="${file.name || ''}" style="max-width: 100%;" />`);
+                        } else if (file.mime_type && file.mime_type.startsWith('video/')) {
+                            // Insert video
+                            editor.insertContent(`
+                                <video controls style="max-width: 100%;">
+                                    <source src="${file.url}" type="${file.mime_type}">
+                                    Your browser does not support the video tag.
+                                </video>
+                            `);
+                        } else if (file.mime_type && file.mime_type.startsWith('audio/')) {
+                            // Insert audio
+                            editor.insertContent(`
+                                <audio controls>
+                                    <source src="${file.url}" type="${file.mime_type}">
+                                    Your browser does not support the audio tag.
+                                </audio>
+                            `);
+                        } else {
+                            // Insert as link for other files
+                            editor.insertContent(`<a href="${file.url}" target="_blank">${file.name || 'Download File'}</a>`);
+                        }
+
+                        console.log('Media inserted:', file.name);
                     }
-                } : undefined
-            }
-        });
+                };
 
-        // Use window['quill-' + editorId] for global reference
-        window['quill-' + editorId] = quill;
+                console.log(`TinyMCE initialized for #${editorId} with type: ${editorType}`);
+            },
 
-        // Create media selection handler function for this specific editor
-        window[`handleQuillMediaSelect_${editorId}`] = function(files) {
-            if (files.length > 0) {
-                const file = files[0];
-                const range = quill.getSelection(true);
-
-                if (file.mime_type && file.mime_type.startsWith('image/')) {
-                    // Insert image
-                    quill.insertEmbed(range.index, 'image', file.url, 'user');
-                } else {
-                    // Insert as link for non-image files
-                    quill.insertText(range.index, file.name, 'link', file.url, 'user');
+            // Init callback
+            init_instance_callback: function(editor) {
+                // Set initial content if exists
+                const initialContent = textareaElement.value;
+                if (initialContent) {
+                    editor.setContent(initialContent);
                 }
 
-                // Move cursor after inserted content
-                quill.setSelection(range.index + 1);
+                // Hide original textarea
+                textareaElement.style.display = 'none';
             }
-        };
-
-        // Set initial content from textarea
-        if (initialContent) {
-            quill.clipboard.dangerouslyPasteHTML(initialContent);
-            textareaElement.value = quill.root.innerHTML;
-        }
-
-        // Hide textarea visually but keep it in the DOM for form submission
-        textareaElement.style.display = 'none';
-
-        // Update textarea on editor change for form submission
-        quill.on('text-change', function() {
-            textareaElement.value = quill.root.innerHTML;
-
-            // Trigger form change detection for the unsaved changes warning
-            const event = new Event('input', {
-                bubbles: true
-            });
-            textareaElement.dispatchEvent(event);
         });
 
-        // Also update on form submit to ensure the latest content is captured
+        // Clean up on page unload
+        window.addEventListener('beforeunload', function() {
+            const editor = window['tinymce-' + editorId];
+            if (editor) {
+                tinymce.remove(editor);
+            }
+        });
+
+        // Update textarea before form submission
         const form = textareaElement.closest('form');
         if (form) {
             form.addEventListener('submit', function() {
-                textareaElement.value = quill.root.innerHTML;
+                const editor = window['tinymce-' + editorId];
+                if (editor) {
+                    textareaElement.value = editor.getContent();
+                }
             });
         }
-
     });
 </script>
 
-<!-- Include the media modal component for Quill editor -->
-<x-media-modal :id="'quillMediaModal_' . $editorId" title="Select Media for Editor" :multiple="false" allowedTypes="all"
-    buttonText="Select Media" buttonClass="hidden" />
-
+<!-- Include the media modal component if it exists -->
+@if(View::exists('components.media-modal'))
+<x-media-modal
+    :id="'tinyMediaModal_' . $editorId"
+    title="Select Media for Editor"
+    :multiple="false"
+    allowedTypes="all"
+    buttonText="Select Media"
+    buttonClass="hidden"
+/>
+@endif
 @endpush
