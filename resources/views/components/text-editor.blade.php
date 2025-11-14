@@ -1,6 +1,7 @@
 @props([
     'editorId' => 'editor',
     'height' => '400px',
+    'minHeight' => null, // If set, editor grows with content instead of fixed height
     'maxHeight' => '500px',
     'type' => 'full', // Options: 'full', 'basic', 'minimal'
     'customToolbar' => null, // For custom toolbar configuration
@@ -27,6 +28,11 @@
 
         /* Editor content area */
         .tox .tox-edit-area {
+            border: none !important;
+        }
+
+        /* Remove unnecessary padding from editor body */
+        .tox .tox-edit-area__iframe {
             border: none !important;
         }
 
@@ -98,10 +104,16 @@
             minimal: 'lists'
         };
 
-        // Parse height value
+        // Parse height values
+        const minHeightValue = '{{ $minHeight }}';
         let heightValue = '{{ $height }}';
+        const maxHeightValue = '{{ $maxHeight }}';
+        
         const heightMatch = heightValue.match(/(\d+)px/);
         const numericHeight = heightMatch ? parseInt(heightMatch[1]) : 400;
+        
+        const maxHeightMatch = maxHeightValue.match(/(\d+)px/);
+        const numericMaxHeight = maxHeightMatch ? parseInt(maxHeightMatch[1]) : 500;
 
         // Determine menubar visibility
         let showMenubar;
@@ -113,16 +125,46 @@
             showMenubar = menubarProp === true;
         }
 
+        // Height configuration and plugins based on minHeight prop
+        const heightConfig = {};
+        let plugins = pluginsConfigs[editorType] || pluginsConfigs.basic;
+        
+        if (minHeightValue && minHeightValue !== '' && minHeightValue !== 'null') {
+            // Use min_height for flexible growing editor - requires autoresize plugin
+            const minHeightMatch = minHeightValue.match(/(\d+)px/);
+            const numericMinHeight = minHeightMatch ? parseInt(minHeightMatch[1]) : 400;
+            
+            // Add autoresize plugin if not already present
+            if (!plugins.includes('autoresize')) {
+                plugins = 'autoresize ' + plugins;
+            }
+            
+            // Configure autoresize
+            heightConfig.min_height = numericMinHeight;
+            heightConfig.max_height = numericMaxHeight;
+            heightConfig.resize = false; // Disable manual resize handle
+            heightConfig.autoresize_bottom_margin = 0;
+            heightConfig.autoresize_overflow_padding = 0;
+        } else {
+            // Use fixed height (existing behavior)
+            heightConfig.height = numericHeight;
+        }
+
         // Initialize TinyMCE
         tinymce.init({
             selector: `#${editorId}`,
-            height: numericHeight,
+            ...heightConfig,
             menubar: showMenubar,
-            plugins: pluginsConfigs[editorType] || pluginsConfigs.basic,
+            plugins: plugins,
             toolbar: toolbarConfigs[editorType] || toolbarConfigs.basic,
 
             // Content styling
-            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; }',
+            content_style: `
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    font-size: 14px;
+                }
+            `,
 
             // Skin - auto-detect dark mode
             skin: document.documentElement.classList.contains('dark') ? 'oxide-dark' : 'oxide',
