@@ -166,7 +166,7 @@
                         </div>
                         <textarea name="body_html" id="body_html" rows="4" class="block w-full border-0 focus:ring-0 focus:outline-none" placeholder="{{ __('Compose your email content...') }}">{{ old('body_html', $template->body_html ?? '') }}</textarea>
                         @push('scripts')
-                            <x-quill-editor :height="'200px'" :editor-id="'body_html'" type="full" />
+                            <x-quill-editor :height="'600px'" :editor-id="'body_html'" type="full" />
                         @endpush
                         @error('body_html')
                             <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>

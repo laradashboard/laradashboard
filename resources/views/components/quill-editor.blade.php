@@ -96,8 +96,10 @@
     </style>
 
     <script src="{{ asset('vendor/quill/quill.min.js') }}"></script>
+    <script src="{{ asset('vendor/quill/quill-resize-image.min.js') }}"></script>
 @endonce
 
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const editorId = '{{ $editorId }}';
@@ -184,6 +186,13 @@
             openMediaModal(modalId, false, 'all', `handleQuillMediaSelect_${editorId}`);
         };
 
+        // Register the resize module before initializing Quill
+        if (typeof window.QuillResizeImage !== 'undefined') {
+            Quill.register("modules/resize", window.QuillResizeImage);
+        } else {
+            console.warn('QuillResizeImage module not loaded');
+        }
+
         // Initialize Quill on the container div
         const quill = new Quill(`#quill-${editorId}`, {
             theme: "snow",
@@ -194,7 +203,17 @@
                     handlers: {
                         'media-modal': mediaModalHandler
                     }
-                }
+                },
+                resize: typeof window.QuillResizeImage !== 'undefined' ? {
+                    locale: {
+                        center: "center",
+                        floatLeft: "left",
+                        floatRight: "right",
+                        restore: "restore",
+                        altTip: "Press and hold alt to lock ratio!",
+                        inputTip: "Press enter key to apply change!"
+                    }
+                } : undefined
             }
         });
 
@@ -254,3 +273,5 @@
 <!-- Include the media modal component for Quill editor -->
 <x-media-modal :id="'quillMediaModal_' . $editorId" title="Select Media for Editor" :multiple="false" allowedTypes="all"
     buttonText="Select Media" buttonClass="hidden" />
+
+@endpush
