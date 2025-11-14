@@ -464,13 +464,13 @@ class EmailTemplatesController extends Controller
 
             // Combine header, body, and footer content
             $combinedHtml = '';
-            
+
             if ($template->headerTemplate) {
                 $combinedHtml .= $template->headerTemplate->body_html;
             }
-            
+
             $combinedHtml .= $template->body_html;
-            
+
             if ($template->footerTemplate) {
                 $combinedHtml .= $template->footerTemplate->body_html;
             }
