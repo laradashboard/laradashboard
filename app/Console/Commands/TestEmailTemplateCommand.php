@@ -42,7 +42,7 @@ class TestEmailTemplateCommand extends Command
                 'full_name' => 'John Doe',
                 'email' => $email,
                 'phone' => '+1 (555) 123-4567',
-                'company' => 'Acme Corporation',
+                'company' => 'Lara Dashboard',
                 'job_title' => 'Marketing Manager',
                 'dob' => '1980-01-15',
                 'industry' => 'Technology',
