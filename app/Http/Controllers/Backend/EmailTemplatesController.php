@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Services\SettingService;
 use App\Services\EnvWriter;
-use App\Enums\ActionType;
 
 class EmailTemplatesController extends Controller
 {
@@ -34,8 +33,9 @@ class EmailTemplatesController extends Controller
         $this->authorize('manage', Setting::class);
 
         return view('backend.pages.email-templates.index', [
+            'currentTab' => 'email-templates',
             'breadcrumbs' => [
-                'title' => __('Emails'),
+                'title' => __('Email Templates'),
                 'items' => [
                     ['label' => __('Settings'), 'url' => route('admin.settings.index')],
                 ],
@@ -108,11 +108,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function show(int $id): Renderable
+    public function show(int $email_template): Renderable
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($id);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -130,11 +130,11 @@ class EmailTemplatesController extends Controller
         ]);
     }
 
-    public function edit(string $id): Renderable
+    public function edit(int $email_template): Renderable
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById((int) $id);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -168,11 +168,11 @@ class EmailTemplatesController extends Controller
         ]);
     }
 
-    public function update(EmailTemplateRequest $request, string $id): RedirectResponse
+    public function update(EmailTemplateRequest $request, int $email_template): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById((int) $id);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -186,7 +186,7 @@ class EmailTemplatesController extends Controller
                 ->with('success', __('Email template updated successfully.'));
         } catch (\Exception $e) {
             Log::error('Failed to update email template', [
-                'template_id' => $id,
+                'template_id' => $email_template,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -198,11 +198,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function destroy(int $id): RedirectResponse
+    public function destroy(int $email_template): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($id);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -221,11 +221,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function duplicate(int $id, Request $request): RedirectResponse
+    public function duplicate(int $email_template, Request $request): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($id);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -239,7 +239,7 @@ class EmailTemplatesController extends Controller
             $newTemplate = $this->emailTemplateService->duplicateTemplate($template, $request->input('name'));
 
             return redirect()
-                ->route('admin.email-templates.show', $newTemplate->uuid)
+                ->route('admin.email-templates.show', $newTemplate->id)
                 ->with('success', __('Email template duplicated successfully.'));
         } catch (\Exception $e) {
             return redirect()
@@ -248,11 +248,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function setDefault(int $id): RedirectResponse
+    public function setDefault(int $email_template): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($id);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -271,11 +271,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function preview(int $id): JsonResponse
+    public function preview(int $email_template): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($id);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             return response()->json(['error' => 'Template not found'], 404);
@@ -302,15 +302,14 @@ class EmailTemplatesController extends Controller
         return response()->json([
             'subject' => $rendered['subject'],
             'body_html' => $rendered['body_html'],
-            'body_text' => $rendered['body_text'],
         ]);
     }
 
-    public function previewPage(int $id): Renderable
+    public function previewPage(int $email_template): Renderable
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($id);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -348,11 +347,11 @@ class EmailTemplatesController extends Controller
         ]);
     }
 
-    public function sendTestEmail(int $id, Request $request): JsonResponse
+    public function sendTestEmail(int $email_template, Request $request): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($id);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             return response()->json(['message' => 'Template not found'], 404);
@@ -363,7 +362,7 @@ class EmailTemplatesController extends Controller
         ]);
 
         try {
-            Log::info('Sending test email', ['id' => $id, 'email' => $request->input('email')]);
+            Log::info('Sending test email', ['id' => $email_template, 'email' => $request->input('email')]);
 
             $sampleData = [
                 'first_name' => 'John',
@@ -397,11 +396,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function uploadPreview(int $id, Request $request): JsonResponse
+    public function uploadPreview(int $email_template, Request $request): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($id);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             return response()->json(['error' => 'Template not found'], 404);
@@ -448,12 +447,12 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function getContent(int $id): JsonResponse
+    public function getContent(int $email_template): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
         try {
-            $template = $this->emailTemplateService->getTemplateById($id);
+            $template = $this->emailTemplateService->getTemplateById($email_template);
 
             if (! $template) {
                 return response()->json(['error' => 'Template not found'], 404);
@@ -478,7 +477,6 @@ class EmailTemplatesController extends Controller
             return response()->json([
                 'subject' => $template->subject,
                 'body_html' => $combinedHtml,
-                'body_text' => $template->body_text,
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -492,7 +490,6 @@ class EmailTemplatesController extends Controller
         $request->validate([
             'subject' => 'required|string',
             'body_html' => 'nullable|string',
-            'body_text' => 'nullable|string',
             'header_template_id' => 'nullable|exists:email_templates,id',
             'footer_template_id' => 'nullable|exists:email_templates,id',
         ]);
@@ -502,7 +499,6 @@ class EmailTemplatesController extends Controller
             $tempTemplate = new EmailTemplate([
                 'subject' => $request->input('subject'),
                 'body_html' => $request->input('body_html', ''),
-                'body_text' => $request->input('body_text', ''),
                 'header_template_id' => $request->input('header_template_id'),
                 'footer_template_id' => $request->input('footer_template_id'),
             ]);
@@ -536,49 +532,10 @@ class EmailTemplatesController extends Controller
             return response()->json([
                 'subject' => $rendered['subject'],
                 'body_html' => $rendered['body_html'],
-                'body_text' => $rendered['body_text'],
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function updateEmailSettings(Request $request): RedirectResponse
-    {
-        $this->authorize('manage', Setting::class);
-
-        $request->validate([
-            'email_from_email' => 'required|email',
-            'email_from_name' => 'required|string|max:255',
-            'email_reply_to_email' => 'nullable|email',
-            'email_reply_to_name' => 'nullable|string|max:255',
-            'email_utm_source_default' => 'nullable|string|max:255',
-            'email_utm_medium_default' => 'nullable|string|max:255',
-            'email_rate_limit_per_hour' => 'nullable|integer|min:1|max:10000',
-            'email_delay_seconds' => 'nullable|integer|min:0|max:60',
-        ]);
-
-        $fields = $request->only([
-            'email_from_email',
-            'email_from_name',
-            'email_reply_to_email',
-            'email_reply_to_name',
-            'email_utm_source_default',
-            'email_utm_medium_default',
-            'email_rate_limit_per_hour',
-            'email_delay_seconds',
-        ]);
-
-        foreach ($fields as $fieldName => $fieldValue) {
-            $this->settingService->addSetting($fieldName, $fieldValue);
-        }
-
-        $this->envWriter->batchWriteKeysToEnvFile($fields);
-
-        $this->storeActionLog(ActionType::UPDATED, [
-            'email_settings' => $fields,
-        ]);
-
-        return redirect()->back()->with('success', __('Email settings updated successfully.'));
-    }
 }

@@ -26,7 +26,6 @@ class EmailLog extends Model
         'from_name',
         'subject',
         'body_html',
-        'body_text',
         'headers',
         'message_id',
         'status',

@@ -52,20 +52,38 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
 
-    // Email Settings Management
-    Route::post('email-settings', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'updateEmailSettings'])->name('email-settings.update');
+    // Email Settings Management (New independent route)
+    Route::get('settings/emails', [\App\Http\Controllers\Backend\EmailSettingsController::class, 'index'])->name('email-settings.index');
+    Route::post('settings/emails', [\App\Http\Controllers\Backend\EmailSettingsController::class, 'update'])->name('email-settings.update');
 
-    // Email Templates Management
-    Route::get('email-templates/by-type/{type}', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'getByType'])->name('email-templates.by-type');
-    Route::get('email-templates/{id}/content', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'getContent'])->name('email-templates.content')->where('id', '[0-9]+');
-    Route::post('email-templates/live-preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'livePreview'])->name('email-templates.live-preview');
-    Route::resource('email-templates', \App\Http\Controllers\Backend\EmailTemplatesController::class);
-    Route::post('email-templates/{id}/duplicate', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'duplicate'])->name('email-templates.duplicate');
-    Route::post('email-templates/{id}/set-default', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'setDefault'])->name('email-templates.set-default');
-    Route::get('email-templates/{id}/preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'preview'])->name('email-templates.preview');
-    Route::get('email-templates/{id}/preview-page', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'previewPage'])->name('email-templates.preview-page');
-    Route::post('email-templates/{id}/send-test', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'sendTestEmail'])->name('email-templates.send-test');
-    Route::post('email-templates/{id}/upload-preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'uploadPreview'])->name('email-templates.upload-preview');
+    // Email Templates Management (Updated route)
+    Route::get('settings/email-templates', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'index'])->name('email-templates.index');
+    Route::get('settings/email-templates/create', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'create'])->name('email-templates.create');
+    Route::post('settings/email-templates', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'store'])->name('email-templates.store');
+    Route::get('settings/email-templates/by-type/{type}', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'getByType'])->name('email-templates.by-type');
+    Route::get('settings/email-templates/{email_template}/content', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'getContent'])->name('email-templates.content')->where('email_template', '[0-9]+');
+    Route::post('settings/email-templates/live-preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'livePreview'])->name('email-templates.live-preview');
+    Route::get('settings/email-templates/{email_template}', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'show'])->name('email-templates.show')->where('email_template', '[0-9]+');
+    Route::get('settings/email-templates/{email_template}/edit', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'edit'])->name('email-templates.edit')->where('email_template', '[0-9]+');
+    Route::put('settings/email-templates/{email_template}', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'update'])->name('email-templates.update')->where('email_template', '[0-9]+');
+    Route::delete('settings/email-templates/{email_template}', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'destroy'])->name('email-templates.destroy')->where('email_template', '[0-9]+');
+    Route::post('settings/email-templates/{email_template}/duplicate', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'duplicate'])->name('email-templates.duplicate');
+    Route::post('settings/email-templates/{email_template}/set-default', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'setDefault'])->name('email-templates.set-default');
+    Route::get('settings/email-templates/{email_template}/preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'preview'])->name('email-templates.preview');
+    Route::get('settings/email-templates/{email_template}/preview-page', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'previewPage'])->name('email-templates.preview-page');
+    Route::post('settings/email-templates/{email_template}/send-test', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'sendTestEmail'])->name('email-templates.send-test');
+    Route::post('settings/email-templates/{email_template}/upload-preview', [\App\Http\Controllers\Backend\EmailTemplatesController::class, 'uploadPreview'])->name('email-templates.upload-preview');
+
+    // Notifications Management (New routes)
+    Route::get('settings/notifications', [\App\Http\Controllers\Backend\NotificationsController::class, 'index'])->name('notifications.index');
+    Route::get('settings/notifications/create', [\App\Http\Controllers\Backend\NotificationsController::class, 'create'])->name('notifications.create');
+    Route::post('settings/notifications', [\App\Http\Controllers\Backend\NotificationsController::class, 'store'])->name('notifications.store');
+    Route::get('settings/notifications/{notification}', [\App\Http\Controllers\Backend\NotificationsController::class, 'show'])->name('notifications.show')->where('notification', '[0-9]+');
+    Route::get('settings/notifications/{notification}/edit', [\App\Http\Controllers\Backend\NotificationsController::class, 'edit'])->name('notifications.edit')->where('notification', '[0-9]+');
+    Route::get('settings/notifications/{notification}/preview-page', [\App\Http\Controllers\Backend\NotificationsController::class, 'previewPage'])->name('notifications.preview-page');
+    Route::post('settings/notifications/{notification}/send-test', [\App\Http\Controllers\Backend\NotificationsController::class, 'sendTestEmail'])->name('notifications.send-test');
+    Route::put('settings/notifications/{notification}', [\App\Http\Controllers\Backend\NotificationsController::class, 'update'])->name('notifications.update')->where('notification', '[0-9]+');
+    Route::delete('settings/notifications/{notification}', [\App\Http\Controllers\Backend\NotificationsController::class, 'destroy'])->name('notifications.destroy')->where('notification', '[0-9]+');
 
     // Translation Routes.
     Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');

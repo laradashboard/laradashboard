@@ -207,8 +207,8 @@ class AdminMenuService
                 ],
                 [
                     'label' => __('Emails'),
-                    'route' => route('admin.email-templates.index'),
-                    'active' => Route::is('admin.email-templates.*'),
+                    'route' => route('admin.email-settings.index'),
+                    'active' => Route::is('admin.email-templates.*') || Route::is('admin.notifications.*') || Route::is('admin.email-settings.*'),
                     'priority' => 15,
                     'permissions' => 'settings.edit',
                 ],

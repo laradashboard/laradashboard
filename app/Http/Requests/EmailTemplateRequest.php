@@ -19,7 +19,6 @@ class EmailTemplateRequest extends FormRequest
             'name' => 'required|string|max:255',
             'subject' => $this->input('type') === 'header' || $this->input('type') === 'footer' ? 'nullable|string|max:500' : 'required|string|max:500',
             'body_html' => 'nullable|string',
-            'body_text' => 'nullable|string',
             'type' => ['required', 'string', Rule::in(TemplateType::getValues())],
             'description' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
@@ -53,7 +52,6 @@ class EmailTemplateRequest extends FormRequest
             'type.required' => 'Template type is required.',
             'type.in' => 'Invalid template type selected.',
             'body_html.required_without' => 'Either HTML body or text body is required.',
-            'body_text.required_without' => 'Either HTML body or text body is required.',
             'preview_image.image' => 'Preview image must be a valid image file.',
             'preview_image.mimes' => 'Preview image must be a JPEG, PNG, JPG, or GIF file.',
             'preview_image.max' => 'Preview image must not exceed 2MB.',
@@ -63,10 +61,9 @@ class EmailTemplateRequest extends FormRequest
     protected function prepareForValidation()
     {
         // Ensure at least one body content is provided
-        if (empty($this->body_html) && empty($this->body_text)) {
+        if (empty($this->body_html)) {
             $this->merge([
                 'body_html' => $this->body_html ?: '',
-                'body_text' => $this->body_text ?: '',
             ]);
         }
 

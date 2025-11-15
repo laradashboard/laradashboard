@@ -83,11 +83,6 @@
                         <button onclick="switchTab('html')" id="tab-html" class="border-b-2 border-primary py-2 px-1 text-sm font-medium text-primary">
                             {{ __('HTML Content') }}
                         </button>
-                        @if($template->body_text)
-                        <button onclick="switchTab('text')" id="tab-text" class="border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
-                            {{ __('Plain Text') }}
-                        </button>
-                        @endif
                         <button onclick="switchTab('source')" id="tab-source" class="border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
                             {{ __('Source Code') }}
                         </button>
@@ -100,13 +95,6 @@
                         {!! $template->body_html !!}
                     </div>
                 </div>
-
-                <!-- Plain Text Tab -->
-                @if($template->body_text)
-                <div id="content-text" class="hidden">
-                    <pre class="whitespace-pre-wrap font-mono text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-md text-gray-700 dark:text-gray-300">{{ $template->body_text }}</pre>
-                </div>
-                @endif
 
                 <!-- Source Code Tab -->
                 <div id="content-source" class="hidden">

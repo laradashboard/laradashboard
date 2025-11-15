@@ -17,7 +17,6 @@ return new class () extends Migration {
             $table->string('name');
             $table->string('subject')->nullable();
             $table->longText('body_html')->nullable();
-            $table->longText('body_text')->nullable();
             $table->string('type')->default(TemplateType::EMAIL->value);
             $table->json('variables')->nullable(); // Template variables like {{first_name}}, {{company}}
             $table->string('preview_image')->nullable();

@@ -20,7 +20,6 @@ class EmailTemplateFactory extends Factory
             'name' => $this->faker->words(3, true),
             'subject' => $this->faker->sentence(),
             'body_html' => '<p>' . $this->faker->paragraph() . '</p>',
-            'body_text' => $this->faker->paragraph(),
             'type' => 'transactional',
             'description' => $this->faker->optional()->sentence(),
             'is_active' => true,

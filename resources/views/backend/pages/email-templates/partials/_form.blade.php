@@ -170,18 +170,6 @@
                         <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
                     @enderror
                 </div>
-
-                <div>
-                    <div class="flex items-center justify-between mb-2 w-full">
-                        <label for="body_text" class="form-label w-full">{{ __('Plain Text Version') }}</label>
-                        <x-variable-selector target-id="body_text" :variables="$templateVariables ?? []" label="Add Variable" />
-                    </div>
-                    <textarea id="body_text" name="body_text" rows="12" class="form-control !h-auto @error('body_text') border-red-500 @enderror font-mono text-sm" placeholder="{{ __('Plain text version for email clients that don\'t support HTML...') }}">{{ old('body_text', $template->body_text ?? '') }}</textarea>
-                    <p class="text-xs text-gray-500 mt-1.5">{{ __('Fallback version for email clients without HTML support') }}</p>
-                    @error('body_text')
-                        <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                    @enderror
-                </div>
             </x-card>
         </div>
     </div>
@@ -252,9 +240,6 @@ function loadTemplateContent(templateId) {
                     // Trigger change event for text editor
                     htmlEditor.dispatchEvent(new Event('change'));
                 }
-            }
-            if (data.body_text) {
-                document.getElementById('body_text').value = data.body_text;
             }
         })
         .catch(error => {

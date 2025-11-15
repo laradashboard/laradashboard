@@ -9,22 +9,27 @@
                 'tabs' => Hook::applyFilters(SettingFilterHook::SETTINGS_TABS, [
                     'general' => [
                         'title' => __('General Settings'),
+                        'icon' => 'lucide:settings',
                         'view' => 'backend.pages.settings.general-tab',
                     ],
                     'appearance' => [
                         'title' => __('Site Appearance'),
+                        'icon' => 'lucide:palette',
                         'view' => 'backend.pages.settings.appearance-tab',
                     ],
                     'content' => [
                         'title' => __('Content Settings'),
+                        'icon' => 'lucide:file-text',
                         'view' => 'backend.pages.settings.content-settings',
                     ],
                     'integrations' => [
                         'title' => __('Integrations'),
+                        'icon' => 'lucide:plug',
                         'view' => 'backend.pages.settings.integration-settings',
                     ],
                     'performance-security' => [
                         'title' => __('Performance & Security'),
+                        'icon' => 'lucide:shield',
                         'view' => 'backend.pages.settings.performance-security-tab',
                     ],
                 ]),

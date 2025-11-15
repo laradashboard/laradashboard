@@ -28,29 +28,11 @@
                 </div>
             </div>
 
-            <!-- Email Content Tabs -->
+            <!-- Email Content -->
             <div class="mb-6">
-                <div class="border-b border-gray-200 dark:border-gray-700 mb-4">
-                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                        <button onclick="showTab('html')" id="tab-html" class="border-b-2 border-primary py-2 px-1 text-sm font-medium text-primary">
-                            {{ __('HTML Preview') }}
-                        </button>
-                        <button onclick="showTab('text')" id="tab-text" class="border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
-                            {{ __('Plain Text') }}
-                        </button>
-                    </nav>
-                </div>
-
-                <!-- HTML Preview Tab -->
-                <div id="content-html">
-                    <div class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-headings:text-gray-700 dark:prose-headings:text-white/90 prose-p:text-gray-700 dark:prose-p:text-gray-300">
-                        {!! $rendered['body_html'] !!}
-                    </div>
-                </div>
-
-                <!-- Plain Text Tab -->
-                <div id="content-text" class="hidden">
-                    <pre class="whitespace-pre-wrap font-mono text-sm bg-gray-50 dark:bg-gray-800 p-4 rounded-md text-gray-700 dark:text-gray-300">{{ $rendered['body_text'] }}</pre>
+                <h4 class="text-lg font-medium text-gray-700 dark:text-white/90 mb-4">{{ __('HTML Preview') }}</h4>
+                <div class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-headings:text-gray-700 dark:prose-headings:text-white/90 prose-p:text-gray-700 dark:prose-p:text-gray-300">
+                    {!! $rendered['body_html'] !!}
                 </div>
             </div>
         </x-card>
@@ -60,23 +42,6 @@
     <x-modals.test-email :send-test-url="route('admin.email-templates.send-test', $template->id)" />
 
     <script>
-        function showTab(tab) {
-            document.querySelectorAll('[id^="content-"]').forEach(c => {
-                c.classList.add('hidden');
-            });
-            
-            document.getElementById('content-' + tab).classList.remove('hidden');
-            
-            document.querySelectorAll('[id^="tab-"]').forEach(t => {
-                t.classList.remove('border-primary', 'text-primary');
-                t.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300', 'dark:text-gray-400', 'dark:hover:text-gray-300');
-            });
-            
-            const selectedTab = document.getElementById('tab-' + tab);
-            selectedTab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300', 'dark:text-gray-400', 'dark:hover:text-gray-300');
-            selectedTab.classList.add('border-primary', 'text-primary');
-        }
-
         function openTestEmailModal() {
             window.dispatchEvent(new CustomEvent('open-test-email-modal'));
         }

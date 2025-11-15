@@ -1,13 +1,8 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
-    <div class="space-y-6">
-        @include('backend.pages.email-templates.partials.settings-view')
+    <x-email-tabs.navigation :currentTab="$currentTab" />
 
-        <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                {{ __('Email Templates') }}
-            </h3>
-            <livewire:datatable.email-template-datatable lazy />
-        </div>
+    <div class="space-y-6">
+        <livewire:datatable.email-template-datatable lazy />
     </div>
 
     <!-- Email Settings Drawer -->

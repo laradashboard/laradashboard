@@ -135,10 +135,10 @@ class EmailTemplateSeeder extends Seeder
                 $this->getShippingNotification()
             ),
             $this->createTemplate(
-                'Password Reset',
-                'Reset Your Password',
+                'Forgot Password',
+                'Reset Your Password - {{app_name}}',
                 TemplateType::TRANSACTIONAL,
-                'Password reset email',
+                'Password reset email with security tips',
                 $this->getPasswordReset()
             ),
             $this->createTemplate(
@@ -288,7 +288,6 @@ class EmailTemplateSeeder extends Seeder
             'name' => $name,
             'subject' => $subject,
             'body_html' => $html,
-            'body_text' => strip_tags($html),
             'type' => $type,
             'description' => $description,
             'variables' => $this->extractVariables($subject . ' ' . $html),
@@ -1319,61 +1318,64 @@ HTML;
     private function getPasswordReset(): string
     {
         return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table width="500" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 50px 40px;">
-                            <div style="text-align: center; margin-bottom: 30px;">
-                                <span style="display: inline-block; width: 60px; height: 60px; background-color: #f59e0b; border-radius: 50%; text-align: center; line-height: 60px; font-size: 30px;">🔒</span>
-                            </div>
-                            <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 26px; font-weight: 700; text-align: center;">Reset Your Password</h1>
-                            <p style="font-size: 15px; color: #666; margin: 0 0 30px 0; text-align: center; line-height: 1.6;">
-                                We received a request to reset your password. Click the button below to create a new password.
-                            </p>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 16px 50px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">Reset Password</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0;">
-                                <p style="margin: 0; font-size: 14px; color: #92400e; line-height: 1.6;">
-                                    ⚠️ <strong>Security Note:</strong><br>
-                                    This link will expire in 1 hour. If you didn't request this, please ignore this email.
-                                </p>
-                            </div>
-
-                            <p style="font-size: 13px; color: #999; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
-                                Or copy and paste this link:<br>
-                                <span style="color: #3b82f6; word-break: break-all;">https://{{company}}.com/reset?token=abc123xyz</span>
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
+<table width="100%" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <tr>
+        <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Password Reset Request</h1>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 40px 30px;">
+            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                Hello <strong>{user_name}</strong>,
+            </p>
+            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                We received a request to reset your password for your <strong>{app_name}</strong> account. 
+                If you didn't make this request, you can safely ignore this email.
+            </p>
+            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 30px;">
+                To reset your password, click the button below:
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{reset_url}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                    Reset My Password
+                </a>
+            </div>
+            <div style="background-color: #f8f9fa; border-left: 4px solid #ffc107; padding: 20px; margin: 30px 0; border-radius: 4px;">
+                <p style="font-size: 14px; color: #856404; margin: 0; line-height: 1.6;">
+                    <strong>⚠️ Important:</strong> This password reset link will expire in <strong>{expiry_time}</strong>. 
+                    If the link expires, you'll need to request a new password reset.
+                </p>
+            </div>
+            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 30px 0 20px;">
+                If the button above doesn't work, copy and paste this URL into your browser:
+            </p>
+            <p style="font-size: 13px; color: #667eea; word-break: break-all; background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin: 0 0 30px;">
+                {reset_url}
+            </p>
+            <div style="border-top: 2px solid #e9ecef; padding-top: 30px; margin-top: 30px;">
+                <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 0 0 10px;">
+                    <strong>Security Tips:</strong>
+                </p>
+                <ul style="font-size: 14px; color: #666666; line-height: 1.8; margin: 0; padding-left: 20px;">
+                    <li>Never share your password with anyone</li>
+                    <li>Use a strong, unique password</li>
+                    <li>Enable two-factor authentication if available</li>
+                </ul>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e9ecef;">
+            <p style="font-size: 14px; color: #666666; margin: 0 0 10px;">
+                If you didn't request this password reset, please contact our support team immediately.
+            </p>
+            <p style="font-size: 13px; color: #999999; margin: 0;">
+                © 2025 {app_name}. All rights reserved.
+            </p>
+        </td>
+    </tr>
+</table>
 HTML;
     }
 

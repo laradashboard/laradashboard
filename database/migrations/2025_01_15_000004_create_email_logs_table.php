@@ -22,7 +22,6 @@ return new class () extends Migration {
             $table->string('from_name')->nullable();
             $table->string('subject');
             $table->longText('body_html')->nullable();
-            $table->longText('body_text')->nullable();
             $table->json('headers')->nullable();
             $table->string('message_id')->nullable(); // Email service provider message ID
             $table->string('status');
