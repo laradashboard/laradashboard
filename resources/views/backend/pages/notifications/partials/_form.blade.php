@@ -50,7 +50,7 @@
                 @enderror
                 <p class="text-xs text-gray-500 mt-1">{{ __('Select a template or leave empty to use custom content below') }}</p>
 
-                <div class="pt-1 border-t border-gray-200 dark:border-gray-700">
+                <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
                     <label class="flex items-center justify-between cursor-pointer group">
                         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Active Status') }}</span>
                         <div>
@@ -116,17 +116,6 @@
                         @error('description')
                             <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
                         @enderror
-                    </div>
-
-                    <div>
-                        <label for="template_selector" class="form-label">{{ __('Load Template Content') }}</label>
-                        <select id="template_selector" class="form-control" onchange="loadTemplateContent(this.value)">
-                            <option value="">{{ __('Select a template to load...') }}</option>
-                            @foreach ($emailTemplates ?? [] as $template)
-                                <option value="{{ $template->id }}">{{ $template->name }}</option>
-                            @endforeach
-                        </select>
-                        <p class="text-xs text-gray-500 mt-1.5">{{ __('Load content from an existing template to customize') }}</p>
                     </div>
                 </div>
 
