@@ -1,12 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 class EmailTemplateEngine
 {
-    /**
-     * Available template variables with their descriptions
-     */
     public static function getAvailableVariables(): array
     {
         return [
@@ -26,18 +25,18 @@ class EmailTemplateEngine
         ];
     }
 
-    /**
-     * Preview template with sample data
-     */
     public function preview(string $content, array $sampleData = []): string
     {
         $defaultSampleData = [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'full_name' => 'John Doe',
-            'email' => 'john.doe@example.com',
+            'email' => config('mail.from.address', 'john.doe@example.com'),
             'company_name' => config('app.name', 'Your Company'),
             'company_website' => config('app.url', 'https://yourwebsite.com'),
+            'year' => now()->year,
+            'date' => now()->format('F j, Y'),
+            'time' => now()->format('F j, Y \a\t g:i A'),
             'current_year' => now()->year,
             'current_date' => now()->format('F j, Y'),
             'current_time' => now()->format('F j, Y \a\t g:i A'),
@@ -48,9 +47,6 @@ class EmailTemplateEngine
         return $this->replaceVariables($content, $variables);
     }
 
-    /**
-     * Render template with actual data
-     */
     public function render(string $content, $contact = null, $campaign = null, string $recipientUuid = null): string
     {
         $variables = [
@@ -69,19 +65,16 @@ class EmailTemplateEngine
         return $this->replaceVariables($content, $variables);
     }
 
-    /**
-     * Replace variables in content
-     */
     private function replaceVariables(string $content, array $variables): string
     {
         foreach ($variables as $key => $value) {
             $cleanValue = trim((string) $value);
-            // Replace double brackets first to avoid conflicts
+            // Replace double brackets first to avoid conflicts.
             $content = str_replace('{{' . $key . '}}', $cleanValue, $content);
             $content = str_replace('{' . $key . '}', $cleanValue, $content);
         }
 
-        // Remove any remaining unmatched variables (both single and double brackets)
+        // Remove any remaining unmatched variables (both single and double brackets).
         $content = preg_replace('/\{\{[^}]+\}\}/', '', $content);
         $content = preg_replace('/\{[^}]+\}/', '', $content);
 
