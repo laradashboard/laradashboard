@@ -71,7 +71,7 @@
     name: '{{ $name }}',
     onchange: @json($onchange)
 })"
-    class="w-full flex flex-col gap-1 {{ $class }}"
+    class="w-full flex flex-col {{ $class }}"
     x-on:keydown.esc.window="isOpen = false, openedWithKeyboard = false"
     {{ $attributes->whereStartsWith('x-on:') }}>
 
@@ -145,7 +145,7 @@
         <div
             x-cloak
             x-show="isOpen || openedWithKeyboard"
-            class="absolute z-50 left-0 top-full mt-1 w-full overflow-hidden rounded-md border border-gray-300 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900"
+            class="absolute z-50 left-0 top-full mt-1 w-full overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900"
             @click.outside="isOpen = false; openedWithKeyboard = false;"
             x-on:keydown.down.prevent="$focus.wrap().next()"
             x-on:keydown.up.prevent="$focus.wrap().previous()"
@@ -174,7 +174,7 @@
                             x-bind:for="'option_' + index"
                             x-on:click.prevent="handleOptionToggle(item.value, !selectedOptions.includes(item.value))">
                             <input type="checkbox"
-                                class="form-checkbox combobox-option h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:border-gray-700 dark:bg-gray-900"
+                                class="form-checkbox"
                                 x-bind:value="item.value"
                                 x-bind:id="'option_' + index"
                                 x-bind:checked="selectedOptions.includes(item.value)"
@@ -182,7 +182,7 @@
                                 tabindex="0" />
                             <div class="flex flex-col">
                                 <span x-bind:class="selectedOption == item.value ? 'font-medium' : ''" x-text="item.label"></span>
-                                <span x-show="item.description" class="block text-xs text-gray-500 dark:text-gray-400 mt-1" x-text="item.description"></span>
+                                <span x-show="item.description" class="text-xs text-gray-500 dark:text-gray-400" x-text="item.description"></span>
                             </div>
                         </label>
                     </li>
@@ -195,7 +195,7 @@
                         tabindex="0">
                         <div class="flex flex-col">
                             <span x-bind:class="selectedOption == item.value ? 'font-medium' : ''" x-text="item.label"></span>
-                            <span x-show="item.description" class="block text-xs text-gray-500 dark:text-gray-400 mt-1" x-text="item.description"></span>
+                            <span x-show="item.description" class="text-xs text-gray-500 dark:text-gray-400" x-text="item.description"></span>
                         </div>
                         <svg x-cloak x-show="selectedOption == item.value" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" class="size-4 text-primary">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
@@ -211,6 +211,7 @@
         </div>
     </div>
 </div>
+@push('scripts')
 <script>
 function comboboxData({
     allOptions = [],
@@ -402,3 +403,4 @@ function comboboxData({
     };
 }
 </script>
+@endpush
