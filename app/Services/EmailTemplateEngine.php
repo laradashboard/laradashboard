@@ -58,6 +58,7 @@ class EmailTemplateEngine
             'last_name' => $contact->last_name ?? '',
             'full_name' => $contact->full_name ?? ($contact->first_name . ' ' . $contact->last_name) ?? '',
             'email' => $contact->email ?? '',
+            'company' => config('app.name', 'Your Company'),
             'company_name' => config('app.name', 'Your Company'),
             'company_website' => config('app.url', 'https://yourwebsite.com'),
             'current_year' => now()->year,
@@ -75,8 +76,9 @@ class EmailTemplateEngine
     {
         foreach ($variables as $key => $value) {
             $cleanValue = trim((string) $value);
-            $content = str_replace('{' . $key . '}', $cleanValue, $content);
+            // Replace double brackets first to avoid conflicts
             $content = str_replace('{{' . $key . '}}', $cleanValue, $content);
+            $content = str_replace('{' . $key . '}', $cleanValue, $content);
         }
 
         return $content;
