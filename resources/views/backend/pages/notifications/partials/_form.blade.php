@@ -118,18 +118,16 @@
                         @enderror
                     </div>
 
-                    @if (!isset($notification))
-                        <div>
-                            <label for="template_selector" class="form-label">{{ __('Load Template Content') }}</label>
-                            <select id="template_selector" class="form-control" onchange="loadTemplateContent(this.value)">
-                                <option value="">{{ __('Select a template to load...') }}</option>
-                                @foreach ($emailTemplates ?? [] as $template)
-                                    <option value="{{ $template->id }}">{{ $template->name }}</option>
-                                @endforeach
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1.5">{{ __('Load content from an existing template') }}</p>
-                        </div>
-                    @endif
+                    <div>
+                        <label for="template_selector" class="form-label">{{ __('Load Template Content') }}</label>
+                        <select id="template_selector" class="form-control" onchange="loadTemplateContent(this.value)">
+                            <option value="">{{ __('Select a template to load...') }}</option>
+                            @foreach ($emailTemplates ?? [] as $template)
+                                <option value="{{ $template->id }}">{{ $template->name }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1.5">{{ __('Load content from an existing template to customize') }}</p>
+                    </div>
                 </div>
 
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-5">
@@ -142,7 +140,15 @@
 
                     <div>
                         <div class="flex items-center justify-between mb-2 w-full">
-                            <label for="body_html" class="form-label w-full">{{ __('HTML Content') }}</label>
+                            <label for="body_html" class="form-label">{{ __('HTML Content') }}</label>
+                            @if (isset($notification) && $notification->email_template_id)
+                                <button type="button" onclick="loadTemplateContent({{ $notification->email_template_id }})" class="text-xs btn btn-secondary py-1 px-2">
+                                    <svg class="w-3 h-3 mr-1 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    </svg>
+                                    {{ __('Load Template Content') }}
+                                </button>
+                            @endif
                         </div>
                         <textarea name="body_html" id="body_html" rows="4" class="block w-full border-0 focus:ring-0 focus:outline-none" placeholder="{{ __('Compose your email content...') }}">{{ old('body_html', $notification->body_html ?? '') }}</textarea>
                         @push('scripts')
@@ -279,6 +285,28 @@ function loadTemplateContent(templateId) {
         return;
     }
     
+    // Check if there's existing content in the editor
+    let hasExistingContent = false;
+    if (typeof tinymce !== 'undefined') {
+        const editor = tinymce.get('body_html');
+        if (editor) {
+            const content = editor.getContent();
+            hasExistingContent = content && content.trim().length > 0;
+        }
+    } else {
+        const htmlEditor = document.getElementById('body_html');
+        if (htmlEditor) {
+            hasExistingContent = htmlEditor.value && htmlEditor.value.trim().length > 0;
+        }
+    }
+    
+    // Confirm before overwriting existing content
+    if (hasExistingContent) {
+        if (!confirm('This will replace the current content. Are you sure?')) {
+            return;
+        }
+    }
+    
     fetch(`/admin/settings/email-templates/${templateId}/content`)
         .then(response => response.json())
         .then(data => {
@@ -290,11 +318,13 @@ function loadTemplateContent(templateId) {
                     if (editor) {
                         // Set content in TinyMCE
                         editor.setContent(data.body_html);
+                        console.log('Template content loaded successfully into editor');
                     } else {
                         // Fallback: Set textarea value and wait for TinyMCE to initialize
                         const htmlEditor = document.getElementById('body_html');
                         if (htmlEditor) {
                             htmlEditor.value = data.body_html;
+                            console.log('Template content loaded successfully into textarea');
                         }
                     }
                 } else {
@@ -302,6 +332,7 @@ function loadTemplateContent(templateId) {
                     const htmlEditor = document.getElementById('body_html');
                     if (htmlEditor) {
                         htmlEditor.value = data.body_html;
+                        console.log('Template content loaded successfully into textarea (TinyMCE not ready)');
                     }
                 }
             }

@@ -319,8 +319,15 @@
             init_instance_callback: function(editor) {
                 // Set initial content if exists
                 const initialContent = textareaElement.value;
-                if (initialContent) {
-                    editor.setContent(initialContent);
+                if (initialContent && initialContent.trim() !== '') {
+                    try {
+                        editor.setContent(initialContent);
+                        console.log(`Initial content loaded for #${editorId}:`, initialContent.substring(0, 100) + '...');
+                    } catch (error) {
+                        console.error(`Error setting initial content for #${editorId}:`, error);
+                    }
+                } else {
+                    console.log(`No initial content for #${editorId}`);
                 }
 
                 // Hide original textarea
