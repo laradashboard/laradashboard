@@ -16,7 +16,7 @@
             class="relative bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-lg w-full mx-4"
         >
             @isset($header)
-                <div class="px-6 py-4 border-b font-semibold flex justify-between items-center {{ $headerClass ?? '' }}">
+                <div class="px-6 py-4 border-b border-gray-200 font-semibold flex justify-between items-center {{ $headerClass ?? '' }}">
                     {{ $header }}
                     <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" @click="open=false" title="{{ __('Close') }}">
                         <iconify-icon icon="mdi:close" class="w-5 h-5" />
@@ -36,7 +36,7 @@
             </div>
 
             @isset($footer)
-                <div class="px-6 py-4 border-t flex justify-start gap-4 items-center {{ $footerClass ?? '' }}">
+                <div class="px-6 py-4 border-t border-gray-200 flex justify-start gap-4 items-center {{ $footerClass ?? '' }}">
                     {{ $footer }}
                 </div>
             @endisset
