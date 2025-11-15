@@ -56,7 +56,7 @@ class EmailTemplateEngine
         $variables = [
             'first_name' => $contact->first_name ?? '',
             'last_name' => $contact->last_name ?? '',
-            'full_name' => $contact->full_name ?? ($contact->first_name . ' ' . $contact->last_name) ?? '',
+            'full_name' => $contact->full_name ?? (($contact->first_name ?? '') . ' ' . ($contact->last_name ?? '')),
             'email' => $contact->email ?? '',
             'company' => config('app.name', 'Your Company'),
             'company_name' => config('app.name', 'Your Company'),
@@ -80,6 +80,10 @@ class EmailTemplateEngine
             $content = str_replace('{{' . $key . '}}', $cleanValue, $content);
             $content = str_replace('{' . $key . '}', $cleanValue, $content);
         }
+
+        // Remove any remaining unmatched variables (both single and double brackets)
+        $content = preg_replace('/\{\{[^}]+\}\}/', '', $content);
+        $content = preg_replace('/\{[^}]+\}/', '', $content);
 
         return $content;
     }
