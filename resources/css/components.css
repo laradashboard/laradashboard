@@ -38,7 +38,7 @@
     }
 
     .badge-primary {
-        @apply inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-white bg-brand-300 dark:bg-primary/20 rounded-full;
+        @apply inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-white bg-brand-500 dark:bg-primary/20 rounded-full;
     }
 
     .badge-success {
