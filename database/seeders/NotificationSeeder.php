@@ -7,8 +7,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\EmailTemplate;
 use App\Models\Notification;
-use App\Enums\NotificationType;
 use App\Enums\ReceiverType;
+use App\Models\NotificationType;
 use Illuminate\Support\Str;
 
 class NotificationSeeder extends Seeder

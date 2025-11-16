@@ -6,7 +6,6 @@ namespace App\Services;
 
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\Notification;
-use App\Enums\NotificationType;
 use App\Enums\ReceiverType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -155,7 +154,7 @@ class NotificationService
         }
     }
 
-    public function getNotificationsByType(NotificationType $type): Collection
+    public function getNotificationsByType($type): Collection
     {
         return Notification::byType($type)
             ->active()

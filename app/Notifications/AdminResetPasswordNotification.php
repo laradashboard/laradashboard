@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Notifications;
 
 use App\Models\Notification;
-use App\Enums\NotificationType;
+use App\Models\NotificationType;
 use Illuminate\Auth\Notifications\ResetPassword as BaseResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
 
@@ -44,7 +44,7 @@ class AdminResetPasswordNotification extends BaseResetPassword
     }
 
     /**
-     * Build custom email from template
+     * Build custom email from template.
      */
     private function buildCustomEmail($notification, $notifiable, $url)
     {
@@ -59,24 +59,24 @@ class AdminResetPasswordNotification extends BaseResetPassword
             'expiry_time' => config('auth.passwords.users.expire', 60) . ' minutes',
         ];
 
-        // Replace variables in subject
+        // Replace variables in subject.
         $subject = $template->subject;
         foreach ($data as $key => $value) {
             $subject = str_replace('{' . $key . '}', $value, $subject);
         }
 
-        // Replace variables in body
-        $bodyHtml = $template->body_html;
+        // Replace variables in body.
+        $bodyHtml = !empty($notification->body_html) ? $notification->body_html : $template->body_html;
         foreach ($data as $key => $value) {
             $bodyHtml = str_replace('{' . $key . '}', $value, $bodyHtml);
         }
 
-        // Build mail message with custom content
+        // Build mail message with custom content.
         $mailMessage = (new MailMessage())
             ->subject($subject)
             ->view('emails.custom-html', ['content' => $bodyHtml]);
 
-        // Set from email and name if specified in notification
+        // Set from email and name if specified in notification.
         if ($notification->from_email) {
             $mailMessage->from($notification->from_email, $notification->from_name ?? config('app.name'));
         }

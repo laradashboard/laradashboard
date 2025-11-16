@@ -12,8 +12,8 @@ use Illuminate\Http\Request;
 use App\Services\NotificationService;
 use App\Services\EmailTemplateService;
 use App\Http\Requests\NotificationRequest;
-use App\Enums\NotificationType;
 use App\Enums\ReceiverType;
+use App\Models\NotificationType;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -44,9 +44,9 @@ class NotificationsController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $notificationTypes = collect(NotificationType::cases())
+        $notificationTypes = collect(NotificationType::getValues())
             ->mapWithKeys(function ($type) {
-                return [$type->value => $type->label()];
+                return [$type => $type];
             })
             ->toArray();
 
@@ -122,9 +122,9 @@ class NotificationsController extends Controller
             abort(404, __('Notification not found.'));
         }
 
-        $notificationTypes = collect(NotificationType::cases())
+        $notificationTypes = collect(NotificationType::getValues())
             ->mapWithKeys(function ($type) {
-                return [$type->value => $type->label()];
+                return [$type => $type];
             })
             ->toArray();
 

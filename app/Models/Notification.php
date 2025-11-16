@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Enums\NotificationType;
 use App\Enums\ReceiverType;
 use App\Concerns\QueryBuilderTrait;
 use Illuminate\Support\Str;
@@ -42,7 +41,6 @@ class Notification extends Model
     ];
 
     protected $casts = [
-        'notification_type' => NotificationType::class,
         'receiver_type' => ReceiverType::class,
         'receiver_ids' => 'array',
         'receiver_emails' => 'array',

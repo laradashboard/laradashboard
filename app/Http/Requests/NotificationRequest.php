@@ -6,8 +6,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Enums\NotificationType;
 use App\Enums\ReceiverType;
+use App\Models\NotificationType;
 
 class NotificationRequest extends FormRequest
 {
