@@ -126,7 +126,7 @@ abstract class Datatable extends Component
 
     protected function getNoResultsMessage(): string
     {
-        return __('No :items found.', ['items' => $this->getModelNamePlural()]);
+        return __('No :items found.', ['items' => $this->getModelNamePluralLower()]);
     }
 
     protected function getCustomNoResultsMessage(): string
@@ -180,6 +180,11 @@ abstract class Datatable extends Component
     protected function getModelNamePlural(): string
     {
         return str($this->getModelNameSingular())->plural()->toString();
+    }
+
+    protected function getModelNamePluralLower(): string
+    {
+        return str($this->getModelNameSingular())->plural()->lower()->toString();
     }
 
     protected function getPermissions(): array
