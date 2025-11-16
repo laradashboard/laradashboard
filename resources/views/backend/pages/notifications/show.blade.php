@@ -50,8 +50,8 @@
                             <div>
                                 <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Notification Type') }}</h4>
                                 <div class="mt-1 flex items-center">
-                                    <iconify-icon icon="{{ $notification->notification_type->icon() }}" class="mr-2 text-primary"></iconify-icon>
-                                    <span class="text-base text-gray-900 dark:text-white">{{ $notification->notification_type->label() }}</span>
+                                    <iconify-icon icon="{{ $notification->getNotificationTypeIcon() }}" class="mr-2 text-primary"></iconify-icon>
+                                    <span class="text-base text-gray-900 dark:text-white">{{ $notification->getNotificationTypeLabel() }}</span>
                                 </div>
                             </div>
 

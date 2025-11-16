@@ -49,7 +49,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                         <span class="text-gray-500 dark:text-gray-400">{{ __('Type:') }}</span>
-                        <span class="ml-2 text-gray-700 dark:text-gray-300">{{ $notification->notification_type->label() }}</span>
+                        <span class="ml-2 text-gray-700 dark:text-gray-300">{{ $notification->getNotificationTypeLabel() }}</span>
                     </div>
                     <div>
                         <span class="text-gray-500 dark:text-gray-400">{{ __('Receiver Type:') }}</span>

@@ -61,6 +61,16 @@ class Notification extends Model
         });
     }
 
+    public function getNotificationTypeIcon()
+    {
+        return (new NotificationType())->icon($this->notification_type);
+    }
+
+    public function getNotificationTypeLabel()
+    {
+        return (new NotificationType())->label($this->notification_type);
+    }
+
     public function emailTemplate(): BelongsTo
     {
         return $this->belongsTo(EmailTemplate::class, 'email_template_id');
@@ -81,7 +91,7 @@ class Notification extends Model
         return $query->where('is_active', true);
     }
 
-    public function scopeByType($query, NotificationType $type)
+    public function scopeByType($query, $type)
     {
         return $query->where('notification_type', $type);
     }

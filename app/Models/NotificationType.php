@@ -18,4 +18,22 @@ class NotificationType
             self::CUSTOM,
         ]);
     }
+
+    public function label($value): string
+    {
+        return match ($value) {
+            self::FORGOT_PASSWORD => __('Forgot Password'),
+            self::CUSTOM => __('Custom'),
+            default => __('Unknown'),
+        };
+    }
+
+    public function icon($value): string
+    {
+        return match ($value) {
+            self::FORGOT_PASSWORD => 'lucide:key',
+            self::CUSTOM => 'lucide:bell',
+            default => 'lucide:alert-circle',
+        };
+    }
 }
