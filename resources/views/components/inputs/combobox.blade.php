@@ -1,6 +1,8 @@
 @props([
     'name',
     'label' => '',
+    'labelClass' => '',
+    'labelRight' => '',
     'placeholder' => __('Search...'),
     'options' => [],
     'selected' => [],
@@ -76,12 +78,15 @@
     {{ $attributes->whereStartsWith('x-on:') }}>
 
     @if($label)
-        <label for="{{ $name }}" class="form-label">
-            {{ __($label) }}
+        <label for="{{ $name }}" class="form-label {{ !empty($labelRight) ? 'flex justify-between items-center' : '' }} {{ $labelClass }}">
+            <span>
+                {{ __($label) }}
 
-            @if($required)
-                <span class="text-red-500">*</span>
-            @endif
+                @if($required)
+                    <span class="text-red-500">*</span>
+                @endif
+            </span>
+            {!! $labelRight !!}
         </label>
     @endif
 
