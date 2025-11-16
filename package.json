@@ -36,7 +36,6 @@
         "@alpinejs/focus": "^3.14.9",
         "@alpinejs/persist": "^3.14.9",
         "@popperjs/core": "^2.11.8",
-        "@tailwindcss/line-clamp": "^0.4.4",
         "@vitejs/plugin-react": "^4.3.4",
         "alpinejs": "^3.14.9",
         "apexcharts": "^4.5.0",
