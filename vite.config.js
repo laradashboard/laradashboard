@@ -21,6 +21,7 @@ export default defineConfig({
         }),
         react(),
         tailwindcss(),
+        require("@tailwindcss/line-clamp"),
     ],
     esbuild: {
         jsx: "automatic",
