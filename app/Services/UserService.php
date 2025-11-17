@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\Facades\Hook;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
@@ -302,13 +303,20 @@ class UserService
 
     public static function getUserDropdownList(): Collection
     {
-        return User::select('id', 'first_name', 'last_name', 'email')
-            ->get()
-            ->map(function (User $user) {
-                return [
-                    'label' => $user->full_name . ' (' . $user->email . ')',
-                    'value' => $user->id,
-                ];
-            });
+        return Cache::remember('users.dropdown.list', now()->addHours(24), function () {
+            return User::select('id', 'first_name', 'last_name', 'email')
+                ->get()
+                ->map(function (User $user) {
+                    return [
+                        'label' => $user->full_name . ' (' . $user->email . ')',
+                        'value' => $user->id,
+                    ];
+                });
+        });
+    }
+
+    public static function clearUserDropdownCache(): void
+    {
+        Cache::forget('users.dropdown.list');
     }
 }
