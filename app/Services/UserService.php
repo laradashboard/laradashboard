@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\Facades\Hook;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
@@ -298,5 +299,24 @@ class UserService
         }
 
         return $deletedCount;
+    }
+
+    public static function getUserDropdownList(): Collection
+    {
+        return Cache::remember('users.dropdown.list', now()->addHours(24), function () {
+            return User::select('id', 'first_name', 'last_name', 'email', 'avatar_id')
+                ->get()
+                ->map(function (User $user) {
+                    return [
+                        'label' => '<div class="flex gap-2 items-center"><img style="border-radius: 50%; width: 30px;" src="' . $user->getGravatarUrl(30) . '" />' . $user->full_name . ' (' . $user->email . ')' . '</div>',
+                        'value' => $user->id,
+                    ];
+                });
+        });
+    }
+
+    public static function clearUserDropdownCache(): void
+    {
+        Cache::forget('users.dropdown.list');
     }
 }

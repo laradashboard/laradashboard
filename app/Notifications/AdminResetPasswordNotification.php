@@ -66,7 +66,7 @@ class AdminResetPasswordNotification extends BaseResetPassword
         }
 
         // Replace variables in body.
-        $bodyHtml = !empty($notification->body_html) ? $notification->body_html : $template->body_html;
+        $bodyHtml = ! empty($notification->body_html) ? $notification->body_html : $template->body_html;
         foreach ($data as $key => $value) {
             $bodyHtml = str_replace('{' . $key . '}', $value, $bodyHtml);
         }

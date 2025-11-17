@@ -1,8 +1,8 @@
 @props([
     'name' => 'tags',
-    'label' => 'Tags',
+    'label' => __('Tags'),
     'value' => '',
-    'placeholder' => 'Add and press Enter',
+    'placeholder' => __('Add and press Enter'),
     'hint' => '',
 ])
 
@@ -38,16 +38,14 @@
     
     <div
         {{ $attributes->merge(['class' => 'rounded-md bg-white dark:bg-white/[0.03]']) }}>
-        <div class="p-2">
+        <div>
             <input type="hidden" id="{{ $name }}" name="{{ $name }}" value="{{ $processedValue }}">
             <div class="mb-2">
                 <div class="flex flex-wrap items-center gap-2 mb-2" id="{{ $name }}-container">
                 </div>
 
                 <div class="relative">
-                    <input type="text" id="{{ $name }}-input"
-                        class="form-control"
-                        placeholder="{{ __($placeholder) }}">
+                    <input type="text" id="{{ $name }}-input" class="form-control" placeholder="{{ __($placeholder) }}">
                 </div>
             </div>
         </div>

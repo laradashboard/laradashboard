@@ -80,13 +80,15 @@
     @if($label)
         <label for="{{ $name }}" class="form-label {{ !empty($labelRight) ? 'flex justify-between items-center' : '' }} {{ $labelClass }}">
             <span>
-                {{ __($label) }}
+                {!! __($label) !!}
 
                 @if($required)
                     <span class="text-red-500">*</span>
                 @endif
             </span>
-            {!! $labelRight !!}
+            <span class="text-xs">
+                {!! $labelRight !!}
+            </span>
         </label>
     @endif
 
@@ -101,7 +103,7 @@
             x-on:keydown.space.prevent="openedWithKeyboard = true; if (searchable && (isOpen || openedWithKeyboard)) { $nextTick(() => $refs.searchField && $refs.searchField.focus()); }"
             x-bind:aria-expanded="isOpen || openedWithKeyboard"
             @if($disabled) disabled @endif>
-            <span class="text-sm font-normal text-left truncate" x-text="setLabelText()"></span>
+            <span class="text-sm font-normal text-left truncate" x-html="setLabelText()"></span>
             <iconify-icon
                 icon="mdi:chevron-down"
                 class="text-2xl"
@@ -142,7 +144,7 @@
                 style="position: absolute; pointer-events: none;">
                 <option value="">{{ __('Please select') }}</option>
                 @foreach($normalizedOptions as $opt)
-                    <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
+                    <option value="{{ $opt['value'] }}">{!! $opt['label'] !!}</option>
                 @endforeach
             </select>
         </template>
@@ -186,8 +188,8 @@
                                 x-on:change="handleOptionToggle(item.value, $el.checked)"
                                 tabindex="0" />
                             <div class="flex flex-col">
-                                <span x-bind:class="selectedOption == item.value ? 'font-medium' : ''" x-text="item.label"></span>
-                                <span x-show="item.description" class="text-xs text-gray-500 dark:text-gray-400" x-text="item.description"></span>
+                                <span x-bind:class="selectedOption == item.value ? 'font-medium' : ''" x-html="item.label"></span>
+                                <span x-show="item.description" class="text-xs text-gray-500 dark:text-gray-400" x-html="item.description"></span>
                             </div>
                         </label>
                     </li>
@@ -199,8 +201,8 @@
                         x-bind:id="'option_' + index"
                         tabindex="0">
                         <div class="flex flex-col">
-                            <span x-bind:class="selectedOption == item.value ? 'font-medium' : ''" x-text="item.label"></span>
-                            <span x-show="item.description" class="text-xs text-gray-500 dark:text-gray-400" x-text="item.description"></span>
+                            <span x-bind:class="selectedOption == item.value ? 'font-medium' : ''" x-html="item.label"></span>
+                            <span x-show="item.description" class="text-xs text-gray-500 dark:text-gray-400" x-html="item.description"></span>
                         </div>
                         <svg x-cloak x-show="selectedOption == item.value" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" class="size-4 text-primary">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>

@@ -151,6 +151,10 @@ class User extends Authenticatable
      */
     public function getGravatarUrl(int $size = 80): string
     {
+        if ( !empty($this->avatar_id)) {
+            return asset('storage/media/' . $this->avatar->file_name);
+        }
+
         return "https://ui-avatars.com/api/{$this->full_name}/{$size}/635bff/fff/2";
     }
 
