@@ -304,11 +304,11 @@ class UserService
     public static function getUserDropdownList(): Collection
     {
         return Cache::remember('users.dropdown.list', now()->addHours(24), function () {
-            return User::select('id', 'first_name', 'last_name', 'email')
+            return User::select('id', 'first_name', 'last_name', 'email', 'avatar_id')
                 ->get()
                 ->map(function (User $user) {
                     return [
-                        'label' => $user->full_name . ' (' . $user->email . ')',
+                        'label' => '<div class="flex gap-2 items-center"><img style="border-radius: 50%; width: 30px;" src="' . $user->getGravatarUrl(30) . '" />' . $user->full_name . ' (' . $user->email . ')' . '</div>',
                         'value' => $user->id,
                     ];
                 });
