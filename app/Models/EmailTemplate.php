@@ -28,6 +28,7 @@ class EmailTemplate extends Model
         'description',
         'is_active',
         'is_default',
+        'is_deleteable',
         'created_by',
         'updated_by',
         'header_template_id',
@@ -38,6 +39,7 @@ class EmailTemplate extends Model
         'variables' => 'array',
         'is_active' => 'boolean',
         'is_default' => 'boolean',
+        'is_deleteable' => 'boolean',
         'type' => TemplateType::class,
     ];
 

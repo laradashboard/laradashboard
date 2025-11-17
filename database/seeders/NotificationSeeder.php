@@ -46,6 +46,7 @@ class NotificationSeeder extends Seeder
                 'email_template_id' => $template->id,
                 'receiver_type' => ReceiverType::USER,
                 'is_active' => true,
+                'is_deleteable' => false,
                 'track_opens' => true,
                 'track_clicks' => true,
                 'from_email' => config('mail.from.address'),

@@ -23,6 +23,7 @@ return new class () extends Migration {
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_default')->default(false);
+            $table->boolean('is_deleteable')->default(true);
             $table->unsignedBigInteger('header_template_id')->nullable();
             $table->unsignedBigInteger('footer_template_id')->nullable();
             $table->unsignedBigInteger('created_by');

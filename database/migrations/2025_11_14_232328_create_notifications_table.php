@@ -26,6 +26,7 @@ return new class () extends Migration {
             $table->string('reply_to_email')->nullable();
             $table->string('reply_to_name')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_deleteable')->default(true);
             $table->boolean('track_opens')->default(true);
             $table->boolean('track_clicks')->default(true);
             $table->json('settings')->nullable();

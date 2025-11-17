@@ -176,7 +176,7 @@ class EmailTemplateDatatable extends Datatable
 
     protected function handleBulkDelete(array $ids): int
     {
-        $emailTemplates = EmailTemplate::whereIn('id', $ids)->where('is_default', false)->get();
+        $emailTemplates = EmailTemplate::whereIn('id', $ids)->where('is_deleteable', true)->get();
         $deletedCount = 0;
         foreach ($emailTemplates as $emailTemplate) {
             $this->authorize('manage', \App\Models\Setting::class);
@@ -189,10 +189,21 @@ class EmailTemplateDatatable extends Datatable
 
     public function handleRowDelete(Model|EmailTemplate $emailTemplate): bool
     {
-        if ($emailTemplate->is_default) {
+        if (!$emailTemplate->is_deleteable) {
             return false;
         }
         $this->authorize('manage', \App\Models\Setting::class);
         return $emailTemplate->delete();
+    }
+
+    public function getActionCellPermissions($item): array
+    {
+        $permissions = parent::getActionCellPermissions($item);
+        
+        if (!$item->is_deleteable) {
+            $permissions['delete'] = false;
+        }
+        
+        return $permissions;
     }
 }

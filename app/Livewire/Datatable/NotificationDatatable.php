@@ -146,6 +146,7 @@ class NotificationDatatable extends Datatable
     protected function buildQuery(): QueryBuilder
     {
         $query = QueryBuilder::for(Notification::query())
+            ->select('notifications.*')
             ->with(['emailTemplate'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
@@ -195,7 +196,7 @@ class NotificationDatatable extends Datatable
 
     protected function handleBulkDelete(array $ids): int
     {
-        $notifications = Notification::whereIn('id', $ids)->get();
+        $notifications = Notification::whereIn('id', $ids)->where('is_deleteable', true)->get();
         $deletedCount = 0;
         foreach ($notifications as $notification) {
             $this->authorize('manage', \App\Models\Setting::class);
@@ -208,7 +209,22 @@ class NotificationDatatable extends Datatable
 
     public function handleRowDelete(Model|Notification $notification): bool
     {
+        if (!$notification->is_deleteable) {
+            return false;
+        }
         $this->authorize('manage', \App\Models\Setting::class);
         return $notification->delete();
+    }
+
+    public function getActionCellPermissions($item): array
+    {
+        $permissions = parent::getActionCellPermissions($item);
+        
+        // Double-check for notifications specifically
+        if (!$item->is_deleteable) {
+            $permissions['delete'] = false;
+        }
+        
+        return $permissions;
     }
 }

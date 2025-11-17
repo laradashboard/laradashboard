@@ -293,6 +293,7 @@ class EmailTemplateSeeder extends Seeder
             'variables' => $this->extractVariables($subject . ' ' . $html),
             'is_active' => true,
             'is_default' => false,
+            'is_deleteable' => false,
             'created_by' => 1,
             'created_at' => now(),
             'updated_at' => now(),
