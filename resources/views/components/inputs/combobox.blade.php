@@ -86,7 +86,9 @@
                     <span class="text-red-500">*</span>
                 @endif
             </span>
-            {!! $labelRight !!}
+            <span class="text-xs">
+                {!! $labelRight !!}
+            </span>
         </label>
     @endif
 
