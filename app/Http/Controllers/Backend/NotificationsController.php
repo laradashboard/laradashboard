@@ -44,9 +44,10 @@ class NotificationsController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
+        $notificationTypeInstance = new NotificationType();
         $notificationTypes = collect(NotificationType::getValues())
-            ->mapWithKeys(function ($type) {
-                return [$type => $type];
+            ->mapWithKeys(function ($type) use ($notificationTypeInstance) {
+                return [$type => $notificationTypeInstance->label($type)];
             })
             ->toArray();
 
@@ -122,9 +123,10 @@ class NotificationsController extends Controller
             abort(404, __('Notification not found.'));
         }
 
+        $notificationTypeInstance = new NotificationType();
         $notificationTypes = collect(NotificationType::getValues())
-            ->mapWithKeys(function ($type) {
-                return [$type => $type];
+            ->mapWithKeys(function ($type) use ($notificationTypeInstance) {
+                return [$type => $notificationTypeInstance->label($type)];
             })
             ->toArray();
 

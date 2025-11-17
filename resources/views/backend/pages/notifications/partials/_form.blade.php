@@ -30,7 +30,7 @@
         <div class="w-full lg:w-80 lg:flex-shrink-0 space-y-6">
             <x-card class="sticky top-24">
                 <x-inputs.combobox label="{{ __('Notification Type') }}" name="notification_type" :options="$notificationTypes ?? []"
-                    placeholder="{{ __('Select Notification Type') }}" selected="{{ old('notification_type', $notification->notification_type->value ?? '') }}"
+                    placeholder="{{ __('Select Notification Type') }}" selected="{{ old('notification_type', $notification->notification_type ?? '') }}"
                     required />
                 @error('notification_type')
                     <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
