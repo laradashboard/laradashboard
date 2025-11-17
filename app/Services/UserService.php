@@ -299,4 +299,16 @@ class UserService
 
         return $deletedCount;
     }
+
+    public static function getUserDropdownList(): Collection
+    {
+        return User::select('id', 'first_name', 'last_name', 'email')
+            ->get()
+            ->map(function (User $user) {
+                return [
+                    'label' => $user->full_name . ' (' . $user->email . ')',
+                    'value' => $user->id,
+                ];
+            });
+    }
 }
