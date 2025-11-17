@@ -32,7 +32,6 @@ class EmailTemplateSeeder extends Seeder
             $this->getNewsletterTemplates(),
             $this->getEventTemplates(),
             $this->getEcommerceTemplates(),
-            $this->getActivityTemplates(),
         );
     }
 
@@ -325,7 +324,7 @@ class EmailTemplateSeeder extends Seeder
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 40px; text-align: center;">
+                        <td style="background: #635bff; padding: 60px 40px; text-align: center;">
                             <h1 style="color: #ffffff; margin: 0; font-size: 36px; font-weight: 700;">Welcome to {{company}}! 🎉</h1>
                             <p style="color: #ffffff; margin: 20px 0 0 0; font-size: 18px; opacity: 0.9;">We're thrilled to have you, {{first_name}}</p>
                         </td>
@@ -366,7 +365,7 @@ class EmailTemplateSeeder extends Seeder
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
                                 <tr>
                                     <td align="center">
-                                        <a href="#" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; padding: 16px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Get Started</a>
+                                        <a href="#" style="display: inline-block; background: #635bff; color: #ffffff; padding: 16px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Get Started</a>
                                     </td>
                                 </tr>
                             </table>
@@ -633,7 +632,7 @@ HTML;
                     </tr>
                     <tr>
                         <td style="padding: 0 40px 50px 40px;">
-                            <div style="height: 4px; background: linear-gradient(90deg, #ff0080 0%, #ff8c00 50%, #40e0d0 100%); margin: 0 0 40px 0;"></div>
+                            <div style="height: 4px; background: #635bff; margin: 0 0 40px 0;"></div>
 
                             <p style="font-size: 20px; line-height: 1.7; color: #ffffff; margin: 0 0 30px 0; text-align: center;">
                                 This is where your journey to <strong style="color: #ff0080;">success</strong> begins.
@@ -641,7 +640,7 @@ HTML;
 
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
                                 <tr>
-                                    <td style="padding: 30px; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); border-radius: 12px; border: 2px solid #333;">
+                                    <td style="padding: 30px; background: #635bff; border-radius: 12px; border: 2px solid #333;">
                                         <h2 style="color: #ffffff; margin: 0 0 15px 0; font-size: 28px; font-weight: 700;">WHAT'S NEXT?</h2>
                                         <p style="color: #d0d0d0; margin: 0; font-size: 17px; line-height: 1.8;">
                                             → Set up your dashboard<br>
@@ -656,7 +655,7 @@ HTML;
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin: 50px 0;">
                                 <tr>
                                     <td align="center">
-                                        <a href="#" style="display: inline-block; background: linear-gradient(90deg, #ff0080 0%, #ff8c00 100%); color: #ffffff; padding: 20px 60px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 8px 30px rgba(255, 0, 128, 0.4);">LET'S GO!</a>
+                                        <a href="#" style="display: inline-block; background: #635bff; color: #ffffff; padding: 20px 60px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 8px 30px rgba(255, 0, 128, 0.4);">LET'S GO!</a>
                                     </td>
                                 </tr>
                             </table>
@@ -698,7 +697,7 @@ HTML;
             <td align="center">
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 4px solid #ff6b6b; border-radius: 8px;">
                     <tr>
-                        <td style="background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%); padding: 40px; text-align: center;">
+                        <td style="background: #635bff; padding: 40px; text-align: center;">
                             <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 48px; font-weight: 900; text-transform: uppercase;">⚡ FLASH SALE ⚡</h1>
                             <p style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">24 HOURS ONLY!</p>
                         </td>
@@ -772,7 +771,7 @@ HTML;
             <td align="center">
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden;">
                     <tr>
-                        <td style="padding: 50px 40px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <td style="padding: 50px 40px; text-align: center; background: #635bff;">
                             <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">New Release</p>
                             <h1 style="color: #ffffff; margin: 0; font-size: 42px; font-weight: 700; line-height: 1.2;">Introducing<br>{{product_name}}</h1>
                         </td>
@@ -824,7 +823,7 @@ HTML;
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                                 <tr>
                                     <td align="center">
-                                        <a href="#" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Order Now</a>
+                                        <a href="#" style="display: inline-block; background: #635bff; color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Order Now</a>
                                     </td>
                                 </tr>
                             </table>
@@ -868,7 +867,7 @@ HTML;
                                 A special offer just for you – but only for the next 48 hours.
                             </p>
 
-                            <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border-radius: 12px; padding: 40px; margin: 30px 0;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background: #635bff; border-radius: 12px; padding: 40px; margin: 30px 0;">
                                 <tr>
                                     <td align="center">
                                         <p style="margin: 0 0 15px 0; color: #ffffff; font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Your Exclusive Discount</p>
@@ -944,7 +943,7 @@ HTML;
                         <td style="padding: 50px 40px; text-align: center;">
                             <p style="color: #ffffff; margin: 0 0 30px 0; font-size: 24px; font-weight: 700; text-transform: uppercase;">The Biggest Sale of the Year</p>
 
-                            <div style="background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); padding: 40px; border-radius: 8px; margin: 30px 0;">
+                            <div style="background: #635bff; padding: 40px; border-radius: 8px; margin: 30px 0;">
                                 <h2 style="color: #ffffff; margin: 0 0 15px 0; font-size: 28px; font-weight: 700;">UP TO</h2>
                                 <p style="color: #ffffff; margin: 0; font-size: 96px; font-weight: 900; line-height: 1;">70%</p>
                                 <h3 style="color: #ffffff; margin: 15px 0 0 0; font-size: 28px; font-weight: 700;">OFF</h3>
@@ -1005,7 +1004,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a192f; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a2332 0%, #0f1620 100%); border: 2px solid #00d4ff;">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: #635bff; border: 2px solid #00d4ff;">
                     <tr>
                         <td style="padding: 50px 40px; text-align: center;">
                             <h1 style="color: #00d4ff; margin: 0 0 10px 0; font-size: 48px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);">CYBER MONDAY</h1>
@@ -1014,7 +1013,7 @@ HTML;
                     </tr>
                     <tr>
                         <td style="padding: 0 40px 50px 40px;">
-                            <div style="background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%); padding: 40px; border-radius: 12px; text-align: center; margin: 30px 0; box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);">
+                            <div style="background: #635bff; padding: 40px; border-radius: 12px; text-align: center; margin: 30px 0; box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);">
                                 <p style="color: #0a192f; margin: 0 0 10px 0; font-size: 18px; font-weight: 700;">DOORBUSTER DEAL</p>
                                 <h2 style="color: #0a192f; margin: 0; font-size: 72px; font-weight: 900; line-height: 1;">60%</h2>
                                 <p style="color: #0a192f; margin: 10px 0 0 0; font-size: 18px; font-weight: 700;">OFF SITEWIDE</p>
@@ -1063,7 +1062,7 @@ HTML;
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
                                 <tr>
                                     <td align="center">
-                                        <a href="#" style="display: inline-block; background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%); color: #0a192f; padding: 20px 50px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 900; text-transform: uppercase; box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);">Shop Cyber Deals</a>
+                                        <a href="#" style="display: inline-block; background: #635bff; color: #0a192f; padding: 20px 50px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 900; text-transform: uppercase; box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);">Shop Cyber Deals</a>
                                     </td>
                                 </tr>
                             </table>
@@ -1245,7 +1244,7 @@ HTML;
                                 Good news {{first_name}}! Your package is on its way.
                             </p>
 
-                            <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 12px; padding: 30px; margin: 30px 0; text-align: center;">
+                            <div style="background: #635bff; border-radius: 12px; padding: 30px; margin: 30px 0; text-align: center;">
                                 <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Tracking Number</p>
                                 <p style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 2px; font-family: 'Courier New', monospace;">1Z999AA10123456784</p>
                             </div>
@@ -1322,7 +1321,7 @@ HTML;
         return <<<'HTML'
 <table width="100%" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
     <tr>
-        <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <td style="padding: 40px 30px; text-align: center; background: #635bff;">
             <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Password Reset Request</h1>
         </td>
     </tr>
@@ -1339,7 +1338,7 @@ HTML;
                 To reset your password, click the button below:
             </p>
             <div style="text-align: center; margin: 30px 0;">
-                <a href="{reset_url}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                <a href="{reset_url}" style="display: inline-block; padding: 16px 40px; background: #635bff; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
                     Reset My Password
                 </a>
             </div>
@@ -1874,7 +1873,7 @@ HTML;
             <td align="center">
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px;">
                     <tr>
-                        <td style="padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <td style="padding: 40px; background: #635bff;">
                             <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 36px; font-weight: 700;">Company Update</h1>
                             <p style="color: #ffffff; margin: 0; font-size: 18px; opacity: 0.9;">{{month}} 2025</p>
                         </td>
@@ -1971,7 +1970,7 @@ HTML;
                                 Hi {{first_name}},
                             </p>
 
-                            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 8px; padding: 25px; margin: 30px 0;">
+                            <div style="background: #635bff; border-radius: 8px; padding: 25px; margin: 30px 0;">
                                 <h2 style="margin: 0 0 15px 0; font-size: 22px; color: #92400e; font-weight: 700;">Tip #1: Start with the Basics</h2>
                                 <p style="margin: 0; font-size: 15px; color: #78350f; line-height: 1.8;">
                                     Before diving into advanced techniques, make sure you have a solid foundation. Understanding the fundamentals will make everything else easier.
@@ -1985,7 +1984,7 @@ HTML;
                                 </p>
                             </div>
 
-                            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 8px; padding: 25px; margin: 30px 0;">
+                            <div style="background: #635bff; border-radius: 8px; padding: 25px; margin: 30px 0;">
                                 <h2 style="margin: 0 0 15px 0; font-size: 22px; color: #92400e; font-weight: 700;">Tip #3: Learn from Others</h2>
                                 <p style="margin: 0; font-size: 15px; color: #78350f; line-height: 1.8;">
                                     Join communities, follow experts, and don't be afraid to ask questions. Learning from others accelerates your progress.
@@ -2131,7 +2130,7 @@ HTML;
                             <h1 style="color: #92400e; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-transform: uppercase;">Reminder!</h1>
                             <p style="font-size: 18px; color: #78350f; margin: 0 0 30px 0; font-weight: 600;">Tomorrow: {{event_name}}</p>
 
-                            <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border-radius: 12px; padding: 30px; margin: 30px 0;">
+                            <div style="background: #635bff; border-radius: 12px; padding: 30px; margin: 30px 0;">
                                 <p style="color: #ffffff; margin: 0 0 15px 0; font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Event Starts In</p>
                                 <p style="color: #ffffff; margin: 0; font-size: 48px; font-weight: 900; line-height: 1;">24 HOURS</p>
                             </div>
@@ -2209,7 +2208,7 @@ HTML;
                                 The industry's premier gathering of innovators, leaders, and visionaries.
                             </p>
 
-                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 35px; margin: 30px 0; text-align: center;">
+                            <div style="background: #635bff; border-radius: 12px; padding: 35px; margin: 30px 0; text-align: center;">
                                 <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Save the Date</p>
                                 <p style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 900;">March 15-17, 2025</p>
                                 <p style="color: #ffffff; margin: 15px 0 0 0; font-size: 16px; opacity: 0.9;">San Francisco, CA</p>
@@ -2265,7 +2264,7 @@ HTML;
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin: 35px 0;">
                                 <tr>
                                     <td align="center">
-                                        <a href="#" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 700; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Register Now</a>
+                                        <a href="#" style="display: inline-block; background: #635bff; color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 700; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Register Now</a>
                                     </td>
                                 </tr>
                             </table>
@@ -2307,7 +2306,7 @@ HTML;
                             <h1 style="color: #ffffff; margin: 20px 0 10px 0; font-size: 36px; font-weight: 700;">Virtual Event</h1>
                             <h2 style="color: #3b82f6; margin: 0 0 30px 0; font-size: 28px; font-weight: 700;">{{event_name}}</h2>
 
-                            <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 12px; padding: 30px; margin: 30px 0;">
+                            <div style="background: #635bff; border-radius: 12px; padding: 30px; margin: 30px 0;">
                                 <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Join From Anywhere</p>
                                 <p style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600;">100% Online • Zero Travel Required</p>
                             </div>
@@ -2460,7 +2459,7 @@ HTML;
                                 </table>
                             </div>
 
-                            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; padding: 25px; margin: 30px 0;">
+                            <div style="background: #635bff; border-radius: 12px; padding: 25px; margin: 30px 0;">
                                 <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">🎁 SPECIAL OFFER</p>
                                 <p style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">Complete Your Order & Get 10% Off!</p>
                                 <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Use code: <strong>COMEBACK10</strong></p>
@@ -2765,7 +2764,7 @@ HTML;
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #635bff;">
     <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
         <tr>
             <td align="center">
@@ -2777,7 +2776,7 @@ HTML;
                             <p style="font-size: 20px; color: #666; margin: 0 0 30px 0;">
                                 Wishing you an amazing day filled with joy!
                             </p>
-                            <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 16px; padding: 40px; margin: 30px 0;">
+                            <div style="background: #635bff; border-radius: 16px; padding: 40px; margin: 30px 0;">
                                 <p style="color: #ffffff; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Your Birthday Gift</p>
                                 <p style="color: #ffffff; margin: 0; font-size: 64px; font-weight: 900; line-height: 1;">25% OFF</p>
                                 <p style="color: #ffffff; margin: 15px 0 0 0; font-size: 16px;">On your entire purchase!</p>
@@ -2810,319 +2809,5 @@ HTML;
 HTML;
     }
 
-    private function getActivityTemplates(): array
-    {
-        return [
-            $this->createTemplate(
-                'Activity Created',
-                'New Activity Created: {{activity_title}}',
-                TemplateType::TRANSACTIONAL,
-                'Notification email when a new activity is created',
-                $this->getActivityCreated()
-            ),
-            $this->createTemplate(
-                'Activity Updated',
-                'Activity Updated: {{activity_title}}',
-                TemplateType::TRANSACTIONAL,
-                'Notification email when an activity is updated',
-                $this->getActivityUpdated()
-            ),
-            $this->createTemplate(
-                'Activity Deleted',
-                'Activity Deleted: {{activity_title}}',
-                TemplateType::TRANSACTIONAL,
-                'Notification email when an activity is deleted',
-                $this->getActivityDeleted()
-            ),
-        ];
-    }
 
-    private function getActivityCreated(): string
-    {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 40px;">
-                            <div style="text-align: center; margin-bottom: 30px;">
-                                <div style="display: inline-block; width: 60px; height: 60px; background-color: #10b981; border-radius: 50%; text-align: center; line-height: 60px;">
-                                    <span style="color: #ffffff; font-size: 30px;">📝</span>
-                                </div>
-                            </div>
-                            <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-align: center;">New Activity Created</h1>
-                            <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; text-align: center;">
-                                A new activity has been created and assigned.
-                            </p>
-
-                            <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 25px; margin: 30px 0;">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Activity Title:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_title}}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Type:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_type}}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Due Date:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{due_date}}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Assigned to:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{assigned_to}}</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin: 30px 0;">
-                                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Description:</h3>
-                                <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.8;">{{activity_description}}</p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="{{activity_url}}" style="display: inline-block; background-color: #10b981; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: 600;">View Activity</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
-                                Created by {{created_by}} on {{created_date}}
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
-                                © 2025 {{company}}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
-    }
-
-    private function getActivityUpdated(): string
-    {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 40px;">
-                            <div style="text-align: center; margin-bottom: 30px;">
-                                <div style="display: inline-block; width: 60px; height: 60px; background-color: #f59e0b; border-radius: 50%; text-align: center; line-height: 60px;">
-                                    <span style="color: #ffffff; font-size: 30px;">✏️</span>
-                                </div>
-                            </div>
-                            <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-align: center;">Activity Updated</h1>
-                            <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; text-align: center;">
-                                An activity has been updated with new information.
-                            </p>
-
-                            <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 25px; margin: 30px 0;">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Activity Title:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_title}}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Status:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_status}}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Updated by:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{updated_by}}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Updated on:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{updated_date}}</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin: 30px 0;">
-                                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Changes Made:</h3>
-                                <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.8;">{{update_summary}}</p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="{{activity_url}}" style="display: inline-block; background-color: #f59e0b; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: 600;">View Updated Activity</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
-                                Stay updated with the latest changes to your activities.
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
-                                © 2025 {{company}}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
-    }
-
-    private function getActivityDeleted(): string
-    {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 40px;">
-                            <div style="text-align: center; margin-bottom: 30px;">
-                                <div style="display: inline-block; width: 60px; height: 60px; background-color: #ef4444; border-radius: 50%; text-align: center; line-height: 60px;">
-                                    <span style="color: #ffffff; font-size: 30px;">🗑️</span>
-                                </div>
-                            </div>
-                            <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-align: center;">Activity Deleted</h1>
-                            <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; text-align: center;">
-                                An activity has been removed from the system.
-                            </p>
-
-                            <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 25px; margin: 30px 0;">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Activity Title:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_title}}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Type:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_type}}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Deleted by:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{deleted_by}}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Deleted on:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{deleted_date}}</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin: 30px 0;">
-                                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Reason for Deletion:</h3>
-                                <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.8;">{{deletion_reason}}</p>
-                            </div>
-
-                            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0;">
-                                <p style="margin: 0; font-size: 14px; color: #92400e; line-height: 1.8;">
-                                    <strong>⚠️ Important:</strong> This activity has been permanently removed and cannot be recovered. All associated data has been deleted.
-                                </p>
-                            </div>
-
-                            <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
-                                If you have any questions about this deletion, please contact your administrator.
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
-                                © 2025 {{company}}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
-    }
 }
