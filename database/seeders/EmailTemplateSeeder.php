@@ -32,6 +32,7 @@ class EmailTemplateSeeder extends Seeder
             $this->getNewsletterTemplates(),
             $this->getEventTemplates(),
             $this->getEcommerceTemplates(),
+            $this->getActivityTemplates(),
         );
     }
 
@@ -2798,6 +2799,322 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">© 2025 {{company}}. All rights reserved.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+    }
+
+    private function getActivityTemplates(): array
+    {
+        return [
+            $this->createTemplate(
+                'Activity Created',
+                'New Activity Created: {{activity_title}}',
+                TemplateType::TRANSACTIONAL,
+                'Notification email when a new activity is created',
+                $this->getActivityCreated()
+            ),
+            $this->createTemplate(
+                'Activity Updated',
+                'Activity Updated: {{activity_title}}',
+                TemplateType::TRANSACTIONAL,
+                'Notification email when an activity is updated',
+                $this->getActivityUpdated()
+            ),
+            $this->createTemplate(
+                'Activity Deleted',
+                'Activity Deleted: {{activity_title}}',
+                TemplateType::TRANSACTIONAL,
+                'Notification email when an activity is deleted',
+                $this->getActivityDeleted()
+            ),
+        ];
+    }
+
+    private function getActivityCreated(): string
+    {
+        return <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="padding: 40px;">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <div style="display: inline-block; width: 60px; height: 60px; background-color: #10b981; border-radius: 50%; text-align: center; line-height: 60px;">
+                                    <span style="color: #ffffff; font-size: 30px;">📝</span>
+                                </div>
+                            </div>
+                            <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-align: center;">New Activity Created</h1>
+                            <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; text-align: center;">
+                                A new activity has been created and assigned.
+                            </p>
+
+                            <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 25px; margin: 30px 0;">
+                                <table width="100%" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Activity Title:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_title}}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Type:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_type}}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Due Date:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{due_date}}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Assigned to:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{assigned_to}}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Description:</h3>
+                                <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.8;">{{activity_description}}</p>
+                            </div>
+
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{activity_url}}" style="display: inline-block; background-color: #10b981; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: 600;">View Activity</a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
+                                Created by {{created_by}} on {{created_date}}
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
+                                © 2025 {{company}}. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+    }
+
+    private function getActivityUpdated(): string
+    {
+        return <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="padding: 40px;">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <div style="display: inline-block; width: 60px; height: 60px; background-color: #f59e0b; border-radius: 50%; text-align: center; line-height: 60px;">
+                                    <span style="color: #ffffff; font-size: 30px;">✏️</span>
+                                </div>
+                            </div>
+                            <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-align: center;">Activity Updated</h1>
+                            <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; text-align: center;">
+                                An activity has been updated with new information.
+                            </p>
+
+                            <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 25px; margin: 30px 0;">
+                                <table width="100%" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Activity Title:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_title}}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Status:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_status}}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Updated by:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{updated_by}}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Updated on:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{updated_date}}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Changes Made:</h3>
+                                <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.8;">{{update_summary}}</p>
+                            </div>
+
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{activity_url}}" style="display: inline-block; background-color: #f59e0b; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: 600;">View Updated Activity</a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
+                                Stay updated with the latest changes to your activities.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
+                                © 2025 {{company}}. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+    }
+
+    private function getActivityDeleted(): string
+    {
+        return <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="padding: 40px;">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <div style="display: inline-block; width: 60px; height: 60px; background-color: #ef4444; border-radius: 50%; text-align: center; line-height: 60px;">
+                                    <span style="color: #ffffff; font-size: 30px;">🗑️</span>
+                                </div>
+                            </div>
+                            <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-align: center;">Activity Deleted</h1>
+                            <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; text-align: center;">
+                                An activity has been removed from the system.
+                            </p>
+
+                            <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 25px; margin: 30px 0;">
+                                <table width="100%" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Activity Title:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_title}}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Type:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{activity_type}}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Deleted by:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{deleted_by}}</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0;">
+                                            <p style="margin: 0; font-size: 14px; color: #666;">Deleted on:</p>
+                                        </td>
+                                        <td style="padding: 8px 0; text-align: right;">
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{deleted_date}}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Reason for Deletion:</h3>
+                                <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.8;">{{deletion_reason}}</p>
+                            </div>
+
+                            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0;">
+                                <p style="margin: 0; font-size: 14px; color: #92400e; line-height: 1.8;">
+                                    <strong>⚠️ Important:</strong> This activity has been permanently removed and cannot be recovered. All associated data has been deleted.
+                                </p>
+                            </div>
+
+                            <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
+                                If you have any questions about this deletion, please contact your administrator.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
+                                © 2025 {{company}}. All rights reserved.
+                            </p>
                         </td>
                     </tr>
                 </table>

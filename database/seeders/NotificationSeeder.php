@@ -19,6 +19,7 @@ class NotificationSeeder extends Seeder
     public function run(): void
     {
         $this->createForgotPasswordNotification();
+        $this->createActivityNotifications();
 
         $this->command->info('✓ Notifications created successfully!');
     }
@@ -44,6 +45,74 @@ class NotificationSeeder extends Seeder
                 'description' => 'Automated notification sent when a user requests password reset',
                 'notification_type' => NotificationType::FORGOT_PASSWORD,
                 'email_template_id' => $template->id,
+                'receiver_type' => ReceiverType::USER,
+                'is_active' => true,
+                'is_deleteable' => false,
+                'track_opens' => true,
+                'track_clicks' => true,
+                'from_email' => config('mail.from.address'),
+                'from_name' => config('mail.from.name'),
+                'created_by' => 1,
+            ]
+        );
+    }
+
+    /**
+     * Create Activity Management Notifications
+     */
+    private function createActivityNotifications(): void
+    {
+        // Get the Activity email templates
+        $activityCreatedTemplate = EmailTemplate::where('name', 'Activity Created')->first();
+        $activityUpdatedTemplate = EmailTemplate::where('name', 'Activity Updated')->first();
+        $activityDeletedTemplate = EmailTemplate::where('name', 'Activity Deleted')->first();
+
+        // Activity Created Notification
+        Notification::updateOrCreate(
+            ['name' => 'Activity Created Notification'],
+            [
+                'uuid' => Str::uuid(),
+                'description' => 'Notification sent when a new activity is created',
+                'notification_type' => NotificationType::ACTIVITY_CREATED,
+                'email_template_id' => $activityCreatedTemplate?->id,
+                'receiver_type' => ReceiverType::USER,
+                'is_active' => true,
+                'is_deleteable' => false,
+                'track_opens' => true,
+                'track_clicks' => true,
+                'from_email' => config('mail.from.address'),
+                'from_name' => config('mail.from.name'),
+                'created_by' => 1,
+            ]
+        );
+
+        // Activity Updated Notification
+        Notification::updateOrCreate(
+            ['name' => 'Activity Updated Notification'],
+            [
+                'uuid' => Str::uuid(),
+                'description' => 'Notification sent when an activity is updated',
+                'notification_type' => NotificationType::ACTIVITY_UPDATED,
+                'email_template_id' => $activityUpdatedTemplate?->id,
+                'receiver_type' => ReceiverType::USER,
+                'is_active' => true,
+                'is_deleteable' => false,
+                'track_opens' => true,
+                'track_clicks' => true,
+                'from_email' => config('mail.from.address'),
+                'from_name' => config('mail.from.name'),
+                'created_by' => 1,
+            ]
+        );
+
+        // Activity Deleted Notification
+        Notification::updateOrCreate(
+            ['name' => 'Activity Deleted Notification'],
+            [
+                'uuid' => Str::uuid(),
+                'description' => 'Notification sent when an activity is deleted',
+                'notification_type' => NotificationType::ACTIVITY_DELETED,
+                'email_template_id' => $activityDeletedTemplate?->id,
                 'receiver_type' => ReceiverType::USER,
                 'is_active' => true,
                 'is_deleteable' => false,
