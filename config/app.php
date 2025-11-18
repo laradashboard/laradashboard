@@ -231,6 +231,7 @@ return [
         App\Providers\AdminRoutingServiceProvider::class,
         App\Providers\HookServiceProvider::class,
         App\Providers\EmailServiceProvider::class,
+        App\Providers\EmailTemplateServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
     ],
 

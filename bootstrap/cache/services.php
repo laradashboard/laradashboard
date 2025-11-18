@@ -62,7 +62,8 @@
     58 => 'App\\Providers\\AdminRoutingServiceProvider',
     59 => 'App\\Providers\\HookServiceProvider',
     60 => 'App\\Providers\\EmailServiceProvider',
-    61 => 'Barryvdh\\Debugbar\\ServiceProvider',
+    61 => 'App\\Providers\\EmailTemplateServiceProvider',
+    62 => 'Barryvdh\\Debugbar\\ServiceProvider',
   ),
   'eager' => 
   array (
@@ -113,7 +114,8 @@
     44 => 'App\\Providers\\AdminRoutingServiceProvider',
     45 => 'App\\Providers\\HookServiceProvider',
     46 => 'App\\Providers\\EmailServiceProvider',
-    47 => 'Barryvdh\\Debugbar\\ServiceProvider',
+    47 => 'App\\Providers\\EmailTemplateServiceProvider',
+    48 => 'Barryvdh\\Debugbar\\ServiceProvider',
   ),
   'deferred' => 
   array (
