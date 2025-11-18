@@ -209,7 +209,7 @@ class NotificationDatatable extends Datatable
 
     public function handleRowDelete(Model|Notification $notification): bool
     {
-        if (!$notification->is_deleteable) {
+        if (! $notification->is_deleteable) {
             return false;
         }
         $this->authorize('manage', \App\Models\Setting::class);
@@ -219,12 +219,12 @@ class NotificationDatatable extends Datatable
     public function getActionCellPermissions($item): array
     {
         $permissions = parent::getActionCellPermissions($item);
-        
+
         // Double-check for notifications specifically
-        if (!$item->is_deleteable) {
+        if (! $item->is_deleteable) {
             $permissions['delete'] = false;
         }
-        
+
         return $permissions;
     }
 }

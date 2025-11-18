@@ -80,11 +80,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('viewPulse', function (User $user) {
             return $user->can('pulse.view');
         });
-        
+
         // Register CRM observers
         $this->registerCrmObservers();
     }
-    
+
     private function registerCrmObservers(): void
     {
         if (class_exists('\Modules\Crm\Models\ContactActivity') && class_exists('\Modules\Crm\Observers\ActivityObserver')) {

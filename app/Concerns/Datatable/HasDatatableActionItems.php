@@ -22,12 +22,12 @@ trait HasDatatableActionItems
     public function getActionCellPermissions($item): array
     {
         $canDelete = Auth::user()->can($this->getPermissions()['delete'] ?? '', $item);
-        
+
         // Check if item has is_deleteable attribute and respect it
-        if (array_key_exists('is_deleteable', $item->getAttributes()) && !$item->is_deleteable) {
+        if (array_key_exists('is_deleteable', $item->getAttributes()) && ! $item->is_deleteable) {
             $canDelete = false;
         }
-        
+
         return [
             'view' => Auth::user()->can($this->getPermissions()['view'] ?? '', $item),
             'edit' => Auth::user()->can($this->getPermissions()['edit'] ?? '', $item),

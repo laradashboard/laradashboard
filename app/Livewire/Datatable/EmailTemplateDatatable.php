@@ -189,7 +189,7 @@ class EmailTemplateDatatable extends Datatable
 
     public function handleRowDelete(Model|EmailTemplate $emailTemplate): bool
     {
-        if (!$emailTemplate->is_deleteable) {
+        if (! $emailTemplate->is_deleteable) {
             return false;
         }
         $this->authorize('manage', \App\Models\Setting::class);
@@ -199,11 +199,11 @@ class EmailTemplateDatatable extends Datatable
     public function getActionCellPermissions($item): array
     {
         $permissions = parent::getActionCellPermissions($item);
-        
-        if (!$item->is_deleteable) {
+
+        if (! $item->is_deleteable) {
             $permissions['delete'] = false;
         }
-        
+
         return $permissions;
     }
 }
