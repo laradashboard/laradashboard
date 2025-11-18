@@ -27,7 +27,8 @@
 
     {!! $afterActionEdit !!}
 
-    @if ($item->is_deleteable && isset($routes['delete']) && $routes['delete'] ?? false && $permissions['delete'])
+    {{-- Show delete button if: 1) is_deleteable doesn't exist, OR 2) is_deleteable exists and is true --}}
+    @if ((!isset($item->is_deleteable) || $item->is_deleteable === true) && isset($routes['delete']) && $routes['delete'] ?? false && $permissions['delete'])
         <div x-data="{ deleteModalOpen: false }">
             
             <x-buttons.action-item
