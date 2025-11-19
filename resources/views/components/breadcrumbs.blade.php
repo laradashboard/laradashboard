@@ -38,13 +38,20 @@
 
             @foreach($items as $item)
                 <li>
-                    <a
-                        class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-                        href="{{ $item['url'] }}"
-                    >
-                        {{ __($item['label']) }}
-                        <iconify-icon icon="lucide:chevron-right"></iconify-icon>
-                    </a>
+                    @if(isset($item['url']))
+                        <a
+                            class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
+                            href="{{ $item['url'] }}"
+                        >
+                            {{ __($item['label']) }}
+                            <iconify-icon icon="lucide:chevron-right"></iconify-icon>
+                        </a>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                            {{ __($item['label']) }}
+                            <iconify-icon icon="lucide:chevron-right"></iconify-icon>
+                        </span>
+                    @endif
                 </li>
             @endforeach
 

@@ -114,6 +114,7 @@
                     value="{{ old('last_name', $user?->last_name) }}"
                     placeholder="{{ __('Enter Last Name') }}"
                     class="form-control"
+                    required
                 />
             </div>
             {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_LAST_NAME, '', $user) !!}
@@ -181,7 +182,9 @@
                             ->toArray()"
                         :selected="old('roles', $user?->roles?->pluck('name')->toArray() ?? [])"
                         :multiple="true"
-                        :searchable="true" />
+                        :searchable="true"
+                        required
+                    />
                 </div>
                 {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_ROLES, '', $user) !!}
                 @endif

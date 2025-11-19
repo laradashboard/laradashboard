@@ -6,6 +6,6 @@
     </div>
 
     @push('scripts')
-        <x-quill-editor :editor-id="'description'" />
+        <x-text-editor :editor-id="'description'" />
     @endpush
 </x-layouts.backend-layout>

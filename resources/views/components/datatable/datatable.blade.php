@@ -268,16 +268,22 @@
                                             {{ $filter['allLabel'] }}
                                         </li>
                                         @foreach ($filter['options'] as $key => $value)
+                                            @php
+                                                // Support both label-value pair objects and simple key-value pairs
+                                                $isLabelValuePair = is_array($value) && isset($value['label']);
+                                                $optionValue = $isLabelValuePair ? $value['value'] : $key;
+                                                $optionLabel = $isLabelValuePair ? $value['label'] : $value;
+                                            @endphp
                                             <li
-                                                class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $filter['selected'] == $key ? 'bg-gray-200 dark:bg-gray-600 font-bold' : '' }}"
+                                                class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $filter['selected'] == $optionValue ? 'bg-gray-200 dark:bg-gray-600 font-bold' : '' }}"
                                                 @if($enableLivewire)
-                                                    wire:click="$set('{{ $filter['id'] }}', '{{ $key }}'); $dispatch('resetPage')"
+                                                    wire:click="$set('{{ $filter['id'] }}', '{{ $optionValue }}'); $dispatch('resetPage')"
                                                 @else
-                                                    onclick="window.location.href = '{{ $filter['route'] }}?{{ $filter['id'] }}={{ $key }}';"
+                                                    onclick="window.location.href = '{{ $filter['route'] }}?{{ $filter['id'] }}={{ $optionValue }}';"
                                                 @endif
                                                 @click="open = false"
                                             >
-                                                {{ ucfirst($value) }}
+                                                {!! ucfirst($optionLabel) !!}
                                             </li>
                                         @endforeach
                                     </ul>
