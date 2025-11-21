@@ -101,27 +101,6 @@
                     <pre class="whitespace-pre-wrap font-mono text-xs bg-gray-50 dark:bg-gray-800 p-4 rounded-md text-gray-700 dark:text-gray-300 overflow-auto max-h-[500px]"><code>{{ $template->body_html }}</code></pre>
                 </div>
             </div>
-
-            <!-- Usage Statistics -->
-            <div class="mb-6">
-                <h4 class="text-lg font-medium text-gray-700 dark:text-white/90 mb-3">{{ __('Usage Statistics') }}</h4>
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-md p-4 text-center">
-                        <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">{{ __('Campaigns') }}</div>
-                        <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ $template->campaigns ? $template->campaigns->count() : 0 }}</div>
-                    </div>
-                    <div class="bg-green-50 dark:bg-green-900/30 rounded-md p-4 text-center">
-                        <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">{{ __('Sent') }}</div>
-                        <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ $template->campaigns ? $template->campaigns->sum('sent_count') : 0 }}</div>
-                    </div>
-                    <div class="bg-blue-50 dark:bg-blue-900/30 rounded-md p-4 text-center">
-                        <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">{{ __('Last Used') }}</div>
-                        <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                            {{ $template->campaigns && $template->campaigns->count() > 0 ? $template->campaigns->sortByDesc('created_at')->first()->created_at->format('M j') : '-' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
         </x-card>
     </div>
 
