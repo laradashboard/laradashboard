@@ -26,6 +26,7 @@ class EmailTemplateSeeder extends Seeder
     private function getAllTemplates(): array
     {
         return array_merge(
+            $this->getAuthTemplates(),
             $this->getWelcomeTemplates(),
             $this->getMarketingTemplates(),
             $this->getTransactionalTemplates(),
@@ -35,40 +36,55 @@ class EmailTemplateSeeder extends Seeder
         );
     }
 
+    private function getAuthTemplates(): array
+    {
+        return [
+            $this->createTemplate(
+                'Forgot Password',
+                'Reset Your Password - {app_name}',
+                TemplateType::AUTHENTICATION,
+                'Password reset email with security tips',
+                $this->getPasswordReset(),
+                true,
+                false
+            ),
+        ];
+    }
+
     private function getWelcomeTemplates(): array
     {
         return [
             $this->createTemplate(
                 'Modern Welcome - Blue',
-                'Welcome to {{company}}, {{first_name}}! 🎉',
+                'Welcome to {app_name}, {first_name}! 🎉',
                 TemplateType::WELCOME,
                 'Modern blue-themed welcome email',
                 $this->getModernWelcomeBlue()
             ),
             $this->createTemplate(
                 'Welcome with Video',
-                'Hi {{first_name}}, Watch Our Welcome Video!',
+                'Hi {first_name}, Watch Our Welcome Video!',
                 TemplateType::WELCOME,
                 'Welcome email with embedded video',
                 $this->getWelcomeWithVideo()
             ),
             $this->createTemplate(
                 'Minimalist Welcome',
-                'Welcome {{first_name}} - Let\'s Get Started',
+                'Welcome {first_name} - Let\'s Get Started',
                 TemplateType::WELCOME,
                 'Clean minimalist welcome design',
                 $this->getMinimalistWelcome()
             ),
             $this->createTemplate(
                 'Welcome with Checklist',
-                'Your Getting Started Guide, {{first_name}}',
+                'Your Getting Started Guide, {first_name}',
                 TemplateType::WELCOME,
                 'Welcome with actionable checklist',
                 $this->getWelcomeChecklist()
             ),
             $this->createTemplate(
                 'Bold Welcome',
-                '{{first_name}}, You\'re In! Welcome Aboard 🚀',
+                '{first_name}, You\'re In! Welcome Aboard 🚀',
                 TemplateType::WELCOME,
                 'Bold and energetic welcome email',
                 $this->getBoldWelcome()
@@ -81,21 +97,21 @@ class EmailTemplateSeeder extends Seeder
         return [
             $this->createTemplate(
                 'Flash Sale - Urgent',
-                '⚡ Flash Sale! {{first_name}}, 24 Hours Only',
+                '⚡ Flash Sale! {first_name}, 24 Hours Only',
                 TemplateType::PROMOTIONAL,
                 'Urgent flash sale template',
                 $this->getFlashSale()
             ),
             $this->createTemplate(
                 'Product Launch',
-                'Introducing Our Latest: {{product_name}}',
+                'Introducing Our Latest: Mastering Success in 2025',
                 TemplateType::PROMOTIONAL,
                 'Product launch announcement',
                 $this->getProductLaunch()
             ),
             $this->createTemplate(
                 'Limited Offer',
-                '{{first_name}}, Exclusive Offer Expires Soon',
+                '{first_name}, Exclusive Offer Expires Soon',
                 TemplateType::PROMOTIONAL,
                 'Limited time offer template',
                 $this->getLimitedOffer()
@@ -122,7 +138,7 @@ class EmailTemplateSeeder extends Seeder
         return [
             $this->createTemplate(
                 'Order Confirmation',
-                'Order Confirmed - #{{order_number}}',
+                'Order Confirmed - #1010123',
                 TemplateType::TRANSACTIONAL,
                 'Order confirmation email',
                 $this->getOrderConfirmation()
@@ -135,22 +151,15 @@ class EmailTemplateSeeder extends Seeder
                 $this->getShippingNotification()
             ),
             $this->createTemplate(
-                'Forgot Password',
-                'Reset Your Password - {{app_name}}',
-                TemplateType::TRANSACTIONAL,
-                'Password reset email with security tips',
-                $this->getPasswordReset()
-            ),
-            $this->createTemplate(
                 'Invoice',
-                'Invoice #{{invoice_number}} from {{company}}',
+                'Invoice #1010123 from {app_name}',
                 TemplateType::TRANSACTIONAL,
                 'Invoice template',
                 $this->getInvoice()
             ),
             $this->createTemplate(
                 'Receipt',
-                'Your Receipt from {{company}}',
+                'Your Receipt from {app_name}',
                 TemplateType::TRANSACTIONAL,
                 'Payment receipt',
                 $this->getReceipt()
@@ -163,7 +172,7 @@ class EmailTemplateSeeder extends Seeder
         return [
             $this->createTemplate(
                 'Weekly Digest',
-                '📰 Your Weekly Update - {{date}}',
+                '📰 Your Weekly Update - {date}',
                 TemplateType::NEWSLETTER,
                 'Weekly newsletter digest',
                 $this->getWeeklyDigest()
@@ -177,21 +186,21 @@ class EmailTemplateSeeder extends Seeder
             ),
             $this->createTemplate(
                 'Industry News',
-                'Industry Insights for {{industry}}',
+                'Industry Insights for Industry 2025',
                 TemplateType::NEWSLETTER,
                 'Industry news newsletter',
                 $this->getIndustryNews()
             ),
             $this->createTemplate(
                 'Company Newsletter',
-                'Company News & Updates - {{month}}',
+                'Company News & Updates - {month}',
                 TemplateType::NEWSLETTER,
                 'Company newsletter',
                 $this->getCompanyNewsletter()
             ),
             $this->createTemplate(
                 'Tips & Tricks',
-                'Weekly Tips: {{topic}}',
+                'Weekly Tips: Boost Your Productivity',
                 TemplateType::NEWSLETTER,
                 'Tips and tricks newsletter',
                 $this->getTipsNewsletter()
@@ -204,35 +213,35 @@ class EmailTemplateSeeder extends Seeder
         return [
             $this->createTemplate(
                 'Webinar Invitation',
-                'You\'re Invited: {{event_name}}',
+                'You\'re Invited: Mastering Success in {year}',
                 TemplateType::REMINDER,
                 'Webinar invitation',
                 $this->getWebinarInvitation()
             ),
             $this->createTemplate(
                 'Event Reminder',
-                'Tomorrow: {{event_name}} Starts at {{time}}',
+                'Tomorrow: Mastering Success in {year} Starts at {time}',
                 TemplateType::REMINDER,
                 'Event reminder',
                 $this->getEventReminder()
             ),
             $this->createTemplate(
                 'Conference Invite',
-                'Join Us at {{conference_name}}',
+                'Join Us at the Annual Conference {year}',
                 TemplateType::REMINDER,
                 'Conference invitation',
                 $this->getConferenceInvite()
             ),
             $this->createTemplate(
                 'Virtual Event',
-                'Virtual Event: {{event_name}} - Register Now',
+                'Virtual Event: Mastering Success in {year} - Register Now',
                 TemplateType::REMINDER,
                 'Virtual event template',
                 $this->getVirtualEvent()
             ),
             $this->createTemplate(
                 'Event Thank You',
-                'Thank You for Attending {{event_name}}!',
+                'Thank You for Attending Mastering Success in {year}',
                 TemplateType::FOLLOW_UP,
                 'Post-event thank you',
                 $this->getEventThankYou()
@@ -245,35 +254,35 @@ class EmailTemplateSeeder extends Seeder
         return [
             $this->createTemplate(
                 'Cart Abandonment',
-                '{{first_name}}, You Left Something Behind! 🛒',
+                '{first_name}, You Left Something Behind! 🛒',
                 TemplateType::REMINDER,
                 'Abandoned cart recovery',
                 $this->getCartAbandonment()
             ),
             $this->createTemplate(
                 'Product Recommendation',
-                'Based on Your Interests, {{first_name}}',
+                'Based on Your Interests, {first_name}',
                 TemplateType::PROMOTIONAL,
                 'Personalized recommendations',
                 $this->getProductRecommendation()
             ),
             $this->createTemplate(
                 'Back in Stock',
-                '{{product_name}} is Back in Stock!',
+                'Product XYZ is Back in Stock!',
                 TemplateType::PROMOTIONAL,
                 'Back in stock notification',
                 $this->getBackInStock()
             ),
             $this->createTemplate(
                 'Review Request',
-                'How Was Your Purchase, {{first_name}}?',
+                'How Was Your Purchase, {first_name}?',
                 TemplateType::FOLLOW_UP,
                 'Product review request',
                 $this->getReviewRequest()
             ),
             $this->createTemplate(
                 'Birthday Discount',
-                'Happy Birthday {{first_name}}! 🎂',
+                'Happy Birthday {first_name}! 🎂',
                 TemplateType::PROMOTIONAL,
                 'Birthday special offer',
                 $this->getBirthdayDiscount()
@@ -281,7 +290,7 @@ class EmailTemplateSeeder extends Seeder
         ];
     }
 
-    private function createTemplate(string $name, string $subject, TemplateType $type, string $description, string $html): array
+    private function createTemplate(string $name, string $subject, TemplateType $type, string $description, string $html, $active = false, $deletable = true): array
     {
         return [
             'uuid' => Str::uuid(),
@@ -291,9 +300,9 @@ class EmailTemplateSeeder extends Seeder
             'type' => $type,
             'description' => $description,
             'variables' => $this->extractVariables($subject . ' ' . $html),
-            'is_active' => true,
+            'is_active' => $active,
             'is_default' => false,
-            'is_deleteable' => false,
+            'is_deleteable' => $deletable,
             'created_by' => 1,
             'created_at' => now(),
             'updated_at' => now(),
@@ -306,7 +315,84 @@ class EmailTemplateSeeder extends Seeder
         return array_unique($matches[1]);
     }
 
-    // Template HTML methods (shortened for brevity - each returns full HTML)
+    private function getPasswordReset(): string
+    {
+        return <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7fa;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f7fa; padding: 40px 0;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <tr>
+                        <td style="padding: 40px 30px; text-align: center; background: #635bff; border-radius: 10px;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Password Reset Request</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                                Hello <strong>{user_name}</strong>,
+                            </p>
+                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                                We received a request to reset your password for your <strong>{app_name}</strong> account.
+                                If you didn't make this request, you can safely ignore this email.
+                            </p>
+                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 30px;">
+                                To reset your password, click the button below:
+                            </p>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="{reset_url}" style="display: inline-block; padding: 16px 40px; background: #635bff; color: #ffffff; text-decoration: none; border-radius: 10px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                                    Reset My Password
+                                </a>
+                            </div>
+                            <div style="background-color: #f8f9fa; border-left: 4px solid #ffc107; padding: 20px; margin: 30px 0; border-radius: 4px;">
+                                <p style="font-size: 14px; color: #856404; margin: 0; line-height: 1.6;">
+                                    <strong>⚠️ Important:</strong> This password reset link will expire in <strong>{expiry_time}</strong>.
+                                    If the link expires, you'll need to request a new password reset.
+                                </p>
+                            </div>
+                            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 30px 0 20px;">
+                                If the button above doesn't work, copy and paste this URL into your browser:
+                            </p>
+                            <p style="font-size: 13px; color: #667eea; word-break: break-all; background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin: 0 0 30px;">
+                                {reset_url}
+                            </p>
+                            <div style="border-top: 2px solid #e9ecef; padding-top: 30px; margin-top: 30px;">
+                                <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 0 0 10px;">
+                                    <strong>Security Tips:</strong>
+                                </p>
+                                <ul style="font-size: 14px; color: #666666; line-height: 1.8; margin: 0; padding-left: 20px;">
+                                    <li>Never share your password with anyone</li>
+                                    <li>Use a strong, unique password</li>
+                                    <li>Enable two-factor authentication if available</li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="font-size: 14px; color: #666666; margin: 0 0 10px;">
+                                If you didn't request this password reset, please contact our support team immediately.
+                            </p>
+                            <p style="font-size: 13px; color: #999999; margin: 0;">
+                                © {year} {app_name}. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+    }
 
     private function getModernWelcomeBlue(): string
     {
@@ -325,16 +411,16 @@ class EmailTemplateSeeder extends Seeder
                     <!-- Header -->
                     <tr>
                         <td style="background: #635bff; padding: 60px 40px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 36px; font-weight: 700;">Welcome to {{company}}! 🎉</h1>
-                            <p style="color: #ffffff; margin: 20px 0 0 0; font-size: 18px; opacity: 0.9;">We're thrilled to have you, {{first_name}}</p>
+                            <h1 style="color: #ffffff; margin: 0; font-size: 36px; font-weight: 700;">Welcome to {app_name}! 🎉</h1>
+                            <p style="color: #ffffff; margin: 20px 0 0 0; font-size: 18px; opacity: 0.9;">We're thrilled to have you, {first_name}</p>
                         </td>
                     </tr>
                     <!-- Content -->
                     <tr>
                         <td style="padding: 50px 40px;">
-                            <p style="font-size: 16px; line-height: 1.8; color: #333333; margin: 0 0 20px 0;">Hi {{first_name}},</p>
+                            <p style="font-size: 16px; line-height: 1.8; color: #333333; margin: 0 0 20px 0;">Hi {first_name},</p>
                             <p style="font-size: 16px; line-height: 1.8; color: #333333; margin: 0 0 30px 0;">
-                                Thank you for joining {{company}}! Your journey towards success starts now.
+                                Thank you for joining {app_name}! Your journey towards success starts now.
                             </p>
                             
                             <!-- Feature Cards -->
@@ -375,7 +461,7 @@ class EmailTemplateSeeder extends Seeder
                             </p>
                             <p style="font-size: 16px; line-height: 1.8; color: #333333; margin: 10px 0 0 0;">
                                 Best regards,<br>
-                                <strong>The {{company}} Team</strong>
+                                <strong>The {app_name} Team</strong>
                             </p>
                         </td>
                     </tr>
@@ -383,8 +469,8 @@ class EmailTemplateSeeder extends Seeder
                     <tr>
                         <td style="background-color: #f8f9fa; padding: 30px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #999999; line-height: 1.6;">
-                                © 2025 {{company}}. All rights reserved.<br>
-                                You're receiving this because you signed up for {{company}}.
+                                © {year} {app_name}. All rights reserved.<br>
+                                You're receiving this because you signed up for {app_name}.
                             </p>
                         </td>
                     </tr>
@@ -413,7 +499,7 @@ HTML;
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px;">
                     <tr>
                         <td style="padding: 40px;">
-                            <h1 style="color: #333; margin: 0 0 20px 0; font-size: 28px;">Welcome {{first_name}}! 👋</h1>
+                            <h1 style="color: #333; margin: 0 0 20px 0; font-size: 28px;">Welcome {first_name}! 👋</h1>
                             <p style="font-size: 16px; line-height: 1.6; color: #666; margin: 0 0 30px 0;">
                                 Watch our quick welcome video to get started:
                             </p>
@@ -446,7 +532,7 @@ HTML;
                             </table>
                             
                             <p style="font-size: 14px; color: #999; margin: 30px 0 0 0; text-align: center;">
-                                The {{company}} Team
+                                The {app_name} Team
                             </p>
                         </td>
                     </tr>
@@ -475,7 +561,7 @@ HTML;
                 <table width="500" cellpadding="0" cellspacing="0">
                     <tr>
                         <td style="padding: 0 20px;">
-                            <h1 style="font-size: 32px; font-weight: 300; color: #000; margin: 0 0 40px 0; letter-spacing: -1px;">Welcome, {{first_name}}</h1>
+                            <h1 style="font-size: 32px; font-weight: 300; color: #000; margin: 0 0 40px 0; letter-spacing: -1px;">Welcome, {first_name}</h1>
                             
                             <p style="font-size: 18px; line-height: 1.8; color: #333; margin: 0 0 30px 0;">
                                 We're glad you're here.
@@ -484,7 +570,7 @@ HTML;
                             <div style="height: 1px; background-color: #e0e0e0; margin: 40px 0;"></div>
                             
                             <p style="font-size: 16px; line-height: 1.8; color: #666; margin: 0 0 20px 0;">
-                                {{company}} is designed to help you succeed. Let's get started.
+                                {app_name} is designed to help you succeed. Let's get started.
                             </p>
                             
                             <p style="margin: 40px 0;">
@@ -494,7 +580,7 @@ HTML;
                             <div style="height: 1px; background-color: #e0e0e0; margin: 60px 0 40px 0;"></div>
                             
                             <p style="font-size: 14px; color: #999; margin: 0;">
-                                {{company}}
+                                {app_name}
                             </p>
                         </td>
                     </tr>
@@ -526,9 +612,9 @@ HTML;
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     <tr>
                         <td style="padding: 50px 40px;">
-                            <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 32px; font-weight: 700;">Welcome {{first_name}}! 🎉</h1>
+                            <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 32px; font-weight: 700;">Welcome {first_name}! 🎉</h1>
                             <p style="font-size: 18px; line-height: 1.6; color: #666; margin: 0 0 30px 0;">
-                                Let's get you started with {{company}}. Here's your quick setup checklist:
+                                Let's get you started with {app_name}. Here's your quick setup checklist:
                             </p>
 
                             <!-- Checklist Items -->
@@ -590,14 +676,14 @@ HTML;
                             </p>
                             <p style="font-size: 16px; color: #1a1a1a; margin: 20px 0 0 0;">
                                 Best regards,<br>
-                                <strong>The {{company}} Team</strong>
+                                <strong>The {app_name} Team</strong>
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
                             <p style="margin: 0; font-size: 13px; color: #9ca3af; line-height: 1.6;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -627,7 +713,7 @@ HTML;
                     <tr>
                         <td style="padding: 60px 40px; text-align: center;">
                             <h1 style="color: #ffffff; margin: 0 0 20px 0; font-size: 56px; font-weight: 900; letter-spacing: -2px; line-height: 1.1;">YOU'RE IN! 🚀</h1>
-                            <p style="color: #a0a0a0; margin: 0; font-size: 24px; font-weight: 400; letter-spacing: 0.5px;">WELCOME {{first_name}}</p>
+                            <p style="color: #a0a0a0; margin: 0; font-size: 24px; font-weight: 400; letter-spacing: 0.5px;">WELCOME {first_name}</p>
                         </td>
                     </tr>
                     <tr>
@@ -662,14 +748,14 @@ HTML;
 
                             <p style="font-size: 16px; line-height: 1.8; color: #a0a0a0; margin: 40px 0 0 0; text-align: center;">
                                 Questions? Hit reply. We're here for you.<br>
-                                <strong style="color: #ffffff;">— Team {{company}}</strong>
+                                <strong style="color: #ffffff;">— Team {app_name}</strong>
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <td style="padding: 30px 40px; text-align: center; border-top: 1px solid #333;">
                             <p style="margin: 0; font-size: 12px; color: #666; line-height: 1.6;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -705,7 +791,7 @@ HTML;
                     <tr>
                         <td style="padding: 40px;">
                             <p style="font-size: 18px; color: #333; margin: 0 0 30px 0; text-align: center;">
-                                Hi {{first_name}}, this is not a drill! 🚨
+                                Hi {first_name}, this is not a drill! 🚨
                             </p>
 
                             <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff3cd; border-radius: 8px; padding: 30px; margin: 30px 0;">
@@ -743,7 +829,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
                             <p style="margin: 0; font-size: 12px; color: #999;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -773,7 +859,7 @@ HTML;
                     <tr>
                         <td style="padding: 50px 40px; text-align: center; background: #635bff;">
                             <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">New Release</p>
-                            <h1 style="color: #ffffff; margin: 0; font-size: 42px; font-weight: 700; line-height: 1.2;">Introducing<br>{{product_name}}</h1>
+                            <h1 style="color: #ffffff; margin: 0; font-size: 42px; font-weight: 700; line-height: 1.2;">Introducing<br>Product XYZ</h1>
                         </td>
                     </tr>
                     <tr>
@@ -788,7 +874,7 @@ HTML;
                             </p>
 
                             <p style="font-size: 16px; line-height: 1.8; color: #666; margin: 0 0 30px 0;">
-                                We're thrilled to announce our latest innovation: {{product_name}}. Designed with you in mind, it combines cutting-edge technology with intuitive design to deliver an unparalleled experience.
+                                We're thrilled to announce our latest innovation: Product XYZ. Designed with you in mind, it combines cutting-edge technology with intuitive design to deliver an unparalleled experience.
                             </p>
 
                             <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
@@ -832,7 +918,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f8f9fa; padding: 30px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #999; line-height: 1.6;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -862,7 +948,7 @@ HTML;
                     <tr>
                         <td style="padding: 40px 40px 30px 40px;">
                             <div style="background-color: #f59e0b; color: #ffffff; padding: 10px 20px; border-radius: 20px; display: inline-block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Exclusive Offer</div>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 36px; font-weight: 700;">{{first_name}}, This Won't Last Long</h1>
+                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 36px; font-weight: 700;">{first_name}, This Won't Last Long</h1>
                             <p style="font-size: 18px; line-height: 1.6; color: #666; margin: 0 0 30px 0;">
                                 A special offer just for you – but only for the next 48 hours.
                             </p>
@@ -900,14 +986,14 @@ HTML;
                             </div>
 
                             <p style="font-size: 14px; color: #666; margin: 20px 0 0 0; text-align: center; line-height: 1.6;">
-                                Questions? Contact us at support@{{company}}.com
+                                Questions? Contact us at support@{from_email}.com
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -978,7 +1064,7 @@ HTML;
                     <tr>
                         <td style="background-color: #0d0d0d; padding: 25px; text-align: center; border-top: 1px solid #333;">
                             <p style="margin: 0; font-size: 12px; color: #666;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -1076,7 +1162,7 @@ HTML;
                     <tr>
                         <td style="background-color: #0a192f; padding: 25px; text-align: center; border-top: 1px solid #1a2332;">
                             <p style="margin: 0; font-size: 12px; color: #7a8a99;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -1122,7 +1208,7 @@ HTML;
                                             <p style="margin: 0; font-size: 14px; color: #666;">Order Number:</p>
                                         </td>
                                         <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">#{{order_number}}</p>
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">#123456789</p>
                                         </td>
                                     </tr>
                                     <tr>
@@ -1173,7 +1259,7 @@ HTML;
                                     <td width="50%" style="padding-right: 15px; vertical-align: top;">
                                         <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Shipping Address</h3>
                                         <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.8;">
-                                            {{first_name}} {{last_name}}<br>
+                                            {first_name} {last_name}<br>
                                             123 Main Street<br>
                                             Apartment 4B<br>
                                             New York, NY 10001<br>
@@ -1200,14 +1286,14 @@ HTML;
 
                             <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
                                 Questions about your order?<br>
-                                Contact us at <a href="mailto:support@{{company}}.com" style="color: #3b82f6; text-decoration: none;">support@{{company}}.com</a>
+                                Contact us at <a href="mailto:support@{from_email}.com" style="color: #3b82f6; text-decoration: none;">support@{from_email}.com</a>
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -1241,7 +1327,7 @@ HTML;
                             </div>
                             <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-align: center;">Your Order Has Shipped!</h1>
                             <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; text-align: center;">
-                                Good news {{first_name}}! Your package is on its way.
+                                Good news {first_name}! Your package is on its way.
                             </p>
 
                             <div style="background: #635bff; border-radius: 12px; padding: 30px; margin: 30px 0; text-align: center;">
@@ -1272,7 +1358,7 @@ HTML;
                                             <p style="margin: 0; font-size: 14px; color: #666;">Ship To:</p>
                                         </td>
                                         <td style="padding: 5px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{{first_name}} {{last_name}}</p>
+                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{first_name} {last_name}</p>
                                         </td>
                                     </tr>
                                 </table>
@@ -1303,7 +1389,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -1313,70 +1399,6 @@ HTML;
     </table>
 </body>
 </html>
-HTML;
-    }
-
-    private function getPasswordReset(): string
-    {
-        return <<<'HTML'
-<table width="100%" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-    <tr>
-        <td style="padding: 40px 30px; text-align: center; background: #635bff;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Password Reset Request</h1>
-        </td>
-    </tr>
-    <tr>
-        <td style="padding: 40px 30px;">
-            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
-                Hello <strong>{user_name}</strong>,
-            </p>
-            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
-                We received a request to reset your password for your <strong>{app_name}</strong> account. 
-                If you didn't make this request, you can safely ignore this email.
-            </p>
-            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 30px;">
-                To reset your password, click the button below:
-            </p>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="{reset_url}" style="display: inline-block; padding: 16px 40px; background: #635bff; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
-                    Reset My Password
-                </a>
-            </div>
-            <div style="background-color: #f8f9fa; border-left: 4px solid #ffc107; padding: 20px; margin: 30px 0; border-radius: 4px;">
-                <p style="font-size: 14px; color: #856404; margin: 0; line-height: 1.6;">
-                    <strong>⚠️ Important:</strong> This password reset link will expire in <strong>{expiry_time}</strong>. 
-                    If the link expires, you'll need to request a new password reset.
-                </p>
-            </div>
-            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 30px 0 20px;">
-                If the button above doesn't work, copy and paste this URL into your browser:
-            </p>
-            <p style="font-size: 13px; color: #667eea; word-break: break-all; background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin: 0 0 30px;">
-                {reset_url}
-            </p>
-            <div style="border-top: 2px solid #e9ecef; padding-top: 30px; margin-top: 30px;">
-                <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 0 0 10px;">
-                    <strong>Security Tips:</strong>
-                </p>
-                <ul style="font-size: 14px; color: #666666; line-height: 1.8; margin: 0; padding-left: 20px;">
-                    <li>Never share your password with anyone</li>
-                    <li>Use a strong, unique password</li>
-                    <li>Enable two-factor authentication if available</li>
-                </ul>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e9ecef;">
-            <p style="font-size: 14px; color: #666666; margin: 0 0 10px;">
-                If you didn't request this password reset, please contact our support team immediately.
-            </p>
-            <p style="font-size: 13px; color: #999999; margin: 0;">
-                © 2025 {app_name}. All rights reserved.
-            </p>
-        </td>
-    </tr>
-</table>
 HTML;
     }
 
@@ -1400,10 +1422,10 @@ HTML;
                                 <tr>
                                     <td>
                                         <h1 style="margin: 0; font-size: 32px; color: #1a1a1a; font-weight: 700;">INVOICE</h1>
-                                        <p style="margin: 5px 0 0 0; font-size: 16px; color: #666;">#{{invoice_number}}</p>
+                                        <p style="margin: 5px 0 0 0; font-size: 16px; color: #666;">#123456789</p>
                                     </td>
                                     <td style="text-align: right;">
-                                        <p style="margin: 0; font-size: 24px; color: #1a1a1a; font-weight: 700;">{{company}}</p>
+                                        <p style="margin: 0; font-size: 24px; color: #1a1a1a; font-weight: 700;">{app_name}</p>
                                     </td>
                                 </tr>
                             </table>
@@ -1415,7 +1437,7 @@ HTML;
                                     <td width="50%" style="vertical-align: top;">
                                         <p style="margin: 0 0 10px 0; font-size: 12px; color: #666; text-transform: uppercase; font-weight: 600;">Billed To:</p>
                                         <p style="margin: 0; font-size: 15px; color: #1a1a1a; line-height: 1.8;">
-                                            <strong>{{first_name}} {{last_name}}</strong><br>
+                                            <strong>{first_name} {last_name}</strong><br>
                                             123 Main Street<br>
                                             New York, NY 10001<br>
                                             United States
@@ -1518,14 +1540,14 @@ HTML;
 
                             <p style="font-size: 13px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
                                 Thank you for your business!<br>
-                                Questions? Email <a href="mailto:billing@{{company}}.com" style="color: #3b82f6; text-decoration: none;">billing@{{company}}.com</a>
+                                Questions? Email <a href="mailto:billing@{app_name}.com" style="color: #3b82f6; text-decoration: none;">billing@{app_name}.com</a>
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -1555,7 +1577,7 @@ HTML;
                     <tr>
                         <td style="padding: 40px;">
                             <div style="text-align: center; border-bottom: 2px dashed #ddd; padding-bottom: 30px; margin-bottom: 30px;">
-                                <h1 style="margin: 0 0 10px 0; font-size: 28px; color: #1a1a1a; font-weight: 700;">{{company}}</h1>
+                                <h1 style="margin: 0 0 10px 0; font-size: 28px; color: #1a1a1a; font-weight: 700;">{app_name}</h1>
                                 <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">
                                     123 Business Street<br>
                                     New York, NY 10001<br>
@@ -1574,7 +1596,7 @@ HTML;
                                 </tr>
                                 <tr>
                                     <td style="padding: 5px 0;">Receipt #:</td>
-                                    <td style="padding: 5px 0; text-align: right; font-weight: 600;">{{receipt_number}}</td>
+                                    <td style="padding: 5px 0; text-align: right; font-weight: 600;">101010</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 5px 0;">Cashier:</td>
@@ -1670,13 +1692,13 @@ HTML;
                     <tr>
                         <td style="padding: 40px 40px 30px 40px; border-bottom: 3px solid #3b82f6;">
                             <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 32px; font-weight: 700;">📰 Weekly Digest</h1>
-                            <p style="margin: 0; font-size: 16px; color: #666;">{{date}} • Your weekly roundup</p>
+                            <p style="margin: 0; font-size: 16px; color: #666;">{date} • Your weekly roundup</p>
                         </td>
                     </tr>
                     <tr>
                         <td style="padding: 40px;">
                             <p style="font-size: 16px; color: #333; margin: 0 0 30px 0; line-height: 1.6;">
-                                Hi {{first_name}}, here's what happened this week at {{company}}.
+                                Hi {first_name}, here's what happened this week at {app_name}.
                             </p>
                             <div style="margin: 30px 0; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
                                 <img src="https://via.placeholder.com/600x300/3b82f6/ffffff?text=Featured+Story" alt="Featured" style="width: 100%; height: auto; display: block;">
@@ -1700,7 +1722,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -1767,7 +1789,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 30px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #999;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -1797,19 +1819,19 @@ HTML;
                     <tr>
                         <td style="padding: 40px; border-bottom: 2px solid #3b82f6;">
                             <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 32px; font-weight: 700;">Industry Insights</h1>
-                            <p style="color: #94a3b8; margin: 0; font-size: 16px;">{{industry}} • Latest News & Trends</p>
+                            <p style="color: #94a3b8; margin: 0; font-size: 16px;">Latest News & Trends</p>
                         </td>
                     </tr>
                     <tr>
                         <td style="padding: 40px;">
                             <div style="background-color: #3b82f6; border-radius: 8px; padding: 25px; margin-bottom: 30px;">
                                 <h2 style="color: #ffffff; margin: 0 0 10px 0; font-size: 22px; font-weight: 700;">🔥 Trending Now</h2>
-                                <p style="color: #e0e7ff; margin: 0; font-size: 18px; line-height: 1.6;">Market analysis shows 45% growth in {{industry}} sector this quarter</p>
+                                <p style="color: #e0e7ff; margin: 0; font-size: 18px; line-height: 1.6;">Market analysis shows 45% growth this quarter</p>
                             </div>
 
                             <div style="border-left: 4px solid #3b82f6; padding: 20px; margin: 25px 0; background-color: #334155;">
                                 <h3 style="color: #ffffff; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Breaking: Major Industry Shift</h3>
-                                <p style="color: #cbd5e1; margin: 0 0 10px 0; font-size: 15px; line-height: 1.6;">New regulations are reshaping the {{industry}} landscape...</p>
+                                <p style="color: #cbd5e1; margin: 0 0 10px 0; font-size: 15px; line-height: 1.6;">New regulations are reshaping the landscape...</p>
                                 <a href="#" style="color: #60a5fa; text-decoration: none; font-weight: 600;">Read Full Story →</a>
                             </div>
 
@@ -1845,7 +1867,7 @@ HTML;
                     <tr>
                         <td style="background-color: #0f172a; padding: 30px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #64748b;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -1875,7 +1897,7 @@ HTML;
                     <tr>
                         <td style="padding: 40px; background: #635bff;">
                             <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 36px; font-weight: 700;">Company Update</h1>
-                            <p style="color: #ffffff; margin: 0; font-size: 18px; opacity: 0.9;">{{month}} 2025</p>
+                            <p style="color: #ffffff; margin: 0; font-size: 18px; opacity: 0.9;">{month} {year}</p>
                         </td>
                     </tr>
                     <tr>
@@ -1930,7 +1952,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. Internal Communication
+                                © {year} {app_name}. Internal Communication
                             </p>
                         </td>
                     </tr>
@@ -1961,13 +1983,13 @@ HTML;
                         <td style="padding: 40px; text-align: center; background-color: #fbbf24; border-radius: 12px 12px 0 0;">
                             <span style="font-size: 48px;">💡</span>
                             <h1 style="color: #ffffff; margin: 15px 0 5px 0; font-size: 32px; font-weight: 700;">Weekly Tips</h1>
-                            <p style="color: #ffffff; margin: 0; font-size: 18px;">Master {{topic}}</p>
+                            <p style="color: #ffffff; margin: 0; font-size: 18px;">Master Topic</p>
                         </td>
                     </tr>
                     <tr>
                         <td style="padding: 40px;">
                             <p style="font-size: 16px; color: #333; margin: 0 0 30px 0; line-height: 1.6;">
-                                Hi {{first_name}},
+                                Hi {first_name},
                             </p>
 
                             <div style="background: #635bff; border-radius: 8px; padding: 25px; margin: 30px 0;">
@@ -2010,7 +2032,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-radius: 0 0 12px 12px;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -2047,7 +2069,7 @@ HTML;
                             <div style="text-align: center; margin-bottom: 30px;">
                                 <span style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 8px 20px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase;">Free Webinar</span>
                             </div>
-                            <h1 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 32px; font-weight: 700; text-align: center; line-height: 1.3;">You're Invited: {{event_name}}</h1>
+                            <h1 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 32px; font-weight: 700; text-align: center; line-height: 1.3;">You're Invited: Mastering Success in 2025</h1>
                             <p style="font-size: 18px; color: #666; margin: 0 0 30px 0; text-align: center; line-height: 1.6;">
                                 Join us for an exclusive online session packed with insights and actionable strategies.
                             </p>
@@ -2095,7 +2117,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -2128,7 +2150,7 @@ HTML;
                                 <span style="font-size: 64px;">⏰</span>
                             </div>
                             <h1 style="color: #92400e; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-transform: uppercase;">Reminder!</h1>
-                            <p style="font-size: 18px; color: #78350f; margin: 0 0 30px 0; font-weight: 600;">Tomorrow: {{event_name}}</p>
+                            <p style="font-size: 18px; color: #78350f; margin: 0 0 30px 0; font-weight: 600;">Tomorrow: New Webinar on Best Practices</p>
 
                             <div style="background: #635bff; border-radius: 12px; padding: 30px; margin: 30px 0;">
                                 <p style="color: #ffffff; margin: 0 0 15px 0; font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Event Starts In</p>
@@ -2140,7 +2162,7 @@ HTML;
                                 <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 15px; color: #78350f;">
                                     <tr>
                                         <td style="padding: 8px 0;"><strong>When:</strong></td>
-                                        <td style="padding: 8px 0;">Tomorrow at {{time}}</td>
+                                        <td style="padding: 8px 0;">Tomorrow at 10:00 AM</td>
                                     </tr>
                                     <tr>
                                         <td style="padding: 8px 0;"><strong>Where:</strong></td>
@@ -2169,7 +2191,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -2203,7 +2225,7 @@ HTML;
                     </tr>
                     <tr>
                         <td style="padding: 50px 40px;">
-                            <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 36px; font-weight: 700; line-height: 1.2;">Join Us at {{conference_name}}</h1>
+                            <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 36px; font-weight: 700; line-height: 1.2;">Join Us at Conference 2025</h1>
                             <p style="font-size: 18px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
                                 The industry's premier gathering of innovators, leaders, and visionaries.
                             </p>
@@ -2273,7 +2295,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 30px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -2304,7 +2326,7 @@ HTML;
                         <td style="padding: 50px 40px; text-align: center;">
                             <span style="font-size: 72px;">💻</span>
                             <h1 style="color: #ffffff; margin: 20px 0 10px 0; font-size: 36px; font-weight: 700;">Virtual Event</h1>
-                            <h2 style="color: #3b82f6; margin: 0 0 30px 0; font-size: 28px; font-weight: 700;">{{event_name}}</h2>
+                            <h2 style="color: #3b82f6; margin: 0 0 30px 0; font-size: 28px; font-weight: 700;">Mastering Success in 2025</h2>
 
                             <div style="background: #635bff; border-radius: 12px; padding: 30px; margin: 30px 0;">
                                 <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Join From Anywhere</p>
@@ -2367,7 +2389,7 @@ HTML;
                     <tr>
                         <td style="background-color: #0f172a; padding: 25px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #64748b;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -2399,7 +2421,7 @@ HTML;
                             <span style="font-size: 72px;">🎉</span>
                             <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 32px; font-weight: 700;">Thank You for Attending!</h1>
                             <p style="font-size: 18px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
-                                We hope you enjoyed {{event_name}}
+                                We hope you enjoyed the event "Mastering Success in 2025". Your participation made it special!
                             </p>
                             <div style="background-color: #f0f9ff; border-radius: 12px; padding: 30px; margin: 30px 0;">
                                 <h2 style="color: #1e40af; margin: 0 0 20px 0; font-size: 22px; font-weight: 700;">Event Resources</h2>
@@ -2410,7 +2432,7 @@ HTML;
                     </tr>
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">© 2025 {{company}}. All rights reserved.</p>
+                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">© {year} {app_name}. All rights reserved.</p>
                         </td>
                     </tr>
                 </table>
@@ -2439,7 +2461,7 @@ HTML;
                     <tr>
                         <td style="padding: 40px; text-align: center;">
                             <span style="font-size: 72px;">🛒</span>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 32px; font-weight: 700;">{{first_name}}, You Left Something Behind!</h1>
+                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 32px; font-weight: 700;">{first_name}, You Left Something Behind!</h1>
                             <p style="font-size: 18px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
                                 The items in your cart are waiting for you. Complete your purchase before they're gone!
                             </p>
@@ -2484,7 +2506,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -2513,7 +2535,7 @@ HTML;
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px;">
                     <tr>
                         <td style="padding: 40px;">
-                            <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 32px; font-weight: 700;">Picked Just For You, {{first_name}}</h1>
+                            <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 32px; font-weight: 700;">Picked Just For You, {first_name}</h1>
                             <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
                                 Based on your interests, we think you'll love these products.
                             </p>
@@ -2580,7 +2602,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -2612,7 +2634,7 @@ HTML;
                             <div style="margin-bottom: 20px;">
                                 <span style="display: inline-block; background-color: #10b981; color: #ffffff; padding: 10px 25px; border-radius: 25px; font-size: 14px; font-weight: 700; text-transform: uppercase;">Back in Stock</span>
                             </div>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 32px; font-weight: 700;">{{product_name}} is Back!</h1>
+                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 32px; font-weight: 700;">Mastering Success in 2025 is Back!</h1>
                             <p style="font-size: 18px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
                                 Great news! The item you've been waiting for is now available.
                             </p>
@@ -2622,7 +2644,7 @@ HTML;
                             </div>
 
                             <div style="background-color: #f0fdf4; border-radius: 8px; padding: 25px; margin: 30px 0; text-align: left;">
-                                <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #1a1a1a; font-weight: 700;">{{product_name}}</h2>
+                                <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #1a1a1a; font-weight: 700;">Mastering Success in 2025</h2>
                                 <p style="margin: 0 0 15px 0; font-size: 15px; color: #666; line-height: 1.8;">
                                     This popular item sold out quickly, but it's back and ready to ship. Don't miss out this time!
                                 </p>
@@ -2655,7 +2677,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -2685,7 +2707,7 @@ HTML;
                     <tr>
                         <td style="padding: 40px; text-align: center;">
                             <span style="font-size: 64px;">⭐</span>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 28px; font-weight: 700;">How Was Your Purchase, {{first_name}}?</h1>
+                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 28px; font-weight: 700;">How Was Your Purchase, {first_name}?</h1>
                             <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
                                 We'd love to hear about your experience with your recent order!
                             </p>
@@ -2742,7 +2764,7 @@ HTML;
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © 2025 {{company}}. All rights reserved.
+                                © {year} {app_name}. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -2772,7 +2794,7 @@ HTML;
                     <tr>
                         <td style="padding: 50px 40px; text-align: center;">
                             <span style="font-size: 80px;">🎂</span>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 10px 0; font-size: 36px; font-weight: 700;">Happy Birthday {{first_name}}!</h1>
+                            <h1 style="color: #1a1a1a; margin: 20px 0 10px 0; font-size: 36px; font-weight: 700;">Happy Birthday {first_name}!</h1>
                             <p style="font-size: 20px; color: #666; margin: 0 0 30px 0;">
                                 Wishing you an amazing day filled with joy!
                             </p>
@@ -2797,7 +2819,7 @@ HTML;
                     </tr>
                     <tr>
                         <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">© 2025 {{company}}. All rights reserved.</p>
+                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">© {year} {app_name}. All rights reserved.</p>
                         </td>
                     </tr>
                 </table>

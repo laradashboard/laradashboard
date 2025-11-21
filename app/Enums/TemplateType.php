@@ -15,10 +15,12 @@ enum TemplateType: string
     case PROMOTIONAL = 'promotional';
     case TRANSACTIONAL = 'transactional';
     case REMINDER = 'reminder';
+    case AUTHENTICATION = 'authentication';
 
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
+            self::AUTHENTICATION => 'Authentication',
             self::EMAIL => 'Email',
             self::HEADER => 'Email Header',
             self::FOOTER => 'Email Footer',
@@ -33,7 +35,8 @@ enum TemplateType: string
 
     public function color(): string
     {
-        return match($this) {
+        return match ($this) {
+            self::AUTHENTICATION => '#14b8a6',
             self::EMAIL => '#6b7280',
             self::HEADER => '#059669',
             self::FOOTER => '#dc2626',
@@ -48,7 +51,8 @@ enum TemplateType: string
 
     public function icon(): string
     {
-        return match($this) {
+        return match ($this) {
+            self::AUTHENTICATION => 'bi bi-shield-lock',
             self::EMAIL => 'bi bi-envelope',
             self::HEADER => 'bi bi-layout-text-window-reverse',
             self::FOOTER => 'bi bi-layout-text-window',
