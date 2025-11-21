@@ -31,12 +31,12 @@
                 </div>
             @endisset
 
-            <div class="py-4 md:px-8 space-y-6 sm:p-4 {{ isset($footer) ? 'border-b border-gray-200 dark:border-gray-800' : '' }} {{ $bodyClass ?? '' }}">
+            <div class="py-4 md:px-8 space-y-6 p-4 {{ isset($footer) ? 'border-b border-gray-200 dark:border-gray-800' : '' }} {{ $bodyClass ?? '' }}">
                 {{ $slot }}
             </div>
 
             @isset($footer)
-            <div class="py-4 md:px-8 space-y-6 sm:p-4 flex justify-between items-center {{ $footerClass ?? '' }}">
+            <div class="py-4 md:px-8 space-y-6 p-4 flex justify-between items-center {{ $footerClass ?? '' }}">
                 {{ $footer }}
             </div>
             @endisset

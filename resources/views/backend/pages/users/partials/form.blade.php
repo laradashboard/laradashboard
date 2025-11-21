@@ -48,7 +48,6 @@
 @endphp
 
 <div class="flex flex-col md:flex-row gap-8 md:gap-12 items-start" x-data="{ avatarSelected: false }" @avatar-selected.window="avatarSelected = $event.detail">
-    {{-- Profile Picture Section --}}
     @if($showImage)
     <div class="w-full md:w-1/5 flex-shrink-0 flex flex-col items-center gap-4">
         <div class="w-full flex flex-col items-center">
@@ -77,7 +76,6 @@
             @endif
         </div>
 
-        {{-- Social Links Section - Only show in edit and profile modes --}}
         @if(($isEdit || $isProfile) && $user)
             <x-users.social-links 
                 :user="$user" 
@@ -91,57 +89,63 @@
 
     {{-- Form Fields Section --}}
     <div class="w-full {{ $showImage ? 'md:w-4/5' : 'md:w-full' }}">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {{-- Personal Information --}}
-            <div class="col-span-2">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white pb-1 border-b border-gray-200 dark:border-gray-700">
-                    {{ __('Personal Information') }}
-                </h3>
-            </div>
-            <div>
-                <label for="first_name" class="form-label">{{ $firstNameLabel }}</label>
-                <input type="text" name="first_name" id="first_name" required
-                    value="{{ old('first_name', $user?->first_name) }}"
-                    placeholder="{{ __('Enter First Name') }}"
-                    class="form-control"
-                    autofocus
-                />
-            </div>
-            {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_FIRST_NAME, '', $user) !!}
-            <div>
-                <label for="last_name" class="form-label">{{ $lastNameLabel }}</label>
-                <input type="text" name="last_name" id="last_name"
-                    value="{{ old('last_name', $user?->last_name) }}"
-                    placeholder="{{ __('Enter Last Name') }}"
-                    class="form-control"
+        <div class="grid grid-cols-1 md:grid-cols-2 flex-wrap gap-4">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white pb-1 border-b border-gray-200 dark:border-gray-700 col-span-2">
+                {{ __('Personal Information') }}
+            </h3>
+
+            <div class="col-span-2 md:col-span-1">
+                <x-inputs.input
+                    name="first_name"
+                    id="first_name"
+                    :label="$firstNameLabel"
+                    :value="old('first_name', $user?->first_name)"
+                    :placeholder="__('Enter First Name')"
                     required
                 />
+                {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_FIRST_NAME, '', $user) !!}
             </div>
-            {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_LAST_NAME, '', $user) !!}
-            @if($showUsername)
-                <div>
-                    <label for="username" class="form-label">{{ $usernameLabel }}</label>
-                    <input type="text" name="username" id="username" required
-                        value="{{ old('username', $user?->username) }}"
-                        placeholder="{{ __('Enter Username') }}"
-                        class="form-control"
-                        autocomplete="username"
-                    >
 
-                </div>
-                {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_USERNAME, '', $user) !!}
-            @endif
-            <div>
-                <label for="email" class="form-label">{{ $emailLabel }}</label>
-                <input type="email" name="email" id="email" required
-                    value="{{ old('email', $user?->email) }}"
-                    placeholder="{{ __('Enter Email') }}"
-                    class="form-control">
+            <div class="col-span-2 md:col-span-1">
+                <x-inputs.input
+                    name="last_name"
+                    id="last_name"
+                    :label="$lastNameLabel"
+                    :value="old('last_name', $user?->last_name)"
+                    :placeholder="__('Enter Last Name')"
+                    required
+                />
+                {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_LAST_NAME, '', $user) !!}
             </div>
-            {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_EMAIL, '', $user) !!}
 
-            {{-- Password Fields --}}
-            <div>
+            <div class="col-span-2 md:col-span-1">
+                @if($showUsername)
+                    <x-inputs.input
+                        name="username"
+                        id="username"
+                        :label="$usernameLabel"
+                        :value="old('username', $user?->username)"
+                        :placeholder="__('Enter Username')"
+                        required
+                    />
+                    {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_USERNAME, '', $user) !!}
+                @endif
+            </div>
+
+            <div class="col-span-2 md:col-span-1">
+                <x-inputs.input
+                    type="email"
+                    name="email"
+                    id="email"
+                    :label="$emailLabel"
+                    :value="old('email', $user?->email)"
+                    :placeholder="__('Enter Email')"
+                    required
+                />
+                {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_EMAIL, '', $user) !!}
+            </div>
+
+            <div class="col-span-2 md:col-span-1">
                 <x-inputs.password
                     name="password"
                     label="{{ $passwordLabel }}"
@@ -149,9 +153,10 @@
                     :required="$isCreate"
                     :autogenerate="true"
                 />
+                {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_PASSWORD, '', $user) !!}
             </div>
-            {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_PASSWORD, '', $user) !!}
-            <div>
+
+            <div class="col-span-2 md:col-span-1">
                 <x-inputs.password
                     name="password_confirmation"
                     label="{{ $confirmPasswordLabel }}"
@@ -159,19 +164,16 @@
                     :required="$isCreate"
                     :autogenerate="true"
                 />
+                {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_CONFIRM_PASSWORD, '', $user) !!}
             </div>
-            {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_CONFIRM_PASSWORD, '', $user) !!}
-
-            {{-- Roles & Display Name --}}
 
             @if($showRoles || $showDisplayName)
-                <div class="col-span-2">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white pb-1 border-b border-gray-200 dark:border-gray-700">
-                        {{ __('Permissions & Display') }}
-                    </h3>
-                </div>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white pb-1 border-b border-gray-200 dark:border-gray-700 col-span-2">
+                    {{ __('Permissions & Display') }}
+                </h3>
+
                 @if($showRoles)
-                <div>
+                <div class="col-span-2 md:col-span-1">
                     <x-inputs.combobox
                         name="roles[]"
                         label="{{ $rolesLabel }}"
@@ -185,39 +187,42 @@
                         :searchable="true"
                         required
                     />
-                </div>
                 {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_ROLES, '', $user) !!}
+                </div>
                 @endif
 
                 @if($showDisplayName)
-                <div>
-                    <label for="display_name" class="form-label">{{ __('Display Name') }}</label>
-                    <input type="text" name="display_name" id="display_name"
-                        value="{{ old('display_name', $userMeta['display_name'] ?? '') }}"
-                        placeholder="{{ __('Enter Display Name') }}"
-                        class="form-control">
+                <div class="col-span-2 md:col-span-1">
+                    <x-inputs.input
+                        name="display_name"
+                        id="display_name"
+                        :label="__('Display Name')"
+                        :value="old('display_name', $userMeta['display_name'] ?? '')"
+                        :placeholder="__('Enter Display Name')"
+                    />
+                    {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_DISPLAY_NAME, '', $user) !!}
                 </div>
-                {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_DISPLAY_NAME, '', $user) !!}
                 @endif
             @endif
 
-            {{-- Additional Information --}}
             @if($showAdditional)
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white pb-1 border-b border-gray-200 dark:border-gray-700 col-span-2">
+                    {{ __('Additional Information') }}
+                </h3>
                 <div class="col-span-2">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white pb-1 border-b border-gray-200 dark:border-gray-700">
-                        {{ __('Additional Information') }}
-                    </h3>
+                    <x-inputs.textarea
+                        name="bio"
+                        id="bio"
+                        :label="__('Bio')"
+                        :value="old('bio', $userMeta['bio'] ?? '')"
+                        :placeholder="__('Tell us about yourself...')"
+                        :rows="3"
+                    />
+                    {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_BIO, '', $user) !!}
                 </div>
-                <div class="col-span-2">
-                    <label for="bio" class="form-label">{{ __('Bio') }}</label>
-                    <textarea name="bio" id="bio" rows="3"
-                        placeholder="{{ __('Tell us about yourself...') }}"
-                        class="form-control h-16">{{ old('bio', $userMeta['bio'] ?? '') }}</textarea>
-                </div>
-                {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_BIO, '', $user) !!}
 
                 @if(!empty($timezones))
-                    <div>
+                    <div class="col-span-2 md:col-span-1">
                         <x-searchable-select
                             name="timezone"
                             label="{{ __('Timezone') }}"
@@ -232,7 +237,7 @@
                 @endif
 
                 @if(!empty($locales))
-                    <div>
+                    <div class="col-span-2 md:col-span-1">
                         <x-searchable-select
                             name="locale"
                             label="{{ __('Locale') }}"
@@ -242,8 +247,8 @@
                             :selected="old('locale', $userMeta['locale'] ?? '')"
                             position="top"
                         />
+                        {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_LOCALE, '', $user) !!}
                     </div>
-                    {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_LOCALE, '', $user) !!}
                 @endif
             @endif
 
