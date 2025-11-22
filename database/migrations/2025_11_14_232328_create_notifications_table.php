@@ -33,7 +33,6 @@ return new class () extends Migration {
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
-            $table->softDeletes();
 
             $table->index('notification_type');
             $table->index('receiver_type');
