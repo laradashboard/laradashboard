@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,12 +22,11 @@ class EmailTemplateFactory extends Factory
         return [
             'name' => $this->faker->words(3, true),
             'subject' => $this->faker->sentence(),
-            'body_html' => '<p>' . $this->faker->paragraph() . '</p>',
+            'body_html' => '<p>' . $this->faker->paragraph(10) . '</p>',
             'type' => 'transactional',
             'description' => $this->faker->optional()->sentence(),
             'is_active' => true,
-            'is_default' => false,
-            'created_by' => \App\Models\User::factory(),
+            'created_by' => User::factory(),
             'updated_by' => null,
             'header_template_id' => null,
             'footer_template_id' => null,

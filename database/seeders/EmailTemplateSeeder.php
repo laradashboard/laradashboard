@@ -301,7 +301,6 @@ class EmailTemplateSeeder extends Seeder
             'description' => $description,
             'variables' => $this->extractVariables($subject . ' ' . $html),
             'is_active' => $active,
-            'is_default' => false,
             'is_deleteable' => $deletable,
             'created_by' => 1,
             'created_at' => now(),
@@ -331,13 +330,14 @@ class EmailTemplateSeeder extends Seeder
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                     <tr>
                         <td style="padding: 40px 30px; text-align: center; background: #635bff; border-radius: 10px;">
+                            {site_icon_image}
                             <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Password Reset Request</h1>
                         </td>
                     </tr>
                     <tr>
                         <td style="padding: 40px 30px;">
                             <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
-                                Hello <strong>{user_name}</strong>,
+                                Hello <strong>{username}</strong>,
                             </p>
                             <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
                                 We received a request to reset your password for your <strong>{app_name}</strong> account.

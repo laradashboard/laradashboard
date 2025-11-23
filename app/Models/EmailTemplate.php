@@ -27,7 +27,6 @@ class EmailTemplate extends Model
         'preview_image',
         'description',
         'is_active',
-        'is_default',
         'is_deleteable',
         'created_by',
         'updated_by',
@@ -38,7 +37,6 @@ class EmailTemplate extends Model
     protected $casts = [
         'variables' => 'array',
         'is_active' => 'boolean',
-        'is_default' => 'boolean',
         'is_deleteable' => 'boolean',
         'type' => TemplateType::class,
     ];
@@ -90,8 +88,8 @@ class EmailTemplate extends Model
 
             // Replace variables in header
             foreach ($data as $key => $value) {
-                $placeholder = '{{' . $key . '}}';
-                $headerHtml = str_replace($placeholder, $value, $headerHtml);
+                $placeholder = '{' . $key . '}';
+                $headerHtml = str_replace($placeholder, (string) $value, $headerHtml);
             }
 
             $bodyHtml = $headerHtml . $bodyHtml;
@@ -103,8 +101,8 @@ class EmailTemplate extends Model
 
             // Replace variables in footer
             foreach ($data as $key => $value) {
-                $placeholder = '{{' . $key . '}}';
-                $footerHtml = str_replace($placeholder, $value, $footerHtml);
+                $placeholder = '{' . $key . '}';
+                $footerHtml = str_replace($placeholder, (string) $value, $footerHtml);
             }
 
             $bodyHtml = $bodyHtml . $footerHtml;
@@ -112,9 +110,9 @@ class EmailTemplate extends Model
 
         // Replace variables in main content
         foreach ($data as $key => $value) {
-            $placeholder = '{{' . $key . '}}';
-            $subject = str_replace($placeholder, $value, $subject);
-            $bodyHtml = str_replace($placeholder, $value, $bodyHtml);
+            $placeholder = '{' . $key . '}';
+            $subject = str_replace($placeholder, (string) $value, $subject);
+            $bodyHtml = str_replace($placeholder, (string) $value, $bodyHtml);
         }
 
         return [
@@ -165,23 +163,5 @@ class EmailTemplate extends Model
     public function scopeByType($query, TemplateType $type)
     {
         return $query->where('type', $type);
-    }
-
-    public static function getAvailableVariables(): array
-    {
-        return [
-            ['label' => 'First Name', 'value' => '{{ first_name }}'],
-            ['label' => 'Last Name', 'value' => '{{ last_name }}'],
-            ['label' => 'Full Name', 'value' => '{{ full_name }}'],
-            ['label' => 'Company', 'value' => '{{ company }}'],
-            ['label' => 'Email', 'value' => '{{ email }}'],
-            ['label' => 'Phone', 'value' => '{{ phone }}'],
-            ['label' => 'Job Title', 'value' => '{{ job_title }}'],
-            ['label' => 'Website', 'value' => '{{ website }}'],
-            ['label' => 'Industry', 'value' => '{{ industry }}'],
-            ['label' => 'Activity Title', 'value' => '{{ activity_title }}'],
-            ['label' => 'Activity Description', 'value' => '{{ activity_description }}'],
-            ['label' => 'Due Date', 'value' => '{{ due_date }}'],
-        ];
     }
 }

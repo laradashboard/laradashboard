@@ -22,7 +22,6 @@ class EmailTemplateRequest extends FormRequest
             'type' => ['required', 'string', Rule::in(TemplateType::getValues())],
             'description' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
-            'is_default' => 'boolean',
             'preview_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'header_template_id' => 'nullable|exists:email_templates,id',
             'footer_template_id' => 'nullable|exists:email_templates,id',
@@ -70,7 +69,6 @@ class EmailTemplateRequest extends FormRequest
         // Convert boolean strings to actual booleans and empty strings to null
         $this->merge([
             'is_active' => $this->boolean('is_active', true),
-            'is_default' => $this->boolean('is_default', false),
             'header_template_id' => $this->header_template_id ?: null,
             'footer_template_id' => $this->footer_template_id ?: null,
         ]);

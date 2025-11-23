@@ -154,11 +154,6 @@ class EmailTemplateDatatable extends Datatable
         return view('backend.pages.email-templates.partials.email-template-is-active', compact('emailTemplate'));
     }
 
-    public function renderIsDefaultColumn(EmailTemplate $emailTemplate): Renderable
-    {
-        return view('backend.pages.email-templates.partials.email-template-is-default', compact('emailTemplate'));
-    }
-
     public function renderTypeColumn(EmailTemplate $emailTemplate): Renderable
     {
         return view('backend.pages.email-templates.partials.email-template-type', compact('emailTemplate'));
