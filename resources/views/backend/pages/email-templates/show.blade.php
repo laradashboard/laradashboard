@@ -18,6 +18,10 @@
                             <iconify-icon icon="lucide:mail" class="mr-2"></iconify-icon>
                             {{ __('Send Test') }}
                         </button>
+                        <button onclick='window.dispatchEvent(new CustomEvent("open-duplicate-email-template-modal", { detail: @json(["id" => $emailTemplate->id, "url" => route("admin.email-templates.duplicate", $emailTemplate->id)]) }))' class="btn-default">
+                            <iconify-icon icon="lucide:copy" class="mr-2"></iconify-icon>
+                            {{ __('Duplicate') }}
+                        </button>
                         <a href="{{ route('admin.email-templates.edit', $emailTemplate->id) }}" class="btn-primary">
                             <iconify-icon icon="lucide:pencil" class="mr-2"></iconify-icon>
                             {{ __('Edit') }}
@@ -80,4 +84,5 @@
     </div>
 
     <x-modals.test-email :send-test-url="route('admin.email-templates.send-test', $emailTemplate->id)" />
+    <x-modals.duplicate-email-template :duplicate-url="route('admin.email-templates.duplicate', $emailTemplate->id)" />
 </x-layouts.backend-layout>

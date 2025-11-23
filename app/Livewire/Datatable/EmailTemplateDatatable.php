@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\EmailTemplate;
 use App\Enums\TemplateType;
 use Spatie\QueryBuilder\QueryBuilder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class EmailTemplateDatatable extends Datatable
 {
@@ -65,6 +67,7 @@ class EmailTemplateDatatable extends Datatable
             'view' => 'settings.edit',
             'edit' => 'settings.edit',
             'delete' => 'settings.edit',
+            'duplicate' => 'settings.edit',
         ];
     }
 
@@ -159,14 +162,23 @@ class EmailTemplateDatatable extends Datatable
         return view('backend.pages.email-templates.partials.email-template-type', compact('emailTemplate'));
     }
 
-    public function renderSubjectColumn(EmailTemplate $emailTemplate): Renderable
+    public function renderSubjectColumn(EmailTemplate $emailTemplate): string
     {
-        return view('backend.pages.email-templates.partials.email-template-subject', compact('emailTemplate'));
+        return Str::limit($emailTemplate->subject, 50);
     }
 
     public function renderAfterActionView($emailTemplate): string|Renderable
     {
         return view('backend.pages.email-templates.partials.action-button-test', compact('emailTemplate'));
+    }
+
+    public function renderAfterActionEdit($emailTemplate): string|Renderable
+    {
+        if (! Auth::user()->can($this->getPermissions()['duplicate'] ?? '', $emailTemplate)) {
+            return '';
+        }
+
+        return view('backend.pages.email-templates.partials.action-button-duplicate', compact('emailTemplate'));
     }
 
     protected function handleBulkDelete(array $ids): int
@@ -198,6 +210,9 @@ class EmailTemplateDatatable extends Datatable
         if (! $item->is_deleteable) {
             $permissions['delete'] = false;
         }
+
+        // Duplicate permission for action items
+        $permissions['duplicate'] = Auth::user()->can($this->getPermissions()['duplicate'] ?? '', $item);
 
         return $permissions;
     }

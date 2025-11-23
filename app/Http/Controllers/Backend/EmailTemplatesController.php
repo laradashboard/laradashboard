@@ -177,33 +177,6 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function duplicate(int $email_template, Request $request): RedirectResponse
-    {
-        $this->authorize('manage', Setting::class);
-
-        $template = $this->emailTemplateService->getTemplateById($email_template);
-
-        if (! $template) {
-            abort(404, __('Email template not found.'));
-        }
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        try {
-            $newTemplate = $this->emailTemplateService->duplicateTemplate($template, $request->input('name'));
-
-            return redirect()
-                ->route('admin.email-templates.show', $newTemplate->id)
-                ->with('success', __('Email template duplicated successfully.'));
-        } catch (\Exception $e) {
-            return redirect()
-                ->back()
-                ->with('error', __('Failed to duplicate email template: :error', ['error' => $e->getMessage()]));
-        }
-    }
-
     public function sendTestEmail(int $email_template, Request $request): JsonResponse
     {
         $this->authorize('manage', Setting::class);

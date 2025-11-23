@@ -864,7 +864,7 @@ HTML;
                     </tr>
                     <tr>
                         <td style="padding: 0;">
-                            <img src="https://via.placeholder.com/600x400/667eea/ffffff?text=Product+Image" alt="Product" style="width: 100%; height: auto; display: block;">
+                            <img src="https://placehold.co/600x400/667eea/ffffff?text=Product+Image" alt="Product" style="width: 100%; height: auto; display: block;">
                         </td>
                     </tr>
                     <tr>
@@ -1238,7 +1238,7 @@ HTML;
                                         <table width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <td width="80" style="vertical-align: top;">
-                                                    <img src="https://via.placeholder.com/80x80/e5e7eb/999999?text=Product" alt="Product" style="width: 80px; height: 80px; border-radius: 8px;">
+                                                    <img src="https://placehold.co/80x80/e5e7eb/999999?text=Product" alt="Product" style="width: 80px; height: 80px; border-radius: 8px;">
                                                 </td>
                                                 <td style="padding-left: 20px; vertical-align: top;">
                                                     <p style="margin: 0 0 5px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Product Name</p>
@@ -1662,7 +1662,7 @@ HTML;
                             </div>
 
                             <div style="text-align: center; border-top: 2px dashed #ddd; padding-top: 20px;">
-                                <img src="https://via.placeholder.com/200x50/ffffff/000000?text=BARCODE" alt="Barcode" style="max-width: 200px; height: auto;">
+                                <img src="https://placehold.co/200x50/ffffff/000000?text=BARCODE" alt="Barcode" style="max-width: 200px; height: auto;">
                             </div>
                         </td>
                     </tr>
@@ -1701,7 +1701,7 @@ HTML;
                                 Hi {first_name}, here's what happened this week at {app_name}.
                             </p>
                             <div style="margin: 30px 0; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
-                                <img src="https://via.placeholder.com/600x300/3b82f6/ffffff?text=Featured+Story" alt="Featured" style="width: 100%; height: auto; display: block;">
+                                <img src="https://placehold.co/600x300/3b82f6/ffffff?text=Featured+Story" alt="Featured" style="width: 100%; height: auto; display: block;">
                                 <div style="padding: 25px;">
                                     <span style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 15px;">Featured</span>
                                     <h2 style="margin: 0 0 10px 0; font-size: 22px; color: #1a1a1a; font-weight: 700;">The Future of Technology: What's Next</h2>
@@ -1758,7 +1758,7 @@ HTML;
                     <tr>
                         <td style="padding: 50px 40px;">
                             <article style="margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid #e5e7eb;">
-                                <img src="https://via.placeholder.com/520x260/667eea/ffffff?text=Article+1" alt="Article" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 20px;">
+                                <img src="https://placehold.co/520x260/667eea/ffffff?text=Article+1" alt="Article" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 20px;">
                                 <span style="font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px;">Technology • Nov 10, 2025</span>
                                 <h2 style="margin: 15px 0 10px 0; font-size: 26px; color: #1a1a1a; font-weight: 600; line-height: 1.3;">The Rise of AI in Modern Business</h2>
                                 <p style="font-size: 16px; color: #666; line-height: 1.8; margin: 0 0 15px 0;">Exploring how artificial intelligence is transforming the way companies operate and compete in today's digital landscape...</p>
@@ -1766,7 +1766,7 @@ HTML;
                             </article>
 
                             <article style="margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid #e5e7eb;">
-                                <img src="https://via.placeholder.com/520x260/764ba2/ffffff?text=Article+2" alt="Article" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 20px;">
+                                <img src="https://placehold.co/520x260/764ba2/ffffff?text=Article+2" alt="Article" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 20px;">
                                 <span style="font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px;">Leadership • Nov 8, 2025</span>
                                 <h2 style="margin: 15px 0 10px 0; font-size: 26px; color: #1a1a1a; font-weight: 600; line-height: 1.3;">Building High-Performance Teams</h2>
                                 <p style="font-size: 16px; color: #666; line-height: 1.8; margin: 0 0 15px 0;">Discover the secrets behind creating and maintaining teams that consistently deliver exceptional results...</p>
@@ -1774,7 +1774,7 @@ HTML;
                             </article>
 
                             <article style="margin-bottom: 40px;">
-                                <img src="https://via.placeholder.com/520x260/f59e0b/ffffff?text=Article+3" alt="Article" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 20px;">
+                                <img src="https://placehold.co/520x260/f59e0b/ffffff?text=Article+3" alt="Article" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 20px;">
                                 <span style="font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px;">Innovation • Nov 5, 2025</span>
                                 <h2 style="margin: 15px 0 10px 0; font-size: 26px; color: #1a1a1a; font-weight: 600; line-height: 1.3;">Design Thinking for Problem Solving</h2>
                                 <p style="font-size: 16px; color: #666; line-height: 1.8; margin: 0 0 15px 0;">Learn how design thinking methodology can help you tackle complex challenges and drive innovation...</p>
@@ -2061,7 +2061,7 @@ HTML;
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
                     <tr>
                         <td style="padding: 0;">
-                            <img src="https://via.placeholder.com/600x300/3b82f6/ffffff?text=Webinar+Banner" alt="Webinar" style="width: 100%; height: auto; display: block;">
+                            <img src="https://placehold.co/600x300/3b82f6/ffffff?text=Webinar+Banner" alt="Webinar" style="width: 100%; height: auto; display: block;">
                         </td>
                     </tr>
                     <tr>
@@ -2220,7 +2220,7 @@ HTML;
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden;">
                     <tr>
                         <td style="padding: 0; position: relative;">
-                            <img src="https://via.placeholder.com/600x350/667eea/ffffff?text=Conference+2025" alt="Conference" style="width: 100%; height: auto; display: block;">
+                            <img src="https://placehold.co/600x350/667eea/ffffff?text=Conference+2025" alt="Conference" style="width: 100%; height: auto; display: block;">
                         </td>
                     </tr>
                     <tr>
@@ -2470,7 +2470,7 @@ HTML;
                                 <table width="100%" cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td width="100" style="vertical-align: top;">
-                                            <img src="https://via.placeholder.com/100x100/e5e7eb/999999?text=Product" alt="Product" style="width: 100px; height: 100px; border-radius: 8px;">
+                                            <img src="https://placehold.co/100x100/e5e7eb/999999?text=Product" alt="Product" style="width: 100px; height: 100px; border-radius: 8px;">
                                         </td>
                                         <td style="padding-left: 20px; vertical-align: top; text-align: left;">
                                             <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Product Name</h3>
@@ -2544,7 +2544,7 @@ HTML;
                                 <tr>
                                     <td width="48%" style="vertical-align: top; padding-right: 2%;">
                                         <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-                                            <img src="https://via.placeholder.com/280x280/667eea/ffffff?text=Product+1" alt="Product" style="width: 100%; height: auto; display: block;">
+                                            <img src="https://placehold.co/280x280/667eea/ffffff?text=Product+1" alt="Product" style="width: 100%; height: auto; display: block;">
                                             <div style="padding: 20px;">
                                                 <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Premium Headphones</h3>
                                                 <p style="margin: 0 0 15px 0; font-size: 14px; color: #666; line-height: 1.6;">Wireless, noise-cancelling, 30hr battery</p>
@@ -2555,7 +2555,7 @@ HTML;
                                     </td>
                                     <td width="48%" style="vertical-align: top; padding-left: 2%;">
                                         <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-                                            <img src="https://via.placeholder.com/280x280/764ba2/ffffff?text=Product+2" alt="Product" style="width: 100%; height: auto; display: block;">
+                                            <img src="https://placehold.co/280x280/764ba2/ffffff?text=Product+2" alt="Product" style="width: 100%; height: auto; display: block;">
                                             <div style="padding: 20px;">
                                                 <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Smart Watch Pro</h3>
                                                 <p style="margin: 0 0 15px 0; font-size: 14px; color: #666; line-height: 1.6;">Fitness tracking, GPS, waterproof</p>
@@ -2571,7 +2571,7 @@ HTML;
                                 <tr>
                                     <td width="48%" style="vertical-align: top; padding-right: 2%;">
                                         <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-                                            <img src="https://via.placeholder.com/280x280/10b981/ffffff?text=Product+3" alt="Product" style="width: 100%; height: auto; display: block;">
+                                            <img src="https://placehold.co/280x280/10b981/ffffff?text=Product+3" alt="Product" style="width: 100%; height: auto; display: block;">
                                             <div style="padding: 20px;">
                                                 <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Laptop Stand</h3>
                                                 <p style="margin: 0 0 15px 0; font-size: 14px; color: #666; line-height: 1.6;">Ergonomic, adjustable, aluminum</p>
@@ -2582,7 +2582,7 @@ HTML;
                                     </td>
                                     <td width="48%" style="vertical-align: top; padding-left: 2%;">
                                         <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-                                            <img src="https://via.placeholder.com/280x280/f59e0b/ffffff?text=Product+4" alt="Product" style="width: 100%; height: auto; display: block;">
+                                            <img src="https://placehold.co/280x280/f59e0b/ffffff?text=Product+4" alt="Product" style="width: 100%; height: auto; display: block;">
                                             <div style="padding: 20px;">
                                                 <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Wireless Charger</h3>
                                                 <p style="margin: 0 0 15px 0; font-size: 14px; color: #666; line-height: 1.6;">Fast charging, sleek design</p>
@@ -2640,7 +2640,7 @@ HTML;
                             </p>
 
                             <div style="margin: 30px 0;">
-                                <img src="https://via.placeholder.com/400x400/10b981/ffffff?text=Product+Image" alt="Product" style="max-width: 400px; width: 100%; height: auto; border-radius: 8px;">
+                                <img src="https://placehold.co/400x400/10b981/ffffff?text=Product+Image" alt="Product" style="max-width: 400px; width: 100%; height: auto; border-radius: 8px;">
                             </div>
 
                             <div style="background-color: #f0fdf4; border-radius: 8px; padding: 25px; margin: 30px 0; text-align: left;">
@@ -2716,7 +2716,7 @@ HTML;
                                 <table width="100%" cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td width="100" style="vertical-align: middle;">
-                                            <img src="https://via.placeholder.com/100x100/e5e7eb/999999?text=Product" alt="Product" style="width: 100px; height: 100px; border-radius: 8px;">
+                                            <img src="https://placehold.co/100x100/e5e7eb/999999?text=Product" alt="Product" style="width: 100px; height: 100px; border-radius: 8px;">
                                         </td>
                                         <td style="padding-left: 20px; vertical-align: middle; text-align: left;">
                                             <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Product Name</h3>

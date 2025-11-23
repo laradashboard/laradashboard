@@ -6,6 +6,7 @@ use App\Http\Controllers\Backend\ActionLogController;
 use App\Http\Controllers\Backend\AiContentController;
 use App\Http\Controllers\Backend\Auth\ScreenshotGeneratorLoginController;
 use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\DuplicateEmailTemplateController;
 use App\Http\Controllers\Backend\EditorController;
 use App\Http\Controllers\Backend\EmailSettingsController;
 use App\Http\Controllers\Backend\EmailTemplatesController;
@@ -67,7 +68,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
         Route::group(['prefix' => 'email-templates', 'as' => 'email-templates.'], function () {
             Route::get('by-type/{type}', [EmailTemplatesController::class, 'getByType'])->name('by-type');
             Route::get('{email_template}/content', [EmailTemplatesController::class, 'getContent'])->name('content')->where('email_template', '[0-9]+');
-            Route::post('{email_template}/duplicate', [EmailTemplatesController::class, 'duplicate'])->name('duplicate');
+            Route::post('{email_template}/duplicate', [DuplicateEmailTemplateController::class, 'store'])->name('duplicate');
             Route::post('{email_template}/send-test', [EmailTemplatesController::class, 'sendTestEmail'])->name('send-test');
         });
 

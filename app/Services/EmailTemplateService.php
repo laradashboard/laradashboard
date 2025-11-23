@@ -135,9 +135,8 @@ class EmailTemplateService
         DB::beginTransaction();
 
         try {
-            // Set updated_by
+            // Set updated_by.
             $data['updated_by'] = auth()->id();
-
             $template->update($data);
 
             // Update extracted variables
@@ -145,11 +144,7 @@ class EmailTemplateService
             $template->update(['variables' => $variables]);
 
             DB::commit();
-
-            Log::info('Email template updated', ['template_id' => $template->id, 'name' => $template->name]);
-
             return $template->load(['creator', 'updater']);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to update email template', ['error' => $e->getMessage(), 'template_id' => $template->id]);
@@ -172,17 +167,10 @@ class EmailTemplateService
                 Storage::disk('public')->delete($template->preview_image);
             }
 
-            $templateId = $template->id;
-            $templateName = $template->name;
-
             $template->delete();
 
             DB::commit();
-
-            Log::info('Email template deleted', ['template_id' => $templateId, 'name' => $templateName]);
-
             return true;
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to delete email template', ['error' => $e->getMessage(), 'template_id' => $template->id]);
@@ -197,22 +185,17 @@ class EmailTemplateService
         try {
             $data = $template->toArray();
 
-            // Remove unique fields and update for new template
+            // Remove unique fields and update for new template.
             unset($data['id'], $data['uuid'], $data['created_at'], $data['updated_at']);
             $data['name'] = $newName;
             $data['uuid'] = Str::uuid();
             $data['created_by'] = auth()->id();
             $data['updated_by'] = null;
+            $data['is_deleteable'] = true;
 
             $newTemplate = EmailTemplate::create($data);
 
             DB::commit();
-
-            Log::info('Email template duplicated', [
-                'original_template_id' => $template->id,
-                'new_template_id' => $newTemplate->id,
-                'new_name' => $newName,
-            ]);
 
             return $newTemplate->load(['creator', 'updater']);
 
