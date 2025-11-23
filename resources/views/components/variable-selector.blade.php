@@ -3,7 +3,8 @@
     'variables' => [],
     'label' => 'Add variable',
     'buttonId' => null,
-    'dropdownContainerId' => null
+    'dropdownContainerId' => null,
+    'texteditor' => false,
 ])
 
 @php
@@ -27,55 +28,66 @@ document.addEventListener('DOMContentLoaded', function() {
     const targetInput = document.getElementById('{{ $targetId }}');
     const dropdownBtn = document.getElementById('{{ $buttonId }}');
     const dropdownContainer = document.getElementById('{{ $dropdownContainerId }}');
-
     // Available variables
     const variables = @json($variables);
 
-    // Function to insert text at cursor position
+    // Whether this target is a rich text editor (TinyMCE) as passed from Blade.
+    const isTextEditor = @json($texteditor);
+
+    // Function to insert text at cursor position for normal inputs/textareas
     function insertAtCursor(text) {
-        // Get current cursor position
-        const startPos = targetInput.selectionStart;
-        const endPos = targetInput.selectionEnd;
+        if (!targetInput) return;
+        try {
+            const startPos = (typeof targetInput.selectionStart === 'number') ? targetInput.selectionStart : (targetInput.value ? targetInput.value.length : 0);
+            const endPos = (typeof targetInput.selectionEnd === 'number') ? targetInput.selectionEnd : startPos;
+            const scrollTop = targetInput.scrollTop;
 
-        // Save scroll position
-        const scrollTop = targetInput.scrollTop;
+            targetInput.value = (targetInput.value || '').substring(0, startPos) +
+                               text +
+                               (targetInput.value || '').substring(endPos);
 
-        // Insert text at cursor position
-        targetInput.value = targetInput.value.substring(0, startPos) + 
-                          text + 
-                          targetInput.value.substring(endPos);
-
-        // Restore cursor position after inserted text
-        targetInput.selectionStart = targetInput.selectionEnd = startPos + text.length;
-
-        // Restore scroll position
-        targetInput.scrollTop = scrollTop;
+            targetInput.selectionStart = targetInput.selectionEnd = startPos + text.length;
+            targetInput.scrollTop = scrollTop;
+            targetInput.focus();
+        } catch (err) {
+            // Fallback: append text and focus
+            targetInput.value = (targetInput.value || '') + text;
+            targetInput.focus();
+        }
     }
 
-    // Create dropdown element
+    // Create dropdown element.
     let dropdownElement = null;
+    // Handler reference for outside-click removal so we can clean it up.
+    let closeOnClickOutsideHandler = null;
 
-    // Toggle dropdown function
+    // Toggle dropdown function.
     function toggleDropdown() {
-        // If dropdown exists, remove it
+        // If dropdown exists, remove it and cleanup.
         if (dropdownElement) {
-            dropdownContainer.removeChild(dropdownElement);
+            if (dropdownElement.parentNode === dropdownContainer) {
+                dropdownContainer.removeChild(dropdownElement);
+            }
             dropdownElement = null;
+            if (closeOnClickOutsideHandler) {
+                document.removeEventListener('click', closeOnClickOutsideHandler);
+                closeOnClickOutsideHandler = null;
+            }
             return;
         }
 
-        // Create dropdown
+        // Create dropdown.
         dropdownElement = document.createElement('div');
         dropdownElement.className =
             'absolute left-0 right-0 mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 z-[9999]';
         dropdownElement.style.maxHeight = '200px';
         dropdownElement.style.overflowY = 'auto';
 
-        // Add header
+        // Add header.
         const header = document.createElement('div');
         header.className =
             'p-2 text-sm font-medium border-b border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700';
-        header.textContent = 'Select a variable to insert';
+        header.textContent = '{{ __("Select a variable to insert") }}';
         dropdownElement.appendChild(header);
 
         // Add variables
@@ -86,32 +98,33 @@ document.addEventListener('DOMContentLoaded', function() {
             item.textContent = variable.label;
             item.dataset.value = variable.value;
 
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 const variableValue = this.dataset.value;
-                
-                // Make sure textarea has focus first
-                targetInput.focus();
-                
-                // Check if this is a Quill editor
-                const quillInstance = window['quill-{{ $targetId }}'];
-                if (quillInstance) {
-                    // Insert into Quill editor
-                    const range = quillInstance.getSelection();
-                    const index = range ? range.index : quillInstance.getLength();
-                    quillInstance.insertText(index, variableValue);
-                    quillInstance.setSelection(index + variableValue.length);
+
+                if (isTextEditor) {
+                    const tinyMceInstance = window['tinymce-{{ $targetId }}'];
+                    if (tinyMceInstance) {
+                        tinyMceInstance.focus();
+                        tinyMceInstance.insertContent(`{${variableValue}}`);
+                    } else {
+                        // Fallback to inserting into the underlying textarea if TinyMCE instance not available yet
+                        insertAtCursor(`{${variableValue}}`);
+                    }
                 } else {
-                    // Insert at current cursor position and maintain focus
-                    insertAtCursor(variableValue);
-                    
-                    // Trigger change event
-                    const event = new Event('change');
-                    targetInput.dispatchEvent(event);
+                    insertAtCursor(`{${variableValue}}`);
                 }
 
-                // Remove dropdown
-                dropdownContainer.removeChild(dropdownElement);
+                // Close dropdown and cleanup
+                if (dropdownElement && dropdownElement.parentNode === dropdownContainer) {
+                    dropdownContainer.removeChild(dropdownElement);
+                }
                 dropdownElement = null;
+                if (closeOnClickOutsideHandler) {
+                    document.removeEventListener('click', closeOnClickOutsideHandler);
+                    closeOnClickOutsideHandler = null;
+                }
             });
 
             dropdownElement.appendChild(item);
@@ -121,23 +134,36 @@ document.addEventListener('DOMContentLoaded', function() {
         dropdownContainer.appendChild(dropdownElement);
 
         // Close dropdown when clicking outside
-        document.addEventListener('click', function closeOnClickOutside(e) {
+        closeOnClickOutsideHandler = function closeOnClickOutside(e) {
             if (dropdownElement && !dropdownElement.contains(e.target) && e.target !== dropdownBtn) {
-                dropdownContainer.removeChild(dropdownElement);
+                if (dropdownElement.parentNode === dropdownContainer) {
+                    dropdownContainer.removeChild(dropdownElement);
+                }
                 dropdownElement = null;
-                document.removeEventListener('click', closeOnClickOutside);
+                document.removeEventListener('click', closeOnClickOutsideHandler);
+                closeOnClickOutsideHandler = null;
             }
-        });
+        };
+        document.addEventListener('click', closeOnClickOutsideHandler);
     }
 
     // Add click event to button
     dropdownBtn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        
-        // Make sure textarea has focus before showing dropdown
-        targetInput.focus();
-        
+
+        if (isTextEditor) {
+            const tinyMceInstance = window['tinymce-{{ $targetId }}'];
+            if (tinyMceInstance) {
+                tinyMceInstance.focus();
+            } else if (targetInput) {
+                targetInput.focus();
+            }
+        } else if (targetInput) {
+            // Make sure textarea/input has focus before showing dropdown
+            targetInput.focus();
+        }
+
         toggleDropdown();
     });
 });
