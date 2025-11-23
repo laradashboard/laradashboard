@@ -3,10 +3,6 @@
         <div class="flex justify-between items-center">
             <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $notification->name }}</h2>
             <div class="flex gap-2">
-                <a href="{{ route('admin.notifications.preview-page', $notification->id) }}" target="_blank" class="btn btn-secondary">
-                    <iconify-icon icon="lucide:eye" class="mr-2"></iconify-icon>
-                    {{ __('Preview') }}
-                </a>
                 <button onclick="openTestEmailModal({{ $notification->id }})" class="btn btn-secondary">
                     <iconify-icon icon="lucide:mail" class="mr-2"></iconify-icon>
                     {{ __('Send Test') }}
