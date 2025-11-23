@@ -28,12 +28,12 @@ class EmailTemplateServiceProvider extends ServiceProvider
             if (in_array($setting->option_name, [
                 'site_logo',
                 'site_logo_lite',
-                'site_logo_dark', 
+                'site_logo_dark',
                 'company_name',
                 'primary_color',
                 'secondary_color',
                 'body_bg_color',
-                'app_name'
+                'app_name',
             ])) {
                 app(EmailTemplateVariableService::class)->clearCache();
             }

@@ -15,6 +15,7 @@ use App\Http\Requests\NotificationRequest;
 use App\Enums\ReceiverType;
 use App\Models\NotificationType;
 use App\Models\Setting;
+use App\Services\EmailManager;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -23,6 +24,7 @@ class NotificationsController extends Controller
     public function __construct(
         private readonly NotificationService $notificationService,
         private readonly EmailTemplateService $emailTemplateService,
+        private readonly EmailManager $emailManager,
     ) {
     }
 
@@ -30,12 +32,8 @@ class NotificationsController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $this->breadcrumbs = [
-            'title' => __('Notifications'),
-            'items' => [
-                ['label' => __('Settings'), 'url' => route('admin.settings.index')],
-            ],
-        ];
+        $this->setBreadcrumbTitle(__('Notifications'))
+            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.index');
     }
@@ -59,17 +57,14 @@ class NotificationsController extends Controller
 
         $emailTemplates = $this->emailTemplateService->getAllTemplates();
 
-        return view('backend.pages.notifications.create', [
+        $this->setBreadcrumbTitle(__('Create Notification'))
+            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
+            ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.notifications.create', [
             'notificationTypes' => $notificationTypes,
             'receiverTypes' => $receiverTypes,
             'emailTemplates' => $emailTemplates,
-            'breadcrumbs' => [
-                'title' => __('Create Notification'),
-                'items' => [
-                    ['label' => __('Settings'), 'url' => route('admin.settings.index')],
-                    ['label' => __('Notifications'), 'url' => route('admin.notifications.index')],
-                ],
-            ],
         ]);
     }
 
@@ -95,21 +90,18 @@ class NotificationsController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $notificationModel = $this->notificationService->getNotificationById($notification);
+        $notification = $this->notificationService->getNotificationById($notification);
 
-        if (! $notificationModel) {
+        if (! $notification) {
             abort(404, __('Notification not found.'));
         }
 
-        return view('backend.pages.notifications.show', [
-            'notification' => $notificationModel,
-            'breadcrumbs' => [
-                'title' => $notificationModel->name,
-                'items' => [
-                    ['label' => __('Settings'), 'url' => route('admin.settings.index')],
-                    ['label' => __('Notifications'), 'url' => route('admin.notifications.index')],
-                ],
-            ],
+        $this->setBreadcrumbTitle($notification->name)
+            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
+            ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.notifications.show', [
+            'notification' => $notification,
         ]);
     }
 
@@ -117,9 +109,9 @@ class NotificationsController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $notificationModel = $this->notificationService->getNotificationById($notification);
+        $notification = $this->notificationService->getNotificationById($notification);
 
-        if (! $notificationModel) {
+        if (! $notification) {
             abort(404, __('Notification not found.'));
         }
 
@@ -138,18 +130,15 @@ class NotificationsController extends Controller
 
         $emailTemplates = $this->emailTemplateService->getAllTemplates();
 
-        return view('backend.pages.notifications.edit', [
-            'notification' => $notificationModel,
+        $this->setBreadcrumbTitle(__('Edit Notification'))
+            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
+            ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.notifications.edit', [
+            'notification' => $notification,
             'notificationTypes' => $notificationTypes,
             'receiverTypes' => $receiverTypes,
             'emailTemplates' => $emailTemplates,
-            'breadcrumbs' => [
-                'title' => __('Edit Notification'),
-                'items' => [
-                    ['label' => __('Settings'), 'url' => route('admin.settings.index')],
-                    ['label' => __('Notifications'), 'url' => route('admin.notifications.index')],
-                ],
-            ],
         ]);
     }
 
@@ -170,12 +159,6 @@ class NotificationsController extends Controller
                 ->route('admin.notifications.index')
                 ->with('success', __('Notification updated successfully.'));
         } catch (\Exception $e) {
-            Log::error('Failed to update notification', [
-                'notification_id' => $notification,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
             return redirect()
                 ->back()
                 ->withInput()
@@ -210,43 +193,25 @@ class NotificationsController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $notificationModel = $this->notificationService->getNotificationById($notification);
+        $notification = $this->notificationService->getNotificationById($notification);
 
-        if (! $notificationModel) {
+        if (! $notification) {
             abort(404, __('Notification not found.'));
         }
 
-        // Load email template if exists
-        if ($notificationModel->email_template_id) {
-            $notificationModel->load(['emailTemplate.headerTemplate', 'emailTemplate.footerTemplate']);
+        // Load email template if exists.
+        if (! empty($notification->email_template_id)) {
+            $notification->load(['emailTemplate.headerTemplate', 'emailTemplate.footerTemplate']);
         }
 
-        $sampleData = [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'full_name' => 'John Doe',
-            'email' => 'john.doe@example.com',
-            'phone' => '+1 (555) 123-4567',
-            'company' => 'Lara Dashboard',
-            'job_title' => 'Marketing Manager',
-            'dob' => '1980-01-15',
-            'industry' => 'Technology',
-            'website' => 'www.example.com',
-        ];
+        $this->setBreadcrumbTitle(__('Preview Notification'))
+            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
+            ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'))
+            ->addBreadcrumbItem($notification->name, route('admin.notifications.show', $notification));
 
-        $rendered = $this->renderNotificationContent($notificationModel, $sampleData);
-
-        return view('backend.pages.notifications.preview', [
-            'notification' => $notificationModel,
-            'rendered' => $rendered,
-            'breadcrumbs' => [
-                'title' => __('Preview Notification'),
-                'items' => [
-                    ['label' => __('Settings'), 'url' => route('admin.settings.index')],
-                    ['label' => __('Notifications'), 'url' => route('admin.notifications.index')],
-                    ['label' => $notificationModel->name, 'url' => route('admin.notifications.show', $notification)],
-                ],
-            ],
+        return $this->renderViewWithBreadcrumbs('backend.pages.notifications.preview', [
+            'notification' => $notification,
+            'rendered' => $this->renderNotificationContent($notification, $this->emailManager->getPreviewSampleData()),
         ]);
     }
 
@@ -272,22 +237,7 @@ class NotificationsController extends Controller
                 $notificationModel->load(['emailTemplate.headerTemplate', 'emailTemplate.footerTemplate']);
             }
 
-            $sampleData = [
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'full_name' => 'John Doe',
-                'email' => $request->input('email'),
-                'phone' => '+1 (555) 123-4567',
-                'company' => 'Lara Dashboard',
-                'job_title' => 'Marketing Manager',
-                'dob' => '1980-01-15',
-                'industry' => 'Technology',
-                'website' => 'www.example.com',
-            ];
-
-            $rendered = $this->renderNotificationContent($notificationModel, $sampleData);
-            Log::info('Notification content rendered', ['subject' => $rendered['subject']]);
-
+            $rendered = $this->renderNotificationContent($notificationModel, $this->emailManager->getPreviewSampleData());
             $fromEmail = $notificationModel->from_email ?: config('mail.from.address');
             $fromName = $notificationModel->from_name ?: config('mail.from.name');
 
@@ -297,10 +247,7 @@ class NotificationsController extends Controller
                     ->subject($rendered['subject'])
                     ->html($rendered['body_html']);
             });
-
-            Log::info('Test notification email sent successfully');
-
-            return response()->json(['message' => 'Test email sent successfully']);
+            return response()->json(['message' => 'Test email sent successfully.']);
         } catch (\Exception $e) {
             Log::error('Failed to send test notification email', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Failed to send test email: ' . $e->getMessage()], 500);

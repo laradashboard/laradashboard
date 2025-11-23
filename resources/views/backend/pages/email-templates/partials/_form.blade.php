@@ -14,10 +14,8 @@
             <x-card class="sticky top-24">
                 <x-inputs.combobox label="{{ __('Template Type') }}" name="type" :options="$templateTypes ?? []"
                     placeholder="{{ __('Select Template Type') }}" selected="{{ old('type', $selectedType ?? '') }}"
-                    required />
-                @error('type')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
+                    required
+                />
 
                 @php
                     $headerOptions = ['' => __('No Header')];
@@ -52,10 +50,8 @@
                 @endphp
                 <x-inputs.combobox label="{{ __('Footer Template') }}" name="footer_template_id" :options="$footerOptions"
                     placeholder="{{ __('Select Footer Template') }}"
-                    selected="{{ old('footer_template_id', $template->footer_template_id ?? '') }}" />
-                @error('footer_template_id')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
+                    selected="{{ old('footer_template_id', $template->footer_template_id ?? '') }}"
+                />
 
                 <div class="pt-1">
                     <label class="flex items-center justify-between cursor-pointer group">
@@ -78,23 +74,22 @@
         <div class="flex-1 min-w-0">
             <x-card>
                 <div class="space-y-5">
-                    <div>
-                        <label for="template_name" class="form-label">
-                            {{ __('Template Name') }} <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" id="template_name" name="name" class="form-control @error('name') border-red-500 @enderror" value="{{ old('name', $template->name ?? '') }}" placeholder="{{ __('e.g., Welcome Email, Newsletter Template') }}" required>
-                        @error('name')
-                            <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <x-inputs.input
+                        label="{{ __('Template Name') }}"
+                        name="name"
+                        type="text"
+                        :value="old('name', $template->name ?? '')"
+                        placeholder="{{ __('e.g., Welcome Email, Newsletter Template') }}"
+                        required
+                    />
 
-                    <div id="description-field">
-                        <label for="template_description" class="form-label">{{ __('Description') }}</label>
-                        <textarea id="template_description" name="description" rows="2" class="form-control @error('description') border-red-500 @enderror" placeholder="{{ __('Brief description of when to use this template...') }}">{{ old('description', $template->description ?? '') }}</textarea>
-                        @error('description')
-                            <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <x-inputs.input
+                        label="{{ __('Internal Description (optional)') }}"
+                        name="description"
+                        :value="old('description', $template->description ?? '')"
+                        placeholder="{{ __('Brief description of when to use this template...') }}"
+                        id="description-field"
+                    />
 
                     @if (!isset($template))
                         <div>
@@ -124,9 +119,6 @@
                     </div>
                     <input type="text" id="email_subject" name="subject" class="form-control @error('subject') border-red-500 @enderror" value="{{ old('subject', $template->subject ?? '') }}" placeholder="{{ __('Your compelling email subject line...') }}" required>
                     <p class="text-xs text-gray-500 mt-1.5">{{ __('Use variables like {first_name}, {company}, etc. for personalization') }}</p>
-                    @error('subject')
-                        <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 <div>
@@ -143,9 +135,6 @@
                     @push('scripts')
                         <x-text-editor :minHeight="'400px'" :maxHeight="'1200px'" :editor-id="'body_html'" type="full" />
                     @endpush
-                    @error('body_html')
-                        <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                    @enderror
                 </div>
             </x-card>
         </div>
@@ -203,19 +192,18 @@ function toggleFieldsBasedOnType(selectedType) {
 function loadTemplateContent(templateId) {
     if (!templateId) return;
     
-    fetch(`/admin/email-templates/${templateId}/content`)
+    fetch(`/admin/settings/email-templates/${templateId}/content`)
         .then(response => response.json())
         .then(data => {
             if (data.subject) {
                 document.getElementById('email_subject').value = data.subject;
             }
             if (data.body_html) {
-                // For text editor, set the content
-                const htmlEditor = document.getElementById('body_html');
-                if (htmlEditor) {
-                    htmlEditor.value = data.body_html;
-                    // Trigger change event for text editor
-                    htmlEditor.dispatchEvent(new Event('change'));
+                const tinyMceInstance = window['tinymce-body_html'];
+                if (tinyMceInstance) {
+                    tinyMceInstance.setContent(data.body_html);
+                } else {
+                    document.getElementById('body_html').value = data.body_html;
                 }
             }
         })

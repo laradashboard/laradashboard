@@ -203,7 +203,6 @@ class EmailTemplateService
             $data['uuid'] = Str::uuid();
             $data['created_by'] = auth()->id();
             $data['updated_by'] = null;
-            $data['is_default'] = false;
 
             $newTemplate = EmailTemplate::create($data);
 
@@ -224,32 +223,6 @@ class EmailTemplateService
         }
     }
 
-    public function setAsDefault(EmailTemplate $template): EmailTemplate
-    {
-        DB::beginTransaction();
-
-        try {
-            // Remove default from other templates of the same type
-            EmailTemplate::where('type', $template->type)
-                ->where('is_default', true)
-                ->update(['is_default' => false]);
-
-            // Set this template as default
-            $template->update(['is_default' => true]);
-
-            DB::commit();
-
-            Log::info('Email template set as default', ['template_id' => $template->id, 'type' => $template->type->value]);
-
-            return $template;
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to set email template as default', ['error' => $e->getMessage(), 'template_id' => $template->id]);
-            throw $e;
-        }
-    }
-
     public function renderTemplate(EmailTemplate $template, array $data): array
     {
         return $template->renderTemplate($data);
@@ -259,41 +232,7 @@ class EmailTemplateService
     {
         return EmailTemplate::where('type', $type)
             ->where('is_active', true)
-            ->orderBy('is_default', 'desc')
             ->orderBy('name')
             ->get();
-    }
-
-    public function getDefaultTemplate(TemplateType $type): ?EmailTemplate
-    {
-        return EmailTemplate::where('type', $type)
-            ->where('is_default', true)
-            ->where('is_active', true)
-            ->first();
-    }
-
-    public function uploadPreviewImage(EmailTemplate $template, $file): string
-    {
-        try {
-            // Delete old preview image if exists
-            if ($template->preview_image && Storage::disk('public')->exists($template->preview_image)) {
-                Storage::disk('public')->delete($template->preview_image);
-            }
-
-            // Store new image
-            $filename = 'template_preview_' . $template->id . '_' . time() . '.' . $file->extension();
-            $path = $file->storeAs('email-templates/previews', $filename, 'public');
-
-            // Update template
-            $template->update(['preview_image' => $path]);
-
-            Log::info('Email template preview image uploaded', ['template_id' => $template->id, 'path' => $path]);
-
-            return $path;
-
-        } catch (\Exception $e) {
-            Log::error('Failed to upload email template preview image', ['error' => $e->getMessage(), 'template_id' => $template->id]);
-            throw $e;
-        }
     }
 }

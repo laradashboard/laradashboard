@@ -23,7 +23,7 @@ class EmailTemplateVariableService
                 'primary_color',
                 'secondary_color',
                 'body_bg_color',
-                'app_name'
+                'app_name',
             ])->pluck('option_value', 'option_name')->toArray();
 
             return [
@@ -81,20 +81,20 @@ class EmailTemplateVariableService
 
         if (is_array($assignees)) {
             // If it's an array of user IDs, get user names
-            if (!empty($assignees) && isset($assignees[0]) && is_numeric($assignees[0])) {
+            if (! empty($assignees) && isset($assignees[0]) && is_numeric($assignees[0])) {
                 $users = \App\Models\User::whereIn('id', $assignees)->pluck('name')->toArray();
-                return !empty($users) ? implode(', ', $users) : 'Not assigned';
+                return ! empty($users) ? implode(', ', $users) : 'Not assigned';
             }
-            
+
             // If it's an array of names
             $filtered = array_filter($assignees);
-            return !empty($filtered) ? implode(', ', $filtered) : 'Not assigned';
+            return ! empty($filtered) ? implode(', ', $filtered) : 'Not assigned';
         }
 
         // Handle collection or other objects
         if (method_exists($assignees, 'pluck')) {
             $names = $assignees->pluck('name')->filter()->toArray();
-            return !empty($names) ? implode(', ', $names) : 'Not assigned';
+            return ! empty($names) ? implode(', ', $names) : 'Not assigned';
         }
 
         return 'Multiple assignees';
@@ -106,7 +106,7 @@ class EmailTemplateVariableService
     public function mergeActivityVariables(array $activityData, array $additionalData = []): array
     {
         $commonVars = $this->getCommonVariables();
-        
+
         // Process assigned_to field - check multiple possible keys
         $assignees = $activityData['assigned_to'] ?? $activityData['users'] ?? $activityData['assignedUsers'] ?? null;
         if ($assignees) {
@@ -149,7 +149,7 @@ class EmailTemplateVariableService
         ];
 
         foreach ($fallbacks as $key => $fallback) {
-            if (!isset($variables[$key]) || empty($variables[$key]) || $variables[$key] === null) {
+            if (! isset($variables[$key]) || empty($variables[$key]) || $variables[$key] === null) {
                 $variables[$key] = $fallback;
             }
         }
@@ -163,12 +163,12 @@ class EmailTemplateVariableService
     public function getActivityTypeLabel(array $activityData): string
     {
         // Check if it's a contact activity
-        if (isset($activityData['type_label']) && !empty($activityData['type_label'])) {
+        if (isset($activityData['type_label']) && ! empty($activityData['type_label'])) {
             return $activityData['type_label'];
         }
 
         // Check if it's a deal activity
-        if (isset($activityData['type']) && !empty($activityData['type'])) {
+        if (isset($activityData['type']) && ! empty($activityData['type'])) {
             return ucfirst($activityData['type']);
         }
 

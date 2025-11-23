@@ -144,9 +144,6 @@ class NotificationService
     {
         try {
             $notification->delete();
-
-            Log::info('Notification deleted', ['notification_id' => $notification->id, 'name' => $notification->name]);
-
             return true;
         } catch (\Exception $e) {
             Log::error('Failed to delete notification', ['error' => $e->getMessage(), 'notification_id' => $notification->id]);
