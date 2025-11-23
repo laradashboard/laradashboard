@@ -1,29 +1,12 @@
-<form method="POST" action="{{ isset($template) ? route('admin.email-templates.update', $template->id) : route('admin.email-templates.store') }}" enctype="multipart/form-data">
+<form
+    method="POST"
+    action="{{ isset($template) ? route('admin.email-templates.update', $template->id) : route('admin.email-templates.store') }}"
+    enctype="multipart/form-data"
+    data-prevent-unsaved-changes
+>
     @csrf
     @if (isset($template))
         @method('PUT')
-    @endif
-
-    @if ($errors->any())
-        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">{{ __('There were errors with your submission:') }}</h3>
-                    <div class="mt-2 text-sm text-red-700">
-                        <ul class="list-disc pl-5 space-y-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
     @endif
 
     <div class="flex flex-col lg:flex-row gap-6">
@@ -85,26 +68,10 @@
                     </label>
                 </div>
 
-                <div class="flex flex-col gap-3">
-                    <button type="submit" class="btn btn-primary w-full justify-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        {{ isset($template) ? __('Update Template') : __('Create Template') }}
-                    </button>
-                    @if (isset($template))
-                        <a href="{{ route('admin.email-templates.preview-page', $template->id) }}" target="_blank" class="btn btn-secondary w-full justify-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            {{ __('Preview Template') }}
-                        </a>
-                    @endif
-                    <a href="{{ route('admin.email-templates.index') }}" class="btn btn-secondary w-full justify-center">
-                        {{ __('Cancel') }}
-                    </a>
-                </div>
+                <x-buttons.submit-buttons
+                    cancelUrl="{{ route('admin.email-templates.index') }}"
+                    :classNames="['wrapper' => 'grid grid-cols-2 gap-3']"
+                />
             </x-card>
         </div>
 
@@ -148,7 +115,12 @@
                         <label for="email_subject" class="form-label w-full">
                             {{ __('Email Subject') }} <span class="text-red-500">*</span>
                         </label>
-                        <x-variable-selector target-id="email_subject" :variables="$templateVariables ?? []" label="Add Variable" />
+                        <x-variable-selector
+                            target-id="email_subject"
+                            :variables="$templateVariables ?? []"
+                            :label="__('Add Variable')"
+                            :texteditor="false"
+                        />
                     </div>
                     <input type="text" id="email_subject" name="subject" class="form-control @error('subject') border-red-500 @enderror" value="{{ old('subject', $template->subject ?? '') }}" placeholder="{{ __('Your compelling email subject line...') }}" required>
                     <p class="text-xs text-gray-500 mt-1.5">{{ __('Use variables like {first_name}, {company}, etc. for personalization') }}</p>
@@ -160,7 +132,12 @@
                 <div>
                     <div class="flex items-center justify-between mb-2 w-full">
                         <label for="body_html" class="form-label w-full">{{ __('HTML Content') }}</label>
-                        <x-variable-selector target-id="body_html" :variables="$templateVariables ?? []" label="Add Variable" />
+                        <x-variable-selector
+                            target-id="body_html"
+                            :variables="$templateVariables ?? []"
+                            :label="__('Add Variable')"
+                            :texteditor="true"
+                        />
                     </div>
                     <textarea name="body_html" id="body_html" rows="4" class="block w-full border-0 focus:ring-0 focus:outline-none" placeholder="{{ __('Compose your email content...') }}">{{ old('body_html', $template->body_html ?? '') }}</textarea>
                     @push('scripts')
