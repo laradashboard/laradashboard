@@ -53,36 +53,28 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::post('/modules/upload', [ModuleController::class, 'store'])->name('modules.store');
     Route::delete('/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.delete');
 
-    // Settings Routes.
-    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
+    Route::group(['prefix' => 'settings'], function () {
+        // Settings Routes.
+        Route::get('/', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/', [SettingController::class, 'store'])->name('settings.store');
 
-    // Email Settings Management Routes.
-    Route::get('settings/emails', [EmailSettingsController::class, 'index'])->name('email-settings.index');
-    Route::post('settings/emails', [EmailSettingsController::class, 'update'])->name('email-settings.update');
+        // Email Settings Management Routes.
+        Route::get('emails', [EmailSettingsController::class, 'index'])->name('email-settings.index');
+        Route::post('emails', [EmailSettingsController::class, 'update'])->name('email-settings.update');
 
-    // Email Templates Management Routes.
-    Route::get('settings/email-templates', [EmailTemplatesController::class, 'index'])->name('email-templates.index');
-    Route::get('settings/email-templates/create', [EmailTemplatesController::class, 'create'])->name('email-templates.create');
-    Route::post('settings/email-templates', [EmailTemplatesController::class, 'store'])->name('email-templates.store');
-    Route::get('settings/email-templates/by-type/{type}', [EmailTemplatesController::class, 'getByType'])->name('email-templates.by-type');
-    Route::get('settings/email-templates/{email_template}/content', [EmailTemplatesController::class, 'getContent'])->name('email-templates.content')->where('email_template', '[0-9]+');
-    Route::get('settings/email-templates/{email_template}', [EmailTemplatesController::class, 'show'])->name('email-templates.show')->where('email_template', '[0-9]+');
-    Route::get('settings/email-templates/{email_template}/edit', [EmailTemplatesController::class, 'edit'])->name('email-templates.edit')->where('email_template', '[0-9]+');
-    Route::put('settings/email-templates/{email_template}', [EmailTemplatesController::class, 'update'])->name('email-templates.update')->where('email_template', '[0-9]+');
-    Route::delete('settings/email-templates/{email_template}', [EmailTemplatesController::class, 'destroy'])->name('email-templates.destroy')->where('email_template', '[0-9]+');
-    Route::post('settings/email-templates/{email_template}/duplicate', [EmailTemplatesController::class, 'duplicate'])->name('email-templates.duplicate');
-    Route::post('settings/email-templates/{email_template}/send-test', [EmailTemplatesController::class, 'sendTestEmail'])->name('email-templates.send-test');
+        // Email Templates Management Routes.
+        Route::resource('email-templates', EmailTemplatesController::class);
+        Route::group(['prefix' => 'email-templates', 'as' => 'email-templates.'], function () {
+            Route::get('by-type/{type}', [EmailTemplatesController::class, 'getByType'])->name('by-type');
+            Route::get('{email_template}/content', [EmailTemplatesController::class, 'getContent'])->name('content')->where('email_template', '[0-9]+');
+            Route::post('{email_template}/duplicate', [EmailTemplatesController::class, 'duplicate'])->name('duplicate');
+            Route::post('{email_template}/send-test', [EmailTemplatesController::class, 'sendTestEmail'])->name('send-test');
+        });
 
-    // Notifications Management Routes.
-    Route::get('settings/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
-    Route::get('settings/notifications/create', [NotificationsController::class, 'create'])->name('notifications.create');
-    Route::post('settings/notifications', [NotificationsController::class, 'store'])->name('notifications.store');
-    Route::get('settings/notifications/{notification}', [NotificationsController::class, 'show'])->name('notifications.show')->where('notification', '[0-9]+');
-    Route::get('settings/notifications/{notification}/edit', [NotificationsController::class, 'edit'])->name('notifications.edit')->where('notification', '[0-9]+');
-    Route::post('settings/notifications/{notification}/send-test', [NotificationsController::class, 'sendTestEmail'])->name('notifications.send-test');
-    Route::put('settings/notifications/{notification}', [NotificationsController::class, 'update'])->name('notifications.update')->where('notification', '[0-9]+');
-    Route::delete('settings/notifications/{notification}', [NotificationsController::class, 'destroy'])->name('notifications.destroy')->where('notification', '[0-9]+');
+        // Notifications Management Routes.
+        Route::resource('notifications', NotificationsController::class);
+        Route::post('notifications/{notification}/send-test', [NotificationsController::class, 'sendTestEmail'])->name('notifications.send-test');
+    });
 
     // Translation Routes.
     Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');

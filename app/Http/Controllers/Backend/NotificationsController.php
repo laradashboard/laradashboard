@@ -13,6 +13,7 @@ use App\Services\NotificationService;
 use App\Services\EmailTemplateService;
 use App\Http\Requests\NotificationRequest;
 use App\Enums\ReceiverType;
+use App\Models\Notification;
 use App\Models\NotificationType;
 use App\Models\Setting;
 use App\Services\EmailManager;
@@ -86,17 +87,15 @@ class NotificationsController extends Controller
         }
     }
 
-    public function show(int $notification): Renderable
+    public function show(Notification $notification): Renderable
     {
         $this->authorize('manage', Setting::class);
-
-        $notification = $this->notificationService->getNotificationById($notification);
 
         if (! $notification) {
             abort(404, __('Notification not found.'));
         }
 
-        $this->setBreadcrumbTitle($notification->name)
+        $this->setBreadcrumbTitle(__('View Notification'))
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
 
@@ -105,15 +104,9 @@ class NotificationsController extends Controller
         ]);
     }
 
-    public function edit(int $notification): Renderable
+    public function edit(Notification $notification): Renderable
     {
         $this->authorize('manage', Setting::class);
-
-        $notification = $this->notificationService->getNotificationById($notification);
-
-        if (! $notification) {
-            abort(404, __('Notification not found.'));
-        }
 
         $notificationTypeInstance = new NotificationType();
         $notificationTypes = collect(NotificationType::getValues())

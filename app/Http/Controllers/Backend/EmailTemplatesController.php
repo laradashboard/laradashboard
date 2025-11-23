@@ -94,55 +94,42 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function show(int $emailTemplate): Renderable
+    public function show(EmailTemplate $emailTemplate): Renderable
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($emailTemplate);
-
-        if (! $template) {
-            abort(404, __('Email template not found.'));
-        }
-
-        $rendered = $this->emailTemplateService->renderTemplate($template, $this->emailManager->getPreviewSampleData());
-        $template->subject = $rendered['subject'];
-        $template->body_html = $rendered['body_html'];
+        $rendered = $this->emailTemplateService->renderTemplate($emailTemplate, $this->emailManager->getPreviewSampleData());
+        $emailTemplate->subject = $rendered['subject'];
+        $emailTemplate->body_html = $rendered['body_html'];
 
         $this->setBreadcrumbTitle(__('View Template'))
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Email Templates'), route('admin.email-templates.index'));
 
-        return $this->renderViewWithBreadcrumbs('backend.pages.email-templates.show', compact('template'));
+        return $this->renderViewWithBreadcrumbs('backend.pages.email-templates.show', compact('emailTemplate'));
     }
 
-    public function edit(int $emailTemplate): Renderable
+    public function edit(EmailTemplate $emailTemplate): Renderable
     {
         $this->authorize('manage', Setting::class);
-
-        $template = $this->emailTemplateService->getTemplateById($emailTemplate);
-
-        if (! $template) {
-            abort(404, __('Email template not found.'));
-        }
-
         $templateTypes = collect(TemplateType::cases())
             ->mapWithKeys(function ($type) {
                 return [$type->value => (string) $type->label()];
             })
             ->toArray();
 
-        $availableTemplates = $this->emailTemplateService->getAllTemplatesExcept($template->id);
-        $headerTemplates = $this->emailTemplateService->getAllTemplatesExcept($template->id);
-        $footerTemplates = $this->emailTemplateService->getAllTemplatesExcept($template->id);
+        $availableTemplates = $this->emailTemplateService->getAllTemplatesExcept($emailTemplate->id);
+        $headerTemplates = $this->emailTemplateService->getAllTemplatesExcept($emailTemplate->id);
+        $footerTemplates = $this->emailTemplateService->getAllTemplatesExcept($emailTemplate->id);
 
         $this->setBreadcrumbTitle(__('Edit Template'))
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Email Templates'), route('admin.email-templates.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.email-templates.edit', [
-            'template' => $template,
+            'emailTemplate' => $emailTemplate,
             'templateTypes' => $templateTypes,
-            'selectedType' => $template->type->value,
+            'selectedType' => $emailTemplate->type->value,
             'availableTemplates' => $availableTemplates,
             'headerTemplates' => $headerTemplates,
             'footerTemplates' => $footerTemplates,
@@ -150,25 +137,18 @@ class EmailTemplatesController extends Controller
         ]);
     }
 
-    public function update(EmailTemplateRequest $request, int $emailTemplate): RedirectResponse
+    public function update(EmailTemplateRequest $request, EmailTemplate $emailTemplate): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($emailTemplate);
-
-        if (! $template) {
-            abort(404, __('Email template not found.'));
-        }
-
         try {
-            $this->emailTemplateService->updateTemplate($template, $request->validated());
+            $this->emailTemplateService->updateTemplate($emailTemplate, $request->validated());
 
             return redirect()
                 ->route('admin.email-templates.index')
                 ->with('success', __('Email template updated successfully.'));
         } catch (\Exception $e) {
             Log::error('Failed to update email template', [
-                'template_id' => $emailTemplate,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -180,18 +160,12 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function destroy(int $emailTemplate): RedirectResponse
+    public function destroy(EmailTemplate $emailTemplate): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($emailTemplate);
-
-        if (! $template) {
-            abort(404, __('Email template not found.'));
-        }
-
         try {
-            $this->emailTemplateService->deleteTemplate($template);
+            $this->emailTemplateService->deleteTemplate($emailTemplate);
 
             return redirect()
                 ->route('admin.email-templates.index')
@@ -203,11 +177,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function duplicate(int $emailTemplate, Request $request): RedirectResponse
+    public function duplicate(int $email_template, Request $request): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($emailTemplate);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             abort(404, __('Email template not found.'));
@@ -230,11 +204,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function sendTestEmail(int $emailTemplate, Request $request): JsonResponse
+    public function sendTestEmail(int $email_template, Request $request): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
-        $template = $this->emailTemplateService->getTemplateById($emailTemplate);
+        $template = $this->emailTemplateService->getTemplateById($email_template);
 
         if (! $template) {
             return response()->json(['message' => 'Template not found'], 404);
@@ -254,13 +228,13 @@ class EmailTemplatesController extends Controller
                     ->html($rendered['body_html']);
             });
 
-            $this->logAction('Test Email Template Sent', $emailTemplate, [
+            $this->logAction('Test Email Template Sent', $email_template, [
                 'to' => $request->input('email'),
             ]);
 
             return response()->json(['message' => __('Test email sent successfully')]);
         } catch (\Exception $e) {
-            $this->logAction('Failed to Send Test Email Template', $emailTemplate, [
+            $this->logAction('Failed to Send Test Email Template', $email_template, [
                 'to' => $request->input('email'),
                 'error' => $e->getMessage(),
             ]);
@@ -291,12 +265,11 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function getContent(int $emailTemplate): JsonResponse
+    public function getContent(int $email_template): JsonResponse
     {
         $this->authorize('manage', Setting::class);
-
         try {
-            $template = $this->emailTemplateService->getTemplateById($emailTemplate);
+            $template = $this->emailTemplateService->getTemplateById($email_template);
 
             if (! $template) {
                 return response()->json(['error' => 'Template not found'], 404);

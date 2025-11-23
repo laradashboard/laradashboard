@@ -1,11 +1,11 @@
 <form
     method="POST"
-    action="{{ isset($template) ? route('admin.email-templates.update', $template->id) : route('admin.email-templates.store') }}"
+    action="{{ isset($emailTemplate) ? route('admin.email-templates.update', $emailTemplate->id) : route('admin.email-templates.store') }}"
     enctype="multipart/form-data"
     data-prevent-unsaved-changes
 >
     @csrf
-    @if (isset($template))
+    @if (isset($emailTemplate))
         @method('PUT')
     @endif
 
@@ -19,7 +19,7 @@
 
                 @php
                     $headerOptions = ['' => __('No Header')];
-                    if (isset($template)) {
+                    if (isset($emailTemplate)) {
                         foreach ($headerTemplates ?? [] as $headerTemplate) {
                             $headerOptions[$headerTemplate->id] = $headerTemplate->name;
                         }
@@ -31,14 +31,14 @@
                 @endphp
                 <x-inputs.combobox label="{{ __('Header Template') }}" name="header_template_id" :options="$headerOptions"
                     placeholder="{{ __('Select Header Template') }}"
-                    selected="{{ old('header_template_id', $template->header_template_id ?? '') }}" />
+                    selected="{{ old('header_template_id', $emailTemplate->header_template_id ?? '') }}" />
                 @error('header_template_id')
                     <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                 @enderror
 
                 @php
                     $footerOptions = ['' => __('No Footer')];
-                    if (isset($template)) {
+                    if (isset($emailTemplate)) {
                         foreach ($footerTemplates ?? [] as $footerTemplate) {
                             $footerOptions[$footerTemplate->id] = $footerTemplate->name;
                         }
@@ -50,7 +50,7 @@
                 @endphp
                 <x-inputs.combobox label="{{ __('Footer Template') }}" name="footer_template_id" :options="$footerOptions"
                     placeholder="{{ __('Select Footer Template') }}"
-                    selected="{{ old('footer_template_id', $template->footer_template_id ?? '') }}"
+                    selected="{{ old('footer_template_id', $emailTemplate->footer_template_id ?? '') }}"
                 />
 
                 <div class="pt-1">
@@ -58,7 +58,7 @@
                         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Active Status') }}</span>
                         <div>
                             <input type="hidden" name="is_active" value="0">
-                            <input type="checkbox" id="is_active" name="is_active" value="1" class="sr-only peer" {{ old('is_active', $template->is_active ?? true) ? 'checked' : '' }}>
+                            <input type="checkbox" id="is_active" name="is_active" value="1" class="sr-only peer" {{ old('is_active', $emailTemplate->is_active ?? true) ? 'checked' : '' }}>
                             <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                         </div>
                     </label>
@@ -78,7 +78,7 @@
                         label="{{ __('Template Name') }}"
                         name="name"
                         type="text"
-                        :value="old('name', $template->name ?? '')"
+                        :value="old('name', $emailTemplate->name ?? '')"
                         placeholder="{{ __('e.g., Welcome Email, Newsletter Template') }}"
                         required
                     />
@@ -86,12 +86,12 @@
                     <x-inputs.input
                         label="{{ __('Internal Description (optional)') }}"
                         name="description"
-                        :value="old('description', $template->description ?? '')"
+                        :value="old('description', $emailTemplate->description ?? '')"
                         placeholder="{{ __('Brief description of when to use this template...') }}"
                         id="description-field"
                     />
 
-                    @if (!isset($template))
+                    @if (!isset($emailTemplate))
                         <div>
                             <label for="template_selector" class="form-label">{{ __('Load from Existing Template') }}</label>
                             <select id="template_selector" class="form-control" onchange="loadTemplateContent(this.value)">
@@ -117,7 +117,7 @@
                             :texteditor="false"
                         />
                     </div>
-                    <input type="text" id="email_subject" name="subject" class="form-control @error('subject') border-red-500 @enderror" value="{{ old('subject', $template->subject ?? '') }}" placeholder="{{ __('Your compelling email subject line...') }}" required>
+                    <input type="text" id="email_subject" name="subject" class="form-control @error('subject') border-red-500 @enderror" value="{{ old('subject', $emailTemplate->subject ?? '') }}" placeholder="{{ __('Your compelling email subject line...') }}" required>
                     <p class="text-xs text-gray-500 mt-1.5">{{ __('Use variables like {first_name}, {company}, etc. for personalization') }}</p>
                 </div>
 
@@ -131,7 +131,7 @@
                             :texteditor="true"
                         />
                     </div>
-                    <textarea name="body_html" id="body_html" rows="4" class="block w-full border-0 focus:ring-0 focus:outline-none" placeholder="{{ __('Compose your email content...') }}">{{ old('body_html', $template->body_html ?? '') }}</textarea>
+                    <textarea name="body_html" id="body_html" rows="4" class="block w-full border-0 focus:ring-0 focus:outline-none" placeholder="{{ __('Compose your email content...') }}">{{ old('body_html', $emailTemplate->body_html ?? '') }}</textarea>
                     @push('scripts')
                         <x-text-editor :minHeight="'400px'" :maxHeight="'1200px'" :editor-id="'body_html'" type="full" />
                     @endpush

@@ -89,7 +89,7 @@ class EmailTemplate extends Model
             // Replace variables in header
             foreach ($data as $key => $value) {
                 $placeholder = '{' . $key . '}';
-                $headerHtml = str_replace($placeholder, (string) $value, $headerHtml);
+                $headerHtml = str_replace($placeholder, (string) $value, (string) $headerHtml);
             }
 
             $bodyHtml = $headerHtml . $bodyHtml;
@@ -102,7 +102,7 @@ class EmailTemplate extends Model
             // Replace variables in footer
             foreach ($data as $key => $value) {
                 $placeholder = '{' . $key . '}';
-                $footerHtml = str_replace($placeholder, (string) $value, $footerHtml);
+                $footerHtml = str_replace($placeholder, (string) $value, (string) $footerHtml);
             }
 
             $bodyHtml = $bodyHtml . $footerHtml;
@@ -111,8 +111,8 @@ class EmailTemplate extends Model
         // Replace variables in main content
         foreach ($data as $key => $value) {
             $placeholder = '{' . $key . '}';
-            $subject = str_replace($placeholder, (string) $value, $subject);
-            $bodyHtml = str_replace($placeholder, (string) $value, $bodyHtml);
+            $subject = str_replace($placeholder, (string) $value, (string) $subject);
+            $bodyHtml = str_replace($placeholder, (string) $value, (string) $bodyHtml);
         }
 
         return [
