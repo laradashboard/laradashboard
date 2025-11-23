@@ -307,12 +307,8 @@
                             // Insert as link for other files
                             editor.insertContent(`<a href="${file.url}" target="_blank">${file.name || 'Download File'}</a>`);
                         }
-
-                        console.log('Media inserted:', file.name);
                     }
                 };
-
-                console.log(`TinyMCE initialized for #${editorId} with type: ${editorType}`);
             },
 
             // Init callback
@@ -322,7 +318,6 @@
                 if (initialContent && initialContent.trim() !== '') {
                     try {
                         editor.setContent(initialContent);
-                        console.log(`Initial content loaded for #${editorId}:`, initialContent.substring(0, 100) + '...');
                     } catch (error) {
                         console.error(`Error setting initial content for #${editorId}:`, error);
                     }
