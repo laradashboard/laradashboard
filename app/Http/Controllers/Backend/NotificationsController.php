@@ -91,10 +91,6 @@ class NotificationsController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        if (! $notification) {
-            abort(404, __('Notification not found.'));
-        }
-
         $this->setBreadcrumbTitle(__('View Notification'))
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));

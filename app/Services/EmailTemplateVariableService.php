@@ -76,12 +76,12 @@ class EmailTemplateVariableService
         }
 
         if (is_string($assignees)) {
-            return $assignees ?: 'Not assigned';
+            return (string) $assignees;
         }
 
         if (is_array($assignees)) {
             // If it's an array of user IDs, get user names
-            if (! empty($assignees) && isset($assignees[0]) && is_numeric($assignees[0])) {
+            if (isset($assignees[0]) && is_numeric($assignees[0])) {
                 $users = \App\Models\User::whereIn('id', $assignees)->pluck('name')->toArray();
                 return ! empty($users) ? implode(', ', $users) : 'Not assigned';
             }
@@ -149,7 +149,13 @@ class EmailTemplateVariableService
         ];
 
         foreach ($fallbacks as $key => $fallback) {
-            if (! isset($variables[$key]) || empty($variables[$key]) || $variables[$key] === null) {
+            $value = $variables[$key] ?? null;
+
+            if (
+                $value === null ||
+                (is_string($value) && trim($value) === '') ||
+                (is_array($value) && count($value) === 0)
+            ) {
                 $variables[$key] = $fallback;
             }
         }
