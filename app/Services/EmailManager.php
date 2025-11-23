@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Support\Facades\Hook;
-use Nwidart\Modules\Collection;
 
 class EmailManager
 {
