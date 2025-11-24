@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Support\Facades\Hook;
+use App\Services\NotificationTypeRegistry;
+
+// Keep label and icon logic in the model; Hook filters are applied at registry level.
 
 class NotificationType
 {
@@ -13,14 +15,30 @@ class NotificationType
 
     public static function getValues(): array
     {
-        return Hook::applyFilters('notification_type_values', [
-            self::FORGOT_PASSWORD,
-            self::CUSTOM,
+        self::registerBaseTypes();
+        return NotificationTypeRegistry::all();
+    }
+
+    protected static bool $areBaseTypesRegistered = false;
+
+    protected static function registerBaseTypes(): void
+    {
+        if (static::$areBaseTypesRegistered) {
+            return;
+        }
+        NotificationTypeRegistry::registerMany([
+            ['type' => self::FORGOT_PASSWORD, 'meta' => ['label' => fn () => __('Forgot Password'), 'icon' => 'lucide:key']],
+            ['type' => self::CUSTOM, 'meta' => ['label' => fn () => __('Custom'), 'icon' => 'lucide:bell']],
         ]);
+        static::$areBaseTypesRegistered = true;
     }
 
     public function label($value): string
     {
+        $label = NotificationTypeRegistry::getLabel($value);
+        if ($label) {
+            return (string) $label;
+        }
         return match ($value) {
             self::FORGOT_PASSWORD => __('Forgot Password'),
             self::CUSTOM => __('Custom'),
@@ -30,6 +48,10 @@ class NotificationType
 
     public function icon($value): string
     {
+        $icon = NotificationTypeRegistry::getIcon($value);
+        if ($icon) {
+            return $icon;
+        }
         return match ($value) {
             self::FORGOT_PASSWORD => 'lucide:key',
             self::CUSTOM => 'lucide:bell',
