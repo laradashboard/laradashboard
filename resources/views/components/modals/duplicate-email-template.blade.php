@@ -150,7 +150,7 @@ document.addEventListener('alpine:init', () => {
             this.loading = true;
 
             // Determine URL
-            const url = this.duplicateUrl || `/admin/email-templates/${this.templateId}/duplicate`;
+            const url = this.duplicateUrl || `/admin/settings/email-templates/${this.templateId}/duplicate`;
 
             // Submit form by creating a temporary form and posting to the duplicate URL
             const form = document.createElement('form');

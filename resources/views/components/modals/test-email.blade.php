@@ -155,7 +155,7 @@ document.addEventListener('alpine:init', () => {
             this.errorMessage = '';
             this.successMessage = '';
 
-            const url = this.sendTestUrl || `/admin/email-templates/${this.templateId}/send-test`;
+            const url = this.sendTestUrl || `/admin/settings/email-templates/${this.templateId}/send-test`;
 
             fetch(url, {
                 method: 'POST',
