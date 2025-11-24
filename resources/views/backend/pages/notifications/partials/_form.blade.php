@@ -23,38 +23,7 @@
                     selected="{{ old('email_template_id', $notification->email_template_id ?? '') }}"
                 />
 
-                <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <label class="flex items-center justify-between cursor-pointer group">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Active Status') }}</span>
-                        <div>
-                            <input type="hidden" name="is_active" value="0">
-                            <input type="checkbox" id="is_active" name="is_active" value="1" class="sr-only peer" {{ old('is_active', $notification->is_active ?? true) ? 'checked' : '' }}>
-                            <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                        </div>
-                    </label>
-                </div>
 
-                <div class="pt-1">
-                    <label class="flex items-center justify-between cursor-pointer group">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Track Opens') }}</span>
-                        <div>
-                            <input type="hidden" name="track_opens" value="0">
-                            <input type="checkbox" id="track_opens" name="track_opens" value="1" class="sr-only peer" {{ old('track_opens', $notification->track_opens ?? true) ? 'checked' : '' }}>
-                            <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="pt-1 pb-4">
-                    <label class="flex items-center justify-between cursor-pointer group">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Track Clicks') }}</span>
-                        <div>
-                            <input type="hidden" name="track_clicks" value="0">
-                            <input type="checkbox" id="track_clicks" name="track_clicks" value="1" class="sr-only peer" {{ old('track_clicks', $notification->track_clicks ?? true) ? 'checked' : '' }}>
-                            <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                        </div>
-                    </label>
-                </div>
 
                 <div class="flex flex-col gap-3">
                     <button type="submit" class="btn btn-primary w-full justify-center">
