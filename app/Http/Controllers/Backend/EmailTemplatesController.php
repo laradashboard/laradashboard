@@ -188,32 +188,7 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function sendTestEmail(EmailTemplate $emailTemplate, Request $request): JsonResponse
-    {
-        $this->authorize('manage', Setting::class);
 
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        try {
-            $rendered = $emailTemplate->renderTemplate($this->emailVariable->getPreviewSampleData());
-            Mail::send([], [], function ($message) use ($rendered, $request) {
-                $message->to($request->input('email'))
-                    ->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject($rendered['subject'])
-                    ->html($rendered['body_html']);
-            });
-
-            return response()->json(['message' => __('Test email sent successfully')]);
-        } catch (\Exception $e) {
-            $this->logAction('Failed to Send Test Email Template', $emailTemplate, [
-                'to' => $request->input('email'),
-                'error' => $e->getMessage(),
-            ]);
-            return response()->json(['message' => 'Failed to send test email: ' . $e->getMessage()], 500);
-        }
-    }
 
     public function getByType(string $type): JsonResponse
     {

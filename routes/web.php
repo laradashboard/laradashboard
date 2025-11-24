@@ -14,6 +14,7 @@ use App\Http\Controllers\Backend\LocaleController;
 use App\Http\Controllers\Backend\MediaController;
 use App\Http\Controllers\Backend\ModuleController;
 use App\Http\Controllers\Backend\NotificationsController;
+use App\Http\Controllers\Backend\SendTestEmailController;
 use App\Http\Controllers\Backend\PermissionController;
 use App\Http\Controllers\Backend\PostController;
 use App\Http\Controllers\Backend\ProfileController;
@@ -69,12 +70,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
             Route::get('by-type/{type}', [EmailTemplatesController::class, 'getByType'])->name('by-type');
             Route::get('{email_template}/content', [EmailTemplatesController::class, 'getContent'])->name('content')->where('email_template', '[0-9]+');
             Route::post('{email_template}/duplicate', [DuplicateEmailTemplateController::class, 'store'])->name('duplicate');
-            Route::post('{email_template}/send-test', [EmailTemplatesController::class, 'sendTestEmail'])->name('send-test');
+            Route::post('{email_template}/send-test', [SendTestEmailController::class, 'sendTestEmailTemplate'])->name('send-test');
         });
 
         // Notifications Management Routes.
         Route::resource('notifications', NotificationsController::class);
-        Route::post('notifications/{notification}/send-test', [NotificationsController::class, 'sendTestEmail'])->name('notifications.send-test');
+        Route::post('notifications/{notification}/send-test', [SendTestEmailController::class, 'sendTestNotification'])->name('notifications.send-test');
     });
 
     // Translation Routes.

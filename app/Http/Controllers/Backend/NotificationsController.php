@@ -177,40 +177,5 @@ class NotificationsController extends Controller
         }
     }
 
-    public function sendTestEmail(Notification $notification, Request $request): JsonResponse
-    {
-        $this->authorize('manage', Setting::class);
 
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        try {
-            // Load email template if exists.
-            if ($notification->email_template_id) {
-                $notification->load(['emailTemplate', 'emailTemplate.headerTemplate', 'emailTemplate.footerTemplate']);
-            }
-
-            if (! $notification->emailTemplate) {
-                throw new \Exception('No email template associated with this notification.');
-            }
-
-            $subject = $this->emailVariable->replaceVariables($notification->emailTemplate->subject, $this->emailVariable->getPreviewSampleData());
-            $content = $this->emailVariable->replaceVariables($notification->body_html ?? '', $this->emailVariable->getPreviewSampleData());
-
-            $fromEmail = $notification->from_email ?: config('mail.from.address');
-            $fromName = $notification->from_name ?: config('mail.from.name');
-
-            Mail::send([], [], function ($message) use ($subject, $content, $request, $fromEmail, $fromName) {
-                $message->to($request->input('email'))
-                    ->from($fromEmail, $fromName)
-                    ->subject($subject)
-                    ->html($content);
-            });
-            return response()->json(['message' => __('Test email sent successfully.')]);
-        } catch (\Exception $e) {
-            Log::error('Failed to send test notification email', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return response()->json(['message' => 'Failed to send test email: ' . $e->getMessage()], 500);
-        }
-    }
 }
