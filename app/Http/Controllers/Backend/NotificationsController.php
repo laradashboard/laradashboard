@@ -54,9 +54,16 @@ class NotificationsController extends Controller
             })
             ->toArray();
 
+        $receiverTypes = collect(ReceiverTypeRegistry::all())
+            ->mapWithKeys(function ($type) {
+                $label = ReceiverTypeRegistry::getLabel($type) ?: (\App\Enums\ReceiverType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
+                return [$type => $label];
+            })
+            ->toArray();
+
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.create', [
             'notificationTypes' => $notificationTypes,
-            'receiverTypes' => ReceiverTypeRegistry::all(),
+            'receiverTypes' => $receiverTypes,
             'emailTemplates' => array_merge(
                 ['' => __('None - Use Custom Content')],
                 $this->emailTemplateService->getEmailTemplatesDropdown()
