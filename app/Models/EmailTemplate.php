@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Enums\TemplateType;
 use App\Concerns\QueryBuilderTrait;
+use App\Services\TemplateTypeRegistry;
 use Illuminate\Support\Str;
 
 class EmailTemplate extends Model
@@ -154,13 +155,11 @@ class EmailTemplate extends Model
         if (empty($value)) {
             return '';
         }
-        if (method_exists(TemplateType::class, 'tryFrom')) {
-            $enum = TemplateType::tryFrom($value);
-            if ($enum) {
-                return (string) $enum->label();
-            }
+        $enum = TemplateType::tryFrom($value);
+        if ($enum) {
+            return (string) $enum->label();
         }
-        $label = \App\Services\TemplateTypeRegistry::getLabel($value);
+        $label = TemplateTypeRegistry::getLabel($value);
         return $label ?? ucfirst(str_replace('_', ' ', $value));
     }
 
@@ -170,13 +169,11 @@ class EmailTemplate extends Model
         if (empty($value)) {
             return null;
         }
-        if (method_exists(TemplateType::class, 'tryFrom')) {
-            $enum = TemplateType::tryFrom($value);
-            if ($enum && method_exists($enum, 'icon')) {
-                return (string) $enum->icon();
-            }
+        $enum = TemplateType::tryFrom($value);
+        if ($enum) {
+            return (string) $enum->icon();
         }
-        return \App\Services\TemplateTypeRegistry::getIcon($value);
+        return TemplateTypeRegistry::getIcon($value);
     }
 
     public function getTypeColorAttribute(): ?string
@@ -185,12 +182,10 @@ class EmailTemplate extends Model
         if (empty($value)) {
             return null;
         }
-        if (method_exists(TemplateType::class, 'tryFrom')) {
-            $enum = TemplateType::tryFrom($value);
-            if ($enum && method_exists($enum, 'color')) {
-                return (string) $enum->color();
-            }
+        $enum = TemplateType::tryFrom($value);
+        if ($enum) {
+            return (string) $enum->color();
         }
-        return \App\Services\TemplateTypeRegistry::getColor($value);
+        return TemplateTypeRegistry::getColor($value);
     }
 }

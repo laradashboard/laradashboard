@@ -110,11 +110,9 @@ class Notification extends Model
             return '';
         }
         // If it's a valid enum case, use the enum label
-        if (method_exists(ReceiverType::class, 'tryFrom')) {
-            $enum = ReceiverType::tryFrom($value);
-            if ($enum) {
-                return $enum->label();
-            }
+        $enum = ReceiverType::tryFrom($value);
+        if ($enum) {
+            return $enum->label();
         }
         // Fallback to registry metadata
         $label = \App\Services\ReceiverTypeRegistry::getLabel($value);

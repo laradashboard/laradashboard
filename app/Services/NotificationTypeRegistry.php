@@ -9,16 +9,21 @@ use App\Enums\NotificationType;
 class NotificationTypeRegistry extends BaseTypeRegistry
 {
     /**
-     * Return all registered types. We still pass through Hook::applyFilters
-     * to support existing modules using filters.
+     * Return the hook filter name to apply when calling all(). Override in subclasses.
      *
-     * @return string[]
+     * @return string
      */
     protected static function getFilterName(): string
     {
         return 'notification_type_values';
     }
 
+    /**
+     * Return all registered types, running an enum registration pass if the registry
+     * is empty to ensure base enum values are available.
+     *
+     * @return string[]
+     */
     public static function all(): array
     {
         $values = parent::all();

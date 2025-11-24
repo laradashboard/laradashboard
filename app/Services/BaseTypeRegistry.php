@@ -44,9 +44,11 @@ class BaseTypeRegistry
     }
 
     /**
-     * Register multiple types at once.
+     * Register multiple types at once. Each element may be either:
+     * - a simple string value
+     * - an array with shape: ['type' => 'value', 'meta' => ['label' => fn() => 'Label', ...]]
      *
-     * @param string[] $types
+     * @param array<int, string|array{type:string,meta?:array<string, string|callable>}> $types
      */
     public static function registerMany(array $types): void
     {
