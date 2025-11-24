@@ -26,7 +26,7 @@ class ReceiverTypeRegistryTest extends TestCase
 
     public function test_register_custom_receiver(): void
     {
-        ReceiverTypeRegistry::register('contact', ['label' => fn() => 'Contact', 'icon' => 'lucide:user']);
+        ReceiverTypeRegistry::register('contact', ['label' => fn () => 'Contact', 'icon' => 'lucide:user']);
         $this->assertContains('contact', ReceiverTypeRegistry::all());
         $this->assertEquals('Contact', ReceiverTypeRegistry::getLabel('contact'));
         $this->assertEquals('lucide:user', ReceiverTypeRegistry::getIcon('contact'));
@@ -34,7 +34,7 @@ class ReceiverTypeRegistryTest extends TestCase
 
     public function test_notification_label_accessor(): void
     {
-        ReceiverTypeRegistry::register('contact', ['label' => fn() => 'Contact']);
+        ReceiverTypeRegistry::register('contact', ['label' => fn () => 'Contact']);
         $notification = Notification::make(['receiver_type' => 'contact']);
         $this->assertEquals('Contact', $notification->receiver_type_label);
     }

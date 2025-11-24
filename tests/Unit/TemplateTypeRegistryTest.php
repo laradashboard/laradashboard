@@ -26,14 +26,14 @@ class TemplateTypeRegistryTest extends TestCase
 
     public function test_register_custom_template_type(): void
     {
-        TemplateTypeRegistry::register('crm_special', ['label' => fn() => 'CRM Special', 'icon' => 'lucide:star', 'color' => '#abc']);
+        TemplateTypeRegistry::register('crm_special', ['label' => fn () => 'CRM Special', 'icon' => 'lucide:star', 'color' => '#abc']);
         $this->assertContains('crm_special', TemplateTypeRegistry::all());
         $this->assertEquals('CRM Special', TemplateTypeRegistry::getLabel('crm_special'));
     }
 
     public function test_email_template_type_accessors(): void
     {
-        TemplateTypeRegistry::register('crm_special', ['label' => fn() => 'CRM Special']);
+        TemplateTypeRegistry::register('crm_special', ['label' => fn () => 'CRM Special']);
         $template = EmailTemplate::make(['type' => 'crm_special']);
         $this->assertEquals('CRM Special', $template->type_label);
     }

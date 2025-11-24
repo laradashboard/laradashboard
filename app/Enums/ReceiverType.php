@@ -30,7 +30,7 @@ enum ReceiverType: string
     public static function getValues(): array
     {
         // Ensure base enum values are registered in the registry, then return all values from the registry
-        ReceiverTypeRegistry::registerMany(array_map(fn($c) => ['type' => $c->value, 'meta' => ['label' => fn() => $c->label(), 'description' => fn() => $c->description()]], self::cases()));
+        ReceiverTypeRegistry::registerMany(array_map(fn ($c) => ['type' => $c->value, 'meta' => ['label' => fn () => $c->label(), 'description' => fn () => $c->description()]], self::cases()));
         return ReceiverTypeRegistry::all();
     }
 }

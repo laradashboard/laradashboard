@@ -53,7 +53,7 @@ class NotificationsController extends Controller
             'emailTemplates' => array_merge(
                 ['' => __('None - Use Custom Content')],
                 $this->emailTemplateService->getEmailTemplatesDropdown()
-            )
+            ),
         ]);
     }
 

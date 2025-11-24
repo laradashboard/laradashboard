@@ -70,7 +70,7 @@ enum TemplateType: string
     public static function getValues(): array
     {
         // Register base enum cases into registry and return all registered types
-        TemplateTypeRegistry::registerMany(array_map(fn($c) => ['type' => $c->value, 'meta' => ['label' => fn() => $c->label(), 'icon' => fn() => $c->icon(), 'color' => fn() => $c->color()]], self::cases()));
+        TemplateTypeRegistry::registerMany(array_map(fn ($c) => ['type' => $c->value, 'meta' => ['label' => fn () => $c->label(), 'icon' => fn () => $c->icon(), 'color' => fn () => $c->color()]], self::cases()));
         return TemplateTypeRegistry::all();
     }
 }
