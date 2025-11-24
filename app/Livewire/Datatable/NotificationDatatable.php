@@ -39,20 +39,6 @@ class NotificationDatatable extends Datatable
 
     public function getFilters(): array
     {
-        $notificationTypeOptions = collect(NotificationTypeRegistry::all())
-            ->mapWithKeys(function ($type) {
-                $label = NotificationTypeRegistry::getLabel($type) ?: (\App\Enums\NotificationType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
-                return [$type => $label];
-            })
-            ->toArray();
-
-        $receiverTypeOptions = collect(ReceiverTypeRegistry::all())
-            ->mapWithKeys(function ($type) {
-                $label = ReceiverTypeRegistry::getLabel($type) ?: (\App\Enums\ReceiverType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
-                return [$type => $label];
-            })
-            ->toArray();
-
         return [
             [
                 'id' => 'notification_type',
@@ -60,7 +46,7 @@ class NotificationDatatable extends Datatable
                 'filterLabel' => __('Filter by Notification Type'),
                 'icon' => 'lucide:bell',
                 'allLabel' => __('All Types'),
-                'options' => $notificationTypeOptions,
+                'options' => NotificationTypeRegistry::getDropdownItems(),
                 'selected' => $this->notification_type,
             ],
             [
@@ -69,7 +55,7 @@ class NotificationDatatable extends Datatable
                 'filterLabel' => __('Filter by Receiver Type'),
                 'icon' => 'lucide:users',
                 'allLabel' => __('All Receivers'),
-                'options' => $receiverTypeOptions,
+                'options' => ReceiverTypeRegistry::getDropdownItems(),
                 'selected' => $this->receiver_type,
             ],
         ];

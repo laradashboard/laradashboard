@@ -20,4 +20,14 @@ class TemplateTypeRegistry extends BaseTypeRegistry
         }
         return $values;
     }
+
+    public static function getDropdownItems(): array
+    {
+        return collect(static::all())
+            ->mapWithKeys(function ($type) {
+                $label = static::getLabel($type) ?: (\App\Enums\TemplateType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
+                return [$type => $label];
+            })
+            ->toArray();
+    }
 }

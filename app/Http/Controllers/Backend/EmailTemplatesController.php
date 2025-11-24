@@ -15,6 +15,7 @@ use App\Enums\TemplateType;
 use App\Models\EmailTemplate;
 use App\Models\Setting;
 use App\Services\Emails\EmailVariable;
+use App\Services\TemplateTypeRegistry;
 use Illuminate\Support\Facades\Log;
 
 class EmailTemplatesController extends Controller
@@ -39,19 +40,12 @@ class EmailTemplatesController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $templateTypes = collect(\App\Services\TemplateTypeRegistry::all())
-            ->mapWithKeys(function ($type) {
-                $label = \App\Services\TemplateTypeRegistry::getLabel($type) ?: (\App\Enums\TemplateType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
-                return [$type => $label];
-            })
-            ->toArray();
-
         $this->setBreadcrumbTitle(__('Create Template'))
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Email Templates'), route('admin.email-templates.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.email-templates.create', [
-            'templateTypes' => $templateTypes,
+            'templateTypes' => TemplateTypeRegistry::getDropdownItems(),
             'availableTemplates' => $this->emailTemplateService->getAllTemplates(),
             'headerTemplates' => $this->emailTemplateService->getTemplatesByType(TemplateType::HEADER),
             'footerTemplates' => $this->emailTemplateService->getTemplatesByType(TemplateType::FOOTER),
@@ -112,13 +106,6 @@ class EmailTemplatesController extends Controller
     public function edit(EmailTemplate $emailTemplate): Renderable
     {
         $this->authorize('manage', Setting::class);
-        $templateTypes = collect(\App\Services\TemplateTypeRegistry::all())
-            ->mapWithKeys(function ($type) {
-                $label = \App\Services\TemplateTypeRegistry::getLabel($type) ?: (\App\Enums\TemplateType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
-                return [$type => $label];
-            })
-            ->toArray();
-
         $availableTemplates = $this->emailTemplateService->getAllTemplatesExcept($emailTemplate->id);
         $headerTemplates = $this->emailTemplateService->getAllTemplatesExcept($emailTemplate->id);
         $footerTemplates = $this->emailTemplateService->getAllTemplatesExcept($emailTemplate->id);
@@ -129,7 +116,7 @@ class EmailTemplatesController extends Controller
 
         return $this->renderViewWithBreadcrumbs('backend.pages.email-templates.edit', [
             'emailTemplate' => $emailTemplate,
-            'templateTypes' => $templateTypes,
+            'templateTypes' => TemplateTypeRegistry::getDropdownItems(),
             'selectedType' => $emailTemplate->type,
             'availableTemplates' => $availableTemplates,
             'headerTemplates' => $headerTemplates,
