@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Enums\ReceiverType;
+use App\Services\NotificationTypeRegistry;
 use App\Concerns\QueryBuilderTrait;
 use Illuminate\Support\Str;
 
@@ -36,7 +37,8 @@ class Notification extends Model
     ];
 
     protected $casts = [
-        'receiver_type' => ReceiverType::class,
+        // Keep receiver_type as string to allow module-registered values; use accessor methods for label/icon.
+        'receiver_type' => 'string',
         'receiver_ids' => 'array',
         'receiver_emails' => 'array',
         'is_active' => 'boolean',
@@ -59,12 +61,12 @@ class Notification extends Model
 
     public function getNotificationTypeIcon()
     {
-        return (new NotificationType())->icon($this->notification_type);
+        return NotificationTypeRegistry::getIcon($this->notification_type);
     }
 
     public function getNotificationTypeLabel()
     {
-        return (new NotificationType())->label($this->notification_type);
+        return NotificationTypeRegistry::getLabel($this->notification_type);
     }
 
     public function emailTemplate(): BelongsTo
@@ -92,8 +94,43 @@ class Notification extends Model
         return $query->where('notification_type', $type);
     }
 
-    public function scopeByReceiverType($query, ReceiverType $type)
+    public function scopeByReceiverType($query, string|ReceiverType $type)
     {
-        return $query->where('receiver_type', $type);
+        $value = $type instanceof ReceiverType ? $type->value : (string) $type;
+        return $query->where('receiver_type', $value);
+    }
+
+    /**
+     * Get the human-readable receiver type label for a stored value.
+     */
+    public function getReceiverTypeLabelAttribute(): string
+    {
+        $value = $this->receiver_type ?? '';
+        if (empty($value)) {
+            return '';
+        }
+        // If it's a valid enum case, use the enum label
+        if (method_exists(ReceiverType::class, 'tryFrom')) {
+            $enum = ReceiverType::tryFrom($value);
+            if ($enum) {
+                return $enum->label();
+            }
+        }
+        // Fallback to registry metadata
+        $label = \App\Services\ReceiverTypeRegistry::getLabel($value);
+        if ($label) {
+            return $label;
+        }
+        return ucfirst(str_replace('_', ' ', $value));
+    }
+
+    public function getReceiverTypeIconAttribute(): ?string
+    {
+        $value = $this->receiver_type ?? '';
+        if (empty($value)) {
+            return null;
+        }
+        // Use receiver type registry metadata for icon where possible.
+        return \App\Services\ReceiverTypeRegistry::getIcon($value);
     }
 }

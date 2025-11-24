@@ -7,8 +7,8 @@ namespace App\Livewire\Datatable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Notification;
-use App\Enums\ReceiverType;
-use App\Services\NotificationTypeService;
+use App\Services\NotificationTypeRegistry;
+use App\Services\ReceiverTypeRegistry;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class NotificationDatatable extends Datatable
@@ -46,7 +46,7 @@ class NotificationDatatable extends Datatable
                 'filterLabel' => __('Filter by Notification Type'),
                 'icon' => 'lucide:bell',
                 'allLabel' => __('All Types'),
-                'options' => app(NotificationTypeService::class)->getNotificationTypesDropdown(),
+                'options' => NotificationTypeRegistry::all(),
                 'selected' => $this->notification_type,
             ],
             [
@@ -55,11 +55,7 @@ class NotificationDatatable extends Datatable
                 'filterLabel' => __('Filter by Receiver Type'),
                 'icon' => 'lucide:users',
                 'allLabel' => __('All Receivers'),
-                'options' => collect(ReceiverType::cases())
-                    ->mapWithKeys(function ($type) {
-                        return [$type->value => $type->label()];
-                    })
-                    ->toArray(),
+                'options' => ReceiverTypeRegistry::all(),
                 'selected' => $this->receiver_type,
             ],
         ];

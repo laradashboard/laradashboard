@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Notifications;
 
 use App\Models\Notification;
-use App\Models\NotificationType;
+use App\Enums\NotificationType;
 use App\Services\Emails\EmailSender;
 use Illuminate\Auth\Notifications\ResetPassword as BaseResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -26,7 +26,7 @@ class AdminResetPasswordNotification extends BaseResetPassword
         ], false));
 
         // Try to get the custom notification.
-        $notification = Notification::where('notification_type', NotificationType::FORGOT_PASSWORD)
+        $notification = Notification::where('notification_type', NotificationType::FORGOT_PASSWORD->value)
             ->where('is_active', true)
             ->where('is_deleteable', false)
             ->with('emailTemplate')

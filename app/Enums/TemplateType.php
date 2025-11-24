@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use App\Services\TemplateTypeRegistry;
+
 enum TemplateType: string
 {
     case EMAIL = 'email';
@@ -67,6 +69,8 @@ enum TemplateType: string
 
     public static function getValues(): array
     {
-        return array_column(self::cases(), 'value');
+        // Register base enum cases into registry and return all registered types
+        TemplateTypeRegistry::registerMany(array_map(fn($c) => ['type' => $c->value, 'meta' => ['label' => fn() => $c->label(), 'icon' => fn() => $c->icon(), 'color' => fn() => $c->color()]], self::cases()));
+        return TemplateTypeRegistry::all();
     }
 }

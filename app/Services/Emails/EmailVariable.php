@@ -138,6 +138,26 @@ class EmailVariable
         return $replacementData;
     }
 
+    public function appendUtmParametersToLinks(string $content, string $utmSource, string $utmMedium = 'email'): string
+    {
+        // This is a simplified example. In a real implementation, you would need to parse the HTML content
+        // and append UTM parameters to each link properly.
+        $utmParameters = http_build_query([
+            'utm_source' => $utmSource,
+            'utm_medium' => $utmMedium,
+        ]);
+
+        return preg_replace_callback(
+            '/href=["\'](.*?)["\']/i',
+            function ($matches) use ($utmParameters) {
+                $url = $matches[1];
+                $separator = strpos($url, '?') === false ? '?' : '&';
+                return 'href="' . $url . $separator . $utmParameters . '"';
+            },
+            $content
+        );
+    }
+
     public function replaceVariables(string $content, array $variables): string
     {
         foreach ($variables as $key => $value) {

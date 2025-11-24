@@ -121,7 +121,7 @@
                         name="receiver_type"
                         :options="$receiverTypes ?? []"
                         placeholder="{{ __('Select Receiver Type') }}"
-                        selected="{{ old('receiver_type', $notification->receiver_type->value ?? '') }}"
+                        selected="{{ old('receiver_type', $notification->receiver_type ?? '') }}"
                         required
                     />
 

@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Enums\TemplateType;
+use App\Services\TemplateTypeRegistry;
 
 class EmailTemplateRequest extends FormRequest
 {
@@ -19,7 +20,7 @@ class EmailTemplateRequest extends FormRequest
             'name' => 'required|string|max:255',
             'subject' => $this->input('type') === 'header' || $this->input('type') === 'footer' ? 'nullable|string|max:500' : 'required|string|max:500',
             'body_html' => 'nullable|string',
-            'type' => ['required', 'string', Rule::in(TemplateType::getValues())],
+            'type' => ['required', 'string', Rule::in(array_merge(TemplateType::getValues(), TemplateTypeRegistry::all()))],
             'description' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
             'preview_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',

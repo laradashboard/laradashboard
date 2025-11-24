@@ -38,7 +38,7 @@
         </div>
 
         <!-- UTM Parameters -->
-        <div class=" pt-6">
+        <div class="py-6">
             <h4 class="text-base font-medium text-gray-900 dark:text-white mb-4">
                 {{ __('UTM Parameters') }}
             </h4>

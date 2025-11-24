@@ -1,7 +1,7 @@
 <div>
     @if($emailTemplate->type)
         <span class="badge badge-info">
-            {{ ucfirst($emailTemplate->type->value) }}
+            {{ $emailTemplate->type_label }}
         </span>
     @else
         <span class="badge badge-secondary">{{ __('Unknown') }}</span>

@@ -40,9 +40,10 @@ class EmailTemplatesController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $templateTypes = collect(TemplateType::cases())
+        $templateTypes = collect(\App\Services\TemplateTypeRegistry::all())
             ->mapWithKeys(function ($type) {
-                return [$type->value => (string) $type->label()];
+                $label = \App\Services\TemplateTypeRegistry::getLabel($type) ?: (\App\Enums\TemplateType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
+                return [$type => $label];
             })
             ->toArray();
 
@@ -112,9 +113,10 @@ class EmailTemplatesController extends Controller
     public function edit(EmailTemplate $emailTemplate): Renderable
     {
         $this->authorize('manage', Setting::class);
-        $templateTypes = collect(TemplateType::cases())
+        $templateTypes = collect(\App\Services\TemplateTypeRegistry::all())
             ->mapWithKeys(function ($type) {
-                return [$type->value => (string) $type->label()];
+                $label = \App\Services\TemplateTypeRegistry::getLabel($type) ?: (\App\Enums\TemplateType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
+                return [$type => $label];
             })
             ->toArray();
 
@@ -129,7 +131,7 @@ class EmailTemplatesController extends Controller
         return $this->renderViewWithBreadcrumbs('backend.pages.email-templates.edit', [
             'emailTemplate' => $emailTemplate,
             'templateTypes' => $templateTypes,
-            'selectedType' => $emailTemplate->type->value,
+            'selectedType' => $emailTemplate->type,
             'availableTemplates' => $availableTemplates,
             'headerTemplates' => $headerTemplates,
             'footerTemplates' => $footerTemplates,
@@ -218,8 +220,7 @@ class EmailTemplatesController extends Controller
         $this->authorize('manage', Setting::class);
 
         try {
-            $templateType = TemplateType::from($type);
-            $templates = $this->emailTemplateService->getTemplatesByType($templateType);
+            $templates = $this->emailTemplateService->getTemplatesByType($type);
 
             return response()->json([
                 'templates' => $templates->map(function (EmailTemplate $template) {

@@ -4,19 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Enums\NotificationType;
-
-class NotificationTypeRegistry extends BaseTypeRegistry
+class ReceiverTypeRegistry extends BaseTypeRegistry
 {
-    /**
-     * Return all registered types. We still pass through Hook::applyFilters
-     * to support existing modules using filters.
-     *
-     * @return string[]
-     */
     protected static function getFilterName(): string
     {
-        return 'notification_type_values';
+        return 'receiver_type_values';
     }
 
     public static function all(): array
@@ -24,7 +16,7 @@ class NotificationTypeRegistry extends BaseTypeRegistry
         $values = parent::all();
         if (empty($values)) {
             // Ensure base enum values are registered if not already.
-            NotificationType::getValues();
+            \App\Enums\ReceiverType::getValues();
             $values = parent::all();
         }
         return $values;

@@ -125,7 +125,7 @@
 
                                 <tr>
                                     <td class="w-1/2 font-medium text-gray-700 dark:text-white/90 py-2">{{ __('Receiver Type:') }}</td>
-                                    <td class="text-gray-700 dark:text-gray-300 py-2">{{ $notification->receiver_type->label() }}</td>
+                                    <td class="text-gray-700 dark:text-gray-300 py-2">{{ $notification->receiver_type_label }}</td>
                                 </tr>
 
                                 <tr>

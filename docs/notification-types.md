@@ -5,7 +5,7 @@ This repository uses a registry pattern for notification types rather than hard-
 How it works:
 
 - The registry is `App\\Services\\NotificationTypeRegistry`.
-- Core types are registered automatically by `App\\Models\\NotificationType`.
+- Core types are registered automatically by the `App\\Enums\\NotificationType` enum (which registers base types with the `NotificationTypeRegistry`).
 - Existing `Hook::applyFilters('notification_type_values', ...)` filters are still supported by the registry.
 - You can pass `label` and `icon` metadata when registering a type; `label` may be a closure for translations.
 
@@ -35,3 +35,14 @@ APIs / Helpers:
 - `NotificationTypeRegistry::all()` returns array of type values (applies `Hook::applyFilters`) 
 - `NotificationTypeRegistry::getLabel(string $type)` returns label if registered or `null` 
 - `NotificationTypeRegistry::getIcon(string $type)` returns icon if registered or `null`
+
+Other registries
+-----------------
+
+The same registry approach exists for other types:
+
+- `App\Services\ReceiverTypeRegistry` — registry for receiver types. Subscribe using `receiver_type_values` hook or register using `ReceiverTypeRegistry::register(...)`.
+- `App\Services\TemplateTypeRegistry` — registry for template types. Subscribe using `template_type_values` hook or register using `TemplateTypeRegistry::register(...)`.
+
+All registries extend `App\Services\BaseTypeRegistry` and support metadata, such as `label`, `icon`, and `color` for Template types.
+

@@ -166,9 +166,10 @@ class EmailTemplateService
         });
     }
 
-    public function getTemplatesByType(TemplateType $type): Collection
+    public function getTemplatesByType($type): Collection
     {
-        return EmailTemplate::where('type', $type)
+        $value = $type instanceof TemplateType ? $type->value : (string) $type;
+        return EmailTemplate::where('type', $value)
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
@@ -176,11 +177,6 @@ class EmailTemplateService
 
     public function getEmailTemplatesDropdown(): array
     {
-        return EmailTemplate::orderBy('name')
-            ->pluck('name', 'id')
-            ->map(function ($label, $id) {
-                return ['label' => $label, 'value' => $id];
-            })
-            ->toArray();
+        return EmailTemplate::orderBy('name')->pluck('name', 'id')->toArray();
     }
 }

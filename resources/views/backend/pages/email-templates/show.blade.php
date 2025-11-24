@@ -47,7 +47,7 @@
                 @endif
                 <tr>
                     <td class="w-1/4 font-medium text-gray-700 dark:text-white/90 py-2">{{ __('Template Type:') }}</td>
-                    <td class="text-gray-700 dark:text-gray-300 py-2"><span class="badge">{{ $emailTemplate->type->label() }}</span></td>
+                    <td class="text-gray-700 dark:text-gray-300 py-2"><span class="badge">{{ $emailTemplate->type_label }}</span></td>
                 </tr>
                 @if($emailTemplate->description)
                 <tr>

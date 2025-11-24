@@ -36,7 +36,8 @@ class EmailTemplate extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'is_deleteable' => 'boolean',
-        'type' => TemplateType::class,
+        // Use string casting to support module-registered template types, provide accessors for label/icon/color
+        'type' => 'string',
     ];
 
     protected static function boot()
@@ -141,8 +142,55 @@ class EmailTemplate extends Model
         return $query->where('is_active', true);
     }
 
-    public function scopeByType($query, TemplateType $type)
+    public function scopeByType($query, $type)
     {
-        return $query->where('type', $type);
+        $value = $type instanceof TemplateType ? $type->value : (string) $type;
+        return $query->where('type', $value);
+    }
+
+    public function getTypeLabelAttribute(): string
+    {
+        $value = $this->type ?? '';
+        if (empty($value)) {
+            return '';
+        }
+        if (method_exists(TemplateType::class, 'tryFrom')) {
+            $enum = TemplateType::tryFrom($value);
+            if ($enum) {
+                return (string) $enum->label();
+            }
+        }
+        $label = \App\Services\TemplateTypeRegistry::getLabel($value);
+        return $label ?? ucfirst(str_replace('_', ' ', $value));
+    }
+
+    public function getTypeIconAttribute(): ?string
+    {
+        $value = $this->type ?? '';
+        if (empty($value)) {
+            return null;
+        }
+        if (method_exists(TemplateType::class, 'tryFrom')) {
+            $enum = TemplateType::tryFrom($value);
+            if ($enum && method_exists($enum, 'icon')) {
+                return (string) $enum->icon();
+            }
+        }
+        return \App\Services\TemplateTypeRegistry::getIcon($value);
+    }
+
+    public function getTypeColorAttribute(): ?string
+    {
+        $value = $this->type ?? '';
+        if (empty($value)) {
+            return null;
+        }
+        if (method_exists(TemplateType::class, 'tryFrom')) {
+            $enum = TemplateType::tryFrom($value);
+            if ($enum && method_exists($enum, 'color')) {
+                return (string) $enum->color();
+            }
+        }
+        return \App\Services\TemplateTypeRegistry::getColor($value);
     }
 }

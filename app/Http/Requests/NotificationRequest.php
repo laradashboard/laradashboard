@@ -7,7 +7,8 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Enums\ReceiverType;
-use App\Models\NotificationType;
+use App\Services\ReceiverTypeRegistry;
+use App\Enums\NotificationType;
 
 class NotificationRequest extends FormRequest
 {
@@ -24,7 +25,7 @@ class NotificationRequest extends FormRequest
             'notification_type' => ['required', 'string', Rule::in(NotificationType::getValues())],
             'email_template_id' => 'nullable|exists:email_templates,id',
             'body_html' => 'nullable|string',
-            'receiver_type' => ['required', 'string', Rule::in(ReceiverType::getValues())],
+            'receiver_type' => ['required', 'string', Rule::in(array_merge(ReceiverType::getValues(), ReceiverTypeRegistry::all()))],
             'receiver_ids' => 'nullable|array',
             'receiver_ids.*' => 'integer',
             'receiver_emails' => 'nullable|array',

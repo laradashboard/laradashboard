@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 use App\Models\EmailTemplate;
 use App\Models\Notification;
 use App\Enums\ReceiverType;
-use App\Models\NotificationType;
+use App\Enums\NotificationType;
 use Illuminate\Support\Str;
 
 class NotificationSeeder extends Seeder
@@ -42,7 +42,7 @@ class NotificationSeeder extends Seeder
             [
                 'uuid' => Str::uuid(),
                 'description' => 'Automated notification sent when a user requests password reset',
-                'notification_type' => NotificationType::FORGOT_PASSWORD,
+                'notification_type' => NotificationType::FORGOT_PASSWORD->value,
                 'email_template_id' => $template->id,
                 'receiver_type' => ReceiverType::USER,
                 'is_active' => true,
