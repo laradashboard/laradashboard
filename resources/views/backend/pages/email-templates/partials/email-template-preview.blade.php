@@ -5,7 +5,7 @@
     >
         @if($emailTemplate->body_html)
             <!-- Real HTML Preview (scaled down) -->
-            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute inset-0 overflow-hidden pointer-events-none email-template-preview">
                 <div class="origin-top-left" style="transform: scale(0.13); width: 100%;">
                     <div class="bg-white">
                         {!! $emailTemplate->getRawEmailTemplate() !!}
