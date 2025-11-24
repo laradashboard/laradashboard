@@ -33,7 +33,7 @@ class AdminResetPasswordNotification extends BaseResetPassword
             ->first();
 
         // If custom notification exists and has a template, use it.
-        if ($notification && !empty($notification->emailTemplate)) {
+        if ($notification && ! empty($notification->emailTemplate)) {
             return $this->buildCustomEmail($notification, $url);
         }
 
@@ -52,13 +52,13 @@ class AdminResetPasswordNotification extends BaseResetPassword
     {
         return app(EmailManager::class)
             ->sendEmail(
-                !empty($notification->subject) ? $notification->subject : $notification->emailTemplate->subject,
-                !empty($notification->body_html) ? $notification->body_html : $notification->emailTemplate->body_html,
+                ! empty($notification->subject) ? $notification->subject : $notification->emailTemplate->subject,
+                ! empty($notification->body_html) ? $notification->body_html : $notification->emailTemplate->body_html,
                 $notification->from_email,
                 [
                     'reset_url' => $url,
                     'reset_token' => $this->token,
-                    'expiry_time' => config('auth.passwords.users.expire', 60) . ' minutes'
+                    'expiry_time' => config('auth.passwords.users.expire', 60) . ' minutes',
                 ]
             );
     }

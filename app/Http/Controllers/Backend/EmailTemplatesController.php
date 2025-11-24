@@ -143,7 +143,7 @@ class EmailTemplatesController extends Controller
 
         $emailTemplate = $this->emailTemplateService->getTemplateById($emailTemplate);
 
-        if (!$emailTemplate) {
+        if (! $emailTemplate) {
             return redirect()
                 ->back()
                 ->withInput()

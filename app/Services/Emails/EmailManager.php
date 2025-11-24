@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Log;
 
 class EmailManager
 {
-    public function __construct(private readonly EmailVariable $emailVariable) {
+    public function __construct(private readonly EmailVariable $emailVariable)
+    {
     }
 
     public function sendEmail($subject, $content, $from = null, $variables = []): MailMessage

@@ -23,7 +23,7 @@ class EmailTemplateService
         $query = EmailTemplate::query()
             ->with(['creator', 'updater']);
 
-        if (isset($filter['search']) && !empty($filter['search'])) {
+        if (isset($filter['search']) && ! empty($filter['search'])) {
             $search = $filter['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
@@ -32,7 +32,7 @@ class EmailTemplateService
             });
         }
 
-        if (isset($filter['type']) && !empty($filter['type'])) {
+        if (isset($filter['type']) && ! empty($filter['type'])) {
             $query->where('type', $filter['type']);
         }
 
@@ -40,15 +40,15 @@ class EmailTemplateService
             $query->where('is_active', (bool) $filter['is_active']);
         }
 
-        if (isset($filter['created_by']) && !empty($filter['created_by'])) {
+        if (isset($filter['created_by']) && ! empty($filter['created_by'])) {
             $query->where('created_by', $filter['created_by']);
         }
 
-        if (isset($filter['date_from']) && !empty($filter['date_from'])) {
+        if (isset($filter['date_from']) && ! empty($filter['date_from'])) {
             $query->whereDate('created_at', '>=', $filter['date_from']);
         }
 
-        if (isset($filter['date_to']) && !empty($filter['date_to'])) {
+        if (isset($filter['date_to']) && ! empty($filter['date_to'])) {
             $query->whereDate('created_at', '<=', $filter['date_to']);
         }
 
@@ -98,11 +98,11 @@ class EmailTemplateService
     public function createTemplate(array $data): EmailTemplate
     {
         return DB::transaction(function () use ($data) {
-            if (!isset($data['uuid']) || empty($data['uuid'])) {
+            if (! isset($data['uuid']) || empty($data['uuid'])) {
                 $data['uuid'] = Str::uuid();
             }
 
-            if (!isset($data['created_by'])) {
+            if (! isset($data['created_by'])) {
                 $data['created_by'] = auth()->id();
             }
 
