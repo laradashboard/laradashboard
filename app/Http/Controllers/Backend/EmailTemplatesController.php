@@ -16,7 +16,6 @@ use App\Models\EmailTemplate;
 use App\Models\Setting;
 use App\Services\Emails\EmailVariable;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class EmailTemplatesController extends Controller
 {
@@ -187,8 +186,6 @@ class EmailTemplatesController extends Controller
                 ->with('error', __('Failed to delete email template: :error', ['error' => $e->getMessage()]));
         }
     }
-
-
 
     public function getByType(string $type): JsonResponse
     {

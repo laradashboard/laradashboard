@@ -70,7 +70,7 @@ class Notification extends Model
         if ($label) {
             return $label;
         }
-        
+
         return ucfirst(str_replace('_', ' ', $this->notification_type));
     }
 

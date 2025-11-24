@@ -7,8 +7,6 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use App\Services\NotificationService;
 use App\Services\Emails\EmailTemplateService;
 use App\Http\Requests\NotificationRequest;
@@ -17,8 +15,6 @@ use App\Models\Setting;
 use App\Services\Emails\EmailVariable;
 use App\Services\NotificationTypeRegistry;
 use App\Services\ReceiverTypeRegistry;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class NotificationsController extends Controller
 {
@@ -176,6 +172,5 @@ class NotificationsController extends Controller
                 ->with('error', __('Failed to delete notification: :error', ['error' => $e->getMessage()]));
         }
     }
-
 
 }
