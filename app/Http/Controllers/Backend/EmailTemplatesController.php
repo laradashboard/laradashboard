@@ -196,17 +196,12 @@ class EmailTemplatesController extends Controller
 
         try {
             $rendered = $emailTemplate->renderTemplate($this->emailVariable->getPreviewSampleData());
-
             Mail::send([], [], function ($message) use ($rendered, $request) {
                 $message->to($request->input('email'))
                     ->from(config('mail.from.address'), config('mail.from.name'))
                     ->subject($rendered['subject'])
                     ->html($rendered['body_html']);
             });
-
-            $this->logAction('Test Email Template Sent', $emailTemplate, [
-                'to' => $request->input('email'),
-            ]);
 
             return response()->json(['message' => __('Test email sent successfully')]);
         } catch (\Exception $e) {
@@ -241,34 +236,28 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function getContent(int $email_template): JsonResponse
+    public function getContent(EmailTemplate $emailTemplate): JsonResponse
     {
         $this->authorize('manage', Setting::class);
         try {
-            $template = $this->emailTemplateService->getTemplateById($email_template);
-
-            if (! $template) {
-                return response()->json(['error' => 'Template not found'], 404);
-            }
-
             // Load header and footer templates
-            $template->load(['headerTemplate', 'footerTemplate']);
+            $emailTemplate->load(['headerTemplate', 'footerTemplate']);
 
             // Combine header, body, and footer content
             $combinedHtml = '';
 
-            if ($template->headerTemplate) {
-                $combinedHtml .= $template->headerTemplate->body_html;
+            if ($emailTemplate->headerTemplate) {
+                $combinedHtml .= $emailTemplate->headerTemplate->body_html;
             }
 
-            $combinedHtml .= $template->body_html;
+            $combinedHtml .= $emailTemplate->body_html;
 
-            if ($template->footerTemplate) {
-                $combinedHtml .= $template->footerTemplate->body_html;
+            if ($emailTemplate->footerTemplate) {
+                $combinedHtml .= $emailTemplate->footerTemplate->body_html;
             }
 
             return response()->json([
-                'subject' => $template->subject,
+                'subject' => $emailTemplate->subject,
                 'body_html' => $combinedHtml,
             ]);
         } catch (\Exception $e) {

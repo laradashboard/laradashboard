@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Livewire\Datatable;
 
-use App\Models\NotificationType;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Notification;
 use App\Enums\ReceiverType;
+use App\Services\NotificationTypeService;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class NotificationDatatable extends Datatable
@@ -46,11 +46,7 @@ class NotificationDatatable extends Datatable
                 'filterLabel' => __('Filter by Notification Type'),
                 'icon' => 'lucide:bell',
                 'allLabel' => __('All Types'),
-                'options' => collect(NotificationType::getValues())
-                    ->mapWithKeys(function ($type) {
-                        return [$type => $type];
-                    })
-                    ->toArray(),
+                'options' => app(NotificationTypeService::class)->getNotificationTypesDropdown(),
                 'selected' => $this->notification_type,
             ],
             [

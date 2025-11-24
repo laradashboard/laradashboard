@@ -173,4 +173,14 @@ class EmailTemplateService
             ->orderBy('name')
             ->get();
     }
+
+    public function getEmailTemplatesDropdown(): array
+    {
+        return EmailTemplate::orderBy('name')
+            ->pluck('name', 'id')
+            ->map(function ($label, $id) {
+                return ['label' => $label, 'value' => $id];
+            })
+            ->toArray();
+    }
 }

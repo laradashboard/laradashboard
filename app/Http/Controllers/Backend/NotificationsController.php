@@ -14,9 +14,9 @@ use App\Services\Emails\EmailTemplateService;
 use App\Http\Requests\NotificationRequest;
 use App\Enums\ReceiverType;
 use App\Models\Notification;
-use App\Models\NotificationType;
 use App\Models\Setting;
 use App\Services\Emails\EmailVariable;
+use App\Services\NotificationTypeService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -24,6 +24,7 @@ class NotificationsController extends Controller
 {
     public function __construct(
         private readonly NotificationService $notificationService,
+        private readonly NotificationTypeService $notificationTypeService,
         private readonly EmailTemplateService $emailTemplateService,
         private readonly EmailVariable $emailVariable,
     ) {
@@ -43,13 +44,6 @@ class NotificationsController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $notificationTypeInstance = new NotificationType();
-        $notificationTypes = collect(NotificationType::getValues())
-            ->mapWithKeys(function ($type) use ($notificationTypeInstance) {
-                return [$type => $notificationTypeInstance->label($type)];
-            })
-            ->toArray();
-
         $receiverTypes = collect(ReceiverType::cases())
             ->mapWithKeys(function ($type) {
                 return [$type->value => $type->label()];
@@ -63,7 +57,7 @@ class NotificationsController extends Controller
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.create', [
-            'notificationTypes' => $notificationTypes,
+            'notificationTypes' => $this->notificationTypeService->getNotificationTypesDropdown(),
             'receiverTypes' => $receiverTypes,
             'emailTemplates' => $emailTemplates,
         ]);
@@ -107,20 +101,11 @@ class NotificationsController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $notificationTypeInstance = new NotificationType();
-        $notificationTypes = collect(NotificationType::getValues())
-            ->mapWithKeys(function ($type) use ($notificationTypeInstance) {
-                return [$type => $notificationTypeInstance->label($type)];
-            })
-            ->toArray();
-
         $receiverTypes = collect(ReceiverType::cases())
             ->mapWithKeys(function ($type) {
                 return [$type->value => $type->label()];
             })
             ->toArray();
-
-        $emailTemplates = $this->emailTemplateService->getAllTemplates();
 
         $this->setBreadcrumbTitle(__('Edit Notification'))
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
@@ -128,15 +113,22 @@ class NotificationsController extends Controller
 
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.edit', [
             'notification' => $notification,
-            'notificationTypes' => $notificationTypes,
+            'notificationTypes' => $this->notificationTypeService->getNotificationTypesDropdown(),
             'receiverTypes' => $receiverTypes,
-            'emailTemplates' => $emailTemplates,
+            'emailTemplates' => array_merge([['label' => __('None - Use Custom Content'), 'value' => '']], $this->emailTemplateService->getEmailTemplatesDropdown()),
         ]);
     }
 
-    public function update(NotificationRequest $request, Notification $notification): RedirectResponse
+    public function update(NotificationRequest $request, int $notification): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
+
+        $notification = $this->notificationService->getNotificationById($notification);
+        if (! $notification) {
+            return redirect()
+                ->back()
+                ->with('error', __('Notification not found.'));
+        }
 
         try {
             $this->notificationService->updateNotification($notification, $request->validated());

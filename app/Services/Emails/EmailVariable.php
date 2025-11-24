@@ -14,42 +14,27 @@ class EmailVariable
             'first_name' => [
                 'label' => __('Recipient\'s first name'),
                 'sample_data' => 'John',
-                'replacement' => 'John',
+                'replacement' => '', // should be filled dynamically.
             ],
             'last_name' => [
                 'label' => __('Recipient\'s last name'),
                 'sample_data' => 'Doe',
-                'replacement' => 'Doe',
+                'replacement' => '', // should be filled dynamically.
             ],
             'full_name' => [
                 'label' => __('Recipient\'s full name'),
                 'sample_data' => 'John Doe',
-                'replacement' => 'John Doe',
+                'replacement' => '', // should be filled dynamically.
             ],
             'username' => [
                 'label' => __('Recipient\'s username'),
                 'sample_data' => 'johndoe',
-                'replacement' => 'johndoe',
+                'replacement' => '', // should be filled dynamically.
             ],
             'email' => [
                 'label' => __('Recipient\'s email address'),
                 'sample_data' => config('mail.from.address', 'no-reply@example.com'),
                 'replacement' => config('mail.from.address', 'no-reply@example.com'),
-            ],
-            'company' => [
-                'label' => __('Your company name'),
-                'sample_data' => config('app.name', 'Your Company'),
-                'replacement' => config('app.name', 'Your Company'),
-            ],
-            'company_name' => [
-                'label' => __('Your company name'),
-                'sample_data' => config('app.name', 'Your Company'),
-                'replacement' => config('app.name', 'Your Company'),
-            ],
-            'company_website' => [
-                'label' => __('Your company website URL'),
-                'sample_data' => config('app.url', 'https://yourwebsite.com'),
-                'replacement' => config('app.url', 'https://yourwebsite.com'),
             ],
             'year' => [
                 'label' => __('Current year'),
@@ -101,12 +86,26 @@ class EmailVariable
                 'sample_data' => config('app.url', 'https://yourwebsite.com'),
                 'replacement' => config('app.url', 'https://yourwebsite.com'),
             ],
+            'company' => [
+                'label' => __('Your company name'),
+                'sample_data' => config('app.name', 'Your Company'),
+                'replacement' => config('app.name', 'Your Company'),
+            ],
+            'company_name' => [
+                'label' => __('Your company name'),
+                'sample_data' => config('app.name', 'Your Company'),
+                'replacement' => config('app.name', 'Your Company'),
+            ],
+            'company_website' => [
+                'label' => __('Your company website URL'),
+                'sample_data' => config('app.url', 'https://yourwebsite.com'),
+                'replacement' => config('app.url', 'https://yourwebsite.com'),
+            ],
         ]);
     }
 
-    public function getAvailableVariables()
+    public function getAvailableVariables(): array
     {
-        // get label, value pairs of array.
         $variables = $this->getAllVariablesData();
         $availableVariables = [];
         foreach ($variables as $key => $data) {
@@ -137,13 +136,6 @@ class EmailVariable
             $replacementData[$key] = $data['replacement'];
         }
         return $replacementData;
-    }
-
-    public function preview(string $content, array $sampleData = []): string
-    {
-        $variables = array_merge($this->getPreviewSampleData(), $sampleData);
-
-        return $this->replaceVariables($content, $variables);
     }
 
     public function replaceVariables(string $content, array $variables): string

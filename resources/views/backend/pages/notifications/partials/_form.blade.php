@@ -14,23 +14,14 @@
                 <x-inputs.combobox label="{{ __('Notification Type') }}" name="notification_type" :options="$notificationTypes ?? []"
                     placeholder="{{ __('Select Notification Type') }}" selected="{{ old('notification_type', $notification->notification_type ?? '') }}"
                     required />
-                @error('notification_type')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
 
-                <x-inputs.combobox label="{{ __('Receiver Type') }}" name="receiver_type" :options="$receiverTypes ?? []"
-                    placeholder="{{ __('Select Receiver Type') }}" selected="{{ old('receiver_type', $notification->receiver_type->value ?? '') }}"
-                    required />
-                @error('receiver_type')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
-
-                <x-inputs.combobox label="{{ __('Email Template (Optional)') }}" name="email_template_id" :options="array_merge(['' => __('None - Use Custom Content')], $emailTemplates->pluck('name', 'id')->toArray())"
-                    placeholder="{{ __('Select Email Template') }}" selected="{{ old('email_template_id', $notification->email_template_id ?? '') }}" />
-                @error('email_template_id')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
-                <p class="text-xs text-gray-500 mt-1">{{ __('Select a template or leave empty to use custom content below') }}</p>
+                <x-inputs.combobox
+                    label="{{ __('Email Template (Optional)') }}"
+                    name="email_template_id"
+                    :options="$emailTemplates ?? []"
+                    placeholder="{{ __('Select Email Template') }}"
+                    selected="{{ old('email_template_id', $notification->email_template_id ?? '') }}"
+                />
 
                 <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
                     <label class="flex items-center justify-between cursor-pointer group">
@@ -82,36 +73,26 @@
         <div class="flex-1 min-w-0">
             <x-card>
                 <div class="space-y-5">
-                    <div>
-                        <label for="notification_name" class="form-label">
-                            {{ __('Notification Name') }} <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" id="notification_name" name="name" class="form-control @error('name') border-red-500 @enderror" value="{{ old('name', $notification->name ?? '') }}" placeholder="{{ __('e.g., Forgot Password Notification, Welcome Email') }}" required>
-                        @error('name')
-                            <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <x-inputs.input
+                        label="{{ __('Notification Name') }}"
+                        name="name"
+                        type="text"
+                        :value="old('name', $notification->name ?? '')"
+                        placeholder="{{ __('e.g., Forgot Password Notification, Welcome Email') }}"
+                        required
+                    />
 
-                    <div>
-                        <label for="notification_description" class="form-label">{{ __('Description') }}</label>
-                        <textarea id="notification_description" name="description" rows="2" class="form-control @error('description') border-red-500 @enderror" placeholder="{{ __('Brief description of this notification...') }}">{{ old('description', $notification->description ?? '') }}</textarea>
-                        @error('description')
-                            <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-5">
-                    <h4 class="text-base font-medium text-gray-900 dark:text-white mb-4">
-                        {{ __('Email Content') }}
-                    </h4>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        {{ __('You can either select an email template above or write custom content below. Custom content will override the template.') }}
-                    </p>
+                    <x-inputs.textarea
+                        label="{{ __('Internal Description (Optional)') }}"
+                        name="description"
+                        :value="old('description', $notification->description ?? '')"
+                        rows="2"
+                        placeholder="{{ __('Brief description of this notification...') }}"
+                    />
 
                     <div>
                         <div class="flex items-center justify-between mb-2 w-full">
-                            <label for="body_html" class="form-label">{{ __('HTML Content') }}</label>
+                            <label class="form-label" html-for="body_html">{{ __('Notification Content') }}</label>
                             @if (isset($notification) && $notification->email_template_id)
                                 <button type="button" onclick="loadTemplateContent({{ $notification->email_template_id }})" class="text-xs btn btn-secondary py-1 px-2">
                                     <svg class="w-3 h-3 mr-1 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,79 +106,82 @@
                         @push('scripts')
                             <x-text-editor :minHeight="'400px'" :maxHeight="'1200px'" :editor-id="'body_html'" type="full" />
                         @endpush
-                        @error('body_html')
-                            <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
+            </x-card>
 
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-5">
-                    <h4 class="text-base font-medium text-gray-900 dark:text-white mb-4">
-                        {{ __('Email Sender Settings') }}
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label for="from_email" class="form-label">{{ __('From Email') }}</label>
-                            <input type="email" id="from_email" name="from_email" class="form-control @error('from_email') border-red-500 @enderror" value="{{ old('from_email', $notification->from_email ?? '') }}" placeholder="{{ __('Leave empty to use default') }}">
-                            <p class="text-xs text-gray-500 mt-1.5">{{ __('Override default from email') }}</p>
-                            @error('from_email')
-                                <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                            @enderror
-                        </div>
+            <x-card class="mt-6">
+                <x-slot name="header">
+                    {{ __('Receiver Settings') }}
+                </x-slot>
 
-                        <div>
-                            <label for="from_name" class="form-label">{{ __('From Name') }}</label>
-                            <input type="text" id="from_name" name="from_name" class="form-control @error('from_name') border-red-500 @enderror" value="{{ old('from_name', $notification->from_name ?? '') }}" placeholder="{{ __('Leave empty to use default') }}">
-                            <p class="text-xs text-gray-500 mt-1.5">{{ __('Override default from name') }}</p>
-                            @error('from_name')
-                                <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                            @enderror
-                        </div>
+                <div id="receiver-settings" class="flex flex-col gap-3">
+                    <x-inputs.combobox
+                        :label="__('Receiver Type')"
+                        name="receiver_type"
+                        :options="$receiverTypes ?? []"
+                        placeholder="{{ __('Select Receiver Type') }}"
+                        selected="{{ old('receiver_type', $notification->receiver_type->value ?? '') }}"
+                        required
+                    />
 
-                        <div>
-                            <label for="reply_to_email" class="form-label">{{ __('Reply-To Email') }}</label>
-                            <input type="email" id="reply_to_email" name="reply_to_email" class="form-control @error('reply_to_email') border-red-500 @enderror" value="{{ old('reply_to_email', $notification->reply_to_email ?? '') }}" placeholder="{{ __('Leave empty to use default') }}">
-                            <p class="text-xs text-gray-500 mt-1.5">{{ __('Override default reply-to email') }}</p>
-                            @error('reply_to_email')
-                                <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="reply_to_name" class="form-label">{{ __('Reply-To Name') }}</label>
-                            <input type="text" id="reply_to_name" name="reply_to_name" class="form-control @error('reply_to_name') border-red-500 @enderror" value="{{ old('reply_to_name', $notification->reply_to_name ?? '') }}" placeholder="{{ __('Leave empty to use default') }}">
-                            <p class="text-xs text-gray-500 mt-1.5">{{ __('Override default reply-to name') }}</p>
-                            @error('reply_to_name')
-                                <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-5" id="receiver-settings">
-                    <h4 class="text-base font-medium text-gray-900 dark:text-white mb-4">
-                        {{ __('Receiver Settings') }}
-                    </h4>
-                    
                     <div id="receiver_ids_field" class="hidden">
                         <label for="receiver_ids" class="form-label">{{ __('Receiver IDs') }}</label>
                         <input type="text" id="receiver_ids" name="receiver_ids_text" class="form-control @error('receiver_ids') border-red-500 @enderror" value="{{ old('receiver_ids_text', isset($notification) ? implode(',', $notification->receiver_ids ?? []) : '') }}" placeholder="{{ __('Enter comma-separated IDs') }}">
                         <p class="text-xs text-gray-500 mt-1.5">{{ __('Enter user/contact IDs separated by commas') }}</p>
-                        @error('receiver_ids')
-                            <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div id="receiver_emails_field" class="hidden">
                         <label for="receiver_emails" class="form-label">{{ __('Email Addresses') }}</label>
                         <textarea id="receiver_emails" name="receiver_emails_text" rows="3" class="form-control @error('receiver_emails') border-red-500 @enderror" placeholder="{{ __('Enter email addresses, one per line or comma-separated') }}">{{ old('receiver_emails_text', isset($notification) ? implode("\n", $notification->receiver_emails ?? []) : '') }}</textarea>
                         <p class="text-xs text-gray-500 mt-1.5">{{ __('Enter email addresses separated by commas or new lines') }}</p>
-                        @error('receiver_emails')
-                            <p class="text-xs text-red-600 mt-1.5">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
             </x-card>
+
+            <div x-data="{ openEmailSenderSettings: false }" class="mt-6">
+                <x-card class="mt-6">
+                    <x-slot name="header">
+                        {{ __('Email Sender Settings') }}
+                    </x-slot>
+                    <x-slot name="headerRight">
+                        <button type="button" @click="openEmailSenderSettings = !openEmailSenderSettings" class="btn-default">
+                            <iconify-icon :icon="openEmailSenderSettings ? 'lucide:chevron-up' : 'lucide:chevron-down'" class="w-4 h-4 mr-1 inline-block"></iconify-icon>
+                            <span x-text="openEmailSenderSettings ? '{{ __('Hide Settings') }}' : '{{ __('Show Settings') }}'"></span>
+                        </button>
+                    </x-slot>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5" x-show="openEmailSenderSettings" x-cloak>
+                        <div>
+                            <label for="from_email" class="form-label">{{ __('From Email') }}</label>
+                            <input type="email" id="from_email" name="from_email" class="form-control @error('from_email') border-red-500 @enderror" value="{{ old('from_email', $notification->from_email ?? '') }}" placeholder="{{ __('Leave empty to use default') }}">
+                            <p class="text-xs text-gray-500 mt-1.5">{{ __('Override default from email') }}</p>
+                        </div>
+
+                        <div>
+                            <label for="from_name" class="form-label">{{ __('From Name') }}</label>
+                            <input type="text" id="from_name" name="from_name" class="form-control @error('from_name') border-red-500 @enderror" value="{{ old('from_name', $notification->from_name ?? '') }}" placeholder="{{ __('Leave empty to use default') }}">
+                            <p class="text-xs text-gray-500 mt-1.5">{{ __('Override default from name') }}</p>
+                        </div>
+
+                        <div>
+                            <label for="reply_to_email" class="form-label">{{ __('Reply-To Email') }}</label>
+                            <input type="email" id="reply_to_email" name="reply_to_email" class="form-control @error('reply_to_email') border-red-500 @enderror" value="{{ old('reply_to_email', $notification->reply_to_email ?? '') }}" placeholder="{{ __('Leave empty to use default') }}">
+                            <p class="text-xs text-gray-500 mt-1.5">{{ __('Override default reply-to email') }}</p>
+                        </div>
+
+                        <div>
+                            <label for="reply_to_name" class="form-label">{{ __('Reply-To Name') }}</label>
+                            <input type="text" id="reply_to_name" name="reply_to_name" class="form-control @error('reply_to_name') border-red-500 @enderror" value="{{ old('reply_to_name', $notification->reply_to_name ?? '') }}" placeholder="{{ __('Leave empty to use default') }}">
+                            <p class="text-xs text-gray-500 mt-1.5">{{ __('Override default reply-to name') }}</p>
+                        </div>
+                    </div>
+
+                    <div x-show="!openEmailSenderSettings" x-cloak class="text-sm text-gray-500 mt-2">
+                        {{ __('Use default email sender settings unless overridden here.') }}
+                    </div>
+                </x-card>
+            </div>
         </div>
     </div>
 </form>
