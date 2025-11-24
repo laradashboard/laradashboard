@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -299,19 +301,12 @@ class EmailTemplateSeeder extends Seeder
             'body_html' => $html,
             'type' => $type,
             'description' => $description,
-            'variables' => $this->extractVariables($subject . ' ' . $html),
             'is_active' => $active,
             'is_deleteable' => $deletable,
             'created_by' => 1,
             'created_at' => now(),
             'updated_at' => now(),
         ];
-    }
-
-    private function extractVariables(string $content): array
-    {
-        preg_match_all('/\{\{([^}]+)\}\}/', $content, $matches);
-        return array_unique($matches[1]);
     }
 
     private function getPasswordReset(): string
@@ -337,7 +332,7 @@ class EmailTemplateSeeder extends Seeder
                     <tr>
                         <td style="padding: 40px 30px;">
                             <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
-                                Hello <strong>{username}</strong>,
+                                Hello <strong>{full_name}</strong>,
                             </p>
                             <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
                                 We received a request to reset your password for your <strong>{app_name}</strong> account.

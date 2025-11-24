@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Services\EmailTemplateService;
+use App\Services\Emails\EmailTemplateService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
@@ -49,7 +49,7 @@ class TestEmailTemplateCommand extends Command
                 'website' => 'www.example.com',
             ];
 
-            $rendered = $this->emailTemplateService->renderTemplate($template, $sampleData);
+            $rendered = $template->renderTemplate($sampleData);
             $this->info('Template rendered successfully');
             $this->info('Subject: ' . $rendered['subject']);
 

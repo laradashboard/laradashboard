@@ -23,7 +23,6 @@ class EmailTemplate extends Model
         'subject',
         'body_html',
         'type',
-        'variables',
         'preview_image',
         'description',
         'is_active',
@@ -35,7 +34,6 @@ class EmailTemplate extends Model
     ];
 
     protected $casts = [
-        'variables' => 'array',
         'is_active' => 'boolean',
         'is_deleteable' => 'boolean',
         'type' => TemplateType::class,
@@ -95,11 +93,11 @@ class EmailTemplate extends Model
             $bodyHtml = $headerHtml . $bodyHtml;
         }
 
-        // Include footer template if exists
+        // Include footer template if exists.
         if ($this->footer_template_id && $this->footerTemplate) {
             $footerHtml = $this->footerTemplate->body_html ?? '';
 
-            // Replace variables in footer
+            // Replace variables in footer.
             foreach ($data as $key => $value) {
                 $placeholder = '{' . $key . '}';
                 $footerHtml = str_replace($placeholder, (string) $value, (string) $footerHtml);
@@ -108,7 +106,7 @@ class EmailTemplate extends Model
             $bodyHtml = $bodyHtml . $footerHtml;
         }
 
-        // Replace variables in main content
+        // Replace variables in main content.
         foreach ($data as $key => $value) {
             $placeholder = '{' . $key . '}';
             $subject = str_replace($placeholder, (string) $value, (string) $subject);
@@ -136,23 +134,6 @@ class EmailTemplate extends Model
         }
 
         return $html;
-    }
-
-    public function extractVariables(): array
-    {
-        $content = $this->subject . ' ' . $this->body_html;
-
-        // Include header and footer content for variable extraction
-        if ($this->headerTemplate) {
-            $content .= ' ' . $this->headerTemplate->body_html;
-        }
-        if ($this->footerTemplate) {
-            $content .= ' ' . $this->footerTemplate->body_html;
-        }
-
-        preg_match_all('/\{\{([^}]+)\}\}/', $content, $matches);
-
-        return array_unique($matches[1]);
     }
 
     public function scopeActive($query)

@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Services\Emails;
 
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\EmailTemplate;
 use App\Enums\TemplateType;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -24,7 +23,7 @@ class EmailTemplateService
         $query = EmailTemplate::query()
             ->with(['creator', 'updater']);
 
-        if (isset($filter['search']) && ! empty($filter['search'])) {
+        if (isset($filter['search']) && !empty($filter['search'])) {
             $search = $filter['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
@@ -33,7 +32,7 @@ class EmailTemplateService
             });
         }
 
-        if (isset($filter['type']) && ! empty($filter['type'])) {
+        if (isset($filter['type']) && !empty($filter['type'])) {
             $query->where('type', $filter['type']);
         }
 
@@ -41,15 +40,15 @@ class EmailTemplateService
             $query->where('is_active', (bool) $filter['is_active']);
         }
 
-        if (isset($filter['created_by']) && ! empty($filter['created_by'])) {
+        if (isset($filter['created_by']) && !empty($filter['created_by'])) {
             $query->where('created_by', $filter['created_by']);
         }
 
-        if (isset($filter['date_from']) && ! empty($filter['date_from'])) {
+        if (isset($filter['date_from']) && !empty($filter['date_from'])) {
             $query->whereDate('created_at', '>=', $filter['date_from']);
         }
 
-        if (isset($filter['date_to']) && ! empty($filter['date_to'])) {
+        if (isset($filter['date_to']) && !empty($filter['date_to'])) {
             $query->whereDate('created_at', '<=', $filter['date_to']);
         }
 
@@ -79,6 +78,7 @@ class EmailTemplateService
     {
         return EmailTemplate::where('id', '!=', $excludeId)
             ->orderBy('name')
+            ->select('id', 'name')
             ->get();
     }
 
@@ -97,92 +97,59 @@ class EmailTemplateService
 
     public function createTemplate(array $data): EmailTemplate
     {
-        DB::beginTransaction();
-
-        try {
-            // Generate UUID if not provided
-            if (! isset($data['uuid']) || empty($data['uuid'])) {
+        return DB::transaction(function () use ($data) {
+            if (!isset($data['uuid']) || empty($data['uuid'])) {
                 $data['uuid'] = Str::uuid();
             }
 
-            // Set created_by if not provided
-            if (! isset($data['created_by'])) {
+            if (!isset($data['created_by'])) {
                 $data['created_by'] = auth()->id();
             }
 
-            // Extract and validate variables from content
             $template = EmailTemplate::create($data);
-
-            // Update extracted variables
-            $variables = $template->extractVariables();
-            $template->update(['variables' => $variables]);
-
-            DB::commit();
-
-            Log::info('Email template created', ['template_id' => $template->id, 'name' => $template->name]);
-
             return $template->load(['creator', 'updater']);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to create email template', ['error' => $e->getMessage(), 'data' => $data]);
-            throw $e;
-        }
+        });
     }
 
-    public function updateTemplate(EmailTemplate $template, array $data): EmailTemplate
+    public function updateTemplate(EmailTemplate $emailTemplate, array $data): EmailTemplate
     {
-        DB::beginTransaction();
+        // Fill the model with the new values first so that Eloquent can determine which attributes are dirty.
+        $emailTemplate->fill($data);
 
-        try {
-            // Set updated_by.
-            $data['updated_by'] = auth()->id();
-            $template->update($data);
-
-            // Update extracted variables
-            $variables = $template->extractVariables();
-            $template->update(['variables' => $variables]);
-
-            DB::commit();
-            return $template->load(['creator', 'updater']);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to update email template', ['error' => $e->getMessage(), 'template_id' => $template->id]);
-            throw $e;
+        if ($emailTemplate->isClean(array_keys($data))) {
+            return $emailTemplate;
         }
+
+        return DB::transaction(function () use ($emailTemplate, $data) {
+            $data['updated_by'] = auth()->id();
+            $emailTemplate->update($data);
+
+            return $emailTemplate->load(['creator', 'updater']);
+        });
     }
 
     public function deleteTemplate(EmailTemplate $template): bool
     {
-        DB::beginTransaction();
-
-        try {
+        return DB::transaction(function () use ($template) {
             // Check if template is being used in any campaigns.
             if (DB::table('email_campaigns')->where('template_id', $template->id)->exists()) {
                 throw new \Exception('Cannot delete template that is being used in campaigns. Please remove it from any campaigns before deleting.');
             }
 
-            // Delete preview image if exists
+            // Delete preview image if exists.
             if ($template->preview_image && Storage::disk('public')->exists($template->preview_image)) {
                 Storage::disk('public')->delete($template->preview_image);
             }
 
             $template->delete();
 
-            DB::commit();
             return true;
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to delete email template', ['error' => $e->getMessage(), 'template_id' => $template->id]);
-            throw $e;
-        }
+        });
     }
 
     public function duplicateTemplate(EmailTemplate $template, string $newName): EmailTemplate
     {
-        DB::beginTransaction();
-
-        try {
+        return DB::transaction(function () use ($template, $newName) {
             $data = $template->toArray();
 
             // Remove unique fields and update for new template.
@@ -195,20 +162,8 @@ class EmailTemplateService
 
             $newTemplate = EmailTemplate::create($data);
 
-            DB::commit();
-
             return $newTemplate->load(['creator', 'updater']);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to duplicate email template', ['error' => $e->getMessage(), 'template_id' => $template->id]);
-            throw $e;
-        }
-    }
-
-    public function renderTemplate(EmailTemplate $template, array $data): array
-    {
-        return $template->renderTemplate($data);
+        });
     }
 
     public function getTemplatesByType(TemplateType $type): Collection

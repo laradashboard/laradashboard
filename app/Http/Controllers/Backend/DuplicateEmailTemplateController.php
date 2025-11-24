@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Email\StoreDuplicateEmailRequest;
 use Illuminate\Http\RedirectResponse;
-use App\Services\EmailTemplateService;
+use App\Services\Emails\EmailTemplateService;
 use App\Models\EmailTemplate;
 
 class DuplicateEmailTemplateController extends Controller

@@ -9,12 +9,12 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use App\Services\EmailTemplateService;
+use App\Services\Emails\EmailTemplateService;
 use App\Http\Requests\EmailTemplateRequest;
 use App\Enums\TemplateType;
 use App\Models\EmailTemplate;
 use App\Models\Setting;
-use App\Services\EmailManager;
+use App\Services\Emails\EmailVariable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -22,7 +22,7 @@ class EmailTemplatesController extends Controller
 {
     public function __construct(
         private readonly EmailTemplateService $emailTemplateService,
-        private readonly EmailManager $emailManager
+        private readonly EmailVariable $emailVariable,
     ) {
     }
 
@@ -55,7 +55,7 @@ class EmailTemplatesController extends Controller
             'availableTemplates' => $this->emailTemplateService->getAllTemplates(),
             'headerTemplates' => $this->emailTemplateService->getTemplatesByType(TemplateType::HEADER),
             'footerTemplates' => $this->emailTemplateService->getTemplatesByType(TemplateType::FOOTER),
-            'templateVariables' => $this->emailManager->getAvailableVariables(),
+            'templateVariables' => $this->emailVariable->getAvailableVariables(),
         ]);
     }
 
@@ -98,7 +98,7 @@ class EmailTemplatesController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $rendered = $this->emailTemplateService->renderTemplate($emailTemplate, $this->emailManager->getPreviewSampleData());
+        $rendered = $emailTemplate->renderTemplate($this->emailVariable->getPreviewSampleData());
         $emailTemplate->subject = $rendered['subject'];
         $emailTemplate->body_html = $rendered['body_html'];
 
@@ -133,19 +133,28 @@ class EmailTemplatesController extends Controller
             'availableTemplates' => $availableTemplates,
             'headerTemplates' => $headerTemplates,
             'footerTemplates' => $footerTemplates,
-            'templateVariables' => $this->emailManager->getAvailableVariables(),
+            'templateVariables' => $this->emailVariable->getAvailableVariables(),
         ]);
     }
 
-    public function update(EmailTemplateRequest $request, EmailTemplate $emailTemplate): RedirectResponse
+    public function update(EmailTemplateRequest $request, int $emailTemplate): RedirectResponse
     {
         $this->authorize('manage', Setting::class);
+
+        $emailTemplate = $this->emailTemplateService->getTemplateById($emailTemplate);
+
+        if (!$emailTemplate) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', __('Email template not found.'));
+        }
 
         try {
             $this->emailTemplateService->updateTemplate($emailTemplate, $request->validated());
 
             return redirect()
-                ->route('admin.email-templates.index')
+                ->route('admin.email-templates.show', $emailTemplate->id)
                 ->with('success', __('Email template updated successfully.'));
         } catch (\Exception $e) {
             Log::error('Failed to update email template', [
@@ -177,22 +186,16 @@ class EmailTemplatesController extends Controller
         }
     }
 
-    public function sendTestEmail(int $email_template, Request $request): JsonResponse
+    public function sendTestEmail(EmailTemplate $emailTemplate, Request $request): JsonResponse
     {
         $this->authorize('manage', Setting::class);
-
-        $template = $this->emailTemplateService->getTemplateById($email_template);
-
-        if (! $template) {
-            return response()->json(['message' => 'Template not found'], 404);
-        }
 
         $request->validate([
             'email' => 'required|email',
         ]);
 
         try {
-            $rendered = $this->emailTemplateService->renderTemplate($template, $this->emailManager->getPreviewSampleData());
+            $rendered = $emailTemplate->renderTemplate($this->emailVariable->getPreviewSampleData());
 
             Mail::send([], [], function ($message) use ($rendered, $request) {
                 $message->to($request->input('email'))
@@ -201,13 +204,13 @@ class EmailTemplatesController extends Controller
                     ->html($rendered['body_html']);
             });
 
-            $this->logAction('Test Email Template Sent', $email_template, [
+            $this->logAction('Test Email Template Sent', $emailTemplate, [
                 'to' => $request->input('email'),
             ]);
 
             return response()->json(['message' => __('Test email sent successfully')]);
         } catch (\Exception $e) {
-            $this->logAction('Failed to Send Test Email Template', $email_template, [
+            $this->logAction('Failed to Send Test Email Template', $emailTemplate, [
                 'to' => $request->input('email'),
                 'error' => $e->getMessage(),
             ]);
@@ -267,48 +270,6 @@ class EmailTemplatesController extends Controller
             return response()->json([
                 'subject' => $template->subject,
                 'body_html' => $combinedHtml,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function livePreview(Request $request): JsonResponse
-    {
-        $this->authorize('manage', Setting::class);
-
-        $request->validate([
-            'subject' => 'required|string',
-            'body_html' => 'nullable|string',
-            'header_template_id' => 'nullable|exists:email_templates,id',
-            'footer_template_id' => 'nullable|exists:email_templates,id',
-        ]);
-
-        try {
-            // Create a temporary template object for rendering
-            $tempTemplate = new EmailTemplate([
-                'subject' => $request->input('subject'),
-                'body_html' => $request->input('body_html', ''),
-                'header_template_id' => $request->input('header_template_id'),
-                'footer_template_id' => $request->input('footer_template_id'),
-            ]);
-
-            // Load header and footer templates if specified
-            if ($tempTemplate->header_template_id) {
-                $headerTemplate = EmailTemplate::find($tempTemplate->header_template_id);
-                $tempTemplate->setRelation('headerTemplate', $headerTemplate);
-            }
-
-            if ($tempTemplate->footer_template_id) {
-                $footerTemplate = EmailTemplate::find($tempTemplate->footer_template_id);
-                $tempTemplate->setRelation('footerTemplate', $footerTemplate);
-            }
-
-            $rendered = $tempTemplate->renderTemplate($this->emailManager->getPreviewSampleData());
-
-            return response()->json([
-                'subject' => $rendered['subject'],
-                'body_html' => $rendered['body_html'],
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

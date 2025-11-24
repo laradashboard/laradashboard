@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Services\Emails;
 
 use App\Support\Facades\Hook;
 
-class EmailManager
+class EmailVariable
 {
     public function getAllVariablesData(): array
     {
@@ -119,11 +119,6 @@ class EmailManager
         return $availableVariables;
     }
 
-    /**
-     * Get key-value pair for preview sample data.
-     *
-     * @return array
-     */
     public function getPreviewSampleData(): array
     {
         $variables = $this->getAllVariablesData();
@@ -134,14 +129,16 @@ class EmailManager
         return $sampleData;
     }
 
-    /**
-     * Preview content with sample data.
-     *
-     * @param string $content
-     * @param array $sampleData
-     *
-     * @return string Formatted content with sample data.
-     */
+    public function getReplacementData(): array
+    {
+        $variables = $this->getAllVariablesData();
+        $replacementData = [];
+        foreach ($variables as $key => $data) {
+            $replacementData[$key] = $data['replacement'];
+        }
+        return $replacementData;
+    }
+
     public function preview(string $content, array $sampleData = []): string
     {
         $variables = array_merge($this->getPreviewSampleData(), $sampleData);
@@ -149,26 +146,7 @@ class EmailManager
         return $this->replaceVariables($content, $variables);
     }
 
-    public function render(string $content, $contact = null, $campaign = null, string $recipientUuid = null): string
-    {
-        $variables = [
-            'first_name' => $contact->first_name ?? '',
-            'last_name' => $contact->last_name ?? '',
-            'full_name' => $contact->full_name ?? (($contact->first_name ?? '') . ' ' . ($contact->last_name ?? '')),
-            'email' => $contact->email ?? '',
-            'username' => $contact->username ?? '',
-            'company' => config('app.name', 'Your Company'),
-            'company_name' => config('app.name', 'Your Company'),
-            'company_website' => config('app.url', 'https://yourwebsite.com'),
-            'current_year' => now()->year,
-            'current_date' => now()->format('F j, Y'),
-            'current_time' => now()->format('F j, Y \a\t g:i A'),
-        ];
-
-        return $this->replaceVariables($content, $variables);
-    }
-
-    private function replaceVariables(string $content, array $variables): string
+    public function replaceVariables(string $content, array $variables): string
     {
         foreach ($variables as $key => $value) {
             $cleanValue = trim((string) $value);
