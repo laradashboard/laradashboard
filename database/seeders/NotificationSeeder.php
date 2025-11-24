@@ -49,8 +49,6 @@ class NotificationSeeder extends Seeder
                 'is_deleteable' => false,
                 'track_opens' => true,
                 'track_clicks' => true,
-                'from_email' => config('mail.from.address'),
-                'from_name' => config('mail.from.name'),
                 'created_by' => 1,
             ]
         );

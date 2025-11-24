@@ -5,10 +5,6 @@
         <livewire:datatable.email-template-datatable lazy />
     </div>
 
-    <!-- Email Settings Drawer -->
-    @include('backend.pages.email-templates.partials.settings-drawer')
-
-    <!-- Test Email Modal Component -->
     <x-modals.test-email />
     <x-modals.duplicate-email-template />
 

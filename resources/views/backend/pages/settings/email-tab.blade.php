@@ -60,33 +60,5 @@
                 </div>
             </div>
         </div>
-
-        <!-- Email Rate Limiting -->
-        <div class="pt-6">
-            <h4 class="text-base font-medium text-gray-900 dark:text-white mb-4">
-                {{ __('Rate Limiting') }}
-            </h4>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Emails per Hour -->
-                <div>
-                    <x-inputs.input name="email_rate_limit_per_hour" label="{{ __('Emails per Hour') }}" type="number"
-                        value="{{ old('email_rate_limit_per_hour', config('settings.email_rate_limit_per_hour', 1000)) }}"
-                        placeholder="1000"
-                        help-text="{{ __('Maximum emails to send per hour (helps avoid being marked as spam).') }}"
-                        min="1" max="10000" />
-                </div>
-
-                <!-- Delay Between Emails -->
-                <div>
-                    <x-inputs.input name="email_delay_seconds" label="{{ __('Delay Between Emails (seconds)') }}"
-                        type="number"
-                        value="{{ old('email_delay_seconds', config('settings.email_delay_seconds', 0)) }}"
-                        placeholder="0"
-                        help-text="{{ __('Delay in seconds between sending individual emails in a campaign.') }}"
-                        min="0" max="60" />
-                </div>
-            </div>
-        </div>
     </div>
 </x-card>

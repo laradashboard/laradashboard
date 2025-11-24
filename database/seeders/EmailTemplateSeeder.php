@@ -322,7 +322,7 @@ class EmailTemplateSeeder extends Seeder
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f7fa; padding: 40px 0;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                     <tr>
                         <td style="padding: 40px 30px; text-align: center; background: #635bff; border-radius: 10px;">
                             {site_icon_image}
@@ -402,7 +402,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f7fa; padding: 40px 0;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                     <!-- Header -->
                     <tr>
                         <td style="background: #635bff; padding: 60px 40px; text-align: center;">
@@ -491,7 +491,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0f0f0; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
                     <tr>
                         <td style="padding: 40px;">
                             <h1 style="color: #333; margin: 0 0 20px 0; font-size: 28px;">Welcome {first_name}! 👋</h1>
@@ -604,7 +604,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     <tr>
                         <td style="padding: 50px 40px;">
                             <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 32px; font-weight: 700;">Welcome {first_name}! 🎉</h1>
@@ -704,7 +704,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #000000; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #000000;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #000000;">
                     <tr>
                         <td style="padding: 60px 40px; text-align: center;">
                             <h1 style="color: #ffffff; margin: 0 0 20px 0; font-size: 56px; font-weight: 900; letter-spacing: -2px; line-height: 1.1;">YOU'RE IN! 🚀</h1>
@@ -776,7 +776,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff3cd; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 4px solid #ff6b6b; border-radius: 8px;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border: 4px solid #ff6b6b; border-radius: 8px;">
                     <tr>
                         <td style="background: #635bff; padding: 40px; text-align: center;">
                             <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 48px; font-weight: 900; text-transform: uppercase;">⚡ FLASH SALE ⚡</h1>
@@ -850,7 +850,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0f0f0; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden;">
                     <tr>
                         <td style="padding: 50px 40px; text-align: center; background: #635bff;">
                             <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">New Release</p>
@@ -939,7 +939,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef3c7; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                     <tr>
                         <td style="padding: 40px 40px 30px 40px;">
                             <div style="background-color: #f59e0b; color: #ffffff; padding: 10px 20px; border-radius: 20px; display: inline-block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Exclusive Offer</div>
@@ -1014,7 +1014,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #000000; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #1a1a1a; border: 3px solid #ff0000;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #1a1a1a; border: 3px solid #ff0000;">
                     <tr>
                         <td style="background-color: #ff0000; padding: 30px; text-align: center;">
                             <h1 style="color: #000000; margin: 0; font-size: 52px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">BLACK FRIDAY</h1>
@@ -1085,7 +1085,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a192f; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background: #635bff; border: 2px solid #00d4ff;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background: #635bff; border: 2px solid #00d4ff;">
                     <tr>
                         <td style="padding: 50px 40px; text-align: center;">
                             <h1 style="color: #00d4ff; margin: 0 0 10px 0; font-size: 48px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);">CYBER MONDAY</h1>
@@ -1183,7 +1183,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <tr>
                         <td style="padding: 40px 40px 30px 40px;">
                             <div style="text-align: center; margin-bottom: 30px;">
@@ -1314,7 +1314,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <tr>
                         <td style="padding: 40px;">
                             <div style="text-align: center; margin-bottom: 30px;">
@@ -1683,7 +1683,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
                     <tr>
                         <td style="padding: 40px 40px 30px 40px; border-bottom: 3px solid #3b82f6;">
                             <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 32px; font-weight: 700;">📰 Weekly Digest</h1>
@@ -1743,7 +1743,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fafafa; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff;">
                     <tr>
                         <td style="padding: 50px 40px; text-align: center; background-color: #1a1a1a;">
                             <h1 style="color: #ffffff; margin: 0; font-size: 36px; font-weight: 300; letter-spacing: 2px;">TOP ARTICLES</h1>
@@ -1810,7 +1810,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0f172a; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #1e293b; border-radius: 8px;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #1e293b; border-radius: 8px;">
                     <tr>
                         <td style="padding: 40px; border-bottom: 2px solid #3b82f6;">
                             <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 32px; font-weight: 700;">Industry Insights</h1>
@@ -1888,7 +1888,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
                     <tr>
                         <td style="padding: 40px; background: #635bff;">
                             <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 36px; font-weight: 700;">Company Update</h1>
@@ -1973,7 +1973,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fffbeb; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <tr>
                         <td style="padding: 40px; text-align: center; background-color: #fbbf24; border-radius: 12px 12px 0 0;">
                             <span style="font-size: 48px;">💡</span>
@@ -2053,7 +2053,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px; overflow: hidden;">
                     <tr>
                         <td style="padding: 0;">
                             <img src="https://placehold.co/600x300/3b82f6/ffffff?text=Webinar+Banner" alt="Webinar" style="width: 100%; height: auto; display: block;">
@@ -2212,7 +2212,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #1a1a1a; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden;">
                     <tr>
                         <td style="padding: 0; position: relative;">
                             <img src="https://placehold.co/600x350/667eea/ffffff?text=Conference+2025" alt="Conference" style="width: 100%; height: auto; display: block;">
@@ -2316,7 +2316,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0f172a; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #1e293b; border-radius: 12px; border: 2px solid #3b82f6;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #1e293b; border-radius: 12px; border: 2px solid #3b82f6;">
                     <tr>
                         <td style="padding: 50px 40px; text-align: center;">
                             <span style="font-size: 72px;">💻</span>
@@ -2410,7 +2410,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
                     <tr>
                         <td style="padding: 50px 40px; text-align: center;">
                             <span style="font-size: 72px;">🎉</span>
@@ -2452,7 +2452,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
                     <tr>
                         <td style="padding: 40px; text-align: center;">
                             <span style="font-size: 72px;">🛒</span>
@@ -2527,7 +2527,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
                     <tr>
                         <td style="padding: 40px;">
                             <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 32px; font-weight: 700;">Picked Just For You, {first_name}</h1>
@@ -2623,7 +2623,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ecfdf5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; border: 2px solid #10b981;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px; background-color: #ffffff; border-radius: 8px; border: 2px solid #10b981;">
                     <tr>
                         <td style="padding: 40px; text-align: center;">
                             <div style="margin-bottom: 20px;">
@@ -2698,7 +2698,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
                     <tr>
                         <td style="padding: 40px; text-align: center;">
                             <span style="font-size: 64px;">⭐</span>
@@ -2785,7 +2785,7 @@ HTML;
     <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
         <tr>
             <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px;">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px;">
                     <tr>
                         <td style="padding: 50px 40px; text-align: center;">
                             <span style="font-size: 80px;">🎂</span>

@@ -42,8 +42,6 @@ class EmailSettingsController extends Controller
             'email_reply_to_name' => 'nullable|string|max:255',
             'email_utm_source_default' => 'nullable|string|max:255',
             'email_utm_medium_default' => 'nullable|string|max:255',
-            'email_rate_limit_per_hour' => 'nullable|integer|min:1|max:10000',
-            'email_delay_seconds' => 'nullable|integer|min:0|max:60',
         ]);
 
         $fields = $request->only([
@@ -53,8 +51,6 @@ class EmailSettingsController extends Controller
             'email_reply_to_name',
             'email_utm_source_default',
             'email_utm_medium_default',
-            'email_rate_limit_per_hour',
-            'email_delay_seconds',
         ]);
 
         foreach ($fields as $fieldName => $fieldValue) {

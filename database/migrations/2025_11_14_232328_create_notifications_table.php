@@ -21,10 +21,6 @@ return new class () extends Migration {
             $table->string('receiver_type');
             $table->json('receiver_ids')->nullable();
             $table->json('receiver_emails')->nullable();
-            $table->string('from_email')->nullable();
-            $table->string('from_name')->nullable();
-            $table->string('reply_to_email')->nullable();
-            $table->string('reply_to_name')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_deleteable')->default(true);
             $table->boolean('track_opens')->default(true);

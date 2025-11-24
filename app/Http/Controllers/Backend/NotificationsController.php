@@ -95,9 +95,12 @@ class NotificationsController extends Controller
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
 
-        return $this->renderViewWithBreadcrumbs('backend.pages.notifications.show', [
-            'notification' => $notification,
-        ]);
+        $notification->body_html = $this->emailVariable->replaceVariables(
+            $notification->body_html ?? $notification->emailTemplate->body_html ?? '',
+            $this->emailVariable->getPreviewSampleData()
+        );
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.notifications.show', compact('notification'));
     }
 
     public function edit(Notification $notification): Renderable
