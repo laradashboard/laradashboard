@@ -47,8 +47,15 @@ class NotificationsController extends Controller
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
 
+        $notificationTypes = collect(NotificationTypeRegistry::all())
+            ->mapWithKeys(function ($type) {
+                $label = NotificationTypeRegistry::getLabel($type) ?: (\App\Enums\NotificationType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
+                return [$type => $label];
+            })
+            ->toArray();
+
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.create', [
-            'notificationTypes' => NotificationTypeRegistry::all(),
+            'notificationTypes' => $notificationTypes,
             'receiverTypes' => ReceiverTypeRegistry::all(),
             'emailTemplates' => array_merge(
                 ['' => __('None - Use Custom Content')],
@@ -106,9 +113,16 @@ class NotificationsController extends Controller
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
 
+        $notificationTypes = collect(NotificationTypeRegistry::all())
+            ->mapWithKeys(function ($type) {
+                $label = NotificationTypeRegistry::getLabel($type) ?: (\App\Enums\NotificationType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
+                return [$type => $label];
+            })
+            ->toArray();
+
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.edit', [
             'notification' => $notification,
-            'notificationTypes' => NotificationTypeRegistry::all(),
+            'notificationTypes' => $notificationTypes,
             'receiverTypes' => $receiverTypes,
             'emailTemplates' => array_merge([['label' => __('None - Use Custom Content'), 'value' => '']], $this->emailTemplateService->getEmailTemplatesDropdown()),
         ]);
