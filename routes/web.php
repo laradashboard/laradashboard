@@ -65,7 +65,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
         Route::post('emails', [EmailSettingsController::class, 'update'])->name('email-settings.update');
         Route::post('emails/send-test', [SendTestEmailController::class, 'sendTestEmail'])->name('emails.send-test');
 
-
         // Email Templates Management Routes.
         Route::resource('email-templates', EmailTemplatesController::class);
         Route::group(['prefix' => 'email-templates', 'as' => 'email-templates.'], function () {

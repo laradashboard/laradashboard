@@ -40,7 +40,8 @@ class SendTestEmailController extends Controller
                 break;
         }
 
-        return Hook::applyFilters('send_test_email_controller_send_test_email',
+        return Hook::applyFilters(
+            'send_test_email_controller_send_test_email',
             response()->json(['message' => 'Invalid email type specified.'], 400),
             $request
         );

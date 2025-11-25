@@ -28,7 +28,9 @@ beforeEach(function () {
 test('admin can send email template test', function () {
     $emailTemplate = EmailTemplate::factory()->create();
 
-    $response = $this->actingAs($this->admin)->post(route('admin.email-templates.send-test', ['email_template' => $emailTemplate->id]), [
+    $response = $this->actingAs($this->admin)->post(route('admin.emails.send-test'), [
+        'type' => 'email-template',
+        'id' => $emailTemplate->id,
         'email' => 'test@example.com',
     ]);
 
@@ -53,7 +55,9 @@ test('admin send email template uses EmailSender', function () {
     $emailSenderMock->shouldReceive('getMailMessage')->once()->andReturn($mailMessage);
     $this->app->instance(EmailSender::class, $emailSenderMock);
 
-    $response = $this->actingAs($this->admin)->post(route('admin.email-templates.send-test', ['email_template' => $emailTemplate->id]), [
+    $response = $this->actingAs($this->admin)->post(route('admin.emails.send-test'), [
+        'type' => 'email-template',
+        'id' => $emailTemplate->id,
         'email' => 'test@example.com',
     ]);
 
@@ -84,7 +88,9 @@ test('admin send notification uses EmailSender', function () {
     $emailSenderMock->shouldReceive('getMailMessage')->once()->andReturn($mailMessage);
     $this->app->instance(EmailSender::class, $emailSenderMock);
 
-    $response = $this->actingAs($this->admin)->post(route('admin.notifications.send-test', ['notification' => $notification->id]), [
+    $response = $this->actingAs($this->admin)->post(route('admin.emails.send-test'), [
+        'type' => 'notification',
+        'id' => $notification->id,
         'email' => 'test@example.com',
     ]);
 
