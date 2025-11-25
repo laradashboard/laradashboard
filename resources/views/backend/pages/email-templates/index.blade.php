@@ -10,12 +10,6 @@
 
     @push('scripts')
     <script>
-        function openTestEmailModal(id) {
-            window.dispatchEvent(new CustomEvent('open-test-email-modal', {
-                detail: { id: id }
-            }));
-        }
-
         function openDuplicateEmailTemplateModal(id, url) {
             window.dispatchEvent(new CustomEvent('open-duplicate-email-template-modal', {
                 detail: { id, url }

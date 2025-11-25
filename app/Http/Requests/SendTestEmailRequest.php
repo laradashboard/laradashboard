@@ -17,7 +17,9 @@ class SendTestEmailRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id' => 'required|integer',
             'email' => 'required|email',
+            'type' => 'required|string',
         ];
     }
 }

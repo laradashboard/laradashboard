@@ -5,24 +5,5 @@
         <livewire:datatable.notification-datatable lazy />
     </div>
 
-    <!-- Test Email Modal Component -->
     <x-modals.test-email />
-
-    @push('scripts')
-    <script>
-        function openTestNotificationEmailModal(id) {
-            console.log("id", id);
-            const sendTestUrl = `/admin/settings/notifications/${id}/send-test`;
-            window.dispatchEvent(
-                new CustomEvent("open-test-email-modal", {
-                    detail: {
-                        id: id,
-                        sendTestUrl: sendTestUrl,
-                        type: "notification",
-                    },
-                })
-            );
-        }
-    </script>
-    @endpush
 </x-layouts.backend-layout>

@@ -11,6 +11,7 @@ use App\Models\EmailTemplate;
 use App\Models\Notification;
 use App\Services\Emails\EmailVariable;
 use App\Services\Emails\EmailSender;
+use App\Support\Facades\Hook;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -22,7 +23,30 @@ class SendTestEmailController extends Controller
     ) {
     }
 
-    public function sendTestEmailTemplate(EmailTemplate $emailTemplate, SendTestEmailRequest $request): JsonResponse
+    public function sendTestEmail(SendTestEmailRequest $request): JsonResponse
+    {
+        $type = $request->input('type');
+        $id = (int) $request->input('id');
+        $email = $request->input('email');
+
+        switch ($type) {
+            case 'email-template':
+                $emailTemplate = EmailTemplate::findOrFail($id);
+                return $this->sendTestEmailTemplate($emailTemplate, $email);
+            case 'notification':
+                $notification = Notification::findOrFail($id);
+                return $this->sendTestNotification($notification, $email);
+            default:
+                break;
+        }
+
+        return Hook::applyFilters('send_test_email_controller_send_test_email',
+            response()->json(['message' => 'Invalid email type specified.'], 400),
+            $request
+        );
+    }
+
+    public function sendTestEmailTemplate(EmailTemplate $emailTemplate, string $email): JsonResponse
     {
         try {
             $rendered = $emailTemplate->renderTemplate($this->emailVariable->getPreviewSampleData());
@@ -30,7 +54,7 @@ class SendTestEmailController extends Controller
             $emailSender = app(EmailSender::class);
             $emailSender->setSubject($rendered['subject'] ?? '')->setContent($rendered['body_html'] ?? '');
 
-            $this->sendMailMessageToRecipient($emailSender, $request->input('email'), null, $this->emailVariable->getPreviewSampleData());
+            $this->sendMailMessageToRecipient($emailSender, $email, null, $this->emailVariable->getPreviewSampleData());
 
             return response()->json(['message' => __('Test email sent successfully.')]);
         } catch (\Exception $e) {
@@ -39,7 +63,7 @@ class SendTestEmailController extends Controller
         }
     }
 
-    public function sendTestNotification(Notification $notification, SendTestEmailRequest $request): JsonResponse
+    public function sendTestNotification(Notification $notification, string $email): JsonResponse
     {
         try {
             if ($notification->email_template_id) {
@@ -54,7 +78,7 @@ class SendTestEmailController extends Controller
             $emailSender->setSubject($notification->emailTemplate->subject)
                 ->setContent($notification->body_html ?? $notification->emailTemplate->body_html ?? '');
 
-            $this->sendMailMessageToRecipient($emailSender, $request->input('email'), null, $this->emailVariable->getPreviewSampleData());
+            $this->sendMailMessageToRecipient($emailSender, $email, null, $this->emailVariable->getPreviewSampleData());
             return response()->json(['message' => __('Test email sent successfully.')]);
         } catch (\Exception $e) {
             Log::error('Failed to send test notification email', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
@@ -62,9 +86,6 @@ class SendTestEmailController extends Controller
         }
     }
 
-    /**
-     * Build the MailMessage via EmailSender and send it to a recipient.
-     */
     private function sendMailMessageToRecipient(EmailSender $emailSender, string $recipient, ?string $from = null, array $variables = []): void
     {
         /** @var MailMessage $mailMessage */

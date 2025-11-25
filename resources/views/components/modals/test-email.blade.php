@@ -1,9 +1,4 @@
-@props([
-    'templateId' => null,
-    'sendTestUrl' => null,
-])
-
-<div x-data="testEmailModal(@js($templateId), @js($sendTestUrl))">
+<div x-data="testEmailModal()" x-init="init()">
     <div
         x-cloak
         x-show="open"
@@ -102,93 +97,93 @@
     </div>
 </div>
 
+@once
+@push('scripts')
 <script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('testEmailModal', (initialTemplateId = null, initialSendTestUrl = null) => ({
-        open: false,
-        loading: false,
-        errorMessage: '',
-        successMessage: '',
-        templateId: initialTemplateId,
-        type: 'email-template',
-        sendTestUrl: initialSendTestUrl,
-        
-        init() {
-            this.$watch('open', value => {
-                if (!value) {
-                    this.errorMessage = '';
-                    this.successMessage = '';
-                    this.loading = false;
+    function openTestEmailModal(id, type) {
+        window.dispatchEvent(new CustomEvent('open-test-email-modal', {
+            detail: { id, type }
+        }));
+    }
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('testEmailModal', () => ({
+            open: false,
+            loading: false,
+            errorMessage: '',
+            successMessage: '',
+            id: null,
+            type: 'email-template',
+
+            init() {
+                this.$watch('open', value => {
+                    if (!value) {
+                        this.errorMessage = '';
+                        this.successMessage = '';
+                        this.loading = false;
+                    }
+                });
+
+                window.addEventListener('open-test-email-modal', (event) => {
+                    this.type = event.detail?.type || 'email-template';
+                    this.id = event.detail?.id;
+                    this.open = true;
+
+                    // Close any open dropdowns when modal opens
+                    window.dispatchEvent(new CustomEvent('click'));
+                });
+            },
+
+            closeModal() {
+                this.open = false;
+                if (this.$refs.emailInput) {
+                    this.$refs.emailInput.value = '';
                 }
-            });
+            },
             
-            window.addEventListener('open-test-email-modal', (event) => {
-                this.type = event.detail?.type || this.type;
-                this.templateId = event.detail?.id || this.templateId;
-                this.sendTestUrl = event.detail?.url || this.sendTestUrl;
-                this.open = true;
+            sendTestEmail() {
+                const email = this.$refs.emailInput.value;
                 
-                // Close any open dropdowns when modal opens
-                window.dispatchEvent(new CustomEvent('click'));
-            });
-        },
-        
-        closeModal() {
-            this.open = false;
-            if (this.$refs.emailInput) {
-                this.$refs.emailInput.value = '';
-            }
-        },
-        
-        sendTestEmail() {
-            const email = this.$refs.emailInput.value;
-            
-            if (!email) {
-                this.errorMessage = '{{ __('Please enter an email address') }}';
-                return;
-            }
-
-            if (!this.templateId && !this.sendTestUrl) {
-                this.errorMessage = '{{ __('Template not selected') }}';
-                return;
-            }
-
-            this.loading = true;
-            this.errorMessage = '';
-            this.successMessage = '';
-
-            let url = this.sendTestUrl || `/admin/settings/email-templates/${this.templateId}/send-test`;
-            if (this.type === 'notification') {
-                url = this.sendTestUrl || `/admin/settings/notifications/${this.templateId}/send-test`;
-            }
-
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ email: email })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    this.successMessage = data.message;
-                    setTimeout(() => {
-                        this.closeModal();
-                    }, 2000);
-                } else {
-                    this.errorMessage = '{{ __('Failed to send test email') }}';
+                if (!email) {
+                    this.errorMessage = '{{ __('Please enter an email address') }}';
+                    return;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                this.errorMessage = '{{ __('An error occurred while sending the test email') }}';
-            })
-            .finally(() => {
-                this.loading = false;
-            });
-        }
-    }));
-});
+
+                this.loading = true;
+                this.errorMessage = '';
+                this.successMessage = '';
+
+                const url = `/admin/settings/emails/send-test?type=${this.type}&id=${this.id}`;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data?.message) {
+                        this.successMessage = data.message;
+                        setTimeout(() => {
+                            this.closeModal();
+                        }, 2000);
+                    } else {
+                        this.errorMessage = '{{ __('Failed to send test email') }}';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.errorMessage = '{{ __('An error occurred while sending the test email') }}';
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+            }
+        }));
+    });
 </script>
+@endpush
+@endonce

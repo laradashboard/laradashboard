@@ -166,9 +166,9 @@ class NotificationDatatable extends Datatable
         return view('backend.pages.notifications.partials.notification-type', compact('notification'));
     }
 
-    public function renderReceiverTypeColumn(Notification $notification): Renderable
+    public function renderReceiverTypeColumn(Notification $notification): string|Renderable
     {
-        return view('backend.pages.notifications.partials.notification-receiver-type', compact('notification'));
+        return '<span class="badge-info">' . e($notification->receiver_type_label) . '</span>';
     }
 
     public function renderEmailTemplateColumn(Notification $notification): Renderable
@@ -176,9 +176,9 @@ class NotificationDatatable extends Datatable
         return view('backend.pages.notifications.partials.notification-template', compact('notification'));
     }
 
-    public function renderIsActiveColumn(Notification $notification): Renderable
+    public function renderIsActiveColumn(Notification $notification): string|Renderable
     {
-        return view('backend.pages.notifications.partials.notification-is-active', compact('notification'));
+        return $notification->is_active ? '<span class="badge-success">' . __('Active') . '</span>' : '<span class="badge-bad">' . __('Inactive') . '</span>';
     }
 
     public function renderAfterActionView($notification): string|Renderable

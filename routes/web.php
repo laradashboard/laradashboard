@@ -63,6 +63,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
         // Email Settings Management Routes.
         Route::get('emails', [EmailSettingsController::class, 'index'])->name('email-settings.index');
         Route::post('emails', [EmailSettingsController::class, 'update'])->name('email-settings.update');
+        Route::post('emails/send-test', [SendTestEmailController::class, 'sendTestEmail'])->name('emails.send-test');
+
 
         // Email Templates Management Routes.
         Route::resource('email-templates', EmailTemplatesController::class);
@@ -70,12 +72,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
             Route::get('by-type/{type}', [EmailTemplatesController::class, 'getByType'])->name('by-type');
             Route::get('{email_template}/content', [EmailTemplatesController::class, 'getContent'])->name('content')->where('email_template', '[0-9]+');
             Route::post('{email_template}/duplicate', [DuplicateEmailTemplateController::class, 'store'])->name('duplicate');
-            Route::post('{email_template}/send-test', [SendTestEmailController::class, 'sendTestEmailTemplate'])->name('send-test');
         });
 
         // Notifications Management Routes.
         Route::resource('notifications', NotificationsController::class);
-        Route::post('notifications/{notification}/send-test', [SendTestEmailController::class, 'sendTestNotification'])->name('notifications.send-test');
     });
 
     // Translation Routes.

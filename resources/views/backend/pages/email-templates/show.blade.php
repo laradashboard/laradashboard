@@ -14,7 +14,7 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="window.dispatchEvent(new CustomEvent('open-test-email-modal'))" class="btn-default">
+                        <button onclick="window.dispatchEvent(new CustomEvent('open-test-email-modal', { detail: { id: {{ $emailTemplate->id }}, type: '{{ $emailTemplate->type }}' } }))" class="btn-default">
                             <iconify-icon icon="lucide:mail" class="mr-2"></iconify-icon>
                             {{ __('Send Test') }}
                         </button>
@@ -83,6 +83,6 @@
         </x-card>
     </div>
 
-    <x-modals.test-email :send-test-url="route('admin.email-templates.send-test', $emailTemplate->id)" />
+    <x-modals.test-email />
     <x-modals.duplicate-email-template :duplicate-url="route('admin.email-templates.duplicate', $emailTemplate->id)" />
 </x-layouts.backend-layout>

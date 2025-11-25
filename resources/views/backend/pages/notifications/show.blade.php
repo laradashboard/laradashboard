@@ -16,7 +16,7 @@
 
             <x-slot name="headerRight">
                 <div class="flex gap-2">
-                    <button onclick="openTestEmailModal({{ $notification->id }})" class="btn-default">
+                    <button @click="openTestEmailModal({{ $notification->id }}, 'notification')" class="btn-default">
                         <iconify-icon icon="lucide:mail" class="mr-2"></iconify-icon>
                         {{ __('Send Test') }}
                     </button>
@@ -145,35 +145,6 @@
 
                         <x-card>
                             <x-slot name="header">
-                                {{ __('Status') }}
-                            </x-slot>
-
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Active') }}</span>
-                                    <span class="{{ $notification->is_active ? 'badge-success' : 'badge-danger' }}">
-                                        {{ $notification->is_active ? __('Yes') : __('No') }}
-                                    </span>
-                                </div>
-
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Track Opens') }}</span>
-                                    <span class="{{ $notification->track_opens ? 'badge-success' : 'badge-danger' }}">
-                                        {{ $notification->track_opens ? __('Yes') : __('No') }}
-                                    </span>
-                                </div>
-
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Track Clicks') }}</span>
-                                    <span class="{{ $notification->track_clicks ? 'badge-success' : 'badge-danger' }}">
-                                        {{ $notification->track_clicks ? __('Yes') : __('No') }}
-                                    </span>
-                                </div>
-                            </div>
-                        </x-card>
-
-                        <x-card>
-                            <x-slot name="header">
                                 {{ __('Metadata') }}
                             </x-slot>
 
@@ -203,15 +174,5 @@
         </x-card>
     </div>
 
-    <x-modals.test-email :send-test-url="route('admin.notifications.send-test', $notification->id)" />
-
-    @push('scripts')
-    <script>
-        function openTestEmailModal(id) {
-            window.dispatchEvent(new CustomEvent('open-test-email-modal', {
-                detail: { id: id }
-            }));
-        }
-    </script>
-    @endpush
+    <x-modals.test-email />
 </x-layouts.backend-layout>
