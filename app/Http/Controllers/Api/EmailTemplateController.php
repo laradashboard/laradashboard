@@ -25,8 +25,8 @@ class EmailTemplateController extends ApiController
     /**
      * Email Templates list.
      */
-     #[QueryParameter('per_page', description: 'Number of email templates per page.', type: 'int', default: 10, example: 20)]
-     #[QueryParameter('search', description: 'Search term for filtering by name or type.', type: 'string', example: 'welcome')]
+    #[QueryParameter('per_page', description: 'Number of email templates per page.', type: 'int', default: 10, example: 20)]
+    #[QueryParameter('search', description: 'Search term for filtering by name or type.', type: 'string', example: 'welcome')]
     public function index(Request $request): JsonResponse
     {
         $this->authorize('manage', Setting::class);

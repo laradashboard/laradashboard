@@ -8,7 +8,6 @@ use App\Http\Requests\NotificationRequest;
 use App\Http\Resources\NotificationResource;
 use App\Enums\ReceiverType;
 use App\Services\NotificationService;
-use App\Services\Emails\EmailTemplateService;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
