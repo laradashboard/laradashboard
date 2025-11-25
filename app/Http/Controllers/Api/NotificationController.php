@@ -20,6 +20,9 @@ class NotificationController extends ApiController
     ) {
     }
 
+    /**
+     * Notifications list.
+     */
     #[QueryParameter('per_page', description: 'Number of notifications per page.', type: 'int', default: 10, example: 20)]
     #[QueryParameter('search', description: 'Search term for filtering by name or description.', type: 'string', example: 'Password')]
     public function index(Request $request): JsonResponse
@@ -46,6 +49,9 @@ class NotificationController extends ApiController
         );
     }
 
+    /**
+     * Create Notification.
+     */
     public function store(NotificationRequest $request): JsonResponse
     {
         $this->authorize('manage', \App\Models\Setting::class);
@@ -60,6 +66,9 @@ class NotificationController extends ApiController
         return $this->resourceResponse(new NotificationResource($notification), 'Notification created successfully', 201);
     }
 
+    /**
+     * Show Notification.
+     */
     public function show(int $id): JsonResponse
     {
         $notification = $this->notificationService->getNotificationById($id);
@@ -72,6 +81,9 @@ class NotificationController extends ApiController
         return $this->resourceResponse(new NotificationResource($notification->load(['emailTemplate'])), 'Notification retrieved successfully');
     }
 
+    /**
+     * Update Notification.
+     */
     public function update(NotificationRequest $request, int $id): JsonResponse
     {
         $notification = $this->notificationService->getNotificationById($id);
@@ -88,6 +100,9 @@ class NotificationController extends ApiController
         return $this->resourceResponse(new NotificationResource($updated), 'Notification updated successfully');
     }
 
+    /**
+     * Delete Notification.
+     */
     public function destroy(int $id): JsonResponse
     {
         $notification = $this->notificationService->getNotificationById($id);
@@ -104,6 +119,9 @@ class NotificationController extends ApiController
         return $this->successResponse(null, 'Notification deleted successfully', 204);
     }
 
+    /**
+     * Get Notifications by Type.
+     */
     public function getByType(string $type): JsonResponse
     {
         $this->authorize('manage', \App\Models\Setting::class);
@@ -113,6 +131,9 @@ class NotificationController extends ApiController
         return $this->resourceResponse(NotificationResource::collection($notifications), 'Notifications retrieved successfully');
     }
 
+    /**
+     * Get Notifications by Receiver Type.
+     */
     public function getByReceiverType(string $type): JsonResponse
     {
         $this->authorize('manage', \App\Models\Setting::class);
