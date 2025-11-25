@@ -14,11 +14,11 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="window.dispatchEvent(new CustomEvent('open-test-email-modal', { detail: { id: {{ $emailTemplate->id }}, type: '{{ $emailTemplate->type }}' } }))" class="btn-default">
+                        <button onclick="openTestEmailModal('{{ $emailTemplate->id }}', 'email-template')" class="btn-default">
                             <iconify-icon icon="lucide:mail" class="mr-2"></iconify-icon>
                             {{ __('Send Test') }}
                         </button>
-                        <button onclick='window.dispatchEvent(new CustomEvent("open-duplicate-email-template-modal", { detail: @json(["id" => $emailTemplate->id, "url" => route("admin.email-templates.duplicate", $emailTemplate->id)]) }))' class="btn-default">
+                        <button onclick='openDuplicateEmailTemplateModal("{{ $emailTemplate->id }}", "{{ route("admin.email-templates.duplicate", $emailTemplate->id) }}")' class="btn-default">
                             <iconify-icon icon="lucide:copy" class="mr-2"></iconify-icon>
                             {{ __('Duplicate') }}
                         </button>
