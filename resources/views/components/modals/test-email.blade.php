@@ -110,6 +110,7 @@ document.addEventListener('alpine:init', () => {
         errorMessage: '',
         successMessage: '',
         templateId: initialTemplateId,
+        type: 'email-template',
         sendTestUrl: initialSendTestUrl,
         
         init() {
@@ -122,6 +123,7 @@ document.addEventListener('alpine:init', () => {
             });
             
             window.addEventListener('open-test-email-modal', (event) => {
+                this.type = event.detail?.type || this.type;
                 this.templateId = event.detail?.id || this.templateId;
                 this.sendTestUrl = event.detail?.url || this.sendTestUrl;
                 this.open = true;
@@ -155,7 +157,10 @@ document.addEventListener('alpine:init', () => {
             this.errorMessage = '';
             this.successMessage = '';
 
-            const url = this.sendTestUrl || `/admin/settings/email-templates/${this.templateId}/send-test`;
+            let url = this.sendTestUrl || `/admin/settings/email-templates/${this.templateId}/send-test`;
+            if (this.type === 'notification') {
+                url = this.sendTestUrl || `/admin/settings/notifications/${this.templateId}/send-test`;
+            }
 
             fetch(url, {
                 method: 'POST',

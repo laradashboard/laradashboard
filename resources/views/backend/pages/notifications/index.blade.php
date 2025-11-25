@@ -10,18 +10,18 @@
 
     @push('scripts')
     <script>
-        function openTestEmailModal(id) {
-            // Update the modal with the correct send-test URL
-            const modal = document.querySelector('[x-data]');
-            if (modal) {
-                const sendTestUrl = `/admin/settings/notifications/${id}/send-test`;
-                window.dispatchEvent(new CustomEvent('open-test-email-modal', {
-                    detail: { 
-                        id,
-                        sendTestUrl,
-                    }
-                }));
-            }
+        function openTestNotificationEmailModal(id) {
+            console.log("id", id);
+            const sendTestUrl = `/admin/settings/notifications/${id}/send-test`;
+            window.dispatchEvent(
+                new CustomEvent("open-test-email-modal", {
+                    detail: {
+                        id: id,
+                        sendTestUrl: sendTestUrl,
+                        type: "notification",
+                    },
+                })
+            );
         }
     </script>
     @endpush
