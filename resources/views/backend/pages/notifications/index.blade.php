@@ -17,8 +17,8 @@
                 const sendTestUrl = `/admin/settings/notifications/${id}/send-test`;
                 window.dispatchEvent(new CustomEvent('open-test-email-modal', {
                     detail: { 
-                        id: id,
-                        sendTestUrl: sendTestUrl
+                        id,
+                        sendTestUrl,
                     }
                 }));
             }

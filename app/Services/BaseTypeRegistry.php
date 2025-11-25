@@ -183,9 +183,22 @@ class BaseTypeRegistry
         $values = static::all();
 
         if (empty($values)) {
-            static::$enumClass::getValues();
+            if (! empty(static::$enumClass)) {
+                $enumClass = static::$enumClass;
+                // If enum class has a getValues method (custom), call it to let enum register base values
+                $callable = [$enumClass, 'getValues'];
+                if (is_callable($callable)) {
+                    call_user_func($callable);
+                } elseif (is_subclass_of($enumClass, \BackedEnum::class)) {
+                    // Fallback: use native cases to register values if the enum does not expose getValues
+                    foreach ($enumClass::cases() as $case) {
+                        static::register((string) $case->value);
+                    }
+                }
+            }
             $values = static::all();
         }
+
         return $values;
     }
 
@@ -198,7 +211,18 @@ class BaseTypeRegistry
     {
         return collect(static::getRefreshedValues())
             ->mapWithKeys(function ($type) {
-                $label = static::getLabel($type) ?: ((static::$enumClass)?->tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
+                $label = static::getLabel($type);
+                if (empty($label) && ! empty(static::$enumClass) && is_subclass_of(static::$enumClass, \BackedEnum::class)) {
+                    $enumClass = static::$enumClass;
+                    $enum = null;
+                    $enum = call_user_func([$enumClass, 'tryFrom'], $type);
+                    if ($enum !== null && method_exists($enum, 'label')) {
+                        $label = $enum->label();
+                    }
+                }
+                if (empty($label)) {
+                    $label = ucfirst(str_replace('_', ' ', $type));
+                }
                 return [$type => $label];
             })
             ->toArray();

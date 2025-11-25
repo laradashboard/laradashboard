@@ -9,12 +9,13 @@ use Illuminate\Validation\Rule;
 use App\Enums\ReceiverType;
 use App\Services\ReceiverTypeRegistry;
 use App\Enums\NotificationType;
+use App\Models\Setting;
 
 class NotificationRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->can('manage', \App\Models\Setting::class);
+        return $this->user() && $this->user()->can('manage', Setting::class);
     }
 
     public function rules(): array
