@@ -21,15 +21,15 @@ class EmailSender
         }
     }
 
-    public function setSubject(string $s): self
+    public function setSubject(string $subject): self
     {
-        $this->subject = $s;
+        $this->subject = $subject;
         return $this;
     }
 
-    public function setContent(string $c): self
+    public function setContent(string $content): self
     {
-        $this->content = $c;
+        $this->content = $content;
         return $this;
     }
 
