@@ -10,6 +10,13 @@ use Illuminate\Support\Str;
 class BaseTypeRegistry
 {
     /**
+     * Optional enum class associated with this registry.
+     *
+     * @var class-string<\BackedEnum>|null
+     */
+    protected static ?string $enumClass = null;
+
+    /**
      * Central storage for types keyed by class to isolate per-subclass storage.
      *
      * @var array<string, string[]>
@@ -164,5 +171,36 @@ class BaseTypeRegistry
         $key = static::class;
         static::$allTypes[$key] = [];
         static::$allMeta[$key] = [];
+    }
+
+    /**
+     * Get refreshed values, ensuring enum class is called to register base types.
+     *
+     * @return string[]
+     */
+    public static function getRefreshedValues(): array
+    {
+        $values = static::all();
+
+        if (empty($values)) {
+            static::$enumClass::getValues();
+            $values = static::all();
+        }
+        return $values;
+    }
+
+    /**
+     * Get dropdown items as [value => label].
+     *
+     * @return array<string, string>
+     */
+    public static function getDropdownItems(): array
+    {
+        return collect(static::getRefreshedValues())
+            ->mapWithKeys(function ($type) {
+                $label = static::getLabel($type) ?: ((static::$enumClass)?->tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
+                return [$type => $label];
+            })
+            ->toArray();
     }
 }

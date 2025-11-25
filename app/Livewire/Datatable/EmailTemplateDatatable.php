@@ -7,7 +7,7 @@ namespace App\Livewire\Datatable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\EmailTemplate;
-use App\Enums\TemplateType;
+use App\Services\TemplateTypeRegistry;
 use Spatie\QueryBuilder\QueryBuilder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -40,11 +40,7 @@ class EmailTemplateDatatable extends Datatable
                 'filterLabel' => __('Filter by Type'),
                 'icon' => 'lucide:filter',
                 'allLabel' => __('All Types'),
-                'options' => collect(TemplateType::cases())
-                    ->mapWithKeys(function ($type) {
-                        return [$type->value => $type->label()];
-                    })
-                    ->toArray(),
+                'options' => TemplateTypeRegistry::getDropdownItems(),
                 'selected' => $this->type,
             ],
         ];
