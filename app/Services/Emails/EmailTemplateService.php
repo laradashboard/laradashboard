@@ -7,7 +7,6 @@ namespace App\Services\Emails;
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\EmailTemplate;
 use App\Enums\TemplateType;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -134,11 +133,6 @@ class EmailTemplateService
             // Check if template is being used in any campaigns.
             if (DB::table('email_campaigns')->where('template_id', $template->id)->exists()) {
                 throw new \Exception('Cannot delete template that is being used in campaigns. Please remove it from any campaigns before deleting.');
-            }
-
-            // Delete preview image if exists.
-            if ($template->preview_image && Storage::disk('public')->exists($template->preview_image)) {
-                Storage::disk('public')->delete($template->preview_image);
             }
 
             $template->delete();

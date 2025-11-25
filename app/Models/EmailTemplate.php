@@ -24,7 +24,6 @@ class EmailTemplate extends Model
         'subject',
         'body_html',
         'type',
-        'preview_image',
         'description',
         'is_active',
         'is_deleteable',
