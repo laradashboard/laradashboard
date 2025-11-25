@@ -66,7 +66,12 @@ class Notification extends Model
 
     public function getNotificationTypeLabel()
     {
-        return NotificationTypeRegistry::getLabel($this->notification_type);
+        $label = NotificationTypeRegistry::getLabel($this->notification_type);
+        if ($label) {
+            return $label;
+        }
+
+        return ucfirst(str_replace('_', ' ', $this->notification_type));
     }
 
     public function emailTemplate(): BelongsTo

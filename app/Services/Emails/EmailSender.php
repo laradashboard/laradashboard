@@ -11,27 +11,40 @@ class EmailSender
 {
     private string $subject;
     private string $content;
-    private EmailVariable $emailVariable;
+    private ?EmailVariable $emailVariable = null;
 
     public function __construct(
-        private string $s = '',
-        private string $c = '',
+        ?EmailVariable $emailVariable = null,
     ) {
-        $this->subject = $s;
-        $this->content = $c;
+        if ($emailVariable !== null) {
+            $this->emailVariable = $emailVariable;
+        }
+    }
+
+    public function setSubject(string $subject): self
+    {
+        $this->subject = $subject;
+        return $this;
+    }
+
+    public function setContent(string $content): self
+    {
+        $this->content = $content;
+        return $this;
     }
 
     public function getMailMessage($from = null, $variables = []): MailMessage
     {
-        $this->emailVariable = new EmailVariable();
+        if ($this->emailVariable === null) {
+            $this->emailVariable = new EmailVariable();
+        }
 
         try {
             $variables = array_merge($this->emailVariable->getReplacementData(), $variables);
             $formattedSubject = $this->emailVariable->replaceVariables($this->subject, $variables);
             $formattedContent = $this->emailVariable->replaceVariables($this->content, $variables);
 
-            $message = (new MailMessage())
-                ->subject($formattedSubject);
+            $message = (new MailMessage())->subject($formattedSubject);
 
             // Set from name/email if provided in settings.
             $fromEmail = $from ?? config('settings.email_from_email');

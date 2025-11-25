@@ -10,6 +10,13 @@ use Illuminate\Support\Str;
 class BaseTypeRegistry
 {
     /**
+     * Optional enum class associated with this registry.
+     *
+     * @var class-string<\BackedEnum>|null
+     */
+    protected static ?string $enumClass = null;
+
+    /**
      * Central storage for types keyed by class to isolate per-subclass storage.
      *
      * @var array<string, string[]>
@@ -164,5 +171,60 @@ class BaseTypeRegistry
         $key = static::class;
         static::$allTypes[$key] = [];
         static::$allMeta[$key] = [];
+    }
+
+    /**
+     * Get refreshed values, ensuring enum class is called to register base types.
+     *
+     * @return string[]
+     */
+    public static function getRefreshedValues(): array
+    {
+        $values = static::all();
+
+        if (empty($values)) {
+            if (! empty(static::$enumClass)) {
+                $enumClass = static::$enumClass;
+                // If enum class has a getValues method (custom), call it to let enum register base values
+                $callable = [$enumClass, 'getValues'];
+                if (is_callable($callable)) {
+                    call_user_func($callable);
+                } elseif (is_subclass_of($enumClass, \BackedEnum::class)) {
+                    // Fallback: use native cases to register values if the enum does not expose getValues
+                    foreach ($enumClass::cases() as $case) {
+                        static::register((string) $case->value);
+                    }
+                }
+            }
+            $values = static::all();
+        }
+
+        return $values;
+    }
+
+    /**
+     * Get dropdown items as [value => label].
+     *
+     * @return array<string, string>
+     */
+    public static function getDropdownItems(): array
+    {
+        return collect(static::getRefreshedValues())
+            ->mapWithKeys(function ($type) {
+                $label = static::getLabel($type);
+                if (empty($label) && ! empty(static::$enumClass) && is_subclass_of(static::$enumClass, \BackedEnum::class)) {
+                    $enumClass = static::$enumClass;
+                    $enum = null;
+                    $enum = call_user_func([$enumClass, 'tryFrom'], $type);
+                    if ($enum !== null && method_exists($enum, 'label')) {
+                        $label = $enum->label();
+                    }
+                }
+                if (empty($label)) {
+                    $label = ucfirst(str_replace('_', ' ', $type));
+                }
+                return [$type => $label];
+            })
+            ->toArray();
     }
 }

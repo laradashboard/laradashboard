@@ -23,7 +23,37 @@
                     selected="{{ old('email_template_id', $notification->email_template_id ?? '') }}"
                 />
 
-                <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div id="receiver-settings" class="flex flex-col gap-3">
+                    <x-inputs.combobox
+                        :label="__('Receiver Type')"
+                        name="receiver_type"
+                        :options="$receiverTypes ?? []"
+                        placeholder="{{ __('Select Receiver Type') }}"
+                        selected="{{ old('receiver_type', $notification->receiver_type ?? '') }}"
+                        required
+                    />
+
+                    <div id="receiver_ids_field" class="hidden">
+                        <x-inputs.textarea
+                            name="receiver_ids_text"
+                            :label="__('Receiver IDs')"
+                            :value="old('receiver_ids_text', isset($notification) ? implode(',', $notification->receiver_ids ?? []) : '')"
+                            placeholder="{{ __('Enter comma-separated IDs') }}"
+                        />
+                    </div>
+
+                    <div id="receiver_emails_field" class="hidden">
+                        <x-inputs.textarea
+                            name="receiver_emails_text"
+                            :label="__('Email Addresses')"
+                            :value="old('receiver_emails_text', isset($notification) ? implode(',', $notification->receiver_emails ?? []) : '')"
+                            rows="3"
+                            placeholder="{{ __('Enter email addresses, one per line or comma-separated') }}"
+                        />
+                    </div>
+                </div>
+
+                <div class="pt-2">
                     <label class="flex items-center justify-between cursor-pointer group">
                         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Active Status') }}</span>
                         <div>
@@ -34,39 +64,10 @@
                     </label>
                 </div>
 
-                <div class="pt-1">
-                    <label class="flex items-center justify-between cursor-pointer group">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Track Opens') }}</span>
-                        <div>
-                            <input type="hidden" name="track_opens" value="0">
-                            <input type="checkbox" id="track_opens" name="track_opens" value="1" class="sr-only peer" {{ old('track_opens', $notification->track_opens ?? true) ? 'checked' : '' }}>
-                            <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="pt-1 pb-4">
-                    <label class="flex items-center justify-between cursor-pointer group">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Track Clicks') }}</span>
-                        <div>
-                            <input type="hidden" name="track_clicks" value="0">
-                            <input type="checkbox" id="track_clicks" name="track_clicks" value="1" class="sr-only peer" {{ old('track_clicks', $notification->track_clicks ?? true) ? 'checked' : '' }}>
-                            <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="flex flex-col gap-3">
-                    <button type="submit" class="btn btn-primary w-full justify-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        {{ isset($notification) ? __('Update Notification') : __('Create Notification') }}
-                    </button>
-                    <a href="{{ route('admin.notifications.index') }}" class="btn btn-secondary w-full justify-center">
-                        {{ __('Cancel') }}
-                    </a>
-                </div>
+                <x-buttons.submit-buttons
+                    cancelUrl="{{ route('admin.notifications.index') }}"
+                    :classNames="['wrapper' => 'grid grid-cols-2 gap-3']"
+                />
             </x-card>
         </div>
 
@@ -86,8 +87,9 @@
                         label="{{ __('Internal Description (Optional)') }}"
                         name="description"
                         :value="old('description', $notification->description ?? '')"
-                        rows="2"
+                        rows="3"
                         placeholder="{{ __('Brief description of this notification...') }}"
+                        class="min-h-20"
                     />
 
                     <div>
@@ -106,35 +108,6 @@
                         @push('scripts')
                             <x-text-editor :minHeight="'400px'" :maxHeight="'1200px'" :editor-id="'body_html'" type="full" />
                         @endpush
-                    </div>
-                </div>
-            </x-card>
-
-            <x-card class="mt-6">
-                <x-slot name="header">
-                    {{ __('Receiver Settings') }}
-                </x-slot>
-
-                <div id="receiver-settings" class="flex flex-col gap-3">
-                    <x-inputs.combobox
-                        :label="__('Receiver Type')"
-                        name="receiver_type"
-                        :options="$receiverTypes ?? []"
-                        placeholder="{{ __('Select Receiver Type') }}"
-                        selected="{{ old('receiver_type', $notification->receiver_type ?? '') }}"
-                        required
-                    />
-
-                    <div id="receiver_ids_field" class="hidden">
-                        <label for="receiver_ids" class="form-label">{{ __('Receiver IDs') }}</label>
-                        <input type="text" id="receiver_ids" name="receiver_ids_text" class="form-control @error('receiver_ids') border-red-500 @enderror" value="{{ old('receiver_ids_text', isset($notification) ? implode(',', $notification->receiver_ids ?? []) : '') }}" placeholder="{{ __('Enter comma-separated IDs') }}">
-                        <p class="text-xs text-gray-500 mt-1.5">{{ __('Enter user/contact IDs separated by commas') }}</p>
-                    </div>
-
-                    <div id="receiver_emails_field" class="hidden">
-                        <label for="receiver_emails" class="form-label">{{ __('Email Addresses') }}</label>
-                        <textarea id="receiver_emails" name="receiver_emails_text" rows="3" class="form-control @error('receiver_emails') border-red-500 @enderror" placeholder="{{ __('Enter email addresses, one per line or comma-separated') }}">{{ old('receiver_emails_text', isset($notification) ? implode("\n", $notification->receiver_emails ?? []) : '') }}</textarea>
-                        <p class="text-xs text-gray-500 mt-1.5">{{ __('Enter email addresses separated by commas or new lines') }}</p>
                     </div>
                 </div>
             </x-card>

@@ -29,12 +29,14 @@
                         }
                     }
                 @endphp
-                <x-inputs.combobox label="{{ __('Header Template') }}" name="header_template_id" :options="$headerOptions"
-                    placeholder="{{ __('Select Header Template') }}"
-                    selected="{{ old('header_template_id', $emailTemplate->header_template_id ?? '') }}" />
-                @error('header_template_id')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
+                <div id="header-template-field">
+                    <x-inputs.combobox label="{{ __('Header Template') }}" name="header_template_id" :options="$headerOptions"
+                        placeholder="{{ __('Select Header Template') }}"
+                        selected="{{ old('header_template_id', $emailTemplate->header_template_id ?? '') }}" />
+                    @error('header_template_id')
+                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
                 @php
                     $footerOptions = ['' => __('No Footer')];
@@ -48,10 +50,12 @@
                         }
                     }
                 @endphp
-                <x-inputs.combobox label="{{ __('Footer Template') }}" name="footer_template_id" :options="$footerOptions"
-                    placeholder="{{ __('Select Footer Template') }}"
-                    selected="{{ old('footer_template_id', $emailTemplate->footer_template_id ?? '') }}"
-                />
+                <div id="footer-template-field">
+                    <x-inputs.combobox label="{{ __('Footer Template') }}" name="footer_template_id" :options="$footerOptions"
+                        placeholder="{{ __('Select Footer Template') }}"
+                        selected="{{ old('footer_template_id', $emailTemplate->footer_template_id ?? '') }}"
+                    />
+                </div>
 
                 <div class="pt-1">
                     <label class="flex items-center justify-between cursor-pointer group">
@@ -168,6 +172,8 @@ function toggleFieldsBasedOnType(selectedType) {
     
     const subjectField = document.getElementById('subject-field');
     const descriptionField = document.getElementById('description-field');
+    const headerTemplateField = document.getElementById('header-template-field');
+    const footerTemplateField = document.getElementById('footer-template-field');
     
     const shouldHide = (selectedType === 'header' || selectedType === 'footer');
     
@@ -185,6 +191,12 @@ function toggleFieldsBasedOnType(selectedType) {
                     input.setAttribute('required', 'required');
                 }
             });
+        }
+    });
+    
+    [headerTemplateField, footerTemplateField].forEach(field => {
+        if (field) {
+            field.style.display = shouldHide ? 'none' : 'block';
         }
     });
 }

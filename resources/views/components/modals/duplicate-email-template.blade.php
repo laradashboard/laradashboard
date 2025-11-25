@@ -100,78 +100,84 @@
 </div>
 
 <script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('duplicateEmailTemplateModal', (initialTemplateId = null, initialDuplicateUrl = null) => ({
-        open: false,
-        loading: false,
-        errorMessage: '',
-        templateId: initialTemplateId,
-        duplicateUrl: initialDuplicateUrl,
+    function openDuplicateEmailTemplateModal(id, url) {
+        window.dispatchEvent(new CustomEvent('open-duplicate-email-template-modal', {
+            detail: { id, url }
+        }));
+    }
 
-        init() {
-            this.$watch('open', value => {
-                if (!value) {
-                    this.errorMessage = '';
-                    this.loading = false;
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('duplicateEmailTemplateModal', (initialTemplateId = null, initialDuplicateUrl = null) => ({
+            open: false,
+            loading: false,
+            errorMessage: '',
+            templateId: initialTemplateId,
+            duplicateUrl: initialDuplicateUrl,
+
+            init() {
+                this.$watch('open', value => {
+                    if (!value) {
+                        this.errorMessage = '';
+                        this.loading = false;
+                    }
+                });
+
+                window.addEventListener('open-duplicate-email-template-modal', (event) => {
+                    this.templateId = event.detail?.id || this.templateId;
+                    this.duplicateUrl = event.detail?.url || this.duplicateUrl;
+                    this.open = true;
+
+                    // Close any open dropdowns when modal opens
+                    window.dispatchEvent(new CustomEvent('click'));
+                });
+            },
+
+            closeModal() {
+                this.open = false;
+                if (this.$refs?.nameInput) {
+                    this.$refs.nameInput.value = '';
                 }
-            });
+            },
 
-            window.addEventListener('open-duplicate-email-template-modal', (event) => {
-                this.templateId = event.detail?.id || this.templateId;
-                this.duplicateUrl = event.detail?.url || this.duplicateUrl;
-                this.open = true;
+            submit() {
+                console.log('templateId', this.templateId);
+                console.log('duplicateUrl', this.duplicateUrl);
+                if (!this.duplicateUrl && !this.templateId) {
+                    this.errorMessage = @json(__('Template not selected'));
+                    return;
+                }
 
-                // Close any open dropdowns when modal opens
-                window.dispatchEvent(new CustomEvent('click'));
-            });
-        },
+                const name = this.$refs.nameInput?.value || '';
+                if (!name) {
+                    this.errorMessage = @json(__('Please enter a name for the duplicated template'));
+                    return;
+                }
 
-        closeModal() {
-            this.open = false;
-            if (this.$refs?.nameInput) {
-                this.$refs.nameInput.value = '';
+                this.loading = true;
+
+                // Determine URL
+                const url = this.duplicateUrl || `/admin/settings/email-templates/${this.templateId}/duplicate`;
+
+                // Submit form by creating a temporary form and posting to the duplicate URL
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = url;
+
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '_token';
+                tokenInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                form.appendChild(tokenInput);
+
+                const nameInput = document.createElement('input');
+                nameInput.type = 'hidden';
+                nameInput.name = 'name';
+                nameInput.value = name;
+                form.appendChild(nameInput);
+
+                document.body.appendChild(form);
+                form.submit();
             }
-        },
-
-        submit() {
-            console.log('templateId', this.templateId);
-            console.log('duplicateUrl', this.duplicateUrl);
-            if (!this.duplicateUrl && !this.templateId) {
-                this.errorMessage = @json(__('Template not selected'));
-                return;
-            }
-
-            const name = this.$refs.nameInput?.value || '';
-            if (!name) {
-                this.errorMessage = @json(__('Please enter a name for the duplicated template'));
-                return;
-            }
-
-            this.loading = true;
-
-            // Determine URL
-            const url = this.duplicateUrl || `/admin/settings/email-templates/${this.templateId}/duplicate`;
-
-            // Submit form by creating a temporary form and posting to the duplicate URL
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = url;
-
-            const tokenInput = document.createElement('input');
-            tokenInput.type = 'hidden';
-            tokenInput.name = '_token';
-            tokenInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            form.appendChild(tokenInput);
-
-            const nameInput = document.createElement('input');
-            nameInput.type = 'hidden';
-            nameInput.name = 'name';
-            nameInput.value = name;
-            form.appendChild(nameInput);
-
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }));
-});
+        }));
+    });
 </script>

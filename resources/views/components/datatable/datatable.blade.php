@@ -113,13 +113,13 @@
             >
                 <div
                     class="flex items-center gap-2"
-                    x-show="bulkDeleteModalOpen"
+                    x-show="selectedItems.length > 0"
                 >
                     @if($enableBulkActions)
                         @if($customBulkActions)
                             {!! $customBulkActions !!}
                         @else
-                            <div class="relative flex items-center justify-center" x-show="selectedItems.length > 0" x-data="{ open: false }">
+                            <div class="relative flex items-center justify-center" x-data="{ open: false }">
                                 <button @click="open = !open" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
                                     <iconify-icon icon="lucide:more-vertical"></iconify-icon>
                                     <span>{{ __('Bulk Actions') }} (<span x-text="selectedItems.length"></span>)</span>

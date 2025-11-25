@@ -7,20 +7,4 @@
 
     <x-modals.test-email />
     <x-modals.duplicate-email-template />
-
-    @push('scripts')
-    <script>
-        function openTestEmailModal(id) {
-            window.dispatchEvent(new CustomEvent('open-test-email-modal', {
-                detail: { id: id }
-            }));
-        }
-
-        function openDuplicateEmailTemplateModal(id, url) {
-            window.dispatchEvent(new CustomEvent('open-duplicate-email-template-modal', {
-                detail: { id, url }
-            }));
-        }
-    </script>
-    @endpush
 </x-layouts.backend-layout>

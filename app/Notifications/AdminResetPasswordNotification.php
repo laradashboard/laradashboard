@@ -47,10 +47,9 @@ class AdminResetPasswordNotification extends BaseResetPassword
 
     private function buildCustomEmail($notification, $url, $notifiable): MailMessage
     {
-        return (new EmailSender(
-            $notification->emailTemplate->subject ?? __('Reset Password Notification'),
-            $notification->emailTemplate->body_html ?? __('You are receiving this email because we received a password reset request for your account. Please click the button below to reset your password.'),
-        ))
+        return (new EmailSender())
+            ->setSubject($notification->emailTemplate->subject ?? __('Reset Password Notification'))
+            ->setContent($notification->body_html ?? $notification->emailTemplate->body_html)
             ->getMailMessage(
                 $notification->from_email,
                 [

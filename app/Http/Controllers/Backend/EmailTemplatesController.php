@@ -15,8 +15,8 @@ use App\Enums\TemplateType;
 use App\Models\EmailTemplate;
 use App\Models\Setting;
 use App\Services\Emails\EmailVariable;
+use App\Services\TemplateTypeRegistry;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class EmailTemplatesController extends Controller
 {
@@ -40,19 +40,12 @@ class EmailTemplatesController extends Controller
     {
         $this->authorize('manage', Setting::class);
 
-        $templateTypes = collect(\App\Services\TemplateTypeRegistry::all())
-            ->mapWithKeys(function ($type) {
-                $label = \App\Services\TemplateTypeRegistry::getLabel($type) ?: (\App\Enums\TemplateType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
-                return [$type => $label];
-            })
-            ->toArray();
-
         $this->setBreadcrumbTitle(__('Create Template'))
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Email Templates'), route('admin.email-templates.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.email-templates.create', [
-            'templateTypes' => $templateTypes,
+            'templateTypes' => TemplateTypeRegistry::getDropdownItems(),
             'availableTemplates' => $this->emailTemplateService->getAllTemplates(),
             'headerTemplates' => $this->emailTemplateService->getTemplatesByType(TemplateType::HEADER),
             'footerTemplates' => $this->emailTemplateService->getTemplatesByType(TemplateType::FOOTER),
@@ -113,13 +106,6 @@ class EmailTemplatesController extends Controller
     public function edit(EmailTemplate $emailTemplate): Renderable
     {
         $this->authorize('manage', Setting::class);
-        $templateTypes = collect(\App\Services\TemplateTypeRegistry::all())
-            ->mapWithKeys(function ($type) {
-                $label = \App\Services\TemplateTypeRegistry::getLabel($type) ?: (\App\Enums\TemplateType::tryFrom($type)?->label() ?? ucfirst(str_replace('_', ' ', $type)));
-                return [$type => $label];
-            })
-            ->toArray();
-
         $availableTemplates = $this->emailTemplateService->getAllTemplatesExcept($emailTemplate->id);
         $headerTemplates = $this->emailTemplateService->getAllTemplatesExcept($emailTemplate->id);
         $footerTemplates = $this->emailTemplateService->getAllTemplatesExcept($emailTemplate->id);
@@ -130,7 +116,7 @@ class EmailTemplatesController extends Controller
 
         return $this->renderViewWithBreadcrumbs('backend.pages.email-templates.edit', [
             'emailTemplate' => $emailTemplate,
-            'templateTypes' => $templateTypes,
+            'templateTypes' => TemplateTypeRegistry::getDropdownItems(),
             'selectedType' => $emailTemplate->type,
             'availableTemplates' => $availableTemplates,
             'headerTemplates' => $headerTemplates,
@@ -185,33 +171,6 @@ class EmailTemplatesController extends Controller
             return redirect()
                 ->back()
                 ->with('error', __('Failed to delete email template: :error', ['error' => $e->getMessage()]));
-        }
-    }
-
-    public function sendTestEmail(EmailTemplate $emailTemplate, Request $request): JsonResponse
-    {
-        $this->authorize('manage', Setting::class);
-
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        try {
-            $rendered = $emailTemplate->renderTemplate($this->emailVariable->getPreviewSampleData());
-            Mail::send([], [], function ($message) use ($rendered, $request) {
-                $message->to($request->input('email'))
-                    ->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject($rendered['subject'])
-                    ->html($rendered['body_html']);
-            });
-
-            return response()->json(['message' => __('Test email sent successfully')]);
-        } catch (\Exception $e) {
-            $this->logAction('Failed to Send Test Email Template', $emailTemplate, [
-                'to' => $request->input('email'),
-                'error' => $e->getMessage(),
-            ]);
-            return response()->json(['message' => 'Failed to send test email: ' . $e->getMessage()], 500);
         }
     }
 
