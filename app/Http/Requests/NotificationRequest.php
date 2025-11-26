@@ -36,8 +36,6 @@ class NotificationRequest extends FormRequest
             'reply_to_email' => 'nullable|email|max:255',
             'reply_to_name' => 'nullable|string|max:255',
             'is_active' => 'boolean',
-            'track_opens' => 'boolean',
-            'track_clicks' => 'boolean',
             'settings' => 'nullable|array',
         ];
 
@@ -91,8 +89,6 @@ class NotificationRequest extends FormRequest
 
         $this->merge([
             'is_active' => $this->boolean('is_active', true),
-            'track_opens' => $this->boolean('track_opens', true),
-            'track_clicks' => $this->boolean('track_clicks', true),
             'from_email' => $this->from_email ?: null,
             'from_name' => $this->from_name ?: null,
             'reply_to_email' => $this->reply_to_email ?: null,

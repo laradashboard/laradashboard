@@ -20,7 +20,7 @@ class EmailTemplateService
         }
 
         $query = EmailTemplate::query()
-            ->with(['creator', 'updater']);
+            ->with(['creator', 'updater', 'headerTemplate', 'footerTemplate']);
 
         if (isset($filter['search']) && ! empty($filter['search'])) {
             $search = $filter['search'];
@@ -106,7 +106,7 @@ class EmailTemplateService
             }
 
             $template = EmailTemplate::create($data);
-            return $template->load(['creator', 'updater']);
+            return $template->load(['creator', 'updater', 'headerTemplate', 'footerTemplate']);
         });
     }
 

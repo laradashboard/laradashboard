@@ -28,8 +28,6 @@ class NotificationResource extends JsonResource
             'receiver_ids' => $this->receiver_ids,
             'receiver_emails' => $this->receiver_emails,
             'is_active' => (bool) $this->is_active,
-            'track_opens' => (bool) $this->track_opens,
-            'track_clicks' => (bool) $this->track_clicks,
             'settings' => $this->settings,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,

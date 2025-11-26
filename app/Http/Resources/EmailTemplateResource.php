@@ -28,6 +28,12 @@ class EmailTemplateResource extends JsonResource
             'is_deleteable' => (bool) $this->is_deleteable,
             'header_template_id' => $this->header_template_id,
             'footer_template_id' => $this->footer_template_id,
+            'header_template' => $this->whenLoaded('headerTemplate', function () {
+                return new EmailTemplateResource($this->headerTemplate);
+            }),
+            'footer_template' => $this->whenLoaded('footerTemplate', function () {
+                return new EmailTemplateResource($this->footerTemplate);
+            }),
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
             'created_at' => $this->created_at,

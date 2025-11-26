@@ -23,8 +23,6 @@ return new class () extends Migration {
             $table->json('receiver_emails')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_deleteable')->default(true);
-            $table->boolean('track_opens')->default(true);
-            $table->boolean('track_clicks')->default(true);
             $table->json('settings')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
