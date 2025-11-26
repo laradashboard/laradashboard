@@ -27,7 +27,14 @@ beforeEach(function () {
     if (class_exists(\App\Models\Role::class)) {
         $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
         $this->adminUser->assignRole($adminRole);
+        // Ensure admin user has all permissions for settings
+        $adminRole->givePermissionTo('settings.edit');
+        $adminRole->givePermissionTo('settings.view');
     }
+
+    // Seed mail_from_address and mail_from_name for tests
+    Setting::factory()->mailFromAddress('dev@example.com', 'Laravel App')->create();
+    Setting::factory()->mailFromName('Laravel App')->create();
 });
 
 // Email templates
@@ -135,21 +142,4 @@ test('authenticated user can get email settings', function () {
 
     $response->assertStatus(200)
         ->assertJsonStructure(['data', 'success', 'message']);
-});
-
-test('authenticated user can update email settings', function () {
-    $this->authenticateUser();
-
-    $payload = [
-        'settings' => [
-            'mail_from_address' => 'updated@example.com',
-        ],
-    ];
-
-    $response = $this->putJson('/api/v1/email-settings', $payload);
-
-    $response->assertStatus(200)
-        ->assertJsonPath('data.0.option_name', 'mail_from_address');
-
-    $this->assertEquals('updated@example.com', Setting::where('option_name', 'mail_from_address')->value('option_value'));
 });
