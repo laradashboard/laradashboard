@@ -29,8 +29,6 @@ class Notification extends Model
         'receiver_emails',
         'is_active',
         'is_deleteable',
-        'track_opens',
-        'track_clicks',
         'settings',
         'created_by',
         'updated_by',
@@ -43,8 +41,6 @@ class Notification extends Model
         'receiver_emails' => 'array',
         'is_active' => 'boolean',
         'is_deleteable' => 'boolean',
-        'track_opens' => 'boolean',
-        'track_clicks' => 'boolean',
         'settings' => 'array',
     ];
 

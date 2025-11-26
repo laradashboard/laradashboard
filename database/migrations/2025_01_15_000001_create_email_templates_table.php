@@ -18,7 +18,6 @@ return new class () extends Migration {
             $table->string('subject')->nullable();
             $table->longText('body_html')->nullable();
             $table->string('type')->default(TemplateType::EMAIL->value);
-            $table->string('preview_image')->nullable();
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_deleteable')->default(true);
