@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Concerns\HasActionLogTrait;
 use App\Services\UserService;
 
+
 class UserObserver
 {
     use HasActionLogTrait;

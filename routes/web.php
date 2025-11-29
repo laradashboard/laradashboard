@@ -127,6 +127,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
         Route::get('/providers', [AiContentController::class, 'getProviders'])->name('providers');
         Route::post('/generate-content', [AiContentController::class, 'generateContent'])->name('generate-content');
     });
+
+
 });
 
 /**
@@ -141,3 +143,10 @@ Route::group(['prefix' => 'profile', 'as' => 'profile.', 'middleware' => ['auth'
 Route::get('/locale/{lang}', [LocaleController::class, 'switch'])->name('locale.switch');
 Route::get('/screenshot-login/{email}', [ScreenshotGeneratorLoginController::class, 'login'])->middleware('web')->name('screenshot.login');
 Route::get('/demo-preview', fn () => view('demo.preview'))->name('demo.preview');
+
+// Email Unsubscribe Routes
+Route::prefix('unsubscribe')->name('unsubscribe.')->group(function () {
+    Route::get('/{encryptedEmail}', [App\Http\Controllers\UnsubscribeController::class, 'unsubscribe'])->name('process');
+    Route::get('/confirm/{encryptedEmail}', [App\Http\Controllers\UnsubscribeController::class, 'confirm'])->name('confirm');
+    Route::post('/process/{encryptedEmail}', [App\Http\Controllers\UnsubscribeController::class, 'processConfirmed'])->name('confirmed');
+});

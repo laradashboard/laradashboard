@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\EmailTemplate;
 use App\Enums\TemplateType;
+use App\Services\EmailSubscriptionService;
 use Illuminate\Support\Str;
 
 class EmailTemplateSeeder extends Seeder
@@ -35,6 +36,7 @@ class EmailTemplateSeeder extends Seeder
             $this->getNewsletterTemplates(),
             $this->getEventTemplates(),
             $this->getEcommerceTemplates(),
+            $this->getCrmTemplates(),
         );
     }
 
@@ -294,12 +296,17 @@ class EmailTemplateSeeder extends Seeder
 
     private function createTemplate(string $name, string $subject, TemplateType $type, string $description, string $html, $active = false, $deletable = true): array
     {
+        // Add unsubscribe footer to promotional emails
+        if (in_array($type, [TemplateType::PROMOTIONAL, TemplateType::NEWSLETTER])) {
+            $html = $this->addUnsubscribeFooter($html);
+        }
+        
         return [
             'uuid' => Str::uuid(),
             'name' => $name,
             'subject' => $subject,
             'body_html' => $html,
-            'type' => $type,
+            'type' => $type->value,
             'description' => $description,
             'is_active' => $active,
             'is_deleteable' => $deletable,
@@ -307,6 +314,51 @@ class EmailTemplateSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now(),
         ];
+    }
+    
+    /**
+     * Add unsubscribe footer to email template
+     */
+    private function addUnsubscribeFooter(string $html): string
+    {
+        $unsubscribeFooter = <<<'HTML'
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 20px 40px; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="margin: 0 0 10px 0; font-size: 12px; color: #6b7280; line-height: 1.6;">
+                                If you no longer wish to receive these emails, you can 
+                                <a href="{unsubscribe_url}" style="color: #3b82f6; text-decoration: none;">unsubscribe here</a>.
+                            </p>
+                            <p style="margin: 0; font-size: 11px; color: #9ca3af;">
+                                This email was sent to {email}
+                            </p>
+                        </td>
+                    </tr>
+HTML;
+        
+        // Insert unsubscribe footer before the last closing table tag
+        $html = str_replace(
+            '</table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>',
+            $unsubscribeFooter . '\n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>',
+            $html
+        );
+        
+        // Fallback: if the above pattern doesn't match, append before </body>
+        if (!str_contains($html, '{unsubscribe_url}')) {
+            $simpleFooter = <<<'HTML'
+<div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #9ca3af;">
+    <p style="margin: 0 0 10px 0;">
+        If you no longer wish to receive these emails, you can 
+        <a href="{unsubscribe_url}" style="color: #3b82f6; text-decoration: none;">unsubscribe here</a>.
+    </p>
+    <p style="margin: 0; font-size: 11px; color: #6b7280;">
+        This email was sent to {email}
+    </p>
+</div>
+HTML;
+            $html = str_replace('</body>', $simpleFooter . '\n</body>', $html);
+        }
+        
+        return $html;
     }
 
     private function getPasswordReset(): string
@@ -2134,7 +2186,7 @@ HTML;
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #fef3c7;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f4f7fa;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef3c7; padding: 40px 20px;">
         <tr>
             <td align="center">
@@ -2826,4 +2878,321 @@ HTML;
 HTML;
     }
 
+    private function getCrmTemplates(): array
+    {
+        return [
+            $this->createTemplate(
+                'Activity Created',
+                'New Activity: {activity_title}',
+                TemplateType::NOTIFICATION,
+                'Email template for activity creation notifications',
+                $this->getActivityCreated(),
+                true,
+                false
+            ),
+            $this->createTemplate(
+                'Activity Updated',
+                'Activity Updated: {activity_title}',
+                TemplateType::NOTIFICATION,
+                'Email template for activity update notifications',
+                $this->getActivityUpdated(),
+                true,
+                false
+            ),
+            $this->createTemplate(
+                'Activity Deleted',
+                'Activity Removed: {activity_title}',
+                TemplateType::NOTIFICATION,
+                'Email template for activity deletion notifications',
+                $this->getActivityDeleted(),
+                true,
+                false
+            ),
+        ];
+    }
+
+    private function getActivityCreated(): string
+    {
+        return <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f4f7fa;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0f9ff; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <tr>
+                        <td style="padding: 40px 30px; text-align: center; background: #635bff; border-radius: 10px;">
+                            {site_icon_image}
+                            <h1 style="color: #ffffff; margin: 15px 0 0 0; font-size: 28px; font-weight: bold;">New Activity Created</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                                Hello <strong>{recipient_name}</strong>,
+                            </p>
+                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                                A new activity has been created and assigned to you.
+                            </p>
+                            
+                            <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0; border-radius: 4px;">
+                                <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #1e40af;">Activity Details</h3>
+                                <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px; color: #374151;">
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Title:</td>
+                                        <td style="padding: 8px 0;">{activity_title}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Type:</td>
+                                        <td style="padding: 8px 0;">{activity_type}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Due Date:</td>
+                                        <td style="padding: 8px 0;">{due_date}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Contact:</td>
+                                        <td style="padding: 8px 0;">{contact_name}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Assigned To:</td>
+                                        <td style="padding: 8px 0;">{assigned_to}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Created By:</td>
+                                        <td style="padding: 8px 0;">{created_by}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div style="background-color: #f9fafb; padding: 20px; margin: 30px 0; border-radius: 8px;">
+                                <h4 style="margin: 0 0 10px 0; font-size: 16px; color: #374151;">Description:</h4>
+                                <p style="margin: 0; font-size: 14px; color: #6b7280; line-height: 1.6;">{activity_description}</p>
+                            </div>
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="{activity_url}" style="display: inline-block; padding: 16px 40px; background: #635bff; color: #ffffff; text-decoration: none; border-radius: 10px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(99, 91, 255, 0.4);">
+                                    View Activity
+                                </a>
+                            </div>
+                            
+                            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 30px 0 0;">
+                                Best regards,<br>
+                                <strong>The {company} Team</strong>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="font-size: 12px; color: #999999; margin: 0;">
+                                © {year} {company}. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+    }
+
+    private function getActivityUpdated(): string
+    {
+        return <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #fef3c7;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef3c7; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <tr>
+                        <td style="padding: 40px 30px; text-align: center; background: #635bff; border-radius: 10px;">
+                            {site_icon_image}
+                            <h1 style="color: #ffffff; margin: 15px 0 0 0; font-size: 28px; font-weight: bold;">Activity Updated</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                                Hello <strong>{recipient_name}</strong>,
+                            </p>
+                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                                An activity assigned to you has been updated.
+                            </p>
+                            
+                            <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0; border-radius: 4px;">
+                                <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #92400e;">Updated Activity Details</h3>
+                                <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px; color: #78350f;">
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Title:</td>
+                                        <td style="padding: 8px 0;">{activity_title}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Type:</td>
+                                        <td style="padding: 8px 0;">{activity_type}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Due Date:</td>
+                                        <td style="padding: 8px 0;">{due_date}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Contact:</td>
+                                        <td style="padding: 8px 0;">{contact_name}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Assigned To:</td>
+                                        <td style="padding: 8px 0;">{assigned_to}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Updated By:</td>
+                                        <td style="padding: 8px 0;">{updated_by}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Updated Date:</td>
+                                        <td style="padding: 8px 0;">{updated_date}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div style="background-color: #f9fafb; padding: 20px; margin: 30px 0; border-radius: 8px;">
+                                <h4 style="margin: 0 0 10px 0; font-size: 16px; color: #374151;">Update Summary:</h4>
+                                <p style="margin: 0; font-size: 14px; color: #6b7280; line-height: 1.6;">{update_summary}</p>
+                            </div>
+                            
+                            <div style="background-color: #f9fafb; padding: 20px; margin: 30px 0; border-radius: 8px;">
+                                <h4 style="margin: 0 0 10px 0; font-size: 16px; color: #374151;">Description:</h4>
+                                <p style="margin: 0; font-size: 14px; color: #6b7280; line-height: 1.6;">{activity_description}</p>
+                            </div>
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="{activity_url}" style="display: inline-block; padding: 16px 40px; background: #635bff; color: #ffffff; text-decoration: none; border-radius: 10px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(99, 91, 255, 0.4);">
+                                    View Updated Activity
+                                </a>
+                            </div>
+                            
+                            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 30px 0 0;">
+                                Best regards,<br>
+                                <strong>The {company} Team</strong>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="font-size: 12px; color: #999999; margin: 0;">
+                                © {year} {company}. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+    }
+
+    private function getActivityDeleted(): string
+    {
+        return <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f4f7fa;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef2f2; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <tr>
+                        <td style="padding: 40px 30px; text-align: center; background: #635bff; border-radius: 10px;">
+                            {site_icon_image}
+                            <h1 style="color: #ffffff; margin: 15px 0 0 0; font-size: 28px; font-weight: bold;">Activity Removed</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                                Hello <strong>{recipient_name}</strong>,
+                            </p>
+                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                                An activity that was assigned to you has been removed from the system.
+                            </p>
+                            
+                            <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 20px; margin: 30px 0; border-radius: 4px;">
+                                <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #dc2626;">Removed Activity Details</h3>
+                                <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px; color: #991b1b;">
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Title:</td>
+                                        <td style="padding: 8px 0;">{activity_title}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Type:</td>
+                                        <td style="padding: 8px 0;">{activity_type}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Contact:</td>
+                                        <td style="padding: 8px 0;">{contact_name}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Was Assigned To:</td>
+                                        <td style="padding: 8px 0;">{assigned_to}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Deleted By:</td>
+                                        <td style="padding: 8px 0;">{deleted_by}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; font-weight: 600;">Deleted Date:</td>
+                                        <td style="padding: 8px 0;">{deleted_date}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div style="background-color: #f9fafb; padding: 20px; margin: 30px 0; border-radius: 8px;">
+                                <h4 style="margin: 0 0 10px 0; font-size: 16px; color: #374151;">Reason for Removal:</h4>
+                                <p style="margin: 0; font-size: 14px; color: #6b7280; line-height: 1.6;">{deletion_reason}</p>
+                            </div>
+                            
+                            <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0; border-radius: 4px;">
+                                <p style="margin: 0; font-size: 14px; color: #1e40af; line-height: 1.6;">
+                                    <strong>Note:</strong> This activity is no longer available in the system. If you have any questions about this removal, please contact your administrator.
+                                </p>
+                            </div>
+                            
+                            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 30px 0 0;">
+                                Best regards,<br>
+                                <strong>The {company} Team</strong>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e9ecef;">
+                            <p style="font-size: 12px; color: #999999; margin: 0;">
+                                © {year} {company}. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+    }
 }

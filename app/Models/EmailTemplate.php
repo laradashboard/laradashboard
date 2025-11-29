@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Enums\TemplateType;
 use App\Concerns\QueryBuilderTrait;
 use App\Services\TemplateTypeRegistry;
+use App\Services\UnsubscribeService;
 use Illuminate\Support\Str;
 
 class EmailTemplate extends Model
@@ -28,6 +29,8 @@ class EmailTemplate extends Model
         'description',
         'is_active',
         'is_deleteable',
+        'is_default',
+        'variables',
         'created_by',
         'updated_by',
         'header_template_id',
@@ -37,8 +40,9 @@ class EmailTemplate extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'is_deleteable' => 'boolean',
-        // Use string casting to support module-registered template types, provide accessors for label/icon/color
+        'is_default' => 'boolean',
         'type' => 'string',
+        'variables' => 'array',
     ];
 
     protected static function boot()
@@ -77,7 +81,7 @@ class EmailTemplate extends Model
         return $this->belongsTo(EmailTemplate::class, 'footer_template_id');
     }
 
-    public function renderTemplate(array $data = []): array
+    public function renderTemplate(array $data = [], ?string $recipientEmail = null, string $userType = 'user', ?int $userId = null): array
     {
         $subject = $this->subject;
         $bodyHtml = $this->body_html ?? '';
@@ -115,10 +119,20 @@ class EmailTemplate extends Model
             $bodyHtml = str_replace($placeholder, (string) $value, (string) $bodyHtml);
         }
 
+        // Add unsubscribe footer if recipient email is provided
+        if ($recipientEmail) {
+            $bodyHtml = $this->addUnsubscribeFooter($bodyHtml, $recipientEmail, $userType, $userId);
+        }
+
         return [
             'subject' => $subject,
             'body_html' => $bodyHtml,
         ];
+    }
+
+    private function addUnsubscribeFooter(string $content, string $email, string $userType = 'user', ?int $userId = null): string
+    {
+        return app(UnsubscribeService::class)->addFooterToEmail($content, $email);
     }
 
     public function getRawEmailTemplate(): string

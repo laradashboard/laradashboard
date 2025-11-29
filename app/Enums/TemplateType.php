@@ -18,6 +18,7 @@ enum TemplateType: string
     case TRANSACTIONAL = 'transactional';
     case REMINDER = 'reminder';
     case AUTHENTICATION = 'authentication';
+    case NOTIFICATION = 'notification';
 
     public function label(): string
     {
@@ -32,6 +33,7 @@ enum TemplateType: string
             self::PROMOTIONAL => 'Promotional',
             self::TRANSACTIONAL => 'Transactional',
             self::REMINDER => 'Reminder',
+            self::NOTIFICATION => 'Notification',
         };
     }
 
@@ -48,6 +50,7 @@ enum TemplateType: string
             self::PROMOTIONAL => '#ef4444',
             self::TRANSACTIONAL => '#8b5cf6',
             self::REMINDER => '#f97316',
+            self::NOTIFICATION => '#6366f1',
         };
     }
 
@@ -64,6 +67,7 @@ enum TemplateType: string
             self::PROMOTIONAL => 'bi bi-megaphone',
             self::TRANSACTIONAL => 'bi bi-receipt',
             self::REMINDER => 'bi bi-bell',
+            self::NOTIFICATION => 'bi bi-bell-fill',
         };
     }
 

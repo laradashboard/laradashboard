@@ -5,9 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
@@ -25,6 +22,10 @@ return new class () extends Migration {
             $table->boolean('is_deleteable')->default(true);
             $table->boolean('track_opens')->default(true);
             $table->boolean('track_clicks')->default(true);
+            $table->string('from_email')->nullable();
+            $table->string('from_name')->nullable();
+            $table->string('reply_to_email')->nullable();
+            $table->string('reply_to_name')->nullable();
             $table->json('settings')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
@@ -36,9 +37,6 @@ return new class () extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('notifications');
