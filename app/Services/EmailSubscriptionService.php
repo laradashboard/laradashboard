@@ -24,8 +24,8 @@ class EmailSubscriptionService
     public function unsubscribe(string $email): bool
     {
         $subscription = EmailSubscription::where('email', $email)->first();
-        
-        if (!$subscription) {
+
+        if (! $subscription) {
             return false;
         }
 
@@ -35,20 +35,20 @@ class EmailSubscriptionService
     public function isSubscribed(string $email): bool
     {
         $subscription = EmailSubscription::where('email', $email)->first();
-        
+
         return $subscription ? $subscription->isSubscribed() : false;
     }
 
     public function generateUnsubscribeUrl(string $email): string
     {
         $subscription = $this->subscribe($email);
-        
-        if (!$subscription->unsubscribe_token) {
+
+        if (! $subscription->unsubscribe_token) {
             $subscription->generateUnsubscribeToken();
         }
 
         $encryptedEmail = Crypt::encryptString($email);
-        
+
         return url("/unsubscribe/{$encryptedEmail}");
     }
 
@@ -56,31 +56,31 @@ class EmailSubscriptionService
     {
         try {
             $email = Crypt::decryptString($encryptedEmail);
-            
+
             $success = $this->unsubscribe($email);
-            
+
             if ($success) {
                 Log::info("Email unsubscribed successfully: {$email}");
                 return [
                     'success' => true,
                     'message' => 'You have been successfully unsubscribed.',
-                    'email' => $email
+                    'email' => $email,
                 ];
             }
 
             return [
                 'success' => false,
                 'message' => 'Email address not found in our subscription list.',
-                'email' => $email
+                'email' => $email,
             ];
 
         } catch (\Exception $e) {
             Log::error('Unsubscribe error: ' . $e->getMessage());
-            
+
             return [
                 'success' => false,
                 'message' => 'Invalid unsubscribe link.',
-                'email' => null
+                'email' => null,
             ];
         }
     }
@@ -97,7 +97,7 @@ class EmailSubscriptionService
     public function getUnsubscribeFooter(string $email): string
     {
         $unsubscribeUrl = $this->generateUnsubscribeUrl($email);
-        
+
         return <<<HTML
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #9ca3af;">
             <p style="margin: 0 0 10px 0;">

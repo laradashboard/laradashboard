@@ -128,7 +128,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
         Route::post('/generate-content', [AiContentController::class, 'generateContent'])->name('generate-content');
     });
 
-
 });
 
 /**

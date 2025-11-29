@@ -14,16 +14,17 @@ class UnsubscribeController extends Controller
 {
     public function __construct(
         private EmailSubscriptionService $subscriptionService
-    ) {}
+    ) {
+    }
 
     public function unsubscribe(string $encryptedEmail): View
     {
         $result = $this->subscriptionService->processUnsubscribe($encryptedEmail);
-        
+
         return view('unsubscribe.result', [
             'success' => $result['success'],
             'message' => $result['message'],
-            'email' => $result['email']
+            'email' => $result['email'],
         ]);
     }
 
@@ -31,16 +32,16 @@ class UnsubscribeController extends Controller
     {
         try {
             $email = Crypt::decryptString($encryptedEmail);
-            
+
             return view('unsubscribe.confirm', [
                 'email' => $email,
-                'encryptedEmail' => $encryptedEmail
+                'encryptedEmail' => $encryptedEmail,
             ]);
         } catch (\Exception $e) {
             return view('unsubscribe.result', [
                 'success' => false,
                 'message' => 'Invalid unsubscribe link.',
-                'email' => null
+                'email' => null,
             ]);
         }
     }
@@ -48,7 +49,7 @@ class UnsubscribeController extends Controller
     public function processConfirmed(Request $request, string $encryptedEmail): RedirectResponse
     {
         $result = $this->subscriptionService->processUnsubscribe($encryptedEmail);
-        
+
         return redirect()->route('unsubscribe.result', $encryptedEmail)
             ->with('result', $result);
     }

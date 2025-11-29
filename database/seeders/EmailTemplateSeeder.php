@@ -7,7 +7,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\EmailTemplate;
 use App\Enums\TemplateType;
-use App\Services\EmailSubscriptionService;
 use Illuminate\Support\Str;
 
 class EmailTemplateSeeder extends Seeder
@@ -300,7 +299,7 @@ class EmailTemplateSeeder extends Seeder
         if (in_array($type, [TemplateType::PROMOTIONAL, TemplateType::NEWSLETTER])) {
             $html = $this->addUnsubscribeFooter($html);
         }
-        
+
         return [
             'uuid' => Str::uuid(),
             'name' => $name,
@@ -315,7 +314,7 @@ class EmailTemplateSeeder extends Seeder
             'updated_at' => now(),
         ];
     }
-    
+
     /**
      * Add unsubscribe footer to email template
      */
@@ -334,16 +333,16 @@ class EmailTemplateSeeder extends Seeder
                         </td>
                     </tr>
 HTML;
-        
+
         // Insert unsubscribe footer before the last closing table tag
         $html = str_replace(
             '</table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>',
             $unsubscribeFooter . '\n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>',
             $html
         );
-        
+
         // Fallback: if the above pattern doesn't match, append before </body>
-        if (!str_contains($html, '{unsubscribe_url}')) {
+        if (! str_contains($html, '{unsubscribe_url}')) {
             $simpleFooter = <<<'HTML'
 <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #9ca3af;">
     <p style="margin: 0 0 10px 0;">
@@ -357,7 +356,7 @@ HTML;
 HTML;
             $html = str_replace('</body>', $simpleFooter . '\n</body>', $html);
         }
-        
+
         return $html;
     }
 

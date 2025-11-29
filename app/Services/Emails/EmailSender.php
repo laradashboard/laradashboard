@@ -50,7 +50,7 @@ class EmailSender
             }
 
             $message = (new MailMessage())->subject($formattedSubject);
-            
+
             $fromEmail = $from ?? config('settings.email_from_email');
             $fromName = config('settings.email_from_name');
             if (! empty($fromEmail)) {
@@ -83,6 +83,5 @@ class EmailSender
             throw $th;
         }
     }
-
 
 }

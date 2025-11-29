@@ -18,7 +18,7 @@ class UnsubscribeService
         try {
             $email = Crypt::decryptString($hash);
             $user = User::where('email', $email)->first();
-            
+
             if ($user) {
                 $user->update(['email_subscribed' => false]);
                 return view('unsubscribe-success');
@@ -26,7 +26,7 @@ class UnsubscribeService
         } catch (\Exception $e) {
             // Invalid hash
         }
-        
+
         return abort(404);
     }
 

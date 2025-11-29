@@ -84,7 +84,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Register email observer for automatic unsubscribe links
         Event::listen(MessageSending::class, [EmailObserver::class, 'sending']);
-        
+
         // Register contact observer for automatic email subscriptions
         Contact::observe(ContactObserver::class);
     }

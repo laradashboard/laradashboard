@@ -12,7 +12,8 @@ class ContactObserver
 {
     public function __construct(
         private EmailSubscriptionService $subscriptionService
-    ) {}
+    ) {
+    }
 
     public function created(Contact $contact): void
     {
