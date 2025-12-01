@@ -114,19 +114,47 @@ class ModuleService
             throw new ModuleException(__('Module upload failed. The file may not be a valid zip archive.'));
         }
 
-        $moduleName = $zip->getNameIndex(0); // Retrieve the module folder name before closing
+        $folderName = $zip->getNameIndex(0); // Retrieve the module folder name before closing.
+
+        // Check valid module structure.
+        $folderName = str_replace('/', '', $folderName);
+
+        // Security: Prevent overwriting existing modules to avoid malicious code injection.
+        // An attacker could upload a module with the same name as an already-enabled module
+        // (e.g., Crm, TaskManager, Site) to immediately execute malicious code.
+        if (File::exists($this->modulesPath . '/' . $folderName)) {
+            $zip->close();
+            throw new ModuleException(__('A module with this name already exists. Please delete the existing module first or use a different name.'));
+        }
+
+        // Extract the module.
         $zip->extractTo($this->modulesPath);
         $zip->close();
 
-        // Check valid module structure.
-        $moduleName = str_replace('/', '', $moduleName);
-        if (! File::exists($this->modulesPath . '/' . $moduleName . '/module.json')) {
+        $moduleJsonPath = $this->modulesPath . '/' . $folderName . '/module.json';
+        if (! File::exists($moduleJsonPath)) {
+            // Clean up the extracted files if module.json is missing
+            File::deleteDirectory($this->modulesPath . '/' . $folderName);
             throw new ModuleException(__('Failed to find the module in the system. Please ensure the module has a valid module.json file.'));
         }
 
-        // Save this module to the modules_statuses.json file.
+        // Get the actual module name from module.json (this is what nwidart/laravel-modules uses).
+        $moduleJson = json_decode(File::get($moduleJsonPath), true);
+        $moduleName = $moduleJson['name'] ?? $folderName;
+
+        // Security: Check if a module with this name already exists in statuses (case-insensitive).
         $moduleStatuses = $this->getModuleStatuses();
-        $moduleStatuses[$moduleName] = true;
+        foreach (array_keys($moduleStatuses) as $existingModule) {
+            if (strcasecmp($existingModule, $moduleName) === 0) {
+                // Clean up the extracted files
+                File::deleteDirectory($this->modulesPath . '/' . $folderName);
+                throw new ModuleException(__('A module with this name already exists. Please delete the existing module first or use a different name.'));
+            }
+        }
+
+        // Save this module to the modules_statuses.json file as DISABLED.
+        // New modules are disabled by default for security - admin must explicitly enable them.
+        $moduleStatuses[$moduleName] = false;
         File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
 
         // Clear the cache.
