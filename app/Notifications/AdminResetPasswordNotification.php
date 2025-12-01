@@ -20,10 +20,13 @@ class AdminResetPasswordNotification extends BaseResetPassword
      */
     public function toMail($notifiable)
     {
-        $url = url(route('admin.password.reset', [
+        // Use config('app.url') to prevent Host header injection attacks.
+        // This ensures the reset URL always uses the configured application URL
+        // rather than trusting the Host header from the request.
+        $url = config('app.url') . route('admin.password.reset', [
             'token' => $this->token,
             'email' => $notifiable->getEmailForPasswordReset(),
-        ], false));
+        ], false);
 
         // Try to get the custom notification.
         $notification = Notification::where('notification_type', NotificationType::FORGOT_PASSWORD->value)

@@ -41,7 +41,7 @@ class ModuleController extends Controller
         try {
             $this->moduleService->uploadModule($request);
 
-            session()->flash('success', __('Module uploaded successfully.'));
+            session()->flash('success', __('Module uploaded successfully. Please activate it from the list below.'));
         } catch (\Throwable $th) {
             session()->flash('error', $th->getMessage());
         }
