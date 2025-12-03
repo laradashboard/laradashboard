@@ -35,12 +35,13 @@ if (mountElement) {
             body: JSON.stringify(data),
         });
 
+        const responseData = await response.json();
+
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to save template');
+            throw new Error(responseData.message || 'Failed to save template');
         }
 
-        return response.json();
+        return responseData;
     };
 
     // Create the image upload handler

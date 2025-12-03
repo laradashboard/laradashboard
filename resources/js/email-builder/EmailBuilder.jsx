@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import BlockPanel from "./components/BlockPanel";
 import Canvas from "./components/Canvas";
 import PropertiesPanel from "./components/PropertiesPanel";
+import Toast from "./components/Toast";
 import { getBlock } from "./utils/blockRegistry";
 import { generateEmailHtml } from "./utils/generateHtml";
 
@@ -48,8 +49,13 @@ const EmailBuilder = ({
         templateData?.subject || ""
     );
     const [saving, setSaving] = useState(false);
-    const [saveStatus, setSaveStatus] = useState(null);
     const [isDirty, setIsDirty] = useState(false);
+    const [toast, setToast] = useState(null);
+
+    // Helper function to show toast
+    const showToast = useCallback((variant, title, message) => {
+        setToast({ variant, title, message });
+    }, []);
 
     // Mobile drawer states
     const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
@@ -774,21 +780,17 @@ const EmailBuilder = ({
 
     const handleSave = async () => {
         if (!templateName.trim()) {
-            setSaveStatus({
-                type: "error",
-                message: "Template name is required",
-            });
+            showToast("error", "Validation Error", "Template name is required");
             return;
         }
 
         setSaving(true);
-        setSaveStatus(null);
 
         try {
             const html = generateEmailHtml(blocks, canvasSettings);
             const designJson = { blocks, canvasSettings, version: "1.0" };
 
-            await onSave({
+            const result = await onSave({
                 name: templateName,
                 subject: templateSubject,
                 body_html: html,
@@ -804,15 +806,22 @@ const EmailBuilder = ({
             };
             setIsDirty(false);
 
-            setSaveStatus({
-                type: "success",
-                message: "Template saved successfully!",
-            });
+            // Show success toast
+            const isEdit = !!templateData?.uuid;
+            showToast(
+                "success",
+                isEdit ? "Template Updated" : "Template Created",
+                result?.message || (isEdit ? "Template updated successfully!" : "Template created successfully!")
+            );
+
+            // If creating a new template, redirect to edit page
+            if (!isEdit && result?.id) {
+                setTimeout(() => {
+                    window.location.href = `${listUrl.replace(/\/$/, '')}/${result.id}/edit`;
+                }, 500);
+            }
         } catch (error) {
-            setSaveStatus({
-                type: "error",
-                message: error.message || "Failed to save",
-            });
+            showToast("error", "Save Failed", error.message || "Failed to save template");
         } finally {
             setSaving(false);
         }
@@ -954,25 +963,6 @@ const EmailBuilder = ({
                                 className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary w-64"
                             />
                         </div>
-
-                        {/* Save status */}
-                        {saveStatus && (
-                            <div
-                                className={`text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-md ${
-                                    saveStatus.type === "success"
-                                        ? "bg-green-100 text-green-700"
-                                        : "bg-red-100 text-red-700"
-                                }`}
-                            >
-                                <span className="hidden sm:inline">{saveStatus.message}</span>
-                                <iconify-icon
-                                    icon={saveStatus.type === "success" ? "mdi:check" : "mdi:alert"}
-                                    class="sm:hidden"
-                                    width="16"
-                                    height="16"
-                                ></iconify-icon>
-                            </div>
-                        )}
 
                         {/* Save button */}
                         <button
@@ -1254,6 +1244,9 @@ const EmailBuilder = ({
                     </div>
                 )}
             </DragOverlay>
+
+            {/* Toast notification */}
+            <Toast toast={toast} onClose={() => setToast(null)} />
         </DndContext>
     );
 };
