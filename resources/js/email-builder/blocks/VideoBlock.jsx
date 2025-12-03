@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 
 // Helper to extract video ID and platform from URL
 export const parseVideoUrl = (url) => {
@@ -29,7 +29,7 @@ export const parseVideoUrl = (url) => {
             platform: 'vimeo',
             videoId: vimeoMatch[1],
             embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}`,
-            thumbnailUrl: null, // Vimeo requires API call for thumbnail
+            thumbnailUrl: null,
         };
     }
 
@@ -72,6 +72,13 @@ export const parseVideoUrl = (url) => {
     return null;
 };
 
+// Check if URL is a direct video file
+const isDirectVideoUrl = (url) => {
+    if (!url) return false;
+    const videoExtensions = /\.(mp4|webm|ogg|mov|avi|m4v)(\?.*)?$/i;
+    return videoExtensions.test(url);
+};
+
 // Get platform icon
 const getPlatformIcon = (platform) => {
     const icons = {
@@ -96,14 +103,61 @@ const getPlatformColor = (platform) => {
     return colors[platform] || '#FF0000';
 };
 
-const PLACEHOLDER_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="340" viewBox="0 0 600 340"%3E%3Crect fill="%231a1a2e" width="600" height="340"/%3E%3Ctext fill="%23ffffff" font-family="Arial" font-size="24" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EVideo Thumbnail%3C/text%3E%3C/svg%3E';
+const PLACEHOLDER_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="340" viewBox="0 0 600 340"%3E%3Crect fill="%231a1a2e" width="600" height="340"/%3E%3Ctext fill="%23ffffff" font-family="Arial" font-size="24" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EVideo%3C/text%3E%3C/svg%3E';
 
 const VideoBlock = ({ props, isSelected }) => {
     const [imageError, setImageError] = useState(false);
-    const videoInfo = useMemo(() => parseVideoUrl(props.videoUrl), [props.videoUrl]);
+    const [generatedThumbnail, setGeneratedThumbnail] = useState(null);
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
 
-    // Use auto-detected thumbnail if no custom one provided
-    const thumbnailSrc = props.thumbnailUrl || videoInfo?.thumbnailUrl;
+    const videoInfo = useMemo(() => parseVideoUrl(props.videoUrl), [props.videoUrl]);
+    const isDirectVideo = useMemo(() => isDirectVideoUrl(props.videoUrl), [props.videoUrl]);
+
+    // Generate thumbnail from direct video file
+    useEffect(() => {
+        if (!isDirectVideo || props.thumbnailUrl || !props.videoUrl) {
+            setGeneratedThumbnail(null);
+            return;
+        }
+
+        const video = document.createElement('video');
+        video.crossOrigin = 'anonymous';
+        video.src = props.videoUrl;
+        video.muted = true;
+        video.preload = 'metadata';
+
+        video.onloadeddata = () => {
+            // Seek to 1 second or 10% of video, whichever is smaller
+            video.currentTime = Math.min(1, video.duration * 0.1);
+        };
+
+        video.onseeked = () => {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 360;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                setGeneratedThumbnail(dataUrl);
+            } catch (e) {
+                // CORS or other error - use placeholder
+                setGeneratedThumbnail(null);
+            }
+        };
+
+        video.onerror = () => {
+            setGeneratedThumbnail(null);
+        };
+
+        return () => {
+            video.src = '';
+        };
+    }, [props.videoUrl, props.thumbnailUrl, isDirectVideo]);
+
+    // Determine thumbnail to display
+    const thumbnailSrc = props.thumbnailUrl || videoInfo?.thumbnailUrl || generatedThumbnail;
     const displayThumbnail = imageError || !thumbnailSrc ? PLACEHOLDER_IMAGE : thumbnailSrc;
     const playButtonColor = props.playButtonColor || (videoInfo ? getPlatformColor(videoInfo.platform) : '#FF0000');
 
@@ -180,6 +234,18 @@ const VideoBlock = ({ props, isSelected }) => {
         setImageError(false);
     }, [thumbnailSrc]);
 
+    // Show empty state if no video URL
+    if (!props.videoUrl) {
+        return (
+            <div style={containerStyle}>
+                <div className="bg-gray-100 border-2 border-dashed border-gray-300 text-gray-400 p-8 rounded text-center">
+                    <iconify-icon icon="mdi:video-plus" width="32" height="32" class="mb-2"></iconify-icon>
+                    <div className="text-sm">Add video in the right panel</div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div style={containerStyle}>
             <div style={wrapperStyle}>
@@ -198,12 +264,13 @@ const VideoBlock = ({ props, isSelected }) => {
                         <span style={{ textTransform: 'capitalize' }}>{videoInfo.platform}</span>
                     </div>
                 )}
+                {isDirectVideo && !videoInfo && (
+                    <div style={platformBadgeStyle}>
+                        <iconify-icon icon="mdi:video" width="16" height="16"></iconify-icon>
+                        <span>Video</span>
+                    </div>
+                )}
             </div>
-            {props.videoUrl && !videoInfo && (
-                <p style={{ fontSize: '11px', color: '#f59e0b', marginTop: '8px' }}>
-                    Custom video URL (not a recognized platform)
-                </p>
-            )}
         </div>
     );
 };

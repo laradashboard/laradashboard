@@ -48,7 +48,7 @@ export const defaultBlocks = [
         category: 'Content',
         icon: 'mdi:format-text',
         defaultProps: {
-            content: '<p>Click to edit this text. You can add <strong>bold</strong>, <em>italic</em>, and other formatting.</p>',
+            content: 'Click to edit this text.',
             align: 'left',
             color: '#666666',
             fontSize: '16px',
@@ -61,7 +61,7 @@ export const defaultBlocks = [
         category: 'Content',
         icon: 'mdi:image-outline',
         defaultProps: {
-            src: 'https://via.placeholder.com/600x300',
+            src: '',
             alt: 'Image description',
             width: '100%',
             height: 'auto',
