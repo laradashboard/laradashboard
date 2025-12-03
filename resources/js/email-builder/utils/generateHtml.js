@@ -1,9 +1,13 @@
 /**
  * Generate HTML from blocks for email export
+ * @param {Object} block - The block to generate HTML for
+ * @param {Object} options - Options for HTML generation
+ * @param {boolean} options.previewMode - If true, use browser-compatible elements (like <video>) for preview
  */
 
-export const generateBlockHtml = (block) => {
+export const generateBlockHtml = (block, options = {}) => {
     const { type, props } = block;
+    const { previewMode = false } = options;
 
     switch (type) {
         case 'heading':
@@ -39,7 +43,7 @@ export const generateBlockHtml = (block) => {
         case 'columns':
             const columnWidth = `${100 / props.columns}%`;
             const columnsHtml = props.children.map((columnBlocks, index) => {
-                const columnContent = columnBlocks.map(b => generateBlockHtml(b)).join('');
+                const columnContent = columnBlocks.map(b => generateBlockHtml(b, options)).join('');
                 return `<td style="width: ${columnWidth}; vertical-align: top; padding: 0 ${index < props.columns - 1 ? props.gap : '0'} 0 0;">${columnContent || '&nbsp;'}</td>`;
             }).join('');
             return `
@@ -91,27 +95,72 @@ export const generateBlockHtml = (block) => {
             return `<${listTag} style="color: ${props.color || '#333333'}; font-size: ${props.fontSize || '16px'}; line-height: 1.8; margin: 0; padding-left: 24px;">${listItems}</${listTag}>`;
 
         case 'video':
+            // Check if it's a direct video file
+            const isDirectVideoFile = (url) => {
+                if (!url) return false;
+                const videoExtensions = /\.(mp4|webm|ogg|mov|avi|m4v)(\?.*)?$/i;
+                return videoExtensions.test(url);
+            };
+
             // Parse video URL to get platform-specific info
             const parseVideoUrlForHtml = (url) => {
                 if (!url) return null;
                 // YouTube
                 const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
-                if (ytMatch) return { platform: 'youtube', id: ytMatch[1], thumbnail: `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg`, color: '#FF0000' };
+                if (ytMatch) return { platform: 'youtube', id: ytMatch[1], thumbnail: `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg`, color: '#FF0000', embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}` };
                 // Vimeo
                 const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-                if (vimeoMatch) return { platform: 'vimeo', id: vimeoMatch[1], thumbnail: null, color: '#1AB7EA' };
+                if (vimeoMatch) return { platform: 'vimeo', id: vimeoMatch[1], thumbnail: null, color: '#1AB7EA', embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
                 // Dailymotion
                 const dmMatch = url.match(/(?:dailymotion\.com\/video\/|dai\.ly\/)([a-zA-Z0-9]+)/);
-                if (dmMatch) return { platform: 'dailymotion', id: dmMatch[1], thumbnail: `https://www.dailymotion.com/thumbnail/video/${dmMatch[1]}`, color: '#00AAFF' };
+                if (dmMatch) return { platform: 'dailymotion', id: dmMatch[1], thumbnail: `https://www.dailymotion.com/thumbnail/video/${dmMatch[1]}`, color: '#00AAFF', embedUrl: `https://www.dailymotion.com/embed/video/${dmMatch[1]}` };
                 return null;
             };
+
+            const isDirectVideo = isDirectVideoFile(props.videoUrl);
             const vidInfo = parseVideoUrlForHtml(props.videoUrl);
-            const vidThumbnail = props.thumbnailUrl || vidInfo?.thumbnail || 'https://via.placeholder.com/600x340/1a1a2e/ffffff?text=Video';
-            const vidPlayColor = props.playButtonColor || vidInfo?.color || '#ff0000';
+
+            // In preview mode, use actual video/iframe elements for playback
+            if (previewMode) {
+                if (isDirectVideo && !props.thumbnailUrl) {
+                    // Direct video file - use HTML5 video element
+                    return `
+                        <div style="text-align: ${props.align || 'center'};">
+                            <video src="${props.videoUrl}" controls style="max-width: ${props.width || '100%'}; width: 100%; height: auto; display: inline-block; border-radius: 8px; background-color: #1a1a2e;" preload="metadata"></video>
+                        </div>
+                    `;
+                } else if (vidInfo?.embedUrl && !props.thumbnailUrl) {
+                    // Platform video - use iframe embed
+                    return `
+                        <div style="text-align: ${props.align || 'center'};">
+                            <div style="position: relative; max-width: ${props.width || '100%'}; width: 100%; display: inline-block;">
+                                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px;">
+                                    <iframe src="${vidInfo.embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // For email HTML or when thumbnail is provided, use clickable thumbnail
+            let vidThumbnail;
+            if (props.thumbnailUrl) {
+                vidThumbnail = props.thumbnailUrl;
+            } else if (vidInfo?.thumbnail) {
+                vidThumbnail = vidInfo.thumbnail;
+            } else if (isDirectVideo) {
+                // Use a video file specific placeholder - dark background with play icon indication
+                vidThumbnail = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='340' viewBox='0 0 600 340'%3E%3Crect fill='%231a1a2e' width='600' height='340'/%3E%3Ctext fill='%23ffffff' font-family='Arial' font-size='16' x='50%25' y='60%25' text-anchor='middle'%3EClick to play video%3C/text%3E%3C/svg%3E";
+            } else {
+                vidThumbnail = 'https://via.placeholder.com/600x340/1a1a2e/ffffff?text=Video';
+            }
+
+            const vidPlayColor = props.playButtonColor || vidInfo?.color || (isDirectVideo ? '#3b82f6' : '#ff0000');
             const videoThumbnail = `
                 <div style="position: relative; display: inline-block; max-width: ${props.width || '100%'}; width: 100%;">
                     <a href="${props.videoUrl}" target="_blank" style="display: block; text-decoration: none;">
-                        <img src="${vidThumbnail}" alt="${props.alt || 'Video thumbnail'}" style="width: 100%; height: auto; display: block; border-radius: 8px;" />
+                        <img src="${vidThumbnail}" alt="${props.alt || 'Video thumbnail'}" style="width: 100%; height: auto; display: block; border-radius: 8px; background-color: #1a1a2e;" />
                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 68px; height: 68px; background-color: ${vidPlayColor}; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                             <span style="width: 0; height: 0; border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-left: 20px solid white; margin-left: 4px;"></span>
                         </div>
@@ -217,7 +266,7 @@ export const generateBlockHtml = (block) => {
     }
 };
 
-export const generateEmailHtml = (blocks, canvasSettings = {}) => {
+export const generateEmailHtml = (blocks, canvasSettings = {}, options = {}) => {
     const backgroundColor = canvasSettings.backgroundColor || '#f4f4f4';
     const backgroundImage = canvasSettings.backgroundImage || '';
     const backgroundSize = canvasSettings.backgroundSize || 'cover';
@@ -252,7 +301,7 @@ export const generateEmailHtml = (blocks, canvasSettings = {}) => {
         contentBgStyle += ` background-image: url('${contentBackgroundImage}'); background-size: ${contentBackgroundSize}; background-position: ${contentBackgroundPosition}; background-repeat: ${contentBackgroundRepeat};`;
     }
 
-    const blocksHtml = blocks.map(block => generateBlockHtml(block)).join('');
+    const blocksHtml = blocks.map(block => generateBlockHtml(block, options)).join('');
 
     return `
 <!DOCTYPE html>

@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 // Helper to extract video ID and platform from URL
 export const parseVideoUrl = (url) => {
@@ -108,8 +108,6 @@ const PLACEHOLDER_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/20
 const VideoBlock = ({ props, isSelected }) => {
     const [imageError, setImageError] = useState(false);
     const [generatedThumbnail, setGeneratedThumbnail] = useState(null);
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
 
     const videoInfo = useMemo(() => parseVideoUrl(props.videoUrl), [props.videoUrl]);
     const isDirectVideo = useMemo(() => isDirectVideoUrl(props.videoUrl), [props.videoUrl]);
@@ -246,25 +244,45 @@ const VideoBlock = ({ props, isSelected }) => {
         );
     }
 
+    // For direct video files without custom thumbnail, show actual video player in editor
+    const showVideoPlayer = isDirectVideo && !props.thumbnailUrl;
+
     return (
         <div style={containerStyle}>
             <div style={wrapperStyle}>
-                <img
-                    src={displayThumbnail}
-                    alt={props.alt || 'Video thumbnail'}
-                    style={imageStyle}
-                    onError={handleImageError}
-                />
-                <div style={playButtonStyle}>
-                    <div style={playIconStyle}></div>
-                </div>
+                {showVideoPlayer ? (
+                    <video
+                        src={props.videoUrl}
+                        controls
+                        style={{
+                            width: '100%',
+                            height: 'auto',
+                            display: 'block',
+                            borderRadius: '8px',
+                            backgroundColor: '#1a1a2e',
+                        }}
+                        preload="metadata"
+                    />
+                ) : (
+                    <>
+                        <img
+                            src={displayThumbnail}
+                            alt={props.alt || 'Video thumbnail'}
+                            style={imageStyle}
+                            onError={handleImageError}
+                        />
+                        <div style={playButtonStyle}>
+                            <div style={playIconStyle}></div>
+                        </div>
+                    </>
+                )}
                 {videoInfo && (
                     <div style={platformBadgeStyle}>
                         <iconify-icon icon={getPlatformIcon(videoInfo.platform)} width="16" height="16"></iconify-icon>
                         <span style={{ textTransform: 'capitalize' }}>{videoInfo.platform}</span>
                     </div>
                 )}
-                {isDirectVideo && !videoInfo && (
+                {isDirectVideo && !showVideoPlayer && (
                     <div style={platformBadgeStyle}>
                         <iconify-icon icon="mdi:video" width="16" height="16"></iconify-icon>
                         <span>Video</span>

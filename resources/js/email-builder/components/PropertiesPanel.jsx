@@ -897,6 +897,54 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     loom: 'mdi:video-outline',
                 };
 
+                // Helper function to capture first frame from video file
+                const captureVideoThumbnail = (videoFile) => {
+                    return new Promise((resolve) => {
+                        const video = document.createElement('video');
+                        video.preload = 'metadata';
+                        video.muted = true;
+                        video.playsInline = true;
+
+                        video.onloadeddata = () => {
+                            // Seek to 1 second or 10% of video, whichever is smaller
+                            video.currentTime = Math.min(1, video.duration * 0.1);
+                        };
+
+                        video.onseeked = () => {
+                            try {
+                                const canvas = document.createElement('canvas');
+                                canvas.width = video.videoWidth || 640;
+                                canvas.height = video.videoHeight || 360;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                                // Convert canvas to blob
+                                canvas.toBlob((blob) => {
+                                    URL.revokeObjectURL(video.src);
+                                    resolve(blob);
+                                }, 'image/jpeg', 0.85);
+                            } catch (e) {
+                                console.error('Failed to capture thumbnail:', e);
+                                URL.revokeObjectURL(video.src);
+                                resolve(null);
+                            }
+                        };
+
+                        video.onerror = () => {
+                            URL.revokeObjectURL(video.src);
+                            resolve(null);
+                        };
+
+                        // Set timeout in case video fails to load
+                        setTimeout(() => {
+                            URL.revokeObjectURL(video.src);
+                            resolve(null);
+                        }, 10000);
+
+                        video.src = URL.createObjectURL(videoFile);
+                    });
+                };
+
                 const handleVideoFileUpload = async (e) => {
                     const file = e.target.files?.[0];
                     if (!file || !onVideoUpload) return;
@@ -905,12 +953,24 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     setVideoUploadError(null);
 
                     try {
-                        const result = await onVideoUpload(file);
+                        // Capture thumbnail from first frame
+                        const thumbnailBlob = await captureVideoThumbnail(file);
+
+                        // Convert blob to File if captured successfully
+                        let thumbnailFile = null;
+                        if (thumbnailBlob) {
+                            thumbnailFile = new File([thumbnailBlob], 'thumbnail.jpg', { type: 'image/jpeg' });
+                        }
+
+                        // Upload video with auto-generated thumbnail
+                        const result = await onVideoUpload(file, thumbnailFile);
                         if (result.success) {
-                            handleChange('videoUrl', result.videoUrl);
+                            // Update both videoUrl and thumbnailUrl together to avoid stale props issue
+                            const updates = { videoUrl: result.videoUrl };
                             if (result.thumbnailUrl) {
-                                handleChange('thumbnailUrl', result.thumbnailUrl);
+                                updates.thumbnailUrl = result.thumbnailUrl;
                             }
+                            onUpdate(selectedBlock.id, { ...props, ...updates });
                         } else {
                             setVideoUploadError(result.message || 'Upload failed');
                         }
