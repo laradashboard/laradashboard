@@ -3,8 +3,16 @@ import laravel from "laravel-vite-plugin";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import collectModuleAssetsPaths from "./vite-module-loader";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const paths = ["resources/css/app.css", "resources/js/app.js"];
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const paths = [
+    "resources/css/app.css",
+    "resources/js/app.js",
+    "resources/js/email-builder/index.jsx",
+];
 
 // Use top-level await to properly load module assets
 let allPaths = await collectModuleAssetsPaths(paths, "modules");
@@ -25,5 +33,15 @@ export default defineConfig({
     esbuild: {
         jsx: "automatic",
         // drop: ['console', 'debugger'],
+    },
+    resolve: {
+        alias: {
+            react: path.resolve(__dirname, "node_modules/react"),
+            "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
+        },
+        dedupe: ["react", "react-dom"],
+    },
+    optimizeDeps: {
+        include: ["react", "react-dom", "@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
     },
 });

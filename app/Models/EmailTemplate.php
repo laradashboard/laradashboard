@@ -23,6 +23,7 @@ class EmailTemplate extends Model
         'name',
         'subject',
         'body_html',
+        'design_json',
         'type',
         'description',
         'is_active',
@@ -36,6 +37,7 @@ class EmailTemplate extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'is_deleteable' => 'boolean',
+        'design_json' => 'array',
         // Use string casting to support module-registered template types, provide accessors for label/icon/color
         'type' => 'string',
     ];

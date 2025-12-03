@@ -1,0 +1,46 @@
+const QuoteBlock = ({ props, isSelected }) => {
+    const containerStyle = {
+        padding: '20px',
+        paddingLeft: '24px',
+        backgroundColor: props.backgroundColor || '#f8fafc',
+        borderLeft: `4px solid ${props.borderColor || '#3b82f6'}`,
+        textAlign: props.align || 'left',
+        outline: isSelected ? '2px solid #3b82f6' : 'none',
+        borderRadius: '4px',
+    };
+
+    const quoteStyle = {
+        color: props.textColor || '#475569',
+        fontSize: '16px',
+        fontStyle: 'italic',
+        lineHeight: '1.6',
+        margin: '0 0 12px 0',
+    };
+
+    const authorStyle = {
+        color: props.authorColor || '#1e293b',
+        fontSize: '14px',
+        fontWeight: '600',
+        margin: 0,
+    };
+
+    const titleStyle = {
+        color: props.textColor || '#475569',
+        fontSize: '12px',
+        margin: 0,
+    };
+
+    return (
+        <div style={containerStyle}>
+            <p style={quoteStyle}>"{props.text}"</p>
+            {(props.author || props.authorTitle) && (
+                <div>
+                    {props.author && <p style={authorStyle}>{props.author}</p>}
+                    {props.authorTitle && <p style={titleStyle}>{props.authorTitle}</p>}
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default QuoteBlock;

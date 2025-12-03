@@ -66,11 +66,24 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
         Route::post('emails/send-test', [SendTestEmailController::class, 'sendTestEmail'])->name('emails.send-test');
 
         // Email Templates Management Routes.
-        Route::resource('email-templates', EmailTemplatesController::class);
         Route::group(['prefix' => 'email-templates', 'as' => 'email-templates.'], function () {
+            // List and view routes
+            Route::get('/', [EmailTemplatesController::class, 'index'])->name('index');
+            Route::get('{email_template}', [EmailTemplatesController::class, 'show'])->name('show')->where('email_template', '[0-9]+');
+            Route::delete('{email_template}', [EmailTemplatesController::class, 'destroy'])->name('destroy')->where('email_template', '[0-9]+');
+
+            // Utility routes
             Route::get('by-type/{type}', [EmailTemplatesController::class, 'getByType'])->name('by-type');
             Route::get('{email_template}/content', [EmailTemplatesController::class, 'getContent'])->name('content')->where('email_template', '[0-9]+');
             Route::post('{email_template}/duplicate', [DuplicateEmailTemplateController::class, 'store'])->name('duplicate');
+
+            // Email Builder Routes (create/edit now use the drag-drop builder)
+            Route::get('create', [EmailTemplatesController::class, 'builder'])->name('create');
+            Route::get('{email_template}/edit', [EmailTemplatesController::class, 'builderEdit'])->name('edit')->where('email_template', '[0-9]+');
+            Route::post('/', [EmailTemplatesController::class, 'builderStore'])->name('store');
+            Route::put('{email_template}', [EmailTemplatesController::class, 'builderUpdate'])->name('update')->where('email_template', '[0-9]+');
+            Route::post('upload-image', [EmailTemplatesController::class, 'uploadImage'])->name('upload-image');
+            Route::post('upload-video', [EmailTemplatesController::class, 'uploadVideo'])->name('upload-video');
         });
 
         // Notifications Management Routes.
