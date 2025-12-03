@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { getAllBlocks, getCategories } from '../utils/blockRegistry';
 
@@ -62,26 +62,88 @@ const DraggableBlockItem = ({ block, onAddBlock }) => {
 };
 
 const BlockPanel = ({ onAddBlock }) => {
+    const [searchQuery, setSearchQuery] = useState('');
     const categories = getCategories();
-    const blocks = getAllBlocks();
+    const allBlocks = getAllBlocks();
+
+    // Filter blocks based on search query
+    const filteredBlocks = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return allBlocks;
+        }
+        const query = searchQuery.toLowerCase().trim();
+        return allBlocks.filter(block =>
+            block.label.toLowerCase().includes(query) ||
+            block.type.toLowerCase().includes(query) ||
+            block.category.toLowerCase().includes(query)
+        );
+    }, [allBlocks, searchQuery]);
+
+    // Get categories that have matching blocks
+    const filteredCategories = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return categories;
+        }
+        const categoriesWithBlocks = new Set(filteredBlocks.map(b => b.category));
+        return categories.filter(cat => categoriesWithBlocks.has(cat));
+    }, [categories, filteredBlocks, searchQuery]);
 
     return (
-        <div className="h-full overflow-y-auto">
-            {categories.map(category => (
-                <div key={category} className="mb-4">
-                    <h4 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2 px-1">
-                        {category}
-                    </h4>
-                    <div className="grid grid-cols-3 gap-1.5">
-                        {blocks
-                            .filter(block => block.category === category)
-                            .map(block => (
-                                <DraggableBlockItem key={block.type} block={block} onAddBlock={onAddBlock} />
-                            ))
-                        }
-                    </div>
+        <div className="h-full flex flex-col overflow-hidden">
+            {/* Search input */}
+            <div className="mb-3 flex-shrink-0">
+                <div className="relative">
+                    <iconify-icon
+                        icon="mdi:magnify"
+                        width="18"
+                        height="18"
+                        class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+                    ></iconify-icon>
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search blocks..."
+                        className="form-control pl-9 pr-8 w-full"
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                            <iconify-icon icon="mdi:close" width="16" height="16"></iconify-icon>
+                        </button>
+                    )}
                 </div>
-            ))}
+            </div>
+
+            {/* Blocks list */}
+            <div className="flex-1 overflow-y-auto">
+                {filteredCategories.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400">
+                        <iconify-icon icon="mdi:package-variant" width="32" height="32" class="mb-2 opacity-50"></iconify-icon>
+                        <p className="text-sm">No blocks found</p>
+                    </div>
+                ) : (
+                    filteredCategories.map(category => {
+                        const categoryBlocks = filteredBlocks.filter(block => block.category === category);
+                        if (categoryBlocks.length === 0) return null;
+
+                        return (
+                            <div key={category} className="mb-4">
+                                <h4 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2 px-1">
+                                    {category}
+                                </h4>
+                                <div className="grid grid-cols-3 gap-1.5">
+                                    {categoryBlocks.map(block => (
+                                        <DraggableBlockItem key={block.type} block={block} onAddBlock={onAddBlock} />
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
+            </div>
         </div>
     );
 };

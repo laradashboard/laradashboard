@@ -51,6 +51,14 @@ const EmailBuilder = ({
     const [saveStatus, setSaveStatus] = useState(null);
     const [isDirty, setIsDirty] = useState(false);
 
+    // Mobile drawer states
+    const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
+    const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
+
+    // Desktop sidebar collapse states
+    const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
+    const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
+
     // Track initial state for comparison
     const initialStateRef = useRef({
         blocks: JSON.stringify(initialData?.blocks || []),
@@ -848,10 +856,27 @@ const EmailBuilder = ({
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
+            {/* Inline styles for drawer animations */}
+            <style>{`
+                @keyframes slideInLeft {
+                    from { transform: translateX(-100%); }
+                    to { transform: translateX(0); }
+                }
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+                .animate-slide-in-left {
+                    animation: slideInLeft 0.2s ease-out forwards;
+                }
+                .animate-slide-in-right {
+                    animation: slideInRight 0.2s ease-out forwards;
+                }
+            `}</style>
             <div className="h-screen flex flex-col bg-gray-100">
                 {/* Header */}
-                <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm flex-shrink-0">
-                    <div className="flex items-center gap-4">
+                <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between shadow-sm flex-shrink-0">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         <a
                             href={listUrl}
                             onClick={(e) => {
@@ -864,7 +889,7 @@ const EmailBuilder = ({
                                     }
                                 }
                             }}
-                            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                            className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -878,26 +903,28 @@ const EmailBuilder = ({
                                     clipRule="evenodd"
                                 />
                             </svg>
-                            <span className="font-medium">
+                            <span className="font-medium hidden sm:inline">
                                 Back to Templates
                             </span>
                         </a>
-                        <div className="h-6 w-px bg-gray-300"></div>
-                        <h1 className="text-lg font-semibold text-gray-800">
+                        <div className="h-6 w-px bg-gray-300 hidden sm:block"></div>
+                        <h1 className="text-sm sm:text-lg font-semibold text-gray-800">
                             {templateData?.uuid
-                                ? "Edit Template"
-                                : "Create Template"}
+                                ? "Edit"
+                                : "Create"}
+                            <span className="hidden sm:inline"> Template</span>
                         </h1>
                         {isDirty && (
-                            <span className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-md font-medium">
-                                Unsaved changes
+                            <span className="text-xs text-orange-600 bg-orange-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md font-medium">
+                                <span className="hidden sm:inline">Unsaved changes</span>
+                                <span className="sm:hidden">•</span>
                             </span>
                         )}
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        {/* Name input */}
-                        <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                        {/* Name input - Hidden on mobile, shown in properties drawer */}
+                        <div className="hidden md:flex items-center gap-2">
                             <label className="text-sm font-medium text-gray-600">
                                 Name:
                             </label>
@@ -912,8 +939,8 @@ const EmailBuilder = ({
                             />
                         </div>
 
-                        {/* Subject input */}
-                        <div className="flex items-center gap-2">
+                        {/* Subject input - Hidden on mobile, shown in properties drawer */}
+                        <div className="hidden lg:flex items-center gap-2">
                             <label className="text-sm font-medium text-gray-600">
                                 Subject:
                             </label>
@@ -931,13 +958,19 @@ const EmailBuilder = ({
                         {/* Save status */}
                         {saveStatus && (
                             <div
-                                className={`text-sm px-3 py-1.5 rounded-md ${
+                                className={`text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-md ${
                                     saveStatus.type === "success"
                                         ? "bg-green-100 text-green-700"
                                         : "bg-red-100 text-red-700"
                                 }`}
                             >
-                                {saveStatus.message}
+                                <span className="hidden sm:inline">{saveStatus.message}</span>
+                                <iconify-icon
+                                    icon={saveStatus.type === "success" ? "mdi:check" : "mdi:alert"}
+                                    class="sm:hidden"
+                                    width="16"
+                                    height="16"
+                                ></iconify-icon>
                             </div>
                         )}
 
@@ -945,7 +978,7 @@ const EmailBuilder = ({
                         <button
                             onClick={handleSave}
                             disabled={saving}
-                            className={`gap-2 ${
+                            className={`gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 ${
                                 saving
                                     ? "btn-default cursor-not-allowed"
                                     : "btn-primary"
@@ -972,7 +1005,7 @@ const EmailBuilder = ({
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                         />
                                     </svg>
-                                    <span>Saving...</span>
+                                    <span className="hidden sm:inline">Saving...</span>
                                 </>
                             ) : (
                                 <>
@@ -980,7 +1013,7 @@ const EmailBuilder = ({
                                         icon="mdi:content-save"
                                         class="h-4 w-4"
                                     ></iconify-icon>
-                                    <span>Save Template</span>
+                                    <span className="hidden sm:inline">Save Template</span>
                                 </>
                             )}
                         </button>
@@ -988,14 +1021,95 @@ const EmailBuilder = ({
                 </header>
 
                 {/* Main content */}
-                <div className="flex-1 flex overflow-hidden">
-                    {/* Left sidebar - Block palette */}
-                    <div className="w-64 bg-white border-r border-gray-200 p-4 overflow-hidden flex flex-col flex-shrink-0">
-                        <h3 className="text-sm font-semibold text-gray-900 mb-4">
-                            Blocks
-                        </h3>
-                        <BlockPanel onAddBlock={handleAddBlock} />
+                <div className="flex-1 flex overflow-hidden relative">
+                    {/* Mobile toggle buttons */}
+                    <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 flex justify-between pointer-events-none">
+                        <button
+                            onClick={() => setLeftDrawerOpen(true)}
+                            className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors"
+                        >
+                            <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
+                            <span className="text-sm font-medium">Blocks</span>
+                        </button>
+                        <button
+                            onClick={() => setRightDrawerOpen(true)}
+                            className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-gray-700 text-white rounded-lg shadow-lg hover:bg-gray-800 transition-colors"
+                        >
+                            <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
+                            <span className="text-sm font-medium">Properties</span>
+                        </button>
                     </div>
+
+                    {/* Left sidebar - Block palette (Desktop) */}
+                    <div className={`hidden lg:flex bg-white border-r border-gray-200 overflow-hidden flex-col flex-shrink-0 transition-all duration-200 ${leftSidebarCollapsed ? 'w-12' : 'w-64'}`}>
+                        {leftSidebarCollapsed ? (
+                            /* Collapsed state - just show expand button */
+                            <div className="flex flex-col items-center py-4">
+                                <button
+                                    onClick={() => setLeftSidebarCollapsed(false)}
+                                    className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
+                                    title="Show Blocks"
+                                >
+                                    <iconify-icon icon="mdi:chevron-right" width="20" height="20"></iconify-icon>
+                                </button>
+                                <button
+                                    onClick={() => setLeftSidebarCollapsed(false)}
+                                    className="mt-2 p-2 rounded-md hover:bg-blue-50 text-blue-600"
+                                    title="Show Blocks"
+                                >
+                                    <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
+                                </button>
+                            </div>
+                        ) : (
+                            /* Expanded state */
+                            <div className="flex flex-col h-full p-4">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-sm font-semibold text-gray-900">
+                                        Blocks
+                                    </h3>
+                                    <button
+                                        onClick={() => setLeftSidebarCollapsed(true)}
+                                        className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+                                        title="Hide Blocks"
+                                    >
+                                        <iconify-icon icon="mdi:chevron-left" width="18" height="18"></iconify-icon>
+                                    </button>
+                                </div>
+                                <BlockPanel onAddBlock={handleAddBlock} />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Left Drawer - Block palette (Mobile) */}
+                    {leftDrawerOpen && (
+                        <div className="lg:hidden fixed inset-0 z-50">
+                            {/* Backdrop */}
+                            <div
+                                className="absolute inset-0 bg-black/50"
+                                onClick={() => setLeftDrawerOpen(false)}
+                            ></div>
+                            {/* Drawer */}
+                            <div className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl flex flex-col animate-slide-in-left">
+                                <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                                    <h3 className="text-sm font-semibold text-gray-900">
+                                        Blocks
+                                    </h3>
+                                    <button
+                                        onClick={() => setLeftDrawerOpen(false)}
+                                        className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
+                                    >
+                                        <iconify-icon icon="mdi:close" width="20" height="20"></iconify-icon>
+                                    </button>
+                                </div>
+                                <div className="flex-1 p-4 overflow-hidden">
+                                    <BlockPanel onAddBlock={(type) => {
+                                        handleAddBlock(type);
+                                        setLeftDrawerOpen(false);
+                                    }} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Canvas */}
                     <Canvas
@@ -1012,20 +1126,121 @@ const EmailBuilder = ({
                         canvasSettings={canvasSettings}
                     />
 
-                    {/* Right sidebar - Properties */}
-                    <div className="w-72 bg-white border-l border-gray-200 p-4 overflow-hidden flex-shrink-0">
-                        <h3 className="text-sm font-semibold text-gray-900 mb-4">
-                            Properties
-                        </h3>
-                        <PropertiesPanel
-                            selectedBlock={selectedBlock}
-                            onUpdate={handleUpdateBlock}
-                            onImageUpload={onImageUpload}
-                            onVideoUpload={onVideoUpload}
-                            canvasSettings={canvasSettings}
-                            onCanvasSettingsUpdate={setCanvasSettings}
-                        />
+                    {/* Right sidebar - Properties (Desktop) */}
+                    <div className={`hidden lg:flex bg-white border-l border-gray-200 overflow-hidden flex-col flex-shrink-0 transition-all duration-200 ${rightSidebarCollapsed ? 'w-12' : 'w-72'}`}>
+                        {rightSidebarCollapsed ? (
+                            /* Collapsed state - just show expand button */
+                            <div className="flex flex-col items-center py-4">
+                                <button
+                                    onClick={() => setRightSidebarCollapsed(false)}
+                                    className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
+                                    title="Show Properties"
+                                >
+                                    <iconify-icon icon="mdi:chevron-left" width="20" height="20"></iconify-icon>
+                                </button>
+                                <button
+                                    onClick={() => setRightSidebarCollapsed(false)}
+                                    className="mt-2 p-2 rounded-md hover:bg-gray-50 text-gray-600"
+                                    title="Show Properties"
+                                >
+                                    <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
+                                </button>
+                            </div>
+                        ) : (
+                            /* Expanded state */
+                            <div className="flex flex-col h-full p-4 overflow-hidden">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-sm font-semibold text-gray-900">
+                                        Properties
+                                    </h3>
+                                    <button
+                                        onClick={() => setRightSidebarCollapsed(true)}
+                                        className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+                                        title="Hide Properties"
+                                    >
+                                        <iconify-icon icon="mdi:chevron-right" width="18" height="18"></iconify-icon>
+                                    </button>
+                                </div>
+                                <div className="flex-1 overflow-y-auto">
+                                    <PropertiesPanel
+                                        selectedBlock={selectedBlock}
+                                        onUpdate={handleUpdateBlock}
+                                        onImageUpload={onImageUpload}
+                                        onVideoUpload={onVideoUpload}
+                                        canvasSettings={canvasSettings}
+                                        onCanvasSettingsUpdate={setCanvasSettings}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
+
+                    {/* Right Drawer - Properties (Mobile) */}
+                    {rightDrawerOpen && (
+                        <div className="lg:hidden fixed inset-0 z-50">
+                            {/* Backdrop */}
+                            <div
+                                className="absolute inset-0 bg-black/50"
+                                onClick={() => setRightDrawerOpen(false)}
+                            ></div>
+                            {/* Drawer */}
+                            <div className="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-xl flex flex-col animate-slide-in-right">
+                                <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                                    <h3 className="text-sm font-semibold text-gray-900">
+                                        Properties
+                                    </h3>
+                                    <button
+                                        onClick={() => setRightDrawerOpen(false)}
+                                        className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
+                                    >
+                                        <iconify-icon icon="mdi:close" width="20" height="20"></iconify-icon>
+                                    </button>
+                                </div>
+                                <div className="flex-1 p-4 overflow-y-auto">
+                                    {/* Mobile-only template inputs */}
+                                    <div className="md:hidden mb-4 pb-4 border-b border-gray-200">
+                                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                                            Template Details
+                                        </h4>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Name
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={templateName}
+                                                    onChange={(e) => setTemplateName(e.target.value)}
+                                                    placeholder="Template name..."
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Subject
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={templateSubject}
+                                                    onChange={(e) => setTemplateSubject(e.target.value)}
+                                                    placeholder="Email subject..."
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <PropertiesPanel
+                                        selectedBlock={selectedBlock}
+                                        onUpdate={handleUpdateBlock}
+                                        onImageUpload={onImageUpload}
+                                        onVideoUpload={onVideoUpload}
+                                        canvasSettings={canvasSettings}
+                                        onCanvasSettingsUpdate={setCanvasSettings}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
