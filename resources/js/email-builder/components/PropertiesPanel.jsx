@@ -88,7 +88,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             type="text"
                             value={canvasSettings?.backgroundColor || '#f3f4f6'}
                             onChange={(e) => onCanvasSettingsUpdate({ ...canvasSettings, backgroundColor: e.target.value })}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary"
+                            className="form-control"
                             placeholder="#f3f4f6"
                         />
                     </div>
@@ -191,7 +191,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             type="text"
                             value={canvasSettings?.contentBackgroundColor || '#ffffff'}
                             onChange={(e) => onCanvasSettingsUpdate({ ...canvasSettings, contentBackgroundColor: e.target.value })}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary"
+                            className="form-control"
                             placeholder="#ffffff"
                         />
                     </div>
@@ -338,7 +338,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             type="text"
                             value={canvasSettings?.contentBorderColor || '#e5e7eb'}
                             onChange={(e) => onCanvasSettingsUpdate({ ...canvasSettings, contentBorderColor: e.target.value })}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary"
+                            className="form-control"
                             placeholder="#e5e7eb"
                         />
                     </div>

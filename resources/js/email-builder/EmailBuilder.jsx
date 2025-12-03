@@ -944,7 +944,7 @@ const EmailBuilder = ({
                                     setTemplateName(e.target.value)
                                 }
                                 placeholder="Template name..."
-                                className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary w-48"
+                                className="form-control"
                             />
                         </div>
 
@@ -960,7 +960,7 @@ const EmailBuilder = ({
                                     setTemplateSubject(e.target.value)
                                 }
                                 placeholder="Email subject..."
-                                className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary w-64"
+                                className="form-control"
                             />
                         </div>
 

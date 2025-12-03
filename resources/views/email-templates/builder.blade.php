@@ -7,10 +7,10 @@
 
     <title>{{ isset($template) ? 'Edit' : 'Create' }} Email Template - {{ config('app.name', 'Laravel') }}</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script> -->
 
     @viteReactRefresh
-    @vite(['resources/css/app.css', 'resources/js/email-builder/index.jsx'])
+    @vite(['resources/css/app.css', 'resources/js/email-builder/index.jsx', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased">
     <div
