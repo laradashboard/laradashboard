@@ -88,7 +88,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             type="text"
                             value={canvasSettings?.backgroundColor || '#f3f4f6'}
                             onChange={(e) => onCanvasSettingsUpdate({ ...canvasSettings, backgroundColor: e.target.value })}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary"
                             placeholder="#f3f4f6"
                         />
                     </div>
@@ -191,7 +191,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             type="text"
                             value={canvasSettings?.contentBackgroundColor || '#ffffff'}
                             onChange={(e) => onCanvasSettingsUpdate({ ...canvasSettings, contentBackgroundColor: e.target.value })}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary"
                             placeholder="#ffffff"
                         />
                     </div>
@@ -320,7 +320,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         <select
                             value={canvasSettings?.contentBorderWidth || '0px'}
                             onChange={(e) => onCanvasSettingsUpdate({ ...canvasSettings, contentBorderWidth: e.target.value })}
-                            className="w-24 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                            className="w-24 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary"
                         >
                             <option value="0px">None</option>
                             <option value="1px">1px</option>
@@ -338,7 +338,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             type="text"
                             value={canvasSettings?.contentBorderColor || '#e5e7eb'}
                             onChange={(e) => onCanvasSettingsUpdate({ ...canvasSettings, contentBorderColor: e.target.value })}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary"
                             placeholder="#e5e7eb"
                         />
                     </div>
@@ -492,7 +492,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         type="text"
                         value={value}
                         onChange={(e) => handleChange('src', e.target.value)}
-                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary"
                         placeholder="Enter image URL..."
                     />
                 </div>
@@ -885,7 +885,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                 const platformColors = {
                     youtube: { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200' },
                     vimeo: { bg: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-200' },
-                    dailymotion: { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200' },
+                    dailymotion: { bg: 'bg-sky-50', text: 'text-sky-600', border: 'border-sky-200' },
                     wistia: { bg: 'bg-sky-50', text: 'text-sky-600', border: 'border-sky-200' },
                     loom: { bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-200' },
                 };
@@ -1012,7 +1012,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         {props._videoSource === 'upload' ? (
                             /* Upload video section */
                             <div className="space-y-2">
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
+                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-primary transition-colors">
                                     <input
                                         type="file"
                                         accept="video/mp4,video/webm,video/ogg,video/mov"
@@ -1024,7 +1024,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                                     <label htmlFor={`video-upload-${selectedBlock?.id}`} className="cursor-pointer">
                                         {videoUploading ? (
                                             <div className="flex flex-col items-center gap-2">
-                                                <iconify-icon icon="mdi:loading" width="24" height="24" class="text-blue-500 animate-spin"></iconify-icon>
+                                                <iconify-icon icon="mdi:loading" width="24" height="24" class="text-primary animate-spin"></iconify-icon>
                                                 <span className="text-xs text-gray-500">Uploading video...</span>
                                             </div>
                                         ) : (

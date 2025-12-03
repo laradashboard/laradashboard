@@ -19,12 +19,12 @@ const DropZone = ({ id, isFirst = false }) => {
             ref={setNodeRef}
             className={`transition-all duration-200 ${
                 isOver
-                    ? 'h-16 bg-blue-100 border-2 border-dashed border-blue-400 rounded-lg my-2 flex items-center justify-center'
+                    ? 'h-16 bg-primary/10 border-2 border-dashed border-primary rounded-lg my-2 flex items-center justify-center'
                     : isFirst ? 'h-0' : 'h-1'
             }`}
         >
             {isOver && (
-                <span className="text-blue-500 text-sm font-medium">Drop here</span>
+                <span className="text-primary text-sm font-medium">Drop here</span>
             )}
         </div>
     );
@@ -174,7 +174,7 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
                 <div
                     ref={setNodeRef}
                     className={`shadow-lg min-h-[400px] transition-colors ${
-                        isOver ? 'ring-2 ring-blue-400 ring-offset-2' : ''
+                        isOver ? 'ring-2 ring-primary ring-offset-2' : ''
                     }`}
                     style={contentBackgroundStyle}
                     onClick={() => onSelect(null)}
@@ -209,7 +209,7 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
                                 </div>
                             ) : (
                                 <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-                                    isOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300'
+                                    isOver ? 'border-primary bg-primary/10' : 'border-gray-300'
                                 }`}>
                                     <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

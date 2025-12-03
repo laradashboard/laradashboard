@@ -17,7 +17,7 @@ const DividerBlock = ({ props, onUpdate, isSelected }) => {
 
     const containerStyle = {
         padding: '8px',
-        outline: isSelected ? '2px solid #3b82f6' : 'none',
+        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
         cursor: 'pointer',
     };
@@ -44,7 +44,7 @@ const DividerBlock = ({ props, onUpdate, isSelected }) => {
                                 <select
                                     value={props.style || 'solid'}
                                     onChange={(e) => handleChange('style', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="solid">Solid</option>
                                     <option value="dashed">Dashed</option>
@@ -67,7 +67,7 @@ const DividerBlock = ({ props, onUpdate, isSelected }) => {
                                 <select
                                     value={props.thickness || '1px'}
                                     onChange={(e) => handleChange('thickness', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="1px">1px</option>
                                     <option value="2px">2px</option>
@@ -81,7 +81,7 @@ const DividerBlock = ({ props, onUpdate, isSelected }) => {
                                 <select
                                     value={props.width || '100%'}
                                     onChange={(e) => handleChange('width', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="100%">Full Width</option>
                                     <option value="75%">75%</option>
@@ -94,7 +94,7 @@ const DividerBlock = ({ props, onUpdate, isSelected }) => {
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="mt-6 w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                            className="mt-6 w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
                         >
                             Done
                         </button>

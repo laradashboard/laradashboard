@@ -52,10 +52,10 @@ const DraggableBlockItem = ({ block, onAddBlock }) => {
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onClick={handleClick}
-            className="flex flex-col items-center justify-center p-2 bg-white border border-gray-200 rounded-lg cursor-grab hover:border-blue-400 hover:bg-blue-50 transition-colors active:cursor-grabbing"
+            className="flex flex-col items-center justify-center p-2 bg-white border border-gray-200 rounded-lg cursor-grab hover:border-primary hover:bg-primary/10 transition-colors active:cursor-grabbing"
             title={block.label}
         >
-            <iconify-icon icon={block.icon} width="24" height="24" class="text-blue-600"></iconify-icon>
+            <iconify-icon icon={block.icon} width="24" height="24" class="text-primary"></iconify-icon>
             <span className="text-[10px] text-gray-600 font-medium mt-1 text-center leading-tight">{block.label}</span>
         </div>
     );

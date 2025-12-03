@@ -96,7 +96,7 @@ const DroppableColumn = ({ columnIndex, parentId, blocks, onSelect, selectedBloc
             ref={setNodeRef}
             className={`min-h-[60px] p-2 rounded-lg transition-colors ${
                 isOver
-                    ? 'bg-blue-100 border-2 border-blue-400 border-dashed'
+                    ? 'bg-primary/10 border-2 border-primary border-dashed'
                     : blocks.length === 0
                         ? 'bg-gray-50 border-2 border-dashed border-gray-300'
                         : 'bg-gray-50/50'
@@ -157,7 +157,7 @@ const ColumnsBlock = ({ props, isSelected, blockId, onSelect, selectedBlockId, o
 
     return (
         <div
-            className={`transition-all ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+            className={`transition-all ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}`}
             style={{ padding: '8px 0' }}
         >
             <div

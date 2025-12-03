@@ -935,7 +935,7 @@ const EmailBuilder = ({
                                     setTemplateName(e.target.value)
                                 }
                                 placeholder="Template name..."
-                                className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
+                                className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary w-48"
                             />
                         </div>
 
@@ -951,7 +951,7 @@ const EmailBuilder = ({
                                     setTemplateSubject(e.target.value)
                                 }
                                 placeholder="Email subject..."
-                                className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
+                                className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary w-64"
                             />
                         </div>
 
@@ -1026,7 +1026,7 @@ const EmailBuilder = ({
                     <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 flex justify-between pointer-events-none">
                         <button
                             onClick={() => setLeftDrawerOpen(true)}
-                            className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors"
+                            className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg shadow-lg hover:bg-primary/90 transition-colors"
                         >
                             <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
                             <span className="text-sm font-medium">Blocks</span>
@@ -1054,7 +1054,7 @@ const EmailBuilder = ({
                                 </button>
                                 <button
                                     onClick={() => setLeftSidebarCollapsed(false)}
-                                    className="mt-2 p-2 rounded-md hover:bg-blue-50 text-blue-600"
+                                    className="mt-2 p-2 rounded-md hover:bg-primary/10 text-primary"
                                     title="Show Blocks"
                                 >
                                     <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
@@ -1212,7 +1212,7 @@ const EmailBuilder = ({
                                                     value={templateName}
                                                     onChange={(e) => setTemplateName(e.target.value)}
                                                     placeholder="Template name..."
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                                 />
                                             </div>
                                             <div>
@@ -1224,7 +1224,7 @@ const EmailBuilder = ({
                                                     value={templateSubject}
                                                     onChange={(e) => setTemplateSubject(e.target.value)}
                                                     placeholder="Email subject..."
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                                 />
                                             </div>
                                         </div>
@@ -1247,7 +1247,7 @@ const EmailBuilder = ({
             {/* Drag overlay */}
             <DragOverlay>
                 {activeId && activeId.toString().startsWith("palette-") && (
-                    <div className="p-4 bg-white border-2 border-blue-400 rounded-lg shadow-lg opacity-80">
+                    <div className="p-4 bg-white border-2 border-primary rounded-lg shadow-lg opacity-80">
                         <span className="text-sm font-medium">
                             {getBlock(activeId.replace("palette-", ""))?.label}
                         </span>

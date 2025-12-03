@@ -3,7 +3,7 @@ const FooterBlock = ({ props, isSelected }) => {
         padding: '24px 16px',
         textAlign: props.align || 'center',
         borderTop: '1px solid #e5e7eb',
-        outline: isSelected ? '2px solid #3b82f6' : 'none',
+        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 
@@ -15,7 +15,7 @@ const FooterBlock = ({ props, isSelected }) => {
     };
 
     const linkStyle = {
-        color: props.linkColor || '#3b82f6',
+        color: props.linkColor || '#635bff',
         textDecoration: 'underline',
     };
 

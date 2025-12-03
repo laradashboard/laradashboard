@@ -18,13 +18,13 @@ const ButtonBlock = ({ props, onUpdate, isSelected }) => {
     const containerStyle = {
         textAlign: props.align || 'center',
         padding: '10px 8px',
-        outline: isSelected ? '2px solid #3b82f6' : 'none',
+        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 
     const buttonStyle = {
         display: 'inline-block',
-        backgroundColor: props.backgroundColor || '#3b82f6',
+        backgroundColor: props.backgroundColor || '#635bff',
         color: props.textColor || '#ffffff',
         padding: props.padding || '12px 24px',
         borderRadius: props.borderRadius || '6px',
@@ -54,7 +54,7 @@ const ButtonBlock = ({ props, onUpdate, isSelected }) => {
                                     value={props.text || ''}
                                     onChange={(e) => handleChange('text', e.target.value)}
                                     placeholder="Click Here"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                                 />
                             </div>
 
@@ -65,7 +65,7 @@ const ButtonBlock = ({ props, onUpdate, isSelected }) => {
                                     value={props.link || ''}
                                     onChange={(e) => handleChange('link', e.target.value)}
                                     placeholder="https://example.com"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                                 />
                             </div>
 
@@ -74,7 +74,7 @@ const ButtonBlock = ({ props, onUpdate, isSelected }) => {
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
                                     <input
                                         type="color"
-                                        value={props.backgroundColor || '#3b82f6'}
+                                        value={props.backgroundColor || '#635bff'}
                                         onChange={(e) => handleChange('backgroundColor', e.target.value)}
                                         className="w-full h-10 border border-gray-300 rounded-md cursor-pointer"
                                     />
@@ -96,7 +96,7 @@ const ButtonBlock = ({ props, onUpdate, isSelected }) => {
                                 <select
                                     value={props.borderRadius || '6px'}
                                     onChange={(e) => handleChange('borderRadius', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="0">None</option>
                                     <option value="4px">Small</option>
@@ -111,7 +111,7 @@ const ButtonBlock = ({ props, onUpdate, isSelected }) => {
                                 <select
                                     value={props.padding || '12px 24px'}
                                     onChange={(e) => handleChange('padding', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="8px 16px">Small</option>
                                     <option value="12px 24px">Medium</option>
@@ -129,7 +129,7 @@ const ButtonBlock = ({ props, onUpdate, isSelected }) => {
                                             onClick={() => handleChange('align', align)}
                                             className={`flex-1 px-3 py-2 border rounded-md capitalize ${
                                                 props.align === align
-                                                    ? 'bg-blue-500 text-white border-blue-500'
+                                                    ? 'bg-primary text-white border-primary'
                                                     : 'bg-white border-gray-300 hover:bg-gray-50'
                                             }`}
                                         >
@@ -143,7 +143,7 @@ const ButtonBlock = ({ props, onUpdate, isSelected }) => {
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="mt-6 w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                            className="mt-6 w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
                         >
                             Done
                         </button>

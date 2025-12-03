@@ -17,7 +17,7 @@ const HeadingBlock = ({ props, onUpdate, isSelected }) => {
         fontWeight: props.fontWeight || 'bold',
         margin: 0,
         padding: '8px',
-        outline: isSelected ? '2px solid #3b82f6' : 'none',
+        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
         lineHeight: '1.3',
     };
@@ -34,7 +34,7 @@ const HeadingBlock = ({ props, onUpdate, isSelected }) => {
                     style={{
                         ...style,
                         width: '100%',
-                        border: '2px solid #3b82f6',
+                        border: '2px solid #635bff',
                         background: 'white',
                         resize: 'none',
                         overflow: 'hidden',

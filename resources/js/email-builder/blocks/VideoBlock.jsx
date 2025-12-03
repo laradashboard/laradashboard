@@ -162,7 +162,7 @@ const VideoBlock = ({ props, isSelected }) => {
     const containerStyle = {
         textAlign: props.align || 'center',
         padding: '8px',
-        outline: isSelected ? '2px solid #3b82f6' : 'none',
+        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 

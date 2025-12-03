@@ -16,7 +16,7 @@ const TextBlock = ({ props, onUpdate, isSelected }) => {
         fontSize: props.fontSize || '16px',
         lineHeight: props.lineHeight || '1.6',
         padding: '8px',
-        outline: isSelected ? '2px solid #3b82f6' : 'none',
+        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
         minHeight: '40px',
     };
@@ -33,7 +33,7 @@ const TextBlock = ({ props, onUpdate, isSelected }) => {
                     style={{
                         ...style,
                         width: '100%',
-                        border: '2px solid #3b82f6',
+                        border: '2px solid #635bff',
                         background: 'white',
                         resize: 'none',
                         overflow: 'hidden',

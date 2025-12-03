@@ -3,9 +3,9 @@ const QuoteBlock = ({ props, isSelected }) => {
         padding: '20px',
         paddingLeft: '24px',
         backgroundColor: props.backgroundColor || '#f8fafc',
-        borderLeft: `4px solid ${props.borderColor || '#3b82f6'}`,
+        borderLeft: `4px solid ${props.borderColor || '#635bff'}`,
         textAlign: props.align || 'left',
-        outline: isSelected ? '2px solid #3b82f6' : 'none',
+        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 

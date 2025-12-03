@@ -37,7 +37,7 @@ const CountdownBlock = ({ props, isSelected }) => {
         backgroundColor: props.backgroundColor || '#1e293b',
         borderRadius: '8px',
         textAlign: props.align || 'center',
-        outline: isSelected ? '2px solid #3b82f6' : 'none',
+        outline: isSelected ? '2px solid #635bff' : 'none',
     };
 
     const titleStyle = {
@@ -63,7 +63,7 @@ const CountdownBlock = ({ props, isSelected }) => {
     };
 
     const numberStyle = {
-        color: props.numberColor || '#3b82f6',
+        color: props.numberColor || '#635bff',
         fontSize: '36px',
         fontWeight: '700',
         lineHeight: '1',
@@ -80,7 +80,7 @@ const CountdownBlock = ({ props, isSelected }) => {
     };
 
     const separatorStyle = {
-        color: props.numberColor || '#3b82f6',
+        color: props.numberColor || '#635bff',
         fontSize: '28px',
         fontWeight: '700',
     };

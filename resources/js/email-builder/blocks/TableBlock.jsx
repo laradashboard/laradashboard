@@ -1,7 +1,7 @@
 const TableBlock = ({ props, isSelected }) => {
     const containerStyle = {
         padding: '8px',
-        outline: isSelected ? '2px solid #3b82f6' : 'none',
+        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 

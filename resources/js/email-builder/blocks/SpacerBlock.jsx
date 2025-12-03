@@ -16,10 +16,10 @@ const SpacerBlock = ({ props, onUpdate, isSelected }) => {
     };
 
     const containerStyle = {
-        outline: isSelected ? '2px solid #3b82f6' : '1px dashed #d1d5db',
+        outline: isSelected ? '2px solid #635bff' : '1px dashed #d1d5db',
         borderRadius: '4px',
         cursor: 'pointer',
-        backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+        backgroundColor: isSelected ? 'rgba(99, 91, 255, 0.1)' : 'transparent',
     };
 
     const spacerStyle = {
@@ -47,7 +47,7 @@ const SpacerBlock = ({ props, onUpdate, isSelected }) => {
                             <select
                                 value={props.height || '40px'}
                                 onChange={(e) => handleChange(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                             >
                                 <option value="10px">10px</option>
                                 <option value="20px">20px</option>
@@ -63,7 +63,7 @@ const SpacerBlock = ({ props, onUpdate, isSelected }) => {
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="mt-6 w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                            className="mt-6 w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
                         >
                             Done
                         </button>
