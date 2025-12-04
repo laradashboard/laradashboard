@@ -139,6 +139,219 @@ const SpacingBoxControl = ({ label, values, onChange, linkSides, onToggleLink })
     );
 };
 
+// Background size presets
+const BACKGROUND_SIZE_PRESETS = [
+    { value: 'cover', label: 'Cover' },
+    { value: 'contain', label: 'Contain' },
+    { value: 'auto', label: 'Auto' },
+    { value: '100% 100%', label: '100%' },
+];
+
+// Background position presets
+const BACKGROUND_POSITION_PRESETS = [
+    { value: 'center', label: 'Center' },
+    { value: 'top', label: 'Top' },
+    { value: 'bottom', label: 'Bottom' },
+    { value: 'left', label: 'Left' },
+    { value: 'right', label: 'Right' },
+    { value: 'top left', label: 'Top Left' },
+    { value: 'top right', label: 'Top Right' },
+    { value: 'bottom left', label: 'Bottom Left' },
+    { value: 'bottom right', label: 'Bottom Right' },
+];
+
+// Background repeat presets
+const BACKGROUND_REPEAT_PRESETS = [
+    { value: 'no-repeat', label: 'No Repeat' },
+    { value: 'repeat', label: 'Repeat' },
+    { value: 'repeat-x', label: 'Repeat X' },
+    { value: 'repeat-y', label: 'Repeat Y' },
+];
+
+// Background controls component
+const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleColorChange = (color) => {
+        onChange({ ...background, color });
+    };
+
+    const handleImageChange = (image) => {
+        onChange({ ...background, image });
+    };
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file || !onImageUpload) return;
+
+        setIsUploading(true);
+        try {
+            const result = await onImageUpload(file);
+            if (result.url) {
+                handleImageChange(result.url);
+            }
+        } catch (err) {
+            console.error('Failed to upload image:', err);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleClearImage = () => {
+        onChange({
+            ...background,
+            image: '',
+            size: '',
+            position: '',
+            repeat: '',
+        });
+    };
+
+    return (
+        <div className="space-y-3">
+            {/* Background Color */}
+            <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Background color</label>
+                <div className="flex gap-2">
+                    <input
+                        type="color"
+                        value={background.color || '#ffffff'}
+                        onChange={(e) => handleColorChange(e.target.value)}
+                        className="h-8 w-10 border border-gray-200 rounded cursor-pointer bg-gray-100"
+                    />
+                    <input
+                        type="text"
+                        value={background.color || ''}
+                        onChange={(e) => handleColorChange(e.target.value)}
+                        placeholder="transparent"
+                        className="flex-1 px-2 py-1.5 text-xs bg-gray-100 border border-gray-200 rounded text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none"
+                    />
+                    {background.color && (
+                        <button
+                            type="button"
+                            onClick={() => handleColorChange('')}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                            title="Clear"
+                        >
+                            <iconify-icon icon="mdi:close" width="14" height="14"></iconify-icon>
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* Background Image */}
+            <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Background image</label>
+
+                {/* Image preview */}
+                {background.image && (
+                    <div className="mb-2 relative">
+                        <img
+                            src={background.image}
+                            alt="Background preview"
+                            className="w-full h-16 object-cover rounded border border-gray-200"
+                        />
+                        <button
+                            type="button"
+                            onClick={handleClearImage}
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                            title="Remove image"
+                        >
+                            <iconify-icon icon="mdi:close" width="12" height="12"></iconify-icon>
+                        </button>
+                    </div>
+                )}
+
+                {/* Upload / URL input */}
+                <div className="border-2 border-dashed border-gray-200 rounded-lg p-3 text-center hover:border-gray-300 transition-colors">
+                    {onImageUpload && (
+                        <label className={`cursor-pointer block mb-2 ${isUploading ? 'opacity-50' : ''}`}>
+                            <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                                {isUploading ? (
+                                    <>
+                                        <iconify-icon icon="mdi:loading" width="16" height="16" class="animate-spin"></iconify-icon>
+                                        <span>Uploading...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <iconify-icon icon="mdi:image-plus" width="16" height="16"></iconify-icon>
+                                        <span>SELECT IMAGE</span>
+                                    </>
+                                )}
+                            </div>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="hidden"
+                                disabled={isUploading}
+                            />
+                        </label>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="text"
+                            value={background.image || ''}
+                            onChange={(e) => handleImageChange(e.target.value)}
+                            placeholder="Custom URL"
+                            className="flex-1 px-2 py-1.5 text-xs bg-white border border-gray-200 rounded text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none"
+                        />
+                        <iconify-icon icon="mdi:lightning-bolt" width="14" height="14" class="text-gray-400"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+
+            {/* Image options - only show when image is set */}
+            {background.image && (
+                <div className="space-y-2 pt-2 border-t border-gray-100">
+                    {/* Size */}
+                    <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Size</label>
+                        <select
+                            value={background.size || 'cover'}
+                            onChange={(e) => onChange({ ...background, size: e.target.value })}
+                            className="w-full px-2 py-1.5 text-xs bg-gray-100 border border-gray-200 rounded text-gray-700 focus:border-primary focus:outline-none"
+                        >
+                            {BACKGROUND_SIZE_PRESETS.map(preset => (
+                                <option key={preset.value} value={preset.value}>{preset.label}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Position */}
+                    <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Position</label>
+                        <select
+                            value={background.position || 'center'}
+                            onChange={(e) => onChange({ ...background, position: e.target.value })}
+                            className="w-full px-2 py-1.5 text-xs bg-gray-100 border border-gray-200 rounded text-gray-700 focus:border-primary focus:outline-none"
+                        >
+                            {BACKGROUND_POSITION_PRESETS.map(preset => (
+                                <option key={preset.value} value={preset.value}>{preset.label}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Repeat */}
+                    <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Repeat</label>
+                        <select
+                            value={background.repeat || 'no-repeat'}
+                            onChange={(e) => onChange({ ...background, repeat: e.target.value })}
+                            className="w-full px-2 py-1.5 text-xs bg-gray-100 border border-gray-200 rounded text-gray-700 focus:border-primary focus:outline-none"
+                        >
+                            {BACKGROUND_REPEAT_PRESETS.map(preset => (
+                                <option key={preset.value} value={preset.value}>{preset.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 // Size input with presets dropdown
 const SizeInput = ({ label, value, onChange, presets = SIZE_PRESETS }) => {
     const [showCustom, setShowCustom] = useState(
@@ -183,8 +396,9 @@ const SizeInput = ({ label, value, onChange, presets = SIZE_PRESETS }) => {
     );
 };
 
-const LayoutStylesSection = ({ layoutStyles = {}, onUpdate, defaultCollapsed = true }) => {
+const LayoutStylesSection = ({ layoutStyles = {}, onUpdate, onImageUpload, defaultCollapsed = true }) => {
     const [isExpanded, setIsExpanded] = useState(!defaultCollapsed);
+    const [isBgExpanded, setIsBgExpanded] = useState(false);
     const [linkMargin, setLinkMargin] = useState(false);
     const [linkPadding, setLinkPadding] = useState(false);
 
@@ -200,32 +414,72 @@ const LayoutStylesSection = ({ layoutStyles = {}, onUpdate, defaultCollapsed = t
         onUpdate({ ...layoutStyles, padding: paddings });
     };
 
+    const handleBackgroundChange = (background) => {
+        onUpdate({ ...layoutStyles, background });
+    };
+
     return (
-        <div className="border-t border-gray-200 mt-4 pt-4">
-            {/* Collapsible Header */}
-            <button
-                type="button"
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="flex items-center justify-between w-full text-left mb-3 group"
-            >
-                <div className="flex items-center gap-2">
+        <div className="border-t border-gray-200 mt-4 pt-4 space-y-4">
+            {/* BACKGROUND Section */}
+            <div>
+                <button
+                    type="button"
+                    onClick={() => setIsBgExpanded(!isBgExpanded)}
+                    className="flex items-center justify-between w-full text-left mb-3 group"
+                >
+                    <div className="flex items-center gap-2">
+                        <iconify-icon
+                            icon="mdi:palette-outline"
+                            width="16"
+                            height="16"
+                            class="text-yellow-500"
+                        ></iconify-icon>
+                        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Background
+                        </span>
+                    </div>
                     <iconify-icon
-                        icon="mdi:view-dashboard-outline"
-                        width="16"
-                        height="16"
-                        class="text-yellow-500"
+                        icon={isBgExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'}
+                        width="18"
+                        height="18"
+                        class="text-gray-400 group-hover:text-gray-600 transition-colors"
                     ></iconify-icon>
-                    <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Layout
-                    </span>
-                </div>
-                <iconify-icon
-                    icon={isExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'}
-                    width="18"
-                    height="18"
-                    class="text-gray-400 group-hover:text-gray-600 transition-colors"
-                ></iconify-icon>
-            </button>
+                </button>
+
+                {isBgExpanded && (
+                    <BackgroundControls
+                        background={layoutStyles.background || {}}
+                        onChange={handleBackgroundChange}
+                        onImageUpload={onImageUpload}
+                    />
+                )}
+            </div>
+
+            {/* LAYOUT Section */}
+            <div className="border-t border-gray-200 pt-4">
+                <button
+                    type="button"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="flex items-center justify-between w-full text-left mb-3 group"
+                >
+                    <div className="flex items-center gap-2">
+                        <iconify-icon
+                            icon="mdi:view-dashboard-outline"
+                            width="16"
+                            height="16"
+                            class="text-yellow-500"
+                        ></iconify-icon>
+                        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Layout
+                        </span>
+                    </div>
+                    <iconify-icon
+                        icon={isExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down'}
+                        width="18"
+                        height="18"
+                        class="text-gray-400 group-hover:text-gray-600 transition-colors"
+                    ></iconify-icon>
+                </button>
 
             {isExpanded && (
                 <div className="space-y-4">
@@ -298,6 +552,7 @@ const LayoutStylesSection = ({ layoutStyles = {}, onUpdate, defaultCollapsed = t
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 };
@@ -305,6 +560,18 @@ const LayoutStylesSection = ({ layoutStyles = {}, onUpdate, defaultCollapsed = t
 // Helper function to convert layout styles object to inline CSS
 export const layoutStylesToCSS = (layoutStyles = {}) => {
     const styles = {};
+
+    // Process background
+    if (layoutStyles.background) {
+        const { color, image, size, position, repeat } = layoutStyles.background;
+        if (color) styles.backgroundColor = color;
+        if (image) {
+            styles.backgroundImage = `url(${image})`;
+            styles.backgroundSize = size || 'cover';
+            styles.backgroundPosition = position || 'center';
+            styles.backgroundRepeat = repeat || 'no-repeat';
+        }
+    }
 
     // Process margin
     if (layoutStyles.margin) {
@@ -342,6 +609,18 @@ export const layoutStylesToCSS = (layoutStyles = {}) => {
 // Helper function to convert layout styles to inline style string for HTML generation
 export const layoutStylesToInlineCSS = (layoutStyles = {}) => {
     const cssProperties = [];
+
+    // Process background
+    if (layoutStyles.background) {
+        const { color, image, size, position, repeat } = layoutStyles.background;
+        if (color) cssProperties.push(`background-color: ${color}`);
+        if (image) {
+            cssProperties.push(`background-image: url(${image})`);
+            cssProperties.push(`background-size: ${size || 'cover'}`);
+            cssProperties.push(`background-position: ${position || 'center'}`);
+            cssProperties.push(`background-repeat: ${repeat || 'no-repeat'}`);
+        }
+    }
 
     // Process margin
     if (layoutStyles.margin) {

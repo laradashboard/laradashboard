@@ -1641,6 +1641,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
             <LayoutStylesSection
                 layoutStyles={props.layoutStyles || {}}
                 onUpdate={handleLayoutStylesUpdate}
+                onImageUpload={onImageUpload}
                 defaultCollapsed={true}
             />
         </div>
