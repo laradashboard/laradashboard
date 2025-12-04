@@ -1,19 +1,42 @@
+import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
+
 const QuoteBlock = ({ props, isSelected }) => {
+    // Get layout styles (typography, background, spacing, etc.)
+    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
+
     const containerStyle = {
         padding: '20px',
         paddingLeft: '24px',
-        backgroundColor: props.backgroundColor || '#f8fafc',
+        backgroundColor: layoutStyles.backgroundColor || props.backgroundColor || '#f8fafc',
+        backgroundImage: layoutStyles.backgroundImage,
+        backgroundSize: layoutStyles.backgroundSize,
+        backgroundPosition: layoutStyles.backgroundPosition,
+        backgroundRepeat: layoutStyles.backgroundRepeat,
         borderLeft: `4px solid ${props.borderColor || '#635bff'}`,
-        textAlign: props.align || 'left',
+        textAlign: layoutStyles.textAlign || props.align || 'left',
         outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
+        // Apply margin/padding from layout styles
+        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
+        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
+        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
+        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
+        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
+        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
+        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
+        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
 
     const quoteStyle = {
-        color: props.textColor || '#475569',
-        fontSize: '16px',
-        fontStyle: 'italic',
-        lineHeight: '1.6',
+        color: layoutStyles.color || props.textColor || '#475569',
+        fontSize: layoutStyles.fontSize || '16px',
+        fontStyle: layoutStyles.fontStyle || 'italic',
+        fontFamily: layoutStyles.fontFamily,
+        fontWeight: layoutStyles.fontWeight,
+        letterSpacing: layoutStyles.letterSpacing,
+        textTransform: layoutStyles.textTransform,
+        textDecoration: layoutStyles.textDecoration,
+        lineHeight: layoutStyles.lineHeight || '1.6',
         margin: '0 0 12px 0',
     };
 

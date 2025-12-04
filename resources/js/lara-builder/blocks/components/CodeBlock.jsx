@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
+import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
 
 const CodeBlock = ({ props, onUpdate, isSelected }) => {
     const editorRef = useRef(null);
@@ -52,17 +53,38 @@ const CodeBlock = ({ props, onUpdate, isSelected }) => {
         }
     }, [isSelected]);
 
+    // Get layout styles (typography, background, spacing, etc.)
+    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
+
     const baseStyle = {
-        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
-        fontSize: props.fontSize || '14px',
-        lineHeight: '1.5',
+        fontFamily: layoutStyles.fontFamily || 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+        fontSize: layoutStyles.fontSize || props.fontSize || '14px',
+        lineHeight: layoutStyles.lineHeight || '1.5',
+        fontWeight: layoutStyles.fontWeight,
+        fontStyle: layoutStyles.fontStyle,
+        letterSpacing: layoutStyles.letterSpacing,
+        textTransform: layoutStyles.textTransform,
+        textDecoration: layoutStyles.textDecoration,
         padding: '16px',
         borderRadius: props.borderRadius || '8px',
-        backgroundColor: props.backgroundColor || '#1e1e1e',
-        color: props.textColor || '#d4d4d4',
+        backgroundColor: layoutStyles.backgroundColor || props.backgroundColor || '#1e1e1e',
+        backgroundImage: layoutStyles.backgroundImage,
+        backgroundSize: layoutStyles.backgroundSize,
+        backgroundPosition: layoutStyles.backgroundPosition,
+        backgroundRepeat: layoutStyles.backgroundRepeat,
+        color: layoutStyles.color || props.textColor || '#d4d4d4',
         overflowX: 'auto',
         whiteSpace: 'pre-wrap',
         wordBreak: 'break-word',
+        // Apply margin/padding from layout styles
+        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
+        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
+        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
+        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
+        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
+        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
+        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
+        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
 
     if (isSelected) {

@@ -1,9 +1,28 @@
+import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
+
 const ImageBlock = ({ props, isSelected }) => {
+    // Get layout styles
+    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
+
     const containerStyle = {
-        textAlign: props.align || 'center',
+        textAlign: layoutStyles.textAlign || props.align || 'center',
         padding: '8px',
         outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
+        backgroundColor: layoutStyles.backgroundColor,
+        backgroundImage: layoutStyles.backgroundImage,
+        backgroundSize: layoutStyles.backgroundSize,
+        backgroundPosition: layoutStyles.backgroundPosition,
+        backgroundRepeat: layoutStyles.backgroundRepeat,
+        // Apply margin/padding from layout styles
+        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
+        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
+        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
+        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
+        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
+        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
+        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
+        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
 
     // Determine width and height values

@@ -1145,26 +1145,13 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                                     { value: 'h4', label: 'H4' },
                                 ]
                             }},
-                            { field: 'color', label: 'Color', type: 'color' },
-                            { field: 'fontSize', label: 'Font Size', type: 'text' },
                         ]
                     }
                 ];
 
             case 'text':
-                return [
-                    {
-                        title: 'Text Settings',
-                        icon: 'mdi:format-text',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: true,
-                        fields: [
-                            { field: 'color', label: 'Color', type: 'color' },
-                            { field: 'fontSize', label: 'Font Size', type: 'text' },
-                            { field: 'lineHeight', label: 'Line Height', type: 'text' },
-                        ]
-                    }
-                ];
+                // Text settings now use Typography section in Layout Styles
+                return [];
 
             case 'image':
                 return [
@@ -1375,16 +1362,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                                     { value: 'none', label: 'None' },
                                 ]
                             }},
-                            { field: 'fontSize', label: 'Font Size', type: 'text' },
-                        ]
-                    },
-                    {
-                        title: 'Colors',
-                        icon: 'mdi:palette',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: false,
-                        fields: [
-                            { field: 'color', label: 'Text Color', type: 'color' },
                             { field: 'iconColor', label: 'Icon Color', type: 'color' },
                         ]
                     }
@@ -1506,7 +1483,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                                     { value: '16px', label: 'Large' },
                                 ]
                             }},
-                            { field: 'fontSize', label: 'Font Size', type: 'text' },
                         ]
                     }
                 ];
@@ -1556,7 +1532,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
-                            { field: 'fontSize', label: 'Font Size', type: 'text' },
                             { field: 'borderRadius', label: 'Border Radius', type: 'text' },
                         ]
                     },
@@ -1580,7 +1555,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
-                            { field: 'fontSize', label: 'Font Size', type: 'text' },
                             { field: 'borderRadius', label: 'Border Radius', type: 'text' },
                         ]
                     },

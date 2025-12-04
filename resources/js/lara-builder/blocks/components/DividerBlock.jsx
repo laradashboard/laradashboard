@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
+import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
 
 const DividerBlock = ({ props, onUpdate, isSelected }) => {
     const [isEditing, setIsEditing] = useState(false);
+
+    // Get layout styles
+    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
 
     const handleDoubleClick = () => {
         setIsEditing(true);
@@ -20,6 +24,20 @@ const DividerBlock = ({ props, onUpdate, isSelected }) => {
         outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
         cursor: 'pointer',
+        backgroundColor: layoutStyles.backgroundColor,
+        backgroundImage: layoutStyles.backgroundImage,
+        backgroundSize: layoutStyles.backgroundSize,
+        backgroundPosition: layoutStyles.backgroundPosition,
+        backgroundRepeat: layoutStyles.backgroundRepeat,
+        // Apply margin/padding from layout styles
+        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
+        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
+        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
+        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
+        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
+        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
+        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
+        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
 
     const dividerStyle = {

@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
+import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
 
 const CountdownBlock = ({ props, isSelected }) => {
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [isExpired, setIsExpired] = useState(false);
+
+    // Get layout styles
+    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
 
     useEffect(() => {
         const calculateTimeLeft = () => {
@@ -34,10 +38,23 @@ const CountdownBlock = ({ props, isSelected }) => {
 
     const containerStyle = {
         padding: '24px',
-        backgroundColor: props.backgroundColor || '#1e293b',
+        backgroundColor: layoutStyles.backgroundColor || props.backgroundColor || '#1e293b',
+        backgroundImage: layoutStyles.backgroundImage,
+        backgroundSize: layoutStyles.backgroundSize,
+        backgroundPosition: layoutStyles.backgroundPosition,
+        backgroundRepeat: layoutStyles.backgroundRepeat,
         borderRadius: '8px',
-        textAlign: props.align || 'center',
+        textAlign: layoutStyles.textAlign || props.align || 'center',
         outline: isSelected ? '2px solid #635bff' : 'none',
+        // Apply margin/padding from layout styles
+        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
+        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
+        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
+        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
+        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
+        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
+        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
+        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
 
     const titleStyle = {

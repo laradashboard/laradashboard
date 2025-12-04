@@ -3,6 +3,7 @@ import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { getBlockComponent } from './index';
 import BlockToolbar from '../../components/BlockToolbar';
+import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
 
 // Nested sortable block within a column
 const NestedSortableBlock = ({ block, columnIndex, parentId, onSelect, selectedBlockId, onUpdate, onDelete, onMoveNested, onDuplicateNested, blockIndex, totalBlocks }) => {
@@ -150,15 +151,36 @@ const DroppableColumn = ({ columnIndex, parentId, blocks, onSelect, selectedBloc
 const ColumnsBlock = ({ props, isSelected, blockId, onSelect, selectedBlockId, onUpdate, onDeleteNested, onMoveNestedBlock, onDuplicateNestedBlock }) => {
     const { columns = 2, gap = '20px', children = [] } = props;
 
-    const columnCount = Math.min(Math.max(parseInt(columns) || 2, 1), 4);
+    // Get layout styles (typography, background, spacing, etc.)
+    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
+
+    const columnCount = Math.min(Math.max(parseInt(columns) || 2, 1), 6);
 
     // Ensure children array has correct length
     const columnChildren = Array.from({ length: columnCount }, (_, i) => children[i] || []);
 
+    const containerStyle = {
+        padding: '8px 0',
+        backgroundColor: layoutStyles.backgroundColor,
+        backgroundImage: layoutStyles.backgroundImage,
+        backgroundSize: layoutStyles.backgroundSize,
+        backgroundPosition: layoutStyles.backgroundPosition,
+        backgroundRepeat: layoutStyles.backgroundRepeat,
+        // Apply margin/padding from layout styles
+        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
+        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
+        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
+        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
+        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
+        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
+        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
+        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
+    };
+
     return (
         <div
             className={`transition-all ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}`}
-            style={{ padding: '8px 0' }}
+            style={containerStyle}
         >
             <div
                 style={{

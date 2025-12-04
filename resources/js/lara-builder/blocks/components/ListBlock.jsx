@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
+import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
 
 const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
     const editorRef = useRef(null);
@@ -198,19 +199,42 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
         }
     }, [isSelected]);
 
+    // Get layout styles (typography, background, spacing, etc.)
+    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
+
     const containerStyle = {
         padding: '8px',
         borderRadius: '4px',
+        backgroundColor: layoutStyles.backgroundColor,
+        backgroundImage: layoutStyles.backgroundImage,
+        backgroundSize: layoutStyles.backgroundSize,
+        backgroundPosition: layoutStyles.backgroundPosition,
+        backgroundRepeat: layoutStyles.backgroundRepeat,
+        // Apply margin/padding from layout styles
+        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
+        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
+        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
+        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
+        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
+        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
+        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
+        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
 
     const listStyle = {
-        color: props.color || '#333333',
-        fontSize: props.fontSize || '16px',
-        lineHeight: '1.8',
+        color: layoutStyles.color || props.color || '#333333',
+        fontSize: layoutStyles.fontSize || props.fontSize || '16px',
+        lineHeight: layoutStyles.lineHeight || '1.8',
+        fontFamily: layoutStyles.fontFamily,
+        fontWeight: layoutStyles.fontWeight,
+        fontStyle: layoutStyles.fontStyle,
+        letterSpacing: layoutStyles.letterSpacing,
+        textTransform: layoutStyles.textTransform,
+        textDecoration: layoutStyles.textDecoration,
         margin: 0,
         paddingLeft: props.listType === 'none' ? '0' : '24px',
         listStyleType: props.listType === 'bullet' ? 'disc' : props.listType === 'number' ? 'decimal' : 'none',
-        textAlign: props.align || 'left',
+        textAlign: layoutStyles.textAlign || props.align || 'left',
     };
 
     const itemStyle = {
@@ -281,7 +305,7 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
     if (props.listType === 'check') {
         return (
             <div style={containerStyle}>
-                <div style={{ color: props.color, fontSize: props.fontSize, textAlign: props.align || 'left' }}>
+                <div style={listStyle}>
                     {items.map((item, index) => (
                         <div key={index} style={{ ...itemStyle, display: 'flex', alignItems: 'flex-start' }}>
                             <span style={checkIconStyle}>

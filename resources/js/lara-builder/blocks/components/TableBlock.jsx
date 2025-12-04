@@ -1,14 +1,39 @@
+import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
+
 const TableBlock = ({ props, isSelected }) => {
+    // Get layout styles (typography, background, spacing, etc.)
+    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
+
     const containerStyle = {
         padding: '8px',
         outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
+        backgroundColor: layoutStyles.backgroundColor,
+        backgroundImage: layoutStyles.backgroundImage,
+        backgroundSize: layoutStyles.backgroundSize,
+        backgroundPosition: layoutStyles.backgroundPosition,
+        backgroundRepeat: layoutStyles.backgroundRepeat,
+        // Apply margin/padding from layout styles
+        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
+        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
+        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
+        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
+        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
+        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
+        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
+        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
 
     const tableStyle = {
         width: '100%',
         borderCollapse: 'collapse',
-        fontSize: props.fontSize || '14px',
+        fontSize: layoutStyles.fontSize || props.fontSize || '14px',
+        fontFamily: layoutStyles.fontFamily,
+        fontWeight: layoutStyles.fontWeight,
+        fontStyle: layoutStyles.fontStyle,
+        letterSpacing: layoutStyles.letterSpacing,
+        lineHeight: layoutStyles.lineHeight,
+        color: layoutStyles.color,
     };
 
     const headerCellStyle = {

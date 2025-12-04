@@ -1,16 +1,41 @@
+import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
+
 const FooterBlock = ({ props, isSelected }) => {
+    // Get layout styles (typography, background, spacing, etc.)
+    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
+
     const containerStyle = {
         padding: '24px 16px',
-        textAlign: props.align || 'center',
+        textAlign: layoutStyles.textAlign || props.align || 'center',
         borderTop: '1px solid #e5e7eb',
         outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
+        backgroundColor: layoutStyles.backgroundColor,
+        backgroundImage: layoutStyles.backgroundImage,
+        backgroundSize: layoutStyles.backgroundSize,
+        backgroundPosition: layoutStyles.backgroundPosition,
+        backgroundRepeat: layoutStyles.backgroundRepeat,
+        // Apply margin/padding from layout styles
+        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
+        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
+        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
+        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
+        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
+        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
+        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
+        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
 
     const textStyle = {
-        color: props.textColor || '#6b7280',
-        fontSize: props.fontSize || '12px',
-        lineHeight: '1.6',
+        color: layoutStyles.color || props.textColor || '#6b7280',
+        fontSize: layoutStyles.fontSize || props.fontSize || '12px',
+        lineHeight: layoutStyles.lineHeight || '1.6',
+        fontFamily: layoutStyles.fontFamily,
+        fontWeight: layoutStyles.fontWeight,
+        fontStyle: layoutStyles.fontStyle,
+        letterSpacing: layoutStyles.letterSpacing,
+        textTransform: layoutStyles.textTransform,
+        textDecoration: layoutStyles.textDecoration,
         margin: '0 0 8px 0',
     };
 

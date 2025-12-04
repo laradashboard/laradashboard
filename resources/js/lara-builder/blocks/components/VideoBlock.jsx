@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
+import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
 
 // Helper to extract video ID and platform from URL
 export const parseVideoUrl = (url) => {
@@ -159,11 +160,28 @@ const VideoBlock = ({ props, isSelected }) => {
     const displayThumbnail = imageError || !thumbnailSrc ? PLACEHOLDER_IMAGE : thumbnailSrc;
     const playButtonColor = props.playButtonColor || (videoInfo ? getPlatformColor(videoInfo.platform) : '#FF0000');
 
+    // Get layout styles
+    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
+
     const containerStyle = {
-        textAlign: props.align || 'center',
+        textAlign: layoutStyles.textAlign || props.align || 'center',
         padding: '8px',
         outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
+        backgroundColor: layoutStyles.backgroundColor,
+        backgroundImage: layoutStyles.backgroundImage,
+        backgroundSize: layoutStyles.backgroundSize,
+        backgroundPosition: layoutStyles.backgroundPosition,
+        backgroundRepeat: layoutStyles.backgroundRepeat,
+        // Apply margin/padding from layout styles
+        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
+        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
+        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
+        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
+        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
+        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
+        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
+        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
 
     const wrapperStyle = {
