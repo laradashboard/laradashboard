@@ -128,7 +128,7 @@ const PostPropertiesPanel = ({
 
     // Show post settings when no block is selected
     return (
-        <div className="h-full overflow-y-auto">
+        <div className="h-full overflow-y-auto px-1">
             {/* Post Details Section */}
             <div className="mb-6">
                 <div className="mb-4 pb-2 border-b border-gray-200">

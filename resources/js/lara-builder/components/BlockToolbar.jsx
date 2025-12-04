@@ -1,6 +1,29 @@
 import { useState, useRef, useEffect } from 'react';
 import { getBlock } from '../../email-builder/utils/blockRegistry';
 
+// Alignment-only controls for non-text blocks (image, button, video, etc.)
+const AlignOnlyControls = ({ align, onAlignChange }) => {
+    const buttonClass = "p-1.5 pb-0 rounded hover:bg-gray-100 transition-colors text-gray-600";
+    const activeButtonClass = "p-1.5 pb-0 rounded bg-gray-100 text-gray-800";
+
+    return (
+        <>
+            {/* Align Left */}
+            <button type="button" onClick={() => onAlignChange('left')} className={align === 'left' ? activeButtonClass : buttonClass} title="Align Left">
+                <iconify-icon icon="mdi:format-align-left" width="16" height="16"></iconify-icon>
+            </button>
+            {/* Align Center */}
+            <button type="button" onClick={() => onAlignChange('center')} className={align === 'center' ? activeButtonClass : buttonClass} title="Align Center">
+                <iconify-icon icon="mdi:format-align-center" width="16" height="16"></iconify-icon>
+            </button>
+            {/* Align Right */}
+            <button type="button" onClick={() => onAlignChange('right')} className={align === 'right' ? activeButtonClass : buttonClass} title="Align Right">
+                <iconify-icon icon="mdi:format-align-right" width="16" height="16"></iconify-icon>
+            </button>
+        </>
+    );
+};
+
 // Text formatting controls component - uses execCommand for WYSIWYG contentEditable
 const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }) => {
     const [showLinkInput, setShowLinkInput] = useState(false);
@@ -167,6 +190,9 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }
     );
 };
 
+// Blocks that support alignment-only toolbar (non-text blocks with alignment)
+const ALIGN_ONLY_BLOCKS = ['image', 'button', 'quote', 'video', 'countdown', 'social', 'footer'];
+
 const BlockToolbar = ({
     block,
     onMoveUp,
@@ -176,13 +202,16 @@ const BlockToolbar = ({
     canMoveUp,
     canMoveDown,
     // Text format props (optional - for text-based blocks)
-    textFormatProps
+    textFormatProps,
+    // Alignment props (optional - for align-only blocks)
+    alignProps
 }) => {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef(null);
 
     const blockConfig = getBlock(block.type);
     const isTextBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list';
+    const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -222,6 +251,17 @@ const BlockToolbar = ({
                         align={textFormatProps.align}
                         onAlignChange={textFormatProps.onAlignChange}
                         showLink={block.type === 'text' || block.type === 'list'}
+                    />
+                    <div className="w-px h-5 bg-gray-200 mx-1"></div>
+                </>
+            )}
+
+            {/* Alignment-only Controls - for non-text blocks with alignment */}
+            {isAlignOnlyBlock && alignProps && (
+                <>
+                    <AlignOnlyControls
+                        align={alignProps.align}
+                        onAlignChange={alignProps.onAlignChange}
                     />
                     <div className="w-px h-5 bg-gray-200 mx-1"></div>
                 </>

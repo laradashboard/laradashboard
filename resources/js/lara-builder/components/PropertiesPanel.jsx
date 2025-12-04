@@ -54,7 +54,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
     // Show canvas settings when no block is selected
     if (!selectedBlock) {
         return (
-            <div className="h-full overflow-y-auto">
+            <div className="h-full overflow-y-auto px-1">
                 <div className="mb-4 pb-3 border-b border-gray-200">
                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         Email Settings
@@ -494,7 +494,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         type="text"
                         value={value}
                         onChange={(e) => handleChange('src', e.target.value)}
-                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary"
+                        className="form-control text-xs flex-1 pl-8"
                         placeholder="Enter image URL..."
                     />
                 </div>
@@ -1167,7 +1167,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             { field: 'src', label: 'Image', type: 'image-upload' },
                             { field: 'alt', label: 'Alt Text', type: 'text' },
                             { field: 'link', label: 'Link URL', type: 'text' },
-                            { field: 'align', label: 'Alignment', type: 'align' },
                             { field: 'width', label: 'Width', type: 'image-dimension', options: {
                                 customField: 'customWidth',
                                 choices: [
@@ -1207,7 +1206,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         fields: [
                             { field: 'text', label: 'Button Text', type: 'text' },
                             { field: 'link', label: 'Link URL', type: 'text' },
-                            { field: 'align', label: 'Alignment', type: 'align' },
                             { field: 'borderRadius', label: 'Border Radius', type: 'select', options: {
                                 choices: [
                                     { value: '0', label: 'None' },
@@ -1332,7 +1330,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             { field: 'text', label: 'Quote Text', type: 'textarea' },
                             { field: 'author', label: 'Author Name', type: 'text' },
                             { field: 'authorTitle', label: 'Author Title', type: 'text' },
-                            { field: 'align', label: 'Alignment', type: 'align' },
                         ]
                     },
                     {
@@ -1391,7 +1388,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             { field: 'videoUrl', label: 'Video URL', type: 'video-url' },
                             { field: 'thumbnailUrl', label: 'Custom Thumbnail', type: 'thumbnail-upload' },
                             { field: 'alt', label: 'Alt Text', type: 'text' },
-                            { field: 'align', label: 'Alignment', type: 'align' },
                             { field: 'width', label: 'Width', type: 'select', options: {
                                 choices: [
                                     { value: '100%', label: 'Full Width' },
@@ -1435,7 +1431,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         iconColor: 'text-pink-500',
                         defaultExpanded: false,
                         fields: [
-                            { field: 'align', label: 'Alignment', type: 'align' },
                             { field: 'textColor', label: 'Text Color', type: 'color' },
                             { field: 'linkColor', label: 'Link Color', type: 'color' },
                         ]
@@ -1454,7 +1449,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             { field: 'targetTime', label: 'Target Time', type: 'time' },
                             { field: 'title', label: 'Title', type: 'text' },
                             { field: 'expiredMessage', label: 'Expired Message', type: 'text' },
-                            { field: 'align', label: 'Alignment', type: 'align' },
                         ]
                     },
                     {
@@ -1537,7 +1531,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                                     { value: '24px', label: 'Extra Large' },
                                 ]
                             }},
-                            { field: 'align', label: 'Alignment', type: 'align' },
                         ]
                     }
                 ];
@@ -1604,7 +1597,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
     };
 
     return (
-        <div className="h-full overflow-y-auto">
+        <div className="h-full overflow-y-auto px-1">
             <div className="mb-2 pb-3 border-b border-gray-200">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     {blockConfig?.label || selectedBlock.type}

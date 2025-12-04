@@ -817,8 +817,8 @@ function LaraBuilderInner({
                                 </button>
                             </div>
                         ) : (
-                            <div className="flex flex-col h-full p-4 overflow-hidden">
-                                <div className="flex items-center justify-between mb-4">
+                            <div className="flex flex-col h-full pt-4 pr-4 pb-4 pl-2 overflow-hidden">
+                                <div className="flex items-center justify-between mb-4 pl-2">
                                     <h3 className="text-sm font-semibold text-gray-900">Properties</h3>
                                     <button
                                         onClick={() => setRightSidebarCollapsed(true)}
@@ -828,7 +828,7 @@ function LaraBuilderInner({
                                         <iconify-icon icon="mdi:chevron-right" width="18" height="18"></iconify-icon>
                                     </button>
                                 </div>
-                                <div className="flex-1 overflow-y-auto">
+                                <div className="flex-1 overflow-y-auto pl-2">
                                     <PropertiesPanel
                                         selectedBlock={selectedBlock}
                                         onUpdate={handleUpdateBlock}
@@ -859,7 +859,7 @@ function LaraBuilderInner({
                                         <iconify-icon icon="mdi:close" width="20" height="20"></iconify-icon>
                                     </button>
                                 </div>
-                                <div className="flex-1 p-4 overflow-y-auto">
+                                <div className="flex-1 px-4 py-4 overflow-y-auto">
                                     {/* Mobile-only template inputs */}
                                     {(context === 'email' || context === 'campaign') && (
                                         <div className="md:hidden mb-4 pb-4 border-b border-gray-200">

@@ -32,6 +32,9 @@ const DropZone = ({ id, isFirst = false }) => {
     );
 };
 
+// Blocks that support alignment-only toolbar
+const ALIGN_ONLY_BLOCKS = ['image', 'button', 'quote', 'video', 'countdown', 'social', 'footer'];
+
 const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, totalBlocks, blockIndex }) => {
     const [textFormatProps, setTextFormatProps] = useState(null);
 
@@ -58,6 +61,13 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     const BlockComponent = getBlockComponent(block.type);
     const isSelected = selectedBlockId === block.id;
     const isTextBasedBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list';
+    const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
+
+    // Alignment props for align-only blocks
+    const alignProps = isAlignOnlyBlock ? {
+        align: block.props?.align || 'center',
+        onAlignChange: (newAlign) => onUpdate(block.id, { ...block.props, align: newAlign }),
+    } : null;
 
     if (!BlockComponent) {
         return (
@@ -96,6 +106,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     canMoveUp={canMoveUp}
                     canMoveDown={canMoveDown}
                     textFormatProps={textFormatProps}
+                    alignProps={alignProps}
                 />
             )}
 
