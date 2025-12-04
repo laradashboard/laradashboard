@@ -1006,7 +1006,7 @@ const EmailBuilder = ({
                                         icon="mdi:content-save"
                                         class="h-4 w-4"
                                     ></iconify-icon>
-                                    <span className="hidden sm:inline">Save Template</span>
+                                    <span className="hidden sm:inline">Update</span>
                                 </>
                             )}
                         </button>

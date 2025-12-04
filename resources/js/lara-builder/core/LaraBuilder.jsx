@@ -44,6 +44,8 @@ import BlockPanel from '../components/BlockPanel';
 import Canvas from '../components/Canvas';
 import PropertiesPanel from '../components/PropertiesPanel';
 import Toast from '../components/Toast';
+import EditorOptionsMenu from '../components/EditorOptionsMenu';
+import CodeEditor from '../components/CodeEditor';
 
 /**
  * LaraBuilder Inner Component (uses context)
@@ -90,6 +92,10 @@ function LaraBuilderInner({
     // Desktop sidebar collapse states
     const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
     const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
+
+    // Editor mode: 'visual' or 'code'
+    const [editorMode, setEditorMode] = useState('visual');
+    const [codeEditorHtml, setCodeEditorHtml] = useState('');
 
     // Show toast helper
     const showToast = useCallback((variant, title, message) => {
@@ -414,6 +420,76 @@ function LaraBuilderInner({
         [addBlockAfterSelected]
     );
 
+    // Editor mode handlers
+    const handleEditorModeChange = useCallback((mode) => {
+        if (mode === 'code' && editorMode === 'visual') {
+            // Switching to code mode - generate HTML from blocks
+            const html = getHtml();
+            setCodeEditorHtml(html);
+        } else if (mode === 'visual' && editorMode === 'code') {
+            // Switching to visual mode from code mode
+            // If code is empty or just whitespace, clear all blocks
+            if (!codeEditorHtml.trim()) {
+                actions.setBlocks([]);
+            }
+        }
+        setEditorMode(mode);
+    }, [editorMode, getHtml, codeEditorHtml, actions]);
+
+    // Exit code editor - switch back to visual mode
+    const handleExitCodeEditor = useCallback(() => {
+        if (!codeEditorHtml.trim()) {
+            // Code was cleared - clear all blocks
+            actions.setBlocks([]);
+        }
+        setEditorMode('visual');
+    }, [codeEditorHtml, actions]);
+
+    // Copy all blocks to clipboard
+    const handleCopyAllBlocks = useCallback(async () => {
+        const blocksJson = JSON.stringify(blocks, null, 2);
+        await navigator.clipboard.writeText(blocksJson);
+        showToast('success', 'Copied!', 'All blocks copied to clipboard');
+    }, [blocks, showToast]);
+
+    // Paste blocks from clipboard
+    const handlePasteBlocks = useCallback((text) => {
+        try {
+            // Try to parse as JSON (blocks)
+            const parsed = JSON.parse(text);
+            if (Array.isArray(parsed)) {
+                // It's an array of blocks - add them
+                parsed.forEach((blockData) => {
+                    if (blockData.type) {
+                        const newBlock = blockRegistry.createInstance(blockData.type, blockData.props);
+                        if (newBlock) {
+                            actions.addBlock(newBlock);
+                        }
+                    }
+                });
+                showToast('success', 'Pasted!', `${parsed.length} blocks pasted`);
+            }
+        } catch (e) {
+            // Not valid JSON - treat as HTML in code editor
+            if (editorMode === 'code') {
+                setCodeEditorHtml(text);
+                showToast('success', 'Pasted!', 'HTML content pasted');
+            } else {
+                // In visual mode, create an HTML block
+                const newBlock = blockRegistry.createInstance('html', { code: text });
+                if (newBlock) {
+                    actions.addBlock(newBlock);
+                    showToast('success', 'Pasted!', 'HTML block created');
+                }
+            }
+        }
+    }, [actions, editorMode, showToast]);
+
+    // Handle code editor HTML change
+    const handleCodeEditorHtmlChange = useCallback((html) => {
+        setCodeEditorHtml(html);
+    }, []);
+
     // Save handler
     const handleSave = async () => {
         if (context === 'email' && !templateName.trim()) {
@@ -426,7 +502,8 @@ function LaraBuilderInner({
         setSaving(true);
 
         try {
-            const html = getHtml();
+            // Use code editor HTML if in code mode, otherwise generate from blocks
+            const html = editorMode === 'code' ? codeEditorHtml : getHtml();
             const designJson = getSaveData();
 
             const saveData = {
@@ -498,7 +575,7 @@ function LaraBuilderInner({
             email: {
                 title: 'Email Builder',
                 backText: 'Back to Templates',
-                saveText: 'Save Template',
+                saveText: 'Save',
             },
             page: {
                 title: 'Page Builder',
@@ -508,7 +585,7 @@ function LaraBuilderInner({
             campaign: {
                 title: 'Campaign Editor',
                 backText: 'Back to Campaign',
-                saveText: 'Save Campaign',
+                saveText: 'Save',
             },
         };
 
@@ -589,7 +666,7 @@ function LaraBuilderInner({
                                 <button
                                     onClick={undo}
                                     disabled={!canUndo}
-                                    className={`p-1.5 rounded-md transition-colors ${
+                                    className={`p-1.5 pb-0 rounded-md transition-colors ${
                                         canUndo
                                             ? 'hover:bg-gray-100 text-gray-600'
                                             : 'text-gray-300 cursor-not-allowed'
@@ -601,7 +678,7 @@ function LaraBuilderInner({
                                 <button
                                     onClick={redo}
                                     disabled={!canRedo}
-                                    className={`p-1.5 rounded-md transition-colors ${
+                                    className={`p-1.5 pb-0 rounded-md transition-colors ${
                                         canRedo
                                             ? 'hover:bg-gray-100 text-gray-600'
                                             : 'text-gray-300 cursor-not-allowed'
@@ -684,6 +761,14 @@ function LaraBuilderInner({
                                     </>
                                 )}
                             </button>
+
+                            {/* Editor Options Menu */}
+                            <EditorOptionsMenu
+                                editorMode={editorMode}
+                                onEditorModeChange={handleEditorModeChange}
+                                onCopyAllBlocks={handleCopyAllBlocks}
+                                onPasteBlocks={handlePasteBlocks}
+                            />
                         </div>
                     </header>
                 )}
@@ -778,20 +863,29 @@ function LaraBuilderInner({
                         </div>
                     )}
 
-                    {/* Canvas */}
-                    <Canvas
-                        blocks={blocks}
-                        selectedBlockId={selectedBlockId}
-                        onSelect={actions.selectBlock}
-                        onUpdate={handleUpdateBlock}
-                        onDelete={handleDeleteBlock}
-                        onDeleteNested={handleDeleteNestedBlock}
-                        onMoveBlock={handleMoveBlock}
-                        onDuplicateBlock={handleDuplicateBlock}
-                        onMoveNestedBlock={handleMoveNestedBlock}
-                        onDuplicateNestedBlock={handleDuplicateNestedBlock}
-                        canvasSettings={canvasSettings}
-                    />
+                    {/* Canvas or Code Editor based on mode */}
+                    {editorMode === 'visual' ? (
+                        <Canvas
+                            blocks={blocks}
+                            selectedBlockId={selectedBlockId}
+                            onSelect={actions.selectBlock}
+                            onUpdate={handleUpdateBlock}
+                            onDelete={handleDeleteBlock}
+                            onDeleteNested={handleDeleteNestedBlock}
+                            onMoveBlock={handleMoveBlock}
+                            onDuplicateBlock={handleDuplicateBlock}
+                            onMoveNestedBlock={handleMoveNestedBlock}
+                            onDuplicateNestedBlock={handleDuplicateNestedBlock}
+                            canvasSettings={canvasSettings}
+                        />
+                    ) : (
+                        <CodeEditor
+                            html={codeEditorHtml}
+                            onHtmlChange={handleCodeEditorHtmlChange}
+                            canvasSettings={canvasSettings}
+                            onExitCodeEditor={handleExitCodeEditor}
+                        />
+                    )}
 
                     {/* Right sidebar - Properties (Desktop) */}
                     <div

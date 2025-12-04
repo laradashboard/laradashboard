@@ -83,7 +83,7 @@ class BuilderService
             'email' => [
                 'title' => 'Email Builder',
                 'backText' => 'Back to Templates',
-                'saveText' => 'Save Template',
+                'saveText' => 'Update',
             ],
             'page' => [
                 'title' => 'Page Builder',
