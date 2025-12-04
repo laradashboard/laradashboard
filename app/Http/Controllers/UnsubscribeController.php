@@ -40,7 +40,7 @@ class UnsubscribeController extends Controller
         } catch (\Exception $e) {
             return view('unsubscribe.result', [
                 'success' => false,
-                'message' => 'Invalid unsubscribe link.',
+                'message' => __('Invalid unsubscribe link.'),
                 'email' => null,
             ]);
         }

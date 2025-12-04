@@ -24,6 +24,7 @@ use App\Http\Controllers\Backend\TermController;
 use App\Http\Controllers\Backend\TranslationController;
 use App\Http\Controllers\Backend\UserLoginAsController;
 use App\Http\Controllers\Backend\UserController;
+use App\Http\Controllers\UnsubscribeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -127,7 +128,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
         Route::get('/providers', [AiContentController::class, 'getProviders'])->name('providers');
         Route::post('/generate-content', [AiContentController::class, 'generateContent'])->name('generate-content');
     });
-
 });
 
 /**
@@ -145,7 +145,7 @@ Route::get('/demo-preview', fn () => view('demo.preview'))->name('demo.preview')
 
 // Email Unsubscribe Routes
 Route::prefix('unsubscribe')->name('unsubscribe.')->group(function () {
-    Route::get('/{encryptedEmail}', [App\Http\Controllers\UnsubscribeController::class, 'unsubscribe'])->name('process');
-    Route::get('/confirm/{encryptedEmail}', [App\Http\Controllers\UnsubscribeController::class, 'confirm'])->name('confirm');
-    Route::post('/process/{encryptedEmail}', [App\Http\Controllers\UnsubscribeController::class, 'processConfirmed'])->name('confirmed');
+    Route::get('/{encryptedEmail}', [UnsubscribeController::class, 'unsubscribe'])->name('process');
+    Route::get('/confirm/{encryptedEmail}', [UnsubscribeController::class, 'confirm'])->name('confirm');
+    Route::post('/process/{encryptedEmail}', [UnsubscribeController::class, 'processConfirmed'])->name('confirmed');
 });

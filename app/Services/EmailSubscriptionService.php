@@ -63,14 +63,14 @@ class EmailSubscriptionService
                 Log::info("Email unsubscribed successfully: {$email}");
                 return [
                     'success' => true,
-                    'message' => 'You have been successfully unsubscribed.',
+                    'message' => __('You have been successfully unsubscribed.'),
                     'email' => $email,
                 ];
             }
 
             return [
                 'success' => false,
-                'message' => 'Email address not found in our subscription list.',
+                'message' => __('Email address not found in our subscription list.'),
                 'email' => $email,
             ];
 
@@ -79,7 +79,7 @@ class EmailSubscriptionService
 
             return [
                 'success' => false,
-                'message' => 'Invalid unsubscribe link.',
+                'message' => __('Invalid unsubscribe link.'),
                 'email' => null,
             ];
         }
@@ -98,14 +98,18 @@ class EmailSubscriptionService
     {
         $unsubscribeUrl = $this->generateUnsubscribeUrl($email);
 
+        $unsubscribeText = __('If you no longer wish to receive these emails, you can');
+        $unsubscribeLinkText = __('unsubscribe here');
+        $emailSentText = __('This email was sent to');
+
         return <<<HTML
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #9ca3af;">
             <p style="margin: 0 0 10px 0;">
-                If you no longer wish to receive these emails, you can 
-                <a href="{$unsubscribeUrl}" style="color: #3b82f6; text-decoration: none;">unsubscribe here</a>.
+                {$unsubscribeText} 
+                <a href="{$unsubscribeUrl}" style="color: #3b82f6; text-decoration: none;">{$unsubscribeLinkText}</a>.
             </p>
             <p style="margin: 0; font-size: 11px; color: #6b7280;">
-                This email was sent to {$email}
+                {$emailSentText} {$email}
             </p>
         </div>
         HTML;

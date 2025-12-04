@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Enums\TemplateType;
 use App\Concerns\QueryBuilderTrait;
 use App\Services\TemplateTypeRegistry;
-use App\Services\UnsubscribeService;
 use Illuminate\Support\Str;
 
 class EmailTemplate extends Model
@@ -119,20 +118,10 @@ class EmailTemplate extends Model
             $bodyHtml = str_replace($placeholder, (string) $value, (string) $bodyHtml);
         }
 
-        // Add unsubscribe footer if recipient email is provided
-        if ($recipientEmail) {
-            $bodyHtml = $this->addUnsubscribeFooter($bodyHtml, $recipientEmail, $userType, $userId);
-        }
-
         return [
             'subject' => $subject,
             'body_html' => $bodyHtml,
         ];
-    }
-
-    private function addUnsubscribeFooter(string $content, string $email, string $userType = 'user', ?int $userId = null): string
-    {
-        return app(UnsubscribeService::class)->addFooterToEmail($content, $email);
     }
 
     public function getRawEmailTemplate(): string
