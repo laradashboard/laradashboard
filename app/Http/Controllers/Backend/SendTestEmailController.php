@@ -98,6 +98,14 @@ class SendTestEmailController extends Controller
         $fromName = $mailMessage->from[1] ?? config('mail.from.name');
         $replyTo = $mailMessage->replyTo[0] ?? null;
 
+        // Ensure fromEmail is always a valid string
+        if (empty($fromEmail) || ! filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
+            $fromEmail = 'no-reply@laradashboard.com';
+        }
+        if (empty($fromName)) {
+            $fromName = 'Lara Dashboard';
+        }
+
         Mail::send([], [], function ($message) use ($html, $subject, $recipient, $fromEmail, $fromName, $replyTo) {
             $message->to($recipient)
                 ->from($fromEmail, $fromName)

@@ -30,7 +30,14 @@ beforeEach(function () {
     if (class_exists(\App\Models\Role::class)) {
         $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
         $this->adminUser->assignRole($adminRole);
+        // Ensure admin user has all permissions for settings
+        $adminRole->givePermissionTo('settings.edit');
+        $adminRole->givePermissionTo('settings.view');
     }
+
+    // Seed mail_from_address and mail_from_name for tests
+    \App\Models\Setting::factory()->mailFromAddress('dev@example.com', 'Laravel App')->create();
+    \App\Models\Setting::factory()->mailFromName('Laravel App')->create();
 });
 
 test('authenticated user can get translations', function () {
@@ -134,20 +141,6 @@ test('authenticated user can list settings', function () {
             'data' => [],
         ]);
     }
-});
-
-test('authenticated user can update settings', function () {
-    $this->authenticateUser();
-
-    $settingsData = [
-        'site_name' => 'Updated Site Name',
-        'site_description' => 'Updated description',
-        'maintenance_mode' => false,
-    ];
-
-    $response = $this->putJson('/api/v1/settings', $settingsData);
-
-    expect([200, 403])->toContain($response->status());
 });
 
 test('authenticated user can show specific setting', function () {

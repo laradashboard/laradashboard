@@ -4,14 +4,14 @@
         x-init="showUploadArea = {{ count($modules) > 0 ? 'false' : 'true' }}"
         x-cloak
         x-on:keydown.escape.window="showUploadArea = false"
-        x-on:click.away="showUploadArea = false"
+        @toggle-upload-area.window="showUploadArea = !showUploadArea"
     >
         <x-slot name="breadcrumbsData">
             <x-breadcrumbs :breadcrumbs="$breadcrumbs">
                 <x-slot name="title_after">
                     @if(count($modules) > 0)
                         <button
-                            @click="showUploadArea = !showUploadArea"
+                            @click="$dispatch('toggle-upload-area')"
                             class="ml-4 btn-primary btn-upload-module"
                         >
                             <iconify-icon icon="lucide:upload-cloud" class="mr-2"></iconify-icon>
@@ -29,6 +29,7 @@
                                 <ul class="list-disc pl-5 space-y-1 text-sm">
                                     <li>{{ __('Modules must be in .zip format') }}</li>
                                     <li>{{ __('Each module should have a valid module.json file') }}</li>
+                                    <li>{{ __('Module name must be unique') }}</li>
                                     <li>
                                         {{ __('Must follow guidelines.') }}&nbsp;
                                         <a href="https://laradashboard.com/docs/how-to-create-a-module-in-lara-dashboard/" class="text-primary hover:underline" target="_blank">
@@ -165,9 +166,11 @@
                             <p class="text-sm text-gray-600 dark:text-gray-300">{{ $module->description }}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-300">
                                 {{ __('Tags:') }}
-                                @foreach ($module->tags as $tag)
-                                    <span class="inline-block px-2 py-1 text-xs font-medium text-white bg-gray-400 rounded-full mr-1 mb-1">{{ $tag }}</span>
-                                @endforeach
+                                @forelse ($module->tags as $tag)
+                                    <span class="badge">{{ $tag }}</span>
+                                @empty
+                                    {{ __('N/A') }}
+                                @endforelse
                             </p>
                             <div class="mt-4 flex items-center justify-between">
                                 <span class="text-sm font-medium {{ $module->status ? 'text-green-500' : 'text-red-500' }}">

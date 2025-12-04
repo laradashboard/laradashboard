@@ -39,8 +39,6 @@ class NotificationSeeder extends Seeder
                 'receiver_type' => ReceiverType::USER->value,
                 'is_active' => true,
                 'is_deleteable' => false,
-                'track_opens' => true,
-                'track_clicks' => true,
                 'created_by' => 1,
             ]
         );

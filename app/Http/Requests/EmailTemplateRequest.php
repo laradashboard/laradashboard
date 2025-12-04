@@ -23,7 +23,6 @@ class EmailTemplateRequest extends FormRequest
             'type' => ['required', 'string', Rule::in(array_merge(TemplateType::getValues(), TemplateTypeRegistry::all()))],
             'description' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
-            'preview_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'header_template_id' => 'nullable|exists:email_templates,id',
             'footer_template_id' => 'nullable|exists:email_templates,id',
         ];
@@ -52,9 +51,6 @@ class EmailTemplateRequest extends FormRequest
             'type.required' => 'Template type is required.',
             'type.in' => 'Invalid template type selected.',
             'body_html.required_without' => 'Either HTML body or text body is required.',
-            'preview_image.image' => 'Preview image must be a valid image file.',
-            'preview_image.mimes' => 'Preview image must be a JPEG, PNG, JPG, or GIF file.',
-            'preview_image.max' => 'Preview image must not exceed 2MB.',
         ];
     }
 

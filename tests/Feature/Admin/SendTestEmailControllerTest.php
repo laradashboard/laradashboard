@@ -11,6 +11,7 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Notification;
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Models\Setting;
 
 pest()->use(RefreshDatabase::class);
 
@@ -23,6 +24,10 @@ beforeEach(function () {
     Permission::firstOrCreate(['name' => 'settings.edit']);
     $adminRole->givePermissionTo('settings.edit');
     $this->admin->assignRole($adminRole);
+
+    // Ensure mail_from_address and mail_from_name are set in settings table for tests
+    Setting::factory()->mailFromAddress('dev@example.com', 'Laravel App')->create();
+    Setting::factory()->mailFromName('Laravel App')->create();
 });
 
 test('admin can send email template test', function () {
