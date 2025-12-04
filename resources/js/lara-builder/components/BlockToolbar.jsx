@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { getBlock } from '../utils/blockRegistry';
+import { getBlock } from '../../email-builder/utils/blockRegistry';
 
 // Text formatting controls component - uses execCommand for WYSIWYG contentEditable
 const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }) => {

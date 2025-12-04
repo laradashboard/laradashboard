@@ -39,11 +39,11 @@ import { LaraHooks } from '../hooks-system/LaraHooks';
 import { BuilderHooks } from '../hooks-system/HookNames';
 import { blockRegistry } from '../registry/BlockRegistry';
 
-// Import components - these will be migrated or imported from email-builder
-import BlockPanel from '../../email-builder/components/BlockPanel';
-import Canvas from '../../email-builder/components/Canvas';
-import PropertiesPanel from '../../email-builder/components/PropertiesPanel';
-import Toast from '../../email-builder/components/Toast';
+// Import components
+import BlockPanel from '../components/BlockPanel';
+import Canvas from '../components/Canvas';
+import PropertiesPanel from '../components/PropertiesPanel';
+import Toast from '../components/Toast';
 
 /**
  * LaraBuilder Inner Component (uses context)

@@ -9,7 +9,7 @@ import { BaseAdapter } from './BaseAdapter';
 import { LaraHooks } from '../hooks-system/LaraHooks';
 import { BuilderHooks, getBlockHook } from '../hooks-system/HookNames';
 import { blockRegistry } from '../registry/BlockRegistry';
-import { layoutStylesToInlineCSS } from '../../email-builder/components/LayoutStylesSection';
+import { layoutStylesToInlineCSS } from '../components/LayoutStylesSection';
 
 export class WebAdapter extends BaseAdapter {
     constructor() {

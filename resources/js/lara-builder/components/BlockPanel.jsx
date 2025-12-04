@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { getAllBlocks, getCategories } from '../utils/blockRegistry';
+import { getAllBlocks, getCategories } from '../../email-builder/utils/blockRegistry';
 
 const DraggableBlockItem = ({ block, onAddBlock }) => {
     const [wasDragged, setWasDragged] = useState(false);

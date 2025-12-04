@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { getBlock } from '../utils/blockRegistry';
-import { parseVideoUrl } from '../../lara-builder/blocks/components/VideoBlock';
+import { getBlock } from '../../email-builder/utils/blockRegistry';
+import { parseVideoUrl } from '../blocks/components/VideoBlock';
 import LayoutStylesSection from './LayoutStylesSection';
 import CollapsibleSection from './CollapsibleSection';
 

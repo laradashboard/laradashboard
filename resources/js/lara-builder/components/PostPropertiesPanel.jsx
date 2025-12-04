@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import PropertiesPanel from '../../email-builder/components/PropertiesPanel';
+import PropertiesPanel from './PropertiesPanel';
 
 const PostPropertiesPanel = ({
     selectedBlock,

@@ -11,12 +11,15 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 import { v4 as uuidv4 } from "uuid";
 
-import BlockPanel from "./components/BlockPanel";
-import Canvas from "./components/Canvas";
-import PropertiesPanel from "./components/PropertiesPanel";
-import Toast from "./components/Toast";
-import { getBlock } from "./utils/blockRegistry";
+import BlockPanel from "../lara-builder/components/BlockPanel";
+import Canvas from "../lara-builder/components/Canvas";
+import PropertiesPanel from "../lara-builder/components/PropertiesPanel";
+import Toast from "../lara-builder/components/Toast";
+import { blockRegistry } from "../lara-builder/registry/BlockRegistry";
 import { generateEmailHtml } from "./utils/generateHtml";
+
+// Helper function to get block from registry.
+const getBlock = (type) => blockRegistry.get(type);
 
 const defaultCanvasSettings = {
     width: "700px",

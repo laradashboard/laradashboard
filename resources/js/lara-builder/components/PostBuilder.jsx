@@ -29,9 +29,9 @@ import { BuilderHooks } from '../hooks-system/HookNames';
 import { blockRegistry } from '../registry/BlockRegistry';
 
 // Import components
-import BlockPanel from '../../email-builder/components/BlockPanel';
-import Canvas from '../../email-builder/components/Canvas';
-import Toast from '../../email-builder/components/Toast';
+import BlockPanel from './BlockPanel';
+import Canvas from './Canvas';
+import Toast from './Toast';
 import PostPropertiesPanel from './PostPropertiesPanel';
 
 /**
