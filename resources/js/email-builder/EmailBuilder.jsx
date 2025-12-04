@@ -1068,7 +1068,7 @@ const EmailBuilder = ({
                                         <iconify-icon icon="mdi:chevron-left" width="18" height="18"></iconify-icon>
                                     </button>
                                 </div>
-                                <BlockPanel onAddBlock={handleAddBlock} />
+                                <BlockPanel onAddBlock={handleAddBlock} context="email" />
                             </div>
                         )}
                     </div>
@@ -1098,7 +1098,7 @@ const EmailBuilder = ({
                                     <BlockPanel onAddBlock={(type) => {
                                         handleAddBlock(type);
                                         setLeftDrawerOpen(false);
-                                    }} />
+                                    }} context="email" />
                                 </div>
                             </div>
                         </div>

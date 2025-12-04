@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { getAllBlocks, getCategories } from '../../email-builder/utils/blockRegistry';
+import { blockRegistry } from '../registry/BlockRegistry';
 
 const DraggableBlockItem = ({ block, onAddBlock }) => {
     const [wasDragged, setWasDragged] = useState(false);
@@ -61,10 +61,21 @@ const DraggableBlockItem = ({ block, onAddBlock }) => {
     );
 };
 
-const BlockPanel = ({ onAddBlock }) => {
+const BlockPanel = ({ onAddBlock, context = null }) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const categories = getCategories();
-    const allBlocks = getAllBlocks();
+
+    // Get blocks filtered by context (if provided) or all blocks
+    const allBlocks = useMemo(() => {
+        return context
+            ? blockRegistry.getBlocksForContext(context)
+            : blockRegistry.getAll();
+    }, [context]);
+
+    // Get unique categories from filtered blocks
+    const categories = useMemo(() => {
+        const cats = new Set(allBlocks.map((b) => b.category));
+        return Array.from(cats);
+    }, [allBlocks]);
 
     // Filter blocks based on search query
     const filteredBlocks = useMemo(() => {

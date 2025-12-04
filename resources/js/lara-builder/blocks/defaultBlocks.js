@@ -266,7 +266,7 @@ export const defaultBlocks = [
         label: 'Footer',
         category: 'Layout',
         icon: 'mdi:page-layout-footer',
-        contexts: ['email', 'page', 'campaign'],
+        contexts: ['email', 'campaign'],
         defaultProps: {
             companyName: 'Your Company Name',
             address: '123 Street Name, City, Country',

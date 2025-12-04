@@ -743,7 +743,7 @@ function LaraBuilderInner({
                                         <iconify-icon icon="mdi:chevron-left" width="18" height="18"></iconify-icon>
                                     </button>
                                 </div>
-                                <BlockPanel onAddBlock={handleAddBlock} />
+                                <BlockPanel onAddBlock={handleAddBlock} context={context} />
                             </div>
                         )}
                     </div>
@@ -771,6 +771,7 @@ function LaraBuilderInner({
                                             handleAddBlock(type);
                                             setLeftDrawerOpen(false);
                                         }}
+                                        context={context}
                                     />
                                 </div>
                             </div>
