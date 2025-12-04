@@ -174,9 +174,9 @@ export const defaultBlocks = [
         icon: 'mdi:view-column-outline',
         contexts: ['email', 'page', 'campaign'],
         defaultProps: {
-            columns: 2,
+            columns: 1,
             gap: '20px',
-            children: [[], []],
+            children: [[]],
             layoutStyles: { ...defaultLayoutStyles },
         },
         supports: {

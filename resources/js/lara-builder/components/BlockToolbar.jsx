@@ -193,6 +193,31 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }
 // Blocks that support alignment-only toolbar (non-text blocks with alignment)
 const ALIGN_ONLY_BLOCKS = ['image', 'button', 'quote', 'video', 'countdown', 'social', 'footer'];
 
+// Column selector controls for columns block
+const ColumnControls = ({ columns, onColumnsChange }) => {
+    const columnOptions = [1, 2, 3, 4, 5, 6];
+
+    return (
+        <div className="flex items-center gap-1">
+            {columnOptions.map((num) => (
+                <button
+                    key={num}
+                    type="button"
+                    onClick={() => onColumnsChange(num)}
+                    className={`w-6 h-6 flex items-center justify-center rounded text-xs font-medium transition-colors ${
+                        parseInt(columns) === num
+                            ? 'bg-primary text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                    title={`${num} Column${num > 1 ? 's' : ''}`}
+                >
+                    {num}
+                </button>
+            ))}
+        </div>
+    );
+};
+
 const BlockToolbar = ({
     block,
     onMoveUp,
@@ -205,6 +230,8 @@ const BlockToolbar = ({
     textFormatProps,
     // Alignment props (optional - for align-only blocks)
     alignProps,
+    // Column props (optional - for columns block)
+    columnsProps,
     // Position: 'top' (default) or 'bottom'
     position = 'top'
 }) => {
@@ -218,6 +245,7 @@ const BlockToolbar = ({
     // text-editor block has its own TinyMCE toolbar, so exclude it from text formatting controls
     const isTextBlock = (block.type === 'heading' || block.type === 'text' || block.type === 'list') && !hasSelfEditor;
     const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
+    const isColumnsBlock = block.type === 'columns';
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -273,6 +301,17 @@ const BlockToolbar = ({
                     <AlignOnlyControls
                         align={alignProps.align}
                         onAlignChange={alignProps.onAlignChange}
+                    />
+                    <div className="w-px h-5 bg-gray-200 mx-1"></div>
+                </>
+            )}
+
+            {/* Column Controls - for columns block */}
+            {isColumnsBlock && columnsProps && (
+                <>
+                    <ColumnControls
+                        columns={columnsProps.columns}
+                        onColumnsChange={columnsProps.onColumnsChange}
                     />
                     <div className="w-px h-5 bg-gray-200 mx-1"></div>
                 </>

@@ -62,6 +62,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     const isSelected = selectedBlockId === block.id;
     const isTextBasedBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'text-editor';
     const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
+    const isColumnsBlock = block.type === 'columns';
     // Blocks with their own toolbar (like text-editor) - always show toolbar at bottom
     const toolbarAtBottom = block.type === 'text-editor';
 
@@ -71,6 +72,33 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
         onAlignChange: (newAlign) => onUpdate(block.id, { ...block.props, align: newAlign }),
     } : null;
 
+    // Column props for columns block
+    const columnsProps = isColumnsBlock ? {
+        columns: block.props?.columns || 1,
+        onColumnsChange: (newColumns) => {
+            const currentColumns = parseInt(block.props?.columns) || 1;
+            const currentChildren = block.props?.children || [[]];
+
+            // Adjust children array based on column count change
+            let newChildren = [...currentChildren];
+            if (newColumns > currentColumns) {
+                // Add empty arrays for new columns
+                for (let i = currentColumns; i < newColumns; i++) {
+                    newChildren.push([]);
+                }
+            } else if (newColumns < currentColumns) {
+                // Keep only the needed columns (content in removed columns is lost)
+                newChildren = newChildren.slice(0, newColumns);
+            }
+
+            onUpdate(block.id, {
+                ...block.props,
+                columns: newColumns,
+                children: newChildren,
+            });
+        },
+    } : null;
+
     if (!BlockComponent) {
         return (
             <div ref={setNodeRef} style={style} className="p-4 bg-red-100 text-red-600 rounded">
@@ -78,9 +106,6 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
             </div>
         );
     }
-
-    // Check if this is a columns block - it needs extra props
-    const isColumnsBlock = block.type === 'columns';
 
     const canMoveUp = blockIndex > 0;
     const canMoveDown = blockIndex < totalBlocks - 1;
@@ -109,6 +134,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     canMoveDown={canMoveDown}
                     textFormatProps={textFormatProps}
                     alignProps={alignProps}
+                    columnsProps={columnsProps}
                 />
             )}
 
@@ -142,6 +168,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     canMoveDown={canMoveDown}
                     textFormatProps={textFormatProps}
                     alignProps={alignProps}
+                    columnsProps={columnsProps}
                     position="bottom"
                 />
             )}

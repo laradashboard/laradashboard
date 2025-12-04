@@ -1299,9 +1299,12 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         fields: [
                             { field: 'columns', label: 'Number of Columns', type: 'select', options: {
                                 choices: [
+                                    { value: '1', label: '1 Column (Container)' },
                                     { value: '2', label: '2 Columns' },
                                     { value: '3', label: '3 Columns' },
                                     { value: '4', label: '4 Columns' },
+                                    { value: '5', label: '5 Columns' },
+                                    { value: '6', label: '6 Columns' },
                                 ]
                             }},
                             { field: 'gap', label: 'Column Gap', type: 'select', options: {
