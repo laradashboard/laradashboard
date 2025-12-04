@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { getBlockComponent } from '../blocks';
 import BlockToolbar from './BlockToolbar';
+import { layoutStylesToCSS } from './LayoutStylesSection';
 
 // Drop zone indicator between blocks
 const DropZone = ({ id, isFirst = false }) => {
@@ -31,6 +33,8 @@ const DropZone = ({ id, isFirst = false }) => {
 };
 
 const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, totalBlocks, blockIndex }) => {
+    const [textFormatProps, setTextFormatProps] = useState(null);
+
     const {
         attributes,
         listeners,
@@ -40,14 +44,20 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
         isDragging,
     } = useSortable({ id: block.id });
 
+    // Get layout styles from block props
+    const layoutStyles = layoutStylesToCSS(block.props?.layoutStyles);
+
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
+        // Apply layout styles (margin, padding, width, height, etc.)
+        ...layoutStyles,
     };
 
     const BlockComponent = getBlockComponent(block.type);
     const isSelected = selectedBlockId === block.id;
+    const isTextBasedBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list';
 
     if (!BlockComponent) {
         return (
@@ -85,6 +95,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     onDuplicate={() => onDuplicateBlock(block.id)}
                     canMoveUp={canMoveUp}
                     canMoveDown={canMoveDown}
+                    textFormatProps={textFormatProps}
                 />
             )}
 
@@ -93,6 +104,9 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                 props={block.props}
                 isSelected={isSelected}
                 onUpdate={(newProps) => onUpdate(block.id, newProps)}
+                {...(isTextBasedBlock ? {
+                    onRegisterTextFormat: setTextFormatProps,
+                } : {})}
                 {...(isColumnsBlock ? {
                     blockId: block.id,
                     onSelect: onSelect,
@@ -168,6 +182,7 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
         <div
             className="flex-1 overflow-auto"
             style={outerBackgroundStyle}
+            onClick={() => onSelect(null)}
         >
             <div className="mx-auto" style={{ maxWidth: settings.width }}>
                 {/* Email preview container */}
@@ -177,7 +192,6 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
                         isOver ? 'ring-2 ring-primary ring-offset-2' : ''
                     }`}
                     style={contentBackgroundStyle}
-                    onClick={() => onSelect(null)}
                 >
                     <div style={{ padding: settings.contentPadding }}>
                         <SortableContext items={blockIds} strategy={verticalListSortingStrategy}>

@@ -1,11 +1,188 @@
 import { useState, useRef, useEffect } from 'react';
 import { getBlock } from '../utils/blockRegistry';
 
-const BlockToolbar = ({ block, onMoveUp, onMoveDown, onDelete, onDuplicate, canMoveUp, canMoveDown }) => {
+// Text formatting controls component - uses execCommand for WYSIWYG contentEditable
+const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }) => {
+    const [showLinkInput, setShowLinkInput] = useState(false);
+    const [linkUrl, setLinkUrl] = useState('');
+    const linkInputRef = useRef(null);
+    const savedSelection = useRef(null);
+
+    useEffect(() => {
+        if (showLinkInput && linkInputRef.current) {
+            linkInputRef.current.focus();
+        }
+    }, [showLinkInput]);
+
+    // Save the current selection before clicking toolbar buttons
+    const saveSelection = () => {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            savedSelection.current = selection.getRangeAt(0).cloneRange();
+        }
+    };
+
+    // Restore the saved selection
+    const restoreSelection = () => {
+        if (savedSelection.current) {
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(savedSelection.current);
+        }
+    };
+
+    // Execute formatting command
+    const execFormat = (command, value = null) => {
+        restoreSelection();
+        document.execCommand(command, false, value);
+        // Refocus the editor
+        if (editorRef?.current) {
+            editorRef.current.focus();
+        }
+    };
+
+    const handleBold = () => execFormat('bold');
+    const handleItalic = () => execFormat('italic');
+    const handleUnderline = () => execFormat('underline');
+
+    const handleLinkClick = () => {
+        saveSelection();
+        const selection = window.getSelection();
+        if (selection.toString().length === 0) return; // No selection
+        setShowLinkInput(true);
+    };
+
+    const handleLinkSubmit = () => {
+        if (!linkUrl.trim()) {
+            setShowLinkInput(false);
+            return;
+        }
+
+        restoreSelection();
+        document.execCommand('createLink', false, linkUrl);
+        setLinkUrl('');
+        setShowLinkInput(false);
+
+        if (editorRef?.current) {
+            editorRef.current.focus();
+        }
+    };
+
+    const handleLinkKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleLinkSubmit();
+        } else if (e.key === 'Escape') {
+            setShowLinkInput(false);
+            setLinkUrl('');
+        }
+    };
+
+    const handleClearFormat = () => {
+        restoreSelection();
+        document.execCommand('removeFormat', false, null);
+        // Also remove links
+        document.execCommand('unlink', false, null);
+        if (editorRef?.current) {
+            editorRef.current.focus();
+        }
+    };
+
+    const buttonClass = "p-1.5 pb-0 rounded hover:bg-gray-100 transition-colors text-gray-600";
+    const activeButtonClass = "p-1.5 pb-0 rounded bg-gray-100 text-gray-800";
+
+    return (
+        <>
+            {/* Bold */}
+            <button type="button" onMouseDown={saveSelection} onClick={handleBold} className={buttonClass} title="Bold">
+                <iconify-icon icon="mdi:format-bold" width="16" height="16"></iconify-icon>
+            </button>
+            {/* Italic */}
+            <button type="button" onMouseDown={saveSelection} onClick={handleItalic} className={buttonClass} title="Italic">
+                <iconify-icon icon="mdi:format-italic" width="16" height="16"></iconify-icon>
+            </button>
+            {/* Underline */}
+            <button type="button" onMouseDown={saveSelection} onClick={handleUnderline} className={buttonClass} title="Underline">
+                <iconify-icon icon="mdi:format-underline" width="16" height="16"></iconify-icon>
+            </button>
+
+            <div className="w-px h-5 bg-gray-200 mx-0.5"></div>
+
+            {/* Align Left */}
+            <button type="button" onClick={() => onAlignChange('left')} className={align === 'left' ? activeButtonClass : buttonClass} title="Align Left">
+                <iconify-icon icon="mdi:format-align-left" width="16" height="16"></iconify-icon>
+            </button>
+            {/* Align Center */}
+            <button type="button" onClick={() => onAlignChange('center')} className={align === 'center' ? activeButtonClass : buttonClass} title="Align Center">
+                <iconify-icon icon="mdi:format-align-center" width="16" height="16"></iconify-icon>
+            </button>
+            {/* Align Right */}
+            <button type="button" onClick={() => onAlignChange('right')} className={align === 'right' ? activeButtonClass : buttonClass} title="Align Right">
+                <iconify-icon icon="mdi:format-align-right" width="16" height="16"></iconify-icon>
+            </button>
+            {/* Align Justify */}
+            <button type="button" onClick={() => onAlignChange('justify')} className={align === 'justify' ? activeButtonClass : buttonClass} title="Justify">
+                <iconify-icon icon="mdi:format-align-justify" width="16" height="16"></iconify-icon>
+            </button>
+
+            {showLink && (
+                <>
+                    <div className="w-px h-5 bg-gray-200 mx-0.5"></div>
+                    <div className="relative">
+                        <button type="button" onClick={handleLinkClick} className={buttonClass} title="Insert Link">
+                            <iconify-icon icon="mdi:link-variant" width="16" height="16"></iconify-icon>
+                        </button>
+                        {showLinkInput && (
+                            <div className="absolute left-0 top-full mt-2 z-50">
+                                <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg shadow-lg border border-gray-200">
+                                    <input
+                                        ref={linkInputRef}
+                                        type="url"
+                                        value={linkUrl}
+                                        onChange={(e) => setLinkUrl(e.target.value)}
+                                        onKeyDown={handleLinkKeyDown}
+                                        placeholder="Enter URL..."
+                                        className="w-48 px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:border-primary"
+                                    />
+                                    <button type="button" onClick={handleLinkSubmit} className="p-1 rounded bg-primary text-white hover:bg-primary/80" title="Apply">
+                                        <iconify-icon icon="mdi:check" width="14" height="14"></iconify-icon>
+                                    </button>
+                                    <button type="button" onClick={() => { setShowLinkInput(false); setLinkUrl(''); }} className="p-1 rounded text-gray-400 hover:text-gray-600" title="Cancel">
+                                        <iconify-icon icon="mdi:close" width="14" height="14"></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
+
+            <div className="w-px h-5 bg-gray-200 mx-0.5"></div>
+
+            {/* Clear Formatting */}
+            <button type="button" onMouseDown={saveSelection} onClick={handleClearFormat} className={buttonClass} title="Clear Formatting">
+                <iconify-icon icon="mdi:format-clear" width="16" height="16"></iconify-icon>
+            </button>
+        </>
+    );
+};
+
+const BlockToolbar = ({
+    block,
+    onMoveUp,
+    onMoveDown,
+    onDelete,
+    onDuplicate,
+    canMoveUp,
+    canMoveDown,
+    // Text format props (optional - for text-based blocks)
+    textFormatProps
+}) => {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef(null);
 
     const blockConfig = getBlock(block.type);
+    const isTextBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list';
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -36,6 +213,19 @@ const BlockToolbar = ({ block, onMoveUp, onMoveDown, onDelete, onDuplicate, canM
                     {blockConfig?.label || block.type}
                 </span>
             </div>
+
+            {/* Text Format Controls - only for text-based blocks */}
+            {isTextBlock && textFormatProps && (
+                <>
+                    <TextFormatControls
+                        editorRef={textFormatProps.editorRef}
+                        align={textFormatProps.align}
+                        onAlignChange={textFormatProps.onAlignChange}
+                        showLink={block.type === 'text' || block.type === 'list'}
+                    />
+                    <div className="w-px h-5 bg-gray-200 mx-1"></div>
+                </>
+            )}
 
             {/* Move Up */}
             <button

@@ -22,6 +22,7 @@ return new class () extends Migration {
             $table->string('slug')->unique();
             $table->text('excerpt')->nullable();
             $table->longText('content')->nullable();
+            $table->json('design_json')->nullable();
             $table->string('status')->default(PostStatus::DRAFT->value);
             $table->json('meta')->nullable();
             $table->foreignId('parent_id')->nullable()->constrained('posts')->onDelete('cascade');

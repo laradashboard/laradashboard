@@ -261,4 +261,5 @@ class PostDatatable extends Datatable
     {
         return $post->categories->pluck('name')->map(fn ($name) => "<span class='badge'>" . ucfirst($name) . "</span>")->join(' ');
     }
+
 }

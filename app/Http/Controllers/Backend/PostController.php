@@ -21,9 +21,11 @@ use App\Services\PostService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class PostController extends Controller
 {
@@ -419,6 +421,385 @@ class PostController extends Controller
                 'meta_default_values' => $metaDefaultValues,
             ],
             PostActionHook::POST_META_UPDATED
+        );
+    }
+
+    /**
+     * Show the LaraBuilder for creating a new post.
+     */
+    public function builderCreate(string $postType = 'post'): RedirectResponse|View
+    {
+        $this->authorize('create', Post::class);
+
+        $postTypeModel = $this->contentService->getPostType($postType);
+
+        if (! $postTypeModel) {
+            return redirect()->route('admin.posts.index')->with('error', 'Post type not found');
+        }
+
+        // Get taxonomies with their terms.
+        $taxonomies = $this->getTaxonomiesWithTerms($postTypeModel);
+
+        // Get parent posts for hierarchical post types.
+        $parentPosts = [];
+        if ($postTypeModel->hierarchical) {
+            $parentPosts = Post::where('post_type', $postType)
+                ->pluck('title', 'id')
+                ->toArray();
+        }
+
+        return view('backend.pages.posts.builder', [
+            'postType' => $postType,
+            'postTypeModel' => $postTypeModel,
+            'taxonomies' => $taxonomies,
+            'selectedTerms' => [],
+            'parentPosts' => $parentPosts,
+            'initialData' => null,
+            'postData' => null,
+            'saveUrl' => route('admin.posts.store', $postType),
+        ]);
+    }
+
+    /**
+     * Show the LaraBuilder for editing an existing post.
+     */
+    public function builderEdit(string $postType, string $id): RedirectResponse|View
+    {
+        $post = Post::with(['postMeta', 'terms', 'media'])
+            ->where('post_type', $postType)
+            ->findOrFail($id);
+
+        $this->authorize('update', $post);
+
+        $postTypeModel = $this->contentService->getPostType($postType);
+
+        if (! $postTypeModel) {
+            return redirect()->route('admin.posts.index')->with('error', 'Post type not found');
+        }
+
+        // Get taxonomies with their terms.
+        $taxonomies = $this->getTaxonomiesWithTerms($postTypeModel);
+
+        // Get parent posts for hierarchical post types.
+        $parentPosts = [];
+        if ($postTypeModel->hierarchical) {
+            $parentPosts = Post::where('post_type', $postType)
+                ->where('id', '!=', $id)
+                ->pluck('title', 'id')
+                ->toArray();
+        }
+
+        // Get selected terms.
+        $selectedTerms = [];
+        foreach ($post->terms as $term) {
+            $taxonomyName = $term->getAttribute('taxonomy');
+            if ($taxonomyName && ! isset($selectedTerms[$taxonomyName])) {
+                $selectedTerms[$taxonomyName] = [];
+            }
+            if ($taxonomyName) {
+                $selectedTerms[$taxonomyName][] = $term->id;
+            }
+        }
+
+        // Get initial data from design_json.
+        $initialData = $post->design_json;
+
+        // Get post data for the builder.
+        $postData = [
+            'id' => $post->id,
+            'title' => $post->title,
+            'slug' => $post->slug,
+            'status' => $post->status,
+            'excerpt' => $post->excerpt,
+            'parent_id' => $post->parent_id,
+            'published_at' => $post->published_at?->format('Y-m-d\TH:i'),
+            'featured_image_url' => $post->getFeaturedImageUrl(),
+        ];
+
+        return view('backend.pages.posts.builder', [
+            'post' => $post,
+            'postType' => $postType,
+            'postTypeModel' => $postTypeModel,
+            'taxonomies' => $taxonomies,
+            'selectedTerms' => $selectedTerms,
+            'parentPosts' => $parentPosts,
+            'initialData' => $initialData,
+            'postData' => $postData,
+            'saveUrl' => route('admin.posts.update', [$postType, $post->id]),
+        ]);
+    }
+
+    /**
+     * Store a new post from the LaraBuilder.
+     */
+    public function builderStore(Request $request, string $postType = 'post'): JsonResponse
+    {
+        $this->authorize('create', Post::class);
+
+        $postTypeModel = $this->contentService->getPostType($postType);
+
+        if (! $postTypeModel) {
+            return response()->json(['success' => false, 'message' => 'Post type not found'], 404);
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:200',
+            'status' => 'required|string|in:draft,published,pending,scheduled,private',
+            'content' => 'nullable|string',
+            'excerpt' => 'nullable|string',
+            'design_json' => 'nullable|array',
+            'published_at' => 'nullable|date',
+            'parent_id' => 'nullable|integer|exists:posts,id',
+        ]);
+
+        $data = $request->all();
+
+        $data = $this->addHooks(
+            $data,
+            PostActionHook::POST_CREATED_BEFORE,
+            PostFilterHook::POST_CREATED_BEFORE
+        );
+
+        // Create post.
+        $post = new Post();
+        $post->title = $data['title'];
+        $post->slug = $data['slug'] ?? Str::slug($data['title']);
+        $post->content = $data['content'] ?? '';
+        $post->design_json = $data['design_json'] ?? null;
+        $post->excerpt = $data['excerpt'] ?? Str::limit(strip_tags($data['content'] ?? ''), 200);
+        $post->status = $data['status'];
+        $post->post_type = $postType;
+        $post->user_id = Auth::id();
+        $post->parent_id = $data['parent_id'] ?? null;
+
+        // Handle publish date.
+        if ($data['status'] === PostStatus::SCHEDULED->value && ! empty($data['published_at'])) {
+            $post->published_at = Carbon::parse($data['published_at']);
+        } elseif ($data['status'] === PostStatus::PUBLISHED->value) {
+            $post->published_at = now();
+        }
+
+        $post->save();
+
+        // Handle featured image.
+        $this->handleBuilderFeaturedImage($request, $post);
+
+        // Handle taxonomies.
+        $this->handleBuilderTaxonomies($request, $post, $postTypeModel);
+
+        $post = $this->addHooks(
+            $post,
+            PostActionHook::POST_CREATED_AFTER,
+            PostFilterHook::POST_CREATED_AFTER
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Post has been created.'),
+            'id' => $post->id,
+            'redirect' => route('admin.posts.edit', [$postType, $post->id]),
+        ]);
+    }
+
+    /**
+     * Update an existing post from the LaraBuilder.
+     */
+    public function builderUpdate(Request $request, string $postType, string $id): JsonResponse
+    {
+        $post = Post::where('post_type', $postType)->findOrFail($id);
+        $this->authorize('update', $post);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:200',
+            'status' => 'required|string|in:draft,published,pending,scheduled,private',
+            'content' => 'nullable|string',
+            'excerpt' => 'nullable|string',
+            'design_json' => 'nullable|array',
+            'published_at' => 'nullable|date',
+            'parent_id' => 'nullable|integer|exists:posts,id',
+        ]);
+
+        $data = $request->all();
+
+        $data = $this->addHooks(
+            $data,
+            PostActionHook::POST_UPDATED_BEFORE,
+            PostFilterHook::POST_UPDATED_BEFORE
+        );
+
+        // Get post type model for taxonomy handling.
+        $postTypeModel = $this->contentService->getPostType($postType);
+
+        // Update post.
+        $post->title = $data['title'];
+        $post->slug = $data['slug'] ?? Str::slug($data['title']);
+        $post->content = $data['content'] ?? '';
+        $post->design_json = $data['design_json'] ?? null;
+        $post->excerpt = $data['excerpt'] ?? Str::limit(strip_tags($data['content'] ?? ''), 200);
+        $post->status = $data['status'];
+        $post->parent_id = $data['parent_id'] ?? null;
+
+        // Handle publish date.
+        if ($data['status'] === PostStatus::SCHEDULED->value && ! empty($data['published_at'])) {
+            $post->published_at = Carbon::parse($data['published_at']);
+        } elseif ($data['status'] === PostStatus::PUBLISHED->value && ! $post->published_at) {
+            $post->published_at = now();
+        }
+
+        $post->save();
+
+        // Handle featured image.
+        $this->handleBuilderFeaturedImage($request, $post);
+
+        // Handle taxonomies.
+        if ($postTypeModel) {
+            $this->handleBuilderTaxonomies($request, $post, $postTypeModel);
+        }
+
+        $post = $this->addHooks(
+            $post,
+            PostActionHook::POST_UPDATED_AFTER,
+            PostFilterHook::POST_UPDATED_AFTER
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Post has been updated.'),
+        ]);
+    }
+
+    /**
+     * Upload an image for the post builder.
+     */
+    public function uploadImage(Request $request, string $postType = 'post'): JsonResponse
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        $file = $request->file('image');
+        $filename = 'post_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('post-images', $filename, 'public');
+
+        return response()->json([
+            'success' => true,
+            'url' => asset('storage/' . $path),
+        ]);
+    }
+
+    /**
+     * Upload a video for the post builder.
+     */
+    public function uploadVideo(Request $request, string $postType = 'post'): JsonResponse
+    {
+        $request->validate([
+            'video' => 'required|mimetypes:video/mp4,video/webm,video/ogg,video/quicktime|max:102400',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        $videoFile = $request->file('video');
+        $videoFilename = 'post_video_' . uniqid() . '_' . time() . '.' . $videoFile->getClientOriginalExtension();
+        $videoPath = $videoFile->storeAs('post-videos', $videoFilename, 'public');
+
+        $thumbnailUrl = null;
+        if ($request->hasFile('thumbnail')) {
+            $thumbFile = $request->file('thumbnail');
+            $thumbFilename = 'post_thumb_' . uniqid() . '_' . time() . '.' . $thumbFile->getClientOriginalExtension();
+            $thumbPath = $thumbFile->storeAs('post-videos/thumbnails', $thumbFilename, 'public');
+            $thumbnailUrl = asset('storage/' . $thumbPath);
+        }
+
+        return response()->json([
+            'success' => true,
+            'url' => asset('storage/' . $videoPath),
+            'thumbnailUrl' => $thumbnailUrl,
+        ]);
+    }
+
+    /**
+     * Get taxonomies with their terms for the builder.
+     */
+    protected function getTaxonomiesWithTerms($postTypeModel): array
+    {
+        $taxonomies = [];
+
+        if (! empty($postTypeModel->taxonomies)) {
+            $taxonomyObjects = $this->contentService->getTaxonomies()
+                ->whereIn('name', $postTypeModel->taxonomies)
+                ->all();
+
+            foreach ($taxonomyObjects as $taxonomy) {
+                $terms = \App\Models\Term::where('taxonomy', $taxonomy->name)
+                    ->select('id', 'name', 'parent_id')
+                    ->orderBy('name')
+                    ->get()
+                    ->toArray();
+
+                $taxonomies[] = [
+                    'name' => $taxonomy->name,
+                    'label' => $taxonomy->label,
+                    'hierarchical' => $taxonomy->hierarchical,
+                    'terms' => $terms,
+                ];
+            }
+        }
+
+        return $taxonomies;
+    }
+
+    /**
+     * Handle featured image from the builder.
+     */
+    protected function handleBuilderFeaturedImage(Request $request, Post $post): void
+    {
+        // Handle removal.
+        if ($request->boolean('remove_featured_image')) {
+            $post->clearMediaCollection('featured');
+
+            return;
+        }
+
+        // Handle new image URL.
+        $featuredImageUrl = $request->input('featured_image');
+        if ($featuredImageUrl && filter_var($featuredImageUrl, FILTER_VALIDATE_URL)) {
+            // Check if it's a different image.
+            $currentUrl = $post->getFeaturedImageUrl();
+            if ($featuredImageUrl !== $currentUrl) {
+                $post->clearMediaCollection('featured');
+
+                // Try to associate existing media or add from URL.
+                $this->mediaService->associateExistingMedia($post, $featuredImageUrl, 'featured');
+            }
+        }
+    }
+
+    /**
+     * Handle taxonomies from the builder.
+     */
+    protected function handleBuilderTaxonomies(Request $request, Post $post, $postTypeModel): void
+    {
+        if (empty($postTypeModel->taxonomies)) {
+            return;
+        }
+
+        $termIds = [];
+        foreach ($postTypeModel->taxonomies as $taxonomy) {
+            $termKey = 'taxonomy_' . $taxonomy;
+            if ($request->has($termKey)) {
+                $taxonomyTerms = $request->input($termKey);
+                if (is_array($taxonomyTerms)) {
+                    $termIds = array_merge($termIds, $taxonomyTerms);
+                }
+            }
+        }
+
+        $post->terms()->sync($termIds);
+
+        $this->addHooks(
+            ['post' => $post, 'term_ids' => $termIds],
+            PostActionHook::POST_TAXONOMIES_UPDATED
         );
     }
 }

@@ -63,9 +63,38 @@
                 <!-- Content -->
                 <div class="mb-6">
                     <h4 class="text-lg font-medium text-gray-700 dark:text-white/90 mb-2">{{ __('Content') }}</h4>
-                    <div class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-headings:text-gray-700 dark:prose-headings:text-white/90 prose-p:text-gray-700 dark:prose-p:text-gray-300">
-                        {!! $post->content !!}
-                    </div>
+                    @if($post->content)
+                        <div class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-headings:text-gray-700 dark:prose-headings:text-white/90 prose-p:text-gray-700 dark:prose-p:text-gray-300 lb-content-preview">
+                            {!! $post->content !!}
+                        </div>
+                        @if($post->design_json)
+                            {{-- LaraBuilder CSS styles for rendered content --}}
+                            <style>
+                                .lb-content-preview .lb-content { max-width: 100%; }
+                                .lb-content-preview .lb-heading { margin: 0 0 16px 0; }
+                                .lb-content-preview .lb-text { margin: 0 0 16px 0; }
+                                .lb-content-preview .lb-image-wrapper { margin: 0 0 16px 0; }
+                                .lb-content-preview .lb-image { max-width: 100%; height: auto; }
+                                .lb-content-preview .lb-button { display: inline-block; text-decoration: none; transition: opacity 0.2s ease; }
+                                .lb-content-preview .lb-button:hover { opacity: 0.9; }
+                                .lb-content-preview .lb-columns { display: flex; gap: 20px; flex-wrap: wrap; margin: 0 0 16px 0; }
+                                .lb-content-preview .lb-column { flex: 1; min-width: 0; }
+                                .lb-content-preview .lb-divider { border: none; margin: 20px auto; }
+                                .lb-content-preview .lb-spacer { display: block; }
+                                .lb-content-preview .lb-quote { margin: 10px 0; }
+                                .lb-content-preview .lb-video { margin: 0 0 16px 0; }
+                                .lb-content-preview .lb-social { padding: 10px 0; }
+                                .lb-content-preview .lb-table-wrapper { overflow-x: auto; margin: 0 0 16px 0; }
+                                .lb-content-preview .lb-table { width: 100%; border-collapse: collapse; }
+                                @media (max-width: 768px) {
+                                    .lb-content-preview .lb-columns { flex-direction: column; }
+                                    .lb-content-preview .lb-column { flex: none !important; width: 100% !important; }
+                                }
+                            </style>
+                        @endif
+                    @else
+                        <p class="text-gray-400 dark:text-gray-500 italic">{{ __('No content available.') }}</p>
+                    @endif
                 </div>
 
                 <!-- Taxonomies -->

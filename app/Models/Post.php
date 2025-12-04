@@ -37,6 +37,7 @@ class Post extends Model implements SpatieHasMedia
         'slug',
         'excerpt',
         'content',
+        'design_json',
         'status',
         'meta',
         'parent_id',
@@ -45,6 +46,7 @@ class Post extends Model implements SpatieHasMedia
 
     protected $casts = [
         'meta' => 'array',
+        'design_json' => 'array',
         'published_at' => 'datetime',
     ];
 

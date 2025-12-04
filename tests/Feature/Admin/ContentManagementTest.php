@@ -144,8 +144,9 @@ test('admin can create post', function () {
         'taxonomy' => 'tag',
     ]);
 
+    // Now using LaraBuilder JSON API
     $response = test()->actingAs(test()->admin)
-        ->post("/admin/posts/" . test()->postType, [
+        ->postJson("/admin/posts/" . test()->postType, [
             'title' => 'Test Post Title',
             'slug' => 'test-post-title',
             'content' => 'Test post content',
@@ -153,15 +154,16 @@ test('admin can create post', function () {
             'status' => PostStatus::PUBLISHED->value,
             'taxonomy_category' => [$category->id],
             'taxonomy_tag' => [$tag->id],
-            '_token' => csrf_token(),
         ]);
 
-    $response->assertRedirect();
+    $response->assertOk()
+        ->assertJson(['success' => true]);
+
     test()->assertDatabaseHas('posts', [
         'title' => 'Test Post Title',
         'slug' => 'test-post-title',
         'content' => 'Test post content',
-    'post_type' => test()->postType,
+        'post_type' => test()->postType,
         'status' => PostStatus::PUBLISHED->value,
     ]);
 
@@ -183,17 +185,19 @@ test('admin can update post', function () {
         'user_id' => test()->admin->id,
     ]);
 
+    // Now using LaraBuilder JSON API
     $response = test()->actingAs(test()->admin)
-        ->put("/admin/posts/" . test()->postType . "/{$post->id}", [
+        ->putJson("/admin/posts/" . test()->postType . "/{$post->id}", [
             'title' => 'Updated Title',
             'slug' => 'updated-title',
             'content' => 'Updated content',
             'excerpt' => 'Updated excerpt',
             'status' => PostStatus::PUBLISHED->value,
-            '_token' => csrf_token(),
         ]);
 
-    $response->assertRedirect();
+    $response->assertOk()
+        ->assertJson(['success' => true]);
+
     test()->assertDatabaseHas('posts', [
         'id' => $post->id,
         'title' => 'Updated Title',
@@ -297,12 +301,12 @@ test('user without permission cannot manage content', function () {
         ->get("/admin/posts/" . test()->postType)
         ->assertStatus(403);
 
+    // Now using LaraBuilder JSON API
     test()->actingAs($user)
-        ->post("/admin/posts/" . test()->postType, [
+        ->postJson("/admin/posts/" . test()->postType, [
             'title' => 'Unauthorized Post',
             'content' => 'Unauthorized content',
             'status' => PostStatus::PUBLISHED->value,
-            '_token' => csrf_token(),
         ])
         ->assertStatus(403);
 

@@ -17,6 +17,7 @@ return new class () extends Migration {
             $table->string('name');
             $table->string('subject')->nullable();
             $table->longText('body_html')->nullable();
+            $table->json('design_json')->nullable();
             $table->string('type')->default(TemplateType::EMAIL->value);
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);

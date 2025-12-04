@@ -245,6 +245,33 @@ export const defaultBlocks = [
             fontSize: '14px',
         },
     },
+    {
+        type: 'code',
+        label: 'Code',
+        category: 'Advanced',
+        icon: 'mdi:code-braces',
+        defaultProps: {
+            code: '<?php echo "hello"; ?>',
+            fontSize: '14px',
+            backgroundColor: '#1e1e1e',
+            textColor: '#d4d4d4',
+            borderRadius: '8px',
+        },
+    },
+    {
+        type: 'preformatted',
+        label: 'Preformatted',
+        category: 'Content',
+        icon: 'mdi:format-text-wrapping-wrap',
+        defaultProps: {
+            text: 'Write preformatted text...',
+            fontSize: '14px',
+            backgroundColor: '#f5f5f5',
+            textColor: '#333333',
+            borderColor: '#e0e0e0',
+            borderRadius: '4px',
+        },
+    },
 ];
 
 // Register default blocks

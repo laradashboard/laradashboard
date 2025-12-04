@@ -1,3 +1,17 @@
+import { layoutStylesToInlineCSS } from '../components/LayoutStylesSection';
+
+/**
+ * Wrap block HTML with layout styles (email-safe using tables)
+ */
+const wrapWithLayoutStyles = (html, layoutStyles) => {
+    const layoutCSS = layoutStylesToInlineCSS(layoutStyles);
+    if (!layoutCSS) {
+        return html;
+    }
+    // For email compatibility, use a table-based wrapper
+    return `<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="${layoutCSS}">${html}</td></tr></table>`;
+};
+
 /**
  * Generate HTML from blocks for email export
  * @param {Object} block - The block to generate HTML for
@@ -8,51 +22,62 @@
 export const generateBlockHtml = (block, options = {}) => {
     const { type, props } = block;
     const { previewMode = false } = options;
+    const layoutStyles = props?.layoutStyles;
 
+    let html = '';
     switch (type) {
         case 'heading':
-            return `<${props.level} style="text-align: ${props.align}; color: ${props.color}; font-size: ${props.fontSize}; font-weight: ${props.fontWeight}; margin: 0 0 16px 0;">${props.text}</${props.level}>`;
+            html = `<${props.level} style="text-align: ${props.align}; color: ${props.color}; font-size: ${props.fontSize}; font-weight: ${props.fontWeight}; margin: 0 0 16px 0;">${props.text}</${props.level}>`;
+            break;
 
         case 'text':
-            return `<div style="text-align: ${props.align}; color: ${props.color}; font-size: ${props.fontSize}; line-height: ${props.lineHeight};">${props.content}</div>`;
+            html = `<div style="text-align: ${props.align}; color: ${props.color}; font-size: ${props.fontSize}; line-height: ${props.lineHeight};">${props.content}</div>`;
+            break;
 
-        case 'image':
+        case 'image': {
             const isCustomWidth = props.width === 'custom' && props.customWidth;
             const isCustomHeight = props.height === 'custom' && props.customHeight;
             const imgWidth = isCustomWidth ? props.customWidth : (props.width || '100%');
             const imgHeight = isCustomHeight ? props.customHeight : (props.height || 'auto');
             const imgStyle = `max-width: ${imgWidth};${isCustomWidth ? ` width: ${props.customWidth};` : ''} height: ${imgHeight}; display: block; margin: 0 auto;${imgHeight !== 'auto' ? ' object-fit: cover;' : ''}`;
             const img = `<img src="${props.src}" alt="${props.alt}" style="${imgStyle}" />`;
-            return props.link
+            html = props.link
                 ? `<a href="${props.link}" target="_blank" style="display: block; text-align: ${props.align};">${img}</a>`
                 : `<div style="text-align: ${props.align};">${img}</div>`;
+            break;
+        }
 
         case 'button':
-            return `
+            html = `
                 <div style="text-align: ${props.align}; padding: 10px 0;">
                     <a href="${props.link}" target="_blank" style="display: inline-block; background-color: ${props.backgroundColor}; color: ${props.textColor}; padding: ${props.padding}; border-radius: ${props.borderRadius}; text-decoration: none; font-size: ${props.fontSize}; font-weight: ${props.fontWeight};">${props.text}</a>
                 </div>
             `;
+            break;
 
         case 'divider':
-            return `<hr style="border: none; border-top: ${props.thickness} ${props.style} ${props.color}; width: ${props.width}; margin: ${props.margin};" />`;
+            html = `<hr style="border: none; border-top: ${props.thickness} ${props.style} ${props.color}; width: ${props.width}; margin: ${props.margin};" />`;
+            break;
 
         case 'spacer':
-            return `<div style="height: ${props.height};"></div>`;
+            html = `<div style="height: ${props.height};"></div>`;
+            break;
 
-        case 'columns':
+        case 'columns': {
             const columnWidth = `${100 / props.columns}%`;
             const columnsHtml = props.children.map((columnBlocks, index) => {
                 const columnContent = columnBlocks.map(b => generateBlockHtml(b, options)).join('');
                 return `<td style="width: ${columnWidth}; vertical-align: top; padding: 0 ${index < props.columns - 1 ? props.gap : '0'} 0 0;">${columnContent || '&nbsp;'}</td>`;
             }).join('');
-            return `
+            html = `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>${columnsHtml}</tr>
                 </table>
             `;
+            break;
+        }
 
-        case 'social':
+        case 'social': {
             const socialIcons = {
                 facebook: 'https://cdn-icons-png.flaticon.com/32/733/733547.png',
                 twitter: 'https://cdn-icons-png.flaticon.com/32/733/733579.png',
@@ -66,21 +91,25 @@ export const generateBlockHtml = (block, options = {}) => {
                 .filter(([, url]) => url)
                 .map(([platform, url]) => `<a href="${url}" target="_blank" style="display: inline-block; margin: 0 ${socialGap}px;"><img src="${socialIcons[platform]}" alt="${platform}" width="${socialIconSize}" height="${socialIconSize}" style="border: 0;" /></a>`)
                 .join('');
-            return socialLinksHtml ? `<div style="text-align: ${props.align || 'center'}; padding: 10px 0;">${socialLinksHtml}</div>` : '';
+            html = socialLinksHtml ? `<div style="text-align: ${props.align || 'center'}; padding: 10px 0;">${socialLinksHtml}</div>` : '';
+            break;
+        }
 
         case 'html':
-            return props.code;
+            html = props.code || '';
+            break;
 
         case 'quote':
-            return `
+            html = `
                 <div style="padding: 20px; padding-left: 24px; background-color: ${props.backgroundColor || '#f8fafc'}; border-left: 4px solid ${props.borderColor || '#635bff'}; text-align: ${props.align || 'left'}; border-radius: 4px; margin: 10px 0;">
                     <p style="color: ${props.textColor || '#475569'}; font-size: 16px; font-style: italic; line-height: 1.6; margin: 0 0 12px 0;">"${props.text}"</p>
                     ${props.author ? `<p style="color: ${props.authorColor || '#1e293b'}; font-size: 14px; font-weight: 600; margin: 0;">${props.author}</p>` : ''}
                     ${props.authorTitle ? `<p style="color: ${props.textColor || '#475569'}; font-size: 12px; margin: 0;">${props.authorTitle}</p>` : ''}
                 </div>
             `;
+            break;
 
-        case 'list':
+        case 'list': {
             const listItems = (props.items || []).map(item => {
                 if (props.listType === 'check') {
                     return `<tr><td style="vertical-align: top; padding-right: 8px; color: ${props.iconColor || '#635bff'};">&#10003;</td><td style="color: ${props.color || '#333333'}; font-size: ${props.fontSize || '16px'}; padding-bottom: 8px;">${item}</td></tr>`;
@@ -89,12 +118,15 @@ export const generateBlockHtml = (block, options = {}) => {
             }).join('');
 
             if (props.listType === 'check') {
-                return `<table style="color: ${props.color || '#333333'}; font-size: ${props.fontSize || '16px'}; line-height: 1.6;">${listItems}</table>`;
+                html = `<table style="color: ${props.color || '#333333'}; font-size: ${props.fontSize || '16px'}; line-height: 1.6;">${listItems}</table>`;
+            } else {
+                const listTag = props.listType === 'number' ? 'ol' : 'ul';
+                html = `<${listTag} style="color: ${props.color || '#333333'}; font-size: ${props.fontSize || '16px'}; line-height: 1.8; margin: 0; padding-left: 24px;">${listItems}</${listTag}>`;
             }
-            const listTag = props.listType === 'number' ? 'ol' : 'ul';
-            return `<${listTag} style="color: ${props.color || '#333333'}; font-size: ${props.fontSize || '16px'}; line-height: 1.8; margin: 0; padding-left: 24px;">${listItems}</${listTag}>`;
+            break;
+        }
 
-        case 'video':
+        case 'video': {
             // Check if it's a direct video file
             const isDirectVideoFile = (url) => {
                 if (!url) return false;
@@ -124,14 +156,15 @@ export const generateBlockHtml = (block, options = {}) => {
             if (previewMode) {
                 if (isDirectVideo && !props.thumbnailUrl) {
                     // Direct video file - use HTML5 video element
-                    return `
+                    html = `
                         <div style="text-align: ${props.align || 'center'};">
                             <video src="${props.videoUrl}" controls style="max-width: ${props.width || '100%'}; width: 100%; height: auto; display: inline-block; border-radius: 8px; background-color: #1a1a2e;" preload="metadata"></video>
                         </div>
                     `;
+                    break;
                 } else if (vidInfo?.embedUrl && !props.thumbnailUrl) {
                     // Platform video - use iframe embed
-                    return `
+                    html = `
                         <div style="text-align: ${props.align || 'center'};">
                             <div style="position: relative; max-width: ${props.width || '100%'}; width: 100%; display: inline-block;">
                                 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px;">
@@ -140,6 +173,7 @@ export const generateBlockHtml = (block, options = {}) => {
                             </div>
                         </div>
                     `;
+                    break;
                 }
             }
 
@@ -167,10 +201,12 @@ export const generateBlockHtml = (block, options = {}) => {
                     </a>
                 </div>
             `;
-            return `<div style="text-align: ${props.align || 'center'};">${videoThumbnail}</div>`;
+            html = `<div style="text-align: ${props.align || 'center'};">${videoThumbnail}</div>`;
+            break;
+        }
 
         case 'footer':
-            return `
+            html = `
                 <div style="padding: 24px 16px; text-align: ${props.align || 'center'}; border-top: 1px solid #e5e7eb;">
                     ${props.companyName ? `<p style="color: ${props.textColor || '#6b7280'}; font-size: 14px; font-weight: 600; margin: 0 0 12px 0;">${props.companyName}</p>` : ''}
                     ${props.address ? `<p style="color: ${props.textColor || '#6b7280'}; font-size: ${props.fontSize || '12px'}; margin: 0 0 8px 0;">${props.address}</p>` : ''}
@@ -179,8 +215,9 @@ export const generateBlockHtml = (block, options = {}) => {
                     ${props.copyright ? `<p style="color: ${props.textColor || '#6b7280'}; font-size: 11px; margin: 12px 0 0 0;">${props.copyright}</p>` : ''}
                 </div>
             `;
+            break;
 
-        case 'countdown':
+        case 'countdown': {
             // Countdown timer in emails - generates static HTML at send time
             // Note: True live countdowns require external image services or AMP email
             const countdownTargetDate = props.targetDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -196,57 +233,59 @@ export const generateBlockHtml = (block, options = {}) => {
 
             // If already expired, show expired message
             if (diff <= 0 && props.expiredMessage) {
-                return `
+                html = `
                     <div style="padding: 24px; background-color: ${props.backgroundColor || '#1e293b'}; border-radius: 8px; text-align: ${props.align || 'center'};">
                         <p style="color: ${props.textColor || '#ffffff'}; font-size: 18px; font-weight: 600; margin: 0;">${props.expiredMessage}</p>
                     </div>
                 `;
+            } else {
+                html = `
+                    <div style="padding: 24px; background-color: ${props.backgroundColor || '#1e293b'}; border-radius: 8px; text-align: ${props.align || 'center'};">
+                        ${props.title ? `<p style="color: ${props.textColor || '#ffffff'}; font-size: 18px; font-weight: 600; margin: 0 0 16px 0;">${props.title}</p>` : ''}
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="center">
+                                    <table cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td style="text-align: center; padding: 0 12px;">
+                                                <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
+                                                    <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(days).padStart(2, '0')}</span>
+                                                    <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Days</span>
+                                                </div>
+                                            </td>
+                                            <td style="color: ${props.numberColor || '#635bff'}; font-size: 28px; font-weight: 700; padding: 0 4px;">:</td>
+                                            <td style="text-align: center; padding: 0 12px;">
+                                                <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
+                                                    <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(hours).padStart(2, '0')}</span>
+                                                    <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Hours</span>
+                                                </div>
+                                            </td>
+                                            <td style="color: ${props.numberColor || '#635bff'}; font-size: 28px; font-weight: 700; padding: 0 4px;">:</td>
+                                            <td style="text-align: center; padding: 0 12px;">
+                                                <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
+                                                    <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(minutes).padStart(2, '0')}</span>
+                                                    <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Mins</span>
+                                                </div>
+                                            </td>
+                                            <td style="color: ${props.numberColor || '#635bff'}; font-size: 28px; font-weight: 700; padding: 0 4px;">:</td>
+                                            <td style="text-align: center; padding: 0 12px;">
+                                                <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
+                                                    <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(seconds).padStart(2, '0')}</span>
+                                                    <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Secs</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                `;
             }
+            break;
+        }
 
-            return `
-                <div style="padding: 24px; background-color: ${props.backgroundColor || '#1e293b'}; border-radius: 8px; text-align: ${props.align || 'center'};">
-                    ${props.title ? `<p style="color: ${props.textColor || '#ffffff'}; font-size: 18px; font-weight: 600; margin: 0 0 16px 0;">${props.title}</p>` : ''}
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                        <tr>
-                            <td align="center">
-                                <table cellpadding="0" cellspacing="0" border="0">
-                                    <tr>
-                                        <td style="text-align: center; padding: 0 12px;">
-                                            <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
-                                                <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(days).padStart(2, '0')}</span>
-                                                <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Days</span>
-                                            </div>
-                                        </td>
-                                        <td style="color: ${props.numberColor || '#635bff'}; font-size: 28px; font-weight: 700; padding: 0 4px;">:</td>
-                                        <td style="text-align: center; padding: 0 12px;">
-                                            <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
-                                                <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(hours).padStart(2, '0')}</span>
-                                                <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Hours</span>
-                                            </div>
-                                        </td>
-                                        <td style="color: ${props.numberColor || '#635bff'}; font-size: 28px; font-weight: 700; padding: 0 4px;">:</td>
-                                        <td style="text-align: center; padding: 0 12px;">
-                                            <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
-                                                <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(minutes).padStart(2, '0')}</span>
-                                                <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Mins</span>
-                                            </div>
-                                        </td>
-                                        <td style="color: ${props.numberColor || '#635bff'}; font-size: 28px; font-weight: 700; padding: 0 4px;">:</td>
-                                        <td style="text-align: center; padding: 0 12px;">
-                                            <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
-                                                <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(seconds).padStart(2, '0')}</span>
-                                                <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Secs</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            `;
-
-        case 'table':
+        case 'table': {
             const tableHeaders = (props.headers || []).map(header =>
                 `<th style="background-color: ${props.headerBgColor || '#f1f5f9'}; color: ${props.headerTextColor || '#1e293b'}; padding: ${props.cellPadding || '12px'}; text-align: left; font-weight: 600; border-bottom: 2px solid ${props.borderColor || '#e2e8f0'};">${header}</th>`
             ).join('');
@@ -254,16 +293,37 @@ export const generateBlockHtml = (block, options = {}) => {
                 `<tr>${row.map(cell => `<td style="padding: ${props.cellPadding || '12px'}; border-bottom: 1px solid ${props.borderColor || '#e2e8f0'}; color: #374151;">${cell}</td>`).join('')}</tr>`
             ).join('');
 
-            return `
+            html = `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: ${props.fontSize || '14px'}; border-collapse: collapse;">
                     ${props.showHeader && tableHeaders ? `<thead><tr>${tableHeaders}</tr></thead>` : ''}
                     <tbody>${tableRows}</tbody>
                 </table>
             `;
+            break;
+        }
+
+        case 'code': {
+            const escapedCode = (props.code || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            html = `
+                <pre style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; font-size: ${props.fontSize || '14px'}; line-height: 1.5; padding: 16px; border-radius: ${props.borderRadius || '8px'}; background-color: ${props.backgroundColor || '#1e1e1e'}; color: ${props.textColor || '#d4d4d4'}; overflow-x: auto; white-space: pre-wrap; word-break: break-word; margin: 0;">${escapedCode}</pre>
+            `;
+            break;
+        }
+
+        case 'preformatted': {
+            const escapedText = (props.text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            html = `
+                <pre style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; font-size: ${props.fontSize || '14px'}; line-height: 1.6; padding: 16px; border-radius: ${props.borderRadius || '4px'}; background-color: ${props.backgroundColor || '#f5f5f5'}; color: ${props.textColor || '#333333'}; border: 1px solid ${props.borderColor || '#e0e0e0'}; overflow-x: auto; white-space: pre-wrap; word-break: break-word; margin: 0;">${escapedText}</pre>
+            `;
+            break;
+        }
 
         default:
-            return '';
+            html = '';
     }
+
+    // Wrap with layout styles if present
+    return wrapWithLayoutStyles(html, layoutStyles);
 };
 
 export const generateEmailHtml = (blocks, canvasSettings = {}, options = {}) => {

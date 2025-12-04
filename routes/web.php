@@ -106,13 +106,17 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
 
     // Posts/Pages Routes - Dynamic post types.
     Route::get('/posts/{postType?}', [PostController::class, 'index'])->name('posts.index');
-    Route::get('/posts/{postType}/create', [PostController::class, 'create'])->name('posts.create');
-    Route::post('/posts/{postType}', [PostController::class, 'store'])->name('posts.store');
-    Route::get('/posts/{postType}/{post}', [PostController::class, 'show'])->name('posts.show');
-    Route::get('/posts/{postType}/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
-    Route::put('/posts/{postType}/{post}', [PostController::class, 'update'])->name('posts.update');
-    Route::delete('/posts/{postType}/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+    Route::get('/posts/{postType}/{post}', [PostController::class, 'show'])->name('posts.show')->where('post', '[0-9]+');
+    Route::delete('/posts/{postType}/{post}', [PostController::class, 'destroy'])->name('posts.destroy')->where('post', '[0-9]+');
     Route::delete('/posts/{postType}/delete/bulk-delete', [PostController::class, 'bulkDelete'])->name('posts.bulk-delete');
+
+    // Post Builder Routes (LaraBuilder-based editing - now default for create/edit).
+    Route::get('/posts/{postType}/create', [PostController::class, 'builderCreate'])->name('posts.create');
+    Route::get('/posts/{postType}/{post}/edit', [PostController::class, 'builderEdit'])->name('posts.edit')->where('post', '[0-9]+');
+    Route::post('/posts/{postType}', [PostController::class, 'builderStore'])->name('posts.store');
+    Route::put('/posts/{postType}/{post}', [PostController::class, 'builderUpdate'])->name('posts.update')->where('post', '[0-9]+');
+    Route::post('/posts/{postType}/upload-image', [PostController::class, 'uploadImage'])->name('posts.upload-image');
+    Route::post('/posts/{postType}/upload-video', [PostController::class, 'uploadVideo'])->name('posts.upload-video');
 
     // Terms Routes (Categories, Tags, etc.).
     Route::get('/terms/{taxonomy}', [TermController::class, 'index'])->name('terms.index');

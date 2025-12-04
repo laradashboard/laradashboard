@@ -2,7 +2,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { getBlockComponent } from './index';
-import BlockToolbar from '../components/BlockToolbar';
+import BlockToolbar from '../../../email-builder/components/BlockToolbar';
 
 // Nested sortable block within a column
 const NestedSortableBlock = ({ block, columnIndex, parentId, onSelect, selectedBlockId, onUpdate, onDelete, onMoveNested, onDuplicateNested, blockIndex, totalBlocks }) => {

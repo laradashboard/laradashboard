@@ -7,14 +7,19 @@
 
     <title>{{ isset($template) ? 'Edit' : 'Create' }} Email Template - {{ config('app.name', 'Laravel') }}</title>
 
-    <!-- <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script> -->
+    {{-- Load iconify for icons --}}
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
 
     @viteReactRefresh
-    @vite(['resources/css/app.css', 'resources/js/email-builder/index.jsx', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/lara-builder/entry.jsx'])
+
+    {{-- Inject PHP-registered blocks --}}
+    {!! app(\App\Services\Builder\BuilderService::class)->injectToFrontend('email') !!}
 </head>
 <body class="font-sans antialiased">
     <div
-        id="email-builder-root"
+        id="lara-builder-root"
+        data-context="email"
         data-initial-data="{{ json_encode($initialData ?? null) }}"
         data-template-data="{{ json_encode($templateData ?? null) }}"
         data-save-url="{{ $saveUrl }}"

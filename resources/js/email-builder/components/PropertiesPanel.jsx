@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { getBlock } from '../utils/blockRegistry';
-import { parseVideoUrl } from '../blocks/VideoBlock';
+import { parseVideoUrl } from '../../lara-builder/blocks/components/VideoBlock';
+import LayoutStylesSection from './LayoutStylesSection';
+import CollapsibleSection from './CollapsibleSection';
 
 const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload, canvasSettings, onCanvasSettingsUpdate }) => {
     const [uploading, setUploading] = useState(false);
@@ -719,13 +721,16 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                                     <button
                                         type="button"
                                         onClick={() => {
+                                            // Update both headers and rows in a single call to avoid race condition
                                             const newHeaders = headers.filter((_, i) => i !== index);
-                                            // Also remove corresponding column from rows
                                             const newRows = (props.rows || []).map(row =>
                                                 row.filter((_, i) => i !== index)
                                             );
-                                            handleChange(field, newHeaders);
-                                            handleChange('rows', newRows);
+                                            onUpdate(selectedBlock.id, {
+                                                ...props,
+                                                headers: newHeaders,
+                                                rows: newRows,
+                                            });
                                         }}
                                         className="btn-danger px-2 py-1 text-xs"
                                     >
@@ -736,10 +741,14 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             <button
                                 type="button"
                                 onClick={() => {
-                                    handleChange(field, [...headers, '']);
-                                    // Also add empty cell to each row
+                                    // Update both headers and rows in a single call to avoid race condition
+                                    const newHeaders = [...headers, ''];
                                     const newRows = (props.rows || []).map(row => [...row, '']);
-                                    handleChange('rows', newRows);
+                                    onUpdate(selectedBlock.id, {
+                                        ...props,
+                                        headers: newHeaders,
+                                        rows: newRows,
+                                    });
                                 }}
                                 className="btn-secondary w-full text-xs"
                             >
@@ -1107,250 +1116,479 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
         }
     };
 
-    // Define editable fields based on block type
-    const getFieldsForBlockType = (type) => {
+    // Define editable fields based on block type with sections
+    const getSectionsForBlockType = (type) => {
         switch (type) {
             case 'heading':
                 return [
-                    { field: 'text', label: 'Text', type: 'text' },
-                    { field: 'level', label: 'Heading Level', type: 'select', options: {
-                        choices: [
-                            { value: 'h1', label: 'H1' },
-                            { value: 'h2', label: 'H2' },
-                            { value: 'h3', label: 'H3' },
-                            { value: 'h4', label: 'H4' },
+                    {
+                        title: 'Heading Settings',
+                        icon: 'mdi:format-header-1',
+                        iconColor: 'text-blue-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'level', label: 'Heading Level', type: 'select', options: {
+                                choices: [
+                                    { value: 'h1', label: 'H1' },
+                                    { value: 'h2', label: 'H2' },
+                                    { value: 'h3', label: 'H3' },
+                                    { value: 'h4', label: 'H4' },
+                                ]
+                            }},
+                            { field: 'color', label: 'Color', type: 'color' },
+                            { field: 'fontSize', label: 'Font Size', type: 'text' },
                         ]
-                    }},
-                    { field: 'align', label: 'Alignment', type: 'align' },
-                    { field: 'color', label: 'Color', type: 'color' },
-                    { field: 'fontSize', label: 'Font Size', type: 'text' },
+                    }
                 ];
 
             case 'text':
                 return [
-                    { field: 'align', label: 'Alignment', type: 'align' },
-                    { field: 'color', label: 'Color', type: 'color' },
-                    { field: 'fontSize', label: 'Font Size', type: 'text' },
-                    { field: 'lineHeight', label: 'Line Height', type: 'text' },
+                    {
+                        title: 'Text Settings',
+                        icon: 'mdi:format-text',
+                        iconColor: 'text-blue-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'color', label: 'Color', type: 'color' },
+                            { field: 'fontSize', label: 'Font Size', type: 'text' },
+                            { field: 'lineHeight', label: 'Line Height', type: 'text' },
+                        ]
+                    }
                 ];
 
             case 'image':
                 return [
-                    { field: 'src', label: 'Image', type: 'image-upload' },
-                    { field: 'alt', label: 'Alt Text', type: 'text' },
-                    { field: 'link', label: 'Link URL', type: 'text' },
-                    { field: 'align', label: 'Alignment', type: 'align' },
-                    { field: 'width', label: 'Width', type: 'image-dimension', options: {
-                        customField: 'customWidth',
-                        choices: [
-                            { value: '100%', label: 'Full Width' },
-                            { value: '75%', label: '75%' },
-                            { value: '50%', label: '50%' },
-                            { value: '25%', label: '25%' },
-                            { value: 'custom', label: 'Custom' },
-                        ],
-                        placeholder: 'e.g., 300px or 50%'
-                    }},
-                    { field: 'height', label: 'Height', type: 'image-dimension', options: {
-                        customField: 'customHeight',
-                        choices: [
-                            { value: 'auto', label: 'Auto' },
-                            { value: '100px', label: '100px' },
-                            { value: '150px', label: '150px' },
-                            { value: '200px', label: '200px' },
-                            { value: '250px', label: '250px' },
-                            { value: '300px', label: '300px' },
-                            { value: '400px', label: '400px' },
-                            { value: 'custom', label: 'Custom' },
-                        ],
-                        placeholder: 'e.g., 200px'
-                    }},
+                    {
+                        title: 'Image Settings',
+                        icon: 'mdi:image',
+                        iconColor: 'text-green-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'src', label: 'Image', type: 'image-upload' },
+                            { field: 'alt', label: 'Alt Text', type: 'text' },
+                            { field: 'link', label: 'Link URL', type: 'text' },
+                            { field: 'align', label: 'Alignment', type: 'align' },
+                            { field: 'width', label: 'Width', type: 'image-dimension', options: {
+                                customField: 'customWidth',
+                                choices: [
+                                    { value: '100%', label: 'Full Width' },
+                                    { value: '75%', label: '75%' },
+                                    { value: '50%', label: '50%' },
+                                    { value: '25%', label: '25%' },
+                                    { value: 'custom', label: 'Custom' },
+                                ],
+                                placeholder: 'e.g., 300px or 50%'
+                            }},
+                            { field: 'height', label: 'Height', type: 'image-dimension', options: {
+                                customField: 'customHeight',
+                                choices: [
+                                    { value: 'auto', label: 'Auto' },
+                                    { value: '100px', label: '100px' },
+                                    { value: '150px', label: '150px' },
+                                    { value: '200px', label: '200px' },
+                                    { value: '250px', label: '250px' },
+                                    { value: '300px', label: '300px' },
+                                    { value: '400px', label: '400px' },
+                                    { value: 'custom', label: 'Custom' },
+                                ],
+                                placeholder: 'e.g., 200px'
+                            }},
+                        ]
+                    }
                 ];
 
             case 'button':
                 return [
-                    { field: 'text', label: 'Button Text', type: 'text' },
-                    { field: 'link', label: 'Link URL', type: 'text' },
-                    { field: 'backgroundColor', label: 'Background Color', type: 'color' },
-                    { field: 'textColor', label: 'Text Color', type: 'color' },
-                    { field: 'align', label: 'Alignment', type: 'align' },
-                    { field: 'borderRadius', label: 'Border Radius', type: 'select', options: {
-                        choices: [
-                            { value: '0', label: 'None' },
-                            { value: '4px', label: 'Small' },
-                            { value: '6px', label: 'Medium' },
-                            { value: '8px', label: 'Large' },
-                            { value: '9999px', label: 'Pill' },
+                    {
+                        title: 'Button Settings',
+                        icon: 'mdi:button-cursor',
+                        iconColor: 'text-purple-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'text', label: 'Button Text', type: 'text' },
+                            { field: 'link', label: 'Link URL', type: 'text' },
+                            { field: 'align', label: 'Alignment', type: 'align' },
+                            { field: 'borderRadius', label: 'Border Radius', type: 'select', options: {
+                                choices: [
+                                    { value: '0', label: 'None' },
+                                    { value: '4px', label: 'Small' },
+                                    { value: '6px', label: 'Medium' },
+                                    { value: '8px', label: 'Large' },
+                                    { value: '9999px', label: 'Pill' },
+                                ]
+                            }},
                         ]
-                    }},
+                    },
+                    {
+                        title: 'Colors',
+                        icon: 'mdi:palette',
+                        iconColor: 'text-pink-500',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'backgroundColor', label: 'Background Color', type: 'color' },
+                            { field: 'textColor', label: 'Text Color', type: 'color' },
+                        ]
+                    }
                 ];
 
             case 'divider':
                 return [
-                    { field: 'style', label: 'Style', type: 'select', options: {
-                        choices: [
-                            { value: 'solid', label: 'Solid' },
-                            { value: 'dashed', label: 'Dashed' },
-                            { value: 'dotted', label: 'Dotted' },
+                    {
+                        title: 'Divider Settings',
+                        icon: 'mdi:minus',
+                        iconColor: 'text-gray-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'style', label: 'Style', type: 'select', options: {
+                                choices: [
+                                    { value: 'solid', label: 'Solid' },
+                                    { value: 'dashed', label: 'Dashed' },
+                                    { value: 'dotted', label: 'Dotted' },
+                                ]
+                            }},
+                            { field: 'color', label: 'Color', type: 'color' },
+                            { field: 'thickness', label: 'Thickness', type: 'select', options: {
+                                choices: [
+                                    { value: '1px', label: '1px' },
+                                    { value: '2px', label: '2px' },
+                                    { value: '3px', label: '3px' },
+                                    { value: '4px', label: '4px' },
+                                ]
+                            }},
                         ]
-                    }},
-                    { field: 'color', label: 'Color', type: 'color' },
-                    { field: 'thickness', label: 'Thickness', type: 'select', options: {
-                        choices: [
-                            { value: '1px', label: '1px' },
-                            { value: '2px', label: '2px' },
-                            { value: '3px', label: '3px' },
-                            { value: '4px', label: '4px' },
-                        ]
-                    }},
+                    }
                 ];
 
             case 'spacer':
                 return [
-                    { field: 'height', label: 'Height', type: 'select', options: {
-                        choices: [
-                            { value: '10px', label: '10px' },
-                            { value: '20px', label: '20px' },
-                            { value: '30px', label: '30px' },
-                            { value: '40px', label: '40px' },
-                            { value: '60px', label: '60px' },
-                            { value: '80px', label: '80px' },
+                    {
+                        title: 'Spacer Settings',
+                        icon: 'mdi:arrow-expand-vertical',
+                        iconColor: 'text-gray-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'height', label: 'Height', type: 'select', options: {
+                                choices: [
+                                    { value: '10px', label: '10px' },
+                                    { value: '20px', label: '20px' },
+                                    { value: '30px', label: '30px' },
+                                    { value: '40px', label: '40px' },
+                                    { value: '60px', label: '60px' },
+                                    { value: '80px', label: '80px' },
+                                ]
+                            }},
                         ]
-                    }},
+                    }
                 ];
 
             case 'columns':
                 return [
-                    { field: 'columns', label: 'Number of Columns', type: 'select', options: {
-                        choices: [
-                            { value: '2', label: '2 Columns' },
-                            { value: '3', label: '3 Columns' },
-                            { value: '4', label: '4 Columns' },
+                    {
+                        title: 'Columns Settings',
+                        icon: 'mdi:view-column',
+                        iconColor: 'text-indigo-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'columns', label: 'Number of Columns', type: 'select', options: {
+                                choices: [
+                                    { value: '2', label: '2 Columns' },
+                                    { value: '3', label: '3 Columns' },
+                                    { value: '4', label: '4 Columns' },
+                                ]
+                            }},
+                            { field: 'gap', label: 'Column Gap', type: 'select', options: {
+                                choices: [
+                                    { value: '10px', label: '10px' },
+                                    { value: '20px', label: '20px' },
+                                    { value: '30px', label: '30px' },
+                                    { value: '40px', label: '40px' },
+                                ]
+                            }},
                         ]
-                    }},
-                    { field: 'gap', label: 'Column Gap', type: 'select', options: {
-                        choices: [
-                            { value: '10px', label: '10px' },
-                            { value: '20px', label: '20px' },
-                            { value: '30px', label: '30px' },
-                            { value: '40px', label: '40px' },
-                        ]
-                    }},
+                    }
                 ];
 
             case 'html':
                 return [
-                    { field: 'code', label: 'HTML Code', type: 'textarea' },
+                    {
+                        title: 'HTML Settings',
+                        icon: 'mdi:code-tags',
+                        iconColor: 'text-orange-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'code', label: 'HTML Code', type: 'textarea' },
+                        ]
+                    }
                 ];
 
             case 'quote':
                 return [
-                    { field: 'text', label: 'Quote Text', type: 'textarea' },
-                    { field: 'author', label: 'Author Name', type: 'text' },
-                    { field: 'authorTitle', label: 'Author Title', type: 'text' },
-                    { field: 'align', label: 'Alignment', type: 'align' },
-                    { field: 'borderColor', label: 'Border Color', type: 'color' },
-                    { field: 'backgroundColor', label: 'Background Color', type: 'color' },
-                    { field: 'textColor', label: 'Text Color', type: 'color' },
-                    { field: 'authorColor', label: 'Author Color', type: 'color' },
+                    {
+                        title: 'Quote Content',
+                        icon: 'mdi:format-quote-close',
+                        iconColor: 'text-teal-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'text', label: 'Quote Text', type: 'textarea' },
+                            { field: 'author', label: 'Author Name', type: 'text' },
+                            { field: 'authorTitle', label: 'Author Title', type: 'text' },
+                            { field: 'align', label: 'Alignment', type: 'align' },
+                        ]
+                    },
+                    {
+                        title: 'Colors',
+                        icon: 'mdi:palette',
+                        iconColor: 'text-pink-500',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'borderColor', label: 'Border Color', type: 'color' },
+                            { field: 'backgroundColor', label: 'Background Color', type: 'color' },
+                            { field: 'textColor', label: 'Text Color', type: 'color' },
+                            { field: 'authorColor', label: 'Author Color', type: 'color' },
+                        ]
+                    }
                 ];
 
             case 'list':
                 return [
-                    { field: 'items', label: 'List Items', type: 'list-items' },
-                    { field: 'listType', label: 'List Type', type: 'select', options: {
-                        choices: [
-                            { value: 'bullet', label: 'Bullet' },
-                            { value: 'number', label: 'Numbered' },
-                            { value: 'check', label: 'Checkmark' },
-                            { value: 'none', label: 'None' },
+                    {
+                        title: 'List Settings',
+                        icon: 'mdi:format-list-bulleted',
+                        iconColor: 'text-cyan-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'listType', label: 'List Type', type: 'select', options: {
+                                choices: [
+                                    { value: 'bullet', label: 'Bullet' },
+                                    { value: 'number', label: 'Numbered' },
+                                    { value: 'check', label: 'Checkmark' },
+                                    { value: 'none', label: 'None' },
+                                ]
+                            }},
+                            { field: 'fontSize', label: 'Font Size', type: 'text' },
                         ]
-                    }},
-                    { field: 'color', label: 'Text Color', type: 'color' },
-                    { field: 'iconColor', label: 'Icon Color', type: 'color' },
-                    { field: 'fontSize', label: 'Font Size', type: 'text' },
+                    },
+                    {
+                        title: 'Colors',
+                        icon: 'mdi:palette',
+                        iconColor: 'text-pink-500',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'color', label: 'Text Color', type: 'color' },
+                            { field: 'iconColor', label: 'Icon Color', type: 'color' },
+                        ]
+                    }
                 ];
 
             case 'video':
                 return [
-                    { field: 'videoUrl', label: 'Video URL', type: 'video-url' },
-                    { field: 'thumbnailUrl', label: 'Custom Thumbnail', type: 'thumbnail-upload' },
-                    { field: 'alt', label: 'Alt Text', type: 'text' },
-                    { field: 'align', label: 'Alignment', type: 'align' },
-                    { field: 'width', label: 'Width', type: 'select', options: {
-                        choices: [
-                            { value: '100%', label: 'Full Width' },
-                            { value: '75%', label: '75%' },
-                            { value: '50%', label: '50%' },
+                    {
+                        title: 'Video Settings',
+                        icon: 'mdi:video',
+                        iconColor: 'text-red-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'videoUrl', label: 'Video URL', type: 'video-url' },
+                            { field: 'thumbnailUrl', label: 'Custom Thumbnail', type: 'thumbnail-upload' },
+                            { field: 'alt', label: 'Alt Text', type: 'text' },
+                            { field: 'align', label: 'Alignment', type: 'align' },
+                            { field: 'width', label: 'Width', type: 'select', options: {
+                                choices: [
+                                    { value: '100%', label: 'Full Width' },
+                                    { value: '75%', label: '75%' },
+                                    { value: '50%', label: '50%' },
+                                ]
+                            }},
+                            { field: 'playButtonColor', label: 'Play Button Color', type: 'color' },
                         ]
-                    }},
-                    { field: 'playButtonColor', label: 'Play Button Color', type: 'color' },
+                    }
                 ];
 
             case 'footer':
                 return [
-                    { field: 'companyName', label: 'Company Name', type: 'text' },
-                    { field: 'address', label: 'Address', type: 'text' },
-                    { field: 'phone', label: 'Phone', type: 'text' },
-                    { field: 'email', label: 'Email', type: 'text' },
-                    { field: 'unsubscribeText', label: 'Unsubscribe Text', type: 'text' },
-                    { field: 'unsubscribeUrl', label: 'Unsubscribe URL', type: 'text' },
-                    { field: 'copyright', label: 'Copyright Text', type: 'text' },
-                    { field: 'align', label: 'Alignment', type: 'align' },
-                    { field: 'textColor', label: 'Text Color', type: 'color' },
-                    { field: 'linkColor', label: 'Link Color', type: 'color' },
+                    {
+                        title: 'Company Info',
+                        icon: 'mdi:domain',
+                        iconColor: 'text-gray-600',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'companyName', label: 'Company Name', type: 'text' },
+                            { field: 'address', label: 'Address', type: 'text' },
+                            { field: 'phone', label: 'Phone', type: 'text' },
+                            { field: 'email', label: 'Email', type: 'text' },
+                        ]
+                    },
+                    {
+                        title: 'Links & Copyright',
+                        icon: 'mdi:link-variant',
+                        iconColor: 'text-blue-500',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'unsubscribeText', label: 'Unsubscribe Text', type: 'text' },
+                            { field: 'unsubscribeUrl', label: 'Unsubscribe URL', type: 'text' },
+                            { field: 'copyright', label: 'Copyright Text', type: 'text' },
+                        ]
+                    },
+                    {
+                        title: 'Appearance',
+                        icon: 'mdi:palette',
+                        iconColor: 'text-pink-500',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'align', label: 'Alignment', type: 'align' },
+                            { field: 'textColor', label: 'Text Color', type: 'color' },
+                            { field: 'linkColor', label: 'Link Color', type: 'color' },
+                        ]
+                    }
                 ];
 
             case 'countdown':
                 return [
-                    { field: 'targetDate', label: 'Target Date', type: 'date' },
-                    { field: 'targetTime', label: 'Target Time', type: 'time' },
-                    { field: 'title', label: 'Title', type: 'text' },
-                    { field: 'expiredMessage', label: 'Expired Message', type: 'text' },
-                    { field: 'align', label: 'Alignment', type: 'align' },
-                    { field: 'backgroundColor', label: 'Background Color', type: 'color' },
-                    { field: 'textColor', label: 'Text Color', type: 'color' },
-                    { field: 'numberColor', label: 'Number Color', type: 'color' },
+                    {
+                        title: 'Countdown Settings',
+                        icon: 'mdi:timer-outline',
+                        iconColor: 'text-orange-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'targetDate', label: 'Target Date', type: 'date' },
+                            { field: 'targetTime', label: 'Target Time', type: 'time' },
+                            { field: 'title', label: 'Title', type: 'text' },
+                            { field: 'expiredMessage', label: 'Expired Message', type: 'text' },
+                            { field: 'align', label: 'Alignment', type: 'align' },
+                        ]
+                    },
+                    {
+                        title: 'Colors',
+                        icon: 'mdi:palette',
+                        iconColor: 'text-pink-500',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'backgroundColor', label: 'Background Color', type: 'color' },
+                            { field: 'textColor', label: 'Text Color', type: 'color' },
+                            { field: 'numberColor', label: 'Number Color', type: 'color' },
+                        ]
+                    }
                 ];
 
             case 'table':
                 return [
-                    { field: 'headers', label: 'Headers', type: 'table-headers' },
-                    { field: 'rows', label: 'Rows', type: 'table-rows' },
-                    { field: 'showHeader', label: 'Show Header', type: 'checkbox' },
-                    { field: 'headerBgColor', label: 'Header Background', type: 'color' },
-                    { field: 'headerTextColor', label: 'Header Text Color', type: 'color' },
-                    { field: 'borderColor', label: 'Border Color', type: 'color' },
-                    { field: 'cellPadding', label: 'Cell Padding', type: 'select', options: {
-                        choices: [
-                            { value: '8px', label: 'Small' },
-                            { value: '12px', label: 'Medium' },
-                            { value: '16px', label: 'Large' },
+                    {
+                        title: 'Table Data',
+                        icon: 'mdi:table',
+                        iconColor: 'text-emerald-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'headers', label: 'Headers', type: 'table-headers' },
+                            { field: 'rows', label: 'Rows', type: 'table-rows' },
+                            { field: 'showHeader', label: 'Show Header', type: 'checkbox' },
                         ]
-                    }},
-                    { field: 'fontSize', label: 'Font Size', type: 'text' },
+                    },
+                    {
+                        title: 'Appearance',
+                        icon: 'mdi:palette',
+                        iconColor: 'text-pink-500',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'headerBgColor', label: 'Header Background', type: 'color' },
+                            { field: 'headerTextColor', label: 'Header Text Color', type: 'color' },
+                            { field: 'borderColor', label: 'Border Color', type: 'color' },
+                            { field: 'cellPadding', label: 'Cell Padding', type: 'select', options: {
+                                choices: [
+                                    { value: '8px', label: 'Small' },
+                                    { value: '12px', label: 'Medium' },
+                                    { value: '16px', label: 'Large' },
+                                ]
+                            }},
+                            { field: 'fontSize', label: 'Font Size', type: 'text' },
+                        ]
+                    }
                 ];
 
             case 'social':
                 return [
-                    { field: 'links', label: 'Social Links', type: 'social-links' },
-                    { field: 'iconSize', label: 'Icon Size', type: 'select', options: {
-                        choices: [
-                            { value: '24px', label: 'Small' },
-                            { value: '32px', label: 'Medium' },
-                            { value: '40px', label: 'Large' },
-                            { value: '48px', label: 'Extra Large' },
+                    {
+                        title: 'Social Links',
+                        icon: 'mdi:share-variant',
+                        iconColor: 'text-blue-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'links', label: 'Social Links', type: 'social-links' },
                         ]
-                    }},
-                    { field: 'gap', label: 'Icon Gap', type: 'select', options: {
-                        choices: [
-                            { value: '8px', label: 'Small' },
-                            { value: '12px', label: 'Medium' },
-                            { value: '16px', label: 'Large' },
-                            { value: '24px', label: 'Extra Large' },
+                    },
+                    {
+                        title: 'Appearance',
+                        icon: 'mdi:palette',
+                        iconColor: 'text-pink-500',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'iconSize', label: 'Icon Size', type: 'select', options: {
+                                choices: [
+                                    { value: '24px', label: 'Small' },
+                                    { value: '32px', label: 'Medium' },
+                                    { value: '40px', label: 'Large' },
+                                    { value: '48px', label: 'Extra Large' },
+                                ]
+                            }},
+                            { field: 'gap', label: 'Icon Gap', type: 'select', options: {
+                                choices: [
+                                    { value: '8px', label: 'Small' },
+                                    { value: '12px', label: 'Medium' },
+                                    { value: '16px', label: 'Large' },
+                                    { value: '24px', label: 'Extra Large' },
+                                ]
+                            }},
+                            { field: 'align', label: 'Alignment', type: 'align' },
                         ]
-                    }},
-                    { field: 'align', label: 'Alignment', type: 'align' },
+                    }
+                ];
+
+            case 'code':
+                return [
+                    {
+                        title: 'Code Settings',
+                        icon: 'mdi:code-braces',
+                        iconColor: 'text-orange-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'fontSize', label: 'Font Size', type: 'text' },
+                            { field: 'borderRadius', label: 'Border Radius', type: 'text' },
+                        ]
+                    },
+                    {
+                        title: 'Colors',
+                        icon: 'mdi:palette',
+                        iconColor: 'text-pink-500',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'backgroundColor', label: 'Background', type: 'color' },
+                            { field: 'textColor', label: 'Text Color', type: 'color' },
+                        ]
+                    }
+                ];
+
+            case 'preformatted':
+                return [
+                    {
+                        title: 'Preformatted Settings',
+                        icon: 'mdi:format-text-wrapping-wrap',
+                        iconColor: 'text-teal-500',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'fontSize', label: 'Font Size', type: 'text' },
+                            { field: 'borderRadius', label: 'Border Radius', type: 'text' },
+                        ]
+                    },
+                    {
+                        title: 'Colors',
+                        icon: 'mdi:palette',
+                        iconColor: 'text-pink-500',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'backgroundColor', label: 'Background', type: 'color' },
+                            { field: 'textColor', label: 'Text Color', type: 'color' },
+                            { field: 'borderColor', label: 'Border Color', type: 'color' },
+                        ]
+                    }
                 ];
 
             default:
@@ -1358,23 +1596,47 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
         }
     };
 
-    const fields = getFieldsForBlockType(selectedBlock.type);
+    const sections = getSectionsForBlockType(selectedBlock.type);
+
+    // Handle layout styles update
+    const handleLayoutStylesUpdate = (newLayoutStyles) => {
+        onUpdate(selectedBlock.id, { ...props, layoutStyles: newLayoutStyles });
+    };
 
     return (
         <div className="h-full overflow-y-auto">
-            <div className="mb-4 pb-3 border-b border-gray-200">
+            <div className="mb-2 pb-3 border-b border-gray-200">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {blockConfig?.label || selectedBlock.type} Settings
+                    {blockConfig?.label || selectedBlock.type}
                 </span>
             </div>
 
-            {fields.map(({ field, label, type, options }) =>
-                renderField(field, label, type, options)
-            )}
+            {/* Render sections */}
+            {sections.map((section, index) => (
+                <CollapsibleSection
+                    key={section.title}
+                    title={section.title}
+                    icon={section.icon}
+                    iconColor={section.iconColor}
+                    defaultExpanded={section.defaultExpanded}
+                    className={index === 0 ? 'mt-0 pt-0 border-t-0' : ''}
+                >
+                    {section.fields.map(({ field, label, type, options }) =>
+                        renderField(field, label, type, options)
+                    )}
+                </CollapsibleSection>
+            ))}
 
-            {fields.length === 0 && (
+            {sections.length === 0 && (
                 <p className="text-gray-500 text-sm">Double-click the block to edit it directly.</p>
             )}
+
+            {/* Layout Styles Section - Available for all blocks */}
+            <LayoutStylesSection
+                layoutStyles={props.layoutStyles || {}}
+                onUpdate={handleLayoutStylesUpdate}
+                defaultCollapsed={true}
+            />
         </div>
     );
 };
