@@ -91,6 +91,10 @@ export class EmailAdapter extends BaseAdapter {
                 html = `<div style="text-align: ${props.align}; color: ${props.color}; font-size: ${props.fontSize}; line-height: ${props.lineHeight};">${props.content}</div>`;
                 break;
 
+            case 'text-editor':
+                html = `<div style="text-align: ${props.align || 'left'}; color: ${props.color || '#333333'}; font-size: ${props.fontSize || '16px'}; line-height: ${props.lineHeight || '1.6'};">${props.content || ''}</div>`;
+                break;
+
             case 'image':
                 html = this._generateImageHtml(props);
                 break;

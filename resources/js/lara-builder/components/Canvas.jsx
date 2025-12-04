@@ -60,8 +60,10 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
 
     const BlockComponent = getBlockComponent(block.type);
     const isSelected = selectedBlockId === block.id;
-    const isTextBasedBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list';
+    const isTextBasedBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'text-editor';
     const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
+    // Blocks with their own toolbar (like text-editor) - always show toolbar at bottom
+    const toolbarAtBottom = block.type === 'text-editor';
 
     // Alignment props for align-only blocks
     const alignProps = isAlignOnlyBlock ? {
@@ -95,8 +97,8 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
             {...attributes}
             {...listeners}
         >
-            {/* Block Toolbar - shows when selected */}
-            {isSelected && (
+            {/* Block Toolbar at TOP - for regular blocks */}
+            {isSelected && !toolbarAtBottom && (
                 <BlockToolbar
                     block={block}
                     onMoveUp={() => onMoveBlock(block.id, 'up')}
@@ -127,6 +129,22 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     onDuplicateNestedBlock: onDuplicateNestedBlock,
                 } : {})}
             />
+
+            {/* Block Toolbar at BOTTOM - for blocks with their own toolbar (like text-editor) */}
+            {isSelected && toolbarAtBottom && (
+                <BlockToolbar
+                    block={block}
+                    onMoveUp={() => onMoveBlock(block.id, 'up')}
+                    onMoveDown={() => onMoveBlock(block.id, 'down')}
+                    onDelete={() => onDelete(block.id)}
+                    onDuplicate={() => onDuplicateBlock(block.id)}
+                    canMoveUp={canMoveUp}
+                    canMoveDown={canMoveDown}
+                    textFormatProps={textFormatProps}
+                    alignProps={alignProps}
+                    position="bottom"
+                />
+            )}
         </div>
     );
 };

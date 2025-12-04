@@ -374,6 +374,27 @@ export const defaultBlocks = [
             layout: true,
         },
     },
+    {
+        type: 'text-editor',
+        label: 'Text Editor',
+        category: 'Content',
+        icon: 'mdi:text-box-edit-outline',
+        contexts: ['page', 'campaign'],
+        defaultProps: {
+            content: '',
+            align: 'left',
+            color: '#333333',
+            fontSize: '16px',
+            lineHeight: '1.6',
+            layoutStyles: { ...defaultLayoutStyles },
+        },
+        supports: {
+            align: true,
+            colors: true,
+            spacing: true,
+            layout: true,
+        },
+    },
 ];
 
 // Export the default layout styles for use in other modules

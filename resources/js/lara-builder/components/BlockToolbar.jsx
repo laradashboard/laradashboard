@@ -204,13 +204,19 @@ const BlockToolbar = ({
     // Text format props (optional - for text-based blocks)
     textFormatProps,
     // Alignment props (optional - for align-only blocks)
-    alignProps
+    alignProps,
+    // Position: 'top' (default) or 'bottom'
+    position = 'top'
 }) => {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef(null);
 
     const blockConfig = getBlock(block.type);
-    const isTextBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list';
+    // Blocks that have their own rich text editor (like TinyMCE) - don't show our text format controls
+    const SELF_EDITING_BLOCKS = ['text-editor'];
+    const hasSelfEditor = SELF_EDITING_BLOCKS.includes(block.type);
+    // text-editor block has its own TinyMCE toolbar, so exclude it from text formatting controls
+    const isTextBlock = (block.type === 'heading' || block.type === 'text' || block.type === 'list') && !hasSelfEditor;
     const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
 
     // Close menu when clicking outside
@@ -225,9 +231,14 @@ const BlockToolbar = ({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Position classes based on toolbar position
+    const positionClasses = position === 'bottom'
+        ? 'absolute -bottom-10 left-1/2 -translate-x-1/2'
+        : 'absolute -top-10 left-1/2 -translate-x-1/2';
+
     return (
         <div
-            className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg shadow-lg px-1 py-1 z-50"
+            className={`${positionClasses} flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg shadow-lg px-1 py-1 z-50`}
             onClick={(e) => e.stopPropagation()}
         >
             {/* Block type icon/label */}

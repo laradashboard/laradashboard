@@ -6,6 +6,7 @@
 
 import HeadingBlock from './HeadingBlock';
 import TextBlock from './TextBlock';
+import TextEditorBlock from './TextEditorBlock';
 import ImageBlock from './ImageBlock';
 import ButtonBlock from './ButtonBlock';
 import DividerBlock from './DividerBlock';
@@ -25,6 +26,7 @@ import PreformattedBlock from './PreformattedBlock';
 export const blockComponents = {
     heading: HeadingBlock,
     text: TextBlock,
+    'text-editor': TextEditorBlock,
     image: ImageBlock,
     button: ButtonBlock,
     divider: DividerBlock,
@@ -47,6 +49,7 @@ export const getBlockComponent = (type) => blockComponents[type] || null;
 export {
     HeadingBlock,
     TextBlock,
+    TextEditorBlock,
     ImageBlock,
     ButtonBlock,
     DividerBlock,

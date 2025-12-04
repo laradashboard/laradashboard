@@ -80,6 +80,10 @@ export class WebAdapter extends BaseAdapter {
                 html = this._generateTextHtml(props);
                 break;
 
+            case 'text-editor':
+                html = this._generateTextEditorHtml(props);
+                break;
+
             case 'image':
                 html = this._generateImageHtml(props);
                 break;
@@ -166,6 +170,18 @@ export class WebAdapter extends BaseAdapter {
         if (props.lineHeight) styles.push(`line-height: ${props.lineHeight}`);
 
         return `<div class="lb-text" style="${styles.join('; ')}">${props.content || ''}</div>`;
+    }
+
+    _generateTextEditorHtml(props) {
+        const styles = [];
+
+        if (props.align) styles.push(`text-align: ${props.align}`);
+        if (props.color) styles.push(`color: ${props.color}`);
+        if (props.fontSize) styles.push(`font-size: ${props.fontSize}`);
+        if (props.lineHeight) styles.push(`line-height: ${props.lineHeight}`);
+
+        // Text editor content is already HTML from TinyMCE
+        return `<div class="lb-text-editor" style="${styles.join('; ')}">${props.content || ''}</div>`;
     }
 
     _generateImageHtml(props) {
