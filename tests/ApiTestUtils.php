@@ -48,6 +48,10 @@ trait ApiTestUtils
             Permission::firstOrCreate(['name' => 'role.edit']);
             Permission::firstOrCreate(['name' => 'role.delete']);
             Permission::firstOrCreate(['name' => 'permission.view']);
+
+            // Settings permissions
+            Permission::firstOrCreate(['name' => 'settings.view']);
+            Permission::firstOrCreate(['name' => 'settings.edit']);
         }
     }
 
@@ -71,6 +75,8 @@ trait ApiTestUtils
                 'role.edit',
                 'role.delete',
                 'permission.view',
+                'settings.view',
+                'settings.edit',
             ];
 
             // Give all permissions to both users

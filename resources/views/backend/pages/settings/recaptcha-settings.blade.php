@@ -1,12 +1,10 @@
 {!! Hook::applyFilters(SettingFilterHook::SETTINGS_RECAPTCHA_INTEGRATIONS_TAB_BEFORE_SECTION_START, '') !!}
-<div class="rounded-md border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03]">
-    <div class="px-5 py-4 sm:px-6 sm:py-5">
-        <h3 class="text-base font-medium text-gray-700 dark:text-white/90">
-            {{ __('reCAPTCHA v3 Integration') }}
-        </h3>
-    </div>
+<x-card>
+    <x-slot name="header">
+        {{ __('Google reCAPTCHA v3 Settings') }}
+    </x-slot>
 
-    <div class="space-y-6 border-t border-gray-100 p-5 sm:p-6 dark:border-gray-800">
+    <div class="space-y-6">
         <div class="relative">
             <label class="form-label" for="recaptcha_site_key">
                 {{ __('reCAPTCHA Site Key') }}
@@ -142,9 +140,10 @@
             </p>
         </div>
     </div>
-</div>
+</x-card>
 {!! Hook::applyFilters(SettingFilterHook::SETTINGS_RECAPTCHA_INTEGRATIONS_TAB_BEFORE_SECTION_END, '') !!}
 
+@push('scripts')
 <script>
 function copyToClipboard(inputId) {
     const input = document.getElementById(inputId);
@@ -172,3 +171,4 @@ function copyToClipboard(inputId) {
     }
 }
 </script>
+@endpush

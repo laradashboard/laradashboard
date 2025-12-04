@@ -57,3 +57,9 @@
 @utility toast-info {
     @apply border-blue-light-200 bg-blue-light-50 text-blue-light-800 dark:border-blue-light-800 dark:bg-blue-light-900/20 dark:text-blue-light-200;
 }
+
+.email-template-preview table {
+    @media (min-width: 768px) {
+        width: 600px !important;
+    };
+}

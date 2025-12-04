@@ -3,11 +3,18 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Backend\ActionLogController;
+use App\Http\Controllers\Backend\AiContentController;
 use App\Http\Controllers\Backend\Auth\ScreenshotGeneratorLoginController;
 use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\DuplicateEmailTemplateController;
+use App\Http\Controllers\Backend\EditorController;
+use App\Http\Controllers\Backend\EmailSettingsController;
+use App\Http\Controllers\Backend\EmailTemplatesController;
 use App\Http\Controllers\Backend\LocaleController;
 use App\Http\Controllers\Backend\MediaController;
 use App\Http\Controllers\Backend\ModuleController;
+use App\Http\Controllers\Backend\NotificationsController;
+use App\Http\Controllers\Backend\SendTestEmailController;
 use App\Http\Controllers\Backend\PermissionController;
 use App\Http\Controllers\Backend\PostController;
 use App\Http\Controllers\Backend\ProfileController;
@@ -17,6 +24,7 @@ use App\Http\Controllers\Backend\TermController;
 use App\Http\Controllers\Backend\TranslationController;
 use App\Http\Controllers\Backend\UserLoginAsController;
 use App\Http\Controllers\Backend\UserController;
+use App\Http\Controllers\UnsubscribeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,9 +56,27 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::post('/modules/upload', [ModuleController::class, 'store'])->name('modules.store');
     Route::delete('/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.delete');
 
-    // Settings Routes.
-    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
+    Route::group(['prefix' => 'settings'], function () {
+        // Settings Routes.
+        Route::get('/', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/', [SettingController::class, 'store'])->name('settings.store');
+
+        // Email Settings Management Routes.
+        Route::get('emails', [EmailSettingsController::class, 'index'])->name('email-settings.index');
+        Route::post('emails', [EmailSettingsController::class, 'update'])->name('email-settings.update');
+        Route::post('emails/send-test', [SendTestEmailController::class, 'sendTestEmail'])->name('emails.send-test');
+
+        // Email Templates Management Routes.
+        Route::resource('email-templates', EmailTemplatesController::class);
+        Route::group(['prefix' => 'email-templates', 'as' => 'email-templates.'], function () {
+            Route::get('by-type/{type}', [EmailTemplatesController::class, 'getByType'])->name('by-type');
+            Route::get('{email_template}/content', [EmailTemplatesController::class, 'getContent'])->name('content')->where('email_template', '[0-9]+');
+            Route::post('{email_template}/duplicate', [DuplicateEmailTemplateController::class, 'store'])->name('duplicate');
+        });
+
+        // Notifications Management Routes.
+        Route::resource('notifications', NotificationsController::class);
+    });
 
     // Translation Routes.
     Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');
@@ -95,12 +121,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     });
 
     // Editor Upload Route.
-    Route::post('/editor/upload', [App\Http\Controllers\Backend\EditorController::class, 'upload'])->name('editor.upload');
+    Route::post('/editor/upload', [EditorController::class, 'upload'])->name('editor.upload');
 
     // AI Content Generation Routes.
     Route::prefix('ai')->name('ai.')->group(function () {
-        Route::get('/providers', [App\Http\Controllers\Backend\AiContentController::class, 'getProviders'])->name('providers');
-        Route::post('/generate-content', [App\Http\Controllers\Backend\AiContentController::class, 'generateContent'])->name('generate-content');
+        Route::get('/providers', [AiContentController::class, 'getProviders'])->name('providers');
+        Route::post('/generate-content', [AiContentController::class, 'generateContent'])->name('generate-content');
     });
 });
 
@@ -116,3 +142,10 @@ Route::group(['prefix' => 'profile', 'as' => 'profile.', 'middleware' => ['auth'
 Route::get('/locale/{lang}', [LocaleController::class, 'switch'])->name('locale.switch');
 Route::get('/screenshot-login/{email}', [ScreenshotGeneratorLoginController::class, 'login'])->middleware('web')->name('screenshot.login');
 Route::get('/demo-preview', fn () => view('demo.preview'))->name('demo.preview');
+
+// Email Unsubscribe Routes
+Route::prefix('unsubscribe')->name('unsubscribe.')->group(function () {
+    Route::get('/{encryptedEmail}', [UnsubscribeController::class, 'unsubscribe'])->name('process');
+    Route::get('/confirm/{encryptedEmail}', [UnsubscribeController::class, 'confirm'])->name('confirm');
+    Route::post('/process/{encryptedEmail}', [UnsubscribeController::class, 'processConfirmed'])->name('confirmed');
+});

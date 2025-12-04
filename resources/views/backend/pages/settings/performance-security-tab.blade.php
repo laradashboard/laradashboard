@@ -1,16 +1,14 @@
 {!! Hook::applyFilters(SettingFilterHook::SETTINGS_PERFORMANCE_SECURITY_TAB_BEFORE_SECTION_START, '') !!}
 
-{{-- Admin Login Route Settings --}}
-<div class="rounded-md border border-gray-200 dark:border-gray-800 dark:bg-white/[0.03]">
-    <div class="px-5 py-4 sm:px-6 sm:py-5">
-        <h3 class="text-base font-medium text-gray-700 dark:text-white/90">
-            {{ __('Admin Login Route') }}
-        </h3>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {{ __('Customize your admin login URL for enhanced security. Default: /admin/login') }}
-        </p>
-    </div>
-    <div class="space-y-6 border-t border-gray-100 p-5 sm:p-6 dark:border-gray-800">
+<x-card>
+    <x-slot name="header">
+        {{ __('Admin Login Route') }}
+    </x-slot>
+    <x-slot name="headerDescription">
+        {{ __('Changing the admin login route can help protect your admin panel from unauthorized access attempts. Make sure to remember the new URL!') }}
+    </x-slot>
+
+    <div class="space-y-6">
         <div class="relative">
             <label class="form-label" for="admin_login_route">
                 {{ __('Custom Admin Login Route') }}
@@ -81,9 +79,8 @@
             </div>
         </div>
     </div>
-</div>
+</x-card>
 
-{{-- eCAPTCHA Settings Here --}}
 <div class="mt-6">
     @include('backend.pages.settings.recaptcha-settings')
 </div>

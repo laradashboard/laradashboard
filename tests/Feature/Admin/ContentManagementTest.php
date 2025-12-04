@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\Term;
 use App\Models\Taxonomy;
 use App\Models\User;
+use App\Services\Content\ContentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\View;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -50,7 +51,7 @@ beforeEach(function () {
     test()->postType = 'post';
 
     // Register post type for testing
-    $contentService = app(\App\Services\Content\ContentService::class);
+    $contentService = app(ContentService::class);
     $contentService->registerPostType([
         'name' => 'post',
         'label' => 'Posts',

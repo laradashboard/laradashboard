@@ -86,40 +86,40 @@
 >
     <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="px-5 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row justify-between items-center gap-3">
+            {!! Hook::applyFilters(DatatableHook::BEFORE_SEARCHBOX, '', $searchbarPlaceholder) !!}
+            @if($enableLivewire)
+                {{ method_exists($this, 'renderBeforeSearchbar') ? $this->renderBeforeSearchbar() : '' }}
+            @endif
 
-            <div class="flex items-center gap-3">
-                {!! Hook::applyFilters(DatatableHook::BEFORE_SEARCHBOX, '', $searchbarPlaceholder) !!}
-                @if($enableLivewire)
-                    {{ method_exists($this, 'renderBeforeSearchbar') ? $this->renderBeforeSearchbar() : '' }}
+            @if($enableSearchbar)
+                @if($customSeachForm)
+                    {!! $customSeachForm !!}
+                @else
+                    <x-datatable.searchbar
+                        :placeholder="$searchbarPlaceholder"
+                        :enableLivewire="$enableLivewire"
+                    />
                 @endif
+            @endif
 
-                @if($enableSearchbar)
-                    @if($customSeachForm)
-                        {!! $customSeachForm !!}
-                    @else
-                        <x-datatable.searchbar
-                            :placeholder="$searchbarPlaceholder"
-                            :enableLivewire="$enableLivewire"
-                        />
-                    @endif
-                @endif
-
-                @if($enableLivewire)
-                    {{ method_exists($this, 'renderAfterSearchbar') ? $this->renderAfterSearchbar() : '' }}
-                @endif
-                {!! Hook::applyFilters(DatatableHook::AFTER_SEARCHBOX, '', $searchbarPlaceholder) !!}
-            </div>
+            @if($enableLivewire)
+                {{ method_exists($this, 'renderAfterSearchbar') ? $this->renderAfterSearchbar() : '' }}
+            @endif
+            {!! Hook::applyFilters(DatatableHook::AFTER_SEARCHBOX, '', $searchbarPlaceholder) !!}
 
             <div
-                class="flex items-center gap-3"
+                class="flex md:items-center gap-3 flex-wrap"
                 @if($enableLivewire) wire:ignore @endif
             >
-                <div class="flex items-center gap-2">
+                <div
+                    class="flex items-center gap-2"
+                    x-show="selectedItems.length > 0"
+                >
                     @if($enableBulkActions)
                         @if($customBulkActions)
                             {!! $customBulkActions !!}
                         @else
-                            <div class="relative flex items-center justify-center" x-show="selectedItems.length > 0" x-data="{ open: false }">
+                            <div class="relative flex items-center justify-center" x-data="{ open: false }">
                                 <button @click="open = !open" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
                                     <iconify-icon icon="lucide:more-vertical"></iconify-icon>
                                     <span>{{ __('Bulk Actions') }} (<span x-text="selectedItems.length"></span>)</span>
@@ -268,16 +268,22 @@
                                             {{ $filter['allLabel'] }}
                                         </li>
                                         @foreach ($filter['options'] as $key => $value)
+                                            @php
+                                                // Support both label-value pair objects and simple key-value pairs
+                                                $isLabelValuePair = is_array($value) && isset($value['label']);
+                                                $optionValue = $isLabelValuePair ? $value['value'] : $key;
+                                                $optionLabel = $isLabelValuePair ? $value['label'] : $value;
+                                            @endphp
                                             <li
-                                                class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $filter['selected'] == $key ? 'bg-gray-200 dark:bg-gray-600 font-bold' : '' }}"
+                                                class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $filter['selected'] == $optionValue ? 'bg-gray-200 dark:bg-gray-600 font-bold' : '' }}"
                                                 @if($enableLivewire)
-                                                    wire:click="$set('{{ $filter['id'] }}', '{{ $key }}'); $dispatch('resetPage')"
+                                                    wire:click="$set('{{ $filter['id'] }}', '{{ $optionValue }}'); $dispatch('resetPage')"
                                                 @else
-                                                    onclick="window.location.href = '{{ $filter['route'] }}?{{ $filter['id'] }}={{ $key }}';"
+                                                    onclick="window.location.href = '{{ $filter['route'] }}?{{ $filter['id'] }}={{ $optionValue }}';"
                                                 @endif
                                                 @click="open = false"
                                             >
-                                                {{ ucfirst($value) }}
+                                                {!! ucfirst($optionLabel) !!}
                                             </li>
                                         @endforeach
                                     </ul>

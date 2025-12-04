@@ -26,30 +26,6 @@ class SettingPolicy extends BasePolicy
     }
 
     /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return $this->checkPermission($user, 'settings.edit');
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, ?Setting $setting = null): bool
-    {
-        return $this->checkPermission($user, 'settings.edit');
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Setting $setting): bool
-    {
-        return $this->checkPermission($user, 'settings.edit');
-    }
-
-    /**
      * Determine whether the user can manage settings.
      */
     public function manage(User $user): bool
