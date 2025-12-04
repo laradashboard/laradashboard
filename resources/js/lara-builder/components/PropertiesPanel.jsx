@@ -1134,7 +1134,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Heading Settings',
                         icon: 'mdi:format-header-1',
-                        iconColor: 'text-blue-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'level', label: 'Heading Level', type: 'select', options: {
@@ -1156,7 +1156,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Text Settings',
                         icon: 'mdi:format-text',
-                        iconColor: 'text-blue-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'color', label: 'Color', type: 'color' },
@@ -1171,7 +1171,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Image Settings',
                         icon: 'mdi:image',
-                        iconColor: 'text-green-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'src', label: 'Image', type: 'image-upload' },
@@ -1211,7 +1211,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Button Settings',
                         icon: 'mdi:button-cursor',
-                        iconColor: 'text-purple-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'text', label: 'Button Text', type: 'text' },
@@ -1230,7 +1230,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Colors',
                         icon: 'mdi:palette',
-                        iconColor: 'text-pink-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: false,
                         fields: [
                             { field: 'backgroundColor', label: 'Background Color', type: 'color' },
@@ -1244,7 +1244,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Divider Settings',
                         icon: 'mdi:minus',
-                        iconColor: 'text-gray-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'style', label: 'Style', type: 'select', options: {
@@ -1272,7 +1272,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Spacer Settings',
                         icon: 'mdi:arrow-expand-vertical',
-                        iconColor: 'text-gray-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'height', label: 'Height', type: 'select', options: {
@@ -1294,7 +1294,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Columns Settings',
                         icon: 'mdi:view-column',
-                        iconColor: 'text-indigo-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'columns', label: 'Number of Columns', type: 'select', options: {
@@ -1324,7 +1324,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'HTML Settings',
                         icon: 'mdi:code-tags',
-                        iconColor: 'text-orange-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: '_info', label: '', type: 'info', options: { value: 'Double-click the block on canvas to open the HTML editor.' } },
@@ -1337,7 +1337,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Quote Content',
                         icon: 'mdi:format-quote-close',
-                        iconColor: 'text-teal-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'text', label: 'Quote Text', type: 'textarea' },
@@ -1348,7 +1348,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Colors',
                         icon: 'mdi:palette',
-                        iconColor: 'text-pink-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: false,
                         fields: [
                             { field: 'borderColor', label: 'Border Color', type: 'color' },
@@ -1364,7 +1364,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'List Settings',
                         icon: 'mdi:format-list-bulleted',
-                        iconColor: 'text-cyan-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'listType', label: 'List Type', type: 'select', options: {
@@ -1381,7 +1381,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Colors',
                         icon: 'mdi:palette',
-                        iconColor: 'text-pink-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: false,
                         fields: [
                             { field: 'color', label: 'Text Color', type: 'color' },
@@ -1395,7 +1395,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Video Settings',
                         icon: 'mdi:video',
-                        iconColor: 'text-red-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'videoUrl', label: 'Video URL', type: 'video-url' },
@@ -1418,7 +1418,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Company Info',
                         icon: 'mdi:domain',
-                        iconColor: 'text-gray-600',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'companyName', label: 'Company Name', type: 'text' },
@@ -1430,7 +1430,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Links & Copyright',
                         icon: 'mdi:link-variant',
-                        iconColor: 'text-blue-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: false,
                         fields: [
                             { field: 'unsubscribeText', label: 'Unsubscribe Text', type: 'text' },
@@ -1441,7 +1441,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Appearance',
                         icon: 'mdi:palette',
-                        iconColor: 'text-pink-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: false,
                         fields: [
                             { field: 'textColor', label: 'Text Color', type: 'color' },
@@ -1455,7 +1455,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Countdown Settings',
                         icon: 'mdi:timer-outline',
-                        iconColor: 'text-orange-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'targetDate', label: 'Target Date', type: 'date' },
@@ -1467,7 +1467,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Colors',
                         icon: 'mdi:palette',
-                        iconColor: 'text-pink-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: false,
                         fields: [
                             { field: 'backgroundColor', label: 'Background Color', type: 'color' },
@@ -1482,7 +1482,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Table Data',
                         icon: 'mdi:table',
-                        iconColor: 'text-emerald-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'headers', label: 'Headers', type: 'table-headers' },
@@ -1493,7 +1493,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Appearance',
                         icon: 'mdi:palette',
-                        iconColor: 'text-pink-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: false,
                         fields: [
                             { field: 'headerBgColor', label: 'Header Background', type: 'color' },
@@ -1516,7 +1516,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Social Links',
                         icon: 'mdi:share-variant',
-                        iconColor: 'text-blue-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'links', label: 'Social Links', type: 'social-links' },
@@ -1525,7 +1525,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Appearance',
                         icon: 'mdi:palette',
-                        iconColor: 'text-pink-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: false,
                         fields: [
                             { field: 'iconSize', label: 'Icon Size', type: 'select', options: {
@@ -1553,7 +1553,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Code Settings',
                         icon: 'mdi:code-braces',
-                        iconColor: 'text-orange-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'fontSize', label: 'Font Size', type: 'text' },
@@ -1563,7 +1563,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Colors',
                         icon: 'mdi:palette',
-                        iconColor: 'text-pink-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: false,
                         fields: [
                             { field: 'backgroundColor', label: 'Background', type: 'color' },
@@ -1577,7 +1577,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Preformatted Settings',
                         icon: 'mdi:format-text-wrapping-wrap',
-                        iconColor: 'text-teal-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
                             { field: 'fontSize', label: 'Font Size', type: 'text' },
@@ -1587,7 +1587,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     {
                         title: 'Colors',
                         icon: 'mdi:palette',
-                        iconColor: 'text-pink-500',
+                        iconColor: 'text-primary/100',
                         defaultExpanded: false,
                         fields: [
                             { field: 'backgroundColor', label: 'Background', type: 'color' },
