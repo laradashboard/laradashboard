@@ -1101,6 +1101,16 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     </div>
                 );
 
+            case 'info':
+                return (
+                    <div key={field} className="mb-4">
+                        <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                            <iconify-icon icon="mdi:information" width="18" height="18" class="text-blue-500 flex-shrink-0 mt-0.5"></iconify-icon>
+                            <p className="text-sm text-blue-700">{options.value || value}</p>
+                        </div>
+                    </div>
+                );
+
             default:
                 return (
                     <div key={field} className="mb-4">
@@ -1314,7 +1324,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         iconColor: 'text-orange-500',
                         defaultExpanded: true,
                         fields: [
-                            { field: 'code', label: 'HTML Code', type: 'textarea' },
+                            { field: '_info', label: '', type: 'info', options: { value: 'Double-click the block on canvas to open the HTML editor.' } },
                         ]
                     }
                 ];

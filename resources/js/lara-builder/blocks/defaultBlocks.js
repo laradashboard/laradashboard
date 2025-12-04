@@ -379,7 +379,7 @@ export const defaultBlocks = [
         label: 'Text Editor',
         category: 'Content',
         icon: 'mdi:text-box-edit-outline',
-        contexts: ['page', 'campaign'],
+        contexts: ['email', 'page', 'campaign'],
         defaultProps: {
             content: '',
             align: 'left',
