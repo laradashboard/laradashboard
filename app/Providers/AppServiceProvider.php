@@ -3,12 +3,17 @@
 namespace App\Providers;
 
 use App\Enums\Hooks\AdminFilterHook;
+use Modules\Crm\Models\Contact;
 use App\Models\Setting;
 use App\Models\User;
+use App\Observers\ContactObserver;
+use App\Observers\EmailObserver;
 use App\Support\Facades\Hook;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
@@ -16,12 +21,8 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        // Handle PHP 8.4 deprecation notices for development
         if (PHP_VERSION_ID >= 80400) {
             error_reporting(E_ALL & ~E_DEPRECATED);
         }
@@ -80,5 +81,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('viewPulse', function (User $user) {
             return $user->can('pulse.view');
         });
+
+        // Register email observer for automatic unsubscribe links
+        Event::listen(MessageSending::class, [EmailObserver::class, 'sending']);
+
+        // Register contact observer for automatic email subscriptions
+        Contact::observe(ContactObserver::class);
     }
 }

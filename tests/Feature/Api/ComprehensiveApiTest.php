@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Models\Role;
+use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\ApiTestUtils;
@@ -20,15 +23,15 @@ beforeEach(function () {
     $this->createPermissions();
 
     // Create test users
-    $this->user = \App\Models\User::factory()->create();
-    $this->adminUser = \App\Models\User::factory()->create();
+    $this->user = User::factory()->create();
+    $this->adminUser = User::factory()->create();
 
     // Assign permissions to users
     $this->assignPermissions();
 
     // Assign admin role to admin user if role system exists
-    if (class_exists(\App\Models\Role::class)) {
-        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+    if (class_exists(Role::class)) {
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $this->adminUser->assignRole($adminRole);
         // Ensure admin user has all permissions for settings
         $adminRole->givePermissionTo('settings.edit');
@@ -36,8 +39,8 @@ beforeEach(function () {
     }
 
     // Seed mail_from_address and mail_from_name for tests
-    \App\Models\Setting::factory()->mailFromAddress('dev@example.com', 'Laravel App')->create();
-    \App\Models\Setting::factory()->mailFromName('Laravel App')->create();
+    Setting::factory()->mailFromAddress('dev@example.com', 'Laravel App')->create();
+    Setting::factory()->mailFromName('Laravel App')->create();
 });
 
 test('authenticated user can get translations', function () {
