@@ -183,55 +183,58 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
 
     const blockIds = blocks.map(b => b.id);
 
-    // Default settings
+    // Get layout styles from canvasSettings (same format as blocks)
+    const canvasLayoutStyles = layoutStylesToCSS(canvasSettings?.layoutStyles || {});
+
+    // Default settings (width and padding are still separate)
     const settings = {
         width: canvasSettings?.width || '700px',
-        backgroundColor: canvasSettings?.backgroundColor || '#f3f4f6',
-        backgroundImage: canvasSettings?.backgroundImage || '',
-        backgroundSize: canvasSettings?.backgroundSize || 'cover',
-        backgroundPosition: canvasSettings?.backgroundPosition || 'center',
-        backgroundRepeat: canvasSettings?.backgroundRepeat || 'no-repeat',
-        contentBackgroundColor: canvasSettings?.contentBackgroundColor || '#ffffff',
-        contentBackgroundImage: canvasSettings?.contentBackgroundImage || '',
-        contentBackgroundSize: canvasSettings?.contentBackgroundSize || 'cover',
-        contentBackgroundPosition: canvasSettings?.contentBackgroundPosition || 'center',
-        contentBackgroundRepeat: canvasSettings?.contentBackgroundRepeat || 'no-repeat',
         contentPadding: canvasSettings?.contentPadding || '32px',
         contentMargin: canvasSettings?.contentMargin || '40px',
-        contentBorderWidth: canvasSettings?.contentBorderWidth || '0px',
-        contentBorderColor: canvasSettings?.contentBorderColor || '#e5e7eb',
-        contentBorderRadius: canvasSettings?.contentBorderRadius || '8px',
-        fontFamily: canvasSettings?.fontFamily || 'Arial, sans-serif',
     };
 
-    const borderStyle = settings.contentBorderWidth !== '0px'
-        ? `${settings.contentBorderWidth} solid ${settings.contentBorderColor}`
-        : 'none';
-
-    // Outer container background style
+    // Outer container background style (minimal - just padding for now)
     const outerBackgroundStyle = {
-        backgroundColor: settings.backgroundColor,
+        backgroundColor: '#f3f4f6',
         padding: settings.contentMargin,
-        ...(settings.backgroundImage && {
-            backgroundImage: `url(${settings.backgroundImage})`,
-            backgroundSize: settings.backgroundSize,
-            backgroundPosition: settings.backgroundPosition,
-            backgroundRepeat: settings.backgroundRepeat,
-        }),
     };
 
-    // Content area background style
+    // Content area background style - uses layoutStyles (same as blocks)
     const contentBackgroundStyle = {
-        backgroundColor: settings.contentBackgroundColor,
-        fontFamily: settings.fontFamily,
-        borderRadius: settings.contentBorderRadius,
-        border: borderStyle,
-        ...(settings.contentBackgroundImage && {
-            backgroundImage: `url(${settings.contentBackgroundImage})`,
-            backgroundSize: settings.contentBackgroundSize,
-            backgroundPosition: settings.contentBackgroundPosition,
-            backgroundRepeat: settings.contentBackgroundRepeat,
-        }),
+        backgroundColor: canvasLayoutStyles.backgroundColor || '#ffffff',
+        fontFamily: canvasLayoutStyles.fontFamily || 'Arial, sans-serif',
+        fontSize: canvasLayoutStyles.fontSize,
+        fontWeight: canvasLayoutStyles.fontWeight,
+        lineHeight: canvasLayoutStyles.lineHeight,
+        color: canvasLayoutStyles.color,
+        textAlign: canvasLayoutStyles.textAlign,
+        // Background image
+        backgroundImage: canvasLayoutStyles.backgroundImage,
+        backgroundSize: canvasLayoutStyles.backgroundSize,
+        backgroundPosition: canvasLayoutStyles.backgroundPosition,
+        backgroundRepeat: canvasLayoutStyles.backgroundRepeat,
+        // Border
+        borderTopWidth: canvasLayoutStyles.borderTopWidth,
+        borderRightWidth: canvasLayoutStyles.borderRightWidth,
+        borderBottomWidth: canvasLayoutStyles.borderBottomWidth,
+        borderLeftWidth: canvasLayoutStyles.borderLeftWidth,
+        borderStyle: canvasLayoutStyles.borderStyle || 'solid',
+        borderColor: canvasLayoutStyles.borderColor,
+        borderTopLeftRadius: canvasLayoutStyles.borderTopLeftRadius || '8px',
+        borderTopRightRadius: canvasLayoutStyles.borderTopRightRadius || '8px',
+        borderBottomLeftRadius: canvasLayoutStyles.borderBottomLeftRadius || '8px',
+        borderBottomRightRadius: canvasLayoutStyles.borderBottomRightRadius || '8px',
+        // Box shadow
+        boxShadow: canvasLayoutStyles.boxShadow || '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+        // Margin/Padding from layout styles
+        marginTop: canvasLayoutStyles.marginTop,
+        marginRight: canvasLayoutStyles.marginRight,
+        marginBottom: canvasLayoutStyles.marginBottom,
+        marginLeft: canvasLayoutStyles.marginLeft,
+        paddingTop: canvasLayoutStyles.paddingTop,
+        paddingRight: canvasLayoutStyles.paddingRight,
+        paddingBottom: canvasLayoutStyles.paddingBottom,
+        paddingLeft: canvasLayoutStyles.paddingLeft,
     };
 
     return (
@@ -244,7 +247,7 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
                 {/* Email preview container */}
                 <div
                     ref={setNodeRef}
-                    className={`shadow-lg min-h-[400px] transition-colors ${
+                    className={`min-h-[400px] transition-colors ${
                         isOver ? 'ring-2 ring-primary ring-offset-2' : ''
                     }`}
                     style={contentBackgroundStyle}

@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import PropertiesPanel from './PropertiesPanel';
+import LayoutStylesSection from './LayoutStylesSection';
 
 const PostPropertiesPanel = ({
     selectedBlock,
@@ -447,6 +448,14 @@ const PostPropertiesPanel = ({
                     </select>
                 </div>
             </div>
+
+            {/* Content Layout Styles - Same as blocks */}
+            <LayoutStylesSection
+                layoutStyles={canvasSettings?.layoutStyles || {}}
+                onUpdate={(newLayoutStyles) => onCanvasSettingsUpdate({ ...canvasSettings, layoutStyles: newLayoutStyles })}
+                onImageUpload={onImageUpload}
+                defaultCollapsed={false}
+            />
 
             <div className="mt-6 pt-4 border-t border-gray-200">
                 <p className="text-xs text-gray-400 text-center">Click on a block to edit its properties</p>

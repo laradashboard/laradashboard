@@ -397,36 +397,45 @@ export class EmailAdapter extends BaseAdapter {
      * Wrap the final HTML output
      */
     wrapOutput(content, settings) {
-        const backgroundColor = settings.backgroundColor || '#f4f4f4';
-        const backgroundImage = settings.backgroundImage || '';
-        const backgroundSize = settings.backgroundSize || 'cover';
-        const backgroundPosition = settings.backgroundPosition || 'center';
-        const backgroundRepeat = settings.backgroundRepeat || 'no-repeat';
-        const contentBackgroundColor = settings.contentBackgroundColor || '#ffffff';
-        const contentBackgroundImage = settings.contentBackgroundImage || '';
-        const contentBackgroundSize = settings.contentBackgroundSize || 'cover';
-        const contentBackgroundPosition = settings.contentBackgroundPosition || 'center';
-        const contentBackgroundRepeat = settings.contentBackgroundRepeat || 'no-repeat';
+        // Get layout styles from settings (same format as blocks)
+        const layoutStyles = layoutStylesToInlineCSS(settings.layoutStyles || {});
+
+        // Basic settings
         const maxWidth = settings.width || '600px';
-        const fontFamily = settings.fontFamily || 'Arial, sans-serif';
         const contentPadding = settings.contentPadding || '40px';
         const contentMargin = settings.contentMargin || '40px';
-        const contentBorderWidth = settings.contentBorderWidth || '0px';
-        const contentBorderColor = settings.contentBorderColor || '#e5e7eb';
-        const contentBorderRadius = settings.contentBorderRadius || '8px';
 
-        const borderStyle = contentBorderWidth !== '0px'
-            ? `border: ${contentBorderWidth} solid ${contentBorderColor};`
-            : '';
+        // Extract values from layoutStyles or use defaults
+        const background = settings.layoutStyles?.background || {};
+        const typography = settings.layoutStyles?.typography || {};
+        const border = settings.layoutStyles?.border || {};
+        const boxShadow = settings.layoutStyles?.boxShadow || {};
 
-        let outerBgStyle = `background-color: ${backgroundColor};`;
-        if (backgroundImage) {
-            outerBgStyle += ` background-image: url('${backgroundImage}'); background-size: ${backgroundSize}; background-position: ${backgroundPosition}; background-repeat: ${backgroundRepeat};`;
+        // Outer background (simplified)
+        let outerBgStyle = 'background-color: #f4f4f4;';
+
+        // Content background
+        let contentBgStyle = `background-color: ${background.color || '#ffffff'};`;
+        if (background.image) {
+            contentBgStyle += ` background-image: url('${background.image}'); background-size: ${background.size || 'cover'}; background-position: ${background.position || 'center'}; background-repeat: ${background.repeat || 'no-repeat'};`;
         }
 
-        let contentBgStyle = `background-color: ${contentBackgroundColor};`;
-        if (contentBackgroundImage) {
-            contentBgStyle += ` background-image: url('${contentBackgroundImage}'); background-size: ${contentBackgroundSize}; background-position: ${contentBackgroundPosition}; background-repeat: ${contentBackgroundRepeat};`;
+        // Font family
+        const fontFamily = typography.fontFamily || 'Arial, sans-serif';
+
+        // Border
+        const borderWidth = border.width?.top || '0px';
+        const borderColor = border.color || '#e5e7eb';
+        const borderStyle = borderWidth !== '0px' ? `border: ${borderWidth} ${border.style || 'solid'} ${borderColor};` : '';
+
+        // Border radius
+        const contentBorderRadius = border.radius?.topLeft || '8px';
+
+        // Box shadow
+        let boxShadowStyle = '';
+        if (boxShadow.blur && boxShadow.blur !== '0px') {
+            const inset = boxShadow.inset ? 'inset ' : '';
+            boxShadowStyle = `box-shadow: ${inset}${boxShadow.x || '0px'} ${boxShadow.y || '0px'} ${boxShadow.blur || '0px'} ${boxShadow.spread || '0px'} ${boxShadow.color || 'rgba(0, 0, 0, 0.1)'};`;
         }
 
         return `
@@ -457,7 +466,7 @@ export class EmailAdapter extends BaseAdapter {
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="${outerBgStyle}">
         <tr>
             <td align="center" style="padding: ${contentMargin} 20px;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: ${maxWidth}; ${contentBgStyle} border-radius: ${contentBorderRadius}; ${borderStyle}">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: ${maxWidth}; ${contentBgStyle} border-radius: ${contentBorderRadius}; ${borderStyle} ${boxShadowStyle}">
                     <tr>
                         <td style="padding: ${contentPadding};">
                             ${content}
