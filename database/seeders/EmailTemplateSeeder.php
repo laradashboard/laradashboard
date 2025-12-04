@@ -46,7 +46,7 @@ class EmailTemplateSeeder extends Seeder
                 'Reset Your Password - {app_name}',
                 TemplateType::AUTHENTICATION,
                 'Password reset email with security tips',
-                $this->getPasswordReset(),
+                $this->getPasswordResetBlocks(),
                 true,
                 false
             ),
@@ -61,35 +61,35 @@ class EmailTemplateSeeder extends Seeder
                 'Welcome to {app_name}, {first_name}! 🎉',
                 TemplateType::WELCOME,
                 'Modern blue-themed welcome email',
-                $this->getModernWelcomeBlue()
+                $this->getModernWelcomeBlueBlocks()
             ),
             $this->createTemplate(
                 'Welcome with Video',
                 'Hi {first_name}, Watch Our Welcome Video!',
                 TemplateType::WELCOME,
                 'Welcome email with embedded video',
-                $this->getWelcomeWithVideo()
+                $this->getWelcomeWithVideoBlocks()
             ),
             $this->createTemplate(
                 'Minimalist Welcome',
                 'Welcome {first_name} - Let\'s Get Started',
                 TemplateType::WELCOME,
                 'Clean minimalist welcome design',
-                $this->getMinimalistWelcome()
+                $this->getMinimalistWelcomeBlocks()
             ),
             $this->createTemplate(
                 'Welcome with Checklist',
                 'Your Getting Started Guide, {first_name}',
                 TemplateType::WELCOME,
                 'Welcome with actionable checklist',
-                $this->getWelcomeChecklist()
+                $this->getWelcomeChecklistBlocks()
             ),
             $this->createTemplate(
                 'Bold Welcome',
                 '{first_name}, You\'re In! Welcome Aboard 🚀',
                 TemplateType::WELCOME,
                 'Bold and energetic welcome email',
-                $this->getBoldWelcome()
+                $this->getBoldWelcomeBlocks()
             ),
         ];
     }
@@ -102,35 +102,35 @@ class EmailTemplateSeeder extends Seeder
                 '⚡ Flash Sale! {first_name}, 24 Hours Only',
                 TemplateType::PROMOTIONAL,
                 'Urgent flash sale template',
-                $this->getFlashSale()
+                $this->getFlashSaleBlocks()
             ),
             $this->createTemplate(
                 'Product Launch',
                 'Introducing Our Latest: Mastering Success in 2025',
                 TemplateType::PROMOTIONAL,
                 'Product launch announcement',
-                $this->getProductLaunch()
+                $this->getProductLaunchBlocks()
             ),
             $this->createTemplate(
                 'Limited Offer',
                 '{first_name}, Exclusive Offer Expires Soon',
                 TemplateType::PROMOTIONAL,
                 'Limited time offer template',
-                $this->getLimitedOffer()
+                $this->getLimitedOfferBlocks()
             ),
             $this->createTemplate(
                 'Black Friday Special',
                 'BLACK FRIDAY: Up to 70% Off!',
                 TemplateType::PROMOTIONAL,
                 'Black Friday sale template',
-                $this->getBlackFriday()
+                $this->getBlackFridayBlocks()
             ),
             $this->createTemplate(
                 'Cyber Monday',
                 'Cyber Monday Deals Start NOW!',
                 TemplateType::PROMOTIONAL,
                 'Cyber Monday template',
-                $this->getCyberMonday()
+                $this->getCyberMondayBlocks()
             ),
         ];
     }
@@ -143,28 +143,28 @@ class EmailTemplateSeeder extends Seeder
                 'Order Confirmed - #1010123',
                 TemplateType::TRANSACTIONAL,
                 'Order confirmation email',
-                $this->getOrderConfirmation()
+                $this->getOrderConfirmationBlocks()
             ),
             $this->createTemplate(
                 'Shipping Notification',
                 'Your Order Has Shipped! 📦',
                 TemplateType::TRANSACTIONAL,
                 'Shipping notification',
-                $this->getShippingNotification()
+                $this->getShippingNotificationBlocks()
             ),
             $this->createTemplate(
                 'Invoice',
                 'Invoice #1010123 from {app_name}',
                 TemplateType::TRANSACTIONAL,
                 'Invoice template',
-                $this->getInvoice()
+                $this->getInvoiceBlocks()
             ),
             $this->createTemplate(
                 'Receipt',
                 'Your Receipt from {app_name}',
                 TemplateType::TRANSACTIONAL,
                 'Payment receipt',
-                $this->getReceipt()
+                $this->getReceiptBlocks()
             ),
         ];
     }
@@ -177,35 +177,35 @@ class EmailTemplateSeeder extends Seeder
                 '📰 Your Weekly Update - {date}',
                 TemplateType::NEWSLETTER,
                 'Weekly newsletter digest',
-                $this->getWeeklyDigest()
+                $this->getWeeklyDigestBlocks()
             ),
             $this->createTemplate(
                 'Blog Roundup',
                 'Top Articles This Month',
                 TemplateType::NEWSLETTER,
                 'Blog posts roundup',
-                $this->getBlogRoundup()
+                $this->getBlogRoundupBlocks()
             ),
             $this->createTemplate(
                 'Industry News',
                 'Industry Insights for Industry 2025',
                 TemplateType::NEWSLETTER,
                 'Industry news newsletter',
-                $this->getIndustryNews()
+                $this->getIndustryNewsBlocks()
             ),
             $this->createTemplate(
                 'Company Newsletter',
                 'Company News & Updates - {month}',
                 TemplateType::NEWSLETTER,
                 'Company newsletter',
-                $this->getCompanyNewsletter()
+                $this->getCompanyNewsletterBlocks()
             ),
             $this->createTemplate(
                 'Tips & Tricks',
                 'Weekly Tips: Boost Your Productivity',
                 TemplateType::NEWSLETTER,
                 'Tips and tricks newsletter',
-                $this->getTipsNewsletter()
+                $this->getTipsNewsletterBlocks()
             ),
         ];
     }
@@ -218,35 +218,35 @@ class EmailTemplateSeeder extends Seeder
                 'You\'re Invited: Mastering Success in {year}',
                 TemplateType::REMINDER,
                 'Webinar invitation',
-                $this->getWebinarInvitation()
+                $this->getWebinarInvitationBlocks()
             ),
             $this->createTemplate(
                 'Event Reminder',
                 'Tomorrow: Mastering Success in {year} Starts at {time}',
                 TemplateType::REMINDER,
                 'Event reminder',
-                $this->getEventReminder()
+                $this->getEventReminderBlocks()
             ),
             $this->createTemplate(
                 'Conference Invite',
                 'Join Us at the Annual Conference {year}',
                 TemplateType::REMINDER,
                 'Conference invitation',
-                $this->getConferenceInvite()
+                $this->getConferenceInviteBlocks()
             ),
             $this->createTemplate(
                 'Virtual Event',
                 'Virtual Event: Mastering Success in {year} - Register Now',
                 TemplateType::REMINDER,
                 'Virtual event template',
-                $this->getVirtualEvent()
+                $this->getVirtualEventBlocks()
             ),
             $this->createTemplate(
                 'Event Thank You',
                 'Thank You for Attending Mastering Success in {year}',
                 TemplateType::FOLLOW_UP,
                 'Post-event thank you',
-                $this->getEventThankYou()
+                $this->getEventThankYouBlocks()
             ),
         ];
     }
@@ -259,47 +259,57 @@ class EmailTemplateSeeder extends Seeder
                 '{first_name}, You Left Something Behind! 🛒',
                 TemplateType::REMINDER,
                 'Abandoned cart recovery',
-                $this->getCartAbandonment()
+                $this->getCartAbandonmentBlocks()
             ),
             $this->createTemplate(
                 'Product Recommendation',
                 'Based on Your Interests, {first_name}',
                 TemplateType::PROMOTIONAL,
                 'Personalized recommendations',
-                $this->getProductRecommendation()
+                $this->getProductRecommendationBlocks()
             ),
             $this->createTemplate(
                 'Back in Stock',
                 'Product XYZ is Back in Stock!',
                 TemplateType::PROMOTIONAL,
                 'Back in stock notification',
-                $this->getBackInStock()
+                $this->getBackInStockBlocks()
             ),
             $this->createTemplate(
                 'Review Request',
                 'How Was Your Purchase, {first_name}?',
                 TemplateType::FOLLOW_UP,
                 'Product review request',
-                $this->getReviewRequest()
+                $this->getReviewRequestBlocks()
             ),
             $this->createTemplate(
                 'Birthday Discount',
                 'Happy Birthday {first_name}! 🎂',
                 TemplateType::PROMOTIONAL,
                 'Birthday special offer',
-                $this->getBirthdayDiscount()
+                $this->getBirthdayDiscountBlocks()
             ),
         ];
     }
 
-    private function createTemplate(string $name, string $subject, TemplateType $type, string $description, string $html, $active = false, $deletable = true): array
+    /**
+     * Create a template with LaraBuilder block format
+     */
+    private function createTemplate(string $name, string $subject, TemplateType $type, string $description, array $blocks, $active = false, $deletable = true): array
     {
+        $designJson = [
+            'blocks' => $blocks,
+            'canvasSettings' => $this->getDefaultCanvasSettings(),
+            'version' => 1,
+        ];
+
         return [
             'uuid' => Str::uuid(),
             'name' => $name,
             'subject' => $subject,
-            'body_html' => $html,
-            'type' => $type,
+            'body_html' => '', // Will be generated by the builder when opened
+            'design_json' => $designJson,
+            'type' => $type->value,
             'description' => $description,
             'is_active' => $active,
             'is_deleteable' => $deletable,
@@ -309,2521 +319,1019 @@ class EmailTemplateSeeder extends Seeder
         ];
     }
 
-    private function getPasswordReset(): string
+    /**
+     * Default canvas settings for email templates
+     */
+    private function getDefaultCanvasSettings(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7fa;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f7fa; padding: 40px 0;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                    <tr>
-                        <td style="padding: 40px 30px; text-align: center; background: #635bff; border-radius: 10px;">
-                            {site_icon_image}
-                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Password Reset Request</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px 30px;">
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
-                                Hello <strong>{full_name}</strong>,
-                            </p>
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
-                                We received a request to reset your password for your <strong>{app_name}</strong> account.
-                                If you didn't make this request, you can safely ignore this email.
-                            </p>
-                            <p style="font-size: 16px; color: #333333; line-height: 1.6; margin: 0 0 30px;">
-                                To reset your password, click the button below:
-                            </p>
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="{reset_url}" style="display: inline-block; padding: 16px 40px; background: #635bff; color: #ffffff; text-decoration: none; border-radius: 10px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
-                                    Reset My Password
-                                </a>
-                            </div>
-                            <div style="background-color: #f8f9fa; border-left: 4px solid #ffc107; padding: 20px; margin: 30px 0; border-radius: 4px;">
-                                <p style="font-size: 14px; color: #856404; margin: 0; line-height: 1.6;">
-                                    <strong>⚠️ Important:</strong> This password reset link will expire in <strong>{expiry_time}</strong>.
-                                    If the link expires, you'll need to request a new password reset.
-                                </p>
-                            </div>
-                            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 30px 0 20px;">
-                                If the button above doesn't work, copy and paste this URL into your browser:
-                            </p>
-                            <p style="font-size: 13px; color: #667eea; word-break: break-all; background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin: 0 0 30px;">
-                                {reset_url}
-                            </p>
-                            <div style="border-top: 2px solid #e9ecef; padding-top: 30px; margin-top: 30px;">
-                                <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 0 0 10px;">
-                                    <strong>Security Tips:</strong>
-                                </p>
-                                <ul style="font-size: 14px; color: #666666; line-height: 1.8; margin: 0; padding-left: 20px;">
-                                    <li>Never share your password with anyone</li>
-                                    <li>Use a strong, unique password</li>
-                                    <li>Enable two-factor authentication if available</li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e9ecef;">
-                            <p style="font-size: 14px; color: #666666; margin: 0 0 10px;">
-                                If you didn't request this password reset, please contact our support team immediately.
-                            </p>
-                            <p style="font-size: 13px; color: #999999; margin: 0;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'width' => '600px',
+            'contentPadding' => '32px',
+            'contentMargin' => '40px',
+            'layoutStyles' => [
+                'background' => [
+                    'color' => '#ffffff',
+                ],
+                'typography' => [
+                    'fontFamily' => 'Arial, sans-serif',
+                    'fontSize' => '16px',
+                    'color' => '#333333',
+                ],
+                'border' => [
+                    'radius' => [
+                        'topLeft' => '8px',
+                        'topRight' => '8px',
+                        'bottomLeft' => '8px',
+                        'bottomRight' => '8px',
+                    ],
+                ],
+            ],
+        ];
     }
 
-    private function getModernWelcomeBlue(): string
+    /**
+     * Helper: Create a unique block ID
+     */
+    private function blockId(): string
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7fa;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f7fa; padding: 40px 0;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: #635bff; padding: 60px 40px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 36px; font-weight: 700;">Welcome to {app_name}! 🎉</h1>
-                            <p style="color: #ffffff; margin: 20px 0 0 0; font-size: 18px; opacity: 0.9;">We're thrilled to have you, {first_name}</p>
-                        </td>
-                    </tr>
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding: 50px 40px;">
-                            <p style="font-size: 16px; line-height: 1.8; color: #333333; margin: 0 0 20px 0;">Hi {first_name},</p>
-                            <p style="font-size: 16px; line-height: 1.8; color: #333333; margin: 0 0 30px 0;">
-                                Thank you for joining {app_name}! Your journey towards success starts now.
-                            </p>
-                            
-                            <!-- Feature Cards -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td style="padding: 20px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
-                                        <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #333;">✨ Personalized Experience</h3>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">Tailored solutions designed specifically for your needs.</p>
-                                    </td>
-                                </tr>
-                                <tr><td style="height: 15px;"></td></tr>
-                                <tr>
-                                    <td style="padding: 20px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #764ba2;">
-                                        <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #333;">🎯 Expert Support</h3>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">24/7 dedicated support team ready to help you succeed.</p>
-                                    </td>
-                                </tr>
-                                <tr><td style="height: 15px;"></td></tr>
-                                <tr>
-                                    <td style="padding: 20px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
-                                        <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #333;">🚀 Continuous Innovation</h3>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">Regular updates and new features to keep you ahead.</p>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <!-- CTA Button -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background: #635bff; color: #ffffff; padding: 16px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Get Started</a>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <p style="font-size: 16px; line-height: 1.8; color: #333333; margin: 30px 0 0 0;">
-                                If you have any questions, we're here to help!
-                            </p>
-                            <p style="font-size: 16px; line-height: 1.8; color: #333333; margin: 10px 0 0 0;">
-                                Best regards,<br>
-                                <strong>The {app_name} Team</strong>
-                            </p>
-                        </td>
-                    </tr>
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background-color: #f8f9fa; padding: 30px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #999999; line-height: 1.6;">
-                                © {year} {app_name}. All rights reserved.<br>
-                                You're receiving this because you signed up for {app_name}.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return 'block_' . Str::random(8);
     }
 
-    private function getWelcomeWithVideo(): string
+    /**
+     * Helper: Default layout styles for blocks
+     */
+    private function defaultLayoutStyles(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f0f0f0;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0f0f0; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
-                    <tr>
-                        <td style="padding: 40px;">
-                            <h1 style="color: #333; margin: 0 0 20px 0; font-size: 28px;">Welcome {first_name}! 👋</h1>
-                            <p style="font-size: 16px; line-height: 1.6; color: #666; margin: 0 0 30px 0;">
-                                Watch our quick welcome video to get started:
-                            </p>
-                            
-                            <!-- Video Placeholder -->
-                            <div style="position: relative; background-color: #000; border-radius: 8px; overflow: hidden; margin: 30px 0;">
-                                <video width="100%" controls style="max-width: 100%; display: block;">
-                                    <source src="https://example.com/welcome-video.mp4" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                            </div>
-                            
-                            <p style="font-size: 16px; line-height: 1.6; color: #666; margin: 30px 0;">
-                                Can't watch the video? No problem! Here's what you need to know:
-                            </p>
-                            
-                            <ul style="font-size: 16px; line-height: 2; color: #666;">
-                                <li>Complete your profile</li>
-                                <li>Explore our features</li>
-                                <li>Connect with our community</li>
-                                <li>Start achieving your goals</li>
-                            </ul>
-                            
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #007bff; color: #ffffff; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold;">Complete Your Profile</a>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <p style="font-size: 14px; color: #999; margin: 30px 0 0 0; text-align: center;">
-                                The {app_name} Team
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'margin' => ['top' => '', 'right' => '', 'bottom' => '', 'left' => ''],
+            'padding' => ['top' => '', 'right' => '', 'bottom' => '', 'left' => ''],
+        ];
     }
 
-    private function getMinimalistWelcome(): string
+    /**
+     * Helper: Create heading block
+     */
+    private function heading(string $text, string $level = 'h1', string $align = 'center', string $color = '#333333', string $fontSize = '28px'): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #ffffff;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="padding: 60px 20px;">
-        <tr>
-            <td align="center">
-                <table width="500" cellpadding="0" cellspacing="0">
-                    <tr>
-                        <td style="padding: 0 20px;">
-                            <h1 style="font-size: 32px; font-weight: 300; color: #000; margin: 0 0 40px 0; letter-spacing: -1px;">Welcome, {first_name}</h1>
-                            
-                            <p style="font-size: 18px; line-height: 1.8; color: #333; margin: 0 0 30px 0;">
-                                We're glad you're here.
-                            </p>
-                            
-                            <div style="height: 1px; background-color: #e0e0e0; margin: 40px 0;"></div>
-                            
-                            <p style="font-size: 16px; line-height: 1.8; color: #666; margin: 0 0 20px 0;">
-                                {app_name} is designed to help you succeed. Let's get started.
-                            </p>
-                            
-                            <p style="margin: 40px 0;">
-                                <a href="#" style="color: #000; text-decoration: none; font-size: 16px; border-bottom: 2px solid #000; padding-bottom: 2px;">Get Started →</a>
-                            </p>
-                            
-                            <div style="height: 1px; background-color: #e0e0e0; margin: 60px 0 40px 0;"></div>
-                            
-                            <p style="font-size: 14px; color: #999; margin: 0;">
-                                {app_name}
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'heading',
+            'props' => [
+                'text' => $text,
+                'level' => $level,
+                'align' => $align,
+                'color' => $color,
+                'fontSize' => $fontSize,
+                'fontWeight' => 'bold',
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    // Continue with other template methods... (due to length, showing pattern)
-    // Each method follows similar structure with unique HTML design
-
-    private function getWelcomeChecklist(): string
+    /**
+     * Helper: Create text block
+     */
+    private function text(string $content, string $align = 'left', string $color = '#666666', string $fontSize = '16px'): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 50px 40px;">
-                            <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 32px; font-weight: 700;">Welcome {first_name}! 🎉</h1>
-                            <p style="font-size: 18px; line-height: 1.6; color: #666; margin: 0 0 30px 0;">
-                                Let's get you started with {app_name}. Here's your quick setup checklist:
-                            </p>
-
-                            <!-- Checklist Items -->
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td style="padding: 20px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 15px;">
-                                        <table width="100%" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <td width="40" style="vertical-align: top;">
-                                                    <span style="display: inline-block; width: 28px; height: 28px; background-color: #10b981; border-radius: 50%; text-align: center; line-height: 28px; color: #fff; font-size: 16px;">✓</span>
-                                                </td>
-                                                <td style="vertical-align: top;">
-                                                    <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #1a1a1a;">Step 1: Complete Your Profile</h3>
-                                                    <p style="margin: 0; font-size: 15px; color: #666; line-height: 1.6;">Add your details and preferences to personalize your experience.</p>
-                                                    <a href="#" style="display: inline-block; margin-top: 10px; color: #3b82f6; text-decoration: none; font-weight: 600;">Complete Profile →</a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr><td style="height: 15px;"></td></tr>
-                                <tr>
-                                    <td style="padding: 20px; background-color: #f9fafb; border-radius: 8px;">
-                                        <table width="100%" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <td width="40" style="vertical-align: top;">
-                                                    <span style="display: inline-block; width: 28px; height: 28px; background-color: #e5e7eb; border-radius: 50%; text-align: center; line-height: 28px; color: #9ca3af; font-size: 16px;">2</span>
-                                                </td>
-                                                <td style="vertical-align: top;">
-                                                    <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #1a1a1a;">Step 2: Explore Features</h3>
-                                                    <p style="margin: 0; font-size: 15px; color: #666; line-height: 1.6;">Take a tour of our powerful features and tools.</p>
-                                                    <a href="#" style="display: inline-block; margin-top: 10px; color: #3b82f6; text-decoration: none; font-weight: 600;">Start Tour →</a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr><td style="height: 15px;"></td></tr>
-                                <tr>
-                                    <td style="padding: 20px; background-color: #f9fafb; border-radius: 8px;">
-                                        <table width="100%" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <td width="40" style="vertical-align: top;">
-                                                    <span style="display: inline-block; width: 28px; height: 28px; background-color: #e5e7eb; border-radius: 50%; text-align: center; line-height: 28px; color: #9ca3af; font-size: 16px;">3</span>
-                                                </td>
-                                                <td style="vertical-align: top;">
-                                                    <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #1a1a1a;">Step 3: Invite Your Team</h3>
-                                                    <p style="margin: 0; font-size: 15px; color: #666; line-height: 1.6;">Collaborate better by inviting team members.</p>
-                                                    <a href="#" style="display: inline-block; margin-top: 10px; color: #3b82f6; text-decoration: none; font-weight: 600;">Send Invites →</a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="font-size: 15px; line-height: 1.8; color: #666; margin: 30px 0 0 0;">
-                                Need help? Our support team is ready to assist you 24/7.
-                            </p>
-                            <p style="font-size: 16px; color: #1a1a1a; margin: 20px 0 0 0;">
-                                Best regards,<br>
-                                <strong>The {app_name} Team</strong>
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0; font-size: 13px; color: #9ca3af; line-height: 1.6;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'text',
+            'props' => [
+                'content' => $content,
+                'align' => $align,
+                'color' => $color,
+                'fontSize' => $fontSize,
+                'lineHeight' => '1.6',
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getBoldWelcome(): string
+    /**
+     * Helper: Create button block
+     */
+    private function button(string $text, string $link = '#', string $bgColor = '#635bff', string $textColor = '#ffffff', string $align = 'center'): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #000000;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #000000; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #000000;">
-                    <tr>
-                        <td style="padding: 60px 40px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0 0 20px 0; font-size: 56px; font-weight: 900; letter-spacing: -2px; line-height: 1.1;">YOU'RE IN! 🚀</h1>
-                            <p style="color: #a0a0a0; margin: 0; font-size: 24px; font-weight: 400; letter-spacing: 0.5px;">WELCOME {first_name}</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0 40px 50px 40px;">
-                            <div style="height: 4px; background: #635bff; margin: 0 0 40px 0;"></div>
-
-                            <p style="font-size: 20px; line-height: 1.7; color: #ffffff; margin: 0 0 30px 0; text-align: center;">
-                                This is where your journey to <strong style="color: #ff0080;">success</strong> begins.
-                            </p>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
-                                <tr>
-                                    <td style="padding: 30px; background: #635bff; border-radius: 12px; border: 2px solid #333;">
-                                        <h2 style="color: #ffffff; margin: 0 0 15px 0; font-size: 28px; font-weight: 700;">WHAT'S NEXT?</h2>
-                                        <p style="color: #d0d0d0; margin: 0; font-size: 17px; line-height: 1.8;">
-                                            → Set up your dashboard<br>
-                                            → Customize your preferences<br>
-                                            → Start crushing your goals<br>
-                                            → Join our community
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 50px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background: #635bff; color: #ffffff; padding: 20px 60px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 8px 30px rgba(255, 0, 128, 0.4);">LET'S GO!</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="font-size: 16px; line-height: 1.8; color: #a0a0a0; margin: 40px 0 0 0; text-align: center;">
-                                Questions? Hit reply. We're here for you.<br>
-                                <strong style="color: #ffffff;">— Team {app_name}</strong>
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 30px 40px; text-align: center; border-top: 1px solid #333;">
-                            <p style="margin: 0; font-size: 12px; color: #666; line-height: 1.6;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'button',
+            'props' => [
+                'text' => $text,
+                'link' => $link,
+                'backgroundColor' => $bgColor,
+                'textColor' => $textColor,
+                'borderRadius' => '6px',
+                'padding' => '14px 28px',
+                'align' => $align,
+                'fontSize' => '16px',
+                'fontWeight' => '600',
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getFlashSale(): string
+    /**
+     * Helper: Create image block
+     */
+    private function image(string $src, string $alt = '', string $width = '100%', string $align = 'center', string $link = ''): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #fff3cd;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff3cd; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border: 4px solid #ff6b6b; border-radius: 8px;">
-                    <tr>
-                        <td style="background: #635bff; padding: 40px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 48px; font-weight: 900; text-transform: uppercase;">⚡ FLASH SALE ⚡</h1>
-                            <p style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">24 HOURS ONLY!</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px;">
-                            <p style="font-size: 18px; color: #333; margin: 0 0 30px 0; text-align: center;">
-                                Hi {first_name}, this is not a drill! 🚨
-                            </p>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff3cd; border-radius: 8px; padding: 30px; margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <p style="margin: 0 0 10px 0; font-size: 18px; color: #856404; font-weight: 600;">SAVE UP TO</p>
-                                        <h2 style="margin: 0; font-size: 72px; font-weight: 900; color: #ff6b6b; line-height: 1;">50%</h2>
-                                        <p style="margin: 10px 0 0 0; font-size: 18px; color: #856404; font-weight: 600;">OFF EVERYTHING</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background-color: #f8f9fa; border-left: 4px solid #ff6b6b; padding: 20px; margin: 30px 0;">
-                                <p style="margin: 0; font-size: 16px; color: #333; line-height: 1.8;">
-                                    ⏰ <strong>Time Remaining:</strong> 23:45:12<br>
-                                    🎯 <strong>Use Code:</strong> <span style="background-color: #ff6b6b; color: #fff; padding: 5px 15px; border-radius: 4px; font-weight: 700;">FLASH50</span><br>
-                                    🚚 <strong>Free Shipping:</strong> On all orders over $50
-                                </p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #ff6b6b; color: #ffffff; padding: 20px 50px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 700; text-transform: uppercase; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);">Shop Now</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
-                                Hurry! Sale ends in 24 hours or while supplies last.<br>
-                                No code needed on already discounted items.
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
-                            <p style="margin: 0; font-size: 12px; color: #999;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'image',
+            'props' => [
+                'src' => $src,
+                'alt' => $alt,
+                'width' => $width,
+                'height' => 'auto',
+                'align' => $align,
+                'link' => $link,
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getProductLaunch(): string
+    /**
+     * Helper: Create spacer block
+     */
+    private function spacer(string $height = '20px'): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f0f0f0;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0f0f0; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden;">
-                    <tr>
-                        <td style="padding: 50px 40px; text-align: center; background: #635bff;">
-                            <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">New Release</p>
-                            <h1 style="color: #ffffff; margin: 0; font-size: 42px; font-weight: 700; line-height: 1.2;">Introducing<br>Product XYZ</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0;">
-                            <img src="https://placehold.co/600x400/667eea/ffffff?text=Product+Image" alt="Product" style="width: 100%; height: auto; display: block;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 50px 40px;">
-                            <p style="font-size: 20px; line-height: 1.6; color: #333; margin: 0 0 30px 0; text-align: center; font-weight: 600;">
-                                The future is here. Discover what's possible.
-                            </p>
-
-                            <p style="font-size: 16px; line-height: 1.8; color: #666; margin: 0 0 30px 0;">
-                                We're thrilled to announce our latest innovation: Product XYZ. Designed with you in mind, it combines cutting-edge technology with intuitive design to deliver an unparalleled experience.
-                            </p>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td width="50%" style="padding: 20px; vertical-align: top;">
-                                        <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #333;">✨ Advanced Features</h3>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">Next-generation technology that adapts to your needs.</p>
-                                    </td>
-                                    <td width="50%" style="padding: 20px; vertical-align: top;">
-                                        <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #333;">🎯 User-Friendly</h3>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">Intuitive design that anyone can master instantly.</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="50%" style="padding: 20px; vertical-align: top;">
-                                        <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #333;">⚡ Lightning Fast</h3>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">Performance that keeps up with your ambitions.</p>
-                                    </td>
-                                    <td width="50%" style="padding: 20px; vertical-align: top;">
-                                        <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #333;">🔒 Secure</h3>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">Enterprise-grade security for peace of mind.</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background-color: #f8f9fa; border-radius: 8px; padding: 30px; margin: 30px 0; text-align: center;">
-                                <p style="margin: 0 0 5px 0; font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Launch Special</p>
-                                <h2 style="margin: 0 0 5px 0; font-size: 36px; color: #667eea; font-weight: 700;">20% OFF</h2>
-                                <p style="margin: 0; font-size: 14px; color: #666;">Limited time offer for early adopters</p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background: #635bff; color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Order Now</a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f8f9fa; padding: 30px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #999; line-height: 1.6;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'spacer',
+            'props' => [
+                'height' => $height,
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getLimitedOffer(): string
+    /**
+     * Helper: Create divider block
+     */
+    private function divider(string $color = '#e5e7eb', string $thickness = '1px', string $width = '100%'): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #fef3c7;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef3c7; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 40px 40px 30px 40px;">
-                            <div style="background-color: #f59e0b; color: #ffffff; padding: 10px 20px; border-radius: 20px; display: inline-block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Exclusive Offer</div>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 36px; font-weight: 700;">{first_name}, This Won't Last Long</h1>
-                            <p style="font-size: 18px; line-height: 1.6; color: #666; margin: 0 0 30px 0;">
-                                A special offer just for you – but only for the next 48 hours.
-                            </p>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="background: #635bff; border-radius: 12px; padding: 40px; margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <p style="margin: 0 0 15px 0; color: #ffffff; font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Your Exclusive Discount</p>
-                                        <h2 style="margin: 0; color: #ffffff; font-size: 64px; font-weight: 900; line-height: 1;">35%</h2>
-                                        <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 18px; font-weight: 600;">OFF YOUR NEXT PURCHASE</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="text-align: center; padding: 30px; background-color: #fffbeb; border-radius: 8px; border: 2px dashed #f59e0b; margin: 30px 0;">
-                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #92400e; font-weight: 600; text-transform: uppercase;">Your Promo Code</p>
-                                <p style="margin: 0; font-size: 32px; color: #f59e0b; font-weight: 900; letter-spacing: 3px; font-family: 'Courier New', monospace;">SAVE35</p>
-                                <p style="margin: 15px 0 0 0; font-size: 13px; color: #92400e;">Copy this code at checkout</p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 700; text-transform: uppercase;">Shop Now</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0;">
-                                <p style="margin: 0; font-size: 14px; color: #92400e; line-height: 1.8;">
-                                    ⏰ <strong>Offer expires:</strong> December 15, 2025 at 11:59 PM<br>
-                                    ✓ <strong>Valid on:</strong> All products (some exclusions apply)<br>
-                                    ✓ <strong>Free shipping:</strong> On orders over $75
-                                </p>
-                            </div>
-
-                            <p style="font-size: 14px; color: #666; margin: 20px 0 0 0; text-align: center; line-height: 1.6;">
-                                Questions? Contact us at support@{from_email}.com
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'divider',
+            'props' => [
+                'style' => 'solid',
+                'color' => $color,
+                'thickness' => $thickness,
+                'width' => $width,
+                'margin' => '20px 0',
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getBlackFriday(): string
+    /**
+     * Helper: Create list block
+     */
+    private function listBlock(array $items, string $listType = 'bullet', string $color = '#666666'): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #000000;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #000000; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #1a1a1a; border: 3px solid #ff0000;">
-                    <tr>
-                        <td style="background-color: #ff0000; padding: 30px; text-align: center;">
-                            <h1 style="color: #000000; margin: 0; font-size: 52px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">BLACK FRIDAY</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 50px 40px; text-align: center;">
-                            <p style="color: #ffffff; margin: 0 0 30px 0; font-size: 24px; font-weight: 700; text-transform: uppercase;">The Biggest Sale of the Year</p>
-
-                            <div style="background: #635bff; padding: 40px; border-radius: 8px; margin: 30px 0;">
-                                <h2 style="color: #ffffff; margin: 0 0 15px 0; font-size: 28px; font-weight: 700;">UP TO</h2>
-                                <p style="color: #ffffff; margin: 0; font-size: 96px; font-weight: 900; line-height: 1;">70%</p>
-                                <h3 style="color: #ffffff; margin: 15px 0 0 0; font-size: 28px; font-weight: 700;">OFF</h3>
-                            </div>
-
-                            <p style="color: #cccccc; margin: 30px 0; font-size: 18px; line-height: 1.6;">
-                                🔥 Everything on sale<br>
-                                🚚 Free worldwide shipping<br>
-                                ⚡ Limited quantities available<br>
-                                🎁 Extra 10% off with code: BF70
-                            </p>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #ff0000; color: #ffffff; padding: 22px 60px; text-decoration: none; border-radius: 4px; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 8px 20px rgba(255, 0, 0, 0.5);">SHOP NOW</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background-color: #2a2a2a; border: 2px solid #ff0000; padding: 25px; margin: 40px 0; border-radius: 8px;">
-                                <p style="color: #ffffff; margin: 0; font-size: 16px; font-weight: 700;">⏰ SALE ENDS IN:</p>
-                                <p style="color: #ff0000; margin: 10px 0 0 0; font-size: 32px; font-weight: 900; letter-spacing: 2px;">23:59:47</p>
-                            </div>
-
-                            <p style="color: #999999; margin: 30px 0 0 0; font-size: 13px; line-height: 1.6;">
-                                *Discounts applied automatically. Some exclusions may apply.<br>
-                                Sale ends November 24, 2025 at midnight.
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #0d0d0d; padding: 25px; text-align: center; border-top: 1px solid #333;">
-                            <p style="margin: 0; font-size: 12px; color: #666;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'list',
+            'props' => [
+                'items' => $items,
+                'listType' => $listType,
+                'color' => $color,
+                'fontSize' => '16px',
+                'iconColor' => '#635bff',
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getCyberMonday(): string
+    /**
+     * Helper: Create quote block
+     */
+    private function quote(string $text, string $author = '', string $authorTitle = ''): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #0a192f;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a192f; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background: #635bff; border: 2px solid #00d4ff;">
-                    <tr>
-                        <td style="padding: 50px 40px; text-align: center;">
-                            <h1 style="color: #00d4ff; margin: 0 0 10px 0; font-size: 48px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);">CYBER MONDAY</h1>
-                            <p style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600; text-transform: uppercase;">Deals Start NOW!</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0 40px 50px 40px;">
-                            <div style="background: #635bff; padding: 40px; border-radius: 12px; text-align: center; margin: 30px 0; box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);">
-                                <p style="color: #0a192f; margin: 0 0 10px 0; font-size: 18px; font-weight: 700;">DOORBUSTER DEAL</p>
-                                <h2 style="color: #0a192f; margin: 0; font-size: 72px; font-weight: 900; line-height: 1;">60%</h2>
-                                <p style="color: #0a192f; margin: 10px 0 0 0; font-size: 18px; font-weight: 700;">OFF SITEWIDE</p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td width="50%" style="padding: 15px;">
-                                        <div style="background-color: #1a2332; border: 2px solid #00d4ff; border-radius: 8px; padding: 25px; text-align: center;">
-                                            <p style="color: #00d4ff; margin: 0 0 10px 0; font-size: 48px; font-weight: 900;">40%</p>
-                                            <p style="color: #ffffff; margin: 0; font-size: 14px;">Electronics</p>
-                                        </div>
-                                    </td>
-                                    <td width="50%" style="padding: 15px;">
-                                        <div style="background-color: #1a2332; border: 2px solid #00d4ff; border-radius: 8px; padding: 25px; text-align: center;">
-                                            <p style="color: #00d4ff; margin: 0 0 10px 0; font-size: 48px; font-weight: 900;">50%</p>
-                                            <p style="color: #ffffff; margin: 0; font-size: 14px;">Software</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="50%" style="padding: 15px;">
-                                        <div style="background-color: #1a2332; border: 2px solid #00d4ff; border-radius: 8px; padding: 25px; text-align: center;">
-                                            <p style="color: #00d4ff; margin: 0 0 10px 0; font-size: 48px; font-weight: 900;">45%</p>
-                                            <p style="color: #ffffff; margin: 0; font-size: 14px;">Accessories</p>
-                                        </div>
-                                    </td>
-                                    <td width="50%" style="padding: 15px;">
-                                        <div style="background-color: #1a2332; border: 2px solid #00d4ff; border-radius: 8px; padding: 25px; text-align: center;">
-                                            <p style="color: #00d4ff; margin: 0 0 10px 0; font-size: 48px; font-weight: 900;">35%</p>
-                                            <p style="color: #ffffff; margin: 0; font-size: 14px;">Services</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background-color: #1a2332; border-left: 4px solid #00d4ff; padding: 25px; margin: 30px 0;">
-                                <p style="color: #ffffff; margin: 0; font-size: 15px; line-height: 1.8;">
-                                    💻 Tech deals you can't miss<br>
-                                    🎯 Early access for subscribers<br>
-                                    🚀 Flash deals every hour<br>
-                                    📦 Free express shipping
-                                </p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background: #635bff; color: #0a192f; padding: 20px 50px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 900; text-transform: uppercase; box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);">Shop Cyber Deals</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="color: #7a8a99; margin: 30px 0 0 0; font-size: 13px; text-align: center; line-height: 1.6;">
-                                Sale ends Tuesday at 11:59 PM EST<br>
-                                While supplies last. No rain checks.
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #0a192f; padding: 25px; text-align: center; border-top: 1px solid #1a2332;">
-                            <p style="margin: 0; font-size: 12px; color: #7a8a99;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'quote',
+            'props' => [
+                'text' => $text,
+                'author' => $author,
+                'authorTitle' => $authorTitle,
+                'borderColor' => '#635bff',
+                'backgroundColor' => '#f8fafc',
+                'textColor' => '#475569',
+                'authorColor' => '#1e293b',
+                'align' => 'left',
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getOrderConfirmation(): string
+    /**
+     * Helper: Create table block
+     */
+    private function table(array $headers, array $rows, bool $showHeader = true): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 40px 40px 30px 40px;">
-                            <div style="text-align: center; margin-bottom: 30px;">
-                                <div style="display: inline-block; width: 60px; height: 60px; background-color: #10b981; border-radius: 50%; text-align: center; line-height: 60px;">
-                                    <span style="color: #ffffff; font-size: 30px;">✓</span>
-                                </div>
-                            </div>
-                            <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-align: center;">Order Confirmed!</h1>
-                            <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; text-align: center;">
-                                Thank you for your order. We'll send you a shipping confirmation email as soon as your order ships.
-                            </p>
-
-                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 25px; margin: 30px 0;">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Order Number:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">#123456789</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Order Date:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">November 14, 2025</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Order Total:</p>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 18px; color: #1a1a1a; font-weight: 700;">$127.50</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <h2 style="color: #1a1a1a; margin: 30px 0 20px 0; font-size: 20px; font-weight: 600;">Order Details</h2>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
-                                <tr>
-                                    <td style="padding: 20px 0; border-bottom: 1px solid #f3f4f6;">
-                                        <table width="100%" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <td width="80" style="vertical-align: top;">
-                                                    <img src="https://placehold.co/80x80/e5e7eb/999999?text=Product" alt="Product" style="width: 80px; height: 80px; border-radius: 8px;">
-                                                </td>
-                                                <td style="padding-left: 20px; vertical-align: top;">
-                                                    <p style="margin: 0 0 5px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Product Name</p>
-                                                    <p style="margin: 0; font-size: 14px; color: #666;">Size: Medium, Color: Blue</p>
-                                                </td>
-                                                <td style="text-align: right; vertical-align: top;">
-                                                    <p style="margin: 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">$49.99</p>
-                                                    <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">Qty: 1</p>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td width="50%" style="padding-right: 15px; vertical-align: top;">
-                                        <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Shipping Address</h3>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.8;">
-                                            {first_name} {last_name}<br>
-                                            123 Main Street<br>
-                                            Apartment 4B<br>
-                                            New York, NY 10001<br>
-                                            United States
-                                        </p>
-                                    </td>
-                                    <td width="50%" style="padding-left: 15px; vertical-align: top;">
-                                        <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Payment Method</h3>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.8;">
-                                            Visa ending in 4242<br>
-                                            Billing address same as shipping
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: 600;">View Order Status</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
-                                Questions about your order?<br>
-                                Contact us at <a href="mailto:support@{from_email}.com" style="color: #3b82f6; text-decoration: none;">support@{from_email}.com</a>
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.6;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'table',
+            'props' => [
+                'headers' => $headers,
+                'rows' => $rows,
+                'showHeader' => $showHeader,
+                'headerBgColor' => '#f1f5f9',
+                'headerTextColor' => '#1e293b',
+                'borderColor' => '#e2e8f0',
+                'cellPadding' => '12px',
+                'fontSize' => '14px',
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getShippingNotification(): string
+    /**
+     * Helper: Create footer block
+     */
+    private function footer(string $companyName = '{app_name}', string $address = '', string $email = ''): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 40px;">
-                            <div style="text-align: center; margin-bottom: 30px;">
-                                <span style="font-size: 60px;">📦</span>
-                            </div>
-                            <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-align: center;">Your Order Has Shipped!</h1>
-                            <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; text-align: center;">
-                                Good news {first_name}! Your package is on its way.
-                            </p>
-
-                            <div style="background: #635bff; border-radius: 12px; padding: 30px; margin: 30px 0; text-align: center;">
-                                <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Tracking Number</p>
-                                <p style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 2px; font-family: 'Courier New', monospace;">1Z999AA10123456784</p>
-                            </div>
-
-                            <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0;">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="padding: 5px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Carrier:</p>
-                                        </td>
-                                        <td style="padding: 5px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">UPS Ground</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 5px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Estimated Delivery:</p>
-                                        </td>
-                                        <td style="padding: 5px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">November 18-20, 2025</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 5px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Ship To:</p>
-                                        </td>
-                                        <td style="padding: 5px 0; text-align: right;">
-                                            <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">{first_name} {last_name}</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-size: 15px; font-weight: 600;">Track Your Package</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin: 30px 0;">
-                                <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">What's in your package:</h3>
-                                <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.8;">
-                                    • Product Name - Qty: 1<br>
-                                    • Another Product - Qty: 2
-                                </p>
-                            </div>
-
-                            <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.8;">
-                                We'll send you another email when your package is delivered.<br>
-                                <a href="#" style="color: #3b82f6; text-decoration: none;">Manage your orders</a>
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'footer',
+            'props' => [
+                'companyName' => $companyName,
+                'address' => $address,
+                'phone' => '',
+                'email' => $email,
+                'unsubscribeText' => 'Unsubscribe from these emails',
+                'unsubscribeUrl' => '#unsubscribe',
+                'copyright' => '© {year} ' . $companyName . '. All rights reserved.',
+                'textColor' => '#6b7280',
+                'linkColor' => '#635bff',
+                'fontSize' => '12px',
+                'align' => 'center',
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getInvoice(): string
+    /**
+     * Helper: Create social block
+     */
+    private function social(array $links = [], string $align = 'center'): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table width="650" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 40px;">
-                            <table width="100%" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td>
-                                        <h1 style="margin: 0; font-size: 32px; color: #1a1a1a; font-weight: 700;">INVOICE</h1>
-                                        <p style="margin: 5px 0 0 0; font-size: 16px; color: #666;">#123456789</p>
-                                    </td>
-                                    <td style="text-align: right;">
-                                        <p style="margin: 0; font-size: 24px; color: #1a1a1a; font-weight: 700;">{app_name}</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="height: 2px; background-color: #e5e7eb; margin: 30px 0;"></div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td width="50%" style="vertical-align: top;">
-                                        <p style="margin: 0 0 10px 0; font-size: 12px; color: #666; text-transform: uppercase; font-weight: 600;">Billed To:</p>
-                                        <p style="margin: 0; font-size: 15px; color: #1a1a1a; line-height: 1.8;">
-                                            <strong>{first_name} {last_name}</strong><br>
-                                            123 Main Street<br>
-                                            New York, NY 10001<br>
-                                            United States
-                                        </p>
-                                    </td>
-                                    <td width="50%" style="vertical-align: top; text-align: right;">
-                                        <table width="100%" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <td style="padding: 5px 0; text-align: right;">
-                                                    <p style="margin: 0; font-size: 14px; color: #666;">Invoice Date:</p>
-                                                </td>
-                                                <td style="padding: 5px 0 5px 20px; text-align: right;">
-                                                    <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">Nov 14, 2025</p>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 5px 0; text-align: right;">
-                                                    <p style="margin: 0; font-size: 14px; color: #666;">Due Date:</p>
-                                                </td>
-                                                <td style="padding: 5px 0 5px 20px; text-align: right;">
-                                                    <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">Dec 14, 2025</p>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0; border: 1px solid #e5e7eb;">
-                                <tr style="background-color: #f9fafb;">
-                                    <td style="padding: 15px; border-bottom: 1px solid #e5e7eb;">
-                                        <p style="margin: 0; font-size: 12px; color: #666; text-transform: uppercase; font-weight: 600;">Description</p>
-                                    </td>
-                                    <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; text-align: center;">
-                                        <p style="margin: 0; font-size: 12px; color: #666; text-transform: uppercase; font-weight: 600;">Quantity</p>
-                                    </td>
-                                    <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; text-align: right;">
-                                        <p style="margin: 0; font-size: 12px; color: #666; text-transform: uppercase; font-weight: 600;">Unit Price</p>
-                                    </td>
-                                    <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; text-align: right;">
-                                        <p style="margin: 0; font-size: 12px; color: #666; text-transform: uppercase; font-weight: 600;">Total</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 15px; border-bottom: 1px solid #e5e7eb;">
-                                        <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">Professional Plan</p>
-                                        <p style="margin: 5px 0 0 0; font-size: 13px; color: #666;">Monthly subscription</p>
-                                    </td>
-                                    <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; text-align: center;">
-                                        <p style="margin: 0; font-size: 14px; color: #1a1a1a;">1</p>
-                                    </td>
-                                    <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; text-align: right;">
-                                        <p style="margin: 0; font-size: 14px; color: #1a1a1a;">$99.00</p>
-                                    </td>
-                                    <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; text-align: right;">
-                                        <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">$99.00</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td width="65%"></td>
-                                    <td width="35%">
-                                        <table width="100%" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <td style="padding: 8px 0;">
-                                                    <p style="margin: 0; font-size: 14px; color: #666;">Subtotal:</p>
-                                                </td>
-                                                <td style="padding: 8px 0; text-align: right;">
-                                                    <p style="margin: 0; font-size: 14px; color: #1a1a1a;">$99.00</p>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px 0;">
-                                                    <p style="margin: 0; font-size: 14px; color: #666;">Tax (10%):</p>
-                                                </td>
-                                                <td style="padding: 8px 0; text-align: right;">
-                                                    <p style="margin: 0; font-size: 14px; color: #1a1a1a;">$9.90</p>
-                                                </td>
-                                            </tr>
-                                            <tr style="border-top: 2px solid #e5e7eb;">
-                                                <td style="padding: 15px 0 0 0;">
-                                                    <p style="margin: 0; font-size: 18px; color: #1a1a1a; font-weight: 700;">Total:</p>
-                                                </td>
-                                                <td style="padding: 15px 0 0 0; text-align: right;">
-                                                    <p style="margin: 0; font-size: 18px; color: #1a1a1a; font-weight: 700;">$108.90</p>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0;">
-                                <p style="margin: 0; font-size: 14px; color: #1e40af; line-height: 1.6;">
-                                    <strong>Payment Terms:</strong> Payment is due within 30 days. Please include invoice number with payment.
-                                </p>
-                            </div>
-
-                            <p style="font-size: 13px; color: #666; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
-                                Thank you for your business!<br>
-                                Questions? Email <a href="mailto:billing@{app_name}.com" style="color: #3b82f6; text-decoration: none;">billing@{app_name}.com</a>
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'social',
+            'props' => [
+                'align' => $align,
+                'iconSize' => '32px',
+                'gap' => '12px',
+                'links' => array_merge([
+                    'facebook' => '',
+                    'twitter' => '',
+                    'instagram' => '',
+                    'linkedin' => '',
+                    'youtube' => '',
+                ], $links),
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getReceipt(): string
+    /**
+     * Helper: Create countdown block
+     */
+    private function countdown(string $title = 'Sale Ends In', string $targetDate = ''): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Courier New', monospace; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table width="550" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 40px;">
-                            <div style="text-align: center; border-bottom: 2px dashed #ddd; padding-bottom: 30px; margin-bottom: 30px;">
-                                <h1 style="margin: 0 0 10px 0; font-size: 28px; color: #1a1a1a; font-weight: 700;">{app_name}</h1>
-                                <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">
-                                    123 Business Street<br>
-                                    New York, NY 10001<br>
-                                    Tel: (555) 123-4567
-                                </p>
-                            </div>
-
-                            <div style="text-align: center; margin: 20px 0;">
-                                <h2 style="margin: 0; font-size: 24px; color: #1a1a1a; font-weight: 700;">RECEIPT</h2>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0; font-size: 13px;">
-                                <tr>
-                                    <td style="padding: 5px 0;">Date:</td>
-                                    <td style="padding: 5px 0; text-align: right; font-weight: 600;">Nov 14, 2025 02:35 PM</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px 0;">Receipt #:</td>
-                                    <td style="padding: 5px 0; text-align: right; font-weight: 600;">101010</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px 0;">Cashier:</td>
-                                    <td style="padding: 5px 0; text-align: right; font-weight: 600;">John Doe</td>
-                                </tr>
-                            </table>
-
-                            <div style="border-top: 2px dashed #ddd; border-bottom: 2px dashed #ddd; padding: 20px 0; margin: 30px 0;">
-                                <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px;">
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <strong>Product Name</strong><br>
-                                            <span style="color: #666; font-size: 12px;">SKU: ABC123</span>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: center;">x1</td>
-                                        <td style="padding: 8px 0; text-align: right;"><strong>$49.99</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;">
-                                            <strong>Another Product</strong><br>
-                                            <span style="color: #666; font-size: 12px;">SKU: XYZ789</span>
-                                        </td>
-                                        <td style="padding: 8px 0; text-align: center;">x2</td>
-                                        <td style="padding: 8px 0; text-align: right;"><strong>$79.98</strong></td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px; margin: 20px 0;">
-                                <tr>
-                                    <td style="padding: 8px 0;">Subtotal:</td>
-                                    <td style="padding: 8px 0; text-align: right;">$129.97</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px 0;">Tax (8.5%):</td>
-                                    <td style="padding: 8px 0; text-align: right;">$11.05</td>
-                                </tr>
-                                <tr style="font-size: 18px; font-weight: 700;">
-                                    <td style="padding: 15px 0; border-top: 2px solid #000;">TOTAL:</td>
-                                    <td style="padding: 15px 0; text-align: right; border-top: 2px solid #000;">$141.02</td>
-                                </tr>
-                            </table>
-
-                            <div style="border-top: 2px dashed #ddd; padding-top: 20px; margin-top: 20px;">
-                                <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px;">
-                                    <tr>
-                                        <td style="padding: 5px 0;">Payment Method:</td>
-                                        <td style="padding: 5px 0; text-align: right; font-weight: 600;">Visa ****4242</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 5px 0;">Authorization:</td>
-                                        <td style="padding: 5px 0; text-align: right; font-weight: 600;">APR-12345</td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div style="text-align: center; margin: 30px 0; padding: 20px; background-color: #f9fafb; border-radius: 8px;">
-                                <p style="margin: 0; font-size: 12px; color: #666; line-height: 1.8;">
-                                    Thank you for your purchase!<br>
-                                    Return policy: 30 days with receipt<br>
-                                    Questions? Visit our help center
-                                </p>
-                            </div>
-
-                            <div style="text-align: center; border-top: 2px dashed #ddd; padding-top: 20px;">
-                                <img src="https://placehold.co/200x50/ffffff/000000?text=BARCODE" alt="Barcode" style="max-width: 200px; height: auto;">
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        $date = $targetDate ?: date('Y-m-d', strtotime('+7 days'));
+        return [
+            'id' => $this->blockId(),
+            'type' => 'countdown',
+            'props' => [
+                'targetDate' => $date,
+                'targetTime' => '23:59',
+                'title' => $title,
+                'backgroundColor' => '#1e293b',
+                'textColor' => '#ffffff',
+                'numberColor' => '#635bff',
+                'align' => 'center',
+                'expiredMessage' => 'This offer has expired!',
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getWeeklyDigest(): string
+    /**
+     * Helper: Create video block
+     */
+    private function video(string $thumbnailUrl = '', string $videoUrl = '', string $alt = 'Video'): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
-                    <tr>
-                        <td style="padding: 40px 40px 30px 40px; border-bottom: 3px solid #3b82f6;">
-                            <h1 style="color: #1a1a1a; margin: 0 0 10px 0; font-size: 32px; font-weight: 700;">📰 Weekly Digest</h1>
-                            <p style="margin: 0; font-size: 16px; color: #666;">{date} • Your weekly roundup</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px;">
-                            <p style="font-size: 16px; color: #333; margin: 0 0 30px 0; line-height: 1.6;">
-                                Hi {first_name}, here's what happened this week at {app_name}.
-                            </p>
-                            <div style="margin: 30px 0; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
-                                <img src="https://placehold.co/600x300/3b82f6/ffffff?text=Featured+Story" alt="Featured" style="width: 100%; height: auto; display: block;">
-                                <div style="padding: 25px;">
-                                    <span style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 15px;">Featured</span>
-                                    <h2 style="margin: 0 0 10px 0; font-size: 22px; color: #1a1a1a; font-weight: 700;">The Future of Technology: What's Next</h2>
-                                    <p style="margin: 0 0 15px 0; font-size: 15px; color: #666; line-height: 1.6;">Discover the latest trends and innovations shaping our industry...</p>
-                                    <a href="#" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 15px;">Read More →</a>
-                                </div>
-                            </div>
-                            <h3 style="margin: 40px 0 20px 0; font-size: 20px; color: #1a1a1a; font-weight: 700;">Top Stories</h3>
-                            <div style="border-bottom: 1px solid #e5e7eb; padding: 20px 0;">
-                                <h4 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">
-                                    <a href="#" style="color: #1a1a1a; text-decoration: none;">5 Tips to Boost Your Productivity</a>
-                                </h4>
-                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #666; line-height: 1.6;">Learn how successful professionals manage their time...</p>
-                                <span style="font-size: 13px; color: #999;">5 min read • Productivity</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            'id' => $this->blockId(),
+            'type' => 'video',
+            'props' => [
+                'thumbnailUrl' => $thumbnailUrl,
+                'videoUrl' => $videoUrl,
+                'alt' => $alt,
+                'width' => '100%',
+                'align' => 'center',
+                'playButtonColor' => '#635bff',
+                'layoutStyles' => $this->defaultLayoutStyles(),
+            ],
+        ];
     }
 
-    private function getBlogRoundup(): string
+    // ========================================
+    // TEMPLATE BLOCKS - Auth Templates
+    // ========================================
+
+    private function getPasswordResetBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: Georgia, serif; background-color: #fafafa;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fafafa; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff;">
-                    <tr>
-                        <td style="padding: 50px 40px; text-align: center; background-color: #1a1a1a;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 36px; font-weight: 300; letter-spacing: 2px;">TOP ARTICLES</h1>
-                            <p style="color: #cccccc; margin: 10px 0 0 0; font-size: 16px;">This Month's Best Reads</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 50px 40px;">
-                            <article style="margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid #e5e7eb;">
-                                <img src="https://placehold.co/520x260/667eea/ffffff?text=Article+1" alt="Article" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 20px;">
-                                <span style="font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px;">Technology • Nov 10, 2025</span>
-                                <h2 style="margin: 15px 0 10px 0; font-size: 26px; color: #1a1a1a; font-weight: 600; line-height: 1.3;">The Rise of AI in Modern Business</h2>
-                                <p style="font-size: 16px; color: #666; line-height: 1.8; margin: 0 0 15px 0;">Exploring how artificial intelligence is transforming the way companies operate and compete in today's digital landscape...</p>
-                                <a href="#" style="color: #1a1a1a; text-decoration: none; font-weight: 600; border-bottom: 2px solid #1a1a1a; padding-bottom: 2px;">Continue Reading</a>
-                            </article>
-
-                            <article style="margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid #e5e7eb;">
-                                <img src="https://placehold.co/520x260/764ba2/ffffff?text=Article+2" alt="Article" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 20px;">
-                                <span style="font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px;">Leadership • Nov 8, 2025</span>
-                                <h2 style="margin: 15px 0 10px 0; font-size: 26px; color: #1a1a1a; font-weight: 600; line-height: 1.3;">Building High-Performance Teams</h2>
-                                <p style="font-size: 16px; color: #666; line-height: 1.8; margin: 0 0 15px 0;">Discover the secrets behind creating and maintaining teams that consistently deliver exceptional results...</p>
-                                <a href="#" style="color: #1a1a1a; text-decoration: none; font-weight: 600; border-bottom: 2px solid #1a1a1a; padding-bottom: 2px;">Continue Reading</a>
-                            </article>
-
-                            <article style="margin-bottom: 40px;">
-                                <img src="https://placehold.co/520x260/f59e0b/ffffff?text=Article+3" alt="Article" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 20px;">
-                                <span style="font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px;">Innovation • Nov 5, 2025</span>
-                                <h2 style="margin: 15px 0 10px 0; font-size: 26px; color: #1a1a1a; font-weight: 600; line-height: 1.3;">Design Thinking for Problem Solving</h2>
-                                <p style="font-size: 16px; color: #666; line-height: 1.8; margin: 0 0 15px 0;">Learn how design thinking methodology can help you tackle complex challenges and drive innovation...</p>
-                                <a href="#" style="color: #1a1a1a; text-decoration: none; font-weight: 600; border-bottom: 2px solid #1a1a1a; padding-bottom: 2px;">Continue Reading</a>
-                            </article>
-
-                            <div style="text-align: center; margin-top: 50px;">
-                                <a href="#" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; padding: 15px 40px; text-decoration: none; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">View All Articles</a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 30px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #999;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('Password Reset Request', 'h1', 'center', '#333333', '28px'),
+            $this->spacer('20px'),
+            $this->text('Hello <strong>{full_name}</strong>,'),
+            $this->spacer('10px'),
+            $this->text('We received a request to reset your password for your <strong>{app_name}</strong> account. If you didn\'t make this request, you can safely ignore this email.'),
+            $this->spacer('10px'),
+            $this->text('To reset your password, click the button below:'),
+            $this->spacer('20px'),
+            $this->button('Reset My Password', '{reset_url}', '#635bff'),
+            $this->spacer('20px'),
+            $this->quote('⚠️ Important: This password reset link will expire in {expiry_time}. If the link expires, you\'ll need to request a new password reset.'),
+            $this->spacer('20px'),
+            $this->text('If the button above doesn\'t work, copy and paste this URL into your browser:', 'left', '#666666', '14px'),
+            $this->text('{reset_url}', 'left', '#635bff', '13px'),
+            $this->spacer('20px'),
+            $this->divider(),
+            $this->text('<strong>Security Tips:</strong>', 'left', '#333333'),
+            $this->listBlock([
+                'Never share your password with anyone',
+                'Use a strong, unique password',
+                'Enable two-factor authentication if available',
+            ]),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getIndustryNews(): string
+    // ========================================
+    // TEMPLATE BLOCKS - Welcome Templates
+    // ========================================
+
+    private function getModernWelcomeBlueBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #0f172a;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0f172a; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #1e293b; border-radius: 8px;">
-                    <tr>
-                        <td style="padding: 40px; border-bottom: 2px solid #3b82f6;">
-                            <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 32px; font-weight: 700;">Industry Insights</h1>
-                            <p style="color: #94a3b8; margin: 0; font-size: 16px;">Latest News & Trends</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px;">
-                            <div style="background-color: #3b82f6; border-radius: 8px; padding: 25px; margin-bottom: 30px;">
-                                <h2 style="color: #ffffff; margin: 0 0 10px 0; font-size: 22px; font-weight: 700;">🔥 Trending Now</h2>
-                                <p style="color: #e0e7ff; margin: 0; font-size: 18px; line-height: 1.6;">Market analysis shows 45% growth this quarter</p>
-                            </div>
-
-                            <div style="border-left: 4px solid #3b82f6; padding: 20px; margin: 25px 0; background-color: #334155;">
-                                <h3 style="color: #ffffff; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Breaking: Major Industry Shift</h3>
-                                <p style="color: #cbd5e1; margin: 0 0 10px 0; font-size: 15px; line-height: 1.6;">New regulations are reshaping the landscape...</p>
-                                <a href="#" style="color: #60a5fa; text-decoration: none; font-weight: 600;">Read Full Story →</a>
-                            </div>
-
-                            <div style="border-left: 4px solid #10b981; padding: 20px; margin: 25px 0; background-color: #334155;">
-                                <h3 style="color: #ffffff; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Market Update: Q4 Forecast</h3>
-                                <p style="color: #cbd5e1; margin: 0 0 10px 0; font-size: 15px; line-height: 1.6;">Expert predictions for the upcoming quarter show promising trends...</p>
-                                <a href="#" style="color: #34d399; text-decoration: none; font-weight: 600;">View Analysis →</a>
-                            </div>
-
-                            <div style="border-left: 4px solid #f59e0b; padding: 20px; margin: 25px 0; background-color: #334155;">
-                                <h3 style="color: #ffffff; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Technology Innovation Report</h3>
-                                <p style="color: #cbd5e1; margin: 0 0 10px 0; font-size: 15px; line-height: 1.6;">Latest technological advancements disrupting traditional models...</p>
-                                <a href="#" style="color: #fbbf24; text-decoration: none; font-weight: 600;">Download Report →</a>
-                            </div>
-
-                            <div style="background-color: #334155; border-radius: 8px; padding: 30px; margin: 30px 0;">
-                                <h3 style="color: #ffffff; margin: 0 0 20px 0; font-size: 20px; font-weight: 700; text-align: center;">Quick Stats</h3>
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="text-align: center; padding: 15px;">
-                                            <p style="margin: 0; font-size: 32px; color: #3b82f6; font-weight: 700;">+23%</p>
-                                            <p style="margin: 5px 0 0 0; font-size: 13px; color: #94a3b8;">Growth Rate</p>
-                                        </td>
-                                        <td style="text-align: center; padding: 15px;">
-                                            <p style="margin: 0; font-size: 32px; color: #10b981; font-weight: 700;">$2.4B</p>
-                                            <p style="margin: 5px 0 0 0; font-size: 13px; color: #94a3b8;">Market Value</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #0f172a; padding: 30px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #64748b;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('Welcome to {app_name}! 🎉', 'h1', 'center', '#635bff', '32px'),
+            $this->spacer('20px'),
+            $this->text('Hi <strong>{first_name}</strong>,', 'center'),
+            $this->spacer('10px'),
+            $this->text('We\'re thrilled to have you on board! You\'ve just joined a community of thousands of users who are transforming the way they work.', 'center'),
+            $this->spacer('30px'),
+            $this->heading('What\'s Next?', 'h2', 'center', '#333333', '24px'),
+            $this->spacer('15px'),
+            $this->listBlock([
+                'Complete your profile setup',
+                'Explore our features and tools',
+                'Connect with other members',
+                'Check out our help center',
+            ]),
+            $this->spacer('30px'),
+            $this->button('Get Started Now', '{dashboard_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->text('Need help? Our support team is always here for you.', 'center', '#888888', '14px'),
+            $this->spacer('30px'),
+            $this->divider(),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getCompanyNewsletter(): string
+    private function getWelcomeWithVideoBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
-                    <tr>
-                        <td style="padding: 40px; background: #635bff;">
-                            <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 36px; font-weight: 700;">Company Update</h1>
-                            <p style="color: #ffffff; margin: 0; font-size: 18px; opacity: 0.9;">{month} {year}</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px;">
-                            <p style="font-size: 16px; color: #333; margin: 0 0 30px 0; line-height: 1.6;">
-                                Dear Team,
-                            </p>
-
-                            <h2 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 24px; font-weight: 700;">📢 Company News</h2>
-                            <p style="font-size: 15px; color: #666; margin: 0 0 25px 0; line-height: 1.8;">
-                                We're excited to share some major updates from this month. Our team has achieved remarkable milestones and we're proud of everyone's contributions.
-                            </p>
-
-                            <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 25px 0;">
-                                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1e40af;">🎉 Major Achievement</h3>
-                                <p style="margin: 0; font-size: 15px; color: #1e3a8a; line-height: 1.6;">We've reached 10,000 customers and secured $50M in Series B funding!</p>
-                            </div>
-
-                            <h2 style="color: #1a1a1a; margin: 30px 0 15px 0; font-size: 24px; font-weight: 700;">👥 Team Updates</h2>
-                            <ul style="font-size: 15px; color: #666; line-height: 2; padding-left: 20px;">
-                                <li>Welcome to our 5 new team members in Engineering</li>
-                                <li>Sarah Johnson promoted to VP of Sales</li>
-                                <li>New office opening in Austin, Texas</li>
-                            </ul>
-
-                            <h2 style="color: #1a1a1a; margin: 30px 0 15px 0; font-size: 24px; font-weight: 700;">🚀 Product Updates</h2>
-                            <p style="font-size: 15px; color: #666; margin: 0 0 15px 0; line-height: 1.8;">
-                                This month we launched three major features based on your feedback:
-                            </p>
-                            <ul style="font-size: 15px; color: #666; line-height: 2; padding-left: 20px; margin: 0 0 25px 0;">
-                                <li>Advanced Analytics Dashboard</li>
-                                <li>Mobile App Version 2.0</li>
-                                <li>API Integration Platform</li>
-                            </ul>
-
-                            <div style="background-color: #fef3c7; border-radius: 8px; padding: 25px; margin: 30px 0;">
-                                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #92400e;">📅 Upcoming Events</h3>
-                                <p style="margin: 0; font-size: 15px; color: #92400e; line-height: 1.8;">
-                                    • Team Building Day - Dec 15<br>
-                                    • Holiday Party - Dec 20<br>
-                                    • Year-End All-Hands - Dec 22
-                                </p>
-                            </div>
-
-                            <p style="font-size: 15px; color: #666; margin: 30px 0 0 0; line-height: 1.8;">
-                                Thank you for your continued dedication and hard work!<br><br>
-                                Best regards,<br>
-                                <strong>Leadership Team</strong>
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. Internal Communication
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('Welcome, {first_name}! 👋', 'h1', 'center', '#333333', '32px'),
+            $this->spacer('20px'),
+            $this->text('We\'ve prepared a quick video to help you get started with {app_name}. Watch it to discover all the amazing features waiting for you!', 'center'),
+            $this->spacer('30px'),
+            $this->video('https://via.placeholder.com/600x340/635bff/ffffff?text=Welcome+Video', 'https://www.youtube.com/watch?v=example', 'Welcome Video'),
+            $this->spacer('30px'),
+            $this->heading('Ready to dive in?', 'h2', 'center', '#333333', '24px'),
+            $this->text('Click the button below to access your dashboard and start exploring.', 'center'),
+            $this->spacer('20px'),
+            $this->button('Go to Dashboard', '{dashboard_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getTipsNewsletter(): string
+    private function getMinimalistWelcomeBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #fffbeb;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fffbeb; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <tr>
-                        <td style="padding: 40px; text-align: center; background-color: #fbbf24; border-radius: 12px 12px 0 0;">
-                            <span style="font-size: 48px;">💡</span>
-                            <h1 style="color: #ffffff; margin: 15px 0 5px 0; font-size: 32px; font-weight: 700;">Weekly Tips</h1>
-                            <p style="color: #ffffff; margin: 0; font-size: 18px;">Master Topic</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px;">
-                            <p style="font-size: 16px; color: #333; margin: 0 0 30px 0; line-height: 1.6;">
-                                Hi {first_name},
-                            </p>
-
-                            <div style="background: #635bff; border-radius: 8px; padding: 25px; margin: 30px 0;">
-                                <h2 style="margin: 0 0 15px 0; font-size: 22px; color: #92400e; font-weight: 700;">Tip #1: Start with the Basics</h2>
-                                <p style="margin: 0; font-size: 15px; color: #78350f; line-height: 1.8;">
-                                    Before diving into advanced techniques, make sure you have a solid foundation. Understanding the fundamentals will make everything else easier.
-                                </p>
-                            </div>
-
-                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 25px; margin: 30px 0;">
-                                <h2 style="margin: 0 0 15px 0; font-size: 22px; color: #1a1a1a; font-weight: 700;">Tip #2: Practice Consistently</h2>
-                                <p style="margin: 0; font-size: 15px; color: #666; line-height: 1.8;">
-                                    Set aside 15 minutes daily for practice. Consistency beats intensity when building new skills.
-                                </p>
-                            </div>
-
-                            <div style="background: #635bff; border-radius: 8px; padding: 25px; margin: 30px 0;">
-                                <h2 style="margin: 0 0 15px 0; font-size: 22px; color: #92400e; font-weight: 700;">Tip #3: Learn from Others</h2>
-                                <p style="margin: 0; font-size: 15px; color: #78350f; line-height: 1.8;">
-                                    Join communities, follow experts, and don't be afraid to ask questions. Learning from others accelerates your progress.
-                                </p>
-                            </div>
-
-                            <div style="border: 2px dashed #fbbf24; border-radius: 8px; padding: 25px; margin: 30px 0; text-align: center;">
-                                <p style="margin: 0 0 15px 0; font-size: 16px; color: #92400e; font-weight: 600;">💪 Pro Tip of the Week</p>
-                                <p style="margin: 0; font-size: 15px; color: #78350f; line-height: 1.8;">
-                                    "Track your progress weekly. Small improvements compound into massive results over time!"
-                                </p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #fbbf24; color: #78350f; padding: 16px 40px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 700;">Get More Tips</a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center; border-radius: 0 0 12px 12px;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->spacer('40px'),
+            $this->heading('Welcome', 'h1', 'center', '#333333', '36px'),
+            $this->spacer('20px'),
+            $this->text('{first_name}, your account is ready.', 'center', '#666666', '18px'),
+            $this->spacer('40px'),
+            $this->button('Start Using {app_name}', '{dashboard_url}', '#333333'),
+            $this->spacer('40px'),
+            $this->divider('#e5e7eb', '1px', '60%'),
+            $this->spacer('20px'),
+            $this->text('Questions? Reply to this email.', 'center', '#999999', '14px'),
+            $this->spacer('40px'),
+        ];
     }
 
-    private function getWebinarInvitation(): string
+    private function getWelcomeChecklistBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px; overflow: hidden;">
-                    <tr>
-                        <td style="padding: 0;">
-                            <img src="https://placehold.co/600x300/3b82f6/ffffff?text=Webinar+Banner" alt="Webinar" style="width: 100%; height: auto; display: block;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px;">
-                            <div style="text-align: center; margin-bottom: 30px;">
-                                <span style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 8px 20px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase;">Free Webinar</span>
-                            </div>
-                            <h1 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 32px; font-weight: 700; text-align: center; line-height: 1.3;">You're Invited: Mastering Success in 2025</h1>
-                            <p style="font-size: 18px; color: #666; margin: 0 0 30px 0; text-align: center; line-height: 1.6;">
-                                Join us for an exclusive online session packed with insights and actionable strategies.
-                            </p>
-                            <div style="background-color: #f0f9ff; border-radius: 8px; padding: 30px; margin: 30px 0;">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="padding: 10px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #0369a1; font-weight: 600;">📅 Date:</p>
-                                            <p style="margin: 5px 0 0 0; font-size: 16px; color: #1e3a8a; font-weight: 700;">Thursday, December 15, 2025</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 10px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #0369a1; font-weight: 600;">⏰ Time:</p>
-                                            <p style="margin: 5px 0 0 0; font-size: 16px; color: #1e3a8a; font-weight: 700;">2:00 PM EST (60 minutes)</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 10px 0;">
-                                            <p style="margin: 0; font-size: 14px; color: #0369a1; font-weight: 600;">👤 Speaker:</p>
-                                            <p style="margin: 5px 0 0 0; font-size: 16px; color: #1e3a8a; font-weight: 700;">Jane Smith, Industry Expert</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <h3 style="margin: 30px 0 15px 0; font-size: 20px; color: #1a1a1a; font-weight: 700;">What You'll Learn:</h3>
-                            <ul style="font-size: 16px; color: #666; line-height: 2; padding-left: 20px;">
-                                <li>Key strategies for success in 2025</li>
-                                <li>Real-world case studies and examples</li>
-                                <li>Q&A with industry experts</li>
-                                <li>Exclusive resources and templates</li>
-                            </ul>
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 700; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);">Register Now - It's Free!</a>
-                                    </td>
-                                </tr>
-                            </table>
-                            <p style="font-size: 14px; color: #999; margin: 30px 0 0 0; text-align: center; line-height: 1.6;">
-                                Spots are limited. Reserve yours today!
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('Your Getting Started Guide', 'h1', 'center', '#333333', '28px'),
+            $this->spacer('20px'),
+            $this->text('Hi {first_name}! Here\'s your personalized checklist to make the most of {app_name}:', 'center'),
+            $this->spacer('30px'),
+            $this->listBlock([
+                '✅ Create your account - Done!',
+                '⬜ Complete your profile',
+                '⬜ Set up your preferences',
+                '⬜ Invite team members',
+                '⬜ Create your first project',
+            ], 'none'),
+            $this->spacer('30px'),
+            $this->button('Complete Your Profile', '{profile_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->quote('Pro tip: Users who complete their profile are 3x more likely to achieve their goals with {app_name}!'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getEventReminder(): string
+    private function getBoldWelcomeBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #fef3c7;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef3c7; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table width="550" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; border: 3px solid #f59e0b;">
-                    <tr>
-                        <td style="padding: 40px; text-align: center;">
-                            <div style="margin-bottom: 20px;">
-                                <span style="font-size: 64px;">⏰</span>
-                            </div>
-                            <h1 style="color: #92400e; margin: 0 0 10px 0; font-size: 28px; font-weight: 700; text-transform: uppercase;">Reminder!</h1>
-                            <p style="font-size: 18px; color: #78350f; margin: 0 0 30px 0; font-weight: 600;">Tomorrow: New Webinar on Best Practices</p>
-
-                            <div style="background: #635bff; border-radius: 12px; padding: 30px; margin: 30px 0;">
-                                <p style="color: #ffffff; margin: 0 0 15px 0; font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Event Starts In</p>
-                                <p style="color: #ffffff; margin: 0; font-size: 48px; font-weight: 900; line-height: 1;">24 HOURS</p>
-                            </div>
-
-                            <div style="background-color: #fffbeb; border-radius: 8px; padding: 25px; margin: 30px 0; text-align: left;">
-                                <p style="margin: 0 0 15px 0; font-size: 16px; color: #92400e; font-weight: 700;">📍 Event Details:</p>
-                                <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 15px; color: #78350f;">
-                                    <tr>
-                                        <td style="padding: 8px 0;"><strong>When:</strong></td>
-                                        <td style="padding: 8px 0;">Tomorrow at 10:00 AM</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;"><strong>Where:</strong></td>
-                                        <td style="padding: 8px 0;">Virtual Event Link</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px 0;"><strong>Duration:</strong></td>
-                                        <td style="padding: 8px 0;">90 minutes</td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #f59e0b; color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 700; text-transform: uppercase;">Add to Calendar</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="font-size: 14px; color: #92400e; margin: 30px 0 0 0; line-height: 1.6;">
-                                Don't forget! We're looking forward to seeing you there.
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('🚀 YOU\'RE IN!', 'h1', 'center', '#635bff', '40px'),
+            $this->spacer('20px'),
+            $this->heading('Welcome Aboard, {first_name}!', 'h2', 'center', '#333333', '24px'),
+            $this->spacer('20px'),
+            $this->text('Get ready for an amazing journey with {app_name}. We\'re excited to have you as part of our community!', 'center', '#666666', '18px'),
+            $this->spacer('40px'),
+            $this->button('LET\'S GO! 🎯', '{dashboard_url}', '#635bff'),
+            $this->spacer('40px'),
+            $this->social(['twitter' => '#', 'linkedin' => '#', 'instagram' => '#']),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getConferenceInvite(): string
+    // ========================================
+    // TEMPLATE BLOCKS - Marketing Templates
+    // ========================================
+
+    private function getFlashSaleBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #1a1a1a;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #1a1a1a; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px; overflow: hidden;">
-                    <tr>
-                        <td style="padding: 0; position: relative;">
-                            <img src="https://placehold.co/600x350/667eea/ffffff?text=Conference+2025" alt="Conference" style="width: 100%; height: auto; display: block;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 50px 40px;">
-                            <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 36px; font-weight: 700; line-height: 1.2;">Join Us at Conference 2025</h1>
-                            <p style="font-size: 18px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
-                                The industry's premier gathering of innovators, leaders, and visionaries.
-                            </p>
-
-                            <div style="background: #635bff; border-radius: 12px; padding: 35px; margin: 30px 0; text-align: center;">
-                                <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Save the Date</p>
-                                <p style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 900;">March 15-17, 2025</p>
-                                <p style="color: #ffffff; margin: 15px 0 0 0; font-size: 16px; opacity: 0.9;">San Francisco, CA</p>
-                            </div>
-
-                            <h3 style="margin: 35px 0 20px 0; font-size: 22px; color: #1a1a1a; font-weight: 700;">Conference Highlights:</h3>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
-                                <tr>
-                                    <td style="padding: 15px 0; vertical-align: top; width: 40px;">
-                                        <span style="font-size: 24px;">🎤</span>
-                                    </td>
-                                    <td style="padding: 15px 0; vertical-align: top;">
-                                        <h4 style="margin: 0 0 5px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">50+ Expert Speakers</h4>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">Industry leaders sharing insights and strategies</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 15px 0; vertical-align: top;">
-                                        <span style="font-size: 24px;">🤝</span>
-                                    </td>
-                                    <td style="padding: 15px 0; vertical-align: top;">
-                                        <h4 style="margin: 0 0 5px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Networking Opportunities</h4>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">Connect with 2,000+ professionals</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 15px 0; vertical-align: top;">
-                                        <span style="font-size: 24px;">🎯</span>
-                                    </td>
-                                    <td style="padding: 15px 0; vertical-align: top;">
-                                        <h4 style="margin: 0 0 5px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Hands-On Workshops</h4>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">Learn practical skills from experts</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 15px 0; vertical-align: top;">
-                                        <span style="font-size: 24px;">🎁</span>
-                                    </td>
-                                    <td style="padding: 15px 0; vertical-align: top;">
-                                        <h4 style="margin: 0 0 5px 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Exclusive Swag & Resources</h4>
-                                        <p style="margin: 0; font-size: 14px; color: #666; line-height: 1.6;">Take home valuable tools and materials</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0;">
-                                <p style="margin: 0; font-size: 15px; color: #1e40af; line-height: 1.8;">
-                                    <strong>Early Bird Special:</strong> Register by January 15 and save 30% on your ticket!
-                                </p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 35px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background: #635bff; color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 700; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Register Now</a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 30px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('⚡ FLASH SALE ⚡', 'h1', 'center', '#ff4757', '36px'),
+            $this->spacer('20px'),
+            $this->countdown('Offer Ends In'),
+            $this->spacer('30px'),
+            $this->heading('Up to 50% OFF Everything!', 'h2', 'center', '#333333', '28px'),
+            $this->spacer('20px'),
+            $this->text('Hey {first_name}, this is your chance to grab amazing deals. Don\'t wait - these prices won\'t last!', 'center'),
+            $this->spacer('30px'),
+            $this->button('SHOP NOW →', '{shop_url}', '#ff4757'),
+            $this->spacer('20px'),
+            $this->text('Use code: <strong>FLASH50</strong> at checkout', 'center', '#666666', '14px'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getVirtualEvent(): string
+    private function getProductLaunchBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #0f172a;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0f172a; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #1e293b; border-radius: 12px; border: 2px solid #3b82f6;">
-                    <tr>
-                        <td style="padding: 50px 40px; text-align: center;">
-                            <span style="font-size: 72px;">💻</span>
-                            <h1 style="color: #ffffff; margin: 20px 0 10px 0; font-size: 36px; font-weight: 700;">Virtual Event</h1>
-                            <h2 style="color: #3b82f6; margin: 0 0 30px 0; font-size: 28px; font-weight: 700;">Mastering Success in 2025</h2>
-
-                            <div style="background: #635bff; border-radius: 12px; padding: 30px; margin: 30px 0;">
-                                <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Join From Anywhere</p>
-                                <p style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600;">100% Online • Zero Travel Required</p>
-                            </div>
-
-                            <div style="background-color: #334155; border-radius: 8px; padding: 30px; margin: 30px 0; text-align: left;">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="padding: 12px 0; color: #94a3b8; font-size: 15px;">
-                                            📅 <strong style="color: #ffffff;">Date:</strong>
-                                        </td>
-                                        <td style="padding: 12px 0; text-align: right; color: #ffffff; font-size: 15px; font-weight: 600;">
-                                            December 20, 2025
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 12px 0; color: #94a3b8; font-size: 15px;">
-                                            ⏰ <strong style="color: #ffffff;">Time:</strong>
-                                        </td>
-                                        <td style="padding: 12px 0; text-align: right; color: #ffffff; font-size: 15px; font-weight: 600;">
-                                            3:00 PM EST
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 12px 0; color: #94a3b8; font-size: 15px;">
-                                            🌐 <strong style="color: #ffffff;">Platform:</strong>
-                                        </td>
-                                        <td style="padding: 12px 0; text-align: right; color: #ffffff; font-size: 15px; font-weight: 600;">
-                                            Zoom
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div style="text-align: left; margin: 30px 0;">
-                                <h3 style="color: #ffffff; margin: 0 0 15px 0; font-size: 20px; font-weight: 700;">What's Included:</h3>
-                                <p style="color: #cbd5e1; margin: 0; font-size: 15px; line-height: 2;">
-                                    ✓ Live interactive sessions<br>
-                                    ✓ Q&A with speakers<br>
-                                    ✓ Downloadable resources<br>
-                                    ✓ Recording access for 30 days<br>
-                                    ✓ Digital certificate of attendance
-                                </p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 20px 60px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 700; text-transform: uppercase; box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);">Register Now</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="color: #94a3b8; margin: 30px 0 0 0; font-size: 14px; line-height: 1.6;">
-                                Limited spots available. Secure your spot today!
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #0f172a; padding: 25px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #64748b;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('Introducing Something Amazing', 'h1', 'center', '#333333', '32px'),
+            $this->spacer('20px'),
+            $this->image('https://via.placeholder.com/600x300/635bff/ffffff?text=New+Product', 'New Product Launch'),
+            $this->spacer('30px'),
+            $this->heading('Mastering Success in 2025', 'h2', 'center', '#635bff', '24px'),
+            $this->spacer('15px'),
+            $this->text('We\'ve been working hard on something special, and today we\'re excited to share it with you. This is not just another product – it\'s a game-changer.', 'center'),
+            $this->spacer('30px'),
+            $this->listBlock([
+                'Revolutionary features you\'ve never seen before',
+                'Designed with your feedback in mind',
+                'Available at an exclusive launch price',
+            ]),
+            $this->spacer('30px'),
+            $this->button('Learn More', '{product_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getEventThankYou(): string
+    private function getLimitedOfferBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
-                    <tr>
-                        <td style="padding: 50px 40px; text-align: center;">
-                            <span style="font-size: 72px;">🎉</span>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 32px; font-weight: 700;">Thank You for Attending!</h1>
-                            <p style="font-size: 18px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
-                                We hope you enjoyed the event "Mastering Success in 2025". Your participation made it special!
-                            </p>
-                            <div style="background-color: #f0f9ff; border-radius: 12px; padding: 30px; margin: 30px 0;">
-                                <h2 style="color: #1e40af; margin: 0 0 20px 0; font-size: 22px; font-weight: 700;">Event Resources</h2>
-                                <p style="margin: 15px 0; font-size: 16px;"><a href="#" style="color: #3b82f6; text-decoration: none; font-weight: 600;">📊 Download Presentation Slides</a></p>
-                                <p style="margin: 15px 0; font-size: 16px;"><a href="#" style="color: #3b82f6; text-decoration: none; font-weight: 600;">🎥 Watch Event Recording</a></p>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">© {year} {app_name}. All rights reserved.</p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('🔥 Exclusive Offer for You', 'h1', 'center', '#333333', '32px'),
+            $this->spacer('20px'),
+            $this->text('{first_name}, as a valued member, you\'re getting early access to our best deal of the year.', 'center'),
+            $this->spacer('30px'),
+            $this->heading('40% OFF', 'h1', 'center', '#635bff', '48px'),
+            $this->text('Your Exclusive Discount', 'center', '#666666'),
+            $this->spacer('30px'),
+            $this->countdown('This Offer Expires In'),
+            $this->spacer('30px'),
+            $this->button('Claim Your Discount', '{offer_url}', '#635bff'),
+            $this->spacer('20px'),
+            $this->text('*Limited to the first 100 customers. Cannot be combined with other offers.', 'center', '#999999', '12px'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getCartAbandonment(): string
+    private function getBlackFridayBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
-                    <tr>
-                        <td style="padding: 40px; text-align: center;">
-                            <span style="font-size: 72px;">🛒</span>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 32px; font-weight: 700;">{first_name}, You Left Something Behind!</h1>
-                            <p style="font-size: 18px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
-                                The items in your cart are waiting for you. Complete your purchase before they're gone!
-                            </p>
-
-                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 30px; margin: 30px 0;">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td width="100" style="vertical-align: top;">
-                                            <img src="https://placehold.co/100x100/e5e7eb/999999?text=Product" alt="Product" style="width: 100px; height: 100px; border-radius: 8px;">
-                                        </td>
-                                        <td style="padding-left: 20px; vertical-align: top; text-align: left;">
-                                            <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Product Name</h3>
-                                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">Size: Medium, Color: Blue</p>
-                                            <p style="margin: 0; font-size: 20px; color: #1a1a1a; font-weight: 700;">$49.99</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div style="background: #635bff; border-radius: 12px; padding: 25px; margin: 30px 0;">
-                                <p style="color: #ffffff; margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">🎁 SPECIAL OFFER</p>
-                                <p style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">Complete Your Order & Get 10% Off!</p>
-                                <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Use code: <strong>COMEBACK10</strong></p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 700; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);">Complete My Purchase</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="border-top: 1px solid #e5e7eb; padding-top: 30px; margin-top: 30px;">
-                                <p style="font-size: 14px; color: #666; margin: 0; line-height: 1.6;">
-                                    <strong>Need help?</strong> Our customer service team is here for you 24/7.<br>
-                                    <a href="#" style="color: #3b82f6; text-decoration: none;">Contact Support</a>
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('BLACK FRIDAY', 'h1', 'center', '#ffffff', '48px'),
+            $this->heading('Up to 70% OFF!', 'h2', 'center', '#ffd700', '32px'),
+            $this->spacer('30px'),
+            $this->text('Our biggest sale of the year is HERE! Don\'t miss out on incredible savings across all products.', 'center', '#ffffff'),
+            $this->spacer('30px'),
+            $this->button('SHOP BLACK FRIDAY', '{shop_url}', '#ffd700', '#000000'),
+            $this->spacer('30px'),
+            $this->countdown('Sale Ends In'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getProductRecommendation(): string
+    private function getCyberMondayBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
-                    <tr>
-                        <td style="padding: 40px;">
-                            <h1 style="color: #1a1a1a; margin: 0 0 15px 0; font-size: 32px; font-weight: 700;">Picked Just For You, {first_name}</h1>
-                            <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
-                                Based on your interests, we think you'll love these products.
-                            </p>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td width="48%" style="vertical-align: top; padding-right: 2%;">
-                                        <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-                                            <img src="https://placehold.co/280x280/667eea/ffffff?text=Product+1" alt="Product" style="width: 100%; height: auto; display: block;">
-                                            <div style="padding: 20px;">
-                                                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Premium Headphones</h3>
-                                                <p style="margin: 0 0 15px 0; font-size: 14px; color: #666; line-height: 1.6;">Wireless, noise-cancelling, 30hr battery</p>
-                                                <p style="margin: 0 0 15px 0; font-size: 22px; color: #1a1a1a; font-weight: 700;">$199.99</p>
-                                                <a href="#" style="display: block; background-color: #3b82f6; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; text-align: center;">View Product</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td width="48%" style="vertical-align: top; padding-left: 2%;">
-                                        <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-                                            <img src="https://placehold.co/280x280/764ba2/ffffff?text=Product+2" alt="Product" style="width: 100%; height: auto; display: block;">
-                                            <div style="padding: 20px;">
-                                                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Smart Watch Pro</h3>
-                                                <p style="margin: 0 0 15px 0; font-size: 14px; color: #666; line-height: 1.6;">Fitness tracking, GPS, waterproof</p>
-                                                <p style="margin: 0 0 15px 0; font-size: 22px; color: #1a1a1a; font-weight: 700;">$349.99</p>
-                                                <a href="#" style="display: block; background-color: #3b82f6; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; text-align: center;">View Product</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td width="48%" style="vertical-align: top; padding-right: 2%;">
-                                        <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-                                            <img src="https://placehold.co/280x280/10b981/ffffff?text=Product+3" alt="Product" style="width: 100%; height: auto; display: block;">
-                                            <div style="padding: 20px;">
-                                                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Laptop Stand</h3>
-                                                <p style="margin: 0 0 15px 0; font-size: 14px; color: #666; line-height: 1.6;">Ergonomic, adjustable, aluminum</p>
-                                                <p style="margin: 0 0 15px 0; font-size: 22px; color: #1a1a1a; font-weight: 700;">$79.99</p>
-                                                <a href="#" style="display: block; background-color: #3b82f6; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; text-align: center;">View Product</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td width="48%" style="vertical-align: top; padding-left: 2%;">
-                                        <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-                                            <img src="https://placehold.co/280x280/f59e0b/ffffff?text=Product+4" alt="Product" style="width: 100%; height: auto; display: block;">
-                                            <div style="padding: 20px;">
-                                                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Wireless Charger</h3>
-                                                <p style="margin: 0 0 15px 0; font-size: 14px; color: #666; line-height: 1.6;">Fast charging, sleek design</p>
-                                                <p style="margin: 0 0 15px 0; font-size: 22px; color: #1a1a1a; font-weight: 700;">$39.99</p>
-                                                <a href="#" style="display: block; background-color: #3b82f6; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; text-align: center;">View Product</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="text-align: center; margin: 40px 0 20px 0;">
-                                <a href="#" style="color: #3b82f6; text-decoration: none; font-size: 16px; font-weight: 600;">Browse All Products →</a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('CYBER MONDAY', 'h1', 'center', '#00d9ff', '48px'),
+            $this->spacer('20px'),
+            $this->heading('Deals Start NOW!', 'h2', 'center', '#333333', '28px'),
+            $this->spacer('20px'),
+            $this->text('The biggest online shopping day is here. Score massive discounts on everything you love!', 'center'),
+            $this->spacer('30px'),
+            $this->button('START SHOPPING', '{shop_url}', '#00d9ff', '#000000'),
+            $this->spacer('30px'),
+            $this->countdown('Cyber Monday Ends In'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getBackInStock(): string
+    // ========================================
+    // TEMPLATE BLOCKS - Transactional Templates
+    // ========================================
+
+    private function getOrderConfirmationBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #ecfdf5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ecfdf5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px; background-color: #ffffff; border-radius: 8px; border: 2px solid #10b981;">
-                    <tr>
-                        <td style="padding: 40px; text-align: center;">
-                            <div style="margin-bottom: 20px;">
-                                <span style="display: inline-block; background-color: #10b981; color: #ffffff; padding: 10px 25px; border-radius: 25px; font-size: 14px; font-weight: 700; text-transform: uppercase;">Back in Stock</span>
-                            </div>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 32px; font-weight: 700;">Mastering Success in 2025 is Back!</h1>
-                            <p style="font-size: 18px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
-                                Great news! The item you've been waiting for is now available.
-                            </p>
-
-                            <div style="margin: 30px 0;">
-                                <img src="https://placehold.co/400x400/10b981/ffffff?text=Product+Image" alt="Product" style="max-width: 400px; width: 100%; height: auto; border-radius: 8px;">
-                            </div>
-
-                            <div style="background-color: #f0fdf4; border-radius: 8px; padding: 25px; margin: 30px 0; text-align: left;">
-                                <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #1a1a1a; font-weight: 700;">Mastering Success in 2025</h2>
-                                <p style="margin: 0 0 15px 0; font-size: 15px; color: #666; line-height: 1.8;">
-                                    This popular item sold out quickly, but it's back and ready to ship. Don't miss out this time!
-                                </p>
-                                <div style="display: flex; align-items: center; margin-top: 20px;">
-                                    <p style="margin: 0; font-size: 32px; color: #1a1a1a; font-weight: 700;">$149.99</p>
-                                </div>
-                            </div>
-
-                            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0; text-align: left;">
-                                <p style="margin: 0; font-size: 15px; color: #92400e; line-height: 1.8;">
-                                    ⚡ <strong>Limited Stock Available</strong><br>
-                                    This item is in high demand. Order now to avoid missing out again!
-                                </p>
-                            </div>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #10b981; color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 700; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">Shop Now</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="font-size: 14px; color: #666; margin: 30px 0 0 0; line-height: 1.6;">
-                                🚚 Free shipping on orders over $50<br>
-                                ✓ 30-day money-back guarantee
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('Order Confirmed! ✓', 'h1', 'center', '#22c55e', '32px'),
+            $this->spacer('20px'),
+            $this->text('Thank you for your order! We\'re getting it ready for you.', 'center'),
+            $this->spacer('30px'),
+            $this->heading('Order #1010123', 'h2', 'left', '#333333', '20px'),
+            $this->divider(),
+            $this->table(
+                ['Product', 'Qty', 'Price'],
+                [
+                    ['Product Name 1', '2', '$29.99'],
+                    ['Product Name 2', '1', '$49.99'],
+                    ['Shipping', '', '$5.99'],
+                    ['<strong>Total</strong>', '', '<strong>$115.96</strong>'],
+                ]
+            ),
+            $this->spacer('30px'),
+            $this->heading('Shipping Address', 'h3', 'left', '#333333', '18px'),
+            $this->text('{customer_name}<br>{shipping_address}<br>{shipping_city}, {shipping_zip}', 'left', '#666666', '14px'),
+            $this->spacer('30px'),
+            $this->button('Track Your Order', '{tracking_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getReviewRequest(): string
+    private function getShippingNotificationBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 8px;">
-                    <tr>
-                        <td style="padding: 40px; text-align: center;">
-                            <span style="font-size: 64px;">⭐</span>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 15px 0; font-size: 28px; font-weight: 700;">How Was Your Purchase, {first_name}?</h1>
-                            <p style="font-size: 16px; color: #666; margin: 0 0 30px 0; line-height: 1.6;">
-                                We'd love to hear about your experience with your recent order!
-                            </p>
-
-                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 25px; margin: 30px 0;">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td width="100" style="vertical-align: middle;">
-                                            <img src="https://placehold.co/100x100/e5e7eb/999999?text=Product" alt="Product" style="width: 100px; height: 100px; border-radius: 8px;">
-                                        </td>
-                                        <td style="padding-left: 20px; vertical-align: middle; text-align: left;">
-                                            <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #1a1a1a; font-weight: 600;">Product Name</h3>
-                                            <p style="margin: 0; font-size: 14px; color: #666;">Purchased on Nov 1, 2025</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <h2 style="color: #1a1a1a; margin: 30px 0 20px 0; font-size: 22px; font-weight: 700;">Rate Your Experience</h2>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; margin: 0 5px; text-decoration: none; font-size: 40px;">⭐</a>
-                                        <a href="#" style="display: inline-block; margin: 0 5px; text-decoration: none; font-size: 40px;">⭐</a>
-                                        <a href="#" style="display: inline-block; margin: 0 5px; text-decoration: none; font-size: 40px;">⭐</a>
-                                        <a href="#" style="display: inline-block; margin: 0 5px; text-decoration: none; font-size: 40px;">⭐</a>
-                                        <a href="#" style="display: inline-block; margin: 0 5px; text-decoration: none; font-size: 40px;">⭐</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 16px 50px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 700;">Write a Review</a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background-color: #fef3c7; border-radius: 8px; padding: 20px; margin: 30px 0;">
-                                <p style="margin: 0; font-size: 15px; color: #92400e; line-height: 1.8;">
-                                    <strong>🎁 Get 10% Off Your Next Order</strong><br>
-                                    Leave a review and we'll send you a discount code!
-                                </p>
-                            </div>
-
-                            <p style="font-size: 14px; color: #999; margin: 30px 0 0 0; line-height: 1.6;">
-                                Your feedback helps other customers make informed decisions<br>
-                                and helps us improve our products and service.
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                © {year} {app_name}. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('Your Order Has Shipped! 📦', 'h1', 'center', '#635bff', '32px'),
+            $this->spacer('20px'),
+            $this->text('Great news! Your order is on its way. Here are the details:', 'center'),
+            $this->spacer('30px'),
+            $this->text('<strong>Tracking Number:</strong> {tracking_number}', 'center'),
+            $this->text('<strong>Carrier:</strong> {carrier_name}', 'center'),
+            $this->text('<strong>Estimated Delivery:</strong> {delivery_date}', 'center'),
+            $this->spacer('30px'),
+            $this->button('Track Package', '{tracking_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->divider(),
+            $this->text('If you have any questions about your delivery, please don\'t hesitate to contact us.', 'center', '#666666', '14px'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
-    private function getBirthdayDiscount(): string
+    private function getInvoiceBlocks(): array
     {
-        return <<<'HTML'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #635bff;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table cellpadding="0" cellspacing="0" style="max-width:600px;background-color: #ffffff; border-radius: 12px;">
-                    <tr>
-                        <td style="padding: 50px 40px; text-align: center;">
-                            <span style="font-size: 80px;">🎂</span>
-                            <h1 style="color: #1a1a1a; margin: 20px 0 10px 0; font-size: 36px; font-weight: 700;">Happy Birthday {first_name}!</h1>
-                            <p style="font-size: 20px; color: #666; margin: 0 0 30px 0;">
-                                Wishing you an amazing day filled with joy!
-                            </p>
-                            <div style="background: #635bff; border-radius: 16px; padding: 40px; margin: 30px 0;">
-                                <p style="color: #ffffff; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Your Birthday Gift</p>
-                                <p style="color: #ffffff; margin: 0; font-size: 64px; font-weight: 900; line-height: 1;">25% OFF</p>
-                                <p style="color: #ffffff; margin: 15px 0 0 0; font-size: 16px;">On your entire purchase!</p>
-                            </div>
-                            <div style="background-color: #fffbeb; border: 2px dashed #f59e0b; border-radius: 8px; padding: 25px; margin: 30px 0;">
-                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #92400e; font-weight: 600; text-transform: uppercase;">Your Birthday Code</p>
-                                <p style="margin: 0; font-size: 32px; color: #f59e0b; font-weight: 900; letter-spacing: 3px;">BDAY25</p>
-                                <p style="margin: 15px 0 0 0; font-size: 13px; color: #92400e;">Valid for 7 days</p>
-                            </div>
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="#" style="display: inline-block; background-color: #667eea; color: #ffffff; padding: 18px 50px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: 700;">Celebrate with Shopping</a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #f9fafb; padding: 25px 40px; text-align: center;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">© {year} {app_name}. All rights reserved.</p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
+        return [
+            $this->heading('Invoice', 'h1', 'center', '#333333', '32px'),
+            $this->text('Invoice #1010123', 'center', '#666666'),
+            $this->spacer('30px'),
+            $this->divider(),
+            $this->text('<strong>Bill To:</strong>', 'left'),
+            $this->text('{customer_name}<br>{customer_email}<br>{customer_address}', 'left', '#666666', '14px'),
+            $this->spacer('20px'),
+            $this->text('<strong>Date:</strong> {invoice_date}', 'left', '#666666', '14px'),
+            $this->text('<strong>Due Date:</strong> {due_date}', 'left', '#666666', '14px'),
+            $this->spacer('20px'),
+            $this->table(
+                ['Description', 'Qty', 'Amount'],
+                [
+                    ['Service/Product 1', '1', '$99.00'],
+                    ['Service/Product 2', '2', '$150.00'],
+                    ['<strong>Subtotal</strong>', '', '$249.00'],
+                    ['Tax (10%)', '', '$24.90'],
+                    ['<strong>Total Due</strong>', '', '<strong>$273.90</strong>'],
+                ]
+            ),
+            $this->spacer('30px'),
+            $this->button('Pay Invoice', '{payment_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
     }
 
+    private function getReceiptBlocks(): array
+    {
+        return [
+            $this->heading('Payment Receipt', 'h1', 'center', '#22c55e', '32px'),
+            $this->spacer('20px'),
+            $this->text('Thank you for your payment! Here\'s your receipt.', 'center'),
+            $this->spacer('30px'),
+            $this->text('<strong>Receipt Number:</strong> {receipt_number}', 'center'),
+            $this->text('<strong>Date:</strong> {payment_date}', 'center'),
+            $this->text('<strong>Amount Paid:</strong> ${amount}', 'center', '#22c55e', '24px'),
+            $this->spacer('30px'),
+            $this->divider(),
+            $this->text('<strong>Payment Method:</strong> {payment_method}', 'left', '#666666', '14px'),
+            $this->text('<strong>Transaction ID:</strong> {transaction_id}', 'left', '#666666', '14px'),
+            $this->spacer('30px'),
+            $this->button('Download Receipt', '{receipt_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    // ========================================
+    // TEMPLATE BLOCKS - Newsletter Templates
+    // ========================================
+
+    private function getWeeklyDigestBlocks(): array
+    {
+        return [
+            $this->heading('📰 Your Weekly Digest', 'h1', 'center', '#333333', '32px'),
+            $this->text('{date}', 'center', '#666666'),
+            $this->spacer('30px'),
+            $this->text('Here\'s what happened this week:', 'center'),
+            $this->spacer('20px'),
+            $this->heading('Featured Story', 'h2', 'left', '#635bff', '22px'),
+            $this->text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'),
+            $this->button('Read More', '#', '#635bff', '#ffffff', 'left'),
+            $this->spacer('30px'),
+            $this->divider(),
+            $this->heading('More Headlines', 'h2', 'left', '#333333', '22px'),
+            $this->listBlock([
+                'Story headline one goes here',
+                'Story headline two goes here',
+                'Story headline three goes here',
+            ]),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getBlogRoundupBlocks(): array
+    {
+        return [
+            $this->heading('Top Articles This Month', 'h1', 'center', '#333333', '32px'),
+            $this->spacer('20px'),
+            $this->text('Catch up on the best content from our blog:', 'center'),
+            $this->spacer('30px'),
+            $this->heading('1. Article Title One', 'h3', 'left', '#635bff', '20px'),
+            $this->text('A brief description of the article content goes here. This gives readers a preview of what to expect.'),
+            $this->spacer('10px'),
+            $this->heading('2. Article Title Two', 'h3', 'left', '#635bff', '20px'),
+            $this->text('A brief description of the article content goes here. This gives readers a preview of what to expect.'),
+            $this->spacer('10px'),
+            $this->heading('3. Article Title Three', 'h3', 'left', '#635bff', '20px'),
+            $this->text('A brief description of the article content goes here. This gives readers a preview of what to expect.'),
+            $this->spacer('30px'),
+            $this->button('View All Articles', '{blog_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getIndustryNewsBlocks(): array
+    {
+        return [
+            $this->heading('Industry Insights', 'h1', 'center', '#333333', '32px'),
+            $this->text('Your weekly dose of industry news and trends', 'center', '#666666'),
+            $this->spacer('30px'),
+            $this->quote('The industry is evolving rapidly. Here\'s what you need to know to stay ahead of the curve.', 'Industry Expert', 'CEO, Leading Company'),
+            $this->spacer('30px'),
+            $this->heading('Key Trends This Week', 'h2', 'left', '#333333', '22px'),
+            $this->listBlock([
+                'Trend 1: Brief description of the trend',
+                'Trend 2: Brief description of the trend',
+                'Trend 3: Brief description of the trend',
+            ]),
+            $this->spacer('30px'),
+            $this->button('Read Full Report', '{report_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getCompanyNewsletterBlocks(): array
+    {
+        return [
+            $this->heading('Company News & Updates', 'h1', 'center', '#333333', '32px'),
+            $this->text('{month} Edition', 'center', '#666666'),
+            $this->spacer('30px'),
+            $this->heading('CEO Message', 'h2', 'left', '#635bff', '22px'),
+            $this->text('Dear Team, I\'m excited to share some updates about what\'s been happening at our company this month...'),
+            $this->spacer('30px'),
+            $this->heading('Company Highlights', 'h2', 'left', '#635bff', '22px'),
+            $this->listBlock([
+                'We hit a major milestone this month',
+                'New team members joined our family',
+                'Exciting partnership announcement coming soon',
+            ]),
+            $this->spacer('30px'),
+            $this->heading('Upcoming Events', 'h2', 'left', '#635bff', '22px'),
+            $this->text('• Team Building Event - {event_date}<br>• Quarterly Review - Next Friday<br>• Holiday Party - Coming Soon'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getTipsNewsletterBlocks(): array
+    {
+        return [
+            $this->heading('💡 Weekly Tips', 'h1', 'center', '#333333', '32px'),
+            $this->text('Boost Your Productivity', 'center', '#666666'),
+            $this->spacer('30px'),
+            $this->heading('Tip #1: Start Your Day Right', 'h2', 'left', '#635bff', '20px'),
+            $this->text('Begin each morning with a clear plan. Write down your top 3 priorities before checking email.'),
+            $this->spacer('20px'),
+            $this->heading('Tip #2: Take Regular Breaks', 'h2', 'left', '#635bff', '20px'),
+            $this->text('Use the Pomodoro technique: 25 minutes of focused work followed by a 5-minute break.'),
+            $this->spacer('20px'),
+            $this->heading('Tip #3: Minimize Distractions', 'h2', 'left', '#635bff', '20px'),
+            $this->text('Turn off notifications during deep work sessions. Your focus is your superpower.'),
+            $this->spacer('30px'),
+            $this->quote('Productivity is never an accident. It is always the result of a commitment to excellence.', 'Paul J. Meyer'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    // ========================================
+    // TEMPLATE BLOCKS - Event Templates
+    // ========================================
+
+    private function getWebinarInvitationBlocks(): array
+    {
+        return [
+            $this->heading('You\'re Invited! 🎓', 'h1', 'center', '#635bff', '32px'),
+            $this->spacer('20px'),
+            $this->heading('Mastering Success in {year}', 'h2', 'center', '#333333', '28px'),
+            $this->text('A Free Live Webinar', 'center', '#666666'),
+            $this->spacer('30px'),
+            $this->image('https://via.placeholder.com/600x300/635bff/ffffff?text=Webinar+Image', 'Webinar'),
+            $this->spacer('30px'),
+            $this->text('<strong>Date:</strong> {event_date}', 'center'),
+            $this->text('<strong>Time:</strong> {event_time}', 'center'),
+            $this->text('<strong>Duration:</strong> 60 minutes', 'center'),
+            $this->spacer('30px'),
+            $this->heading('What You\'ll Learn:', 'h3', 'left', '#333333', '20px'),
+            $this->listBlock([
+                'Key strategies for success',
+                'Practical tips you can apply immediately',
+                'Live Q&A with industry experts',
+            ]),
+            $this->spacer('30px'),
+            $this->button('Reserve Your Spot', '{registration_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getEventReminderBlocks(): array
+    {
+        return [
+            $this->heading('⏰ Reminder: Tomorrow!', 'h1', 'center', '#ff4757', '32px'),
+            $this->spacer('20px'),
+            $this->text('Don\'t forget! Mastering Success in {year} starts tomorrow at {time}.', 'center'),
+            $this->spacer('30px'),
+            $this->countdown('Event Starts In'),
+            $this->spacer('30px'),
+            $this->text('<strong>Add to Calendar:</strong>', 'center'),
+            $this->text('Google Calendar | Outlook | iCal', 'center', '#635bff'),
+            $this->spacer('30px'),
+            $this->button('Join Event', '{event_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->quote('Pro tip: Join 5 minutes early to test your audio and video!'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getConferenceInviteBlocks(): array
+    {
+        return [
+            $this->heading('Annual Conference {year}', 'h1', 'center', '#333333', '36px'),
+            $this->spacer('20px'),
+            $this->text('Join us for the biggest event of the year', 'center', '#666666', '18px'),
+            $this->spacer('30px'),
+            $this->image('https://via.placeholder.com/600x300/635bff/ffffff?text=Conference', 'Conference'),
+            $this->spacer('30px'),
+            $this->text('<strong>📅 Date:</strong> {conference_date}', 'center'),
+            $this->text('<strong>📍 Location:</strong> {conference_venue}', 'center'),
+            $this->spacer('30px'),
+            $this->heading('Featured Speakers', 'h2', 'center', '#333333', '24px'),
+            $this->text('Industry leaders sharing insights on the latest trends and innovations.', 'center'),
+            $this->spacer('30px'),
+            $this->button('Register Now - Early Bird Pricing', '{registration_url}', '#635bff'),
+            $this->spacer('20px'),
+            $this->text('Early bird pricing ends {early_bird_deadline}', 'center', '#ff4757', '14px'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getVirtualEventBlocks(): array
+    {
+        return [
+            $this->heading('🌐 Virtual Event', 'h1', 'center', '#635bff', '32px'),
+            $this->heading('Mastering Success in {year}', 'h2', 'center', '#333333', '28px'),
+            $this->spacer('20px'),
+            $this->text('Join us online from anywhere in the world!', 'center'),
+            $this->spacer('30px'),
+            $this->text('<strong>📅 Date:</strong> {event_date}', 'center'),
+            $this->text('<strong>⏰ Time:</strong> {event_time} (Your Local Time)', 'center'),
+            $this->text('<strong>💻 Platform:</strong> Zoom', 'center'),
+            $this->spacer('30px'),
+            $this->heading('Event Highlights:', 'h3', 'left', '#333333', '20px'),
+            $this->listBlock([
+                'Keynote presentations from industry experts',
+                'Interactive workshops and breakout sessions',
+                'Networking opportunities with attendees worldwide',
+                'Exclusive resources and materials',
+            ]),
+            $this->spacer('30px'),
+            $this->button('Register Free', '{registration_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getEventThankYouBlocks(): array
+    {
+        return [
+            $this->heading('Thank You for Attending! 🙏', 'h1', 'center', '#22c55e', '32px'),
+            $this->spacer('20px'),
+            $this->text('We hope you enjoyed Mastering Success in {year}. Your participation made the event a success!', 'center'),
+            $this->spacer('30px'),
+            $this->heading('What\'s Next?', 'h2', 'center', '#333333', '24px'),
+            $this->listBlock([
+                'Event recordings will be available within 48 hours',
+                'Presentation slides are ready for download',
+                'Certificate of attendance is attached',
+            ]),
+            $this->spacer('30px'),
+            $this->button('Access Event Resources', '{resources_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->heading('Share Your Feedback', 'h3', 'center', '#333333', '20px'),
+            $this->text('Help us improve! Take our quick 2-minute survey.', 'center'),
+            $this->button('Take Survey', '{survey_url}', '#333333', '#ffffff'),
+            $this->spacer('30px'),
+            $this->social(['twitter' => '#', 'linkedin' => '#']),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    // ========================================
+    // TEMPLATE BLOCKS - E-commerce Templates
+    // ========================================
+
+    private function getCartAbandonmentBlocks(): array
+    {
+        return [
+            $this->heading('You Left Something Behind! 🛒', 'h1', 'center', '#333333', '32px'),
+            $this->spacer('20px'),
+            $this->text('Hi {first_name}, we noticed you didn\'t complete your purchase. Your items are waiting for you!', 'center'),
+            $this->spacer('30px'),
+            $this->table(
+                ['Item', 'Price'],
+                [
+                    ['Product in Cart 1', '$49.99'],
+                    ['Product in Cart 2', '$29.99'],
+                ]
+            ),
+            $this->spacer('30px'),
+            $this->text('Complete your order now and get <strong>10% OFF</strong> with code: <strong>COMEBACK10</strong>', 'center', '#635bff'),
+            $this->spacer('30px'),
+            $this->button('Complete Purchase', '{cart_url}', '#635bff'),
+            $this->spacer('20px'),
+            $this->text('Need help? Reply to this email and we\'ll assist you.', 'center', '#666666', '14px'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getProductRecommendationBlocks(): array
+    {
+        return [
+            $this->heading('Picked Just for You', 'h1', 'center', '#333333', '32px'),
+            $this->spacer('20px'),
+            $this->text('Hi {first_name}, based on your browsing history, we think you\'ll love these:', 'center'),
+            $this->spacer('30px'),
+            $this->image('https://via.placeholder.com/600x200/f8fafc/333333?text=Product+Recommendations', 'Recommended Products'),
+            $this->spacer('30px'),
+            $this->heading('Top Picks for You', 'h2', 'left', '#333333', '22px'),
+            $this->listBlock([
+                'Product Recommendation 1 - $49.99',
+                'Product Recommendation 2 - $79.99',
+                'Product Recommendation 3 - $39.99',
+            ]),
+            $this->spacer('30px'),
+            $this->button('View All Recommendations', '{recommendations_url}', '#635bff'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getBackInStockBlocks(): array
+    {
+        return [
+            $this->heading('It\'s Back! 🎉', 'h1', 'center', '#22c55e', '32px'),
+            $this->spacer('20px'),
+            $this->text('Great news! The item you\'ve been waiting for is back in stock.', 'center'),
+            $this->spacer('30px'),
+            $this->image('https://via.placeholder.com/300x300/f8fafc/333333?text=Product+XYZ', 'Product XYZ'),
+            $this->spacer('20px'),
+            $this->heading('Product XYZ', 'h2', 'center', '#333333', '24px'),
+            $this->text('$99.99', 'center', '#635bff', '28px'),
+            $this->spacer('20px'),
+            $this->text('⚠️ Limited quantities available. Don\'t miss out this time!', 'center', '#ff4757'),
+            $this->spacer('30px'),
+            $this->button('Buy Now', '{product_url}', '#22c55e'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getReviewRequestBlocks(): array
+    {
+        return [
+            $this->heading('How Was Your Purchase?', 'h1', 'center', '#333333', '32px'),
+            $this->spacer('20px'),
+            $this->text('Hi {first_name}, we hope you\'re enjoying your recent purchase! We\'d love to hear what you think.', 'center'),
+            $this->spacer('30px'),
+            $this->image('https://via.placeholder.com/200x200/f8fafc/333333?text=Your+Product', 'Your Product'),
+            $this->spacer('20px'),
+            $this->text('⭐⭐⭐⭐⭐', 'center', '#fbbf24', '32px'),
+            $this->text('Click a star to rate your experience', 'center', '#666666', '14px'),
+            $this->spacer('30px'),
+            $this->button('Write a Review', '{review_url}', '#635bff'),
+            $this->spacer('20px'),
+            $this->text('Your feedback helps us improve and helps other customers make informed decisions.', 'center', '#666666', '14px'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
+
+    private function getBirthdayDiscountBlocks(): array
+    {
+        return [
+            $this->heading('🎂 Happy Birthday, {first_name}!', 'h1', 'center', '#ff69b4', '36px'),
+            $this->spacer('20px'),
+            $this->text('Wishing you an amazing day filled with joy and celebration!', 'center'),
+            $this->spacer('30px'),
+            $this->heading('Here\'s Your Gift!', 'h2', 'center', '#333333', '28px'),
+            $this->spacer('20px'),
+            $this->heading('25% OFF', 'h1', 'center', '#635bff', '56px'),
+            $this->text('Your Birthday Discount', 'center', '#666666'),
+            $this->spacer('30px'),
+            $this->text('Use code: <strong>BDAY25</strong> at checkout', 'center', '#333333', '18px'),
+            $this->spacer('30px'),
+            $this->button('Start Shopping 🎁', '{shop_url}', '#ff69b4'),
+            $this->spacer('20px'),
+            $this->text('Valid for the next 7 days. Enjoy your special day!', 'center', '#666666', '14px'),
+            $this->spacer('30px'),
+            $this->footer('{app_name}'),
+        ];
+    }
 }
