@@ -5,13 +5,14 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Enums\TemplateType;
+use App\Models\Setting;
 use App\Services\TemplateTypeRegistry;
 
 class EmailTemplateRequest extends FormRequest
 {
     public function authorize()
     {
-        return $this->user() && $this->user()->can('manage', \App\Models\Setting::class);
+        return $this->user() && $this->user()->can('manage', Setting::class);
     }
 
     public function rules()

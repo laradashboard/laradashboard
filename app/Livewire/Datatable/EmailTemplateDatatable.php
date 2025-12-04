@@ -7,6 +7,7 @@ namespace App\Livewire\Datatable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\EmailTemplate;
+use App\Models\Setting;
 use App\Services\TemplateTypeRegistry;
 use Spatie\QueryBuilder\QueryBuilder;
 use Illuminate\Support\Facades\Auth;
@@ -182,7 +183,7 @@ class EmailTemplateDatatable extends Datatable
         $emailTemplates = EmailTemplate::whereIn('id', $ids)->where('is_deleteable', true)->get();
         $deletedCount = 0;
         foreach ($emailTemplates as $emailTemplate) {
-            $this->authorize('manage', \App\Models\Setting::class);
+            $this->authorize('manage', Setting::class);
             $emailTemplate->delete();
             $deletedCount++;
         }
@@ -195,7 +196,7 @@ class EmailTemplateDatatable extends Datatable
         if (! $emailTemplate->is_deleteable) {
             return false;
         }
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
         return $emailTemplate->delete();
     }
 
