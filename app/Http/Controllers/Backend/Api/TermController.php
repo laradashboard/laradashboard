@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Backend\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Term\StoreTermRequest;
 use App\Http\Requests\Term\UpdateTermRequest;
+use App\Models\Term;
 use App\Services\Content\ContentService;
 use App\Services\PostService;
 use App\Services\TermService;
@@ -29,7 +30,7 @@ class TermController extends Controller
     #[ExcludeRouteFromDocs]
     public function store(StoreTermRequest $request, string $taxonomyName): JsonResponse
     {
-        $this->authorize('create', \App\Models\Term::class);
+        $this->authorize('create', Term::class);
 
         // Check if taxonomy exists
         $taxonomy = $this->termService->getTaxonomy($taxonomyName);

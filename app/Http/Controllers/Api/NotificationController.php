@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\NotificationRequest;
 use App\Http\Resources\NotificationResource;
 use App\Enums\ReceiverType;
+use App\Models\Setting;
 use App\Services\NotificationService;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
@@ -26,7 +27,7 @@ class NotificationController extends ApiController
     #[QueryParameter('search', description: 'Search term for filtering by name or description.', type: 'string', example: 'Password')]
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $filters = $request->only(['search', 'notification_type', 'receiver_type']);
         $perPage = (int) ($request->input('per_page') ?? config('settings.default_pagination', 10));
@@ -53,7 +54,7 @@ class NotificationController extends ApiController
      */
     public function store(NotificationRequest $request): JsonResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $data = $request->validated();
         $data['created_by'] = auth()->id();
@@ -75,7 +76,7 @@ class NotificationController extends ApiController
             return $this->errorResponse('Notification not found', 404);
         }
 
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         return $this->resourceResponse(new NotificationResource($notification->load(['emailTemplate'])), 'Notification retrieved successfully');
     }
@@ -90,7 +91,7 @@ class NotificationController extends ApiController
             return $this->errorResponse('Notification not found', 404);
         }
 
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $updated = $this->notificationService->updateNotification($notification, $request->validated());
 
@@ -109,7 +110,7 @@ class NotificationController extends ApiController
             return $this->errorResponse('Notification not found', 404);
         }
 
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $this->notificationService->deleteNotification($notification);
 
@@ -123,7 +124,7 @@ class NotificationController extends ApiController
      */
     public function getByType(string $type): JsonResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $notifications = $this->notificationService->getNotificationsByType($type);
 
@@ -135,7 +136,7 @@ class NotificationController extends ApiController
      */
     public function getByReceiverType(string $type): JsonResponse
     {
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $enumType = ReceiverType::tryFrom($type);
         if (! $enumType) {
