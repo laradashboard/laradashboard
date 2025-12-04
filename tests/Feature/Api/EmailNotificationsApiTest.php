@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Models\EmailTemplate;
 use App\Models\Notification;
+use App\Models\Role;
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\ApiTestUtils;
@@ -19,13 +21,13 @@ beforeEach(function () {
     $this->createRoles();
     $this->createPermissions();
 
-    $this->user = \App\Models\User::factory()->create();
-    $this->adminUser = \App\Models\User::factory()->create();
+    $this->user = User::factory()->create();
+    $this->adminUser = User::factory()->create();
 
     $this->assignPermissions();
 
-    if (class_exists(\App\Models\Role::class)) {
-        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'admin']);
+    if (class_exists(Role::class)) {
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $this->adminUser->assignRole($adminRole);
         // Ensure admin user has all permissions for settings
         $adminRole->givePermissionTo('settings.edit');

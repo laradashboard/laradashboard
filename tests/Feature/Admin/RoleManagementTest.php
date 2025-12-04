@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Services\RolesService;
 
 pest()->use(RefreshDatabase::class);
 
@@ -74,7 +75,7 @@ beforeEach(function () {
     // Add mock for roles create view
     View::composer('backend.pages.roles.create', function ($view) {
         $view->with([
-            'roleService' => app(\App\Services\RolesService::class),
+            'roleService' => app(RolesService::class),
             'all_permissions' => Permission::all(),
             'permission_groups' => Permission::groupBy('group_name')->get(),
             'breadcrumbs' => [
@@ -89,7 +90,7 @@ beforeEach(function () {
         // The role will be provided by the controller
         // We just need to add the other required variables
         $view->with([
-            'roleService' => app(\App\Services\RolesService::class),
+            'roleService' => app(RolesService::class),
             'all_permissions' => Permission::all(),
             'permission_groups' => Permission::groupBy('group_name')->get(),
             'breadcrumbs' => [
