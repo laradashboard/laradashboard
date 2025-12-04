@@ -3,6 +3,24 @@
  */
 
 /**
+ * Apply layout styles to a base style object, spreading only non-undefined values
+ * This is a convenience function to merge layout styles with block-specific styles
+ */
+export const applyLayoutStyles = (baseStyle, layoutStyles) => {
+    const styles = layoutStylesToCSS(layoutStyles || {});
+    const result = { ...baseStyle };
+
+    // Spread all layout styles, only if they have values
+    Object.entries(styles).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+            result[key] = value;
+        }
+    });
+
+    return result;
+};
+
+/**
  * Convert layout styles object to React inline CSS object
  */
 export const layoutStylesToCSS = (layoutStyles = {}) => {
@@ -65,6 +83,34 @@ export const layoutStylesToCSS = (layoutStyles = {}) => {
         if (textDecoration) styles.textDecoration = textDecoration;
     }
 
+    // Process border
+    if (layoutStyles.border) {
+        const { width = {}, style, color, radius = {} } = layoutStyles.border;
+        // Border width
+        if (width.top) styles.borderTopWidth = width.top;
+        if (width.right) styles.borderRightWidth = width.right;
+        if (width.bottom) styles.borderBottomWidth = width.bottom;
+        if (width.left) styles.borderLeftWidth = width.left;
+        // Border style
+        if (style) styles.borderStyle = style;
+        // Border color
+        if (color) styles.borderColor = color;
+        // Border radius
+        if (radius.topLeft) styles.borderTopLeftRadius = radius.topLeft;
+        if (radius.topRight) styles.borderTopRightRadius = radius.topRight;
+        if (radius.bottomLeft) styles.borderBottomLeftRadius = radius.bottomLeft;
+        if (radius.bottomRight) styles.borderBottomRightRadius = radius.bottomRight;
+    }
+
+    // Process box shadow
+    if (layoutStyles.boxShadow) {
+        const { x, y, blur, spread, color, inset } = layoutStyles.boxShadow;
+        if (x || y || blur || spread || color) {
+            const shadowValue = `${inset ? 'inset ' : ''}${x || '0px'} ${y || '0px'} ${blur || '0px'} ${spread || '0px'} ${color || 'rgba(0,0,0,0.1)'}`;
+            styles.boxShadow = shadowValue;
+        }
+    }
+
     return styles;
 };
 
@@ -125,6 +171,34 @@ export const layoutStylesToInlineCSS = (layoutStyles = {}) => {
         if (lineHeight) cssProperties.push(`line-height: ${lineHeight}`);
         if (letterSpacing) cssProperties.push(`letter-spacing: ${letterSpacing}`);
         if (textDecoration) cssProperties.push(`text-decoration: ${textDecoration}`);
+    }
+
+    // Process border
+    if (layoutStyles.border) {
+        const { width = {}, style, color, radius = {} } = layoutStyles.border;
+        // Border width
+        if (width.top) cssProperties.push(`border-top-width: ${width.top}`);
+        if (width.right) cssProperties.push(`border-right-width: ${width.right}`);
+        if (width.bottom) cssProperties.push(`border-bottom-width: ${width.bottom}`);
+        if (width.left) cssProperties.push(`border-left-width: ${width.left}`);
+        // Border style
+        if (style) cssProperties.push(`border-style: ${style}`);
+        // Border color
+        if (color) cssProperties.push(`border-color: ${color}`);
+        // Border radius
+        if (radius.topLeft) cssProperties.push(`border-top-left-radius: ${radius.topLeft}`);
+        if (radius.topRight) cssProperties.push(`border-top-right-radius: ${radius.topRight}`);
+        if (radius.bottomLeft) cssProperties.push(`border-bottom-left-radius: ${radius.bottomLeft}`);
+        if (radius.bottomRight) cssProperties.push(`border-bottom-right-radius: ${radius.bottomRight}`);
+    }
+
+    // Process box shadow
+    if (layoutStyles.boxShadow) {
+        const { x, y, blur, spread, color, inset } = layoutStyles.boxShadow;
+        if (x || y || blur || spread || color) {
+            const shadowValue = `${inset ? 'inset ' : ''}${x || '0px'} ${y || '0px'} ${blur || '0px'} ${spread || '0px'} ${color || 'rgba(0,0,0,0.1)'}`;
+            cssProperties.push(`box-shadow: ${shadowValue}`);
+        }
     }
 
     return cssProperties.join('; ');

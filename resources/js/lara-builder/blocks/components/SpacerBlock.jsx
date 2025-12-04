@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
+import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
 
 const SpacerBlock = ({ props, onUpdate, isSelected }) => {
     const [isEditing, setIsEditing] = useState(false);
-
-    // Get layout styles
-    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
 
     const handleDoubleClick = () => {
         setIsEditing(true);
@@ -19,25 +16,16 @@ const SpacerBlock = ({ props, onUpdate, isSelected }) => {
         onUpdate({ ...props, height: value });
     };
 
-    const containerStyle = {
+    // Base container styles
+    const defaultContainerStyle = {
         outline: isSelected ? '2px solid #635bff' : '1px dashed #d1d5db',
         borderRadius: '4px',
         cursor: 'pointer',
-        backgroundColor: isSelected ? 'rgba(99, 91, 255, 0.1)' : (layoutStyles.backgroundColor || 'transparent'),
-        backgroundImage: layoutStyles.backgroundImage,
-        backgroundSize: layoutStyles.backgroundSize,
-        backgroundPosition: layoutStyles.backgroundPosition,
-        backgroundRepeat: layoutStyles.backgroundRepeat,
-        // Apply margin/padding from layout styles
-        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
-        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
-        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
-        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
-        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
-        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
-        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
-        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
+        backgroundColor: isSelected ? 'rgba(99, 91, 255, 0.1)' : 'transparent',
     };
+
+    // Apply layout styles to container
+    const containerStyle = applyLayoutStyles(defaultContainerStyle, props.layoutStyles);
 
     const spacerStyle = {
         height: props.height || '40px',

@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
-import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
+import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
 
 const TextBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
     const editorRef = useRef(null);
@@ -118,38 +118,19 @@ const TextBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
         }
     }, [isSelected]);
 
-    // Get layout styles (typography, background, spacing, etc.)
-    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
-
-    const baseStyle = {
-        textAlign: layoutStyles.textAlign || props.align || 'left',
-        color: layoutStyles.color || props.color || '#666666',
-        fontSize: layoutStyles.fontSize || props.fontSize || '16px',
-        lineHeight: layoutStyles.lineHeight || props.lineHeight || '1.6',
-        fontFamily: layoutStyles.fontFamily,
-        fontWeight: layoutStyles.fontWeight,
-        fontStyle: layoutStyles.fontStyle,
-        letterSpacing: layoutStyles.letterSpacing,
-        textTransform: layoutStyles.textTransform,
-        textDecoration: layoutStyles.textDecoration,
-        backgroundColor: layoutStyles.backgroundColor,
-        backgroundImage: layoutStyles.backgroundImage,
-        backgroundSize: layoutStyles.backgroundSize,
-        backgroundPosition: layoutStyles.backgroundPosition,
-        backgroundRepeat: layoutStyles.backgroundRepeat,
+    // Base styles for the text block
+    const defaultStyle = {
+        textAlign: props.align || 'left',
+        color: props.color || '#666666',
+        fontSize: props.fontSize || '16px',
+        lineHeight: props.lineHeight || '1.6',
         padding: '8px',
         borderRadius: '4px',
         minHeight: '40px',
-        // Apply margin/padding from layout styles
-        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
-        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
-        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
-        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
-        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
-        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
-        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
-        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
+
+    // Apply layout styles (typography, background, spacing, border, shadow)
+    const baseStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);
 
     if (isSelected) {
         return (

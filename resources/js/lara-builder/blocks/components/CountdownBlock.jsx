@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
+import { applyLayoutStyles, layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
 
 const CountdownBlock = ({ props, isSelected }) => {
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [isExpired, setIsExpired] = useState(false);
 
-    // Get layout styles
+    // Get layout styles for textAlign
     const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
 
     useEffect(() => {
@@ -36,26 +36,17 @@ const CountdownBlock = ({ props, isSelected }) => {
         return () => clearInterval(timer);
     }, [props.targetDate, props.targetTime]);
 
-    const containerStyle = {
+    // Base container styles
+    const defaultContainerStyle = {
         padding: '24px',
-        backgroundColor: layoutStyles.backgroundColor || props.backgroundColor || '#1e293b',
-        backgroundImage: layoutStyles.backgroundImage,
-        backgroundSize: layoutStyles.backgroundSize,
-        backgroundPosition: layoutStyles.backgroundPosition,
-        backgroundRepeat: layoutStyles.backgroundRepeat,
+        backgroundColor: props.backgroundColor || '#1e293b',
         borderRadius: '8px',
         textAlign: layoutStyles.textAlign || props.align || 'center',
         outline: isSelected ? '2px solid #635bff' : 'none',
-        // Apply margin/padding from layout styles
-        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
-        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
-        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
-        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
-        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
-        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
-        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
-        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
+
+    // Apply layout styles to container
+    const containerStyle = applyLayoutStyles(defaultContainerStyle, props.layoutStyles);
 
     const titleStyle = {
         color: props.textColor || '#ffffff',

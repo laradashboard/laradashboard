@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
+import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
 
 const DividerBlock = ({ props, onUpdate, isSelected }) => {
     const [isEditing, setIsEditing] = useState(false);
-
-    // Get layout styles
-    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
 
     const handleDoubleClick = () => {
         setIsEditing(true);
@@ -19,26 +16,16 @@ const DividerBlock = ({ props, onUpdate, isSelected }) => {
         onUpdate({ ...props, [field]: value });
     };
 
-    const containerStyle = {
+    // Base container styles
+    const defaultContainerStyle = {
         padding: '8px',
         outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
         cursor: 'pointer',
-        backgroundColor: layoutStyles.backgroundColor,
-        backgroundImage: layoutStyles.backgroundImage,
-        backgroundSize: layoutStyles.backgroundSize,
-        backgroundPosition: layoutStyles.backgroundPosition,
-        backgroundRepeat: layoutStyles.backgroundRepeat,
-        // Apply margin/padding from layout styles
-        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
-        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
-        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
-        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
-        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
-        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
-        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
-        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
+
+    // Apply layout styles to container
+    const containerStyle = applyLayoutStyles(defaultContainerStyle, props.layoutStyles);
 
     const dividerStyle = {
         border: 'none',

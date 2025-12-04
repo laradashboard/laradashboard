@@ -1,8 +1,8 @@
 /**
  * LayoutStylesSection - Reusable Layout styles panel for all blocks
  *
- * Provides Background, Typography, Spacing (margin, padding), and Sizing controls
- * that can be applied to any block type.
+ * Provides Background, Typography, Spacing (margin, padding), Sizing,
+ * Border, and Box Shadow controls that can be applied to any block type.
  */
 
 import { useState } from 'react';
@@ -10,6 +10,8 @@ import BackgroundControls from './layout-styles/BackgroundControls';
 import TypographyControls from './layout-styles/TypographyControls';
 import SpacingControls from './layout-styles/SpacingControls';
 import SizingControls from './layout-styles/SizingControls';
+import BorderControls from './layout-styles/BorderControls';
+import BoxShadowControls from './layout-styles/BoxShadowControls';
 
 // Re-export helpers for backward compatibility
 export { layoutStylesToCSS, layoutStylesToInlineCSS } from './layout-styles/styleHelpers';
@@ -45,6 +47,7 @@ const LayoutStylesSection = ({ layoutStyles = {}, onUpdate, onImageUpload, defau
     const [isBgExpanded, setIsBgExpanded] = useState(false);
     const [isTypoExpanded, setIsTypoExpanded] = useState(false);
     const [isLayoutExpanded, setIsLayoutExpanded] = useState(!defaultCollapsed);
+    const [isBorderExpanded, setIsBorderExpanded] = useState(false);
 
     const handleLayoutChange = (field, value) => {
         onUpdate({ ...layoutStyles, [field]: value });
@@ -64,6 +67,14 @@ const LayoutStylesSection = ({ layoutStyles = {}, onUpdate, onImageUpload, defau
 
     const handleTypographyChange = (typography) => {
         onUpdate({ ...layoutStyles, typography });
+    };
+
+    const handleBorderChange = (border) => {
+        onUpdate({ ...layoutStyles, border });
+    };
+
+    const handleBoxShadowChange = (boxShadow) => {
+        onUpdate({ ...layoutStyles, boxShadow });
     };
 
     return (
@@ -123,6 +134,31 @@ const LayoutStylesSection = ({ layoutStyles = {}, onUpdate, onImageUpload, defau
                         <SizingControls
                             layoutStyles={layoutStyles}
                             onChange={handleLayoutChange}
+                        />
+                    </div>
+                )}
+            </div>
+
+            {/* BORDER / BOX SHADOW Section */}
+            <div className="border-t border-gray-200 pt-4">
+                <SectionHeader
+                    icon="mdi:checkbox-blank-outline"
+                    title="Border / Box Shadow"
+                    isExpanded={isBorderExpanded}
+                    onToggle={() => setIsBorderExpanded(!isBorderExpanded)}
+                />
+                {isBorderExpanded && (
+                    <div>
+                        {/* Border */}
+                        <BorderControls
+                            border={layoutStyles.border || {}}
+                            onChange={handleBorderChange}
+                        />
+
+                        {/* Box Shadow */}
+                        <BoxShadowControls
+                            boxShadow={layoutStyles.boxShadow || {}}
+                            onChange={handleBoxShadowChange}
                         />
                     </div>
                 )}

@@ -1,44 +1,31 @@
-import { layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
+import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
 
 const QuoteBlock = ({ props, isSelected }) => {
-    // Get layout styles (typography, background, spacing, etc.)
-    const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
-
-    const containerStyle = {
+    // Base container styles
+    const defaultContainerStyle = {
         padding: '20px',
         paddingLeft: '24px',
-        backgroundColor: layoutStyles.backgroundColor || props.backgroundColor || '#f8fafc',
-        backgroundImage: layoutStyles.backgroundImage,
-        backgroundSize: layoutStyles.backgroundSize,
-        backgroundPosition: layoutStyles.backgroundPosition,
-        backgroundRepeat: layoutStyles.backgroundRepeat,
+        backgroundColor: props.backgroundColor || '#f8fafc',
         borderLeft: `4px solid ${props.borderColor || '#635bff'}`,
-        textAlign: layoutStyles.textAlign || props.align || 'left',
+        textAlign: props.align || 'left',
         outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
-        // Apply margin/padding from layout styles
-        ...( layoutStyles.marginTop && { marginTop: layoutStyles.marginTop }),
-        ...( layoutStyles.marginRight && { marginRight: layoutStyles.marginRight }),
-        ...( layoutStyles.marginBottom && { marginBottom: layoutStyles.marginBottom }),
-        ...( layoutStyles.marginLeft && { marginLeft: layoutStyles.marginLeft }),
-        ...( layoutStyles.paddingTop && { paddingTop: layoutStyles.paddingTop }),
-        ...( layoutStyles.paddingRight && { paddingRight: layoutStyles.paddingRight }),
-        ...( layoutStyles.paddingBottom && { paddingBottom: layoutStyles.paddingBottom }),
-        ...( layoutStyles.paddingLeft && { paddingLeft: layoutStyles.paddingLeft }),
     };
 
-    const quoteStyle = {
-        color: layoutStyles.color || props.textColor || '#475569',
-        fontSize: layoutStyles.fontSize || '16px',
-        fontStyle: layoutStyles.fontStyle || 'italic',
-        fontFamily: layoutStyles.fontFamily,
-        fontWeight: layoutStyles.fontWeight,
-        letterSpacing: layoutStyles.letterSpacing,
-        textTransform: layoutStyles.textTransform,
-        textDecoration: layoutStyles.textDecoration,
-        lineHeight: layoutStyles.lineHeight || '1.6',
+    // Apply layout styles (typography, background, spacing, border, shadow)
+    const containerStyle = applyLayoutStyles(defaultContainerStyle, props.layoutStyles);
+
+    // Base quote text styles
+    const defaultQuoteStyle = {
+        color: props.textColor || '#475569',
+        fontSize: '16px',
+        fontStyle: 'italic',
+        lineHeight: '1.6',
         margin: '0 0 12px 0',
     };
+
+    // Apply typography from layout styles to quote
+    const quoteStyle = applyLayoutStyles(defaultQuoteStyle, props.layoutStyles);
 
     const authorStyle = {
         color: props.authorColor || '#1e293b',
