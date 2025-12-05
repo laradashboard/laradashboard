@@ -1222,6 +1222,81 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     }
                 ];
 
+            case 'accordion':
+                return [
+                    {
+                        title: 'Behavior',
+                        icon: 'mdi:cog',
+                        iconColor: 'text-primary/100',
+                        defaultExpanded: true,
+                        fields: [
+                            { field: 'independentToggle', label: 'Independent Toggle', type: 'checkbox', help: 'Allow multiple items open at once' },
+                            { field: 'transitionDuration', label: 'Transition (ms)', type: 'number' },
+                            { field: 'iconPosition', label: 'Icon Position', type: 'select', options: {
+                                choices: [
+                                    { value: 'right', label: 'Right' },
+                                    { value: 'left', label: 'Left' },
+                                ]
+                            }},
+                        ]
+                    },
+                    {
+                        title: 'Header Style',
+                        icon: 'mdi:format-header-1',
+                        iconColor: 'text-primary/100',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'headerBgColor', label: 'Background', type: 'color' },
+                            { field: 'headerBgColorActive', label: 'Active Background', type: 'color' },
+                            { field: 'titleColor', label: 'Title Color', type: 'color' },
+                            { field: 'titleFontSize', label: 'Title Size', type: 'select', options: {
+                                choices: [
+                                    { value: '14px', label: 'Small' },
+                                    { value: '16px', label: 'Medium' },
+                                    { value: '18px', label: 'Large' },
+                                    { value: '20px', label: 'Extra Large' },
+                                ]
+                            }},
+                            { field: 'titleFontWeight', label: 'Title Weight', type: 'select', options: {
+                                choices: [
+                                    { value: '400', label: 'Normal' },
+                                    { value: '500', label: 'Medium' },
+                                    { value: '600', label: 'Semi Bold' },
+                                    { value: '700', label: 'Bold' },
+                                ]
+                            }},
+                        ]
+                    },
+                    {
+                        title: 'Content Style',
+                        icon: 'mdi:text',
+                        iconColor: 'text-primary/100',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'contentBgColor', label: 'Background', type: 'color' },
+                            { field: 'contentColor', label: 'Text Color', type: 'color' },
+                            { field: 'contentFontSize', label: 'Font Size', type: 'select', options: {
+                                choices: [
+                                    { value: '12px', label: 'Small' },
+                                    { value: '14px', label: 'Medium' },
+                                    { value: '16px', label: 'Large' },
+                                ]
+                            }},
+                        ]
+                    },
+                    {
+                        title: 'Border & Icon',
+                        icon: 'mdi:border-all',
+                        iconColor: 'text-primary/100',
+                        defaultExpanded: false,
+                        fields: [
+                            { field: 'borderColor', label: 'Border Color', type: 'color' },
+                            { field: 'borderRadius', label: 'Border Radius', type: 'text' },
+                            { field: 'iconColor', label: 'Icon Color', type: 'color' },
+                        ]
+                    }
+                ];
+
             default:
                 return [];
         }

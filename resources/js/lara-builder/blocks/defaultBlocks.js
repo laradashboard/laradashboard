@@ -395,6 +395,45 @@ export const defaultBlocks = [
             layout: true,
         },
     },
+    {
+        type: 'accordion',
+        label: 'Accordion',
+        category: 'Content',
+        icon: 'mdi:arrow-collapse-vertical',
+        contexts: ['email', 'page', 'campaign'],
+        defaultProps: {
+            items: [
+                { title: 'Accordion Item 1', content: 'Content for the first accordion item. Click to expand and see more details.' },
+                { title: 'Accordion Item 2', content: 'Content for the second accordion item. You can add as many items as you need.' },
+            ],
+            // Behavior
+            independentToggle: false,
+            transitionDuration: 200,
+            // Header styles
+            headerBgColor: '#ffffff',
+            headerBgColorActive: '#f9fafb',
+            headerPadding: '16px',
+            titleColor: '#1f2937',
+            titleFontSize: '16px',
+            titleFontWeight: '600',
+            // Content styles
+            contentBgColor: '#ffffff',
+            contentColor: '#4b5563',
+            contentFontSize: '14px',
+            contentPadding: '16px',
+            // Icon
+            iconColor: '#6b7280',
+            iconPosition: 'right',
+            // Border
+            borderColor: '#e5e7eb',
+            borderRadius: '8px',
+            layoutStyles: { ...defaultLayoutStyles },
+        },
+        supports: {
+            colors: true,
+            layout: true,
+        },
+    },
 ];
 
 // Export the default layout styles for use in other modules

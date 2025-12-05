@@ -22,6 +22,7 @@ import CountdownBlock from './CountdownBlock';
 import TableBlock from './TableBlock';
 import CodeBlock from './CodeBlock';
 import PreformattedBlock from './PreformattedBlock';
+import AccordionBlock from './AccordionBlock';
 
 export const blockComponents = {
     heading: HeadingBlock,
@@ -42,6 +43,7 @@ export const blockComponents = {
     table: TableBlock,
     code: CodeBlock,
     preformatted: PreformattedBlock,
+    accordion: AccordionBlock,
 };
 
 export const getBlockComponent = (type) => blockComponents[type] || null;
@@ -65,4 +67,5 @@ export {
     TableBlock,
     CodeBlock,
     PreformattedBlock,
+    AccordionBlock,
 };
