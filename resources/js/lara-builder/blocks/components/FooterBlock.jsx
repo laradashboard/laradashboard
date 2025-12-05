@@ -11,6 +11,7 @@ const FooterBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
     
     const propsRef = useRef(props);
     const onUpdateRef = useRef(onUpdate);
+    const lastPropsRef = useRef({});
 
     // Keep refs updated
     propsRef.current = props;
@@ -19,6 +20,7 @@ const FooterBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
     const handleInput = useCallback((field, ref) => {
         if (ref.current) {
             const newValue = ref.current.innerHTML;
+            lastPropsRef.current[field] = newValue;
             onUpdateRef.current({ ...propsRef.current, [field]: newValue });
         }
     }, []);
@@ -28,26 +30,32 @@ const FooterBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
         onUpdateRef.current({ ...propsRef.current, align: newAlign });
     }, []);
 
-    // Set initial content when becoming selected
+    // Update contentEditable fields when props change from properties panel
     useEffect(() => {
         if (isSelected) {
-            if (companyNameRef.current && (companyNameRef.current.innerHTML === '' || companyNameRef.current.innerHTML === '<br>')) {
+            if (companyNameRef.current && props.companyName !== lastPropsRef.current.companyName) {
                 companyNameRef.current.innerHTML = props.companyName || '';
+                lastPropsRef.current.companyName = props.companyName;
             }
-            if (addressRef.current && (addressRef.current.innerHTML === '' || addressRef.current.innerHTML === '<br>')) {
+            if (addressRef.current && props.address !== lastPropsRef.current.address) {
                 addressRef.current.innerHTML = props.address || '';
+                lastPropsRef.current.address = props.address;
             }
-            if (phoneRef.current && (phoneRef.current.innerHTML === '' || phoneRef.current.innerHTML === '<br>')) {
+            if (phoneRef.current && props.phone !== lastPropsRef.current.phone) {
                 phoneRef.current.innerHTML = props.phone || '';
+                lastPropsRef.current.phone = props.phone;
             }
-            if (emailRef.current && (emailRef.current.innerHTML === '' || emailRef.current.innerHTML === '<br>')) {
+            if (emailRef.current && props.email !== lastPropsRef.current.email) {
                 emailRef.current.innerHTML = props.email || '';
+                lastPropsRef.current.email = props.email;
             }
-            if (unsubscribeTextRef.current && (unsubscribeTextRef.current.innerHTML === '' || unsubscribeTextRef.current.innerHTML === '<br>')) {
+            if (unsubscribeTextRef.current && props.unsubscribeText !== lastPropsRef.current.unsubscribeText) {
                 unsubscribeTextRef.current.innerHTML = props.unsubscribeText || '';
+                lastPropsRef.current.unsubscribeText = props.unsubscribeText;
             }
-            if (copyrightRef.current && (copyrightRef.current.innerHTML === '' || copyrightRef.current.innerHTML === '<br>')) {
+            if (copyrightRef.current && props.copyright !== lastPropsRef.current.copyright) {
                 copyrightRef.current.innerHTML = props.copyright || '';
+                lastPropsRef.current.copyright = props.copyright;
             }
         }
     }, [isSelected, props.companyName, props.address, props.phone, props.email, props.unsubscribeText, props.copyright]);
