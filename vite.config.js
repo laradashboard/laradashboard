@@ -13,6 +13,7 @@ const paths = [
     "resources/js/app.js",
     "resources/js/email-builder/index.jsx",
     "resources/js/lara-builder/entry.jsx",
+    "resources/js/lara-builder/post-entry.jsx",
 ];
 
 // Use top-level await to properly load module assets
