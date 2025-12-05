@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 use App\Enums\TemplateType;
 
 return new class () extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('email_templates', function (Blueprint $table) {
@@ -20,7 +17,9 @@ return new class () extends Migration {
             $table->json('design_json')->nullable();
             $table->string('type')->default(TemplateType::EMAIL->value);
             $table->text('description')->nullable();
+            $table->json('variables')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_default')->default(false);
             $table->boolean('is_deleteable')->default(true);
             $table->unsignedBigInteger('header_template_id')->nullable();
             $table->unsignedBigInteger('footer_template_id')->nullable();
@@ -34,9 +33,6 @@ return new class () extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('email_templates');

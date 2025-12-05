@@ -35,6 +35,7 @@ class EmailTemplateSeeder extends Seeder
             $this->getNewsletterTemplates(),
             $this->getEventTemplates(),
             $this->getEcommerceTemplates(),
+            $this->getCrmTemplates(),
         );
     }
 

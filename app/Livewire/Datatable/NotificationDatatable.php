@@ -7,6 +7,7 @@ namespace App\Livewire\Datatable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Notification;
+use App\Models\Setting;
 use App\Services\NotificationTypeRegistry;
 use App\Services\ReceiverTypeRegistry;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -191,7 +192,7 @@ class NotificationDatatable extends Datatable
         $notifications = Notification::whereIn('id', $ids)->where('is_deleteable', true)->get();
         $deletedCount = 0;
         foreach ($notifications as $notification) {
-            $this->authorize('manage', \App\Models\Setting::class);
+            $this->authorize('manage', Setting::class);
             $notification->delete();
             $deletedCount++;
         }
@@ -204,7 +205,7 @@ class NotificationDatatable extends Datatable
         if (! $notification->is_deleteable) {
             return false;
         }
-        $this->authorize('manage', \App\Models\Setting::class);
+        $this->authorize('manage', Setting::class);
         return $notification->delete();
     }
 

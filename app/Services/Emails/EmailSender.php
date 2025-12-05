@@ -6,6 +6,7 @@ namespace App\Services\Emails;
 
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Log;
+use App\Services\UnsubscribeService;
 
 class EmailSender
 {
@@ -33,7 +34,7 @@ class EmailSender
         return $this;
     }
 
-    public function getMailMessage($from = null, $variables = []): MailMessage
+    public function getMailMessage($from = null, $variables = [], $recipientEmail = null, $userType = 'user', $userId = null): MailMessage
     {
         if ($this->emailVariable === null) {
             $this->emailVariable = new EmailVariable();
@@ -44,9 +45,12 @@ class EmailSender
             $formattedSubject = $this->emailVariable->replaceVariables($this->subject, $variables);
             $formattedContent = $this->emailVariable->replaceVariables($this->content, $variables);
 
+            if ($recipientEmail) {
+                $formattedContent = app(UnsubscribeService::class)->addFooterToEmail($formattedContent, $recipientEmail);
+            }
+
             $message = (new MailMessage())->subject($formattedSubject);
 
-            // Set from name/email if provided in settings.
             $fromEmail = $from ?? config('settings.email_from_email');
             $fromName = config('settings.email_from_name');
             if (! empty($fromEmail)) {
@@ -79,4 +83,5 @@ class EmailSender
             throw $th;
         }
     }
+
 }

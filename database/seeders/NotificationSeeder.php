@@ -13,9 +13,6 @@ use Illuminate\Support\Str;
 
 class NotificationSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $this->createForgotPasswordNotification();
@@ -23,12 +20,8 @@ class NotificationSeeder extends Seeder
         $this->command->info('✓ Notifications created successfully!');
     }
 
-    /**
-     * Create Forgot Password Notification
-     */
     private function createForgotPasswordNotification(): void
     {
-        // Get the Forgot Password email template
         $template = EmailTemplate::where('name', 'Forgot Password')->first();
 
         if (! $template) {
@@ -36,7 +29,6 @@ class NotificationSeeder extends Seeder
             return;
         }
 
-        // Create Forgot Password Notification
         Notification::updateOrCreate(
             ['name' => 'Forgot Password Notification'],
             [
@@ -44,12 +36,11 @@ class NotificationSeeder extends Seeder
                 'description' => 'Automated notification sent when a user requests password reset',
                 'notification_type' => NotificationType::FORGOT_PASSWORD->value,
                 'email_template_id' => $template->id,
-                'receiver_type' => ReceiverType::USER,
+                'receiver_type' => ReceiverType::USER->value,
                 'is_active' => true,
                 'is_deleteable' => false,
                 'created_by' => 1,
             ]
         );
     }
-
 }

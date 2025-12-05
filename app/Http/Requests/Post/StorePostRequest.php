@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Post;
 
 use App\Enums\Hooks\PostFilterHook;
+use App\Enums\PostStatus;
 use App\Http\Requests\FormRequest;
 use App\Support\Facades\Hook;
 use Illuminate\Support\Str;
@@ -47,7 +48,7 @@ class StorePostRequest extends FormRequest
      */
     public function rules(): array
     {
-        $postStatuses = implode(',', array_map(fn ($status) => $status->value, \App\Enums\PostStatus::cases()));
+        $postStatuses = implode(',', array_map(fn ($status) => $status->value, PostStatus::cases()));
 
         return Hook::applyFilters(PostFilterHook::POST_STORE_VALIDATION_RULES, [
             /** @example "How to Build a Laravel Application" */

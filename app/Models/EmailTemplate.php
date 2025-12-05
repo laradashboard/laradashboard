@@ -28,6 +28,8 @@ class EmailTemplate extends Model
         'description',
         'is_active',
         'is_deleteable',
+        'is_default',
+        'variables',
         'created_by',
         'updated_by',
         'header_template_id',
@@ -38,8 +40,9 @@ class EmailTemplate extends Model
         'is_active' => 'boolean',
         'is_deleteable' => 'boolean',
         'design_json' => 'array',
-        // Use string casting to support module-registered template types, provide accessors for label/icon/color
+        'is_default' => 'boolean',
         'type' => 'string',
+        'variables' => 'array',
     ];
 
     protected static function boot()
@@ -78,7 +81,7 @@ class EmailTemplate extends Model
         return $this->belongsTo(EmailTemplate::class, 'footer_template_id');
     }
 
-    public function renderTemplate(array $data = []): array
+    public function renderTemplate(array $data = [], ?string $recipientEmail = null, string $userType = 'user', ?int $userId = null): array
     {
         $subject = $this->subject;
         $bodyHtml = $this->body_html ?? '';

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Enums\ReceiverType;
 use App\Services\NotificationTypeRegistry;
 use App\Concerns\QueryBuilderTrait;
+use App\Services\ReceiverTypeRegistry;
 use Illuminate\Support\Str;
 
 class Notification extends Model
@@ -23,6 +24,10 @@ class Notification extends Model
         'description',
         'notification_type',
         'email_template_id',
+        'from_email',
+        'from_name',
+        'reply_to_email',
+        'reply_to_name',
         'body_html',
         'receiver_type',
         'receiver_ids',
@@ -116,7 +121,7 @@ class Notification extends Model
             return $enum->label();
         }
         // Fallback to registry metadata
-        $label = \App\Services\ReceiverTypeRegistry::getLabel($value);
+        $label = ReceiverTypeRegistry::getLabel($value);
         if ($label) {
             return $label;
         }
@@ -130,6 +135,6 @@ class Notification extends Model
             return null;
         }
         // Use receiver type registry metadata for icon where possible.
-        return \App\Services\ReceiverTypeRegistry::getIcon($value);
+        return ReceiverTypeRegistry::getIcon($value);
     }
 }

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Setting\UpdateSettingsRequest;
 use App\Http\Resources\SettingResource;
+use App\Models\Setting;
 use App\Services\SettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class EmailSettingsController extends ApiController
 
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('viewAny', \App\Models\Setting::class);
+        $this->authorize('viewAny', Setting::class);
 
         $search = $request->input('search', 'mail');
         $settings = $this->settingService->getAllSettings($search);
@@ -28,7 +29,7 @@ class EmailSettingsController extends ApiController
 
     public function update(UpdateSettingsRequest $request): JsonResponse
     {
-        $this->authorize('update', \App\Models\Setting::class);
+        $this->authorize('update', Setting::class);
 
         $settings = $request->input('settings', []);
         $updatedSettings = [];
