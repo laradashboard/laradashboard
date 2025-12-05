@@ -1,6 +1,8 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { blockRegistry } from '../registry/BlockRegistry';
+import { LaraHooks } from '../hooks-system/LaraHooks';
+import { BuilderHooks } from '../hooks-system/HookNames';
 
 const DraggableBlockItem = ({ block, onAddBlock }) => {
     const [wasDragged, setWasDragged] = useState(false);
@@ -63,13 +65,30 @@ const DraggableBlockItem = ({ block, onAddBlock }) => {
 
 const BlockPanel = ({ onAddBlock, context = null }) => {
     const [searchQuery, setSearchQuery] = useState('');
+    const [blockVersion, setBlockVersion] = useState(0);
+
+    // Listen for new blocks being registered
+    useEffect(() => {
+        const handleBlockRegistered = () => {
+            // Increment version to force re-computation of blocks
+            setBlockVersion((v) => v + 1);
+        };
+
+        // Subscribe to block registration events
+        LaraHooks.addAction(BuilderHooks.ACTION_BLOCK_REGISTERED, handleBlockRegistered);
+
+        return () => {
+            LaraHooks.removeAction(BuilderHooks.ACTION_BLOCK_REGISTERED, handleBlockRegistered);
+        };
+    }, []);
 
     // Get blocks filtered by context (if provided) or all blocks
+    // Re-compute when blockVersion changes (new blocks registered)
     const allBlocks = useMemo(() => {
         return context
             ? blockRegistry.getBlocksForContext(context)
             : blockRegistry.getAll();
-    }, [context]);
+    }, [context, blockVersion]);
 
     // Get unique categories from filtered blocks
     const categories = useMemo(() => {

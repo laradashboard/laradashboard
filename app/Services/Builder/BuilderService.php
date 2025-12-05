@@ -27,9 +27,38 @@ use TorMorten\Eventy\Facades\Eventy;
  */
 class BuilderService
 {
+    /**
+     * Registered module block script paths
+     */
+    protected array $moduleScripts = [];
+
     public function __construct(
         protected BlockRegistryService $blockRegistry
     ) {
+    }
+
+    /**
+     * Register a module's block script to be loaded with the builder
+     *
+     * @param string $path Vite asset path (e.g., 'modules/Crm/resources/js/lara-builder-blocks/crm-contact/index.js')
+     * @param string $buildPath The Vite build directory (e.g., 'build-crm')
+     */
+    public function registerModuleScript(string $path, string $buildPath = 'build'): self
+    {
+        $this->moduleScripts[] = [
+            'path' => $path,
+            'buildPath' => $buildPath,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Get all registered module block scripts
+     */
+    public function getModuleScripts(): array
+    {
+        return $this->moduleScripts;
     }
 
     /**
@@ -154,6 +183,9 @@ class BuilderService
 
         $json = json_encode($data, JSON_THROW_ON_ERROR);
 
+        // Generate module script tags
+        $moduleScriptTags = $this->generateModuleScriptTags();
+
         return <<<HTML
         <script>
             window.LaraBuilderServerData = {$json};
@@ -171,7 +203,86 @@ class BuilderService
                 }
             });
         </script>
+        {$moduleScriptTags}
         HTML;
+    }
+
+    /**
+     * Generate script tags for module blocks
+     *
+     * In production: Uses Vite manifest to generate proper script tags
+     * In development: Loads directly from Vite dev server
+     */
+    protected function generateModuleScriptTags(): string
+    {
+        if (empty($this->moduleScripts)) {
+            return '';
+        }
+
+        $tags = [];
+        foreach ($this->moduleScripts as $script) {
+            $path = $script['path'];
+            $buildPath = $script['buildPath'];
+
+            // Get relative path from base for Vite (lowercase for consistency with manifest)
+            $relativePath = str_replace(base_path() . '/', '', $path);
+            $relativePath = strtolower($relativePath);
+
+            // Check if we're in production (manifest exists)
+            $manifestPath = public_path($buildPath . '/.vite/manifest.json');
+            if (! file_exists($manifestPath)) {
+                $manifestPath = public_path($buildPath . '/manifest.json');
+            }
+
+            if (file_exists($manifestPath)) {
+                // Production: Use built assets from manifest
+                try {
+                    $manifest = json_decode(file_get_contents($manifestPath), true);
+                    if (isset($manifest[$relativePath])) {
+                        $assetPath = $manifest[$relativePath]['file'];
+                        $tags[] = sprintf(
+                            '<script type="module" src="/%s/assets/%s"></script>',
+                            $buildPath,
+                            basename($assetPath)
+                        );
+                    }
+                } catch (\Exception) {
+                    continue;
+                }
+            } else {
+                // Development: Try to load from Vite dev server
+                // The script will be loaded by the main Vite instance if available
+                try {
+                    $viteTag = \Illuminate\Support\Facades\Vite::useBuildDirectory($buildPath)
+                        ->withEntryPoints([$relativePath])
+                        ->toHtml();
+                    $tags[] = $viteTag;
+                } catch (\Exception) {
+                    continue;
+                }
+            }
+        }
+
+        return implode("\n", $tags);
+    }
+
+    /**
+     * Get module scripts configuration for use in Blade templates
+     *
+     * Returns array of [path, buildPath] for use with @vite directive
+     */
+    public function getModuleScriptsForBlade(): array
+    {
+        $scripts = [];
+        foreach ($this->moduleScripts as $script) {
+            $relativePath = str_replace(base_path() . '/', '', $script['path']);
+            $scripts[] = [
+                'path' => $relativePath,
+                'buildPath' => $script['buildPath'],
+            ];
+        }
+
+        return $scripts;
     }
 
     /**

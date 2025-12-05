@@ -4,8 +4,19 @@
  * Mounts LaraBuilder for post/page editing with post-specific properties panel.
  */
 
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import * as ReactJSXRuntime from 'react/jsx-runtime';
 import { createRoot } from 'react-dom/client';
 import PostBuilder from './components/PostBuilder';
+
+// Expose React globally for module blocks to use
+// This ensures module blocks use the same React instance as the main app
+if (typeof window !== 'undefined') {
+    window.React = React;
+    window.ReactDOM = ReactDOM;
+    window.ReactJSXRuntime = ReactJSXRuntime;
+}
 
 // Import and register default blocks
 import { blockRegistry } from './registry/BlockRegistry';

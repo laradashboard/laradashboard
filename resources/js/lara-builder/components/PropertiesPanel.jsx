@@ -3,6 +3,7 @@ import { getBlock } from '../../email-builder/utils/blockRegistry';
 import { parseVideoUrl } from '../blocks/components/VideoBlock';
 import LayoutStylesSection from './LayoutStylesSection';
 import CollapsibleSection from './CollapsibleSection';
+import { blockRegistry } from '../registry/BlockRegistry';
 
 const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload, canvasSettings, onCanvasSettingsUpdate }) => {
     const [uploading, setUploading] = useState(false);
@@ -795,6 +796,15 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
 
     // Define editable fields based on block type with sections
     const getSectionsForBlockType = (type) => {
+        // First check the registry for custom property sections (external modules)
+        const blockDef = blockRegistry.get(type);
+        if (blockDef?.propertySections) {
+            // If it's a function, call it with props; otherwise use as-is
+            return typeof blockDef.propertySections === 'function'
+                ? blockDef.propertySections(props)
+                : blockDef.propertySections;
+        }
+
         switch (type) {
             case 'heading':
                 // Heading level is controlled from the toolbar, no sidebar settings needed
@@ -1309,11 +1319,44 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
         onUpdate(selectedBlock.id, { ...props, layoutStyles: newLayoutStyles });
     };
 
+    // Check for custom property editor from registry
+    const registryBlockDef = blockRegistry.get(selectedBlock.type);
+    const CustomPropertyEditor = registryBlockDef?.propertyEditor;
+
+    // If block provides a custom property editor, use it
+    if (CustomPropertyEditor) {
+        return (
+            <div className="h-full overflow-y-auto px-1">
+                <div className="mb-2 pb-3 border-b border-gray-200">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        {registryBlockDef?.label || blockConfig?.label || selectedBlock.type}
+                    </span>
+                </div>
+
+                <CustomPropertyEditor
+                    props={props}
+                    onUpdate={(newProps) => onUpdate(selectedBlock.id, newProps)}
+                    onImageUpload={onImageUpload}
+                    onVideoUpload={onVideoUpload}
+                    renderField={renderField}
+                />
+
+                {/* Layout Styles Section - Available for all blocks */}
+                <LayoutStylesSection
+                    layoutStyles={props.layoutStyles || {}}
+                    onUpdate={handleLayoutStylesUpdate}
+                    onImageUpload={onImageUpload}
+                    defaultCollapsed={true}
+                />
+            </div>
+        );
+    }
+
     return (
         <div className="h-full overflow-y-auto px-1">
             <div className="mb-2 pb-3 border-b border-gray-200">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {blockConfig?.label || selectedBlock.type}
+                    {registryBlockDef?.label || blockConfig?.label || selectedBlock.type}
                 </span>
             </div>
 

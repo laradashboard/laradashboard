@@ -2,6 +2,7 @@
  * Block Components for LaraBuilder
  *
  * All block components are exported from here for use in the builder.
+ * External modules can register their own blocks via blockRegistry.
  */
 
 import HeadingBlock from './HeadingBlock';
@@ -23,6 +24,7 @@ import TableBlock from './TableBlock';
 import CodeBlock from './CodeBlock';
 import PreformattedBlock from './PreformattedBlock';
 import AccordionBlock from './AccordionBlock';
+import { blockRegistry } from '../../registry/BlockRegistry';
 
 export const blockComponents = {
     heading: HeadingBlock,
@@ -46,7 +48,20 @@ export const blockComponents = {
     accordion: AccordionBlock,
 };
 
-export const getBlockComponent = (type) => blockComponents[type] || null;
+/**
+ * Get block component - checks registry first, then built-in components
+ * This allows external modules to register their own blocks
+ */
+export const getBlockComponent = (type) => {
+    // First check the registry for custom blocks (external modules)
+    const registryComponent = blockRegistry.getComponent(type);
+    if (registryComponent) {
+        return registryComponent;
+    }
+
+    // Fall back to built-in components
+    return blockComponents[type] || null;
+};
 
 export {
     HeadingBlock,
