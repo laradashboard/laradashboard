@@ -97,6 +97,9 @@ function LaraBuilderInner({
     const [editorMode, setEditorMode] = useState('visual');
     const [codeEditorHtml, setCodeEditorHtml] = useState('');
 
+    // Preview mode: 'desktop', 'tablet', 'mobile'
+    const [previewMode, setPreviewMode] = useState('desktop');
+
     // Show toast helper
     const showToast = useCallback((variant, title, message) => {
         setToast({ variant, title, message });
@@ -865,19 +868,66 @@ function LaraBuilderInner({
 
                     {/* Canvas or Code Editor based on mode */}
                     {editorMode === 'visual' ? (
-                        <Canvas
-                            blocks={blocks}
-                            selectedBlockId={selectedBlockId}
-                            onSelect={actions.selectBlock}
-                            onUpdate={handleUpdateBlock}
-                            onDelete={handleDeleteBlock}
-                            onDeleteNested={handleDeleteNestedBlock}
-                            onMoveBlock={handleMoveBlock}
-                            onDuplicateBlock={handleDuplicateBlock}
-                            onMoveNestedBlock={handleMoveNestedBlock}
-                            onDuplicateNestedBlock={handleDuplicateNestedBlock}
-                            canvasSettings={canvasSettings}
-                        />
+                        <div className="flex-1 flex flex-col overflow-hidden">
+                            {/* Responsive Preview Toolbar */}
+                            <div className="flex items-center justify-center gap-1 py-2 px-4 bg-gray-100 border-b border-gray-200">
+                                <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-0.5">
+                                    <button
+                                        type="button"
+                                        onClick={() => setPreviewMode('desktop')}
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                                            previewMode === 'desktop'
+                                                ? 'bg-primary text-white'
+                                                : 'text-gray-600 hover:bg-gray-100'
+                                        }`}
+                                        title="Desktop Preview"
+                                    >
+                                        <iconify-icon icon="mdi:monitor" width="16" height="16"></iconify-icon>
+                                        <span className="hidden sm:inline">Desktop</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPreviewMode('tablet')}
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                                            previewMode === 'tablet'
+                                                ? 'bg-primary text-white'
+                                                : 'text-gray-600 hover:bg-gray-100'
+                                        }`}
+                                        title="Tablet Preview"
+                                    >
+                                        <iconify-icon icon="mdi:tablet" width="16" height="16"></iconify-icon>
+                                        <span className="hidden sm:inline">Tablet</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPreviewMode('mobile')}
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                                            previewMode === 'mobile'
+                                                ? 'bg-primary text-white'
+                                                : 'text-gray-600 hover:bg-gray-100'
+                                        }`}
+                                        title="Mobile Preview"
+                                    >
+                                        <iconify-icon icon="mdi:cellphone" width="16" height="16"></iconify-icon>
+                                        <span className="hidden sm:inline">Mobile</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <Canvas
+                                blocks={blocks}
+                                selectedBlockId={selectedBlockId}
+                                onSelect={actions.selectBlock}
+                                onUpdate={handleUpdateBlock}
+                                onDelete={handleDeleteBlock}
+                                onDeleteNested={handleDeleteNestedBlock}
+                                onMoveBlock={handleMoveBlock}
+                                onDuplicateBlock={handleDuplicateBlock}
+                                onMoveNestedBlock={handleMoveNestedBlock}
+                                onDuplicateNestedBlock={handleDuplicateNestedBlock}
+                                canvasSettings={canvasSettings}
+                                previewMode={previewMode}
+                            />
+                        </div>
                     ) : (
                         <CodeEditor
                             html={codeEditorHtml}

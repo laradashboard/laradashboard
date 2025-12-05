@@ -199,7 +199,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     );
 };
 
-const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, canvasSettings }) => {
+const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, canvasSettings, previewMode = 'desktop' }) => {
     const { setNodeRef, isOver } = useDroppable({
         id: 'canvas',
     });
@@ -209,9 +209,22 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
     // Get layout styles from canvasSettings (same format as blocks)
     const canvasLayoutStyles = layoutStylesToCSS(canvasSettings?.layoutStyles || {});
 
+    // Get preview width based on mode
+    const getPreviewWidth = () => {
+        switch (previewMode) {
+            case 'mobile':
+                return '375px';
+            case 'tablet':
+                return '768px';
+            case 'desktop':
+            default:
+                return canvasSettings?.width || '700px';
+        }
+    };
+
     // Default settings (width and padding are still separate)
     const settings = {
-        width: canvasSettings?.width || '700px',
+        width: getPreviewWidth(),
         contentPadding: canvasSettings?.contentPadding || '32px',
         contentMargin: canvasSettings?.contentMargin || '40px',
     };

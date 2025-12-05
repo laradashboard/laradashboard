@@ -6,6 +6,8 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
     const lastItemsHtml = useRef('');
     const propsRef = useRef(props);
     const onUpdateRef = useRef(onUpdate);
+    // Track if we're currently editing to prevent re-render issues
+    const isEditingRef = useRef(false);
 
     // Keep refs updated
     propsRef.current = props;
@@ -23,12 +25,33 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
     const htmlToItems = (html) => {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
-        // Only get direct li children (not nested ones)
-        const listItems = tempDiv.querySelectorAll(':scope > li');
-        // If no direct li children found (might be wrapped in ul/ol), try that
-        const items = listItems.length > 0
-            ? Array.from(listItems).map(li => li.innerHTML.trim())
-            : Array.from(tempDiv.querySelectorAll('li')).map(li => li.innerHTML.trim());
+
+        // Get only direct li children first
+        let listItems = tempDiv.querySelectorAll(':scope > li');
+
+        // If no direct li children, check if wrapped in ul/ol
+        if (listItems.length === 0) {
+            const list = tempDiv.querySelector('ul, ol');
+            if (list) {
+                // Only get direct children of the list, not nested li elements
+                listItems = list.querySelectorAll(':scope > li');
+            }
+        }
+
+        // If still no items found, try all li but only top-level ones
+        if (listItems.length === 0) {
+            listItems = tempDiv.querySelectorAll('li');
+        }
+
+        // Extract innerHTML from each li, but strip out any nested ul/ol elements
+        const items = Array.from(listItems).map(li => {
+            // Clone the li to avoid modifying the original
+            const clone = li.cloneNode(true);
+            // Remove any nested lists from the clone
+            clone.querySelectorAll('ul, ol').forEach(nested => nested.remove());
+            return clone.innerHTML.trim();
+        });
+
         // Filter out completely empty items but keep at least one
         const nonEmptyItems = items.filter(item => item !== '' && item !== '<br>');
         return nonEmptyItems.length > 0 ? nonEmptyItems : [''];
@@ -36,9 +59,11 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
 
     // Track internal updates to prevent effect from resetting DOM
     const isInternalUpdate = useRef(false);
+    // Track the items we've initialized with to avoid re-init on our own updates
+    const initializedItemsRef = useRef(null);
 
     const handleInput = useCallback(() => {
-        if (editorRef.current) {
+        if (editorRef.current && isEditingRef.current) {
             const html = editorRef.current.innerHTML;
             // Avoid saving if nothing changed
             if (html === lastItemsHtml.current) {
@@ -47,6 +72,7 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
             lastItemsHtml.current = html;
             const newItems = htmlToItems(html);
             isInternalUpdate.current = true; // Mark as internal update
+            initializedItemsRef.current = newItems; // Update initialized ref to prevent re-init
             onUpdateRef.current({ ...propsRef.current, items: newItems });
         }
     }, []);
@@ -63,28 +89,62 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
 
             // Find the current li element
             let currentLi = range.startContainer;
+            // Handle text node case
+            if (currentLi.nodeType === Node.TEXT_NODE) {
+                currentLi = currentLi.parentElement;
+            }
             while (currentLi && currentLi.nodeName !== 'LI') {
                 currentLi = currentLi.parentElement;
             }
 
             if (currentLi && editorRef.current) {
+                // Check if we need to split the content
+                const rangeToEnd = document.createRange();
+                rangeToEnd.setStart(range.endContainer, range.endOffset);
+                rangeToEnd.setEndAfter(currentLi.lastChild || currentLi);
+
+                // Extract content after cursor for the new li
+                const contentAfterCursor = rangeToEnd.extractContents();
+
                 // Create new li element
                 const newLi = document.createElement('li');
-                newLi.innerHTML = '<br>';
 
-                // Insert after current li
+                // If there's content after cursor, use it; otherwise use <br>
+                if (contentAfterCursor.textContent.trim() || contentAfterCursor.querySelector('*')) {
+                    newLi.appendChild(contentAfterCursor);
+                } else {
+                    newLi.innerHTML = '<br>';
+                }
+
+                // If current li is now empty, add a <br>
+                if (!currentLi.innerHTML.trim() || currentLi.innerHTML === '') {
+                    currentLi.innerHTML = '<br>';
+                }
+
+                // Insert new li after current li
                 if (currentLi.nextSibling) {
                     currentLi.parentNode.insertBefore(newLi, currentLi.nextSibling);
                 } else {
                     currentLi.parentNode.appendChild(newLi);
                 }
 
-                // Move cursor to new li
+                // Move cursor to start of new li
                 const newRange = document.createRange();
-                newRange.setStart(newLi, 0);
+                if (newLi.firstChild) {
+                    if (newLi.firstChild.nodeType === Node.TEXT_NODE) {
+                        newRange.setStart(newLi.firstChild, 0);
+                    } else {
+                        newRange.setStart(newLi, 0);
+                    }
+                } else {
+                    newRange.setStart(newLi, 0);
+                }
                 newRange.collapse(true);
                 selection.removeAllRanges();
                 selection.addRange(newRange);
+
+                // Update the lastItemsHtml to match current DOM state
+                lastItemsHtml.current = editorRef.current.innerHTML;
 
                 // Trigger input to save changes
                 handleInput();
@@ -100,7 +160,6 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
 
                 // If at the start of a list item and it's not the first one, merge with previous
                 if (li && range.startOffset === 0 && li.previousElementSibling) {
-                    const liContent = li.textContent || '';
                     // Only merge if cursor is at the very start
                     if (range.startContainer === li || (range.startContainer.nodeType === 3 && range.startOffset === 0)) {
                         e.preventDefault();
@@ -138,10 +197,9 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
     const lastListType = useRef(props.listType);
     const wasSelected = useRef(false);
 
-    // Single unified effect to handle content synchronization
+    // Effect to handle initialization when becoming selected
     useEffect(() => {
         if (isSelected && editorRef.current) {
-            const currentHtml = editorRef.current.innerHTML;
             const listTypeChanged = lastListType.current !== props.listType;
             const justBecameSelected = !wasSelected.current;
 
@@ -154,22 +212,42 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
                 return;
             }
 
-            // Set content if:
-            // 1. Just became selected (empty content)
+            // Only initialize content when:
+            // 1. Just became selected
             // 2. List type changed (element was recreated)
-            // 3. Content is empty
-            const needsInit = justBecameSelected || listTypeChanged ||
-                              currentHtml === '' || currentHtml === '<li><br></li>';
-
-            if (needsInit) {
+            if (justBecameSelected || listTypeChanged) {
                 const html = itemsToHtml(props.items);
                 editorRef.current.innerHTML = html;
                 lastItemsHtml.current = html;
+                initializedItemsRef.current = props.items;
             }
         } else {
             wasSelected.current = false;
+            // Reset initialized items when deselected so next selection re-initializes
+            initializedItemsRef.current = null;
         }
-    }, [isSelected, props.listType, props.items]);
+    }, [isSelected, props.listType]);
+
+    // Separate effect for handling external item changes (not from our own edits)
+    useEffect(() => {
+        // Only update if selected and items changed externally (not from initialization)
+        if (isSelected && editorRef.current && !isInternalUpdate.current) {
+            // Check if items actually changed from what we initialized with
+            const itemsJson = JSON.stringify(props.items);
+            const initializedJson = JSON.stringify(initializedItemsRef.current);
+
+            // Skip if items match what we have or what we initialized with
+            if (itemsJson !== initializedJson && initializedItemsRef.current !== null) {
+                // This is an external change, update the editor
+                const html = itemsToHtml(props.items);
+                if (html !== lastItemsHtml.current) {
+                    editorRef.current.innerHTML = html;
+                    lastItemsHtml.current = html;
+                    initializedItemsRef.current = props.items;
+                }
+            }
+        }
+    }, [isSelected, props.items]);
 
     // Register text format props with parent when selected
     useEffect(() => {
@@ -185,9 +263,10 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
         }
     }, [isSelected, onRegisterTextFormat, handleAlignChange]);
 
-    // Focus the editor when selected
+    // Focus the editor when selected and manage editing state
     useEffect(() => {
         if (isSelected && editorRef.current) {
+            isEditingRef.current = true;
             editorRef.current.focus();
             // Place cursor at the end
             const range = document.createRange();
@@ -196,8 +275,24 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
             const selection = window.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
+        } else {
+            isEditingRef.current = false;
         }
     }, [isSelected]);
+
+    // Handle blur - save final state
+    const handleBlur = useCallback(() => {
+        if (editorRef.current && isEditingRef.current) {
+            const html = editorRef.current.innerHTML;
+            if (html !== lastItemsHtml.current) {
+                lastItemsHtml.current = html;
+                const newItems = htmlToItems(html);
+                isInternalUpdate.current = true;
+                initializedItemsRef.current = newItems;
+                onUpdateRef.current({ ...propsRef.current, items: newItems });
+            }
+        }
+    }, []);
 
     // Base container styles
     const defaultContainerStyle = {
@@ -263,7 +358,7 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
                     suppressContentEditableWarning
                     onInput={handleInput}
                     onKeyDown={handleKeyDown}
-                    onBlur={handleInput}
+                    onBlur={handleBlur}
                     style={editListStyle}
                     className={props.listType === 'check' ? 'checklist-edit' : ''}
                 />
