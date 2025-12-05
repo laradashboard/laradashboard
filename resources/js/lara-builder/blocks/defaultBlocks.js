@@ -375,27 +375,6 @@ export const defaultBlocks = [
         },
     },
     {
-        type: 'text-editor',
-        label: 'Text Editor',
-        category: 'Content',
-        icon: 'mdi:text-box-edit-outline',
-        contexts: ['email', 'page', 'campaign'],
-        defaultProps: {
-            content: '',
-            align: 'left',
-            color: '#333333',
-            fontSize: '16px',
-            lineHeight: '1.6',
-            layoutStyles: { ...defaultLayoutStyles },
-        },
-        supports: {
-            align: true,
-            colors: true,
-            spacing: true,
-            layout: true,
-        },
-    },
-    {
         type: 'accordion',
         label: 'Accordion',
         category: 'Content',
@@ -431,6 +410,20 @@ export const defaultBlocks = [
         },
         supports: {
             colors: true,
+            layout: true,
+        },
+    },
+    {
+        type: 'custom-css',
+        label: 'Custom CSS',
+        category: 'Advanced',
+        icon: 'mdi:language-css3',
+        contexts: ['email', 'campaign'],
+        defaultProps: {
+            css: '/* Add your custom CSS here */\n.my-class {\n  color: #333;\n  font-size: 16px;\n}',
+            layoutStyles: { ...defaultLayoutStyles },
+        },
+        supports: {
             layout: true,
         },
     },

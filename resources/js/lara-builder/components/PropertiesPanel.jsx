@@ -1054,8 +1054,8 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
             case 'footer':
                 return [
                     {
-                        title: 'Company Info',
-                        icon: 'mdi:domain',
+                        title: 'Footer Settings',
+                        icon: 'mdi:cog',
                         iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
@@ -1063,25 +1063,9 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             { field: 'address', label: 'Address', type: 'text' },
                             { field: 'phone', label: 'Phone', type: 'text' },
                             { field: 'email', label: 'Email', type: 'text' },
-                        ]
-                    },
-                    {
-                        title: 'Links & Copyright',
-                        icon: 'mdi:link-variant',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: false,
-                        fields: [
                             { field: 'unsubscribeText', label: 'Unsubscribe Text', type: 'text' },
                             { field: 'unsubscribeUrl', label: 'Unsubscribe URL', type: 'text' },
                             { field: 'copyright', label: 'Copyright Text', type: 'text' },
-                        ]
-                    },
-                    {
-                        title: 'Appearance',
-                        icon: 'mdi:palette',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: false,
-                        fields: [
                             { field: 'textColor', label: 'Text Color', type: 'color' },
                             { field: 'linkColor', label: 'Link Color', type: 'color' },
                         ]
@@ -1100,14 +1084,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             { field: 'targetTime', label: 'Target Time', type: 'time' },
                             { field: 'title', label: 'Title', type: 'text' },
                             { field: 'expiredMessage', label: 'Expired Message', type: 'text' },
-                        ]
-                    },
-                    {
-                        title: 'Colors',
-                        icon: 'mdi:palette',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: false,
-                        fields: [
                             { field: 'backgroundColor', label: 'Background Color', type: 'color' },
                             { field: 'textColor', label: 'Text Color', type: 'color' },
                             { field: 'numberColor', label: 'Number Color', type: 'color' },
@@ -1118,7 +1094,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
             case 'table':
                 return [
                     {
-                        title: 'Table Data',
+                        title: 'Table Settings',
                         icon: 'mdi:table',
                         iconColor: 'text-primary/100',
                         defaultExpanded: true,
@@ -1126,14 +1102,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                             { field: 'headers', label: 'Headers', type: 'table-headers' },
                             { field: 'rows', label: 'Rows', type: 'table-rows' },
                             { field: 'showHeader', label: 'Show Header', type: 'checkbox' },
-                        ]
-                    },
-                    {
-                        title: 'Appearance',
-                        icon: 'mdi:palette',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: false,
-                        fields: [
                             { field: 'headerBgColor', label: 'Header Background', type: 'color' },
                             { field: 'headerTextColor', label: 'Header Text Color', type: 'color' },
                             { field: 'borderColor', label: 'Border Color', type: 'color' },
@@ -1194,14 +1162,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         defaultExpanded: true,
                         fields: [
                             { field: 'borderRadius', label: 'Border Radius', type: 'text' },
-                        ]
-                    },
-                    {
-                        title: 'Colors',
-                        icon: 'mdi:palette',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: false,
-                        fields: [
                             { field: 'backgroundColor', label: 'Background', type: 'color' },
                             { field: 'textColor', label: 'Text Color', type: 'color' },
                         ]
@@ -1217,14 +1177,6 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         defaultExpanded: true,
                         fields: [
                             { field: 'borderRadius', label: 'Border Radius', type: 'text' },
-                        ]
-                    },
-                    {
-                        title: 'Colors',
-                        icon: 'mdi:palette',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: false,
-                        fields: [
                             { field: 'backgroundColor', label: 'Background', type: 'color' },
                             { field: 'textColor', label: 'Text Color', type: 'color' },
                             { field: 'borderColor', label: 'Border Color', type: 'color' },
@@ -1235,29 +1187,12 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
             case 'accordion':
                 return [
                     {
-                        title: 'Behavior',
+                        title: 'Accordion Settings',
                         icon: 'mdi:cog',
                         iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
-                            { field: 'independentToggle', label: 'Independent Toggle', type: 'checkbox', help: 'Allow multiple items open at once' },
-                            { field: 'transitionDuration', label: 'Transition (ms)', type: 'number' },
-                            { field: 'iconPosition', label: 'Icon Position', type: 'select', options: {
-                                choices: [
-                                    { value: 'right', label: 'Right' },
-                                    { value: 'left', label: 'Left' },
-                                ]
-                            }},
-                        ]
-                    },
-                    {
-                        title: 'Header Style',
-                        icon: 'mdi:format-header-1',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: false,
-                        fields: [
-                            { field: 'headerBgColor', label: 'Background', type: 'color' },
-                            { field: 'headerBgColorActive', label: 'Active Background', type: 'color' },
+                            { field: 'headerBgColor', label: 'Header Background', type: 'color' },
                             { field: 'titleColor', label: 'Title Color', type: 'color' },
                             { field: 'titleFontSize', label: 'Title Size', type: 'select', options: {
                                 choices: [
@@ -1267,43 +1202,22 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                                     { value: '20px', label: 'Extra Large' },
                                 ]
                             }},
-                            { field: 'titleFontWeight', label: 'Title Weight', type: 'select', options: {
-                                choices: [
-                                    { value: '400', label: 'Normal' },
-                                    { value: '500', label: 'Medium' },
-                                    { value: '600', label: 'Semi Bold' },
-                                    { value: '700', label: 'Bold' },
-                                ]
-                            }},
-                        ]
-                    },
-                    {
-                        title: 'Content Style',
-                        icon: 'mdi:text',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: false,
-                        fields: [
-                            { field: 'contentBgColor', label: 'Background', type: 'color' },
-                            { field: 'contentColor', label: 'Text Color', type: 'color' },
-                            { field: 'contentFontSize', label: 'Font Size', type: 'select', options: {
-                                choices: [
-                                    { value: '12px', label: 'Small' },
-                                    { value: '14px', label: 'Medium' },
-                                    { value: '16px', label: 'Large' },
-                                ]
-                            }},
-                        ]
-                    },
-                    {
-                        title: 'Border & Icon',
-                        icon: 'mdi:border-all',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: false,
-                        fields: [
+                            { field: 'contentBgColor', label: 'Content Background', type: 'color' },
+                            { field: 'contentColor', label: 'Content Color', type: 'color' },
                             { field: 'borderColor', label: 'Border Color', type: 'color' },
                             { field: 'borderRadius', label: 'Border Radius', type: 'text' },
-                            { field: 'iconColor', label: 'Icon Color', type: 'color' },
                         ]
+                    }
+                ];
+
+            case 'custom-css':
+                return [
+                    {
+                        title: 'CSS Information',
+                        icon: 'mdi:information',
+                        iconColor: 'text-primary/100',
+                        defaultExpanded: true,
+                        fields: []
                     }
                 ];
 

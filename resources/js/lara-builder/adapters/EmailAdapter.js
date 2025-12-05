@@ -151,6 +151,11 @@ export class EmailAdapter extends BaseAdapter {
                 html = this._generateAccordionHtml(props);
                 break;
 
+            case 'custom-css':
+                // Custom CSS blocks don't generate HTML output - CSS is injected in <style> tag
+                html = '';
+                break;
+
             default:
                 html = '';
         }
@@ -436,6 +441,63 @@ export class EmailAdapter extends BaseAdapter {
     }
 
     /**
+     * Generate HTML from blocks (override to collect custom CSS)
+     * @param {Array} blocks - Array of block data
+     * @param {Object} settings - Canvas/builder settings
+     * @returns {string} - Generated HTML
+     */
+    generateHtml(blocks, settings = {}) {
+        const mergedSettings = { ...this.getDefaultSettings(), ...settings };
+
+        // Collect custom CSS from all custom-css blocks
+        this.customCss = this._collectCustomCss(blocks);
+
+        // Fire before action
+        LaraHooks.doAction(BuilderHooks.ACTION_HTML_BEFORE_GENERATE, blocks, mergedSettings, this.context);
+
+        // Generate blocks HTML (excluding custom-css blocks from output)
+        const blocksHtml = blocks
+            .filter(block => block.type !== 'custom-css')
+            .map((block) => this.generateBlockHtml(block, { settings: mergedSettings }))
+            .join('');
+
+        // Wrap the output
+        let html = this.wrapOutput(blocksHtml, mergedSettings);
+
+        // Apply filter
+        html = LaraHooks.applyFilters(BuilderHooks.FILTER_HTML_GENERATED, html, blocks, mergedSettings, this.context);
+
+        // Fire after action
+        LaraHooks.doAction(BuilderHooks.ACTION_HTML_AFTER_GENERATE, html, blocks, mergedSettings, this.context);
+
+        return html;
+    }
+
+    /**
+     * Collect custom CSS from all custom-css blocks recursively
+     */
+    _collectCustomCss(blocks) {
+        let cssArray = [];
+        
+        for (const block of blocks) {
+            if (block.type === 'custom-css' && block.props?.css) {
+                cssArray.push(block.props.css);
+            }
+            
+            // Check for nested blocks (like in columns)
+            if (block.props?.children && Array.isArray(block.props.children)) {
+                for (const columnBlocks of block.props.children) {
+                    if (Array.isArray(columnBlocks)) {
+                        cssArray = cssArray.concat(this._collectCustomCss(columnBlocks));
+                    }
+                }
+            }
+        }
+        
+        return cssArray.join('\n\n');
+    }
+
+    /**
      * Wrap the final HTML output
      */
     wrapOutput(content, settings) {
@@ -480,6 +542,9 @@ export class EmailAdapter extends BaseAdapter {
             boxShadowStyle = `box-shadow: ${inset}${boxShadow.x || '0px'} ${boxShadow.y || '0px'} ${boxShadow.blur || '0px'} ${boxShadow.spread || '0px'} ${boxShadow.color || 'rgba(0, 0, 0, 0.1)'};`;
         }
 
+        // Custom CSS style tag
+        const customCssTag = this.customCss ? `\n    <style>\n        ${this.customCss}\n    </style>` : '';
+
         return `
 <!DOCTYPE html>
 <html lang="en">
@@ -487,7 +552,7 @@ export class EmailAdapter extends BaseAdapter {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Email</title>
+    <title>Email</title>${customCssTag}
     <!--[if mso]>
     <noscript>
         <xml>

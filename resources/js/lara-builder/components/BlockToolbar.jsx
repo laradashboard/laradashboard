@@ -67,6 +67,7 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }
     const handleBold = () => execFormat('bold');
     const handleItalic = () => execFormat('italic');
     const handleUnderline = () => execFormat('underline');
+    const handleStrikethrough = () => execFormat('strikeThrough');
 
     const handleLinkClick = () => {
         saveSelection();
@@ -127,6 +128,10 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }
             {/* Underline */}
             <button type="button" onMouseDown={saveSelection} onClick={handleUnderline} className={buttonClass} title="Underline">
                 <iconify-icon icon="mdi:format-underline" width="16" height="16"></iconify-icon>
+            </button>
+            {/* Strikethrough */}
+            <button type="button" onMouseDown={saveSelection} onClick={handleStrikethrough} className={buttonClass} title="Strikethrough">
+                <iconify-icon icon="mdi:format-strikethrough" width="16" height="16"></iconify-icon>
             </button>
 
             <div className="w-px h-5 bg-gray-200 mx-0.5"></div>

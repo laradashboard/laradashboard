@@ -43,18 +43,26 @@ const ListBlock = ({ props, isSelected, onUpdate, onRegisterTextFormat }) => {
             listItems = tempDiv.querySelectorAll('li');
         }
 
+        // Create a Set to track unique items and prevent duplication
+        const seenItems = new Set();
+        const items = [];
+
         // Extract innerHTML from each li, but strip out any nested ul/ol elements
-        const items = Array.from(listItems).map(li => {
+        Array.from(listItems).forEach(li => {
             // Clone the li to avoid modifying the original
             const clone = li.cloneNode(true);
             // Remove any nested lists from the clone
             clone.querySelectorAll('ul, ol').forEach(nested => nested.remove());
-            return clone.innerHTML.trim();
+            const itemContent = clone.innerHTML.trim();
+            
+            // Only add if not empty and not already seen
+            if (itemContent && itemContent !== '<br>' && !seenItems.has(itemContent)) {
+                seenItems.add(itemContent);
+                items.push(itemContent);
+            }
         });
 
-        // Filter out completely empty items but keep at least one
-        const nonEmptyItems = items.filter(item => item !== '' && item !== '<br>');
-        return nonEmptyItems.length > 0 ? nonEmptyItems : [''];
+        return items.length > 0 ? items : [''];
     };
 
     // Track internal updates to prevent effect from resetting DOM

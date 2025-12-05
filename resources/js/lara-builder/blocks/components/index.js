@@ -24,6 +24,7 @@ import TableBlock from './TableBlock';
 import CodeBlock from './CodeBlock';
 import PreformattedBlock from './PreformattedBlock';
 import AccordionBlock from './AccordionBlock';
+import CustomCssBlock from './CustomCssBlock';
 import { blockRegistry } from '../../registry/BlockRegistry';
 
 export const blockComponents = {
@@ -46,6 +47,7 @@ export const blockComponents = {
     code: CodeBlock,
     preformatted: PreformattedBlock,
     accordion: AccordionBlock,
+    'custom-css': CustomCssBlock,
 };
 
 /**
@@ -83,4 +85,5 @@ export {
     CodeBlock,
     PreformattedBlock,
     AccordionBlock,
+    CustomCssBlock,
 };
