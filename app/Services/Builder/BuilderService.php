@@ -32,6 +32,12 @@ class BuilderService
      */
     protected array $moduleScripts = [];
 
+    /**
+     * Registered server-side render callbacks for blocks
+     * These take priority over JavaScript htmlGenerators (save.js)
+     */
+    protected array $blockRenderCallbacks = [];
+
     public function __construct(
         protected BlockRegistryService $blockRegistry
     ) {
@@ -40,8 +46,8 @@ class BuilderService
     /**
      * Register a module's block script to be loaded with the builder
      *
-     * @param string $path Vite asset path (e.g., 'modules/Crm/resources/js/lara-builder-blocks/crm-contact/index.js')
-     * @param string $buildPath The Vite build directory (e.g., 'build-crm')
+     * @param  string  $path  Vite asset path (e.g., 'modules/Crm/resources/js/lara-builder-blocks/crm-contact/index.js')
+     * @param  string  $buildPath  The Vite build directory (e.g., 'build-crm')
      */
     public function registerModuleScript(string $path, string $buildPath = 'build'): self
     {
@@ -51,6 +57,101 @@ class BuilderService
         ];
 
         return $this;
+    }
+
+    /**
+     * Register a module block with optional server-side render callback
+     *
+     * Block file structure convention:
+     * - index.js    : Main entry point, block definition and registration
+     * - block.jsx   : React component for rendering in the builder canvas
+     * - editor.jsx  : React component for the properties panel editor
+     * - save.js     : HTML generators for different contexts (email, page, etc.)
+     * - render.php  : Server-side rendering (optional, takes priority over save.js)
+     *
+     * @param  string  $blockType  The block type (e.g., 'crm-contact')
+     * @param  string  $blockPath  Path to the block folder containing the block files
+     * @param  string  $buildPath  The Vite build directory (e.g., 'build-crm')
+     */
+    public function registerModuleBlock(string $blockType, string $blockPath, string $buildPath = 'build'): self
+    {
+        // Register the JavaScript entry point
+        $indexPath = rtrim($blockPath, '/') . '/index.js';
+        if (file_exists($indexPath)) {
+            $this->registerModuleScript($indexPath, $buildPath);
+        }
+
+        // Check for render.php and register the callback if it exists
+        $renderPhpPath = rtrim($blockPath, '/') . '/render.php';
+        if (file_exists($renderPhpPath)) {
+            $this->registerBlockRenderCallback($blockType, $renderPhpPath);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Register a server-side render callback for a block
+     *
+     * The callback takes priority over JavaScript htmlGenerators (save.js)
+     *
+     * @param  string  $blockType  The block type
+     * @param  string|callable  $callback  Path to render.php or a callable
+     */
+    public function registerBlockRenderCallback(string $blockType, string|callable $callback): self
+    {
+        if (is_string($callback) && file_exists($callback)) {
+            // Load the callback from render.php file
+            $this->blockRenderCallbacks[$blockType] = require $callback;
+        } else {
+            $this->blockRenderCallbacks[$blockType] = $callback;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check if a block has a server-side render callback
+     */
+    public function hasBlockRenderCallback(string $blockType): bool
+    {
+        return isset($this->blockRenderCallbacks[$blockType]);
+    }
+
+    /**
+     * Get the server-side render callback for a block
+     */
+    public function getBlockRenderCallback(string $blockType): ?callable
+    {
+        return $this->blockRenderCallbacks[$blockType] ?? null;
+    }
+
+    /**
+     * Render a block using its server-side render callback
+     *
+     * @param  string  $blockType  The block type
+     * @param  array  $props  Block properties
+     * @param  string  $context  Rendering context (email, page, campaign)
+     * @param  string|null  $blockId  Optional unique block identifier
+     * @return string|null HTML output or null if no callback registered
+     */
+    public function renderBlock(string $blockType, array $props, string $context = 'page', ?string $blockId = null): ?string
+    {
+        $callback = $this->getBlockRenderCallback($blockType);
+
+        if (! $callback) {
+            return null;
+        }
+
+        return call_user_func($callback, $props, $context, $blockId);
+    }
+
+    /**
+     * Get all registered block render callbacks
+     */
+    public function getBlockRenderCallbacks(): array
+    {
+        return $this->blockRenderCallbacks;
     }
 
     /**
