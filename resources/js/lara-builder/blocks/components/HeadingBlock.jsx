@@ -118,11 +118,24 @@ const HeadingBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => 
         }
     }, [isSelected]);
 
+    // Get default font size based on heading level
+    const getDefaultFontSize = (level) => {
+        switch (level) {
+            case 'h1': return '32px';
+            case 'h2': return '28px';
+            case 'h3': return '24px';
+            case 'h4': return '20px';
+            case 'h5': return '18px';
+            case 'h6': return '16px';
+            default: return '32px';
+        }
+    };
+
     // Base styles for the heading block
     const defaultStyle = {
         textAlign: props.align || 'left',
         color: props.color || '#333333',
-        fontSize: props.fontSize || '32px',
+        fontSize: props.fontSize || getDefaultFontSize(props.level),
         fontWeight: props.fontWeight || 'bold',
         lineHeight: '1.3',
         margin: 0,

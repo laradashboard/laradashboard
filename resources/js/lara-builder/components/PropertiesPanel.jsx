@@ -797,24 +797,8 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
     const getSectionsForBlockType = (type) => {
         switch (type) {
             case 'heading':
-                return [
-                    {
-                        title: 'Heading Settings',
-                        icon: 'mdi:format-header-1',
-                        iconColor: 'text-primary/100',
-                        defaultExpanded: true,
-                        fields: [
-                            { field: 'level', label: 'Heading Level', type: 'select', options: {
-                                choices: [
-                                    { value: 'h1', label: 'H1' },
-                                    { value: 'h2', label: 'H2' },
-                                    { value: 'h3', label: 'H3' },
-                                    { value: 'h4', label: 'H4' },
-                                ]
-                            }},
-                        ]
-                    }
-                ];
+                // Heading level is controlled from the toolbar, no sidebar settings needed
+                return [];
 
             case 'text':
                 // Text settings now use Typography section in Layout Styles

@@ -455,12 +455,6 @@ export class EmailAdapter extends BaseAdapter {
         </xml>
     </noscript>
     <![endif]-->
-    <style>
-        body { margin: 0; padding: 0; font-family: ${fontFamily}; }
-        table { border-collapse: collapse; }
-        img { border: 0; line-height: 100%; outline: none; text-decoration: none; }
-        a { color: inherit; }
-    </style>
 </head>
 <body style="margin: 0; padding: 0; ${outerBgStyle}">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="${outerBgStyle}">

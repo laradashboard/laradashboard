@@ -99,6 +99,27 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
         },
     } : null;
 
+    // Heading level props for heading block
+    const headingLevelProps = block.type === 'heading' ? {
+        level: block.props?.level || 'h1',
+        onLevelChange: (newLevel) => {
+            // Get default font size for the new level
+            const fontSizeMap = {
+                h1: '32px',
+                h2: '28px',
+                h3: '24px',
+                h4: '20px',
+                h5: '18px',
+                h6: '16px',
+            };
+            onUpdate(block.id, {
+                ...block.props,
+                level: newLevel,
+                fontSize: fontSizeMap[newLevel] || '32px',
+            });
+        },
+    } : null;
+
     if (!BlockComponent) {
         return (
             <div ref={setNodeRef} style={style} className="p-4 bg-red-100 text-red-600 rounded">
@@ -135,6 +156,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     textFormatProps={textFormatProps}
                     alignProps={alignProps}
                     columnsProps={columnsProps}
+                    headingLevelProps={headingLevelProps}
                 />
             )}
 
@@ -169,6 +191,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     textFormatProps={textFormatProps}
                     alignProps={alignProps}
                     columnsProps={columnsProps}
+                    headingLevelProps={headingLevelProps}
                     position="bottom"
                 />
             )}

@@ -193,6 +193,25 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }
 // Blocks that support alignment-only toolbar (non-text blocks with alignment)
 const ALIGN_ONLY_BLOCKS = ['image', 'button', 'quote', 'video', 'countdown', 'social', 'footer'];
 
+// Heading level controls for heading block (dropdown)
+const HeadingLevelControls = ({ level, onLevelChange }) => {
+    return (
+        <select
+            value={level || 'h1'}
+            onChange={(e) => onLevelChange(e.target.value)}
+            className="px-2 py-1 text-xs font-semibold uppercase bg-gray-100 border-0 rounded cursor-pointer hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-primary text-gray-700"
+            title="Heading Level"
+        >
+            <option value="h1">H1</option>
+            <option value="h2">H2</option>
+            <option value="h3">H3</option>
+            <option value="h4">H4</option>
+            <option value="h5">H5</option>
+            <option value="h6">H6</option>
+        </select>
+    );
+};
+
 // Column selector controls for columns block
 const ColumnControls = ({ columns, onColumnsChange }) => {
     const columnOptions = [1, 2, 3, 4, 5, 6];
@@ -232,6 +251,8 @@ const BlockToolbar = ({
     alignProps,
     // Column props (optional - for columns block)
     columnsProps,
+    // Heading level props (optional - for heading block)
+    headingLevelProps,
     // Position: 'top' (default) or 'bottom'
     position = 'top'
 }) => {
@@ -281,6 +302,17 @@ const BlockToolbar = ({
                     {blockConfig?.label || block.type}
                 </span>
             </div>
+
+            {/* Heading Level Controls - only for heading block */}
+            {block.type === 'heading' && headingLevelProps && (
+                <>
+                    <HeadingLevelControls
+                        level={headingLevelProps.level}
+                        onLevelChange={headingLevelProps.onLevelChange}
+                    />
+                    <div className="w-px h-5 bg-gray-200 mx-1"></div>
+                </>
+            )}
 
             {/* Text Format Controls - only for text-based blocks */}
             {isTextBlock && textFormatProps && (
