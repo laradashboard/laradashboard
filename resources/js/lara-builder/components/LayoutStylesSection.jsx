@@ -12,6 +12,7 @@ import SpacingControls from './layout-styles/SpacingControls';
 import SizingControls from './layout-styles/SizingControls';
 import BorderControls from './layout-styles/BorderControls';
 import BoxShadowControls from './layout-styles/BoxShadowControls';
+import CustomCSSControls from './layout-styles/CustomCSSControls';
 
 // Re-export helpers for backward compatibility
 export { layoutStylesToCSS, layoutStylesToInlineCSS } from './layout-styles/styleHelpers';
@@ -21,7 +22,7 @@ const SectionHeader = ({ icon, iconColor = 'text-primary/100', title, isExpanded
     <button
         type="button"
         onClick={onToggle}
-        className="flex items-center justify-between w-full text-left mb-3 group"
+        className="flex items-center justify-between w-full text-left mb-3 group py-2.5 px-3 rounded-lg border border-transparent hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:border-primary/40 focus:bg-gray-50/50 dark:focus:bg-gray-800/50 transition-all"
     >
         <div className="flex items-center gap-2">
             <iconify-icon
@@ -43,11 +44,21 @@ const SectionHeader = ({ icon, iconColor = 'text-primary/100', title, isExpanded
     </button>
 );
 
-const LayoutStylesSection = ({ layoutStyles = {}, onUpdate, onImageUpload, defaultCollapsed = true }) => {
+const LayoutStylesSection = ({
+    layoutStyles = {},
+    onUpdate,
+    onImageUpload,
+    defaultCollapsed = true,
+    customCSS = '',
+    customClass = '',
+    onCustomCSSChange,
+    onCustomClassChange,
+}) => {
     const [isBgExpanded, setIsBgExpanded] = useState(false);
     const [isTypoExpanded, setIsTypoExpanded] = useState(false);
     const [isLayoutExpanded, setIsLayoutExpanded] = useState(!defaultCollapsed);
     const [isBorderExpanded, setIsBorderExpanded] = useState(false);
+    const [isCustomCSSExpanded, setIsCustomCSSExpanded] = useState(false);
 
     const handleLayoutChange = (field, value) => {
         onUpdate({ ...layoutStyles, [field]: value });
@@ -163,6 +174,26 @@ const LayoutStylesSection = ({ layoutStyles = {}, onUpdate, onImageUpload, defau
                     </div>
                 )}
             </div>
+
+            {/* CUSTOM CSS Section - Only show if handlers are provided */}
+            {onCustomCSSChange && (
+                <div className="border-t border-gray-200 pt-4">
+                    <SectionHeader
+                        icon="mdi:code-braces"
+                        title="Custom CSS"
+                        isExpanded={isCustomCSSExpanded}
+                        onToggle={() => setIsCustomCSSExpanded(!isCustomCSSExpanded)}
+                    />
+                    {isCustomCSSExpanded && (
+                        <CustomCSSControls
+                            customCSS={customCSS}
+                            customClass={customClass}
+                            onChange={onCustomCSSChange}
+                            onClassChange={onCustomClassChange}
+                        />
+                    )}
+                </div>
+            )}
         </div>
     );
 };

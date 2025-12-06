@@ -11,6 +11,27 @@ import { BuilderHooks, getBlockHook } from '../hooks-system/HookNames';
 import { blockRegistry } from '../registry/BlockRegistry';
 import { layoutStylesToInlineCSS } from '../components/LayoutStylesSection';
 
+/**
+ * Get block class name for consistent naming
+ * @param {string} type - Block type (e.g., 'image', 'video', 'heading')
+ * @returns {string} - CSS class name (e.g., 'lb-image', 'lb-video', 'lb-heading')
+ */
+const getBlockClass = (type) => `lb-${type.toLowerCase()}`;
+
+/**
+ * Build full class string for a block
+ * @param {string} type - Block type
+ * @param {object} props - Block props (may contain customClass)
+ * @returns {string} - Full class string
+ */
+const buildBlockClasses = (type, props = {}) => {
+    const classes = ['lb-block', getBlockClass(type)];
+    if (props.customClass) {
+        classes.push(props.customClass);
+    }
+    return classes.join(' ');
+};
+
 export class WebAdapter extends BaseAdapter {
     constructor() {
         super('page');
@@ -53,14 +74,47 @@ export class WebAdapter extends BaseAdapter {
     }
 
     /**
-     * Generate layout wrapper with inline styles
+     * Generate layout wrapper with inline styles and custom CSS
      */
-    _wrapWithLayoutStyles(html, layoutStyles) {
+    _wrapWithLayoutStyles(html, layoutStyles, customCSS = '') {
         const layoutCSS = layoutStylesToInlineCSS(layoutStyles);
-        if (!layoutCSS) {
+        const combinedCSS = [layoutCSS, customCSS].filter(Boolean).join('; ');
+
+        if (!combinedCSS) {
             return html;
         }
-        return `<div class="lb-layout-wrapper" style="${layoutCSS}">${html}</div>`;
+        return `<div class="lb-layout-wrapper" style="${combinedCSS}">${html}</div>`;
+    }
+
+    /**
+     * Wrap block HTML with consistent block classes and styles
+     * @param {string} type - Block type
+     * @param {object} props - Block props
+     * @param {string} innerHtml - The block's inner HTML
+     * @param {object} options - Additional options (tag, additionalClasses, additionalStyles)
+     * @returns {string} - Wrapped HTML
+     */
+    _wrapBlock(type, props, innerHtml, options = {}) {
+        const {
+            tag = 'div',
+            additionalClasses = '',
+            additionalStyles = '',
+            wrapWithLayout = true,
+        } = options;
+
+        const blockClasses = buildBlockClasses(type, props);
+        const customCSS = props?.customCSS || '';
+        const allClasses = [blockClasses, additionalClasses].filter(Boolean).join(' ');
+        const allStyles = [additionalStyles, customCSS].filter(Boolean).join('; ');
+
+        let html = `<${tag} class="${allClasses}"${allStyles ? ` style="${allStyles}"` : ''}>${innerHtml}</${tag}>`;
+
+        // Wrap with layout styles if needed
+        if (wrapWithLayout && props?.layoutStyles) {
+            html = this._wrapWithLayoutStyles(html, props.layoutStyles);
+        }
+
+        return html;
     }
 
     /**
@@ -69,87 +123,105 @@ export class WebAdapter extends BaseAdapter {
     _generateDefaultBlockHtml(block, options = {}) {
         const { type, props } = block;
         const layoutStyles = props?.layoutStyles;
+        const customCSS = props?.customCSS || '';
+        const customClass = props?.customClass || '';
 
         let html = '';
         switch (type) {
             case 'heading':
-                html = this._generateHeadingHtml(props);
+                html = this._generateHeadingHtml(props, type);
                 break;
 
             case 'text':
-                html = this._generateTextHtml(props);
+                html = this._generateTextHtml(props, type);
                 break;
 
             case 'text-editor':
-                html = this._generateTextEditorHtml(props);
+                html = this._generateTextEditorHtml(props, type);
                 break;
 
             case 'image':
-                html = this._generateImageHtml(props);
+                html = this._generateImageHtml(props, type);
                 break;
 
             case 'button':
-                html = this._generateButtonHtml(props);
+                html = this._generateButtonHtml(props, type);
                 break;
 
             case 'divider':
-                html = this._generateDividerHtml(props);
+                html = this._generateDividerHtml(props, type);
                 break;
 
             case 'spacer':
-                html = `<div class="lb-spacer" style="height: ${props.height};"></div>`;
+                html = this._generateSpacerHtml(props, type);
                 break;
 
             case 'columns':
-                html = this._generateColumnsHtml(props, options);
+                html = this._generateColumnsHtml(props, options, type);
                 break;
 
             case 'social':
-                html = this._generateSocialHtml(props);
+                html = this._generateSocialHtml(props, type);
                 break;
 
             case 'html':
-                html = `<div class="lb-html-block">${props.code || ''}</div>`;
+                html = this._generateHtmlBlockHtml(props, type);
                 break;
 
             case 'quote':
-                html = this._generateQuoteHtml(props);
+                html = this._generateQuoteHtml(props, type);
                 break;
 
             case 'list':
-                html = this._generateListHtml(props);
+                html = this._generateListHtml(props, type);
                 break;
 
             case 'video':
-                html = this._generateVideoHtml(props);
+                html = this._generateVideoHtml(props, type);
                 break;
 
             case 'footer':
-                html = this._generateFooterHtml(props);
+                html = this._generateFooterHtml(props, type);
                 break;
 
             case 'countdown':
-                html = this._generateCountdownHtml(props);
+                html = this._generateCountdownHtml(props, type);
                 break;
 
             case 'table':
-                html = this._generateTableHtml(props);
+                html = this._generateTableHtml(props, type);
                 break;
 
             case 'section':
-                html = this._generateSectionHtml(props, options);
+                html = this._generateSectionHtml(props, options, type);
                 break;
 
             case 'accordion':
-                html = this._generateAccordionHtml(props);
+                html = this._generateAccordionHtml(props, type);
                 break;
 
             default:
                 html = '';
         }
 
-        // Wrap with layout styles if present
-        return this._wrapWithLayoutStyles(html, layoutStyles);
+        // Wrap with layout styles and custom CSS if present
+        return this._wrapWithLayoutStyles(html, layoutStyles, customCSS);
+    }
+
+    /**
+     * Generate spacer block HTML
+     */
+    _generateSpacerHtml(props, type) {
+        const classes = buildBlockClasses(type, props);
+        return `<div class="${classes}" style="height: ${props.height || '20px'};"></div>`;
+    }
+
+    /**
+     * Generate HTML block HTML
+     */
+    _generateHtmlBlockHtml(props, type) {
+        const classes = buildBlockClasses(type, props);
+        return `<div class="${classes}">${props.code || ''}</div>`;
     }
 
     _generateHeadingHtml(props) {
@@ -188,7 +260,7 @@ export class WebAdapter extends BaseAdapter {
         return `<div class="lb-text-editor" style="${styles.join('; ')}">${props.content || ''}</div>`;
     }
 
-    _generateImageHtml(props) {
+    _generateImageHtml(props, type = 'image') {
         const isCustomWidth = props.width === 'custom' && props.customWidth;
         const isCustomHeight = props.height === 'custom' && props.customHeight;
 
@@ -206,14 +278,19 @@ export class WebAdapter extends BaseAdapter {
             imgStyles.push('height: auto');
         }
 
-        const img = `<img src="${props.src || ''}" alt="${props.alt || ''}" class="lb-image" style="${imgStyles.join('; ')}" loading="lazy" />`;
+        const img = `<img src="${props.src || ''}" alt="${props.alt || ''}" class="lb-image-element" style="${imgStyles.join('; ')}" loading="lazy" />`;
 
-        const wrapperStyles = [`text-align: ${props.align || 'center'}`];
+        const align = props.align || 'center';
+        const justifyContent = align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
+
         const wrapper = props.link
             ? `<a href="${props.link}" target="_blank" rel="noopener noreferrer" class="lb-image-link">${img}</a>`
             : img;
 
-        return `<figure class="lb-image-wrapper" style="${wrapperStyles.join('; ')}">${wrapper}</figure>`;
+        // Use buildBlockClasses for consistent naming
+        const blockClasses = buildBlockClasses(type, props);
+
+        return `<figure class="${blockClasses}" style="display: flex; justify-content: ${justifyContent}; margin: 0 0 16px 0;">${wrapper}</figure>`;
     }
 
     _generateButtonHtml(props) {
@@ -336,7 +413,7 @@ export class WebAdapter extends BaseAdapter {
         return `<${listTag} class="lb-list lb-list-${props.listType || 'bullet'}" style="${listStyles.join('; ')}">${items}</${listTag}>`;
     }
 
-    _generateVideoHtml(props) {
+    _generateVideoHtml(props, type = 'video') {
         const isDirectVideoFile = (url) => {
             if (!url) return false;
             const videoExtensions = /\.(mp4|webm|ogg|mov|avi|m4v)(\?.*)?$/i;
@@ -357,23 +434,62 @@ export class WebAdapter extends BaseAdapter {
         const isDirectVideo = isDirectVideoFile(props.videoUrl);
         const vidInfo = parseVideoUrl(props.videoUrl);
         const width = props.width || '100%';
+        const thumbnail = props.thumbnail || '';
+        const align = props.align || 'center';
+        const justifyContent = align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
 
-        // Direct video file - use native video element
+        // Use buildBlockClasses for consistent naming
+        const blockClasses = buildBlockClasses(type, props);
+        const platformClass = vidInfo ? ` lb-video-${vidInfo.platform}` : '';
+
+        // Direct video file - use native video element with poster
         if (isDirectVideo) {
+            const posterAttr = thumbnail ? `poster="${thumbnail}"` : '';
             return `
-                <div class="lb-video" style="text-align: ${props.align || 'center'};">
-                    <video src="${props.videoUrl}" controls ${props.autoplay ? 'autoplay muted' : ''} ${props.loop ? 'loop' : ''} style="max-width: ${width}; width: 100%; height: auto; border-radius: 8px;" preload="metadata">
+                <div class="${blockClasses}" style="display: flex; justify-content: ${justifyContent};">
+                    <video src="${props.videoUrl}" ${posterAttr} controls ${props.autoplay ? 'autoplay muted' : ''} ${props.loop ? 'loop' : ''} style="max-width: ${width}; width: 100%; height: auto; border-radius: 8px;" preload="metadata">
                         Your browser does not support the video tag.
                     </video>
                 </div>
             `;
         }
 
-        // Embedded video - use responsive iframe
+        // Embedded video - use responsive iframe with optional custom thumbnail overlay
         if (vidInfo?.embedUrl) {
+            const videoId = `lb-video-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+            // If custom thumbnail is provided, show thumbnail with play button overlay
+            if (thumbnail) {
+                return `
+                    <div class="${blockClasses}${platformClass}" style="display: flex; justify-content: ${justifyContent};">
+                        <div id="${videoId}" class="lb-video-container" style="position: relative; max-width: ${width}; width: 100%; cursor: pointer;">
+                            <div class="lb-video-thumbnail" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; background: #000;">
+                                <img src="${thumbnail}" alt="Video thumbnail" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
+                                <div class="lb-video-play-btn" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 68px; height: 48px; background: rgba(0,0,0,0.8); border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        (function() {
+                            var container = document.getElementById('${videoId}');
+                            if (!container) return;
+                            container.addEventListener('click', function() {
+                                var wrapper = container.querySelector('.lb-video-thumbnail');
+                                wrapper.innerHTML = '<iframe src="${vidInfo.embedUrl}&autoplay=1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: 8px;" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>';
+                            });
+                        })();
+                    </script>
+                `;
+            }
+
+            // No custom thumbnail - show iframe directly
             return `
-                <div class="lb-video lb-video-${vidInfo.platform}" style="text-align: ${props.align || 'center'};">
-                    <div style="position: relative; max-width: ${width}; width: 100%; display: inline-block;">
+                <div class="${blockClasses}${platformClass}" style="display: flex; justify-content: ${justifyContent};">
+                    <div style="position: relative; max-width: ${width}; width: 100%;">
                         <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px;">
                             <iframe src="${vidInfo.embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
                         </div>
@@ -384,7 +500,7 @@ export class WebAdapter extends BaseAdapter {
 
         // Fallback for unknown video URLs
         return `
-            <div class="lb-video" style="text-align: ${props.align || 'center'};">
+            <div class="${blockClasses}" style="display: flex; justify-content: ${justifyContent};">
                 <a href="${props.videoUrl}" target="_blank" rel="noopener noreferrer" class="lb-video-link">Watch Video</a>
             </div>
         `;

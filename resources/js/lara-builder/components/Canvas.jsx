@@ -5,6 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { getBlockComponent } from '../blocks';
 import BlockToolbar from './BlockToolbar';
 import { layoutStylesToCSS } from './LayoutStylesSection';
+import { buildBlockClasses, parseCustomCSS } from './BlockWrapper';
 
 // Drop zone indicator between blocks
 const DropZone = ({ id, isFirst = false }) => {
@@ -50,13 +51,21 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     // Get layout styles from block props
     const layoutStyles = layoutStylesToCSS(block.props?.layoutStyles);
 
+    // Parse custom CSS from block props
+    const customStyles = parseCustomCSS(block.props?.customCSS);
+
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
         // Apply layout styles (margin, padding, width, height, etc.)
         ...layoutStyles,
+        // Apply custom CSS styles
+        ...customStyles,
     };
+
+    // Build block classes (lb-block lb-{type} + custom class)
+    const blockClasses = buildBlockClasses(block.type, block.props);
 
     const BlockComponent = getBlockComponent(block.type);
     const isSelected = selectedBlockId === block.id;
@@ -135,7 +144,8 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
         <div
             ref={setNodeRef}
             style={style}
-            className={`relative group cursor-grab active:cursor-grabbing ${isDragging ? 'z-50' : ''}`}
+            className={`${blockClasses} relative group cursor-grab active:cursor-grabbing ${isDragging ? 'z-50' : ''}`}
+            data-block-type={block.type}
             onClick={(e) => {
                 e.stopPropagation();
                 onSelect(block.id);

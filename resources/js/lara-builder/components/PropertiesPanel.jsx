@@ -1347,6 +1347,10 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                     onUpdate={handleLayoutStylesUpdate}
                     onImageUpload={onImageUpload}
                     defaultCollapsed={true}
+                    customCSS={props.customCSS || ''}
+                    customClass={props.customClass || ''}
+                    onCustomCSSChange={(newCSS) => onUpdate(selectedBlock.id, { ...props, customCSS: newCSS })}
+                    onCustomClassChange={(newClass) => onUpdate(selectedBlock.id, { ...props, customClass: newClass })}
                 />
             </div>
         );
@@ -1386,6 +1390,10 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                 onUpdate={handleLayoutStylesUpdate}
                 onImageUpload={onImageUpload}
                 defaultCollapsed={true}
+                customCSS={props.customCSS || ''}
+                customClass={props.customClass || ''}
+                onCustomCSSChange={(newCSS) => onUpdate(selectedBlock.id, { ...props, customCSS: newCSS })}
+                onCustomClassChange={(newClass) => onUpdate(selectedBlock.id, { ...props, customClass: newClass })}
             />
         </div>
     );

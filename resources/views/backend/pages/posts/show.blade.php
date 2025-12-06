@@ -70,22 +70,48 @@
                         @if($post->design_json)
                             {{-- LaraBuilder CSS styles for rendered content --}}
                             <style>
+                                /* Base block styles */
+                                .lb-content-preview .lb-block { display: block; }
                                 .lb-content-preview .lb-content { max-width: 100%; }
                                 .lb-content-preview .lb-heading { margin: 0 0 16px 0; }
                                 .lb-content-preview .lb-text { margin: 0 0 16px 0; }
-                                .lb-content-preview .lb-image-wrapper { margin: 0 0 16px 0; }
-                                .lb-content-preview .lb-image { max-width: 100%; height: auto; }
+
+                                /* Image block - flexbox alignment */
+                                .lb-content-preview .lb-image,
+                                .lb-content-preview figure.lb-block.lb-image {
+                                    display: flex !important;
+                                    margin: 0 0 16px 0 !important;
+                                }
+                                .lb-content-preview .lb-image-element { max-width: 100%; height: auto; }
+
+                                /* Button block */
                                 .lb-content-preview .lb-button { display: inline-block; text-decoration: none; transition: opacity 0.2s ease; }
                                 .lb-content-preview .lb-button:hover { opacity: 0.9; }
+
+                                /* Columns block */
                                 .lb-content-preview .lb-columns { display: flex; gap: 20px; flex-wrap: wrap; margin: 0 0 16px 0; }
                                 .lb-content-preview .lb-column { flex: 1; min-width: 0; }
+
+                                /* Other blocks */
                                 .lb-content-preview .lb-divider { border: none; margin: 20px auto; }
                                 .lb-content-preview .lb-spacer { display: block; }
                                 .lb-content-preview .lb-quote { margin: 10px 0; }
-                                .lb-content-preview .lb-video { margin: 0 0 16px 0; }
+
+                                /* Video block - flexbox alignment */
+                                .lb-content-preview .lb-video,
+                                .lb-content-preview div.lb-block.lb-video {
+                                    display: flex !important;
+                                    margin: 0 0 16px 0;
+                                }
+                                .lb-content-preview .lb-video-container { cursor: pointer; }
+                                .lb-content-preview .lb-video-play-btn:hover { background: rgba(0,0,0,0.9) !important; }
+
+                                /* Social & Table blocks */
                                 .lb-content-preview .lb-social { padding: 10px 0; }
                                 .lb-content-preview .lb-table-wrapper { overflow-x: auto; margin: 0 0 16px 0; }
                                 .lb-content-preview .lb-table { width: 100%; border-collapse: collapse; }
+
+                                /* Responsive */
                                 @media (max-width: 768px) {
                                     .lb-content-preview .lb-columns { flex-direction: column; }
                                     .lb-content-preview .lb-column { flex: none !important; width: 100% !important; }
