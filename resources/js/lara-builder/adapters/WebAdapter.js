@@ -293,7 +293,7 @@ export class WebAdapter extends BaseAdapter {
         return `<figure class="${blockClasses}" style="display: flex; justify-content: ${justifyContent}; margin: 0 0 16px 0;">${wrapper}</figure>`;
     }
 
-    _generateButtonHtml(props) {
+    _generateButtonHtml(props, type = 'button') {
         const buttonStyles = [
             `background-color: ${props.backgroundColor || '#635bff'}`,
             `color: ${props.textColor || '#ffffff'}`,
@@ -308,9 +308,37 @@ export class WebAdapter extends BaseAdapter {
             'transition: opacity 0.2s ease',
         ];
 
+        const blockClasses = buildBlockClasses(type, props);
+        const text = props.text || 'Click Here';
+        const align = props.align || 'center';
+
+        // Build the button/link element
+        let buttonElement;
+
+        if (props.link) {
+            // Has link - render as <a> tag
+            const target = props.target || '_self';
+
+            // Build rel attribute
+            const relParts = [];
+            if (target === '_blank') {
+                relParts.push('noopener', 'noreferrer');
+            }
+            if (props.nofollow) relParts.push('nofollow');
+            if (props.sponsored) relParts.push('sponsored');
+
+            const relAttr = relParts.length > 0 ? ` rel="${relParts.join(' ')}"` : '';
+            const targetAttr = target !== '_self' ? ` target="${target}"` : '';
+
+            buttonElement = `<a href="${props.link}"${targetAttr}${relAttr} class="lb-button-element" style="${buttonStyles.join('; ')}">${text}</a>`;
+        } else {
+            // No link - render as <span> (styled as button)
+            buttonElement = `<span class="lb-button-element" style="${buttonStyles.join('; ')}">${text}</span>`;
+        }
+
         return `
-            <div class="lb-button-wrapper" style="text-align: ${props.align || 'center'}; padding: 10px 0;">
-                <a href="${props.link || '#'}" target="_blank" rel="noopener noreferrer" class="lb-button" style="${buttonStyles.join('; ')}">${props.text || 'Click Here'}</a>
+            <div class="${blockClasses}" style="text-align: ${align}; padding: 10px 0;">
+                ${buttonElement}
             </div>
         `;
     }

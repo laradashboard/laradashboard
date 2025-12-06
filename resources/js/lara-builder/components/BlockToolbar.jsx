@@ -25,7 +25,7 @@ const AlignOnlyControls = ({ align, onAlignChange }) => {
 };
 
 // Text formatting controls component - uses execCommand for WYSIWYG contentEditable
-const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }) => {
+const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true, showJustify = true }) => {
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkUrl, setLinkUrl] = useState('');
     const linkInputRef = useRef(null);
@@ -143,10 +143,12 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }
             <button type="button" onClick={() => onAlignChange('right')} className={align === 'right' ? activeButtonClass : buttonClass} title="Align Right">
                 <iconify-icon icon="mdi:format-align-right" width="16" height="16"></iconify-icon>
             </button>
-            {/* Align Justify */}
-            <button type="button" onClick={() => onAlignChange('justify')} className={align === 'justify' ? activeButtonClass : buttonClass} title="Justify">
-                <iconify-icon icon="mdi:format-align-justify" width="16" height="16"></iconify-icon>
-            </button>
+            {/* Align Justify - optional, hidden for button block */}
+            {showJustify && (
+                <button type="button" onClick={() => onAlignChange('justify')} className={align === 'justify' ? activeButtonClass : buttonClass} title="Justify">
+                    <iconify-icon icon="mdi:format-align-justify" width="16" height="16"></iconify-icon>
+                </button>
+            )}
 
             {showLink && (
                 <>
@@ -191,7 +193,7 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true }
 };
 
 // Blocks that support alignment-only toolbar (non-text blocks with alignment)
-const ALIGN_ONLY_BLOCKS = ['image', 'button', 'quote', 'video', 'countdown', 'social', 'footer'];
+const ALIGN_ONLY_BLOCKS = ['image', 'quote', 'video', 'countdown', 'social', 'footer'];
 
 // Heading level controls for heading block (dropdown)
 const HeadingLevelControls = ({ level, onLevelChange }) => {
@@ -264,7 +266,7 @@ const BlockToolbar = ({
     const SELF_EDITING_BLOCKS = ['text-editor'];
     const hasSelfEditor = SELF_EDITING_BLOCKS.includes(block.type);
     // text-editor block has its own TinyMCE toolbar, so exclude it from text formatting controls
-    const isTextBlock = (block.type === 'heading' || block.type === 'text' || block.type === 'list') && !hasSelfEditor;
+    const isTextBlock = (block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'button') && !hasSelfEditor;
     const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
     const isColumnsBlock = block.type === 'columns';
 
@@ -322,6 +324,7 @@ const BlockToolbar = ({
                         align={textFormatProps.align}
                         onAlignChange={textFormatProps.onAlignChange}
                         showLink={block.type === 'text' || block.type === 'list'}
+                        showJustify={block.type !== 'button'}
                     />
                     <div className="w-px h-5 bg-gray-200 mx-1"></div>
                 </>

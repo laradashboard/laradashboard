@@ -69,7 +69,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
 
     const BlockComponent = getBlockComponent(block.type);
     const isSelected = selectedBlockId === block.id;
-    const isTextBasedBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'text-editor';
+    const isTextBasedBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'text-editor' || block.type === 'button';
     const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
     const isColumnsBlock = block.type === 'columns';
     // Blocks with their own toolbar (like text-editor) - always show toolbar at bottom

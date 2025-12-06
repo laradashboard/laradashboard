@@ -2,6 +2,8 @@
  * Button Block - Property Editor
  *
  * Renders the property fields for the button block in the properties panel.
+ * Note: Button text is edited inline on canvas (click button to edit).
+ * Typography is controlled by the central Layout Styles section.
  */
 
 const ButtonBlockEditor = ({ props, onUpdate }) => {
@@ -11,27 +13,59 @@ const ButtonBlockEditor = ({ props, onUpdate }) => {
 
     return (
         <div className="space-y-4">
-            {/* Content Section */}
-            <Section title="Content">
-                <Label>Button Text</Label>
+            {/* Link Section */}
+            <Section title="Link">
+                <Label>URL</Label>
                 <input
-                    type="text"
-                    value={props.text || ''}
-                    onChange={(e) => handleChange('text', e.target.value)}
-                    placeholder="Click Here"
+                    type="url"
+                    value={props.link || ''}
+                    onChange={(e) => handleChange('link', e.target.value)}
+                    placeholder="https://..."
                     className="form-control"
                 />
 
-                <div className="mt-3">
-                    <Label>Link URL</Label>
-                    <input
-                        type="url"
-                        value={props.link || ''}
-                        onChange={(e) => handleChange('link', e.target.value)}
-                        placeholder="https://..."
-                        className="form-control"
-                    />
-                </div>
+                {props.link && (
+                    <>
+                        <div className="mt-3">
+                            <Label>Open In</Label>
+                            <select
+                                value={props.target || '_self'}
+                                onChange={(e) => handleChange('target', e.target.value)}
+                                className="form-control"
+                            >
+                                <option value="_self">Same Window</option>
+                                <option value="_blank">New Tab</option>
+                            </select>
+                        </div>
+
+                        <div className="mt-3">
+                            <Label>Rel Attribute</Label>
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={props.nofollow || false}
+                                        onChange={(e) => handleChange('nofollow', e.target.checked)}
+                                        className="rounded border-gray-300"
+                                    />
+                                    nofollow
+                                </label>
+                                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={props.sponsored || false}
+                                        onChange={(e) => handleChange('sponsored', e.target.checked)}
+                                        className="rounded border-gray-300"
+                                    />
+                                    sponsored
+                                </label>
+                            </div>
+                            <p className="mt-1 text-xs text-gray-400">
+                                noopener & noreferrer are auto-added for new tab links
+                            </p>
+                        </div>
+                    </>
+                )}
             </Section>
 
             {/* Colors Section */}
@@ -48,35 +82,6 @@ const ButtonBlockEditor = ({ props, onUpdate }) => {
                         value={props.textColor || '#ffffff'}
                         onChange={(value) => handleChange('textColor', value)}
                     />
-                </div>
-            </Section>
-
-            {/* Typography Section */}
-            <Section title="Typography">
-                <Label>Font Size</Label>
-                <select
-                    value={props.fontSize || '16px'}
-                    onChange={(e) => handleChange('fontSize', e.target.value)}
-                    className="form-control"
-                >
-                    <option value="14px">Small (14px)</option>
-                    <option value="16px">Medium (16px)</option>
-                    <option value="18px">Large (18px)</option>
-                    <option value="20px">X-Large (20px)</option>
-                </select>
-
-                <div className="mt-3">
-                    <Label>Font Weight</Label>
-                    <select
-                        value={props.fontWeight || '600'}
-                        onChange={(e) => handleChange('fontWeight', e.target.value)}
-                        className="form-control"
-                    >
-                        <option value="normal">Normal</option>
-                        <option value="500">Medium</option>
-                        <option value="600">Semi Bold</option>
-                        <option value="bold">Bold</option>
-                    </select>
                 </div>
             </Section>
 

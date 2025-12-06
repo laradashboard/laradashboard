@@ -862,7 +862,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                         iconColor: 'text-primary/100',
                         defaultExpanded: true,
                         fields: [
-                            { field: 'text', label: 'Button Text', type: 'text' },
+                            { field: '_info', label: '', type: 'info', options: { value: 'Click the button on canvas to edit text directly.' } },
                             { field: 'link', label: 'Link URL', type: 'text' },
                             { field: 'borderRadius', label: 'Border Radius', type: 'select', options: {
                                 choices: [
@@ -871,6 +871,14 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
                                     { value: '6px', label: 'Medium' },
                                     { value: '8px', label: 'Large' },
                                     { value: '9999px', label: 'Pill' },
+                                ]
+                            }},
+                            { field: 'padding', label: 'Padding', type: 'select', options: {
+                                choices: [
+                                    { value: '8px 16px', label: 'Small' },
+                                    { value: '12px 24px', label: 'Medium' },
+                                    { value: '16px 32px', label: 'Large' },
+                                    { value: '20px 40px', label: 'X-Large' },
                                 ]
                             }},
                         ]
