@@ -40,6 +40,8 @@ const PostPropertiesPanel = ({
     parentPosts,
     postTypeModel,
     statuses,
+    postData,
+    postType,
 }) => {
     const [featuredImageUploading, setFeaturedImageUploading] = useState(false);
     const [featuredImageError, setFeaturedImageError] = useState(null);
@@ -183,6 +185,42 @@ const PostPropertiesPanel = ({
                             <iconify-icon icon="mdi:refresh" width="16" height="16"></iconify-icon>
                         </button>
                     </div>
+
+                    {/* View URL */}
+                    {(postData?.id || slug) && (
+                        <div className="mt-2">
+                            <label className="block text-xs font-medium text-gray-500 mb-1">
+                                Permalink
+                            </label>
+                            <div className="flex items-center gap-2">
+                                <div className="flex-1 px-2 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs text-gray-500 truncate font-mono">
+                                    {window.location.origin}/{postType || 'page'}/{slug || postData?.slug || 'preview'}
+                                </div>
+                                {postData?.id && slug && status === 'published' && (
+                                    <a
+                                        href={`/${postType || 'page'}/${slug}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn-default px-2 py-1.5 text-xs"
+                                        title="View page"
+                                    >
+                                        <iconify-icon icon="mdi:open-in-new" width="14" height="14"></iconify-icon>
+                                    </a>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const url = `${window.location.origin}/${postType || 'page'}/${slug || postData?.slug}`;
+                                        navigator.clipboard.writeText(url);
+                                    }}
+                                    className="btn-default px-2 py-1.5 text-xs"
+                                    title="Copy URL"
+                                >
+                                    <iconify-icon icon="mdi:content-copy" width="14" height="14"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

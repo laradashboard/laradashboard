@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getBlock } from '../../email-builder/utils/blockRegistry';
-import { parseVideoUrl } from '../blocks/components/VideoBlock';
+import { parseVideoUrl } from '../blocks/video/block';
 import LayoutStylesSection from './LayoutStylesSection';
 import CollapsibleSection from './CollapsibleSection';
 import { blockRegistry } from '../registry/BlockRegistry';

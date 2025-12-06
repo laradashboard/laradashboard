@@ -992,6 +992,8 @@ function PostBuilderInner({
                                         parentPosts={parentPosts}
                                         postTypeModel={postTypeModel}
                                         statuses={statuses}
+                                        postData={postData}
+                                        postType={postType}
                                     />
                                 </div>
                             </div>
@@ -1060,6 +1062,8 @@ function PostBuilderInner({
                                         parentPosts={parentPosts}
                                         postTypeModel={postTypeModel}
                                         statuses={statuses}
+                                        postData={postData}
+                                        postType={postType}
                                     />
                                 </div>
                             </div>
