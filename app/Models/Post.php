@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\Builder\BlockRenderer;
 use App\Services\Content\ContentService;
 use App\Services\Content\PostType;
 use App\Concerns\QueryBuilderTrait;
@@ -344,6 +345,25 @@ class Post extends Model implements SpatieHasMedia
         $postType = $this->getPostTypeObject();
 
         return $postType ? $postType->supports($feature) : false;
+    }
+
+    /**
+     * Render the post content with dynamic blocks processed.
+     *
+     * Processes any dynamic blocks (like CRM Contact) through server-side
+     * rendering via BlockRenderer. Use this method instead of accessing
+     * $post->content directly when displaying content.
+     *
+     * @param  string  $context  The rendering context ('page', 'email', 'campaign')
+     * @return string The processed HTML content
+     */
+    public function renderContent(string $context = 'page'): string
+    {
+        if (empty($this->content)) {
+            return '';
+        }
+
+        return app(BlockRenderer::class)->processContent($this->content, $context);
     }
 
     /**

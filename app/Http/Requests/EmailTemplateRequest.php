@@ -24,8 +24,6 @@ class EmailTemplateRequest extends FormRequest
             'type' => ['required', 'string', Rule::in(array_merge(TemplateType::getValues(), TemplateTypeRegistry::all()))],
             'description' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
-            'header_template_id' => 'nullable|exists:email_templates,id',
-            'footer_template_id' => 'nullable|exists:email_templates,id',
         ];
 
         // For update requests, make name unique except for current record
@@ -64,11 +62,9 @@ class EmailTemplateRequest extends FormRequest
             ]);
         }
 
-        // Convert boolean strings to actual booleans and empty strings to null
+        // Convert boolean strings to actual booleans
         $this->merge([
             'is_active' => $this->boolean('is_active', true),
-            'header_template_id' => $this->header_template_id ?: null,
-            'footer_template_id' => $this->footer_template_id ?: null,
         ]);
     }
 }

@@ -64,12 +64,8 @@
                 <div class="mb-6">
                     <h4 class="text-lg font-medium text-gray-700 dark:text-white/90 mb-2">{{ __('Content') }}</h4>
                     @if($post->content)
-                        @php
-                            // Process dynamic blocks (like CRM Contact) through server-side rendering
-                            $processedContent = app(\App\Services\Builder\BlockRenderer::class)->processContent($post->content, 'page');
-                        @endphp
                         <div class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-headings:text-gray-700 dark:prose-headings:text-white/90 prose-p:text-gray-700 dark:prose-p:text-gray-300 lb-content-preview">
-                            {!! $processedContent !!}
+                            {!! $post->renderContent() !!}
                         </div>
                         @if($post->design_json)
                             {{-- LaraBuilder CSS styles for rendered content --}}

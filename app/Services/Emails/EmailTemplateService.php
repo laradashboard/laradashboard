@@ -20,7 +20,7 @@ class EmailTemplateService
         }
 
         $query = EmailTemplate::query()
-            ->with(['creator', 'updater', 'headerTemplate', 'footerTemplate']);
+            ->with(['creator', 'updater']);
 
         if (isset($filter['search']) && ! empty($filter['search'])) {
             $search = $filter['search'];
@@ -83,13 +83,13 @@ class EmailTemplateService
 
     public function getTemplateById(int $id): ?EmailTemplate
     {
-        return EmailTemplate::with(['creator', 'updater', 'emailLogs', 'headerTemplate', 'footerTemplate'])
+        return EmailTemplate::with(['creator', 'updater', 'emailLogs'])
             ->find($id);
     }
 
     public function getTemplateByUuid(string $uuid): ?EmailTemplate
     {
-        return EmailTemplate::with(['creator', 'updater', 'emailLogs', 'headerTemplate', 'footerTemplate'])
+        return EmailTemplate::with(['creator', 'updater', 'emailLogs'])
             ->where('uuid', $uuid)
             ->first();
     }
@@ -106,7 +106,8 @@ class EmailTemplateService
             }
 
             $template = EmailTemplate::create($data);
-            return $template->load(['creator', 'updater', 'headerTemplate', 'footerTemplate']);
+
+            return $template->load(['creator', 'updater']);
         });
     }
 

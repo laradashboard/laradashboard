@@ -26,8 +26,6 @@ test('updateTemplate updates when attributes change and returns unchanged when n
         'type' => $template->type,
         'description' => $template->description,
         'is_active' => $template->is_active,
-        'header_template_id' => $template->header_template_id,
-        'footer_template_id' => $template->footer_template_id,
     ];
 
     $updated = $service->updateTemplate($template, $newData);

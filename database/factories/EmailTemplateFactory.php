@@ -28,8 +28,6 @@ class EmailTemplateFactory extends Factory
             'is_active' => true,
             'created_by' => User::factory(),
             'updated_by' => null,
-            'header_template_id' => null,
-            'footer_template_id' => null,
         ];
     }
 }

@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Concerns\QueryBuilderTrait;
+use App\Enums\TemplateType;
+use App\Services\Builder\BlockRenderer;
+use App\Services\TemplateTypeRegistry;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Enums\TemplateType;
-use App\Concerns\QueryBuilderTrait;
-use App\Services\TemplateTypeRegistry;
 use Illuminate\Support\Str;
 
 class EmailTemplate extends Model
@@ -29,11 +30,8 @@ class EmailTemplate extends Model
         'is_active',
         'is_deleteable',
         'is_default',
-        'variables',
         'created_by',
         'updated_by',
-        'header_template_id',
-        'footer_template_id',
     ];
 
     protected $casts = [
@@ -42,7 +40,6 @@ class EmailTemplate extends Model
         'design_json' => 'array',
         'is_default' => 'boolean',
         'type' => 'string',
-        'variables' => 'array',
     ];
 
     protected static function boot()
@@ -71,75 +68,49 @@ class EmailTemplate extends Model
         return $this->hasMany(EmailLog::class, 'template_id');
     }
 
-    public function headerTemplate(): BelongsTo
+    /**
+     * Render the template content with dynamic blocks processed
+     *
+     * Processes any dynamic blocks (like CRM Contact) through server-side
+     * rendering via BlockRenderer.
+     *
+     * @param  string  $context  The rendering context ('email', 'page', 'campaign')
+     * @return string The processed HTML content
+     */
+    public function renderContent(string $context = 'email'): string
     {
-        return $this->belongsTo(EmailTemplate::class, 'header_template_id');
+        if (empty($this->body_html)) {
+            return '';
+        }
+
+        return app(BlockRenderer::class)->processContent($this->body_html, $context);
     }
 
-    public function footerTemplate(): BelongsTo
+    /**
+     * Render the template with variable substitution and dynamic blocks
+     *
+     * @param  array  $data  Variables to substitute in the template
+     * @return array{subject: string, body_html: string}
+     */
+    public function renderTemplate(array $data = []): array
     {
-        return $this->belongsTo(EmailTemplate::class, 'footer_template_id');
-    }
-
-    public function renderTemplate(array $data = [], ?string $recipientEmail = null, string $userType = 'user', ?int $userId = null): array
-    {
-        $subject = $this->subject;
+        $subject = $this->subject ?? '';
         $bodyHtml = $this->body_html ?? '';
 
-        // Include header template if exists
-        if ($this->header_template_id && $this->headerTemplate) {
-            $headerHtml = $this->headerTemplate->body_html ?? '';
-
-            // Replace variables in header
-            foreach ($data as $key => $value) {
-                $placeholder = '{' . $key . '}';
-                $headerHtml = str_replace($placeholder, (string) $value, (string) $headerHtml);
-            }
-
-            $bodyHtml = $headerHtml . $bodyHtml;
-        }
-
-        // Include footer template if exists.
-        if ($this->footer_template_id && $this->footerTemplate) {
-            $footerHtml = $this->footerTemplate->body_html ?? '';
-
-            // Replace variables in footer.
-            foreach ($data as $key => $value) {
-                $placeholder = '{' . $key . '}';
-                $footerHtml = str_replace($placeholder, (string) $value, (string) $footerHtml);
-            }
-
-            $bodyHtml = $bodyHtml . $footerHtml;
-        }
-
-        // Replace variables in main content.
+        // Replace variables in content
         foreach ($data as $key => $value) {
             $placeholder = '{' . $key . '}';
-            $subject = str_replace($placeholder, (string) $value, (string) $subject);
-            $bodyHtml = str_replace($placeholder, (string) $value, (string) $bodyHtml);
+            $subject = str_replace($placeholder, (string) $value, $subject);
+            $bodyHtml = str_replace($placeholder, (string) $value, $bodyHtml);
         }
+
+        // Process dynamic blocks
+        $bodyHtml = app(BlockRenderer::class)->processContent($bodyHtml, 'email');
 
         return [
             'subject' => $subject,
             'body_html' => $bodyHtml,
         ];
-    }
-
-    public function getRawEmailTemplate(): string
-    {
-        $html = '';
-
-        if ($this->header_template_id && $this->headerTemplate) {
-            $html .= $this->headerTemplate->body_html ?? '';
-        }
-
-        $html .= $this->body_html ?? '';
-
-        if ($this->footer_template_id && $this->footerTemplate) {
-            $html .= $this->footerTemplate->body_html ?? '';
-        }
-
-        return $html;
     }
 
     public function scopeActive($query)
@@ -150,6 +121,7 @@ class EmailTemplate extends Model
     public function scopeByType($query, $type)
     {
         $value = $type instanceof TemplateType ? $type->value : (string) $type;
+
         return $query->where('type', $value);
     }
 
@@ -164,6 +136,7 @@ class EmailTemplate extends Model
             return (string) $enum->label();
         }
         $label = TemplateTypeRegistry::getLabel($value);
+
         return $label ?? ucfirst(str_replace('_', ' ', $value));
     }
 
@@ -177,6 +150,7 @@ class EmailTemplate extends Model
         if ($enum) {
             return (string) $enum->icon();
         }
+
         return TemplateTypeRegistry::getIcon($value);
     }
 
@@ -190,6 +164,7 @@ class EmailTemplate extends Model
         if ($enum) {
             return (string) $enum->color();
         }
+
         return TemplateTypeRegistry::getColor($value);
     }
 }
