@@ -1329,7 +1329,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
 
     // Check for custom property editor from registry
     const registryBlockDef = blockRegistry.get(selectedBlock.type);
-    const CustomPropertyEditor = registryBlockDef?.propertyEditor;
+    const CustomPropertyEditor = registryBlockDef?.editor;
 
     // If block provides a custom property editor, use it
     if (CustomPropertyEditor) {

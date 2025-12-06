@@ -2,9 +2,10 @@
  * Social Block
  */
 
-import Block from './block';
-import Editor from './editor';
+import block from './block';
+import editor from './editor';
 import config from './block.json';
+import save from './save';
 
 const defaultLayoutStyles = {
     margin: { top: '', right: '', bottom: '', left: '' },
@@ -19,13 +20,14 @@ const defaultLayoutStyles = {
 
 const socialBlock = {
     ...config,
-    component: Block,
-    propertyEditor: Editor,
+    block,
+    editor,
+    save,
     defaultProps: {
         ...config.defaultProps,
         layoutStyles: { ...defaultLayoutStyles },
     },
 };
 
-export { Block, Editor, config };
+export { block, editor, config, save };
 export default socialBlock;

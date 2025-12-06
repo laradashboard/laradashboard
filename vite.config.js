@@ -37,10 +37,15 @@ export default defineConfig({
         // drop: ['console', 'debugger'],
     },
     resolve: {
-        alias: {
-            react: path.resolve(__dirname, "node_modules/react"),
-            "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
-        },
+        alias: [
+            // LaraBuilder aliases - more specific aliases must come first
+            { find: "@lara-builder/utils", replacement: path.resolve(__dirname, "resources/js/lara-builder/utils") },
+            { find: "@lara-builder/blocks", replacement: path.resolve(__dirname, "resources/js/lara-builder/blocks") },
+            { find: "@lara-builder", replacement: path.resolve(__dirname, "resources/js/lara-builder") },
+            // React aliases
+            { find: "react", replacement: path.resolve(__dirname, "node_modules/react") },
+            { find: "react-dom", replacement: path.resolve(__dirname, "node_modules/react-dom") },
+        ],
         dedupe: ["react", "react-dom"],
     },
     optimizeDeps: {

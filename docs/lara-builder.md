@@ -7,6 +7,8 @@ LaraBuilder is an extensible visual content builder for creating email templates
 - [Features](#features)
 - [Quick Start](#quick-start)
 - [Architecture Overview](#architecture-overview)
+- [Block Structure](#block-structure)
+- [Import Aliases](#import-aliases)
 - [Contexts](#contexts)
 - [Registering Custom Blocks](#registering-custom-blocks)
   - [From PHP](#registering-blocks-from-php)
@@ -95,6 +97,17 @@ resources/js/lara-builder/
 │   ├── BaseAdapter.js       # Abstract base
 │   ├── EmailAdapter.js      # Email-safe HTML
 │   └── WebAdapter.js        # Modern HTML5
+├── blocks/                  # Core blocks
+│   ├── heading/             # Example block structure
+│   │   ├── index.js         # Block definition
+│   │   ├── block.json       # Block metadata
+│   │   ├── block.jsx        # Canvas component
+│   │   ├── editor.jsx       # Properties panel
+│   │   └── save.js          # HTML generators
+│   └── ...
+├── utils/                   # Shared utilities
+│   ├── index.js             # Main exports
+│   └── save.js              # Block save utilities
 ├── entry.jsx                # Auto-initialization entry point
 └── index.js                 # Main exports
 
@@ -108,6 +121,192 @@ app/
 │   └── BlockRegistryService.php
 └── Providers/
     └── BuilderServiceProvider.php
+```
+
+---
+
+## Block Structure
+
+Each block is a self-contained module with a consistent file structure:
+
+```
+blocks/
+└── my-block/
+    ├── index.js      # Block definition (exports block, editor, save)
+    ├── block.json    # Block metadata and configuration
+    ├── block.jsx     # React component for builder canvas
+    ├── editor.jsx    # React component for properties panel
+    └── save.js       # HTML generators for page/email output
+```
+
+### Block Definition (index.js)
+
+```javascript
+import block from './block';
+import editor from './editor';
+import config from './block.json';
+import save from './save';
+
+const defaultLayoutStyles = {
+    margin: { top: '', right: '', bottom: '', left: '' },
+    padding: { top: '', right: '', bottom: '', left: '' },
+    width: '', minWidth: '', maxWidth: '',
+    height: '', minHeight: '', maxHeight: '',
+};
+
+const myBlock = {
+    ...config,
+    block,      // React component for canvas
+    editor,     // React component for properties panel
+    save,       // HTML generators { page, email }
+    defaultProps: {
+        ...config.defaultProps,
+        layoutStyles: { ...defaultLayoutStyles },
+    },
+};
+
+export { block, editor, config, save };
+export default myBlock;
+```
+
+### Block Metadata (block.json)
+
+```json
+{
+    "type": "my-block",
+    "label": "My Block",
+    "category": "Content",
+    "icon": "lucide:box",
+    "description": "A custom block description",
+    "keywords": ["custom", "block"],
+    "contexts": ["email", "page"],
+    "defaultProps": {
+        "text": "Default text",
+        "color": "#333333"
+    },
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "colors": true
+    }
+}
+```
+
+### Block Component (block.jsx)
+
+```jsx
+import React from 'react';
+
+export default function Block({ props, isSelected, onUpdate, blockId, context }) {
+    return (
+        <div className={`p-4 ${isSelected ? 'ring-2 ring-primary' : ''}`}>
+            <p style={{ color: props.color }}>{props.text}</p>
+        </div>
+    );
+}
+```
+
+### Editor Component (editor.jsx)
+
+```jsx
+import React from 'react';
+
+export default function Editor({ props, onUpdate, renderField }) {
+    return (
+        <div className="space-y-4">
+            {renderField({
+                type: 'text',
+                label: 'Text',
+                value: props.text,
+                onChange: (value) => onUpdate({ ...props, text: value }),
+            })}
+            {renderField({
+                type: 'color',
+                label: 'Color',
+                value: props.color,
+                onChange: (value) => onUpdate({ ...props, color: value }),
+            })}
+        </div>
+    );
+}
+```
+
+### Save/HTML Generators (save.js)
+
+```javascript
+import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
+
+export const page = (props, options = {}) => {
+    const type = 'my-block';
+    const blockClasses = buildBlockClasses(type, props);
+    const mergedStyles = mergeBlockStyles(props, `color: ${props.color || '#333'}`);
+
+    return `
+        <div class="${blockClasses}" style="${mergedStyles}">
+            <p>${props.text || ''}</p>
+        </div>
+    `;
+};
+
+export const email = (props, options = {}) => {
+    return `
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td style="color: ${props.color || '#333333'}; padding: 16px;">
+                    ${props.text || ''}
+                </td>
+            </tr>
+        </table>
+    `;
+};
+
+export default { page, email };
+```
+
+---
+
+## Import Aliases
+
+LaraBuilder provides Vite path aliases for cleaner imports, especially useful for plugins and modules:
+
+| Alias | Path | Description |
+|-------|------|-------------|
+| `@lara-builder` | `resources/js/lara-builder` | Main LaraBuilder directory |
+| `@lara-builder/blocks` | `resources/js/lara-builder/blocks` | Core blocks directory |
+| `@lara-builder/utils` | `resources/js/lara-builder/utils` | Shared utility functions |
+
+### Usage in save.js
+
+```javascript
+// Core blocks or plugin blocks can import utilities the same way
+import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
+```
+
+### Usage in Custom Blocks (Modules/Plugins)
+
+```javascript
+// Import from main LaraBuilder
+import { blockRegistry, LaraHooks } from '@lara-builder';
+
+// Import core blocks (for extending or referencing)
+import headingBlock from '@lara-builder/blocks/heading';
+
+// Import save utilities
+import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
+```
+
+### Available Utilities
+
+The `@lara-builder/utils` module exports:
+
+```javascript
+// Build consistent CSS class names for blocks
+// Returns: "lb-block lb-{type} {customClass}"
+buildBlockClasses(type, props);
+
+// Merge layout styles (margin, padding, border, etc.) with block-specific styles
+// Returns: combined style string
+mergeBlockStyles(props, blockSpecificStyles);
 ```
 
 ---
@@ -169,7 +368,6 @@ class CrmServiceProvider extends ServiceProvider
                 'showPrice' => true,
                 'showDescription' => true,
             ],
-            'component' => 'CrmProductBlock', // React component name
             'supports' => [
                 'align' => true,
                 'spacing' => true,
@@ -182,99 +380,65 @@ class CrmServiceProvider extends ServiceProvider
 
 ### Registering Blocks from JavaScript
 
+For full-featured blocks, create the complete block structure:
+
+```javascript
+// my-block/index.js
+import block from './block';
+import editor from './editor';
+import save from './save';
+
+const myBlockDefinition = {
+    type: 'my-custom-block',
+    label: 'My Custom Block',
+    category: 'Custom',
+    icon: 'lucide:star',
+    contexts: ['email', 'page'],
+    defaultProps: {
+        title: 'Hello World',
+        color: '#635bff',
+    },
+    block,
+    editor,
+    save,
+};
+
+// Register with BlockRegistry
+import { blockRegistry } from '@/lara-builder';
+blockRegistry.register(myBlockDefinition);
+
+export default myBlockDefinition;
+```
+
+For simpler inline registration:
+
 ```javascript
 import { blockRegistry } from '@/lara-builder';
-import CrmProductBlock from './components/CrmProductBlock';
 
-// Register the block
 blockRegistry.register({
-    type: 'crm-product',
-    label: 'Product Card',
-    category: 'CRM',
-    icon: 'mdi:package-variant',
-    contexts: ['email', 'campaign'],
+    type: 'simple-block',
+    label: 'Simple Block',
+    category: 'Content',
+    icon: 'lucide:box',
+    contexts: ['page'],
     defaultProps: {
-        productId: null,
-        showPrice: true,
-        showDescription: true,
+        text: 'Hello',
     },
-    component: CrmProductBlock,
-
-    // Custom HTML generators per context
-    htmlGenerator: {
-        email: (props, options) => {
-            return `
-                <table width="100%" cellpadding="0" cellspacing="0">
-                    <tr>
-                        <td style="padding: 16px; background: #f8f9fa;">
-                            <h3 style="margin: 0;">${props.productName || 'Product'}</h3>
-                            ${props.showPrice ? `<p style="color: #635bff;">$${props.price}</p>` : ''}
-                            ${props.showDescription ? `<p>${props.description}</p>` : ''}
-                        </td>
-                    </tr>
-                </table>
-            `;
-        },
-        page: (props, options) => {
-            return `
-                <div class="product-card">
-                    <h3>${props.productName || 'Product'}</h3>
-                    ${props.showPrice ? `<p class="price">$${props.price}</p>` : ''}
-                    ${props.showDescription ? `<p>${props.description}</p>` : ''}
-                </div>
-            `;
-        },
-    },
-});
-```
-
-### Creating the React Component
-
-```jsx
-// modules/crm/resources/js/components/CrmProductBlock.jsx
-import React from 'react';
-
-export default function CrmProductBlock({
-    props,
-    isSelected,
-    onUpdate,
-    blockId
-}) {
-    return (
-        <div
-            className={`p-4 bg-gray-50 rounded-lg ${isSelected ? 'ring-2 ring-primary' : ''}`}
-        >
-            <h3 className="font-semibold text-lg">
-                {props.productName || 'Select a product'}
-            </h3>
-            {props.showPrice && props.price && (
-                <p className="text-primary font-bold">${props.price}</p>
-            )}
-            {props.showDescription && props.description && (
-                <p className="text-gray-600">{props.description}</p>
-            )}
+    block: ({ props, isSelected }) => (
+        <div className={isSelected ? 'ring-2 ring-primary' : ''}>
+            {props.text}
         </div>
-    );
-}
-```
-
-### Adding Property Editors
-
-The properties panel uses the block's `defaultProps` to render editors. For custom property editors, you can extend the PropertiesPanel or use hooks:
-
-```javascript
-import { LaraHooks } from '@/lara-builder';
-
-// Add custom property editor for crm-product block
-LaraHooks.addFilter('builder.properties.crm-product', (editors, block) => {
-    return [
-        ...editors,
-        {
-            type: 'product-picker',
-            prop: 'productId',
-            label: 'Select Product',
-        },
-    ];
+    ),
+    editor: ({ props, onUpdate }) => (
+        <input
+            value={props.text}
+            onChange={(e) => onUpdate({ ...props, text: e.target.value })}
+        />
+    ),
+    save: {
+        page: (props) => `<div>${props.text}</div>`,
+        email: (props) => `<td>${props.text}</td>`,
+    },
 });
 ```
 
@@ -429,14 +593,15 @@ class MyCustomAdapter extends BaseAdapter {
 
     generateBlockHtml(block, options = {}) {
         const { type, props } = block;
+        const blockDef = blockRegistry.get(type);
 
-        switch (type) {
-            case 'heading':
-                return `<h2 class="my-heading">${props.text}</h2>`;
-            // ... handle other blocks
-            default:
-                return '';
+        // Use block's save function if available
+        if (blockDef?.save?.['my-context']) {
+            return blockDef.save['my-context'](props, options);
         }
+
+        // Fallback
+        return '';
     }
 
     wrapOutput(content, settings) {
@@ -496,22 +661,21 @@ function MyBlock({ props, isSelected }) {
 Email blocks must use inline styles for compatibility:
 
 ```javascript
-htmlGenerator: {
-    email: (props) => `
-        <table width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr>
-                <td style="
-                    padding: 16px;
-                    background-color: ${props.backgroundColor || '#ffffff'};
-                    color: ${props.textColor || '#333333'};
-                    font-family: Arial, sans-serif;
-                ">
-                    ${props.content}
-                </td>
-            </tr>
-        </table>
-    `,
-}
+// save.js
+export const email = (props) => `
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td style="
+                padding: 16px;
+                background-color: ${props.backgroundColor || '#ffffff'};
+                color: ${props.textColor || '#333333'};
+                font-family: Arial, sans-serif;
+            ">
+                ${props.content}
+            </td>
+        </tr>
+    </table>
+`;
 ```
 
 ### Web HTML Styles
@@ -519,13 +683,12 @@ htmlGenerator: {
 Web blocks can use CSS classes:
 
 ```javascript
-htmlGenerator: {
-    page: (props) => `
-        <div class="lb-block lb-my-block" style="--bg-color: ${props.backgroundColor}">
-            ${props.content}
-        </div>
-    `,
-}
+// save.js
+export const page = (props) => `
+    <div class="lb-block lb-my-block" style="--bg-color: ${props.backgroundColor}">
+        ${props.content}
+    </div>
+`;
 ```
 
 ---
@@ -553,7 +716,12 @@ import { blockRegistry } from '@/lara-builder';
 blockRegistry.register(definition);
 
 // Get a block definition
-const block = blockRegistry.get('heading');
+const blockDef = blockRegistry.get('heading');
+
+// Access block parts
+blockDef.block;   // Canvas component
+blockDef.editor;  // Properties panel component
+blockDef.save;    // HTML generators { page, email }
 
 // Get blocks for a context
 const emailBlocks = blockRegistry.getBlocksForContext('email');
@@ -639,41 +807,54 @@ $builder->addAction(BuilderActionHook::BUILDER_AFTER_SAVE, fn($r) => log($r));
 
 ## Example: Complete Custom Block
 
-Here's a complete example of a custom "Testimonial" block:
+Here's a complete example of a custom "Testimonial" block with the new simplified structure:
 
-### 1. PHP Registration (ServiceProvider)
+### 1. File Structure
 
-```php
-// app/Providers/AppServiceProvider.php
-public function boot(): void
+```
+blocks/
+└── testimonial/
+    ├── index.js
+    ├── block.json
+    ├── block.jsx
+    ├── editor.jsx
+    └── save.js
+```
+
+### 2. Block Metadata (block.json)
+
+```json
 {
-    $builder = app(BuilderService::class);
-
-    $builder->registerBlock([
-        'type' => 'testimonial',
-        'label' => 'Testimonial',
-        'category' => 'Content',
-        'icon' => 'mdi:format-quote-close',
-        'contexts' => ['email', 'page'],
-        'defaultProps' => [
-            'quote' => 'This product changed my life!',
-            'author' => 'John Doe',
-            'role' => 'CEO, Company',
-            'avatar' => '',
-            'rating' => 5,
-            'backgroundColor' => '#f8fafc',
-            'textColor' => '#475569',
-        ],
-        'component' => 'TestimonialBlock',
-    ]);
+    "type": "testimonial",
+    "label": "Testimonial",
+    "category": "Content",
+    "icon": "mdi:format-quote-close",
+    "description": "Display customer testimonials with ratings",
+    "keywords": ["testimonial", "quote", "review", "rating"],
+    "contexts": ["email", "page"],
+    "defaultProps": {
+        "quote": "This product changed my life!",
+        "author": "John Doe",
+        "role": "CEO, Company",
+        "avatar": "",
+        "rating": 5,
+        "backgroundColor": "#f8fafc",
+        "textColor": "#475569"
+    },
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "colors": true
+    }
 }
 ```
 
-### 2. React Component
+### 3. Block Component (block.jsx)
 
 ```jsx
-// resources/js/components/TestimonialBlock.jsx
-export default function TestimonialBlock({ props, isSelected, onUpdate }) {
+import React from 'react';
+
+export default function Block({ props, isSelected }) {
     const stars = '★'.repeat(props.rating) + '☆'.repeat(5 - props.rating);
 
     return (
@@ -693,7 +874,7 @@ export default function TestimonialBlock({ props, isSelected, onUpdate }) {
                     <img
                         src={props.avatar}
                         alt={props.author}
-                        className="w-12 h-12 rounded-full"
+                        className="w-12 h-12 rounded-full object-cover"
                     />
                 )}
                 <div>
@@ -706,63 +887,202 @@ export default function TestimonialBlock({ props, isSelected, onUpdate }) {
 }
 ```
 
-### 3. Register Component & HTML Generator
+### 4. Editor Component (editor.jsx)
+
+```jsx
+import React from 'react';
+
+export default function Editor({ props, onUpdate, onImageUpload, renderField }) {
+    return (
+        <div className="space-y-4">
+            {renderField({
+                type: 'textarea',
+                label: 'Quote',
+                value: props.quote,
+                onChange: (value) => onUpdate({ ...props, quote: value }),
+                rows: 3,
+            })}
+
+            {renderField({
+                type: 'text',
+                label: 'Author Name',
+                value: props.author,
+                onChange: (value) => onUpdate({ ...props, author: value }),
+            })}
+
+            {renderField({
+                type: 'text',
+                label: 'Role / Company',
+                value: props.role,
+                onChange: (value) => onUpdate({ ...props, role: value }),
+            })}
+
+            {renderField({
+                type: 'image',
+                label: 'Avatar',
+                value: props.avatar,
+                onChange: (value) => onUpdate({ ...props, avatar: value }),
+                onUpload: onImageUpload,
+            })}
+
+            {renderField({
+                type: 'range',
+                label: 'Rating',
+                value: props.rating,
+                onChange: (value) => onUpdate({ ...props, rating: parseInt(value) }),
+                min: 0,
+                max: 5,
+                step: 1,
+            })}
+
+            {renderField({
+                type: 'color',
+                label: 'Background Color',
+                value: props.backgroundColor,
+                onChange: (value) => onUpdate({ ...props, backgroundColor: value }),
+            })}
+
+            {renderField({
+                type: 'color',
+                label: 'Text Color',
+                value: props.textColor,
+                onChange: (value) => onUpdate({ ...props, textColor: value }),
+            })}
+        </div>
+    );
+}
+```
+
+### 5. Save/HTML Generators (save.js)
 
 ```javascript
-// resources/js/app.js or a dedicated file
-import { blockRegistry } from '@/lara-builder';
-import TestimonialBlock from './components/TestimonialBlock';
+import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
 
-blockRegistry.register({
-    type: 'testimonial',
-    component: TestimonialBlock,
-    htmlGenerator: {
-        email: (props) => `
-            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: ${props.backgroundColor}; border-radius: 8px;">
-                <tr>
-                    <td style="padding: 24px;">
-                        <p style="color: #eab308; font-size: 20px; margin: 0 0 8px 0;">
-                            ${'★'.repeat(props.rating)}${'☆'.repeat(5 - props.rating)}
-                        </p>
-                        <p style="color: ${props.textColor}; font-size: 18px; font-style: italic; margin: 0 0 16px 0;">
-                            "${props.quote}"
-                        </p>
-                        <table cellpadding="0" cellspacing="0">
-                            <tr>
-                                ${props.avatar ? `
-                                    <td style="padding-right: 12px;">
-                                        <img src="${props.avatar}" width="48" height="48" style="border-radius: 50%;" />
-                                    </td>
-                                ` : ''}
-                                <td>
-                                    <p style="font-weight: 600; margin: 0;">${props.author}</p>
-                                    <p style="color: #6b7280; font-size: 14px; margin: 0;">${props.role}</p>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        `,
-        page: (props) => `
-            <div class="testimonial-block" style="background-color: ${props.backgroundColor}; padding: 24px; border-radius: 8px;">
-                <div class="stars" style="color: #eab308; font-size: 20px;">
-                    ${'★'.repeat(props.rating)}${'☆'.repeat(5 - props.rating)}
-                </div>
-                <p style="color: ${props.textColor}; font-size: 18px; font-style: italic;">
-                    "${props.quote}"
-                </p>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    ${props.avatar ? `<img src="${props.avatar}" style="width: 48px; height: 48px; border-radius: 50%;" />` : ''}
-                    <div>
-                        <p style="font-weight: 600; margin: 0;">${props.author}</p>
-                        <p style="color: #6b7280; font-size: 14px; margin: 0;">${props.role}</p>
-                    </div>
+/**
+ * Generate HTML for web/page context
+ */
+export const page = (props, options = {}) => {
+    const type = 'testimonial';
+    const blockClasses = buildBlockClasses(type, props);
+    const stars = '★'.repeat(props.rating) + '☆'.repeat(5 - props.rating);
+
+    const blockStyles = [
+        `background-color: ${props.backgroundColor || '#f8fafc'}`,
+        'padding: 24px',
+        'border-radius: 8px',
+    ];
+
+    const mergedStyles = mergeBlockStyles(props, blockStyles.join('; '));
+
+    return `
+        <div class="${blockClasses}" style="${mergedStyles}">
+            <div style="color: #eab308; font-size: 20px; margin-bottom: 8px;">
+                ${stars}
+            </div>
+            <p style="color: ${props.textColor || '#475569'}; font-size: 18px; font-style: italic; margin: 0 0 16px 0;">
+                "${props.quote || ''}"
+            </p>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                ${props.avatar ? `
+                    <img src="${props.avatar}" alt="${props.author}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" />
+                ` : ''}
+                <div>
+                    <p style="font-weight: 600; margin: 0;">${props.author || ''}</p>
+                    <p style="color: #6b7280; font-size: 14px; margin: 0;">${props.role || ''}</p>
                 </div>
             </div>
-        `,
+        </div>
+    `;
+};
+
+/**
+ * Generate HTML for email context
+ */
+export const email = (props, options = {}) => {
+    const stars = '★'.repeat(props.rating) + '☆'.repeat(5 - props.rating);
+
+    return `
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${props.backgroundColor || '#f8fafc'}; border-radius: 8px;">
+            <tr>
+                <td style="padding: 24px;">
+                    <p style="color: #eab308; font-size: 20px; margin: 0 0 8px 0;">
+                        ${stars}
+                    </p>
+                    <p style="color: ${props.textColor || '#475569'}; font-size: 18px; font-style: italic; margin: 0 0 16px 0;">
+                        "${props.quote || ''}"
+                    </p>
+                    <table cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            ${props.avatar ? `
+                                <td style="padding-right: 12px; vertical-align: middle;">
+                                    <img src="${props.avatar}" width="48" height="48" style="border-radius: 50%; display: block;" alt="${props.author}" />
+                                </td>
+                            ` : ''}
+                            <td style="vertical-align: middle;">
+                                <p style="font-weight: 600; margin: 0;">${props.author || ''}</p>
+                                <p style="color: #6b7280; font-size: 14px; margin: 0;">${props.role || ''}</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    `;
+};
+
+export default { page, email };
+```
+
+### 6. Block Definition (index.js)
+
+```javascript
+import block from './block';
+import editor from './editor';
+import config from './block.json';
+import save from './save';
+
+const defaultLayoutStyles = {
+    margin: { top: '', right: '', bottom: '', left: '' },
+    padding: { top: '', right: '', bottom: '', left: '' },
+    width: '', minWidth: '', maxWidth: '',
+    height: '', minHeight: '', maxHeight: '',
+};
+
+const testimonialBlock = {
+    ...config,
+    block,
+    editor,
+    save,
+    defaultProps: {
+        ...config.defaultProps,
+        layoutStyles: { ...defaultLayoutStyles },
     },
-});
+};
+
+export { block, editor, config, save };
+export default testimonialBlock;
+```
+
+### 7. Register the Block
+
+Add to `blockLoader.js`:
+
+```javascript
+import testimonialBlock from './testimonial';
+
+const modularBlocks = [
+    // ... other blocks
+    testimonialBlock,
+];
+```
+
+Or register dynamically:
+
+```javascript
+import testimonialBlock from './blocks/testimonial';
+import { blockRegistry } from '@/lara-builder';
+
+blockRegistry.register(testimonialBlock);
 ```
 
 ---
@@ -777,7 +1097,7 @@ blockRegistry.register({
 
 ### HTML Not Generating
 
-1. Verify `htmlGenerator` has the correct context key
+1. Verify `save` has the correct context key (`page`, `email`)
 2. Check that all required props have values
 3. Use `LaraHooks.addFilter('builder.html.block.{type}')` to debug
 

@@ -70,46 +70,65 @@
                         @if($post->design_json)
                             {{-- LaraBuilder CSS styles for rendered content --}}
                             <style>
-                                /* Base block styles */
-                                .lb-content-preview .lb-block { display: block; }
+                                /* Base block styles - layout styles are now applied directly to each block's main element */
+                                .lb-content-preview .lb-block { display: block; margin-bottom: 16px; }
                                 .lb-content-preview .lb-content { max-width: 100%; }
-                                .lb-content-preview .lb-heading { margin: 0 0 16px 0; }
-                                .lb-content-preview .lb-text { margin: 0 0 16px 0; }
 
-                                /* Image block - flexbox alignment */
-                                .lb-content-preview .lb-image,
-                                .lb-content-preview figure.lb-block.lb-image {
-                                    display: flex !important;
-                                    margin: 0 0 16px 0 !important;
-                                }
-                                .lb-content-preview .lb-image-element { max-width: 100%; height: auto; }
+                                /* Text blocks */
+                                .lb-content-preview .lb-heading { margin-bottom: 16px; }
+                                .lb-content-preview .lb-text { margin-bottom: 16px; }
+                                .lb-content-preview .lb-text-editor { margin-bottom: 16px; }
+                                .lb-content-preview .lb-list { margin-bottom: 16px; }
 
-                                /* Button block */
-                                .lb-content-preview .lb-button { display: inline-block; text-decoration: none; transition: opacity 0.2s ease; }
-                                .lb-content-preview .lb-button:hover { opacity: 0.9; }
+                                /* Image block */
+                                .lb-content-preview .lb-image { margin-bottom: 16px; }
+                                .lb-content-preview .lb-image img { max-width: 100%; height: auto; }
 
-                                /* Columns block */
-                                .lb-content-preview .lb-columns { display: flex; gap: 20px; flex-wrap: wrap; margin: 0 0 16px 0; }
+                                /* Button block - wrapper has layout styles, inner button has specific styles */
+                                .lb-content-preview .lb-button { margin-bottom: 16px; }
+                                .lb-content-preview .lb-button a { text-decoration: none; transition: opacity 0.2s ease; }
+                                .lb-content-preview .lb-button a:hover { opacity: 0.9; }
+
+                                /* Columns block - layout styles on main element */
+                                .lb-content-preview .lb-columns { margin-bottom: 16px; }
                                 .lb-content-preview .lb-column { flex: 1; min-width: 0; }
 
-                                /* Other blocks */
-                                .lb-content-preview .lb-divider { border: none; margin: 20px auto; }
+                                /* Divider & Spacer */
+                                .lb-content-preview .lb-divider { border: none; }
                                 .lb-content-preview .lb-spacer { display: block; }
-                                .lb-content-preview .lb-quote { margin: 10px 0; }
 
-                                /* Video block - flexbox alignment */
-                                .lb-content-preview .lb-video,
-                                .lb-content-preview div.lb-block.lb-video {
-                                    display: flex !important;
-                                    margin: 0 0 16px 0;
-                                }
+                                /* Quote block */
+                                .lb-content-preview .lb-quote { margin-bottom: 16px; }
+
+                                /* Video block */
+                                .lb-content-preview .lb-video { margin-bottom: 16px; }
                                 .lb-content-preview .lb-video-container { cursor: pointer; }
                                 .lb-content-preview .lb-video-play-btn:hover { background: rgba(0,0,0,0.9) !important; }
 
-                                /* Social & Table blocks */
-                                .lb-content-preview .lb-social { padding: 10px 0; }
-                                .lb-content-preview .lb-table-wrapper { overflow-x: auto; margin: 0 0 16px 0; }
-                                .lb-content-preview .lb-table { width: 100%; border-collapse: collapse; }
+                                /* Social block */
+                                .lb-content-preview .lb-social { margin-bottom: 16px; }
+
+                                /* Table block */
+                                .lb-content-preview .lb-table { margin-bottom: 16px; }
+                                .lb-content-preview .lb-table-inner { width: 100%; border-collapse: collapse; }
+
+                                /* Footer block */
+                                .lb-content-preview .lb-footer { margin-bottom: 16px; }
+
+                                /* Countdown block */
+                                .lb-content-preview .lb-countdown { margin-bottom: 16px; }
+
+                                /* Accordion block */
+                                .lb-content-preview .lb-accordion { margin-bottom: 16px; }
+
+                                /* Section block */
+                                .lb-content-preview .lb-section { margin-bottom: 16px; }
+
+                                /* Code block */
+                                .lb-content-preview .lb-code { margin-bottom: 16px; }
+
+                                /* HTML block */
+                                .lb-content-preview .lb-html { margin-bottom: 16px; }
 
                                 /* Responsive */
                                 @media (max-width: 768px) {

@@ -90,16 +90,16 @@ export const getModularBlock = (type) => modularBlockMap[type] || null;
  * Get block component by type (from modular blocks only)
  */
 export const getModularBlockComponent = (type) => {
-    const block = modularBlockMap[type];
-    return block?.component || null;
+    const blockDef = modularBlockMap[type];
+    return blockDef?.block || null;
 };
 
 /**
  * Get block editor (property panel) by type (from modular blocks only)
  */
 export const getModularBlockEditor = (type) => {
-    const block = modularBlockMap[type];
-    return block?.propertyEditor || null;
+    const blockDef = modularBlockMap[type];
+    return blockDef?.editor || null;
 };
 
 /**
@@ -107,10 +107,10 @@ export const getModularBlockEditor = (type) => {
  * Returns config without component references (for serialization)
  */
 export const getModularBlockConfig = (type) => {
-    const block = modularBlockMap[type];
-    if (!block) return null;
+    const blockDef = modularBlockMap[type];
+    if (!blockDef) return null;
 
-    const { component, propertyEditor, ...config } = block;
+    const { block, editor, save, ...config } = blockDef;
     return config;
 };
 

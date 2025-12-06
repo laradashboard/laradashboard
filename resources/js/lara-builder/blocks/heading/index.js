@@ -6,12 +6,13 @@
  * - block.json  : Block metadata and configuration
  * - block.jsx   : React component for builder canvas
  * - editor.jsx  : React component for properties panel
- * - render.php  : Server-side rendering (optional)
+ * - save.js     : HTML generators for page/email output
  */
 
-import Block from './block';
-import Editor from './editor';
+import block from './block';
+import editor from './editor';
 import config from './block.json';
+import save from './save';
 
 // Default layout styles
 const defaultLayoutStyles = {
@@ -27,21 +28,15 @@ const defaultLayoutStyles = {
 
 // Block definition combining config and components
 const headingBlock = {
-    // Spread config from block.json
     ...config,
-
-    // React component for rendering in the builder canvas
-    component: Block,
-
-    // React component for the properties panel editor
-    propertyEditor: Editor,
-
-    // Merge defaultProps with layoutStyles
+    block,
+    editor,
+    save,
     defaultProps: {
         ...config.defaultProps,
         layoutStyles: { ...defaultLayoutStyles },
     },
 };
 
-export { Block, Editor, config };
+export { block, editor, config, save };
 export default headingBlock;

@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { getBlockComponent } from '../blocks';
 import BlockToolbar from './BlockToolbar';
 import { layoutStylesToCSS } from './LayoutStylesSection';
-import { buildBlockClasses, parseCustomCSS } from './BlockWrapper';
+import { buildBlockClasses } from './BlockWrapper';
 
 // Drop zone indicator between blocks
 const DropZone = ({ id, isFirst = false }) => {
@@ -48,20 +48,14 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
         isDragging,
     } = useSortable({ id: block.id });
 
-    // Get layout styles from block props
-    const layoutStyles = layoutStylesToCSS(block.props?.layoutStyles);
-
-    // Parse custom CSS from block props
-    const customStyles = parseCustomCSS(block.props?.customCSS);
+    // Note: Layout styles and custom CSS are now applied directly to each block's
+    // main element (inside the block component), not to this wrapper.
+    // This ensures consistent output between canvas preview and HTML export.
 
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
-        // Apply layout styles (margin, padding, width, height, etc.)
-        ...layoutStyles,
-        // Apply custom CSS styles
-        ...customStyles,
     };
 
     // Build block classes (lb-block lb-{type} + custom class)

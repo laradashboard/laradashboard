@@ -42,9 +42,9 @@ import { BuilderHooks } from '../hooks-system/HookNames';
  * @property {string} icon - Iconify icon name
  * @property {string[]} [contexts=['*']] - Allowed contexts
  * @property {Object} defaultProps - Default property values
- * @property {React.ComponentType} component - React component for rendering
- * @property {React.ComponentType} [propertyEditor] - Custom property editor
- * @property {Object} [htmlGenerator] - Per-context HTML generators
+ * @property {React.ComponentType} block - React component for rendering in builder canvas
+ * @property {React.ComponentType} [editor] - Custom property editor component
+ * @property {Object} [save] - Per-context HTML generators { page, email, ... }
  * @property {Function} [validate] - Validation function
  * @property {Object} [transform] - Transform from other blocks
  * @property {BlockSupports} [supports] - Feature support flags
@@ -84,9 +84,9 @@ class BlockRegistryClass {
             icon: definition.icon || 'lucide:box',
             contexts: definition.contexts || ['*'],
             defaultProps: definition.defaultProps || {},
-            component: definition.component || null,
-            propertyEditor: definition.propertyEditor || null,
-            htmlGenerator: definition.htmlGenerator || {},
+            block: definition.block || null,
+            editor: definition.editor || null,
+            save: definition.save || {},
             validate: definition.validate || (() => true),
             transform: definition.transform || null,
             description: definition.description || '',
@@ -119,8 +119,8 @@ class BlockRegistryClass {
         }
 
         // Store component mapping
-        if (block.component) {
-            this.components.set(definition.type, block.component);
+        if (block.block) {
+            this.components.set(definition.type, block.block);
         }
 
         // Fire action hook
@@ -255,7 +255,7 @@ class BlockRegistryClass {
         this.components.set(type, component);
         const block = this.blocks.get(type);
         if (block) {
-            block.component = component;
+            block.block = component;
         }
     }
 
@@ -356,14 +356,14 @@ class BlockRegistryClass {
         const block = this.blocks.get(type);
         if (!block) return null;
 
-        // Check for context-specific generator
-        if (block.htmlGenerator[context]) {
-            return block.htmlGenerator[context];
+        // Check for context-specific generator (using new 'save' name)
+        if (block.save[context]) {
+            return block.save[context];
         }
 
         // Check for wildcard generator
-        if (block.htmlGenerator['*']) {
-            return block.htmlGenerator['*'];
+        if (block.save['*']) {
+            return block.save['*'];
         }
 
         return null;
