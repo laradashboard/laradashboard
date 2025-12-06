@@ -16,7 +16,7 @@ const paths = [
     "resources/js/lara-builder/post-entry.jsx",
 ];
 
-// Use top-level await to properly load module assets
+// Use top-level await to properly load module assets.
 let allPaths = await collectModuleAssetsPaths(paths, "modules");
 
 if (allPaths.length === 0) {
@@ -38,11 +38,12 @@ export default defineConfig({
     },
     resolve: {
         alias: [
-            // LaraBuilder aliases - more specific aliases must come first
+            // LaraBuilder aliases.
             { find: "@lara-builder/utils", replacement: path.resolve(__dirname, "resources/js/lara-builder/utils") },
             { find: "@lara-builder/blocks", replacement: path.resolve(__dirname, "resources/js/lara-builder/blocks") },
             { find: "@lara-builder", replacement: path.resolve(__dirname, "resources/js/lara-builder") },
-            // React aliases
+
+            // React aliases.
             { find: "react", replacement: path.resolve(__dirname, "node_modules/react") },
             { find: "react-dom", replacement: path.resolve(__dirname, "node_modules/react-dom") },
         ],

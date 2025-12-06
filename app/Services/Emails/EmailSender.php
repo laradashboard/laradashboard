@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Emails;
 
-use App\Services\Builder\EmailBlockRenderer;
+use App\Services\Builder\BlockRenderer;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Log;
 use App\Services\UnsubscribeService;
@@ -14,11 +14,11 @@ class EmailSender
     private string $subject;
     private string $content;
     private ?EmailVariable $emailVariable = null;
-    private ?EmailBlockRenderer $blockRenderer = null;
+    private ?BlockRenderer $blockRenderer = null;
 
     public function __construct(
         ?EmailVariable $emailVariable = null,
-        ?EmailBlockRenderer $blockRenderer = null,
+        ?BlockRenderer $blockRenderer = null,
     ) {
         if ($emailVariable !== null) {
             $this->emailVariable = $emailVariable;
@@ -47,7 +47,7 @@ class EmailSender
         }
 
         if ($this->blockRenderer === null) {
-            $this->blockRenderer = app(EmailBlockRenderer::class);
+            $this->blockRenderer = app(BlockRenderer::class);
         }
 
         try {

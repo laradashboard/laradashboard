@@ -7,13 +7,15 @@ namespace App\Services\Builder;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Email Block Renderer
+ * Block Renderer
  *
- * Processes email HTML content to render dynamic blocks server-side.
+ * Processes HTML content to render dynamic blocks server-side.
  * This handles blocks like CRM Contact that have data attributes
- * indicating they need server-side rendering.
+ * indicating they need server-side rendering via render.php.
+ *
+ * Works for all contexts: email, page, campaign.
  */
-class EmailBlockRenderer
+class BlockRenderer
 {
     public function __construct(
         protected BuilderService $builderService
@@ -21,12 +23,16 @@ class EmailBlockRenderer
     }
 
     /**
-     * Process email HTML content and render any dynamic blocks
+     * Process HTML content and render any dynamic blocks
      *
      * Looks for elements with data-lara-block attribute and replaces
      * them with server-rendered content.
+     *
+     * @param  string  $content  The HTML content to process
+     * @param  string  $context  The rendering context (email, page, campaign)
+     * @return string The processed HTML with dynamic blocks rendered
      */
-    public function processContent(string $content, string $context = 'email'): string
+    public function processContent(string $content, string $context = 'page'): string
     {
         // Find all block placeholders
         $pattern = '/<div\s+data-lara-block="([^"]+)"([^>]*)>/is';
@@ -41,7 +47,6 @@ class EmailBlockRenderer
         foreach ($matches as $match) {
             $blockType = $match[1][0];
             $attributes = $match[2][0];
-            $openingTag = $match[0][0];
             $startPos = $match[0][1];
 
             try {
@@ -62,8 +67,9 @@ class EmailBlockRenderer
                     }
                 }
             } catch (\Throwable $e) {
-                Log::warning('Failed to render block in email', [
+                Log::warning('Failed to render block', [
                     'block_type' => $blockType,
+                    'context' => $context,
                     'error' => $e->getMessage(),
                 ]);
             }
