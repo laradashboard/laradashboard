@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Emails;
 
+use App\Services\Builder\EmailBlockRenderer;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Log;
 use App\Services\UnsubscribeService;
@@ -13,12 +14,17 @@ class EmailSender
     private string $subject;
     private string $content;
     private ?EmailVariable $emailVariable = null;
+    private ?EmailBlockRenderer $blockRenderer = null;
 
     public function __construct(
         ?EmailVariable $emailVariable = null,
+        ?EmailBlockRenderer $blockRenderer = null,
     ) {
         if ($emailVariable !== null) {
             $this->emailVariable = $emailVariable;
+        }
+        if ($blockRenderer !== null) {
+            $this->blockRenderer = $blockRenderer;
         }
     }
 
@@ -40,10 +46,17 @@ class EmailSender
             $this->emailVariable = new EmailVariable();
         }
 
+        if ($this->blockRenderer === null) {
+            $this->blockRenderer = app(EmailBlockRenderer::class);
+        }
+
         try {
             $variables = array_merge($this->emailVariable->getReplacementData(), $variables);
             $formattedSubject = $this->emailVariable->replaceVariables($this->subject, $variables);
             $formattedContent = $this->emailVariable->replaceVariables($this->content, $variables);
+
+            // Process any dynamic blocks (e.g., CRM Contact) with server-side rendering
+            $formattedContent = $this->blockRenderer->processContent($formattedContent, 'email');
 
             if ($recipientEmail) {
                 $formattedContent = app(UnsubscribeService::class)->addFooterToEmail($formattedContent, $recipientEmail);

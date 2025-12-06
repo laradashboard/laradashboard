@@ -1,0 +1,86 @@
+{
+    "type": "image",
+    "label": "Image",
+    "category": "Content",
+    "icon": "mdi:image-outline",
+    "description": "Add an image to your content",
+    "keywords": ["image", "picture", "photo", "media"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "src": "",
+        "alt": "Image description",
+        "width": "100%",
+        "height": "auto",
+        "customWidth": "",
+        "customHeight": "",
+        "align": "center",
+        "link": ""
+    },
+    "properties": [
+        {
+            "name": "src",
+            "type": "image",
+            "label": "Image"
+        },
+        {
+            "name": "alt",
+            "type": "text",
+            "label": "Alt Text",
+            "placeholder": "Describe the image..."
+        },
+        {
+            "name": "link",
+            "type": "url",
+            "label": "Link URL",
+            "placeholder": "https://..."
+        },
+        {
+            "name": "width",
+            "type": "select",
+            "label": "Width",
+            "options": [
+                { "value": "100%", "label": "Full Width (100%)" },
+                { "value": "75%", "label": "Three Quarters (75%)" },
+                { "value": "50%", "label": "Half (50%)" },
+                { "value": "25%", "label": "Quarter (25%)" },
+                { "value": "custom", "label": "Custom" }
+            ]
+        },
+        {
+            "name": "customWidth",
+            "type": "text",
+            "label": "Custom Width",
+            "placeholder": "e.g., 300px",
+            "showIf": { "width": "custom" }
+        },
+        {
+            "name": "height",
+            "type": "select",
+            "label": "Height",
+            "options": [
+                { "value": "auto", "label": "Auto" },
+                { "value": "custom", "label": "Custom" }
+            ]
+        },
+        {
+            "name": "customHeight",
+            "type": "text",
+            "label": "Custom Height",
+            "placeholder": "e.g., 200px",
+            "showIf": { "height": "custom" }
+        },
+        {
+            "name": "align",
+            "type": "align",
+            "label": "Alignment"
+        }
+    ]
+}

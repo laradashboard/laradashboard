@@ -18,17 +18,16 @@ if (typeof window !== 'undefined') {
     window.ReactJSXRuntime = ReactJSXRuntime;
 }
 
-// Import and register default blocks
+// Import and register blocks from modular architecture
 import { blockRegistry } from './registry/BlockRegistry';
-import { defaultBlocks } from './blocks/defaultBlocks';
+import { registerModularBlocks } from './blocks/blockLoader';
 
 // Import adapters to ensure they are registered
 import './adapters';
 
-// Register all default blocks
-defaultBlocks.forEach((block) => {
-    blockRegistry.register(block);
-});
+// Register all modular blocks (new architecture with block.json, editor.jsx)
+// Each block includes component + propertyEditor
+registerModularBlocks(blockRegistry);
 
 // Find the mount point
 const container = document.getElementById('lara-builder-root');

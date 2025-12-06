@@ -22,14 +22,13 @@ if (typeof window !== 'undefined') {
 // Import adapters to register them
 import './adapters';
 
-// Import and register default blocks
+// Import and register blocks from modular architecture
 import { blockRegistry } from './registry/BlockRegistry';
-import { defaultBlocks } from './blocks/defaultBlocks';
+import { registerModularBlocks } from './blocks/blockLoader';
 
-// Register all default blocks
-defaultBlocks.forEach((block) => {
-    blockRegistry.register(block);
-});
+// Register all modular blocks (new architecture with block.json, editor.jsx)
+// Each block includes component + propertyEditor
+registerModularBlocks(blockRegistry);
 
 /**
  * Initialize LaraBuilder on a DOM element

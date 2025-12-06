@@ -1,0 +1,72 @@
+{
+    "type": "quote",
+    "label": "Quote",
+    "category": "Content",
+    "icon": "mdi:format-quote-close",
+    "description": "Add a quote or testimonial",
+    "keywords": ["quote", "testimonial", "blockquote", "citation"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "colors": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "text": "This is a quote or testimonial that stands out from the rest of the content.",
+        "author": "John Doe",
+        "authorTitle": "CEO, Company",
+        "borderColor": "#635bff",
+        "backgroundColor": "#f8fafc",
+        "textColor": "#475569",
+        "authorColor": "#1e293b",
+        "align": "left"
+    },
+    "properties": [
+        {
+            "name": "text",
+            "type": "textarea",
+            "label": "Quote Text",
+            "placeholder": "Enter quote..."
+        },
+        {
+            "name": "author",
+            "type": "text",
+            "label": "Author Name",
+            "placeholder": "John Doe"
+        },
+        {
+            "name": "authorTitle",
+            "type": "text",
+            "label": "Author Title",
+            "placeholder": "CEO, Company"
+        },
+        {
+            "name": "align",
+            "type": "align",
+            "label": "Alignment"
+        },
+        {
+            "name": "borderColor",
+            "type": "color",
+            "label": "Border Color"
+        },
+        {
+            "name": "backgroundColor",
+            "type": "color",
+            "label": "Background Color"
+        },
+        {
+            "name": "textColor",
+            "type": "color",
+            "label": "Text Color"
+        },
+        {
+            "name": "authorColor",
+            "type": "color",
+            "label": "Author Color"
+        }
+    ]
+}

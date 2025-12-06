@@ -1,0 +1,103 @@
+{
+  "type": "footer",
+  "label": "Footer",
+  "category": "Layout",
+  "icon": "mdi:page-layout-footer",
+  "description": "Add an email footer with company info",
+  "keywords": ["footer", "unsubscribe", "company", "contact"],
+  "contexts": ["email", "campaign"],
+  "supports": {
+    "align": true,
+    "colors": true,
+    "layout": true,
+    "html": true,
+    "duplicate": true,
+    "remove": true
+  },
+  "defaultProps": {
+    "companyName": "Your Company Name",
+    "address": "123 Street Name, City, Country",
+    "phone": "+1 234 567 890",
+    "email": "contact@company.com",
+    "unsubscribeText": "Unsubscribe from these emails",
+    "unsubscribeUrl": "#unsubscribe",
+    "copyright": "© 2024 Your Company. All rights reserved.",
+    "textColor": "#6b7280",
+    "linkColor": "#635bff",
+    "fontSize": "12px",
+    "align": "center"
+  },
+  "properties": {
+    "companyName": {
+      "type": "string",
+      "label": "Company Name",
+      "description": "Name of your company",
+      "default": "Your Company Name"
+    },
+    "address": {
+      "type": "string",
+      "label": "Address",
+      "description": "Company address",
+      "default": "123 Street Name, City, Country"
+    },
+    "phone": {
+      "type": "string",
+      "label": "Phone",
+      "description": "Contact phone number",
+      "default": "+1 234 567 890"
+    },
+    "email": {
+      "type": "string",
+      "label": "Email",
+      "description": "Contact email address",
+      "default": "contact@company.com"
+    },
+    "unsubscribeText": {
+      "type": "string",
+      "label": "Unsubscribe Text",
+      "description": "Text for unsubscribe link",
+      "default": "Unsubscribe from these emails"
+    },
+    "unsubscribeUrl": {
+      "type": "string",
+      "label": "Unsubscribe URL",
+      "description": "URL for unsubscribe action",
+      "default": "#unsubscribe"
+    },
+    "copyright": {
+      "type": "string",
+      "label": "Copyright",
+      "description": "Copyright notice text",
+      "default": "© 2024 Your Company. All rights reserved."
+    },
+    "textColor": {
+      "type": "color",
+      "label": "Text Color",
+      "description": "Color for footer text",
+      "default": "#6b7280"
+    },
+    "linkColor": {
+      "type": "color",
+      "label": "Link Color",
+      "description": "Color for footer links",
+      "default": "#635bff"
+    },
+    "fontSize": {
+      "type": "string",
+      "label": "Font Size",
+      "description": "Font size for footer text",
+      "default": "12px"
+    },
+    "align": {
+      "type": "select",
+      "label": "Alignment",
+      "description": "Text alignment",
+      "options": [
+        { "label": "Left", "value": "left" },
+        { "label": "Center", "value": "center" },
+        { "label": "Right", "value": "right" }
+      ],
+      "default": "center"
+    }
+  }
+}

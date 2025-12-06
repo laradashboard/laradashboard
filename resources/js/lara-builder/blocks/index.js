@@ -3,12 +3,12 @@
  *
  * This module exports all block-related functionality:
  * - Block components (React components for rendering blocks)
- * - Default block definitions (block configurations)
+ * - Block loader for modular block architecture
  */
 
-// Export block components
+// Export block components and getBlockComponent
 export * from './components';
-export { blockComponents, getBlockComponent } from './components';
+export { getBlockComponent } from './components';
 
-// Export default block definitions
-export { defaultBlocks, defaultLayoutStyles } from './defaultBlocks';
+// Export block loader utilities
+export * from './blockLoader';

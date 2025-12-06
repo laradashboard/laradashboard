@@ -1,0 +1,82 @@
+{
+    "type": "social",
+    "label": "Social",
+    "category": "Content",
+    "icon": "mdi:share-variant-outline",
+    "description": "Add social media links",
+    "keywords": ["social", "facebook", "twitter", "instagram", "linkedin", "youtube"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "align": "center",
+        "iconSize": "32px",
+        "gap": "12px",
+        "links": {
+            "facebook": "",
+            "twitter": "",
+            "instagram": "",
+            "linkedin": "",
+            "youtube": ""
+        }
+    },
+    "properties": [
+        {
+            "name": "align",
+            "type": "align",
+            "label": "Alignment"
+        },
+        {
+            "name": "iconSize",
+            "type": "select",
+            "label": "Icon Size",
+            "options": [
+                { "value": "24px", "label": "Small (24px)" },
+                { "value": "32px", "label": "Medium (32px)" },
+                { "value": "40px", "label": "Large (40px)" },
+                { "value": "48px", "label": "X-Large (48px)" }
+            ]
+        },
+        {
+            "name": "gap",
+            "type": "select",
+            "label": "Spacing",
+            "options": [
+                { "value": "8px", "label": "Small" },
+                { "value": "12px", "label": "Medium" },
+                { "value": "16px", "label": "Large" },
+                { "value": "24px", "label": "X-Large" }
+            ]
+        },
+        {
+            "name": "links.facebook",
+            "type": "url",
+            "label": "Facebook URL"
+        },
+        {
+            "name": "links.twitter",
+            "type": "url",
+            "label": "Twitter/X URL"
+        },
+        {
+            "name": "links.instagram",
+            "type": "url",
+            "label": "Instagram URL"
+        },
+        {
+            "name": "links.linkedin",
+            "type": "url",
+            "label": "LinkedIn URL"
+        },
+        {
+            "name": "links.youtube",
+            "type": "url",
+            "label": "YouTube URL"
+        }
+    ]
+}

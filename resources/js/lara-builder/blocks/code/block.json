@@ -1,0 +1,64 @@
+{
+    "type": "code",
+    "label": "Code",
+    "category": "Advanced",
+    "icon": "mdi:code-braces",
+    "description": "Add a code snippet",
+    "keywords": ["code", "snippet", "programming", "syntax"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "colors": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "code": "<?php echo \"hello\"; ?>",
+        "fontSize": "14px",
+        "backgroundColor": "#1e1e1e",
+        "textColor": "#d4d4d4",
+        "borderRadius": "8px"
+    },
+    "properties": [
+        {
+            "name": "code",
+            "type": "textarea",
+            "label": "Code",
+            "placeholder": "Enter your code here..."
+        },
+        {
+            "name": "fontSize",
+            "type": "select",
+            "label": "Font Size",
+            "options": [
+                { "value": "12px", "label": "X-Small (12px)" },
+                { "value": "14px", "label": "Small (14px)" },
+                { "value": "16px", "label": "Medium (16px)" },
+                { "value": "18px", "label": "Large (18px)" }
+            ]
+        },
+        {
+            "name": "backgroundColor",
+            "type": "color",
+            "label": "Background Color"
+        },
+        {
+            "name": "textColor",
+            "type": "color",
+            "label": "Text Color"
+        },
+        {
+            "name": "borderRadius",
+            "type": "select",
+            "label": "Border Radius",
+            "options": [
+                { "value": "0", "label": "None" },
+                { "value": "4px", "label": "Small (4px)" },
+                { "value": "6px", "label": "Medium (6px)" },
+                { "value": "8px", "label": "Large (8px)" },
+                { "value": "12px", "label": "X-Large (12px)" }
+            ]
+        }
+    ]
+}
