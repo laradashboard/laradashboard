@@ -7,9 +7,10 @@ import {
     BACKGROUND_POSITION_PRESETS,
     BACKGROUND_REPEAT_PRESETS,
 } from './presets';
+import { mediaLibrary } from '../../services/MediaLibraryService';
 
 const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
-    const [isUploading, setIsUploading] = useState(false);
+    const [isSelecting, setIsSelecting] = useState(false);
 
     const handleColorChange = (color) => {
         onChange({ ...background, color });
@@ -19,20 +20,17 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
         onChange({ ...background, image });
     };
 
-    const handleImageUpload = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file || !onImageUpload) return;
-
-        setIsUploading(true);
+    const handleSelectImage = async () => {
+        setIsSelecting(true);
         try {
-            const result = await onImageUpload(file);
-            if (result.url) {
-                handleImageChange(result.url);
+            const file = await mediaLibrary.selectImage();
+            if (file?.url) {
+                handleImageChange(file.url);
             }
         } catch (err) {
-            console.error('Failed to upload image:', err);
+            console.error('Failed to select image:', err);
         } finally {
-            setIsUploading(false);
+            setIsSelecting(false);
         }
     };
 
@@ -101,43 +99,38 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
                     </div>
                 )}
 
-                {/* Upload / URL input */}
-                <div className="border-2 border-dashed border-gray-200 rounded-lg p-3 text-center hover:border-gray-300 transition-colors">
-                    {onImageUpload && (
-                        <label className={`cursor-pointer block mb-2 ${isUploading ? 'opacity-50' : ''}`}>
-                            <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-                                {isUploading ? (
-                                    <>
-                                        <iconify-icon icon="mdi:loading" width="16" height="16" class="animate-spin"></iconify-icon>
-                                        <span>Uploading...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <iconify-icon icon="mdi:image-plus" width="16" height="16"></iconify-icon>
-                                        <span>SELECT IMAGE</span>
-                                    </>
-                                )}
-                            </div>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                className="hidden"
-                                disabled={isUploading}
-                            />
-                        </label>
-                    )}
-
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="text"
-                            value={background.image || ''}
-                            onChange={(e) => handleImageChange(e.target.value)}
-                            placeholder="Custom URL"
-                            className="flex-1 px-2 py-1.5 text-xs bg-white border border-gray-200 rounded text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none"
-                        />
-                        <iconify-icon icon="mdi:lightning-bolt" width="14" height="14" class="text-gray-400"></iconify-icon>
+                {/* Select from Media Library */}
+                <button
+                    type="button"
+                    onClick={handleSelectImage}
+                    disabled={isSelecting}
+                    className="w-full border-2 border-dashed border-gray-200 rounded-lg p-3 text-center hover:border-primary/50 hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                        {isSelecting ? (
+                            <>
+                                <iconify-icon icon="mdi:loading" width="16" height="16" class="animate-spin"></iconify-icon>
+                                <span>Selecting...</span>
+                            </>
+                        ) : (
+                            <>
+                                <iconify-icon icon="mdi:image-plus" width="16" height="16" class="text-primary"></iconify-icon>
+                                <span className="font-medium">Select from Media Library</span>
+                            </>
+                        )}
                     </div>
+                </button>
+
+                {/* Or enter URL manually */}
+                <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs text-gray-400">or</span>
+                    <input
+                        type="text"
+                        value={background.image || ''}
+                        onChange={(e) => handleImageChange(e.target.value)}
+                        placeholder="Enter image URL..."
+                        className="flex-1 px-2 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none"
+                    />
                 </div>
             </div>
 
