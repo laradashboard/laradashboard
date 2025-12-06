@@ -40,5 +40,16 @@
         ]) }}"
         data-statuses="{{ json_encode(\App\Models\Post::getPostStatuses()) }}"
     ></div>
+
+    {{-- Media Library Modal --}}
+    <x-media-modal
+        id="laraBuilderMediaModal"
+        :title="__('Select Media')"
+        :multiple="false"
+        allowedTypes="all"
+        buttonClass="hidden"
+    />
+
+    @stack('scripts')
 </body>
 </html>

@@ -76,11 +76,6 @@
             "label": "Custom Height",
             "placeholder": "e.g., 200px",
             "showIf": { "height": "custom" }
-        },
-        {
-            "name": "align",
-            "type": "align",
-            "label": "Alignment"
         }
     ]
 }

@@ -65,7 +65,9 @@ const modularBlocks = [
  * Used for quick lookup when checking if a block has been migrated
  */
 const modularBlockMap = modularBlocks.reduce((acc, block) => {
-    acc[block.type] = block;
+    if (block && block.type) {
+        acc[block.type] = block;
+    }
     return acc;
 }, {});
 
@@ -117,7 +119,12 @@ export const getModularBlockConfig = (type) => {
  * This merges modular block definitions with legacy blocks
  */
 export const registerModularBlocks = (registry) => {
-    modularBlocks.forEach((block) => {
+    modularBlocks.forEach((block, index) => {
+        // Skip undefined or invalid blocks
+        if (!block || !block.type) {
+            console.warn(`[BlockLoader] Skipping invalid block at index ${index}:`, block);
+            return;
+        }
         // Modular blocks include component references
         registry.register(block);
     });

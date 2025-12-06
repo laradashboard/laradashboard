@@ -36,3 +36,12 @@
     data-show-header="{{ $showHeader ? 'true' : 'false' }}"
     {{ $attributes }}
 ></div>
+
+{{-- Media Library Modal --}}
+<x-media-modal
+    id="laraBuilderMediaModal"
+    :title="__('Select Media')"
+    :multiple="false"
+    allowedTypes="all"
+    buttonClass="hidden"
+/>

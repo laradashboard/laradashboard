@@ -27,5 +27,16 @@
         data-upload-url="{{ route('admin.email-templates.upload-image') }}"
         data-video-upload-url="{{ route('admin.email-templates.upload-video') }}"
     ></div>
+
+    {{-- Media Library Modal --}}
+    <x-media-modal
+        id="laraBuilderMediaModal"
+        :title="__('Select Media')"
+        :multiple="false"
+        allowedTypes="all"
+        buttonClass="hidden"
+    />
+
+    @stack('scripts')
 </body>
 </html>

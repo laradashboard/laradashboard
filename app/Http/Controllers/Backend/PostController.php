@@ -561,10 +561,14 @@ class PostController extends Controller
             PostFilterHook::POST_CREATED_BEFORE
         );
 
+        // Generate unique slug
+        $baseSlug = $data['slug'] ?? Str::slug($data['title']);
+        $slug = $this->generateUniqueSlug($baseSlug);
+
         // Create post.
         $post = new Post();
         $post->title = $data['title'];
-        $post->slug = $data['slug'] ?? Str::slug($data['title']);
+        $post->slug = $slug;
         $post->content = $data['content'] ?? '';
         $post->design_json = $data['design_json'] ?? null;
         $post->excerpt = $data['excerpt'] ?? Str::limit(strip_tags($data['content'] ?? ''), 200);
@@ -801,5 +805,31 @@ class PostController extends Controller
             ['post' => $post, 'term_ids' => $termIds],
             PostActionHook::POST_TAXONOMIES_UPDATED
         );
+    }
+
+    /**
+     * Generate a unique slug by appending a number if necessary.
+     */
+    protected function generateUniqueSlug(string $baseSlug, ?int $excludeId = null): string
+    {
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while (true) {
+            $query = Post::where('slug', $slug);
+
+            if ($excludeId) {
+                $query->where('id', '!=', $excludeId);
+            }
+
+            if (! $query->exists()) {
+                break;
+            }
+
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 }

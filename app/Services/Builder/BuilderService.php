@@ -296,6 +296,8 @@ class BuilderService
                     const blocks = window.LaraBuilderServerData.blocks || [];
                     if (window.blockRegistry) {
                         blocks.forEach(function(block) {
+                            // Skip invalid blocks (must have type)
+                            if (!block || !block.type) return;
                             if (!window.blockRegistry.has(block.type)) {
                                 window.blockRegistry.register(block);
                             }
