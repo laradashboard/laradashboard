@@ -585,7 +585,7 @@
     "My Account": "Hesabım",
     "My Profile": "Profilim",
     "My Templates": "Şablonlarım",
-    "N/A": "Yok",
+    "N\/A": "Yok",
     "Name": "Ad",
     "Name is required": "Ad gereklidir",
     "Navigation": "Gezinme",
@@ -635,7 +635,7 @@
     "Notification Settings": "Bildirim Ayarları",
     "Notifications": "Bildirimler",
     "Number": "Numara",
-    "of": "/",
+    "of": "\/",
     "Off": "Kapalı",
     "OK": "Tamam",
     "Old Password": "Eski Şifre",
@@ -1300,5 +1300,13 @@
     "Your profile has been updated.": "Profiliniz güncellendi.",
     "Your session has expired": "Oturumunuzun süresi doldu",
     "YouTube": "YouTube",
-    "Zip Code": "Posta Kodu"
+    "Zip Code": "Posta Kodu",
+    "Table of Contents": "İçindekiler",
+    "Show Title": "Başlığı Göster",
+    "Minimum Heading Level": "Minimum Başlık Seviyesi",
+    "Maximum Heading Level": "Maksimum Başlık Seviyesi",
+    "List Style": "Liste Stili",
+    "Title Color": "Başlık Rengi",
+    "No headings found.": "Başlık bulunamadı.",
+    "Click the block to edit settings.": "Ayarları düzenlemek için bloğa tıklayın."
 }

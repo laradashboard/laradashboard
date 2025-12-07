@@ -907,5 +907,11 @@
     "Zip Code": "Mã Bưu chính",
     "Zoom": "Phóng to",
     "Zoom In": "Phóng to",
-    "Zoom Out": "Thu nhỏ"
+    "Zoom Out": "Thu nhỏ",
+    "Show Title": "Hiển Thị Tiêu Đề",
+    "Minimum Heading Level": "Cấp Độ Tiêu Đề Tối Thiểu",
+    "Maximum Heading Level": "Cấp Độ Tiêu Đề Tối Đa",
+    "Title Color": "Màu Tiêu Đề",
+    "No headings found.": "Không tìm thấy tiêu đề.",
+    "Click the block to edit settings.": "Nhấp vào khối để chỉnh sửa cài đặt."
 }

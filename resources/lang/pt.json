@@ -581,7 +581,7 @@
     "Move Block Down": "Mover Bloco para Baixo",
     "Move Block Up": "Mover Bloco para Cima",
     "Multiple": "Múltiplo",
-    "N/A": "N/D",
+    "N\/A": "N\/D",
     "Name": "Nome",
     "Name is required": "Nome é obrigatório",
     "Navigation": "Navegação",
@@ -1301,5 +1301,13 @@
     "YouTube": "YouTube",
     "Zip Code": "CEP",
     "Zoom In": "Aumentar Zoom",
-    "Zoom Out": "Diminuir Zoom"
+    "Zoom Out": "Diminuir Zoom",
+    "Table of Contents": "Índice",
+    "Show Title": "Mostrar Título",
+    "Minimum Heading Level": "Nível Mínimo de Título",
+    "Maximum Heading Level": "Nível Máximo de Título",
+    "List Style": "Estilo da Lista",
+    "Title Color": "Cor do Título",
+    "No headings found.": "Nenhum título encontrado.",
+    "Click the block to edit settings.": "Clique no bloco para editar as configurações."
 }

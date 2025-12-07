@@ -581,7 +581,7 @@
     "Move Block Down": "Переместить блок вниз",
     "Move Block Up": "Переместить блок вверх",
     "Multiple": "Множественный",
-    "N/A": "Н/Д",
+    "N\/A": "Н\/Д",
     "Name": "Имя",
     "Name is required": "Имя обязательно",
     "Navigation": "Навигация",
@@ -1301,5 +1301,13 @@
     "YouTube": "YouTube",
     "Zip Code": "Почтовый индекс",
     "Zoom In": "Увеличить",
-    "Zoom Out": "Уменьшить"
+    "Zoom Out": "Уменьшить",
+    "Table of Contents": "Содержание",
+    "Show Title": "Показать Заголовок",
+    "Minimum Heading Level": "Минимальный Уровень Заголовка",
+    "Maximum Heading Level": "Максимальный Уровень Заголовка",
+    "List Style": "Стиль Списка",
+    "Title Color": "Цвет Заголовка",
+    "No headings found.": "Заголовки не найдены.",
+    "Click the block to edit settings.": "Нажмите на блок, чтобы изменить настройки."
 }

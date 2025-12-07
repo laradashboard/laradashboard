@@ -130,6 +130,13 @@
                                 /* HTML block */
                                 .lb-content-preview .lb-html { margin-bottom: 16px; }
 
+                                /* Table of Contents block */
+                                .lb-content-preview .lb-toc { margin-bottom: 16px; }
+                                .lb-content-preview .lb-toc-list { margin: 0; padding: 0; }
+                                .lb-content-preview .lb-toc-list li { margin-bottom: 6px; line-height: 1.6; }
+                                .lb-content-preview .lb-toc-list a { text-decoration: none; transition: opacity 0.2s; }
+                                .lb-content-preview .lb-toc-list a:hover { opacity: 0.8; text-decoration: underline; }
+
                                 /* Responsive */
                                 @media (max-width: 768px) {
                                     .lb-content-preview .lb-columns { flex-direction: column; }

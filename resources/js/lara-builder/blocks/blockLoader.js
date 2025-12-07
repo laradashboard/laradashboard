@@ -34,6 +34,7 @@ import tableBlock from './table';
 import codeBlock from './code';
 import preformattedBlock from './preformatted';
 import accordionBlock from './accordion';
+import tocBlock from './toc';
 
 /**
  * All modular blocks (new format with block.json)
@@ -58,6 +59,7 @@ const modularBlocks = [
     codeBlock,
     preformattedBlock,
     accordionBlock,
+    tocBlock,
 ];
 
 /**

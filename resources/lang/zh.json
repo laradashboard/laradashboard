@@ -907,5 +907,11 @@
     "Zip Code": "邮政编码",
     "Zoom": "缩放",
     "Zoom In": "放大",
-    "Zoom Out": "缩小"
+    "Zoom Out": "缩小",
+    "Show Title": "Show Title",
+    "Minimum Heading Level": "Minimum Heading Level",
+    "Maximum Heading Level": "Maximum Heading Level",
+    "Title Color": "Title Color",
+    "No headings found.": "No headings found.",
+    "Click the block to edit settings.": "Click the block to edit settings."
 }

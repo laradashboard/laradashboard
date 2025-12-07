@@ -36,9 +36,9 @@ export class BaseAdapter {
         // Fire before action
         LaraHooks.doAction(BuilderHooks.ACTION_HTML_BEFORE_GENERATE, blocks, mergedSettings, this.context);
 
-        // Generate blocks HTML
+        // Generate blocks HTML - pass allBlocks in options for blocks that need context (like TOC)
         const blocksHtml = blocks
-            .map((block) => this.generateBlockHtml(block, { settings: mergedSettings }))
+            .map((block) => this.generateBlockHtml(block, { settings: mergedSettings, allBlocks: blocks }))
             .join('');
 
         // Wrap the output

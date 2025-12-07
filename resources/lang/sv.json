@@ -585,7 +585,7 @@
     "My Account": "Mitt konto",
     "My Profile": "Min profil",
     "My Templates": "Mina mallar",
-    "N/A": "N/A",
+    "N\/A": "N\/A",
     "Name": "Namn",
     "Name is required": "Namn krävs",
     "Navigation": "Navigering",
@@ -1300,5 +1300,13 @@
     "Your profile has been updated.": "Din profil har uppdaterats.",
     "Your session has expired": "Din session har gått ut",
     "YouTube": "YouTube",
-    "Zip Code": "Postnummer"
+    "Zip Code": "Postnummer",
+    "Table of Contents": "Table of Contents",
+    "Show Title": "Show Title",
+    "Minimum Heading Level": "Minimum Heading Level",
+    "Maximum Heading Level": "Maximum Heading Level",
+    "List Style": "List Style",
+    "Title Color": "Title Color",
+    "No headings found.": "No headings found.",
+    "Click the block to edit settings.": "Click the block to edit settings."
 }

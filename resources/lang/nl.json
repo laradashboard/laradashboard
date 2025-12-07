@@ -581,7 +581,7 @@
     "Move Block Down": "Blok Omlaag",
     "Move Block Up": "Blok Omhoog",
     "Multiple": "Meerdere",
-    "N/A": "N.v.t.",
+    "N\/A": "N.v.t.",
     "Name": "Naam",
     "Name is required": "Naam is verplicht",
     "Navigation": "Navigatie",
@@ -1301,5 +1301,13 @@
     "YouTube": "YouTube",
     "Zip Code": "Postcode",
     "Zoom In": "Inzoomen",
-    "Zoom Out": "Uitzoomen"
+    "Zoom Out": "Uitzoomen",
+    "Table of Contents": "Inhoudsopgave",
+    "Show Title": "Titel Tonen",
+    "Minimum Heading Level": "Minimum Kopniveau",
+    "Maximum Heading Level": "Maximum Kopniveau",
+    "List Style": "Lijststijl",
+    "Title Color": "Titelkleur",
+    "No headings found.": "Geen koppen gevonden.",
+    "Click the block to edit settings.": "Klik op het blok om instellingen te bewerken."
 }

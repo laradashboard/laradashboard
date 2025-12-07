@@ -1028,7 +1028,7 @@
     "to": "a",
     "To Date": "Alla Data",
     "Today": "Oggi",
-    "Toggle": "Attiva/Disattiva",
+    "Toggle": "Attiva\/Disattiva",
     "Token": "Token",
     "Too Many Requests": "Troppe Richieste",
     "Toolbar": "Barra Strumenti",
@@ -1184,5 +1184,11 @@
     "Zip Code": "CAP",
     "Zoom": "Zoom",
     "Zoom In": "Zoom Avanti",
-    "Zoom Out": "Zoom Indietro"
+    "Zoom Out": "Zoom Indietro",
+    "Table of Contents": "Indice",
+    "Show Title": "Mostra Titolo",
+    "Minimum Heading Level": "Livello Minimo Intestazione",
+    "Maximum Heading Level": "Livello Massimo Intestazione",
+    "No headings found.": "Nessuna intestazione trovata.",
+    "Click the block to edit settings.": "Clicca sul blocco per modificare le impostazioni."
 }

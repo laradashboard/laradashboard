@@ -585,7 +585,7 @@
     "My Account": "บัญชีของฉัน",
     "My Profile": "โปรไฟล์ของฉัน",
     "My Templates": "เทมเพลตของฉัน",
-    "N/A": "ไม่มี",
+    "N\/A": "ไม่มี",
     "Name": "ชื่อ",
     "Name is required": "ต้องกรอกชื่อ",
     "Navigation": "การนำทาง",
@@ -1300,5 +1300,13 @@
     "Your profile has been updated.": "โปรไฟล์ของคุณได้รับการอัปเดตแล้ว",
     "Your session has expired": "เซสชันของคุณหมดอายุแล้ว",
     "YouTube": "YouTube",
-    "Zip Code": "รหัสไปรษณีย์"
+    "Zip Code": "รหัสไปรษณีย์",
+    "Table of Contents": "สารบัญ",
+    "Show Title": "แสดงชื่อเรื่อง",
+    "Minimum Heading Level": "ระดับหัวข้อขั้นต่ำ",
+    "Maximum Heading Level": "ระดับหัวข้อสูงสุด",
+    "List Style": "รูปแบบรายการ",
+    "Title Color": "สีชื่อเรื่อง",
+    "No headings found.": "ไม่พบหัวข้อ",
+    "Click the block to edit settings.": "คลิกที่บล็อกเพื่อแก้ไขการตั้งค่า"
 }

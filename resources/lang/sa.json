@@ -261,5 +261,13 @@
     "You are logged in!": "لقد قمت بتسجيل الدخول!",
     "You are not authorized to view this page": "أنت غير مخول لعرض هذه الصفحة",
     "You do not have permission to access this page": "ليس لديك صلاحية للوصول إلى هذه الصفحة",
-    "You must be logged in to view this page": "يجب تسجيل الدخول لعرض هذه الصفحة"
+    "You must be logged in to view this page": "يجب تسجيل الدخول لعرض هذه الصفحة",
+    "Table of Contents": "Table of Contents",
+    "Show Title": "Show Title",
+    "Minimum Heading Level": "Minimum Heading Level",
+    "Maximum Heading Level": "Maximum Heading Level",
+    "List Style": "List Style",
+    "Title Color": "Title Color",
+    "No headings found.": "No headings found.",
+    "Click the block to edit settings.": "Click the block to edit settings."
 }

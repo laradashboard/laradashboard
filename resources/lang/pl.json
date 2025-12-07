@@ -581,7 +581,7 @@
     "Move Block Down": "Przenieś Blok w Dół",
     "Move Block Up": "Przenieś Blok w Górę",
     "Multiple": "Wielokrotny",
-    "N/A": "Nie dotyczy",
+    "N\/A": "Nie dotyczy",
     "Name": "Nazwa",
     "Name is required": "Nazwa jest wymagana",
     "Navigation": "Nawigacja",
@@ -1301,5 +1301,13 @@
     "YouTube": "YouTube",
     "Zip Code": "Kod Pocztowy",
     "Zoom In": "Powiększ",
-    "Zoom Out": "Pomniejsz"
+    "Zoom Out": "Pomniejsz",
+    "Table of Contents": "Spis Treści",
+    "Show Title": "Pokaż Tytuł",
+    "Minimum Heading Level": "Minimalny Poziom Nagłówka",
+    "Maximum Heading Level": "Maksymalny Poziom Nagłówka",
+    "List Style": "Styl Listy",
+    "Title Color": "Kolor Tytułu",
+    "No headings found.": "Nie znaleziono nagłówków.",
+    "Click the block to edit settings.": "Kliknij blok, aby edytować ustawienia."
 }

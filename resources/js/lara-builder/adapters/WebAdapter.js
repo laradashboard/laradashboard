@@ -40,12 +40,14 @@ export class WebAdapter extends BaseAdapter {
      * Delegates to block-registered HTML generators from save.js files
      */
     generateBlockHtml(block, options = {}) {
-        const { type, props } = block;
+        const { type, props, id } = block;
 
-        // Pass generateBlockHtml function to options for nested blocks (columns, section)
+        // Pass generateBlockHtml function, allBlocks, and blockId to options
+        // blockId is needed for heading anchors (TOC links)
         const extendedOptions = {
             ...options,
-            generateBlockHtml: (b, opts) => this.generateBlockHtml(b, opts),
+            blockId: id,
+            generateBlockHtml: (b, opts) => this.generateBlockHtml(b, { ...opts, allBlocks: options.allBlocks }),
         };
 
         // Check if block has a custom HTML generator registered

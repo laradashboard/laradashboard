@@ -1184,5 +1184,11 @@
     "Zip Code": "पिन कोड",
     "Zoom": "ज़ूम",
     "Zoom In": "ज़ूम इन",
-    "Zoom Out": "ज़ूम आउट"
+    "Zoom Out": "ज़ूम आउट",
+    "Table of Contents": "विषय सूची",
+    "Show Title": "शीर्षक दिखाएं",
+    "Minimum Heading Level": "न्यूनतम शीर्षक स्तर",
+    "Maximum Heading Level": "अधिकतम शीर्षक स्तर",
+    "No headings found.": "कोई शीर्षक नहीं मिला।",
+    "Click the block to edit settings.": "सेटिंग्स संपादित करने के लिए ब्लॉक पर क्लिक करें।"
 }

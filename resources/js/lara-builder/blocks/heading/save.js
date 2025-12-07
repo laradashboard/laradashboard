@@ -7,6 +7,19 @@
 import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
 
 /**
+ * Generate a URL-safe slug from text
+ */
+const slugify = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '') // Remove non-word characters
+        .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
+        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+};
+
+/**
  * Generate HTML for web/page context
  */
 export const page = (props, options = {}) => {
@@ -24,7 +37,13 @@ export const page = (props, options = {}) => {
     // Merge with layout styles
     const mergedStyles = mergeBlockStyles(props, styles.join('; '));
 
-    return `<${level} class="${blockClasses}" style="${mergedStyles}">${props.text || ''}</${level}>`;
+    // Generate ID for TOC anchor links - format must match render.php: toc-{slug}-{blockId}
+    const text = props.text ? props.text.replace(/<[^>]*>/g, '') : ''; // Strip HTML tags
+    const blockId = options.blockId || props._blockId || '';
+    const headingId = blockId && text ? `toc-${slugify(text)}-${blockId}` : '';
+    const idAttr = headingId ? ` id="${headingId}"` : '';
+
+    return `<${level}${idAttr} class="${blockClasses}" style="${mergedStyles}">${props.text || ''}</${level}>`;
 };
 
 /**

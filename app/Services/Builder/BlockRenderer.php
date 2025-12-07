@@ -10,16 +10,69 @@ use Illuminate\Support\Facades\Log;
  * Block Renderer
  *
  * Processes HTML content to render dynamic blocks server-side.
- * This handles blocks like CRM Contact that have data attributes
- * indicating they need server-side rendering via render.php.
+ * This handles blocks that have data-lara-block attributes and
+ * auto-discovers render.php files in block folders.
  *
  * Works for all contexts: email, page, campaign.
  */
 class BlockRenderer
 {
+    /**
+     * Cache for discovered render callbacks
+     */
+    protected array $discoveredCallbacks = [];
+
     public function __construct(
         protected BuilderService $builderService
     ) {
+    }
+
+    /**
+     * Get the render callback for a block type.
+     * First checks registered callbacks, then auto-discovers render.php files.
+     */
+    protected function getBlockRenderCallback(string $blockType): ?callable
+    {
+        // Check if already registered via BuilderService
+        if ($this->builderService->hasBlockRenderCallback($blockType)) {
+            return $this->builderService->getBlockRenderCallback($blockType);
+        }
+
+        // Check discovery cache
+        if (array_key_exists($blockType, $this->discoveredCallbacks)) {
+            return $this->discoveredCallbacks[$blockType];
+        }
+
+        // Auto-discover render.php in core blocks folder
+        $renderPath = resource_path("js/lara-builder/blocks/{$blockType}/render.php");
+
+        if (file_exists($renderPath)) {
+            $callback = require $renderPath;
+            if (is_callable($callback)) {
+                $this->discoveredCallbacks[$blockType] = $callback;
+
+                return $callback;
+            }
+        }
+
+        // Cache null to avoid repeated file checks
+        $this->discoveredCallbacks[$blockType] = null;
+
+        return null;
+    }
+
+    /**
+     * Render a block using its callback
+     */
+    protected function renderBlock(string $blockType, array $props, string $context): ?string
+    {
+        $callback = $this->getBlockRenderCallback($blockType);
+
+        if (! $callback) {
+            return null;
+        }
+
+        return call_user_func($callback, $props, $context);
     }
 
     /**
@@ -34,8 +87,10 @@ class BlockRenderer
      */
     public function processContent(string $content, string $context = 'page'): string
     {
-        // Find all block placeholders
-        $pattern = '/<div\s+data-lara-block="([^"]+)"([^>]*)>/is';
+        // Find all block placeholders - match the full element including closing tag
+        // Pattern matches: <div data-lara-block="type" data-props='...'></div>
+        // The data-props value is wrapped in single quotes and may contain complex JSON
+        $pattern = '/<div\s+data-lara-block="([^"]+)"\s+data-props=\'((?:[^\']|&#39;)*)\'>([^<]*)<\/div>/is';
 
         if (! preg_match_all($pattern, $content, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
             return $content;
@@ -46,25 +101,24 @@ class BlockRenderer
 
         foreach ($matches as $match) {
             $blockType = $match[1][0];
-            $attributes = $match[2][0];
-            $startPos = $match[0][1];
+            $propsJson = $match[2][0];
+            $startPos = (int) $match[0][1];
+            $fullMatch = $match[0][0];
 
             try {
-                $props = $this->extractProps($attributes);
+                // Decode props from JSON
+                $propsJson = html_entity_decode($propsJson, ENT_QUOTES, 'UTF-8');
+                $props = json_decode($propsJson, true) ?? [];
 
-                if ($this->builderService->hasBlockRenderCallback($blockType)) {
-                    $rendered = $this->builderService->renderBlock($blockType, $props, $context);
+                // Use auto-discovery method which checks registered + discovers render.php
+                $rendered = $this->renderBlock($blockType, $props, $context);
 
-                    if ($rendered !== null) {
-                        $fullBlock = $this->findFullBlockHtml($content, $startPos);
-                        if ($fullBlock !== null) {
-                            $replacements[] = [
-                                'start' => $startPos,
-                                'length' => \strlen($fullBlock),
-                                'replacement' => $rendered,
-                            ];
-                        }
-                    }
+                if ($rendered !== null) {
+                    $replacements[] = [
+                        'start' => $startPos,
+                        'length' => \strlen($fullMatch),
+                        'replacement' => $rendered,
+                    ];
                 }
             } catch (\Throwable $e) {
                 Log::warning('Failed to render block', [
@@ -82,8 +136,8 @@ class BlockRenderer
             $content = substr_replace(
                 $content,
                 $replacement['replacement'],
-                $replacement['start'],
-                $replacement['length']
+                (int) $replacement['start'],
+                (int) $replacement['length']
             );
         }
 
@@ -138,7 +192,9 @@ class BlockRenderer
 
         // Extract data-props JSON
         // data-props uses single quotes to wrap, JSON uses double quotes inside
-        if (preg_match("/data-props='([^']+)'/s", $attributes, $propsMatch)) {
+        // The &#39; is the HTML entity for single quote, so we need to handle both
+        // Use a greedy match that captures everything between data-props=' and the closing '
+        if (preg_match("/data-props='(.+?)(?<!\\\)'/s", $attributes, $propsMatch)) {
             $propsJson = html_entity_decode($propsMatch[1], ENT_QUOTES, 'UTF-8');
             $decoded = json_decode($propsJson, true);
 

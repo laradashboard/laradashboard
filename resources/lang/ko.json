@@ -285,5 +285,13 @@
     "You are logged in!": "로그인되었습니다!",
     "You are not authorized to view this page": "이 페이지를 볼 권한이 없습니다",
     "You do not have permission to access this page": "이 페이지에 접근할 권한이 없습니다",
-    "You must be logged in to view this page": "이 페이지를 보려면 로그인해야 합니다"
+    "You must be logged in to view this page": "이 페이지를 보려면 로그인해야 합니다",
+    "Table of Contents": "목차",
+    "Show Title": "제목 표시",
+    "Minimum Heading Level": "최소 제목 수준",
+    "Maximum Heading Level": "최대 제목 수준",
+    "List Style": "목록 스타일",
+    "Title Color": "제목 색상",
+    "No headings found.": "제목을 찾을 수 없습니다.",
+    "Click the block to edit settings.": "블록을 클릭하여 설정을 편집하세요."
 }

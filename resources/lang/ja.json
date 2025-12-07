@@ -1184,5 +1184,11 @@
     "Zip Code": "郵便番号",
     "Zoom": "ズーム",
     "Zoom In": "拡大",
-    "Zoom Out": "縮小"
+    "Zoom Out": "縮小",
+    "Table of Contents": "目次",
+    "Show Title": "タイトルを表示",
+    "Minimum Heading Level": "最小見出しレベル",
+    "Maximum Heading Level": "最大見出しレベル",
+    "No headings found.": "見出しが見つかりません。",
+    "Click the block to edit settings.": "ブロックをクリックして設定を編集します。"
 }
