@@ -5,26 +5,29 @@
  * It reads configuration from data attributes and renders the builder.
  */
 
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import * as ReactJSXRuntime from 'react/jsx-runtime';
-import { createRoot } from 'react-dom/client';
-import LaraBuilder from './core/LaraBuilder';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import * as ReactJSXRuntime from "react/jsx-runtime";
+import { createRoot } from "react-dom/client";
+import LaraBuilder from "./core/LaraBuilder";
 
 // Expose React globally for module blocks to use
 // This ensures module blocks use the same React instance as the main app
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
     window.React = React;
     window.ReactDOM = ReactDOM;
     window.ReactJSXRuntime = ReactJSXRuntime;
 }
 
 // Import adapters to register them
-import './adapters';
+import "./adapters";
 
 // Import and register blocks from modular architecture
-import { blockRegistry } from './registry/BlockRegistry';
-import { registerModularBlocks } from './blocks/blockLoader';
+import { blockRegistry } from "./registry/BlockRegistry";
+import { registerModularBlocks } from "./blocks/blockLoader";
+
+// Import and initialize translations
+import { initTranslations } from "./i18n";
 
 // Register all modular blocks (new architecture with block.json, editor.jsx)
 // Each block includes component + propertyEditor
@@ -33,7 +36,7 @@ registerModularBlocks(blockRegistry);
 /**
  * Initialize LaraBuilder on a DOM element
  */
-function initLaraBuilder(elementId = 'lara-builder-root') {
+function initLaraBuilder(elementId = "lara-builder-root") {
     const mountElement = document.getElementById(elementId);
 
     if (!mountElement) {
@@ -42,7 +45,7 @@ function initLaraBuilder(elementId = 'lara-builder-root') {
     }
 
     // Parse data attributes
-    const context = mountElement.dataset.context || 'email';
+    const context = mountElement.dataset.context || "email";
     const initialData = mountElement.dataset.initialData
         ? JSON.parse(mountElement.dataset.initialData)
         : null;
@@ -53,24 +56,32 @@ function initLaraBuilder(elementId = 'lara-builder-root') {
     const listUrl = mountElement.dataset.listUrl;
     const uploadUrl = mountElement.dataset.uploadUrl;
     const videoUploadUrl = mountElement.dataset.videoUploadUrl;
-    const showHeader = mountElement.dataset.showHeader !== 'false';
+    const showHeader = mountElement.dataset.showHeader !== "false";
+
+    // Initialize translations from data attribute or global window object
+    const translations = mountElement.dataset.translations
+        ? JSON.parse(mountElement.dataset.translations)
+        : window.__translations || {};
+    initTranslations(translations);
 
     const isEdit = !!templateData?.uuid;
 
     // Create the save handler
     const handleSave = async (data) => {
         if (!saveUrl) {
-            throw new Error('Save URL is not configured');
+            throw new Error("Save URL is not configured");
         }
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+        const csrfToken = document.querySelector(
+            'meta[name="csrf-token"]'
+        )?.content;
 
         const response = await fetch(saveUrl, {
-            method: isEdit ? 'PUT' : 'POST',
+            method: isEdit ? "PUT" : "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                Accept: 'application/json',
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrfToken,
+                Accept: "application/json",
             },
             body: JSON.stringify(data),
         });
@@ -78,7 +89,7 @@ function initLaraBuilder(elementId = 'lara-builder-root') {
         const responseData = await response.json();
 
         if (!response.ok) {
-            throw new Error(responseData.message || 'Failed to save');
+            throw new Error(responseData.message || "Failed to save");
         }
 
         return responseData;
@@ -87,25 +98,27 @@ function initLaraBuilder(elementId = 'lara-builder-root') {
     // Create the image upload handler
     const handleImageUpload = async (file) => {
         if (!uploadUrl) {
-            throw new Error('Upload URL is not configured');
+            throw new Error("Upload URL is not configured");
         }
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+        const csrfToken = document.querySelector(
+            'meta[name="csrf-token"]'
+        )?.content;
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append("image", file);
 
         const response = await fetch(uploadUrl, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                Accept: 'application/json',
+                "X-CSRF-TOKEN": csrfToken,
+                Accept: "application/json",
             },
             body: formData,
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to upload image');
+            throw new Error(errorData.message || "Failed to upload image");
         }
 
         return response.json();
@@ -114,21 +127,23 @@ function initLaraBuilder(elementId = 'lara-builder-root') {
     // Create the video upload handler
     const handleVideoUpload = async (videoFile, thumbnailFile = null) => {
         if (!videoUploadUrl) {
-            throw new Error('Video upload URL is not configured');
+            throw new Error("Video upload URL is not configured");
         }
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+        const csrfToken = document.querySelector(
+            'meta[name="csrf-token"]'
+        )?.content;
         const formData = new FormData();
-        formData.append('video', videoFile);
+        formData.append("video", videoFile);
         if (thumbnailFile) {
-            formData.append('thumbnail', thumbnailFile);
+            formData.append("thumbnail", thumbnailFile);
         }
 
         const response = await fetch(videoUploadUrl, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                Accept: 'application/json',
+                "X-CSRF-TOKEN": csrfToken,
+                Accept: "application/json",
             },
             body: formData,
         });
@@ -136,7 +151,7 @@ function initLaraBuilder(elementId = 'lara-builder-root') {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || 'Failed to upload video');
+            throw new Error(data.message || "Failed to upload video");
         }
 
         return data;
@@ -161,15 +176,15 @@ function initLaraBuilder(elementId = 'lara-builder-root') {
 }
 
 // Auto-initialize if the default element exists
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
     // Initialize LaraBuilder (new element ID)
-    if (document.getElementById('lara-builder-root')) {
-        initLaraBuilder('lara-builder-root');
+    if (document.getElementById("lara-builder-root")) {
+        initLaraBuilder("lara-builder-root");
     }
 
     // Backward compatibility: Initialize on email-builder-root as well
-    if (document.getElementById('email-builder-root')) {
-        initLaraBuilder('email-builder-root');
+    if (document.getElementById("email-builder-root")) {
+        initLaraBuilder("email-builder-root");
     }
 });
 

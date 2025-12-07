@@ -26,6 +26,7 @@
         data-list-url="{{ route('admin.email-templates.index') }}"
         data-upload-url="{{ route('admin.email-templates.upload-image') }}"
         data-video-upload-url="{{ route('admin.email-templates.upload-video') }}"
+        data-translations='@json(__("*"))'
     ></div>
 
     {{-- Media Library Modal --}}

@@ -4,37 +4,40 @@
  * Mounts LaraBuilder for post/page editing with post-specific properties panel.
  */
 
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import * as ReactJSXRuntime from 'react/jsx-runtime';
-import { createRoot } from 'react-dom/client';
-import PostBuilder from './components/PostBuilder';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import * as ReactJSXRuntime from "react/jsx-runtime";
+import { createRoot } from "react-dom/client";
+import PostBuilder from "./components/PostBuilder";
 
 // Expose React globally for module blocks to use
 // This ensures module blocks use the same React instance as the main app
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
     window.React = React;
     window.ReactDOM = ReactDOM;
     window.ReactJSXRuntime = ReactJSXRuntime;
 }
 
 // Import and register blocks from modular architecture
-import { blockRegistry } from './registry/BlockRegistry';
-import { registerModularBlocks } from './blocks/blockLoader';
+import { blockRegistry } from "./registry/BlockRegistry";
+import { registerModularBlocks } from "./blocks/blockLoader";
 
 // Import adapters to ensure they are registered
-import './adapters';
+import "./adapters";
+
+// Import and initialize translations
+import { initTranslations } from "./i18n";
 
 // Register all modular blocks (new architecture with block.json, editor.jsx)
 // Each block includes component + propertyEditor
 registerModularBlocks(blockRegistry);
 
 // Find the mount point
-const container = document.getElementById('lara-builder-root');
+const container = document.getElementById("lara-builder-root");
 
 if (container) {
     // Get configuration from data attributes
-    const context = container.dataset.context || 'page';
+    const context = container.dataset.context || "page";
     const initialData = container.dataset.initialData
         ? JSON.parse(container.dataset.initialData)
         : null;
@@ -54,7 +57,7 @@ if (container) {
     const parentPosts = container.dataset.parentPosts
         ? JSON.parse(container.dataset.parentPosts)
         : {};
-    const postType = container.dataset.postType || 'post';
+    const postType = container.dataset.postType || "post";
     const postTypeModel = container.dataset.postTypeModel
         ? JSON.parse(container.dataset.postTypeModel)
         : {};
@@ -62,27 +65,35 @@ if (container) {
         ? JSON.parse(container.dataset.statuses)
         : {};
 
+    // Initialize translations from data attribute
+    const translations = container.dataset.translations
+        ? JSON.parse(container.dataset.translations)
+        : {};
+    initTranslations(translations);
+
     // Image upload handler
     const handleImageUpload = async (file) => {
         if (!uploadUrl) {
-            throw new Error('Upload URL not configured');
+            throw new Error("Upload URL not configured");
         }
 
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append("image", file);
 
         const response = await fetch(uploadUrl, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                Accept: 'application/json',
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                )?.content,
+                Accept: "application/json",
             },
             body: formData,
         });
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || 'Failed to upload image');
+            throw new Error(errorData.message || "Failed to upload image");
         }
 
         return await response.json();
@@ -91,27 +102,29 @@ if (container) {
     // Video upload handler
     const handleVideoUpload = async (videoFile, thumbnailFile) => {
         if (!videoUploadUrl) {
-            throw new Error('Video upload URL not configured');
+            throw new Error("Video upload URL not configured");
         }
 
         const formData = new FormData();
-        formData.append('video', videoFile);
+        formData.append("video", videoFile);
         if (thumbnailFile) {
-            formData.append('thumbnail', thumbnailFile);
+            formData.append("thumbnail", thumbnailFile);
         }
 
         const response = await fetch(videoUploadUrl, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                Accept: 'application/json',
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                )?.content,
+                Accept: "application/json",
             },
             body: formData,
         });
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || 'Failed to upload video');
+            throw new Error(errorData.message || "Failed to upload video");
         }
 
         return await response.json();
@@ -120,22 +133,24 @@ if (container) {
     // Save handler
     const handleSave = async (data) => {
         if (!saveUrl) {
-            throw new Error('Save URL not configured');
+            throw new Error("Save URL not configured");
         }
 
         const response = await fetch(saveUrl, {
-            method: postData?.id ? 'PUT' : 'POST',
+            method: postData?.id ? "PUT" : "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                Accept: 'application/json',
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                )?.content,
+                Accept: "application/json",
             },
             body: JSON.stringify(data),
         });
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || 'Failed to save');
+            throw new Error(errorData.message || "Failed to save");
         }
 
         return await response.json();

@@ -34,6 +34,7 @@
     @if($uploadUrl) data-upload-url="{{ $uploadUrl }}" @endif
     @if($videoUploadUrl) data-video-upload-url="{{ $videoUploadUrl }}" @endif
     data-show-header="{{ $showHeader ? 'true' : 'false' }}"
+    data-translations='@json(__("*"))'
     {{ $attributes }}
 ></div>
 

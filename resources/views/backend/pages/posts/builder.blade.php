@@ -39,6 +39,7 @@
             'supports_thumbnail' => $postTypeModel->supports_thumbnail,
         ]) }}"
         data-statuses="{{ json_encode(\App\Models\Post::getPostStatuses()) }}"
+        data-translations='@json(__("*"))'
     ></div>
 
     {{-- Media Library Modal --}}
