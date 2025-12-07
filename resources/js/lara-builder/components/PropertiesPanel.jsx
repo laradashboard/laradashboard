@@ -4,6 +4,7 @@ import { parseVideoUrl } from '../blocks/video/block';
 import LayoutStylesSection from './LayoutStylesSection';
 import CollapsibleSection from './CollapsibleSection';
 import { blockRegistry } from '../registry/BlockRegistry';
+import { __ } from '@lara-builder/i18n';
 
 const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload, canvasSettings, onCanvasSettingsUpdate }) => {
     const [uploading, setUploading] = useState(false);
@@ -1337,7 +1338,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
             <div className="h-full overflow-y-auto px-1">
                 <div className="mb-2 pb-3 border-b border-gray-200">
                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        {registryBlockDef?.label || blockConfig?.label || selectedBlock.type}
+                        {__(registryBlockDef?.label || blockConfig?.label || selectedBlock.type)}
                     </span>
                 </div>
 
@@ -1368,7 +1369,7 @@ const PropertiesPanel = ({ selectedBlock, onUpdate, onImageUpload, onVideoUpload
         <div className="h-full overflow-y-auto px-1">
             <div className="mb-2 pb-3 border-b border-gray-200">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {registryBlockDef?.label || blockConfig?.label || selectedBlock.type}
+                    {__(registryBlockDef?.label || blockConfig?.label || selectedBlock.type)}
                 </span>
             </div>
 

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { getBlock } from "../../email-builder/utils/blockRegistry";
 import { getBlockSupports, blockSupports } from "../blocks/blockLoader";
+import { __ } from "@lara-builder/i18n";
 
 // Alignment-only controls for non-text blocks (image, button, video, etc.)
 const AlignOnlyControls = ({ align, onAlignChange }) => {
@@ -15,7 +16,7 @@ const AlignOnlyControls = ({ align, onAlignChange }) => {
                 type="button"
                 onClick={() => onAlignChange("left")}
                 className={align === "left" ? activeButtonClass : buttonClass}
-                title="Align Left"
+                title={__("Align Left")}
             >
                 <iconify-icon
                     icon="mdi:format-align-left"
@@ -28,7 +29,7 @@ const AlignOnlyControls = ({ align, onAlignChange }) => {
                 type="button"
                 onClick={() => onAlignChange("center")}
                 className={align === "center" ? activeButtonClass : buttonClass}
-                title="Align Center"
+                title={__("Align Center")}
             >
                 <iconify-icon
                     icon="mdi:format-align-center"
@@ -41,7 +42,7 @@ const AlignOnlyControls = ({ align, onAlignChange }) => {
                 type="button"
                 onClick={() => onAlignChange("right")}
                 className={align === "right" ? activeButtonClass : buttonClass}
-                title="Align Right"
+                title={__("Align Right")}
             >
                 <iconify-icon
                     icon="mdi:format-align-right"
@@ -168,7 +169,7 @@ const TextFormatControls = ({
                     onMouseDown={saveSelection}
                     onClick={handleBold}
                     className={buttonClass}
-                    title="Bold"
+                    title={__("Bold")}
                 >
                     <iconify-icon
                         icon="mdi:format-bold"
@@ -183,7 +184,7 @@ const TextFormatControls = ({
                     onMouseDown={saveSelection}
                     onClick={handleItalic}
                     className={buttonClass}
-                    title="Italic"
+                    title={__("Italic")}
                 >
                     <iconify-icon
                         icon="mdi:format-italic"
@@ -198,7 +199,7 @@ const TextFormatControls = ({
                     onMouseDown={saveSelection}
                     onClick={handleUnderline}
                     className={buttonClass}
-                    title="Underline"
+                    title={__("Underline")}
                 >
                     <iconify-icon
                         icon="mdi:format-underline"
@@ -217,7 +218,7 @@ const TextFormatControls = ({
                 type="button"
                 onClick={() => onAlignChange("left")}
                 className={align === "left" ? activeButtonClass : buttonClass}
-                title="Align Left"
+                title={__("Align Left")}
             >
                 <iconify-icon
                     icon="mdi:format-align-left"
@@ -229,7 +230,7 @@ const TextFormatControls = ({
                 type="button"
                 onClick={() => onAlignChange("center")}
                 className={align === "center" ? activeButtonClass : buttonClass}
-                title="Align Center"
+                title={__("Align Center")}
             >
                 <iconify-icon
                     icon="mdi:format-align-center"
@@ -241,7 +242,7 @@ const TextFormatControls = ({
                 type="button"
                 onClick={() => onAlignChange("right")}
                 className={align === "right" ? activeButtonClass : buttonClass}
-                title="Align Right"
+                title={__("Align Right")}
             >
                 <iconify-icon
                     icon="mdi:format-align-right"
@@ -256,7 +257,7 @@ const TextFormatControls = ({
                     className={
                         align === "justify" ? activeButtonClass : buttonClass
                     }
-                    title="Justify"
+                    title={__("Justify")}
                 >
                     <iconify-icon
                         icon="mdi:format-align-justify"
@@ -275,7 +276,7 @@ const TextFormatControls = ({
                             type="button"
                             onClick={handleLinkClick}
                             className={buttonClass}
-                            title="Insert Link"
+                            title={__("Insert Link")}
                         >
                             <iconify-icon
                                 icon="mdi:link-variant"
@@ -294,14 +295,14 @@ const TextFormatControls = ({
                                             setLinkUrl(e.target.value)
                                         }
                                         onKeyDown={handleLinkKeyDown}
-                                        placeholder="Enter URL..."
+                                        placeholder={__("Enter URL...")}
                                         className="w-48 px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:border-primary"
                                     />
                                     <button
                                         type="button"
                                         onClick={handleLinkSubmit}
                                         className="p-1 rounded bg-primary text-white hover:bg-primary/80"
-                                        title="Apply"
+                                        title={__("Apply")}
                                     >
                                         <iconify-icon
                                             icon="mdi:check"
@@ -316,7 +317,7 @@ const TextFormatControls = ({
                                             setLinkUrl("");
                                         }}
                                         className="p-1 rounded text-gray-400 hover:text-gray-600"
-                                        title="Cancel"
+                                        title={__("Cancel")}
                                     >
                                         <iconify-icon
                                             icon="mdi:close"
@@ -340,7 +341,7 @@ const TextFormatControls = ({
                         onMouseDown={saveSelection}
                         onClick={handleClearFormat}
                         className={buttonClass}
-                        title="Clear Formatting"
+                        title={__("Clear Formatting")}
                     >
                         <iconify-icon
                             icon="mdi:format-clear"
@@ -361,7 +362,7 @@ const HeadingLevelControls = ({ level, onLevelChange }) => {
             value={level || "h1"}
             onChange={(e) => onLevelChange(e.target.value)}
             className="px-2 py-1 text-xs font-semibold uppercase bg-gray-100 border-0 rounded cursor-pointer hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-primary text-gray-700"
-            title="Heading Level"
+            title={__("Heading Level")}
         >
             <option value="h1">H1</option>
             <option value="h2">H2</option>
@@ -469,7 +470,7 @@ const BlockToolbar = ({
                     class="text-gray-600"
                 ></iconify-icon>
                 <span className="text-xs font-medium text-gray-700">
-                    {blockConfig?.label || block.type}
+                    {__(blockConfig?.label || block.type)}
                 </span>
             </div>
 
@@ -527,7 +528,7 @@ const BlockToolbar = ({
                 className={`p-1.5 rounded hover:bg-gray-100 transition-colors ${
                     !canMoveUp ? "opacity-30 cursor-not-allowed" : ""
                 }`}
-                title="Move up"
+                title={__("Move up")}
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -553,7 +554,7 @@ const BlockToolbar = ({
                 className={`p-1.5 rounded hover:bg-gray-100 transition-colors ${
                     !canMoveDown ? "opacity-30 cursor-not-allowed" : ""
                 }`}
-                title="Move down"
+                title={__("Move down")}
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -579,7 +580,7 @@ const BlockToolbar = ({
                 type="button"
                 onClick={onDuplicate}
                 className="p-1.5 rounded hover:bg-gray-100 transition-colors"
-                title="Duplicate"
+                title={__("Duplicate")}
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -605,7 +606,7 @@ const BlockToolbar = ({
                     className={`p-1.5 rounded transition-colors ${
                         showMenu ? "bg-gray-100" : "hover:bg-gray-100"
                     }`}
-                    title="More options"
+                    title={__("More options")}
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -648,7 +649,7 @@ const BlockToolbar = ({
                                     d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                                 />
                             </svg>
-                            Duplicate
+                            {__("Duplicate")}
                         </button>
                         <button
                             type="button"
@@ -677,7 +678,7 @@ const BlockToolbar = ({
                                     d="M5 15l7-7 7 7"
                                 />
                             </svg>
-                            Move Up
+                            {__("Move Up")}
                         </button>
                         <button
                             type="button"
@@ -706,7 +707,7 @@ const BlockToolbar = ({
                                     d="M19 9l-7 7-7-7"
                                 />
                             </svg>
-                            Move Down
+                            {__("Move Down")}
                         </button>
                         <div className="border-t border-gray-100 my-1"></div>
                         <button
@@ -731,7 +732,7 @@ const BlockToolbar = ({
                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                 />
                             </svg>
-                            Delete
+                            {__("Delete")}
                         </button>
                     </div>
                 )}

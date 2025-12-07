@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { getBlockComponent } from '../index';
 import BlockToolbar from '../../components/BlockToolbar';
 import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
+import { __ } from '@lara-builder/i18n';
 
 // Nested sortable block within a column
 const NestedSortableBlock = ({ block, columnIndex, parentId, onSelect, selectedBlockId, onUpdate, onDelete, onMoveNested, onDuplicateNested, blockIndex, totalBlocks }) => {
@@ -139,7 +140,7 @@ const DroppableColumn = ({ columnIndex, parentId, blocks, onSelect, selectedBloc
                                     d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                                 />
                             </svg>
-                            <span>Drop here</span>
+                            <span>{__('Drop here')}</span>
                         </div>
                     </div>
                 )}

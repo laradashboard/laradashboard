@@ -7,6 +7,7 @@ import { getBlockSupports } from '../blocks/blockLoader';
 import BlockToolbar from './BlockToolbar';
 import { layoutStylesToCSS } from './LayoutStylesSection';
 import { buildBlockClasses } from './BlockWrapper';
+import { __ } from '@lara-builder/i18n';
 
 // Drop zone indicator between blocks
 const DropZone = ({ id, isFirst = false }) => {
@@ -28,7 +29,7 @@ const DropZone = ({ id, isFirst = false }) => {
             }`}
         >
             {isOver && (
-                <span className="text-primary text-sm font-medium">Drop here</span>
+                <span className="text-primary text-sm font-medium">{__('Drop here')}</span>
             )}
         </div>
     );
@@ -336,8 +337,8 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
                                     <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
-                                    <p className="mt-4 text-gray-500 font-medium">Drag blocks here to start building</p>
-                                    <p className="mt-1 text-gray-400 text-sm">or click blocks on the left to add them</p>
+                                    <p className="mt-4 text-gray-500 font-medium">{__('Drag blocks here to start building')}</p>
+                                    <p className="mt-1 text-gray-400 text-sm">{__('or click blocks on the left to add them')}</p>
                                 </div>
                             )}
                         </SortableContext>

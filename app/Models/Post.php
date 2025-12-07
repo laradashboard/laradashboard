@@ -70,7 +70,7 @@ class Post extends Model implements SpatieHasMedia
     public static function getPostStatuses(): array
     {
         return collect(PostStatus::cases())
-            ->mapWithKeys(fn ($case) => [$case->value => Str::of($case->name)->title()])
+            ->mapWithKeys(fn ($case) => [$case->value => __(Str::of($case->name)->title()->toString())])
             ->toArray();
     }
 
