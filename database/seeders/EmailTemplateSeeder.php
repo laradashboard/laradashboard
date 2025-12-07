@@ -7,10 +7,15 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\EmailTemplate;
 use App\Enums\TemplateType;
+use App\Services\Builder\BlockService;
 use Illuminate\Support\Str;
 
 class EmailTemplateSeeder extends Seeder
 {
+    public function __construct(private readonly BlockService $blockService)
+    {
+    }
+
     public function run(): void
     {
         $templates = $this->getAllTemplates();
@@ -354,300 +359,6 @@ class EmailTemplateSeeder extends Seeder
     }
 
     /**
-     * Helper: Create a unique block ID
-     */
-    private function blockId(): string
-    {
-        return 'block_' . Str::random(8);
-    }
-
-    /**
-     * Helper: Default layout styles for blocks
-     */
-    private function defaultLayoutStyles(): array
-    {
-        return [
-            'margin' => ['top' => '', 'right' => '', 'bottom' => '', 'left' => ''],
-            'padding' => ['top' => '', 'right' => '', 'bottom' => '', 'left' => ''],
-        ];
-    }
-
-    /**
-     * Helper: Create heading block
-     */
-    private function heading(string $text, string $level = 'h1', string $align = 'center', string $color = '#333333', string $fontSize = '28px'): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'heading',
-            'props' => [
-                'text' => $text,
-                'level' => $level,
-                'align' => $align,
-                'color' => $color,
-                'fontSize' => $fontSize,
-                'fontWeight' => 'bold',
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create text block
-     */
-    private function text(string $content, string $align = 'left', string $color = '#666666', string $fontSize = '16px'): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'text',
-            'props' => [
-                'content' => $content,
-                'align' => $align,
-                'color' => $color,
-                'fontSize' => $fontSize,
-                'lineHeight' => '1.6',
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create button block
-     */
-    private function button(string $text, string $link = '#', string $bgColor = '#635bff', string $textColor = '#ffffff', string $align = 'center'): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'button',
-            'props' => [
-                'text' => $text,
-                'link' => $link,
-                'backgroundColor' => $bgColor,
-                'textColor' => $textColor,
-                'borderRadius' => '6px',
-                'padding' => '14px 28px',
-                'align' => $align,
-                'fontSize' => '16px',
-                'fontWeight' => '600',
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create image block
-     */
-    private function image(string $src, string $alt = '', string $width = '100%', string $align = 'center', string $link = ''): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'image',
-            'props' => [
-                'src' => $src,
-                'alt' => $alt,
-                'width' => $width,
-                'height' => 'auto',
-                'align' => $align,
-                'link' => $link,
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create spacer block
-     */
-    private function spacer(string $height = '20px'): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'spacer',
-            'props' => [
-                'height' => $height,
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create divider block
-     */
-    private function divider(string $color = '#e5e7eb', string $thickness = '1px', string $width = '100%'): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'divider',
-            'props' => [
-                'style' => 'solid',
-                'color' => $color,
-                'thickness' => $thickness,
-                'width' => $width,
-                'margin' => '20px 0',
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create list block
-     */
-    private function listBlock(array $items, string $listType = 'bullet', string $color = '#666666'): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'list',
-            'props' => [
-                'items' => $items,
-                'listType' => $listType,
-                'color' => $color,
-                'fontSize' => '16px',
-                'iconColor' => '#635bff',
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create quote block
-     */
-    private function quote(string $text, string $author = '', string $authorTitle = ''): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'quote',
-            'props' => [
-                'text' => $text,
-                'author' => $author,
-                'authorTitle' => $authorTitle,
-                'borderColor' => '#635bff',
-                'backgroundColor' => '#f8fafc',
-                'textColor' => '#475569',
-                'authorColor' => '#1e293b',
-                'align' => 'left',
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create table block
-     */
-    private function table(array $headers, array $rows, bool $showHeader = true): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'table',
-            'props' => [
-                'headers' => $headers,
-                'rows' => $rows,
-                'showHeader' => $showHeader,
-                'headerBgColor' => '#f1f5f9',
-                'headerTextColor' => '#1e293b',
-                'borderColor' => '#e2e8f0',
-                'cellPadding' => '12px',
-                'fontSize' => '14px',
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create footer block
-     */
-    private function footer(string $companyName = '{app_name}', string $address = '', string $email = ''): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'footer',
-            'props' => [
-                'companyName' => $companyName,
-                'address' => $address,
-                'phone' => '',
-                'email' => $email,
-                'unsubscribeText' => 'Unsubscribe from these emails',
-                'unsubscribeUrl' => '#unsubscribe',
-                'copyright' => '© {year} ' . $companyName . '. All rights reserved.',
-                'textColor' => '#6b7280',
-                'linkColor' => '#635bff',
-                'fontSize' => '12px',
-                'align' => 'center',
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create social block
-     */
-    private function social(array $links = [], string $align = 'center'): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'social',
-            'props' => [
-                'align' => $align,
-                'iconSize' => '32px',
-                'gap' => '12px',
-                'links' => array_merge([
-                    'facebook' => '',
-                    'twitter' => '',
-                    'instagram' => '',
-                    'linkedin' => '',
-                    'youtube' => '',
-                ], $links),
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create countdown block
-     */
-    private function countdown(string $title = 'Sale Ends In', string $targetDate = ''): array
-    {
-        $date = $targetDate ?: date('Y-m-d', strtotime('+7 days'));
-        return [
-            'id' => $this->blockId(),
-            'type' => 'countdown',
-            'props' => [
-                'targetDate' => $date,
-                'targetTime' => '23:59',
-                'title' => $title,
-                'backgroundColor' => '#1e293b',
-                'textColor' => '#ffffff',
-                'numberColor' => '#635bff',
-                'align' => 'center',
-                'expiredMessage' => 'This offer has expired!',
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    /**
-     * Helper: Create video block
-     */
-    private function video(string $thumbnailUrl = '', string $videoUrl = '', string $alt = 'Video'): array
-    {
-        return [
-            'id' => $this->blockId(),
-            'type' => 'video',
-            'props' => [
-                'thumbnailUrl' => $thumbnailUrl,
-                'videoUrl' => $videoUrl,
-                'alt' => $alt,
-                'width' => '100%',
-                'align' => 'center',
-                'playButtonColor' => '#635bff',
-                'layoutStyles' => $this->defaultLayoutStyles(),
-            ],
-        ];
-    }
-
-    // ========================================
-    // HTML GENERATION METHODS
-    // ========================================
-
-    /**
      * Generate complete HTML email from blocks and canvas settings
      */
     private function generateHtml(array $blocks, array $canvasSettings): string
@@ -666,7 +377,7 @@ class EmailTemplateSeeder extends Seeder
 
         $blocksHtml = '';
         foreach ($blocks as $block) {
-            $blocksHtml .= $this->renderBlock($block);
+            $blocksHtml .= $this->blockService->renderBlock($block);
         }
 
         return <<<HTML
@@ -706,333 +417,6 @@ class EmailTemplateSeeder extends Seeder
 HTML;
     }
 
-    /**
-     * Render a single block to HTML
-     */
-    private function renderBlock(array $block): string
-    {
-        $type = $block['type'] ?? '';
-        $props = $block['props'] ?? [];
-
-        return match ($type) {
-            'heading' => $this->renderHeading($props),
-            'text' => $this->renderText($props),
-            'button' => $this->renderButton($props),
-            'image' => $this->renderImage($props),
-            'spacer' => $this->renderSpacer($props),
-            'divider' => $this->renderDivider($props),
-            'list' => $this->renderList($props),
-            'quote' => $this->renderQuote($props),
-            'table' => $this->renderTable($props),
-            'footer' => $this->renderFooter($props),
-            'social' => $this->renderSocial($props),
-            'countdown' => $this->renderCountdown($props),
-            'video' => $this->renderVideo($props),
-            default => '',
-        };
-    }
-
-    private function renderHeading(array $props): string
-    {
-        $text = $props['text'] ?? '';
-        $level = $props['level'] ?? 'h1';
-        $align = $props['align'] ?? 'center';
-        $color = $props['color'] ?? '#333333';
-        $fontSize = $props['fontSize'] ?? '28px';
-        $fontWeight = $props['fontWeight'] ?? 'bold';
-
-        return "<{$level} style=\"text-align: {$align}; color: {$color}; font-size: {$fontSize}; font-weight: {$fontWeight}; margin: 0 0 16px 0;\">{$text}</{$level}>";
-    }
-
-    private function renderText(array $props): string
-    {
-        $content = $props['content'] ?? '';
-        $align = $props['align'] ?? 'left';
-        $color = $props['color'] ?? '#666666';
-        $fontSize = $props['fontSize'] ?? '16px';
-        $lineHeight = $props['lineHeight'] ?? '1.6';
-
-        return "<div style=\"text-align: {$align}; color: {$color}; font-size: {$fontSize}; line-height: {$lineHeight};\">{$content}</div>";
-    }
-
-    private function renderButton(array $props): string
-    {
-        $text = $props['text'] ?? 'Click Here';
-        $link = $props['link'] ?? '#';
-        $bgColor = $props['backgroundColor'] ?? '#635bff';
-        $textColor = $props['textColor'] ?? '#ffffff';
-        $borderRadius = $props['borderRadius'] ?? '6px';
-        $padding = $props['padding'] ?? '14px 28px';
-        $align = $props['align'] ?? 'center';
-        $fontSize = $props['fontSize'] ?? '16px';
-        $fontWeight = $props['fontWeight'] ?? '600';
-
-        return <<<HTML
-            <div style="text-align: {$align}; padding: 10px 0;">
-                <a href="{$link}" target="_blank" style="display: inline-block; background-color: {$bgColor}; color: {$textColor}; padding: {$padding}; border-radius: {$borderRadius}; text-decoration: none; font-size: {$fontSize}; font-weight: {$fontWeight};">{$text}</a>
-            </div>
-        HTML;
-    }
-
-    private function renderImage(array $props): string
-    {
-        $src = $props['src'] ?? '';
-        $alt = $props['alt'] ?? '';
-        $width = $props['width'] ?? '100%';
-        $align = $props['align'] ?? 'center';
-        $link = $props['link'] ?? '';
-
-        if (empty($src)) {
-            return '';
-        }
-
-        $imgHtml = "<img src=\"{$src}\" alt=\"{$alt}\" style=\"max-width: {$width}; height: auto; display: block;\" />";
-
-        if ($link) {
-            $imgHtml = "<a href=\"{$link}\" target=\"_blank\">{$imgHtml}</a>";
-        }
-
-        return "<div style=\"text-align: {$align}; padding: 10px 0;\">{$imgHtml}</div>";
-    }
-
-    private function renderSpacer(array $props): string
-    {
-        $height = $props['height'] ?? '20px';
-
-        return "<div style=\"height: {$height};\"></div>";
-    }
-
-    private function renderDivider(array $props): string
-    {
-        $color = $props['color'] ?? '#e5e7eb';
-        $thickness = $props['thickness'] ?? '1px';
-        $width = $props['width'] ?? '100%';
-        $margin = $props['margin'] ?? '20px 0';
-
-        return "<hr style=\"border: none; border-top: {$thickness} solid {$color}; width: {$width}; margin: {$margin};\" />";
-    }
-
-    private function renderList(array $props): string
-    {
-        $items = $props['items'] ?? [];
-        $listType = $props['listType'] ?? 'bullet';
-        $color = $props['color'] ?? '#666666';
-        $fontSize = $props['fontSize'] ?? '16px';
-
-        if (empty($items)) {
-            return '';
-        }
-
-        $tag = $listType === 'number' ? 'ol' : 'ul';
-        $itemsHtml = '';
-        foreach ($items as $item) {
-            $itemsHtml .= "<li style=\"margin-bottom: 8px;\">{$item}</li>";
-        }
-
-        return "<{$tag} style=\"color: {$color}; font-size: {$fontSize}; line-height: 1.8; margin: 0; padding-left: 24px;\">{$itemsHtml}</{$tag}>";
-    }
-
-    private function renderQuote(array $props): string
-    {
-        $text = $props['text'] ?? '';
-        $author = $props['author'] ?? '';
-        $authorTitle = $props['authorTitle'] ?? '';
-        $borderColor = $props['borderColor'] ?? '#635bff';
-        $bgColor = $props['backgroundColor'] ?? '#f8fafc';
-        $textColor = $props['textColor'] ?? '#475569';
-        $authorColor = $props['authorColor'] ?? '#1e293b';
-
-        $authorHtml = '';
-        if ($author) {
-            $titleHtml = $authorTitle ? "<span style=\"color: {$textColor}; font-size: 14px;\"> - {$authorTitle}</span>" : '';
-            $authorHtml = "<p style=\"color: {$authorColor}; font-size: 14px; font-weight: 600; margin: 12px 0 0 0;\">{$author}{$titleHtml}</p>";
-        }
-
-        return <<<HTML
-            <div style="padding: 20px; padding-left: 24px; background-color: {$bgColor}; border-left: 4px solid {$borderColor}; border-radius: 4px; margin: 10px 0;">
-                <p style="color: {$textColor}; font-size: 16px; font-style: italic; line-height: 1.6; margin: 0;">"{$text}"</p>
-                {$authorHtml}
-            </div>
-        HTML;
-    }
-
-    private function renderTable(array $props): string
-    {
-        $headers = $props['headers'] ?? [];
-        $rows = $props['rows'] ?? [];
-        $showHeader = $props['showHeader'] ?? true;
-        $headerBgColor = $props['headerBgColor'] ?? '#f1f5f9';
-        $headerTextColor = $props['headerTextColor'] ?? '#1e293b';
-        $borderColor = $props['borderColor'] ?? '#e2e8f0';
-        $cellPadding = $props['cellPadding'] ?? '12px';
-        $fontSize = $props['fontSize'] ?? '14px';
-
-        $headerHtml = '';
-        if ($showHeader && ! empty($headers)) {
-            $headerCells = '';
-            foreach ($headers as $header) {
-                $headerCells .= "<th style=\"padding: {$cellPadding}; text-align: left; border: 1px solid {$borderColor}; font-weight: 600;\">{$header}</th>";
-            }
-            $headerHtml = "<thead><tr style=\"background-color: {$headerBgColor}; color: {$headerTextColor};\">{$headerCells}</tr></thead>";
-        }
-
-        $bodyHtml = '';
-        foreach ($rows as $row) {
-            $cells = '';
-            foreach ($row as $cell) {
-                $cells .= "<td style=\"padding: {$cellPadding}; border: 1px solid {$borderColor};\">{$cell}</td>";
-            }
-            $bodyHtml .= "<tr>{$cells}</tr>";
-        }
-
-        return <<<HTML
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size: {$fontSize}; border-collapse: collapse; margin: 10px 0;">
-                {$headerHtml}
-                <tbody>{$bodyHtml}</tbody>
-            </table>
-        HTML;
-    }
-
-    private function renderFooter(array $props): string
-    {
-        $companyName = $props['companyName'] ?? '';
-        $address = $props['address'] ?? '';
-        $email = $props['email'] ?? '';
-        $phone = $props['phone'] ?? '';
-        $unsubscribeText = $props['unsubscribeText'] ?? 'Unsubscribe';
-        $unsubscribeUrl = $props['unsubscribeUrl'] ?? '#unsubscribe';
-        $copyright = $props['copyright'] ?? '';
-        $textColor = $props['textColor'] ?? '#6b7280';
-        $linkColor = $props['linkColor'] ?? '#635bff';
-        $fontSize = $props['fontSize'] ?? '12px';
-        $align = $props['align'] ?? 'center';
-
-        $addressHtml = $address ? "<p style=\"color: {$textColor}; font-size: {$fontSize}; margin: 8px 0;\">{$address}</p>" : '';
-        $contactHtml = '';
-        if ($email || $phone) {
-            $parts = [];
-            if ($email) {
-                $parts[] = "<a href=\"mailto:{$email}\" style=\"color: {$linkColor};\">{$email}</a>";
-            }
-            if ($phone) {
-                $parts[] = $phone;
-            }
-            $contactHtml = "<p style=\"color: {$textColor}; font-size: {$fontSize}; margin: 8px 0;\">" . implode(' | ', $parts) . '</p>';
-        }
-
-        return <<<HTML
-            <div style="padding: 24px 16px; text-align: {$align}; border-top: 1px solid #e5e7eb;">
-                <p style="color: {$textColor}; font-size: 14px; font-weight: 600; margin: 0 0 12px 0;">{$companyName}</p>
-                {$addressHtml}
-                {$contactHtml}
-                <p style="color: {$textColor}; font-size: {$fontSize}; margin: 16px 0 0 0;"><a href="{$unsubscribeUrl}" style="color: {$linkColor}; text-decoration: underline;">{$unsubscribeText}</a></p>
-                <p style="color: {$textColor}; font-size: 11px; margin: 12px 0 0 0;">{$copyright}</p>
-            </div>
-        HTML;
-    }
-
-    private function renderSocial(array $props): string
-    {
-        $links = $props['links'] ?? [];
-        $align = $props['align'] ?? 'center';
-        $iconSize = $props['iconSize'] ?? '32px';
-        $gap = $props['gap'] ?? '12px';
-
-        $iconsHtml = '';
-        $socialIcons = [
-            'facebook' => 'https://cdn-icons-png.flaticon.com/512/124/124010.png',
-            'twitter' => 'https://cdn-icons-png.flaticon.com/512/124/124021.png',
-            'instagram' => 'https://cdn-icons-png.flaticon.com/512/174/174855.png',
-            'linkedin' => 'https://cdn-icons-png.flaticon.com/512/174/174857.png',
-            'youtube' => 'https://cdn-icons-png.flaticon.com/512/174/174883.png',
-        ];
-
-        foreach ($links as $platform => $url) {
-            if ($url && isset($socialIcons[$platform])) {
-                $icon = $socialIcons[$platform];
-                $iconsHtml .= "<a href=\"{$url}\" target=\"_blank\" style=\"display: inline-block; margin: 0 {$gap};\"><img src=\"{$icon}\" alt=\"{$platform}\" width=\"{$iconSize}\" height=\"{$iconSize}\" style=\"border-radius: 4px;\" /></a>";
-            }
-        }
-
-        if (empty($iconsHtml)) {
-            return '';
-        }
-
-        return "<div style=\"text-align: {$align}; padding: 20px 0;\">{$iconsHtml}</div>";
-    }
-
-    private function renderCountdown(array $props): string
-    {
-        $title = $props['title'] ?? 'Sale Ends In';
-        $targetDate = $props['targetDate'] ?? '';
-        $bgColor = $props['backgroundColor'] ?? '#1e293b';
-        $textColor = $props['textColor'] ?? '#ffffff';
-        $numberColor = $props['numberColor'] ?? '#635bff';
-        $align = $props['align'] ?? 'center';
-
-        // Static countdown display (actual countdown is JS-based)
-        return <<<HTML
-            <div style="background-color: {$bgColor}; padding: 24px; border-radius: 8px; text-align: {$align}; margin: 10px 0;">
-                <p style="color: {$textColor}; font-size: 16px; font-weight: 600; margin: 0 0 16px 0;">{$title}</p>
-                <div style="display: inline-flex; gap: 16px;">
-                    <div style="text-align: center;">
-                        <span style="color: {$numberColor}; font-size: 32px; font-weight: bold;">00</span>
-                        <p style="color: {$textColor}; font-size: 12px; margin: 4px 0 0 0;">Days</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <span style="color: {$numberColor}; font-size: 32px; font-weight: bold;">00</span>
-                        <p style="color: {$textColor}; font-size: 12px; margin: 4px 0 0 0;">Hours</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <span style="color: {$numberColor}; font-size: 32px; font-weight: bold;">00</span>
-                        <p style="color: {$textColor}; font-size: 12px; margin: 4px 0 0 0;">Minutes</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <span style="color: {$numberColor}; font-size: 32px; font-weight: bold;">00</span>
-                        <p style="color: {$textColor}; font-size: 12px; margin: 4px 0 0 0;">Seconds</p>
-                    </div>
-                </div>
-            </div>
-        HTML;
-    }
-
-    private function renderVideo(array $props): string
-    {
-        $thumbnailUrl = $props['thumbnailUrl'] ?? '';
-        $videoUrl = $props['videoUrl'] ?? '';
-        $alt = $props['alt'] ?? 'Video';
-        $width = $props['width'] ?? '100%';
-        $align = $props['align'] ?? 'center';
-        $playButtonColor = $props['playButtonColor'] ?? '#635bff';
-
-        if (empty($thumbnailUrl)) {
-            // Placeholder for video
-            return <<<HTML
-                <div style="text-align: {$align}; padding: 10px 0;">
-                    <div style="background-color: #1e293b; padding: 60px 20px; border-radius: 8px; text-align: center;">
-                        <div style="width: 60px; height: 60px; background-color: {$playButtonColor}; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-                            <span style="color: #ffffff; font-size: 24px;">▶</span>
-                        </div>
-                        <p style="color: #94a3b8; font-size: 14px; margin: 16px 0 0 0;">{$alt}</p>
-                    </div>
-                </div>
-            HTML;
-        }
-
-        $linkWrapper = $videoUrl ? "href=\"{$videoUrl}\" target=\"_blank\"" : '';
-
-        return <<<HTML
-            <div style="text-align: {$align}; padding: 10px 0;">
-                <a {$linkWrapper} style="display: block; position: relative; text-decoration: none;">
-                    <img src="{$thumbnailUrl}" alt="{$alt}" style="max-width: {$width}; height: auto; display: block; border-radius: 8px;" />
-                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background-color: {$playButtonColor}; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <span style="color: #ffffff; font-size: 24px;">▶</span>
-                    </div>
-                </a>
-            </div>
-        HTML;
-    }
-
     // ========================================
     // TEMPLATE BLOCKS - Auth Templates
     // ========================================
@@ -1040,32 +424,32 @@ HTML;
     private function getPasswordResetBlocks(): array
     {
         return [
-            $this->text('{site_icon_image}', 'center'),
-            $this->spacer('10px'),
-            $this->heading('Password Reset Request', 'h1', 'center', '#333333', '28px'),
-            $this->spacer('20px'),
-            $this->text('Hello <strong>{full_name}</strong>,'),
-            $this->spacer('10px'),
-            $this->text('We received a request to reset your password for your <strong>{app_name}</strong> account. If you didn\'t make this request, you can safely ignore this email.'),
-            $this->spacer('10px'),
-            $this->text('To reset your password, click the button below:'),
-            $this->spacer('20px'),
-            $this->button('Reset My Password', '{reset_url}', '#635bff'),
-            $this->spacer('20px'),
-            $this->quote('⚠️ Important: This password reset link will expire in {expiry_time}. If the link expires, you\'ll need to request a new password reset.'),
-            $this->spacer('20px'),
-            $this->text('If the button above doesn\'t work, copy and paste this URL into your browser:', 'left', '#666666', '14px'),
-            $this->text('{reset_url}', 'left', '#635bff', '13px'),
-            $this->spacer('20px'),
-            $this->divider(),
-            $this->text('<strong>Security Tips:</strong>', 'left', '#333333'),
-            $this->listBlock([
+            $this->blockService->text('{site_icon_image}', 'center'),
+            $this->blockService->spacer('10px'),
+            $this->blockService->heading('Password Reset Request', 'h1', 'center', '#333333', '28px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Hello <strong>{full_name}</strong>,'),
+            $this->blockService->spacer('10px'),
+            $this->blockService->text('We received a request to reset your password for your <strong>{app_name}</strong> account. If you didn\'t make this request, you can safely ignore this email.'),
+            $this->blockService->spacer('10px'),
+            $this->blockService->text('To reset your password, click the button below:'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->button('Reset My Password', '{reset_url}', '#635bff'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->quote('⚠️ Important: This password reset link will expire in {expiry_time}. If the link expires, you\'ll need to request a new password reset.'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('If the button above doesn\'t work, copy and paste this URL into your browser:', 'left', '#666666', '14px'),
+            $this->blockService->text('{reset_url}', 'left', '#635bff', '13px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->divider(),
+            $this->blockService->text('<strong>Security Tips:</strong>', 'left', '#333333'),
+            $this->blockService->listBlock([
                 'Never share your password with anyone',
                 'Use a strong, unique password',
                 'Enable two-factor authentication if available',
             ]),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
@@ -1076,102 +460,102 @@ HTML;
     private function getModernWelcomeBlueBlocks(): array
     {
         return [
-            $this->heading('Welcome to {app_name}! 🎉', 'h1', 'center', '#635bff', '32px'),
-            $this->spacer('20px'),
-            $this->text('Hi <strong>{first_name}</strong>,', 'center'),
-            $this->spacer('10px'),
-            $this->text('We\'re thrilled to have you on board! You\'ve just joined a community of thousands of users who are transforming the way they work.', 'center'),
-            $this->spacer('30px'),
-            $this->heading('What\'s Next?', 'h2', 'center', '#333333', '24px'),
-            $this->spacer('15px'),
-            $this->listBlock([
+            $this->blockService->heading('Welcome to {app_name}! 🎉', 'h1', 'center', '#635bff', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Hi <strong>{first_name}</strong>,', 'center'),
+            $this->blockService->spacer('10px'),
+            $this->blockService->text('We\'re thrilled to have you on board! You\'ve just joined a community of thousands of users who are transforming the way they work.', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('What\'s Next?', 'h2', 'center', '#333333', '24px'),
+            $this->blockService->spacer('15px'),
+            $this->blockService->listBlock([
                 'Complete your profile setup',
                 'Explore our features and tools',
                 'Connect with other members',
                 'Check out our help center',
             ]),
-            $this->spacer('30px'),
-            $this->button('Get Started Now', '{dashboard_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->text('Need help? Our support team is always here for you.', 'center', '#888888', '14px'),
-            $this->spacer('30px'),
-            $this->divider(),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Get Started Now', '{dashboard_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('Need help? Our support team is always here for you.', 'center', '#888888', '14px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->divider(),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getWelcomeWithVideoBlocks(): array
     {
         return [
-            $this->heading('Welcome, {first_name}! 👋', 'h1', 'center', '#333333', '32px'),
-            $this->spacer('20px'),
-            $this->text('We\'ve prepared a quick video to help you get started with {app_name}. Watch it to discover all the amazing features waiting for you!', 'center'),
-            $this->spacer('30px'),
-            $this->video('https://via.placeholder.com/600x340/635bff/ffffff?text=Welcome+Video', 'https://www.youtube.com/watch?v=example', 'Welcome Video'),
-            $this->spacer('30px'),
-            $this->heading('Ready to dive in?', 'h2', 'center', '#333333', '24px'),
-            $this->text('Click the button below to access your dashboard and start exploring.', 'center'),
-            $this->spacer('20px'),
-            $this->button('Go to Dashboard', '{dashboard_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('Welcome, {first_name}! 👋', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('We\'ve prepared a quick video to help you get started with {app_name}. Watch it to discover all the amazing features waiting for you!', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->video('https://placehold.co/600x340/635bff/ffffff?text=Welcome+Video', 'https://www.youtube.com/watch?v=example', 'Welcome Video'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Ready to dive in?', 'h2', 'center', '#333333', '24px'),
+            $this->blockService->text('Click the button below to access your dashboard and start exploring.', 'center'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->button('Go to Dashboard', '{dashboard_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getMinimalistWelcomeBlocks(): array
     {
         return [
-            $this->spacer('40px'),
-            $this->heading('Welcome', 'h1', 'center', '#333333', '36px'),
-            $this->spacer('20px'),
-            $this->text('{first_name}, your account is ready.', 'center', '#666666', '18px'),
-            $this->spacer('40px'),
-            $this->button('Start Using {app_name}', '{dashboard_url}', '#333333'),
-            $this->spacer('40px'),
-            $this->divider('#e5e7eb', '1px', '60%'),
-            $this->spacer('20px'),
-            $this->text('Questions? Reply to this email.', 'center', '#999999', '14px'),
-            $this->spacer('40px'),
+            $this->blockService->spacer('40px'),
+            $this->blockService->heading('Welcome', 'h1', 'center', '#333333', '36px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('{first_name}, your account is ready.', 'center', '#666666', '18px'),
+            $this->blockService->spacer('40px'),
+            $this->blockService->button('Start Using {app_name}', '{dashboard_url}', '#333333'),
+            $this->blockService->spacer('40px'),
+            $this->blockService->divider('#e5e7eb', '1px', '60%'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Questions? Reply to this email.', 'center', '#999999', '14px'),
+            $this->blockService->spacer('40px'),
         ];
     }
 
     private function getWelcomeChecklistBlocks(): array
     {
         return [
-            $this->heading('Your Getting Started Guide', 'h1', 'center', '#333333', '28px'),
-            $this->spacer('20px'),
-            $this->text('Hi {first_name}! Here\'s your personalized checklist to make the most of {app_name}:', 'center'),
-            $this->spacer('30px'),
-            $this->listBlock([
+            $this->blockService->heading('Your Getting Started Guide', 'h1', 'center', '#333333', '28px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Hi {first_name}! Here\'s your personalized checklist to make the most of {app_name}:', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->listBlock([
                 '✅ Create your account - Done!',
                 '⬜ Complete your profile',
                 '⬜ Set up your preferences',
                 '⬜ Invite team members',
                 '⬜ Create your first project',
             ], 'none'),
-            $this->spacer('30px'),
-            $this->button('Complete Your Profile', '{profile_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->quote('Pro tip: Users who complete their profile are 3x more likely to achieve their goals with {app_name}!'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Complete Your Profile', '{profile_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->quote('Pro tip: Users who complete their profile are 3x more likely to achieve their goals with {app_name}!'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getBoldWelcomeBlocks(): array
     {
         return [
-            $this->heading('🚀 YOU\'RE IN!', 'h1', 'center', '#635bff', '40px'),
-            $this->spacer('20px'),
-            $this->heading('Welcome Aboard, {first_name}!', 'h2', 'center', '#333333', '24px'),
-            $this->spacer('20px'),
-            $this->text('Get ready for an amazing journey with {app_name}. We\'re excited to have you as part of our community!', 'center', '#666666', '18px'),
-            $this->spacer('40px'),
-            $this->button('LET\'S GO! 🎯', '{dashboard_url}', '#635bff'),
-            $this->spacer('40px'),
-            $this->social(['twitter' => '#', 'linkedin' => '#', 'instagram' => '#']),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('🚀 YOU\'RE IN!', 'h1', 'center', '#635bff', '40px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->heading('Welcome Aboard, {first_name}!', 'h2', 'center', '#333333', '24px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Get ready for an amazing journey with {app_name}. We\'re excited to have you as part of our community!', 'center', '#666666', '18px'),
+            $this->blockService->spacer('40px'),
+            $this->blockService->button('LET\'S GO! 🎯', '{dashboard_url}', '#635bff'),
+            $this->blockService->spacer('40px'),
+            $this->blockService->social(['twitter' => '#', 'linkedin' => '#', 'instagram' => '#']),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
@@ -1182,95 +566,95 @@ HTML;
     private function getFlashSaleBlocks(): array
     {
         return [
-            $this->heading('⚡ FLASH SALE ⚡', 'h1', 'center', '#ff4757', '36px'),
-            $this->spacer('20px'),
-            $this->countdown('Offer Ends In'),
-            $this->spacer('30px'),
-            $this->heading('Up to 50% OFF Everything!', 'h2', 'center', '#333333', '28px'),
-            $this->spacer('20px'),
-            $this->text('Hey {first_name}, this is your chance to grab amazing deals. Don\'t wait - these prices won\'t last!', 'center'),
-            $this->spacer('30px'),
-            $this->button('SHOP NOW →', '{shop_url}', '#ff4757'),
-            $this->spacer('20px'),
-            $this->text('Use code: <strong>FLASH50</strong> at checkout', 'center', '#666666', '14px'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('⚡ FLASH SALE ⚡', 'h1', 'center', '#ff4757', '36px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->countdown('Offer Ends In'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Up to 50% OFF Everything!', 'h2', 'center', '#333333', '28px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Hey {first_name}, this is your chance to grab amazing deals. Don\'t wait - these prices won\'t last!', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('SHOP NOW →', '{shop_url}', '#ff4757'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Use code: <strong>FLASH50</strong> at checkout', 'center', '#666666', '14px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getProductLaunchBlocks(): array
     {
         return [
-            $this->heading('Introducing Something Amazing', 'h1', 'center', '#333333', '32px'),
-            $this->spacer('20px'),
-            $this->image('https://via.placeholder.com/600x300/635bff/ffffff?text=New+Product', 'New Product Launch'),
-            $this->spacer('30px'),
-            $this->heading('Mastering Success in 2025', 'h2', 'center', '#635bff', '24px'),
-            $this->spacer('15px'),
-            $this->text('We\'ve been working hard on something special, and today we\'re excited to share it with you. This is not just another product – it\'s a game-changer.', 'center'),
-            $this->spacer('30px'),
-            $this->listBlock([
+            $this->blockService->heading('Introducing Something Amazing', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->image('https://placehold.co/600x300/635bff/ffffff?text=New+Product', 'New Product Launch'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Mastering Success in 2025', 'h2', 'center', '#635bff', '24px'),
+            $this->blockService->spacer('15px'),
+            $this->blockService->text('We\'ve been working hard on something special, and today we\'re excited to share it with you. This is not just another product – it\'s a game-changer.', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->listBlock([
                 'Revolutionary features you\'ve never seen before',
                 'Designed with your feedback in mind',
                 'Available at an exclusive launch price',
             ]),
-            $this->spacer('30px'),
-            $this->button('Learn More', '{product_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Learn More', '{product_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getLimitedOfferBlocks(): array
     {
         return [
-            $this->heading('🔥 Exclusive Offer for You', 'h1', 'center', '#333333', '32px'),
-            $this->spacer('20px'),
-            $this->text('{first_name}, as a valued member, you\'re getting early access to our best deal of the year.', 'center'),
-            $this->spacer('30px'),
-            $this->heading('40% OFF', 'h1', 'center', '#635bff', '48px'),
-            $this->text('Your Exclusive Discount', 'center', '#666666'),
-            $this->spacer('30px'),
-            $this->countdown('This Offer Expires In'),
-            $this->spacer('30px'),
-            $this->button('Claim Your Discount', '{offer_url}', '#635bff'),
-            $this->spacer('20px'),
-            $this->text('*Limited to the first 100 customers. Cannot be combined with other offers.', 'center', '#999999', '12px'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('🔥 Exclusive Offer for You', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('{first_name}, as a valued member, you\'re getting early access to our best deal of the year.', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('40% OFF', 'h1', 'center', '#635bff', '48px'),
+            $this->blockService->text('Your Exclusive Discount', 'center', '#666666'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->countdown('This Offer Expires In'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Claim Your Discount', '{offer_url}', '#635bff'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('*Limited to the first 100 customers. Cannot be combined with other offers.', 'center', '#999999', '12px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getBlackFridayBlocks(): array
     {
         return [
-            $this->heading('BLACK FRIDAY', 'h1', 'center', '#ffffff', '48px'),
-            $this->heading('Up to 70% OFF!', 'h2', 'center', '#ffd700', '32px'),
-            $this->spacer('30px'),
-            $this->text('Our biggest sale of the year is HERE! Don\'t miss out on incredible savings across all products.', 'center', '#ffffff'),
-            $this->spacer('30px'),
-            $this->button('SHOP BLACK FRIDAY', '{shop_url}', '#ffd700', '#000000'),
-            $this->spacer('30px'),
-            $this->countdown('Sale Ends In'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('BLACK FRIDAY', 'h1', 'center', '#ffffff', '48px'),
+            $this->blockService->heading('Up to 70% OFF!', 'h2', 'center', '#ffd700', '32px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('Our biggest sale of the year is HERE! Don\'t miss out on incredible savings across all products.', 'center', '#ffffff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('SHOP BLACK FRIDAY', '{shop_url}', '#ffd700', '#000000'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->countdown('Sale Ends In'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getCyberMondayBlocks(): array
     {
         return [
-            $this->heading('CYBER MONDAY', 'h1', 'center', '#00d9ff', '48px'),
-            $this->spacer('20px'),
-            $this->heading('Deals Start NOW!', 'h2', 'center', '#333333', '28px'),
-            $this->spacer('20px'),
-            $this->text('The biggest online shopping day is here. Score massive discounts on everything you love!', 'center'),
-            $this->spacer('30px'),
-            $this->button('START SHOPPING', '{shop_url}', '#00d9ff', '#000000'),
-            $this->spacer('30px'),
-            $this->countdown('Cyber Monday Ends In'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('CYBER MONDAY', 'h1', 'center', '#00d9ff', '48px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->heading('Deals Start NOW!', 'h2', 'center', '#333333', '28px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('The biggest online shopping day is here. Score massive discounts on everything you love!', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('START SHOPPING', '{shop_url}', '#00d9ff', '#000000'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->countdown('Cyber Monday Ends In'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
@@ -1281,13 +665,13 @@ HTML;
     private function getOrderConfirmationBlocks(): array
     {
         return [
-            $this->heading('Order Confirmed! ✓', 'h1', 'center', '#22c55e', '32px'),
-            $this->spacer('20px'),
-            $this->text('Thank you for your order! We\'re getting it ready for you.', 'center'),
-            $this->spacer('30px'),
-            $this->heading('Order #1010123', 'h2', 'left', '#333333', '20px'),
-            $this->divider(),
-            $this->table(
+            $this->blockService->heading('Order Confirmed! ✓', 'h1', 'center', '#22c55e', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Thank you for your order! We\'re getting it ready for you.', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Order #1010123', 'h2', 'left', '#333333', '20px'),
+            $this->blockService->divider(),
+            $this->blockService->table(
                 ['Product', 'Qty', 'Price'],
                 [
                     ['Product Name 1', '2', '$29.99'],
@@ -1296,50 +680,50 @@ HTML;
                     ['<strong>Total</strong>', '', '<strong>$115.96</strong>'],
                 ]
             ),
-            $this->spacer('30px'),
-            $this->heading('Shipping Address', 'h3', 'left', '#333333', '18px'),
-            $this->text('{customer_name}<br>{shipping_address}<br>{shipping_city}, {shipping_zip}', 'left', '#666666', '14px'),
-            $this->spacer('30px'),
-            $this->button('Track Your Order', '{tracking_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Shipping Address', 'h3', 'left', '#333333', '18px'),
+            $this->blockService->text('{customer_name}<br>{shipping_address}<br>{shipping_city}, {shipping_zip}', 'left', '#666666', '14px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Track Your Order', '{tracking_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getShippingNotificationBlocks(): array
     {
         return [
-            $this->heading('Your Order Has Shipped! 📦', 'h1', 'center', '#635bff', '32px'),
-            $this->spacer('20px'),
-            $this->text('Great news! Your order is on its way. Here are the details:', 'center'),
-            $this->spacer('30px'),
-            $this->text('<strong>Tracking Number:</strong> {tracking_number}', 'center'),
-            $this->text('<strong>Carrier:</strong> {carrier_name}', 'center'),
-            $this->text('<strong>Estimated Delivery:</strong> {delivery_date}', 'center'),
-            $this->spacer('30px'),
-            $this->button('Track Package', '{tracking_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->divider(),
-            $this->text('If you have any questions about your delivery, please don\'t hesitate to contact us.', 'center', '#666666', '14px'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('Your Order Has Shipped! 📦', 'h1', 'center', '#635bff', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Great news! Your order is on its way. Here are the details:', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('<strong>Tracking Number:</strong> {tracking_number}', 'center'),
+            $this->blockService->text('<strong>Carrier:</strong> {carrier_name}', 'center'),
+            $this->blockService->text('<strong>Estimated Delivery:</strong> {delivery_date}', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Track Package', '{tracking_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->divider(),
+            $this->blockService->text('If you have any questions about your delivery, please don\'t hesitate to contact us.', 'center', '#666666', '14px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getInvoiceBlocks(): array
     {
         return [
-            $this->heading('Invoice', 'h1', 'center', '#333333', '32px'),
-            $this->text('Invoice #1010123', 'center', '#666666'),
-            $this->spacer('30px'),
-            $this->divider(),
-            $this->text('<strong>Bill To:</strong>', 'left'),
-            $this->text('{customer_name}<br>{customer_email}<br>{customer_address}', 'left', '#666666', '14px'),
-            $this->spacer('20px'),
-            $this->text('<strong>Date:</strong> {invoice_date}', 'left', '#666666', '14px'),
-            $this->text('<strong>Due Date:</strong> {due_date}', 'left', '#666666', '14px'),
-            $this->spacer('20px'),
-            $this->table(
+            $this->blockService->heading('Invoice', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->text('Invoice #1010123', 'center', '#666666'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->divider(),
+            $this->blockService->text('<strong>Bill To:</strong>', 'left'),
+            $this->blockService->text('{customer_name}<br>{customer_email}<br>{customer_address}', 'left', '#666666', '14px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('<strong>Date:</strong> {invoice_date}', 'left', '#666666', '14px'),
+            $this->blockService->text('<strong>Due Date:</strong> {due_date}', 'left', '#666666', '14px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->table(
                 ['Description', 'Qty', 'Amount'],
                 [
                     ['Service/Product 1', '1', '$99.00'],
@@ -1349,274 +733,266 @@ HTML;
                     ['<strong>Total Due</strong>', '', '<strong>$273.90</strong>'],
                 ]
             ),
-            $this->spacer('30px'),
-            $this->button('Pay Invoice', '{payment_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Pay Invoice', '{payment_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getReceiptBlocks(): array
     {
         return [
-            $this->heading('Payment Receipt', 'h1', 'center', '#22c55e', '32px'),
-            $this->spacer('20px'),
-            $this->text('Thank you for your payment! Here\'s your receipt.', 'center'),
-            $this->spacer('30px'),
-            $this->text('<strong>Receipt Number:</strong> {receipt_number}', 'center'),
-            $this->text('<strong>Date:</strong> {payment_date}', 'center'),
-            $this->text('<strong>Amount Paid:</strong> ${amount}', 'center', '#22c55e', '24px'),
-            $this->spacer('30px'),
-            $this->divider(),
-            $this->text('<strong>Payment Method:</strong> {payment_method}', 'left', '#666666', '14px'),
-            $this->text('<strong>Transaction ID:</strong> {transaction_id}', 'left', '#666666', '14px'),
-            $this->spacer('30px'),
-            $this->button('Download Receipt', '{receipt_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('Payment Receipt', 'h1', 'center', '#22c55e', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Thank you for your payment! Here\'s your receipt.', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('<strong>Receipt Number:</strong> {receipt_number}', 'center'),
+            $this->blockService->text('<strong>Date:</strong> {payment_date}', 'center'),
+            $this->blockService->text('<strong>Amount Paid:</strong> ${amount}', 'center', '#22c55e', '24px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->divider(),
+            $this->blockService->text('<strong>Payment Method:</strong> {payment_method}', 'left', '#666666', '14px'),
+            $this->blockService->text('<strong>Transaction ID:</strong> {transaction_id}', 'left', '#666666', '14px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Download Receipt', '{receipt_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
-
-    // ========================================
-    // TEMPLATE BLOCKS - Newsletter Templates
-    // ========================================
 
     private function getWeeklyDigestBlocks(): array
     {
         return [
-            $this->heading('📰 Your Weekly Digest', 'h1', 'center', '#333333', '32px'),
-            $this->text('{date}', 'center', '#666666'),
-            $this->spacer('30px'),
-            $this->text('Here\'s what happened this week:', 'center'),
-            $this->spacer('20px'),
-            $this->heading('Featured Story', 'h2', 'left', '#635bff', '22px'),
-            $this->text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'),
-            $this->button('Read More', '#', '#635bff', '#ffffff', 'left'),
-            $this->spacer('30px'),
-            $this->divider(),
-            $this->heading('More Headlines', 'h2', 'left', '#333333', '22px'),
-            $this->listBlock([
+            $this->blockService->heading('📰 Your Weekly Digest', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->text('{date}', 'center', '#666666'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('Here\'s what happened this week:', 'center'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->heading('Featured Story', 'h2', 'left', '#635bff', '22px'),
+            $this->blockService->text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'),
+            $this->blockService->button('Read More', '#', '#635bff', '#ffffff', 'left'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->divider(),
+            $this->blockService->heading('More Headlines', 'h2', 'left', '#333333', '22px'),
+            $this->blockService->listBlock([
                 'Story headline one goes here',
                 'Story headline two goes here',
                 'Story headline three goes here',
             ]),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getBlogRoundupBlocks(): array
     {
         return [
-            $this->text('{site_icon_image}', 'center'),
-            $this->spacer('20px'),
-            $this->heading('Top Articles This Month', 'h1', 'center', '#333333', '32px'),
-            $this->spacer('20px'),
-            $this->text('Catch up on the best content from our blog:', 'center'),
-            $this->spacer('30px'),
-            $this->heading('1. Article Title One', 'h3', 'left', '#635bff', '20px'),
-            $this->text('A brief description of the article content goes here. This gives readers a preview of what to expect.'),
-            $this->spacer('10px'),
-            $this->heading('2. Article Title Two', 'h3', 'left', '#635bff', '20px'),
-            $this->text('A brief description of the article content goes here. This gives readers a preview of what to expect.'),
-            $this->spacer('10px'),
-            $this->heading('3. Article Title Three', 'h3', 'left', '#635bff', '20px'),
-            $this->text('A brief description of the article content goes here. This gives readers a preview of what to expect.'),
-            $this->spacer('30px'),
-            $this->button('View All Articles', '{blog_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->text('{site_icon_image}', 'center'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->heading('Top Articles This Month', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Catch up on the best content from our blog:', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('1. Article Title One', 'h3', 'left', '#635bff', '20px'),
+            $this->blockService->text('A brief description of the article content goes here. This gives readers a preview of what to expect.'),
+            $this->blockService->spacer('10px'),
+            $this->blockService->heading('2. Article Title Two', 'h3', 'left', '#635bff', '20px'),
+            $this->blockService->text('A brief description of the article content goes here. This gives readers a preview of what to expect.'),
+            $this->blockService->spacer('10px'),
+            $this->blockService->heading('3. Article Title Three', 'h3', 'left', '#635bff', '20px'),
+            $this->blockService->text('A brief description of the article content goes here. This gives readers a preview of what to expect.'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('View All Articles', '{blog_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getIndustryNewsBlocks(): array
     {
         return [
-            $this->heading('Industry Insights', 'h1', 'center', '#333333', '32px'),
-            $this->text('Your weekly dose of industry news and trends', 'center', '#666666'),
-            $this->spacer('30px'),
-            $this->quote('The industry is evolving rapidly. Here\'s what you need to know to stay ahead of the curve.', 'Industry Expert', 'CEO, Leading Company'),
-            $this->spacer('30px'),
-            $this->heading('Key Trends This Week', 'h2', 'left', '#333333', '22px'),
-            $this->listBlock([
+            $this->blockService->heading('Industry Insights', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->text('Your weekly dose of industry news and trends', 'center', '#666666'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->quote('The industry is evolving rapidly. Here\'s what you need to know to stay ahead of the curve.', 'Industry Expert', 'CEO, Leading Company'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Key Trends This Week', 'h2', 'left', '#333333', '22px'),
+            $this->blockService->listBlock([
                 'Trend 1: Brief description of the trend',
                 'Trend 2: Brief description of the trend',
                 'Trend 3: Brief description of the trend',
             ]),
-            $this->spacer('30px'),
-            $this->button('Read Full Report', '{report_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Read Full Report', '{report_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getCompanyNewsletterBlocks(): array
     {
         return [
-            $this->heading('Company News & Updates', 'h1', 'center', '#333333', '32px'),
-            $this->text('{month} Edition', 'center', '#666666'),
-            $this->spacer('30px'),
-            $this->heading('CEO Message', 'h2', 'left', '#635bff', '22px'),
-            $this->text('Dear Team, I\'m excited to share some updates about what\'s been happening at our company this month...'),
-            $this->spacer('30px'),
-            $this->heading('Company Highlights', 'h2', 'left', '#635bff', '22px'),
-            $this->listBlock([
+            $this->blockService->heading('Company News & Updates', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->text('{month} Edition', 'center', '#666666'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('CEO Message', 'h2', 'left', '#635bff', '22px'),
+            $this->blockService->text('Dear Team, I\'m excited to share some updates about what\'s been happening at our company this month...'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Company Highlights', 'h2', 'left', '#635bff', '22px'),
+            $this->blockService->listBlock([
                 'We hit a major milestone this month',
                 'New team members joined our family',
                 'Exciting partnership announcement coming soon',
             ]),
-            $this->spacer('30px'),
-            $this->heading('Upcoming Events', 'h2', 'left', '#635bff', '22px'),
-            $this->text('• Team Building Event - {event_date}<br>• Quarterly Review - Next Friday<br>• Holiday Party - Coming Soon'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Upcoming Events', 'h2', 'left', '#635bff', '22px'),
+            $this->blockService->text('• Team Building Event - {event_date}<br>• Quarterly Review - Next Friday<br>• Holiday Party - Coming Soon'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getTipsNewsletterBlocks(): array
     {
         return [
-            $this->heading('💡 Weekly Tips', 'h1', 'center', '#333333', '32px'),
-            $this->text('Boost Your Productivity', 'center', '#666666'),
-            $this->spacer('30px'),
-            $this->heading('Tip #1: Start Your Day Right', 'h2', 'left', '#635bff', '20px'),
-            $this->text('Begin each morning with a clear plan. Write down your top 3 priorities before checking email.'),
-            $this->spacer('20px'),
-            $this->heading('Tip #2: Take Regular Breaks', 'h2', 'left', '#635bff', '20px'),
-            $this->text('Use the Pomodoro technique: 25 minutes of focused work followed by a 5-minute break.'),
-            $this->spacer('20px'),
-            $this->heading('Tip #3: Minimize Distractions', 'h2', 'left', '#635bff', '20px'),
-            $this->text('Turn off notifications during deep work sessions. Your focus is your superpower.'),
-            $this->spacer('30px'),
-            $this->quote('Productivity is never an accident. It is always the result of a commitment to excellence.', 'Paul J. Meyer'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('💡 Weekly Tips', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->text('Boost Your Productivity', 'center', '#666666'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Tip #1: Start Your Day Right', 'h2', 'left', '#635bff', '20px'),
+            $this->blockService->text('Begin each morning with a clear plan. Write down your top 3 priorities before checking email.'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->heading('Tip #2: Take Regular Breaks', 'h2', 'left', '#635bff', '20px'),
+            $this->blockService->text('Use the Pomodoro technique: 25 minutes of focused work followed by a 5-minute break.'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->heading('Tip #3: Minimize Distractions', 'h2', 'left', '#635bff', '20px'),
+            $this->blockService->text('Turn off notifications during deep work sessions. Your focus is your superpower.'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->quote('Productivity is never an accident. It is always the result of a commitment to excellence.', 'Paul J. Meyer'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
-
-    // ========================================
-    // TEMPLATE BLOCKS - Event Templates
-    // ========================================
 
     private function getWebinarInvitationBlocks(): array
     {
         return [
-            $this->heading('You\'re Invited! 🎓', 'h1', 'center', '#635bff', '32px'),
-            $this->spacer('20px'),
-            $this->heading('Mastering Success in {year}', 'h2', 'center', '#333333', '28px'),
-            $this->text('A Free Live Webinar', 'center', '#666666'),
-            $this->spacer('30px'),
-            $this->image('https://via.placeholder.com/600x300/635bff/ffffff?text=Webinar+Image', 'Webinar'),
-            $this->spacer('30px'),
-            $this->text('<strong>Date:</strong> {event_date}', 'center'),
-            $this->text('<strong>Time:</strong> {event_time}', 'center'),
-            $this->text('<strong>Duration:</strong> 60 minutes', 'center'),
-            $this->spacer('30px'),
-            $this->heading('What You\'ll Learn:', 'h3', 'left', '#333333', '20px'),
-            $this->listBlock([
+            $this->blockService->heading('You\'re Invited! 🎓', 'h1', 'center', '#635bff', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->heading('Mastering Success in {year}', 'h2', 'center', '#333333', '28px'),
+            $this->blockService->text('A Free Live Webinar', 'center', '#666666'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->image('https://placehold.co/600x300/635bff/ffffff?text=Webinar+Image', 'Webinar'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('<strong>Date:</strong> {event_date}', 'center'),
+            $this->blockService->text('<strong>Time:</strong> {event_time}', 'center'),
+            $this->blockService->text('<strong>Duration:</strong> 60 minutes', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('What You\'ll Learn:', 'h3', 'left', '#333333', '20px'),
+            $this->blockService->listBlock([
                 'Key strategies for success',
                 'Practical tips you can apply immediately',
                 'Live Q&A with industry experts',
             ]),
-            $this->spacer('30px'),
-            $this->button('Reserve Your Spot', '{registration_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Reserve Your Spot', '{registration_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getEventReminderBlocks(): array
     {
         return [
-            $this->heading('⏰ Reminder: Tomorrow!', 'h1', 'center', '#ff4757', '32px'),
-            $this->spacer('20px'),
-            $this->text('Don\'t forget! Mastering Success in {year} starts tomorrow at {time}.', 'center'),
-            $this->spacer('30px'),
-            $this->countdown('Event Starts In'),
-            $this->spacer('30px'),
-            $this->text('<strong>Add to Calendar:</strong>', 'center'),
-            $this->text('Google Calendar | Outlook | iCal', 'center', '#635bff'),
-            $this->spacer('30px'),
-            $this->button('Join Event', '{event_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->quote('Pro tip: Join 5 minutes early to test your audio and video!'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('⏰ Reminder: Tomorrow!', 'h1', 'center', '#ff4757', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Don\'t forget! Mastering Success in {year} starts tomorrow at {time}.', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->countdown('Event Starts In'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('<strong>Add to Calendar:</strong>', 'center'),
+            $this->blockService->text('Google Calendar | Outlook | iCal', 'center', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Join Event', '{event_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->quote('Pro tip: Join 5 minutes early to test your audio and video!'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getConferenceInviteBlocks(): array
     {
         return [
-            $this->heading('Annual Conference {year}', 'h1', 'center', '#333333', '36px'),
-            $this->spacer('20px'),
-            $this->text('Join us for the biggest event of the year', 'center', '#666666', '18px'),
-            $this->spacer('30px'),
-            $this->image('https://via.placeholder.com/600x300/635bff/ffffff?text=Conference', 'Conference'),
-            $this->spacer('30px'),
-            $this->text('<strong>📅 Date:</strong> {conference_date}', 'center'),
-            $this->text('<strong>📍 Location:</strong> {conference_venue}', 'center'),
-            $this->spacer('30px'),
-            $this->heading('Featured Speakers', 'h2', 'center', '#333333', '24px'),
-            $this->text('Industry leaders sharing insights on the latest trends and innovations.', 'center'),
-            $this->spacer('30px'),
-            $this->button('Register Now - Early Bird Pricing', '{registration_url}', '#635bff'),
-            $this->spacer('20px'),
-            $this->text('Early bird pricing ends {early_bird_deadline}', 'center', '#ff4757', '14px'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('Annual Conference {year}', 'h1', 'center', '#333333', '36px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Join us for the biggest event of the year', 'center', '#666666', '18px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->image('https://placehold.co/600x300/635bff/ffffff?text=Conference', 'Conference'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('<strong>📅 Date:</strong> {conference_date}', 'center'),
+            $this->blockService->text('<strong>📍 Location:</strong> {conference_venue}', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Featured Speakers', 'h2', 'center', '#333333', '24px'),
+            $this->blockService->text('Industry leaders sharing insights on the latest trends and innovations.', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Register Now - Early Bird Pricing', '{registration_url}', '#635bff'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Early bird pricing ends {early_bird_deadline}', 'center', '#ff4757', '14px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getVirtualEventBlocks(): array
     {
         return [
-            $this->heading('🌐 Virtual Event', 'h1', 'center', '#635bff', '32px'),
-            $this->heading('Mastering Success in {year}', 'h2', 'center', '#333333', '28px'),
-            $this->spacer('20px'),
-            $this->text('Join us online from anywhere in the world!', 'center'),
-            $this->spacer('30px'),
-            $this->text('<strong>📅 Date:</strong> {event_date}', 'center'),
-            $this->text('<strong>⏰ Time:</strong> {event_time} (Your Local Time)', 'center'),
-            $this->text('<strong>💻 Platform:</strong> Zoom', 'center'),
-            $this->spacer('30px'),
-            $this->heading('Event Highlights:', 'h3', 'left', '#333333', '20px'),
-            $this->listBlock([
+            $this->blockService->heading('🌐 Virtual Event', 'h1', 'center', '#635bff', '32px'),
+            $this->blockService->heading('Mastering Success in {year}', 'h2', 'center', '#333333', '28px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Join us online from anywhere in the world!', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('<strong>📅 Date:</strong> {event_date}', 'center'),
+            $this->blockService->text('<strong>⏰ Time:</strong> {event_time} (Your Local Time)', 'center'),
+            $this->blockService->text('<strong>💻 Platform:</strong> Zoom', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Event Highlights:', 'h3', 'left', '#333333', '20px'),
+            $this->blockService->listBlock([
                 'Keynote presentations from industry experts',
                 'Interactive workshops and breakout sessions',
                 'Networking opportunities with attendees worldwide',
                 'Exclusive resources and materials',
             ]),
-            $this->spacer('30px'),
-            $this->button('Register Free', '{registration_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Register Free', '{registration_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getEventThankYouBlocks(): array
     {
         return [
-            $this->heading('Thank You for Attending! 🙏', 'h1', 'center', '#22c55e', '32px'),
-            $this->spacer('20px'),
-            $this->text('We hope you enjoyed Mastering Success in {year}. Your participation made the event a success!', 'center'),
-            $this->spacer('30px'),
-            $this->heading('What\'s Next?', 'h2', 'center', '#333333', '24px'),
-            $this->listBlock([
+            $this->blockService->heading('Thank You for Attending! 🙏', 'h1', 'center', '#22c55e', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('We hope you enjoyed Mastering Success in {year}. Your participation made the event a success!', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('What\'s Next?', 'h2', 'center', '#333333', '24px'),
+            $this->blockService->listBlock([
                 'Event recordings will be available within 48 hours',
                 'Presentation slides are ready for download',
                 'Certificate of attendance is attached',
             ]),
-            $this->spacer('30px'),
-            $this->button('Access Event Resources', '{resources_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->heading('Share Your Feedback', 'h3', 'center', '#333333', '20px'),
-            $this->text('Help us improve! Take our quick 2-minute survey.', 'center'),
-            $this->button('Take Survey', '{survey_url}', '#333333', '#ffffff'),
-            $this->spacer('30px'),
-            $this->social(['twitter' => '#', 'linkedin' => '#']),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Access Event Resources', '{resources_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Share Your Feedback', 'h3', 'center', '#333333', '20px'),
+            $this->blockService->text('Help us improve! Take our quick 2-minute survey.', 'center'),
+            $this->blockService->button('Take Survey', '{survey_url}', '#333333', '#ffffff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->social(['twitter' => '#', 'linkedin' => '#']),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
@@ -1627,109 +1003,109 @@ HTML;
     private function getCartAbandonmentBlocks(): array
     {
         return [
-            $this->heading('You Left Something Behind! 🛒', 'h1', 'center', '#333333', '32px'),
-            $this->spacer('20px'),
-            $this->text('Hi {first_name}, we noticed you didn\'t complete your purchase. Your items are waiting for you!', 'center'),
-            $this->spacer('30px'),
-            $this->table(
+            $this->blockService->heading('You Left Something Behind! 🛒', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Hi {first_name}, we noticed you didn\'t complete your purchase. Your items are waiting for you!', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->table(
                 ['Item', 'Price'],
                 [
                     ['Product in Cart 1', '$49.99'],
                     ['Product in Cart 2', '$29.99'],
                 ]
             ),
-            $this->spacer('30px'),
-            $this->text('Complete your order now and get <strong>10% OFF</strong> with code: <strong>COMEBACK10</strong>', 'center', '#635bff'),
-            $this->spacer('30px'),
-            $this->button('Complete Purchase', '{cart_url}', '#635bff'),
-            $this->spacer('20px'),
-            $this->text('Need help? Reply to this email and we\'ll assist you.', 'center', '#666666', '14px'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('Complete your order now and get <strong>10% OFF</strong> with code: <strong>COMEBACK10</strong>', 'center', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Complete Purchase', '{cart_url}', '#635bff'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Need help? Reply to this email and we\'ll assist you.', 'center', '#666666', '14px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getProductRecommendationBlocks(): array
     {
         return [
-            $this->heading('Picked Just for You', 'h1', 'center', '#333333', '32px'),
-            $this->spacer('20px'),
-            $this->text('Hi {first_name}, based on your browsing history, we think you\'ll love these:', 'center'),
-            $this->spacer('30px'),
-            $this->image('https://via.placeholder.com/600x200/f8fafc/333333?text=Product+Recommendations', 'Recommended Products'),
-            $this->spacer('30px'),
-            $this->heading('Top Picks for You', 'h2', 'left', '#333333', '22px'),
-            $this->listBlock([
+            $this->blockService->heading('Picked Just for You', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Hi {first_name}, based on your browsing history, we think you\'ll love these:', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->image('https://placehold.co/600x200/f8fafc/333333?text=Product+Recommendations', 'Recommended Products'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Top Picks for You', 'h2', 'left', '#333333', '22px'),
+            $this->blockService->listBlock([
                 'Product Recommendation 1 - $49.99',
                 'Product Recommendation 2 - $79.99',
                 'Product Recommendation 3 - $39.99',
             ]),
-            $this->spacer('30px'),
-            $this->button('View All Recommendations', '{recommendations_url}', '#635bff'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('View All Recommendations', '{recommendations_url}', '#635bff'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getBackInStockBlocks(): array
     {
         return [
-            $this->heading('It\'s Back! 🎉', 'h1', 'center', '#22c55e', '32px'),
-            $this->spacer('20px'),
-            $this->text('Great news! The item you\'ve been waiting for is back in stock.', 'center'),
-            $this->spacer('30px'),
-            $this->image('https://via.placeholder.com/300x300/f8fafc/333333?text=Product+XYZ', 'Product XYZ'),
-            $this->spacer('20px'),
-            $this->heading('Product XYZ', 'h2', 'center', '#333333', '24px'),
-            $this->text('$99.99', 'center', '#635bff', '28px'),
-            $this->spacer('20px'),
-            $this->text('⚠️ Limited quantities available. Don\'t miss out this time!', 'center', '#ff4757'),
-            $this->spacer('30px'),
-            $this->button('Buy Now', '{product_url}', '#22c55e'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('It\'s Back! 🎉', 'h1', 'center', '#22c55e', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Great news! The item you\'ve been waiting for is back in stock.', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->image('https://placehold.co/300x300/f8fafc/333333?text=Product+XYZ', 'Product XYZ'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->heading('Product XYZ', 'h2', 'center', '#333333', '24px'),
+            $this->blockService->text('$99.99', 'center', '#635bff', '28px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('⚠️ Limited quantities available. Don\'t miss out this time!', 'center', '#ff4757'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Buy Now', '{product_url}', '#22c55e'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getReviewRequestBlocks(): array
     {
         return [
-            $this->heading('How Was Your Purchase?', 'h1', 'center', '#333333', '32px'),
-            $this->spacer('20px'),
-            $this->text('Hi {first_name}, we hope you\'re enjoying your recent purchase! We\'d love to hear what you think.', 'center'),
-            $this->spacer('30px'),
-            $this->image('https://via.placeholder.com/200x200/f8fafc/333333?text=Your+Product', 'Your Product'),
-            $this->spacer('20px'),
-            $this->text('⭐⭐⭐⭐⭐', 'center', '#fbbf24', '32px'),
-            $this->text('Click a star to rate your experience', 'center', '#666666', '14px'),
-            $this->spacer('30px'),
-            $this->button('Write a Review', '{review_url}', '#635bff'),
-            $this->spacer('20px'),
-            $this->text('Your feedback helps us improve and helps other customers make informed decisions.', 'center', '#666666', '14px'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('How Was Your Purchase?', 'h1', 'center', '#333333', '32px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Hi {first_name}, we hope you\'re enjoying your recent purchase! We\'d love to hear what you think.', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->image('https://placehold.co/200x200/f8fafc/333333?text=Your+Product', 'Your Product'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('⭐⭐⭐⭐⭐', 'center', '#fbbf24', '32px'),
+            $this->blockService->text('Click a star to rate your experience', 'center', '#666666', '14px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Write a Review', '{review_url}', '#635bff'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Your feedback helps us improve and helps other customers make informed decisions.', 'center', '#666666', '14px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 
     private function getBirthdayDiscountBlocks(): array
     {
         return [
-            $this->heading('🎂 Happy Birthday, {first_name}!', 'h1', 'center', '#ff69b4', '36px'),
-            $this->spacer('20px'),
-            $this->text('Wishing you an amazing day filled with joy and celebration!', 'center'),
-            $this->spacer('30px'),
-            $this->heading('Here\'s Your Gift!', 'h2', 'center', '#333333', '28px'),
-            $this->spacer('20px'),
-            $this->heading('25% OFF', 'h1', 'center', '#635bff', '56px'),
-            $this->text('Your Birthday Discount', 'center', '#666666'),
-            $this->spacer('30px'),
-            $this->text('Use code: <strong>BDAY25</strong> at checkout', 'center', '#333333', '18px'),
-            $this->spacer('30px'),
-            $this->button('Start Shopping 🎁', '{shop_url}', '#ff69b4'),
-            $this->spacer('20px'),
-            $this->text('Valid for the next 7 days. Enjoy your special day!', 'center', '#666666', '14px'),
-            $this->spacer('30px'),
-            $this->footer('{app_name}'),
+            $this->blockService->heading('🎂 Happy Birthday, {first_name}!', 'h1', 'center', '#ff69b4', '36px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Wishing you an amazing day filled with joy and celebration!', 'center'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->heading('Here\'s Your Gift!', 'h2', 'center', '#333333', '28px'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->heading('25% OFF', 'h1', 'center', '#635bff', '56px'),
+            $this->blockService->text('Your Birthday Discount', 'center', '#666666'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->text('Use code: <strong>BDAY25</strong> at checkout', 'center', '#333333', '18px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->button('Start Shopping 🎁', '{shop_url}', '#ff69b4'),
+            $this->blockService->spacer('20px'),
+            $this->blockService->text('Valid for the next 7 days. Enjoy your special day!', 'center', '#666666', '14px'),
+            $this->blockService->spacer('30px'),
+            $this->blockService->footer('{app_name}'),
         ];
     }
 }

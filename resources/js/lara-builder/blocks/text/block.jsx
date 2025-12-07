@@ -1,14 +1,12 @@
-/**
- * Text Block - Canvas Component
- *
- * Renders the text block in the builder canvas.
- * Supports inline editing when selected.
- */
+import { useRef, useEffect, useCallback } from "react";
+import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
 
-import { useRef, useEffect, useCallback } from 'react';
-import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
-
-const TextBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
+export default function TextBlock({
+    props,
+    onUpdate,
+    isSelected,
+    onRegisterTextFormat,
+}) {
     const editorRef = useRef(null);
     const lastPropsContent = useRef(props.content);
     const propsRef = useRef(props);
@@ -35,8 +33,11 @@ const TextBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
     useEffect(() => {
         if (isSelected && editorRef.current) {
             // Only set innerHTML if it's empty or different from what we expect
-            if (editorRef.current.innerHTML === '' || editorRef.current.innerHTML === '<br>') {
-                editorRef.current.innerHTML = props.content || '';
+            if (
+                editorRef.current.innerHTML === "" ||
+                editorRef.current.innerHTML === "<br>"
+            ) {
+                editorRef.current.innerHTML = props.content || "";
                 lastPropsContent.current = props.content;
             }
         }
@@ -59,7 +60,7 @@ const TextBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
                     cursorOffset = preCaretRange.toString().length;
                 }
 
-                editorRef.current.innerHTML = props.content || '';
+                editorRef.current.innerHTML = props.content || "";
                 lastPropsContent.current = props.content;
 
                 // Restore cursor position
@@ -81,7 +82,10 @@ const TextBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
                     for (const textNode of textNodes) {
                         const nodeLength = textNode.textContent.length;
                         if (currentOffset + nodeLength >= cursorOffset) {
-                            newRange.setStart(textNode, cursorOffset - currentOffset);
+                            newRange.setStart(
+                                textNode,
+                                cursorOffset - currentOffset
+                            );
                             newRange.collapse(true);
                             selection.removeAllRanges();
                             selection.addRange(newRange);
@@ -103,7 +107,7 @@ const TextBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
             onRegisterTextFormat({
                 editorRef,
                 isContentEditable: true,
-                align: propsRef.current.align || 'left',
+                align: propsRef.current.align || "left",
                 onAlignChange: handleAlignChange,
             });
         } else if (!isSelected && onRegisterTextFormat) {
@@ -127,13 +131,13 @@ const TextBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
 
     // Base styles for the text block
     const defaultStyle = {
-        textAlign: props.align || 'left',
-        color: props.color || '#666666',
-        fontSize: props.fontSize || '16px',
-        lineHeight: props.lineHeight || '1.6',
-        padding: '8px',
-        borderRadius: '4px',
-        minHeight: '40px',
+        textAlign: props.align || "left",
+        color: props.color || "#666666",
+        fontSize: props.fontSize || "16px",
+        lineHeight: props.lineHeight || "1.6",
+        padding: "8px",
+        borderRadius: "4px",
+        minHeight: "40px",
     };
 
     // Apply layout styles (typography, background, spacing, border, shadow)
@@ -151,10 +155,10 @@ const TextBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
                     data-placeholder="Enter text..."
                     style={{
                         ...baseStyle,
-                        width: '100%',
-                        border: '2px solid #635bff',
-                        outline: 'none',
-                        background: 'white',
+                        width: "100%",
+                        border: "2px solid #635bff",
+                        outline: "none",
+                        background: "white",
                     }}
                 />
             </div>
@@ -163,15 +167,9 @@ const TextBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
 
     // Render HTML content safely for display
     const renderContent = () => {
-        const text = props.content || 'Click to edit text';
+        const text = props.content || "Click to edit text";
         return <span dangerouslySetInnerHTML={{ __html: text }} />;
     };
 
-    return (
-        <div style={baseStyle}>
-            {renderContent()}
-        </div>
-    );
-};
-
-export default TextBlock;
+    return <div style={baseStyle}>{renderContent()}</div>;
+}

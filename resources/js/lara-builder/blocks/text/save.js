@@ -3,7 +3,6 @@
  *
  * Generates HTML output for different contexts (page/web and email).
  */
-
 import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
 
 /**

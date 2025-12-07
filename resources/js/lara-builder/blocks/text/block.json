@@ -30,12 +30,6 @@
     },
     "properties": [
         {
-            "name": "content",
-            "type": "textarea",
-            "label": "Text Content",
-            "placeholder": "Enter your text..."
-        },
-        {
             "name": "align",
             "type": "align",
             "label": "Alignment"
