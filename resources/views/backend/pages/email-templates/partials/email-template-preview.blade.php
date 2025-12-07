@@ -8,7 +8,7 @@
             <div class="absolute inset-0 overflow-hidden pointer-events-none email-template-preview">
                 <div class="origin-top-left" style="transform: scale(0.13); width: 100%;">
                     <div class="bg-white">
-                        {!! $emailTemplate->getRawEmailTemplate() !!}
+                        {!! $emailTemplate->renderContent() !!}
                     </div>
                 </div>
             </div>
@@ -31,7 +31,7 @@
                 <div class="w-full h-full overflow-hidden">
                     <div class="origin-top-left" style="transform: scale(0.3); width: 333.33%; height: 333.33%;">
                         <div class="bg-white" style="min-height: 100vh;">
-                            {!! $emailTemplate->getRawEmailTemplate() !!}
+                            {!! $emailTemplate->renderContent() !!}
                         </div>
                     </div>
                 </div>

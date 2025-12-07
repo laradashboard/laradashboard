@@ -156,7 +156,7 @@ abstract class Datatable extends Component
 
     protected function getNewResourceLinkLabel(): string
     {
-        return __('New :model', ['model' => $this->getModelNameSingular()]);
+        return __('New :model', ['model' => __($this->getModelNameSingular())]);
     }
 
     protected function getFilters(): array
