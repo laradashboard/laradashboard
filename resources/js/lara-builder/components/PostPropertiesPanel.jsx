@@ -9,6 +9,7 @@ import { useState } from 'react';
 import PropertiesPanel from './PropertiesPanel';
 import LayoutStylesSection from './LayoutStylesSection';
 import { __ } from '@lara-builder/i18n';
+import { mediaLibrary } from '../services/MediaLibraryService';
 
 const PostPropertiesPanel = ({
     selectedBlock,
@@ -44,29 +45,19 @@ const PostPropertiesPanel = ({
     postData,
     postType,
 }) => {
-    const [featuredImageUploading, setFeaturedImageUploading] = useState(false);
-    const [featuredImageError, setFeaturedImageError] = useState(null);
     const [showSlugEdit, setShowSlugEdit] = useState(false);
     const [expandedTaxonomies, setExpandedTaxonomies] = useState({});
 
-    // Handle featured image upload
-    const handleFeaturedImageUpload = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file || !onImageUpload) return;
-
-        setFeaturedImageUploading(true);
-        setFeaturedImageError(null);
-
+    // Handle featured image selection from media library
+    const handleSelectFeaturedImage = async () => {
         try {
-            const result = await onImageUpload(file);
-            if (result.url) {
-                setFeaturedImage(result.url);
+            const file = await mediaLibrary.selectImage();
+            if (file) {
+                setFeaturedImage(file.url);
                 setRemoveFeaturedImage(false);
             }
-        } catch (err) {
-            setFeaturedImageError(err.message || 'Upload failed');
-        } finally {
-            setFeaturedImageUploading(false);
+        } catch (error) {
+            // Selection cancelled - do nothing
         }
     };
 
@@ -274,13 +265,13 @@ const PostPropertiesPanel = ({
                         </span>
                     </div>
 
-                    {featuredImage && !removeFeaturedImage ? (
-                        <div className="mb-3">
-                            <div className="relative">
+                    <div className="space-y-2">
+                        {featuredImage && !removeFeaturedImage ? (
+                            <div className="relative group">
                                 <img
                                     src={featuredImage}
                                     alt="Featured"
-                                    className="w-full h-32 object-cover rounded-md border border-gray-200"
+                                    className="w-full h-32 object-contain rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
                                 />
                                 <button
                                     type="button"
@@ -288,53 +279,33 @@ const PostPropertiesPanel = ({
                                         setFeaturedImage('');
                                         setRemoveFeaturedImage(true);
                                     }}
-                                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600"
+                                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                                     title={__('Remove image')}
                                 >
                                     <iconify-icon icon="mdi:close" width="14" height="14"></iconify-icon>
                                 </button>
                             </div>
-                        </div>
-                    ) : (
-                        <label
-                            className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                                featuredImageUploading ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
-                        >
-                            {featuredImageUploading ? (
-                                <div className="flex flex-col items-center">
-                                    <iconify-icon
-                                        icon="mdi:loading"
-                                        width="24"
-                                        height="24"
-                                        class="text-gray-400 animate-spin"
-                                    ></iconify-icon>
-                                    <span className="text-sm text-gray-500 mt-2">{__('Uploading...')}</span>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center">
-                                    <iconify-icon
-                                        icon="mdi:image-plus"
-                                        width="32"
-                                        height="32"
-                                        class="text-gray-400"
-                                    ></iconify-icon>
-                                    <span className="text-sm text-gray-500 mt-2">{__('Upload featured image')}</span>
-                                </div>
-                            )}
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFeaturedImageUpload}
-                                disabled={featuredImageUploading}
-                                className="hidden"
-                            />
-                        </label>
-                    )}
+                        ) : (
+                            <div
+                                onClick={handleSelectFeaturedImage}
+                                className="flex flex-col items-center justify-center w-full h-32 bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                <iconify-icon icon="mdi:image-plus" className="text-3xl text-gray-400 mb-2"></iconify-icon>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{__('Click to select image')}</p>
+                            </div>
+                        )}
 
-                    {featuredImageError && (
-                        <p className="text-xs text-red-500 mt-2">{featuredImageError}</p>
-                    )}
+                        {featuredImage && !removeFeaturedImage && (
+                            <button
+                                type="button"
+                                onClick={handleSelectFeaturedImage}
+                                className="btn btn-default w-full flex items-center justify-center gap-2"
+                            >
+                                <iconify-icon icon="mdi:image-edit" width="16" height="16"></iconify-icon>
+                                {__('Change Image')}
+                            </button>
+                        )}
+                    </div>
                 </div>
             )}
 
