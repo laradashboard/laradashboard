@@ -11,7 +11,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const paths = [
     "resources/css/app.css",
     "resources/js/app.js",
-    "resources/js/email-builder/index.jsx",
     "resources/js/lara-builder/entry.jsx",
     "resources/js/lara-builder/post-entry.jsx",
 ];

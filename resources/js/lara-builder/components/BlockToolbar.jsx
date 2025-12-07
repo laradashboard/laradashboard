@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { getBlock } from "../../email-builder/utils/blockRegistry";
-import { getBlockSupports, blockSupports } from "../blocks/blockLoader";
+import { blockRegistry } from "../registry/BlockRegistry";
+import { getBlockSupports } from "../blocks/blockLoader";
 import { __ } from "@lara-builder/i18n";
+
+// Get block config from registry
+const getBlock = (type) => blockRegistry.get(type);
 
 // Alignment-only controls for non-text blocks (image, button, video, etc.)
 const AlignOnlyControls = ({ align, onAlignChange }) => {
