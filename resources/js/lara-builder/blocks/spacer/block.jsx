@@ -6,12 +6,12 @@
 
 import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
 
-const SpacerBlock = ({ props, isSelected }) => {
+const SpacerBlock = ({ props }) => {
     // Base container styles
     const defaultContainerStyle = {
-        outline: isSelected ? '2px solid #635bff' : '1px dashed #d1d5db',
+        outline: '1px dashed #d1d5db',
         borderRadius: '4px',
-        backgroundColor: isSelected ? 'rgba(99, 91, 255, 0.1)' : 'transparent',
+        backgroundColor: 'transparent',
     };
 
     // Apply layout styles to container

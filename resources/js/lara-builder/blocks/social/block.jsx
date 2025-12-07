@@ -22,7 +22,6 @@ const SocialBlock = ({ props, isSelected }) => {
     const defaultContainerStyle = {
         textAlign: layoutStyles.textAlign || props.align || 'center',
         padding: '10px 8px',
-        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 

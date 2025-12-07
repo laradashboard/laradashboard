@@ -148,7 +148,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
         <div
             ref={setNodeRef}
             style={style}
-            className={`${blockClasses} relative group cursor-grab active:cursor-grabbing ${isDragging ? 'z-50' : ''}`}
+            className={`${blockClasses} relative group cursor-grab active:cursor-grabbing ${isDragging ? 'z-50' : ''} ${isSelected ? 'lb-block-selected' : ''}`}
             data-block-type={block.type}
             onClick={(e) => {
                 e.stopPropagation();

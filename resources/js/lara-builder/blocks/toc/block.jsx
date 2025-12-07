@@ -86,8 +86,6 @@ export default function TocBlock({ props, isSelected }) {
             border: `1px solid ${borderColor}`,
             borderRadius: "8px",
             padding: "16px 20px",
-            outline: isSelected ? "2px solid #635bff" : "none",
-            outlineOffset: "2px",
         },
         layoutStyles
     );

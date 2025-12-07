@@ -6,11 +6,10 @@
 
 import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
 
-const TableBlock = ({ props, isSelected }) => {
+const TableBlock = ({ props }) => {
     // Base container styles
     const defaultContainerStyle = {
         padding: '8px',
-        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 

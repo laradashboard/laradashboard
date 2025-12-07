@@ -201,13 +201,4 @@
     .table-td-checkbox {
         @apply p-2 px-5;
     }
-
-    /* LaraBuilder block link styles */
-    .lb-block a {
-        @apply text-primary;
-    }
-
-    .lb-block a:hover {
-        @apply text-primary/80;
-    }
 }

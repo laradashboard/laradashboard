@@ -167,7 +167,7 @@ const ColumnsBlock = ({ props, isSelected, blockId, onSelect, selectedBlockId, o
 
     return (
         <div
-            className={`transition-all ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+            className="transition-all"
             style={containerStyle}
         >
             <div

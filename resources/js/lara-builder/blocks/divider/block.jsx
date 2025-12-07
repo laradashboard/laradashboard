@@ -6,11 +6,10 @@
 
 import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
 
-const DividerBlock = ({ props, isSelected }) => {
+const DividerBlock = ({ props }) => {
     // Base container styles
     const defaultContainerStyle = {
         padding: '8px',
-        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 

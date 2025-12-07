@@ -6,7 +6,7 @@
 
 import { applyLayoutStyles, layoutStylesToCSS } from '../../components/layout-styles/styleHelpers';
 
-const ImageBlock = ({ props, isSelected }) => {
+const ImageBlock = ({ props }) => {
     // Get layout styles for textAlign
     const layoutStyles = layoutStylesToCSS(props.layoutStyles || {});
 
@@ -14,7 +14,6 @@ const ImageBlock = ({ props, isSelected }) => {
     const defaultContainerStyle = {
         textAlign: layoutStyles.textAlign || props.align || 'center',
         padding: '8px',
-        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 

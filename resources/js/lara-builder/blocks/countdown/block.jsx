@@ -42,7 +42,6 @@ const CountdownBlock = ({ props, isSelected }) => {
         backgroundColor: props.backgroundColor || '#1e293b',
         borderRadius: '8px',
         textAlign: layoutStyles.textAlign || props.align || 'center',
-        outline: isSelected ? '2px solid #635bff' : 'none',
     };
 
     // Apply layout styles to container

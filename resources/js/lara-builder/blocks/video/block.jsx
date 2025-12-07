@@ -173,7 +173,6 @@ const VideoBlock = ({ props, isSelected }) => {
     const defaultContainerStyle = {
         textAlign: layoutStyles.textAlign || props.align || 'center',
         padding: '8px',
-        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 

@@ -15,6 +15,9 @@ layer(base);
 /* Import component styles */
 @import "./components.css";
 
+/* Import block editor styles */
+@import "./block-editor.css";
+
 /* Import third-party library styles */
 @import "./third-party.css";
 

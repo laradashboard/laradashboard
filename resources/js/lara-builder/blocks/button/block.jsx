@@ -154,10 +154,7 @@ const ButtonBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
         return (
             <div
                 data-text-editing="true"
-                style={{
-                    ...containerStyle,
-                    outline: '2px solid #635bff',
-                }}
+                style={containerStyle}
             >
                 <span
                     ref={editorRef}

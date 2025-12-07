@@ -115,8 +115,6 @@ const AccordionBlock = ({ props, isSelected, onUpdate }) => {
         border: `1px solid ${props.borderColor || '#e5e7eb'}`,
         borderRadius: props.borderRadius || '8px',
         overflow: 'hidden',
-        outline: isSelected ? '2px solid #635bff' : 'none',
-        outlineOffset: '2px',
     };
 
     const itemStyle = (isLast) => ({

@@ -8,7 +8,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
 
-const HtmlBlock = ({ props, onUpdate, isSelected }) => {
+const HtmlBlock = ({ props, onUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editorReady, setEditorReady] = useState(false);
     const editorContainerRef = useRef(null);
@@ -117,14 +117,7 @@ const HtmlBlock = ({ props, onUpdate, isSelected }) => {
     };
 
     // Apply layout styles if provided
-    const baseStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);
-
-    // Add selection outline
-    const containerStyle = {
-        ...baseStyle,
-        outline: isSelected ? '2px solid var(--color-primary, #635bff)' : 'none',
-        outlineOffset: '2px',
-    };
+    const containerStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);
 
     const placeholderContent = `
         <div style="padding: 24px; text-align: center; color: #9ca3af; background: #f9fafb; border: 2px dashed #e5e7eb; border-radius: 8px;">

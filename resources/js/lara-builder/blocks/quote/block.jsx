@@ -195,10 +195,7 @@ const QuoteBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
         return (
             <div
                 data-text-editing="true"
-                style={{
-                    ...containerStyle,
-                    border: '2px solid #635bff',
-                }}
+                style={containerStyle}
             >
                 {/* Quote Text - Editable */}
                 <div style={{ position: 'relative', marginBottom: '12px' }}>

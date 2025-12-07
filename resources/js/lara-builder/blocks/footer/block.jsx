@@ -1,12 +1,11 @@
 import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
 
-const FooterBlock = ({ props, isSelected }) => {
+const FooterBlock = ({ props }) => {
     // Base container styles
     const defaultContainerStyle = {
         padding: '24px 16px',
         textAlign: props.align || 'center',
         borderTop: '1px solid #e5e7eb',
-        outline: isSelected ? '2px solid #635bff' : 'none',
         borderRadius: '4px',
     };
 

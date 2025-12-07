@@ -1,0 +1,38 @@
+/**
+ * LaraBuilder Block Editor Styles
+ *
+ * Styles specific to the block editor canvas and components.
+ */
+
+@layer components {
+    /* Block link styles */
+    .lb-block a {
+        @apply text-primary;
+    }
+
+    .lb-block a:hover {
+        @apply text-primary/80;
+    }
+
+    /* Block selected state - skip blocks in text editing mode and toolbar */
+    .lb-block-selected > div:not([data-text-editing="true"]):not(.lb-block-toolbar),
+    .lb-block-selected > p,
+    .lb-block-selected > blockquote,
+    .lb-block-selected > section,
+    .lb-block-selected > nav,
+    .lb-block-selected > pre:not([contenteditable="true"]),
+    .lb-block-selected > ul:not([contenteditable="true"]),
+    .lb-block-selected > ol:not([contenteditable="true"]),
+    .lb-block-selected > figure,
+    .lb-block-selected > hr,
+    .lb-block-selected > h1,
+    .lb-block-selected > h2,
+    .lb-block-selected > h3,
+    .lb-block-selected > h4,
+    .lb-block-selected > h5,
+    .lb-block-selected > h6 {
+        outline: 2px solid theme('colors.primary.DEFAULT');
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+}

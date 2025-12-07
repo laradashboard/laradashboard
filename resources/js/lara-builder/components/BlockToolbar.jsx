@@ -458,7 +458,7 @@ const BlockToolbar = ({
 
     return (
         <div
-            className={`${positionClasses} flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg shadow-lg px-1 py-1 z-50`}
+            className={`lb-block-toolbar ${positionClasses} flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg shadow-md px-1 py-1 z-50`}
             onClick={(e) => e.stopPropagation()}
         >
             {/* Block type icon/label */}
