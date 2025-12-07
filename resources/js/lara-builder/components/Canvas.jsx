@@ -33,8 +33,8 @@ const DropZone = ({ id, isFirst = false }) => {
     );
 };
 
-// Blocks that support alignment-only toolbar
-const ALIGN_ONLY_BLOCKS = ['image', 'button', 'quote', 'video', 'countdown', 'social', 'footer'];
+// Blocks that support alignment-only toolbar (no text formatting)
+const ALIGN_ONLY_BLOCKS = ['image', 'button', 'video', 'countdown', 'social', 'footer'];
 
 const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, totalBlocks, blockIndex }) => {
     const [textFormatProps, setTextFormatProps] = useState(null);
@@ -63,7 +63,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
 
     const BlockComponent = getBlockComponent(block.type);
     const isSelected = selectedBlockId === block.id;
-    const isTextBasedBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'text-editor' || block.type === 'button';
+    const isTextBasedBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'text-editor' || block.type === 'button' || block.type === 'quote';
     const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
     const isColumnsBlock = block.type === 'columns';
     // Blocks with their own toolbar (like text-editor) - always show toolbar at bottom

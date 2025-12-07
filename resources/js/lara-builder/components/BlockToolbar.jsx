@@ -193,7 +193,7 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true, 
 };
 
 // Blocks that support alignment-only toolbar (non-text blocks with alignment)
-const ALIGN_ONLY_BLOCKS = ['image', 'quote', 'video', 'countdown', 'social', 'footer'];
+const ALIGN_ONLY_BLOCKS = ['image', 'video', 'countdown', 'social', 'footer'];
 
 // Heading level controls for heading block (dropdown)
 const HeadingLevelControls = ({ level, onLevelChange }) => {
@@ -266,7 +266,7 @@ const BlockToolbar = ({
     const SELF_EDITING_BLOCKS = ['text-editor'];
     const hasSelfEditor = SELF_EDITING_BLOCKS.includes(block.type);
     // text-editor block has its own TinyMCE toolbar, so exclude it from text formatting controls
-    const isTextBlock = (block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'button') && !hasSelfEditor;
+    const isTextBlock = (block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'button' || block.type === 'quote') && !hasSelfEditor;
     const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
     const isColumnsBlock = block.type === 'columns';
 

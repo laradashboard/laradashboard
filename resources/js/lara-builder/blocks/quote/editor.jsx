@@ -1,8 +1,9 @@
 /**
  * Quote Block - Property Editor
  *
- * Note: Background color and text color are controlled by Layout Styles.
- * Border color (accent) is specific to this block.
+ * Content (quote text, author, title) is now edited inline in the block.
+ * Alignment is controlled via the toolbar.
+ * This panel only contains color styling options.
  */
 
 const QuoteBlockEditor = ({ props, onUpdate }) => {
@@ -12,43 +13,37 @@ const QuoteBlockEditor = ({ props, onUpdate }) => {
 
     return (
         <div className="space-y-4">
-            {/* Content Section */}
-            <Section title="Content">
-                <Label>Quote Text</Label>
-                <textarea
-                    value={props.text || ''}
-                    onChange={(e) => handleChange('text', e.target.value)}
-                    placeholder="Enter quote..."
-                    className="form-control mb-3"
-                    rows={3}
-                />
-
-                <Label>Author Name</Label>
-                <input
-                    type="text"
-                    value={props.author || ''}
-                    onChange={(e) => handleChange('author', e.target.value)}
-                    placeholder="John Doe"
-                    className="form-control mb-3"
-                />
-
-                <Label>Author Title</Label>
-                <input
-                    type="text"
-                    value={props.authorTitle || ''}
-                    onChange={(e) => handleChange('authorTitle', e.target.value)}
-                    placeholder="CEO, Company"
-                    className="form-control"
-                />
-            </Section>
-
-            {/* Style Section */}
-            <Section title="Style">
-                <Label>Accent Border Color</Label>
+            {/* Colors Section */}
+            <Section title="Colors">
+                <Label>Quote Text Color</Label>
                 <ColorPicker
-                    value={props.borderColor || '#635bff'}
-                    onChange={(value) => handleChange('borderColor', value)}
+                    value={props.textColor || '#475569'}
+                    onChange={(value) => handleChange('textColor', value)}
                 />
+
+                <div className="mt-3">
+                    <Label>Author Name Color</Label>
+                    <ColorPicker
+                        value={props.authorColor || '#1e293b'}
+                        onChange={(value) => handleChange('authorColor', value)}
+                    />
+                </div>
+
+                <div className="mt-3">
+                    <Label>Accent Border Color</Label>
+                    <ColorPicker
+                        value={props.borderColor || '#635bff'}
+                        onChange={(value) => handleChange('borderColor', value)}
+                    />
+                </div>
+
+                <div className="mt-3">
+                    <Label>Background Color</Label>
+                    <ColorPicker
+                        value={props.backgroundColor || '#f8fafc'}
+                        onChange={(value) => handleChange('backgroundColor', value)}
+                    />
+                </div>
             </Section>
         </div>
     );
