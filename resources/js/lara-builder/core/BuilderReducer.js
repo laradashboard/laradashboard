@@ -277,10 +277,29 @@ export function builderReducer(state, action) {
         case ActionTypes.DELETE_BLOCK: {
             const { id } = action.payload;
 
+            // Determine next selection after deletion
+            let nextSelectedId = state.selectedBlockId;
+            if (state.selectedBlockId === id) {
+                // Find the index of the deleted block
+                const deletedIndex = state.blocks.findIndex((b) => b.id === id);
+                if (deletedIndex !== -1) {
+                    // Select previous block if exists, otherwise next, otherwise null
+                    if (deletedIndex > 0) {
+                        nextSelectedId = state.blocks[deletedIndex - 1].id;
+                    } else if (state.blocks.length > 1) {
+                        nextSelectedId = state.blocks[deletedIndex + 1].id;
+                    } else {
+                        nextSelectedId = null;
+                    }
+                } else {
+                    nextSelectedId = null;
+                }
+            }
+
             newState = {
                 ...state,
                 blocks: deleteBlockFromTree(state.blocks, id),
-                selectedBlockId: state.selectedBlockId === id ? null : state.selectedBlockId,
+                selectedBlockId: nextSelectedId,
                 past: pastWithCurrent,
                 future: [],
                 isDirty: true,
@@ -396,6 +415,32 @@ export function builderReducer(state, action) {
         case ActionTypes.DELETE_NESTED_BLOCK: {
             const { parentId, columnIndex, blockId } = action.payload;
 
+            // Determine next selection after deletion for nested blocks
+            let nextSelectedId = state.selectedBlockId;
+            if (state.selectedBlockId === blockId) {
+                // Find the parent block and the column
+                const parentBlock = state.blocks.find((b) => b.id === parentId);
+                if (parentBlock?.props?.children?.[columnIndex]) {
+                    const column = parentBlock.props.children[columnIndex];
+                    const deletedIndex = column.findIndex((nb) => nb.id === blockId);
+                    if (deletedIndex !== -1) {
+                        // Select previous block in column if exists, otherwise next, otherwise parent
+                        if (deletedIndex > 0) {
+                            nextSelectedId = column[deletedIndex - 1].id;
+                        } else if (column.length > 1) {
+                            nextSelectedId = column[deletedIndex + 1].id;
+                        } else {
+                            // No more blocks in column, select the parent columns block
+                            nextSelectedId = parentId;
+                        }
+                    } else {
+                        nextSelectedId = parentId;
+                    }
+                } else {
+                    nextSelectedId = null;
+                }
+            }
+
             const newBlocks = state.blocks.map((b) => {
                 if (b.id === parentId && b.props?.children) {
                     const newChildren = [...b.props.children];
@@ -412,7 +457,7 @@ export function builderReducer(state, action) {
             newState = {
                 ...state,
                 blocks: newBlocks,
-                selectedBlockId: state.selectedBlockId === blockId ? null : state.selectedBlockId,
+                selectedBlockId: nextSelectedId,
                 past: pastWithCurrent,
                 future: [],
                 isDirty: true,

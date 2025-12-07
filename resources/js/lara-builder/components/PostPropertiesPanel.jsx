@@ -47,6 +47,15 @@ const PostPropertiesPanel = ({
     postType,
 }) => {
     const [showSlugEdit, setShowSlugEdit] = useState(false);
+    const [copied, setCopied] = useState(false);
+
+    // Handle copy URL with visual feedback
+    const handleCopyUrl = () => {
+        const url = `${window.location.origin}/${postType || 'page'}/${slug || postData?.slug}`;
+        navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     // Handle featured image selection from media library
     const handleSelectFeaturedImage = async () => {
@@ -166,14 +175,15 @@ const PostPropertiesPanel = ({
                                 )}
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        const url = `${window.location.origin}/${postType || 'page'}/${slug || postData?.slug}`;
-                                        navigator.clipboard.writeText(url);
-                                    }}
-                                    className="btn-default px-2 py-1.5 text-xs"
-                                    title={__('Copy URL')}
+                                    onClick={handleCopyUrl}
+                                    className={`btn-default px-2 py-1.5 text-xs ${copied ? 'text-green-600' : ''}`}
+                                    title={copied ? __('Copied!') : __('Copy URL')}
                                 >
-                                    <iconify-icon icon="mdi:content-copy" width="14" height="14"></iconify-icon>
+                                    <iconify-icon
+                                        icon={copied ? 'mdi:check' : 'mdi:content-copy'}
+                                        width="14"
+                                        height="14"
+                                    ></iconify-icon>
                                 </button>
                             </div>
                         </div>
