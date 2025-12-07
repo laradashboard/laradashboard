@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import PropertiesPanel from './PropertiesPanel';
 import LayoutStylesSection from './LayoutStylesSection';
+import TaxonomySection from './TaxonomySection';
 import { __ } from '@lara-builder/i18n';
 import { mediaLibrary } from '../services/MediaLibraryService';
 
@@ -46,7 +47,6 @@ const PostPropertiesPanel = ({
     postType,
 }) => {
     const [showSlugEdit, setShowSlugEdit] = useState(false);
-    const [expandedTaxonomies, setExpandedTaxonomies] = useState({});
 
     // Handle featured image selection from media library
     const handleSelectFeaturedImage = async () => {
@@ -69,41 +69,6 @@ const PostPropertiesPanel = ({
                 ? currentTerms.filter((id) => id !== termId)
                 : [...currentTerms, termId];
             return { ...prev, [taxonomyName]: newTerms };
-        });
-    };
-
-    // Toggle taxonomy expansion
-    const toggleTaxonomyExpanded = (taxonomyName) => {
-        setExpandedTaxonomies((prev) => ({
-            ...prev,
-            [taxonomyName]: !prev[taxonomyName],
-        }));
-    };
-
-    // Render hierarchical terms
-    const renderHierarchicalTerms = (terms, taxonomyName, parentTermId = null, level = 0) => {
-        const filteredTerms = terms.filter((term) => term.parent_id === parentTermId);
-
-        if (filteredTerms.length === 0) return null;
-
-        return filteredTerms.map((term) => {
-            const isSelected = (selectedTerms[taxonomyName] || []).includes(term.id);
-            const children = renderHierarchicalTerms(terms, taxonomyName, term.id, level + 1);
-
-            return (
-                <div key={term.id} className="mb-1" style={{ marginLeft: `${level * 16}px` }}>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                        <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => handleTermToggle(taxonomyName, term.id)}
-                            className="form-checkbox h-4 w-4 text-primary rounded"
-                        />
-                        <span className="text-sm text-gray-700">{term.name}</span>
-                    </label>
-                    {children}
-                </div>
-            );
         });
     };
 
@@ -357,66 +322,13 @@ const PostPropertiesPanel = ({
 
             {/* Taxonomies */}
             {taxonomies.length > 0 && (
-                <div className="mb-6">
-                    <div className="mb-4 pb-2 border-b border-gray-200">
-                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            {__('Taxonomies')}
-                        </span>
-                    </div>
-
-                    {taxonomies.map((taxonomy) => (
-                        <div key={taxonomy.name} className="mb-4">
-                            <button
-                                type="button"
-                                onClick={() => toggleTaxonomyExpanded(taxonomy.name)}
-                                className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-700 mb-2 hover:text-gray-900"
-                            >
-                                <span>{taxonomy.label}</span>
-                                <iconify-icon
-                                    icon={expandedTaxonomies[taxonomy.name] ? 'mdi:chevron-up' : 'mdi:chevron-down'}
-                                    width="18"
-                                    height="18"
-                                ></iconify-icon>
-                            </button>
-
-                            {(expandedTaxonomies[taxonomy.name] === undefined
-                                ? true
-                                : expandedTaxonomies[taxonomy.name]) && (
-                                <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md p-2">
-                                    {taxonomy.terms && taxonomy.terms.length > 0 ? (
-                                        taxonomy.hierarchical ? (
-                                            renderHierarchicalTerms(taxonomy.terms, taxonomy.name)
-                                        ) : (
-                                            taxonomy.terms.map((term) => {
-                                                const isSelected = (selectedTerms[taxonomy.name] || []).includes(
-                                                    term.id
-                                                );
-                                                return (
-                                                    <label
-                                                        key={term.id}
-                                                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
-                                                    >
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isSelected}
-                                                            onChange={() =>
-                                                                handleTermToggle(taxonomy.name, term.id)
-                                                            }
-                                                            className="form-checkbox h-4 w-4 text-primary rounded"
-                                                        />
-                                                        <span className="text-sm text-gray-700">{term.name}</span>
-                                                    </label>
-                                                );
-                                            })
-                                        )
-                                    ) : (
-                                        <p className="text-xs text-gray-400 py-2">{__('No :items found').replace(':items', taxonomy.label.toLowerCase())}</p>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                <TaxonomySection
+                    taxonomies={taxonomies}
+                    selectedTerms={selectedTerms}
+                    onTermToggle={handleTermToggle}
+                    postType={postType}
+                    postId={postData?.id}
+                />
             )}
 
             {/* Canvas/Content Settings */}
