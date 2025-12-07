@@ -8,6 +8,10 @@
     "contexts": ["email", "page", "campaign"],
     "supports": {
         "align": true,
+        "bold": true,
+        "italic": true,
+        "underline": true,
+        "clearFormat": true,
         "colors": true,
         "spacing": true,
         "layout": true,

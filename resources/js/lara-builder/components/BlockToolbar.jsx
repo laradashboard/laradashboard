@@ -1,33 +1,74 @@
-import { useState, useRef, useEffect } from 'react';
-import { getBlock } from '../../email-builder/utils/blockRegistry';
+import { useState, useRef, useEffect } from "react";
+import { getBlock } from "../../email-builder/utils/blockRegistry";
+import { getBlockSupports, blockSupports } from "../blocks/blockLoader";
 
 // Alignment-only controls for non-text blocks (image, button, video, etc.)
 const AlignOnlyControls = ({ align, onAlignChange }) => {
-    const buttonClass = "p-1.5 pb-0 rounded hover:bg-gray-100 transition-colors text-gray-600";
+    const buttonClass =
+        "p-1.5 pb-0 rounded hover:bg-gray-100 transition-colors text-gray-600";
     const activeButtonClass = "p-1.5 pb-0 rounded bg-gray-100 text-gray-800";
 
     return (
         <>
             {/* Align Left */}
-            <button type="button" onClick={() => onAlignChange('left')} className={align === 'left' ? activeButtonClass : buttonClass} title="Align Left">
-                <iconify-icon icon="mdi:format-align-left" width="16" height="16"></iconify-icon>
+            <button
+                type="button"
+                onClick={() => onAlignChange("left")}
+                className={align === "left" ? activeButtonClass : buttonClass}
+                title="Align Left"
+            >
+                <iconify-icon
+                    icon="mdi:format-align-left"
+                    width="16"
+                    height="16"
+                ></iconify-icon>
             </button>
             {/* Align Center */}
-            <button type="button" onClick={() => onAlignChange('center')} className={align === 'center' ? activeButtonClass : buttonClass} title="Align Center">
-                <iconify-icon icon="mdi:format-align-center" width="16" height="16"></iconify-icon>
+            <button
+                type="button"
+                onClick={() => onAlignChange("center")}
+                className={align === "center" ? activeButtonClass : buttonClass}
+                title="Align Center"
+            >
+                <iconify-icon
+                    icon="mdi:format-align-center"
+                    width="16"
+                    height="16"
+                ></iconify-icon>
             </button>
             {/* Align Right */}
-            <button type="button" onClick={() => onAlignChange('right')} className={align === 'right' ? activeButtonClass : buttonClass} title="Align Right">
-                <iconify-icon icon="mdi:format-align-right" width="16" height="16"></iconify-icon>
+            <button
+                type="button"
+                onClick={() => onAlignChange("right")}
+                className={align === "right" ? activeButtonClass : buttonClass}
+                title="Align Right"
+            >
+                <iconify-icon
+                    icon="mdi:format-align-right"
+                    width="16"
+                    height="16"
+                ></iconify-icon>
             </button>
         </>
     );
 };
 
 // Text formatting controls component - uses execCommand for WYSIWYG contentEditable
-const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true, showJustify = true }) => {
+const TextFormatControls = ({
+    editorRef,
+    align,
+    onAlignChange,
+    supports = {},
+}) => {
+    // Feature flags from block supports
+    const showBold = supports.bold !== false;
+    const showItalic = supports.italic !== false;
+    const showUnderline = supports.underline !== false;
+    const showLink = supports.link === true;
+    const showJustify = supports.justify === true;
+    const showClearFormat = supports.clearFormat !== false;
     const [showLinkInput, setShowLinkInput] = useState(false);
-    const [linkUrl, setLinkUrl] = useState('');
+    const [linkUrl, setLinkUrl] = useState("");
     const linkInputRef = useRef(null);
     const savedSelection = useRef(null);
 
@@ -64,9 +105,9 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true, 
         }
     };
 
-    const handleBold = () => execFormat('bold');
-    const handleItalic = () => execFormat('italic');
-    const handleUnderline = () => execFormat('underline');
+    const handleBold = () => execFormat("bold");
+    const handleItalic = () => execFormat("italic");
+    const handleUnderline = () => execFormat("underline");
 
     const handleLinkClick = () => {
         saveSelection();
@@ -82,8 +123,8 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true, 
         }
 
         restoreSelection();
-        document.execCommand('createLink', false, linkUrl);
-        setLinkUrl('');
+        document.execCommand("createLink", false, linkUrl);
+        setLinkUrl("");
         setShowLinkInput(false);
 
         if (editorRef?.current) {
@@ -92,70 +133,155 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true, 
     };
 
     const handleLinkKeyDown = (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === "Enter") {
             e.preventDefault();
             handleLinkSubmit();
-        } else if (e.key === 'Escape') {
+        } else if (e.key === "Escape") {
             setShowLinkInput(false);
-            setLinkUrl('');
+            setLinkUrl("");
         }
     };
 
     const handleClearFormat = () => {
         restoreSelection();
-        document.execCommand('removeFormat', false, null);
+        document.execCommand("removeFormat", false, null);
         // Also remove links
-        document.execCommand('unlink', false, null);
+        document.execCommand("unlink", false, null);
         if (editorRef?.current) {
             editorRef.current.focus();
         }
     };
 
-    const buttonClass = "p-1.5 pb-0 rounded hover:bg-gray-100 transition-colors text-gray-600";
+    const buttonClass =
+        "p-1.5 pb-0 rounded hover:bg-gray-100 transition-colors text-gray-600";
     const activeButtonClass = "p-1.5 pb-0 rounded bg-gray-100 text-gray-800";
+
+    // Check if any text formatting buttons are shown
+    const hasTextFormatting = showBold || showItalic || showUnderline;
 
     return (
         <>
-            {/* Bold */}
-            <button type="button" onMouseDown={saveSelection} onClick={handleBold} className={buttonClass} title="Bold">
-                <iconify-icon icon="mdi:format-bold" width="16" height="16"></iconify-icon>
-            </button>
-            {/* Italic */}
-            <button type="button" onMouseDown={saveSelection} onClick={handleItalic} className={buttonClass} title="Italic">
-                <iconify-icon icon="mdi:format-italic" width="16" height="16"></iconify-icon>
-            </button>
-            {/* Underline */}
-            <button type="button" onMouseDown={saveSelection} onClick={handleUnderline} className={buttonClass} title="Underline">
-                <iconify-icon icon="mdi:format-underline" width="16" height="16"></iconify-icon>
-            </button>
-
-            <div className="w-px h-5 bg-gray-200 mx-0.5"></div>
-
-            {/* Align Left */}
-            <button type="button" onClick={() => onAlignChange('left')} className={align === 'left' ? activeButtonClass : buttonClass} title="Align Left">
-                <iconify-icon icon="mdi:format-align-left" width="16" height="16"></iconify-icon>
-            </button>
-            {/* Align Center */}
-            <button type="button" onClick={() => onAlignChange('center')} className={align === 'center' ? activeButtonClass : buttonClass} title="Align Center">
-                <iconify-icon icon="mdi:format-align-center" width="16" height="16"></iconify-icon>
-            </button>
-            {/* Align Right */}
-            <button type="button" onClick={() => onAlignChange('right')} className={align === 'right' ? activeButtonClass : buttonClass} title="Align Right">
-                <iconify-icon icon="mdi:format-align-right" width="16" height="16"></iconify-icon>
-            </button>
-            {/* Align Justify - optional, hidden for button block */}
-            {showJustify && (
-                <button type="button" onClick={() => onAlignChange('justify')} className={align === 'justify' ? activeButtonClass : buttonClass} title="Justify">
-                    <iconify-icon icon="mdi:format-align-justify" width="16" height="16"></iconify-icon>
+            {/* Text Formatting Buttons */}
+            {showBold && (
+                <button
+                    type="button"
+                    onMouseDown={saveSelection}
+                    onClick={handleBold}
+                    className={buttonClass}
+                    title="Bold"
+                >
+                    <iconify-icon
+                        icon="mdi:format-bold"
+                        width="16"
+                        height="16"
+                    ></iconify-icon>
+                </button>
+            )}
+            {showItalic && (
+                <button
+                    type="button"
+                    onMouseDown={saveSelection}
+                    onClick={handleItalic}
+                    className={buttonClass}
+                    title="Italic"
+                >
+                    <iconify-icon
+                        icon="mdi:format-italic"
+                        width="16"
+                        height="16"
+                    ></iconify-icon>
+                </button>
+            )}
+            {showUnderline && (
+                <button
+                    type="button"
+                    onMouseDown={saveSelection}
+                    onClick={handleUnderline}
+                    className={buttonClass}
+                    title="Underline"
+                >
+                    <iconify-icon
+                        icon="mdi:format-underline"
+                        width="16"
+                        height="16"
+                    ></iconify-icon>
                 </button>
             )}
 
+            {hasTextFormatting && (
+                <div className="w-px h-5 bg-gray-200 mx-0.5"></div>
+            )}
+
+            {/* Alignment Buttons */}
+            <button
+                type="button"
+                onClick={() => onAlignChange("left")}
+                className={align === "left" ? activeButtonClass : buttonClass}
+                title="Align Left"
+            >
+                <iconify-icon
+                    icon="mdi:format-align-left"
+                    width="16"
+                    height="16"
+                ></iconify-icon>
+            </button>
+            <button
+                type="button"
+                onClick={() => onAlignChange("center")}
+                className={align === "center" ? activeButtonClass : buttonClass}
+                title="Align Center"
+            >
+                <iconify-icon
+                    icon="mdi:format-align-center"
+                    width="16"
+                    height="16"
+                ></iconify-icon>
+            </button>
+            <button
+                type="button"
+                onClick={() => onAlignChange("right")}
+                className={align === "right" ? activeButtonClass : buttonClass}
+                title="Align Right"
+            >
+                <iconify-icon
+                    icon="mdi:format-align-right"
+                    width="16"
+                    height="16"
+                ></iconify-icon>
+            </button>
+            {showJustify && (
+                <button
+                    type="button"
+                    onClick={() => onAlignChange("justify")}
+                    className={
+                        align === "justify" ? activeButtonClass : buttonClass
+                    }
+                    title="Justify"
+                >
+                    <iconify-icon
+                        icon="mdi:format-align-justify"
+                        width="16"
+                        height="16"
+                    ></iconify-icon>
+                </button>
+            )}
+
+            {/* Link Button */}
             {showLink && (
                 <>
                     <div className="w-px h-5 bg-gray-200 mx-0.5"></div>
                     <div className="relative">
-                        <button type="button" onClick={handleLinkClick} className={buttonClass} title="Insert Link">
-                            <iconify-icon icon="mdi:link-variant" width="16" height="16"></iconify-icon>
+                        <button
+                            type="button"
+                            onClick={handleLinkClick}
+                            className={buttonClass}
+                            title="Insert Link"
+                        >
+                            <iconify-icon
+                                icon="mdi:link-variant"
+                                width="16"
+                                height="16"
+                            ></iconify-icon>
                         </button>
                         {showLinkInput && (
                             <div className="absolute left-0 top-full mt-2 z-50">
@@ -164,16 +290,39 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true, 
                                         ref={linkInputRef}
                                         type="url"
                                         value={linkUrl}
-                                        onChange={(e) => setLinkUrl(e.target.value)}
+                                        onChange={(e) =>
+                                            setLinkUrl(e.target.value)
+                                        }
                                         onKeyDown={handleLinkKeyDown}
                                         placeholder="Enter URL..."
                                         className="w-48 px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:border-primary"
                                     />
-                                    <button type="button" onClick={handleLinkSubmit} className="p-1 rounded bg-primary text-white hover:bg-primary/80" title="Apply">
-                                        <iconify-icon icon="mdi:check" width="14" height="14"></iconify-icon>
+                                    <button
+                                        type="button"
+                                        onClick={handleLinkSubmit}
+                                        className="p-1 rounded bg-primary text-white hover:bg-primary/80"
+                                        title="Apply"
+                                    >
+                                        <iconify-icon
+                                            icon="mdi:check"
+                                            width="14"
+                                            height="14"
+                                        ></iconify-icon>
                                     </button>
-                                    <button type="button" onClick={() => { setShowLinkInput(false); setLinkUrl(''); }} className="p-1 rounded text-gray-400 hover:text-gray-600" title="Cancel">
-                                        <iconify-icon icon="mdi:close" width="14" height="14"></iconify-icon>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowLinkInput(false);
+                                            setLinkUrl("");
+                                        }}
+                                        className="p-1 rounded text-gray-400 hover:text-gray-600"
+                                        title="Cancel"
+                                    >
+                                        <iconify-icon
+                                            icon="mdi:close"
+                                            width="14"
+                                            height="14"
+                                        ></iconify-icon>
                                     </button>
                                 </div>
                             </div>
@@ -182,24 +331,34 @@ const TextFormatControls = ({ editorRef, align, onAlignChange, showLink = true, 
                 </>
             )}
 
-            <div className="w-px h-5 bg-gray-200 mx-0.5"></div>
-
             {/* Clear Formatting */}
-            <button type="button" onMouseDown={saveSelection} onClick={handleClearFormat} className={buttonClass} title="Clear Formatting">
-                <iconify-icon icon="mdi:format-clear" width="16" height="16"></iconify-icon>
-            </button>
+            {showClearFormat && (
+                <>
+                    <div className="w-px h-5 bg-gray-200 mx-0.5"></div>
+                    <button
+                        type="button"
+                        onMouseDown={saveSelection}
+                        onClick={handleClearFormat}
+                        className={buttonClass}
+                        title="Clear Formatting"
+                    >
+                        <iconify-icon
+                            icon="mdi:format-clear"
+                            width="16"
+                            height="16"
+                        ></iconify-icon>
+                    </button>
+                </>
+            )}
         </>
     );
 };
-
-// Blocks that support alignment-only toolbar (non-text blocks with alignment)
-const ALIGN_ONLY_BLOCKS = ['image', 'video', 'countdown', 'social', 'footer'];
 
 // Heading level controls for heading block (dropdown)
 const HeadingLevelControls = ({ level, onLevelChange }) => {
     return (
         <select
-            value={level || 'h1'}
+            value={level || "h1"}
             onChange={(e) => onLevelChange(e.target.value)}
             className="px-2 py-1 text-xs font-semibold uppercase bg-gray-100 border-0 rounded cursor-pointer hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-primary text-gray-700"
             title="Heading Level"
@@ -227,10 +386,10 @@ const ColumnControls = ({ columns, onColumnsChange }) => {
                     onClick={() => onColumnsChange(num)}
                     className={`w-6 h-6 flex items-center justify-center rounded text-xs font-medium transition-colors ${
                         parseInt(columns) === num
-                            ? 'bg-primary text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? "bg-primary text-white"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
-                    title={`${num} Column${num > 1 ? 's' : ''}`}
+                    title={`${num} Column${num > 1 ? "s" : ""}`}
                 >
                     {num}
                 </button>
@@ -256,19 +415,26 @@ const BlockToolbar = ({
     // Heading level props (optional - for heading block)
     headingLevelProps,
     // Position: 'top' (default) or 'bottom'
-    position = 'top'
+    position = "top",
 }) => {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef(null);
 
     const blockConfig = getBlock(block.type);
-    // Blocks that have their own rich text editor (like TinyMCE) - don't show our text format controls
-    const SELF_EDITING_BLOCKS = ['text-editor'];
+
+    // Get supports configuration from block.json
+    const supports = getBlockSupports(block.type);
+
+    // Determine block capabilities from supports
+    const hasTextFormatting =
+        supports.bold || supports.italic || supports.underline;
+    const hasAlignOnly = supports.align && !hasTextFormatting;
+    const hasHeadingLevel = supports.headingLevel === true;
+    const hasColumnCount = supports.columnCount === true;
+
+    // Blocks with their own editor (like text-editor with TinyMCE) - check via block type for now
+    const SELF_EDITING_BLOCKS = ["text-editor"];
     const hasSelfEditor = SELF_EDITING_BLOCKS.includes(block.type);
-    // text-editor block has its own TinyMCE toolbar, so exclude it from text formatting controls
-    const isTextBlock = (block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'button' || block.type === 'quote') && !hasSelfEditor;
-    const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
-    const isColumnsBlock = block.type === 'columns';
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -278,14 +444,16 @@ const BlockToolbar = ({
             }
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     // Position classes based on toolbar position
-    const positionClasses = position === 'bottom'
-        ? 'absolute -bottom-10 left-1/2 -translate-x-1/2'
-        : 'absolute -top-10 left-1/2 -translate-x-1/2';
+    const positionClasses =
+        position === "bottom"
+            ? "absolute -bottom-10 left-1/2 -translate-x-1/2"
+            : "absolute -top-10 left-1/2 -translate-x-1/2";
 
     return (
         <div
@@ -295,7 +463,7 @@ const BlockToolbar = ({
             {/* Block type icon/label */}
             <div className="flex items-center gap-1.5 px-2 py-1 border-r border-gray-200 mr-1">
                 <iconify-icon
-                    icon={blockConfig?.icon || 'mdi:square-outline'}
+                    icon={blockConfig?.icon || "mdi:square-outline"}
                     width="16"
                     height="16"
                     class="text-gray-600"
@@ -305,8 +473,8 @@ const BlockToolbar = ({
                 </span>
             </div>
 
-            {/* Heading Level Controls - only for heading block */}
-            {block.type === 'heading' && headingLevelProps && (
+            {/* Heading Level Controls - based on supports.headingLevel */}
+            {hasHeadingLevel && headingLevelProps && (
                 <>
                     <HeadingLevelControls
                         level={headingLevelProps.level}
@@ -316,22 +484,21 @@ const BlockToolbar = ({
                 </>
             )}
 
-            {/* Text Format Controls - only for text-based blocks */}
-            {isTextBlock && textFormatProps && (
+            {/* Text Format Controls - based on supports (bold, italic, underline, etc.) */}
+            {hasTextFormatting && !hasSelfEditor && textFormatProps && (
                 <>
                     <TextFormatControls
                         editorRef={textFormatProps.editorRef}
                         align={textFormatProps.align}
                         onAlignChange={textFormatProps.onAlignChange}
-                        showLink={block.type === 'text' || block.type === 'list'}
-                        showJustify={block.type !== 'button'}
+                        supports={supports}
                     />
                     <div className="w-px h-5 bg-gray-200 mx-1"></div>
                 </>
             )}
 
-            {/* Alignment-only Controls - for non-text blocks with alignment */}
-            {isAlignOnlyBlock && alignProps && (
+            {/* Alignment-only Controls - for blocks with align but no text formatting */}
+            {hasAlignOnly && alignProps && (
                 <>
                     <AlignOnlyControls
                         align={alignProps.align}
@@ -341,8 +508,8 @@ const BlockToolbar = ({
                 </>
             )}
 
-            {/* Column Controls - for columns block */}
-            {isColumnsBlock && columnsProps && (
+            {/* Column Controls - based on supports.columnCount */}
+            {hasColumnCount && columnsProps && (
                 <>
                     <ColumnControls
                         columns={columnsProps.columns}
@@ -357,11 +524,24 @@ const BlockToolbar = ({
                 type="button"
                 onClick={onMoveUp}
                 disabled={!canMoveUp}
-                className={`p-1.5 rounded hover:bg-gray-100 transition-colors ${!canMoveUp ? 'opacity-30 cursor-not-allowed' : ''}`}
+                className={`p-1.5 rounded hover:bg-gray-100 transition-colors ${
+                    !canMoveUp ? "opacity-30 cursor-not-allowed" : ""
+                }`}
                 title="Move up"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-gray-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 15l7-7 7 7"
+                    />
                 </svg>
             </button>
 
@@ -370,11 +550,24 @@ const BlockToolbar = ({
                 type="button"
                 onClick={onMoveDown}
                 disabled={!canMoveDown}
-                className={`p-1.5 rounded hover:bg-gray-100 transition-colors ${!canMoveDown ? 'opacity-30 cursor-not-allowed' : ''}`}
+                className={`p-1.5 rounded hover:bg-gray-100 transition-colors ${
+                    !canMoveDown ? "opacity-30 cursor-not-allowed" : ""
+                }`}
                 title="Move down"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-gray-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                    />
                 </svg>
             </button>
 
@@ -388,8 +581,19 @@ const BlockToolbar = ({
                 className="p-1.5 rounded hover:bg-gray-100 transition-colors"
                 title="Duplicate"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-gray-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
                 </svg>
             </button>
 
@@ -398,11 +602,24 @@ const BlockToolbar = ({
                 <button
                     type="button"
                     onClick={() => setShowMenu(!showMenu)}
-                    className={`p-1.5 rounded transition-colors ${showMenu ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
+                    className={`p-1.5 rounded transition-colors ${
+                        showMenu ? "bg-gray-100" : "hover:bg-gray-100"
+                    }`}
                     title="More options"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-gray-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                        />
                     </svg>
                 </button>
 
@@ -417,8 +634,19 @@ const BlockToolbar = ({
                             }}
                             className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                />
                             </svg>
                             Duplicate
                         </button>
@@ -429,10 +657,25 @@ const BlockToolbar = ({
                                 setShowMenu(false);
                             }}
                             disabled={!canMoveUp}
-                            className={`w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 ${!canMoveUp ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 ${
+                                !canMoveUp
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                            }`}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 15l7-7 7 7"
+                                />
                             </svg>
                             Move Up
                         </button>
@@ -443,10 +686,25 @@ const BlockToolbar = ({
                                 setShowMenu(false);
                             }}
                             disabled={!canMoveDown}
-                            className={`w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 ${!canMoveDown ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 ${
+                                !canMoveDown
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                            }`}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 9l-7 7-7-7"
+                                />
                             </svg>
                             Move Down
                         </button>
@@ -459,8 +717,19 @@ const BlockToolbar = ({
                             }}
                             className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
                             </svg>
                             Delete
                         </button>

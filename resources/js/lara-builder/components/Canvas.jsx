@@ -3,6 +3,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { getBlockComponent } from '../blocks';
+import { getBlockSupports } from '../blocks/blockLoader';
 import BlockToolbar from './BlockToolbar';
 import { layoutStylesToCSS } from './LayoutStylesSection';
 import { buildBlockClasses } from './BlockWrapper';
@@ -33,8 +34,8 @@ const DropZone = ({ id, isFirst = false }) => {
     );
 };
 
-// Blocks that support alignment-only toolbar (no text formatting)
-const ALIGN_ONLY_BLOCKS = ['image', 'button', 'video', 'countdown', 'social', 'footer'];
+// Note: Block features are now read from block.json supports configuration
+// via getBlockSupports() instead of hardcoded arrays
 
 const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, totalBlocks, blockIndex }) => {
     const [textFormatProps, setTextFormatProps] = useState(null);
@@ -63,20 +64,28 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
 
     const BlockComponent = getBlockComponent(block.type);
     const isSelected = selectedBlockId === block.id;
-    const isTextBasedBlock = block.type === 'heading' || block.type === 'text' || block.type === 'list' || block.type === 'text-editor' || block.type === 'button' || block.type === 'quote';
-    const isAlignOnlyBlock = ALIGN_ONLY_BLOCKS.includes(block.type);
-    const isColumnsBlock = block.type === 'columns';
-    // Blocks with their own toolbar (like text-editor) - always show toolbar at bottom
-    const toolbarAtBottom = block.type === 'text-editor';
 
-    // Alignment props for align-only blocks
-    const alignProps = isAlignOnlyBlock ? {
+    // Get supports configuration from block.json
+    const supports = getBlockSupports(block.type);
+
+    // Determine block capabilities from supports
+    const hasTextFormatting = supports.bold || supports.italic || supports.underline;
+    const hasAlignOnly = supports.align && !hasTextFormatting;
+    const hasColumnCount = supports.columnCount === true;
+
+    // Blocks with their own toolbar (like text-editor) - always show toolbar at bottom
+    const SELF_EDITING_BLOCKS = ['text-editor'];
+    const hasSelfEditor = SELF_EDITING_BLOCKS.includes(block.type);
+    const toolbarAtBottom = hasSelfEditor;
+
+    // Alignment props for align-only blocks (align support but no text formatting)
+    const alignProps = hasAlignOnly ? {
         align: block.props?.align || 'center',
         onAlignChange: (newAlign) => onUpdate(block.id, { ...block.props, align: newAlign }),
     } : null;
 
-    // Column props for columns block
-    const columnsProps = isColumnsBlock ? {
+    // Column props for blocks with columnCount support
+    const columnsProps = hasColumnCount ? {
         columns: block.props?.columns || 1,
         onColumnsChange: (newColumns) => {
             const currentColumns = parseInt(block.props?.columns) || 1;
@@ -102,8 +111,8 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
         },
     } : null;
 
-    // Heading level props for heading block
-    const headingLevelProps = block.type === 'heading' ? {
+    // Heading level props for blocks with headingLevel support
+    const headingLevelProps = supports.headingLevel ? {
         level: block.props?.level || 'h1',
         onLevelChange: (newLevel) => {
             // Get default font size for the new level
@@ -169,10 +178,10 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                 props={block.props}
                 isSelected={isSelected}
                 onUpdate={(newProps) => onUpdate(block.id, newProps)}
-                {...(isTextBasedBlock ? {
+                {...(hasTextFormatting ? {
                     onRegisterTextFormat: setTextFormatProps,
                 } : {})}
-                {...(isColumnsBlock ? {
+                {...(hasColumnCount ? {
                     blockId: block.id,
                     onSelect: onSelect,
                     selectedBlockId: selectedBlockId,

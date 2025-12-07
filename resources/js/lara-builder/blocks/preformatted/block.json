@@ -3,57 +3,16 @@
     "label": "Preformatted",
     "category": "Content",
     "icon": "mdi:format-text-wrapping-wrap",
-    "description": "Add preformatted text",
-    "keywords": ["preformatted", "pre", "monospace", "fixed"],
+    "description": "Add preformatted text with monospace font",
+    "keywords": ["preformatted", "pre", "monospace", "fixed", "code"],
     "contexts": ["email", "page", "campaign"],
     "supports": {
-        "colors": true,
         "layout": true,
         "html": true,
         "duplicate": true,
         "remove": true
     },
     "defaultProps": {
-        "text": "Write preformatted text...",
-        "fontSize": "14px",
-        "backgroundColor": "#f5f5f5",
-        "textColor": "#333333",
-        "borderColor": "#e0e0e0",
-        "borderRadius": "4px"
-    },
-    "properties": [
-        {
-            "name": "text",
-            "type": "textarea",
-            "label": "Preformatted Text",
-            "placeholder": "Enter preformatted text..."
-        },
-        {
-            "name": "fontSize",
-            "type": "text",
-            "label": "Font Size",
-            "placeholder": "14px"
-        },
-        {
-            "name": "borderRadius",
-            "type": "text",
-            "label": "Border Radius",
-            "placeholder": "4px"
-        },
-        {
-            "name": "backgroundColor",
-            "type": "color",
-            "label": "Background Color"
-        },
-        {
-            "name": "textColor",
-            "type": "color",
-            "label": "Text Color"
-        },
-        {
-            "name": "borderColor",
-            "type": "color",
-            "label": "Border Color"
-        }
-    ]
+        "text": "Write preformatted text..."
+    }
 }

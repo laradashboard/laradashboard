@@ -7,6 +7,7 @@
   "keywords": ["columns", "layout", "grid", "sections"],
   "contexts": ["email", "page", "campaign"],
   "supports": {
+    "columnCount": true,
     "spacing": true,
     "nesting": true,
     "layout": true,

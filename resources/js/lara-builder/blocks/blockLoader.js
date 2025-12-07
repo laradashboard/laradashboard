@@ -115,6 +115,40 @@ export const getModularBlockConfig = (type) => {
 };
 
 /**
+ * Get block supports configuration by type
+ * Checks both modular blocks (core) and blockRegistry (external modules)
+ * Returns the supports object from block.json or empty object
+ */
+export const getBlockSupports = (type) => {
+    // First check modular blocks (core blocks)
+    const blockDef = modularBlockMap[type];
+    if (blockDef?.supports) {
+        return blockDef.supports;
+    }
+
+    // Fall back to blockRegistry for external blocks (e.g., CRM module blocks)
+    if (typeof window !== 'undefined' && window.LaraBuilderBlockRegistry) {
+        const registryBlock = window.LaraBuilderBlockRegistry.get(type);
+        if (registryBlock?.supports) {
+            return registryBlock.supports;
+        }
+    }
+
+    return {};
+};
+
+/**
+ * Check if a block supports a specific feature
+ * @param {string} type - Block type
+ * @param {string} feature - Feature name (e.g., 'bold', 'align', 'headingLevel')
+ * @returns {boolean}
+ */
+export const blockSupports = (type, feature) => {
+    const supports = getBlockSupports(type);
+    return supports[feature] === true;
+};
+
+/**
  * Register modular blocks with the block registry
  * This merges modular block definitions with legacy blocks
  */
@@ -157,6 +191,8 @@ export default {
     getModularBlockComponent,
     getModularBlockEditor,
     getModularBlockConfig,
+    getBlockSupports,
+    blockSupports,
     registerModularBlocks,
     enhanceLegacyBlocks,
 };

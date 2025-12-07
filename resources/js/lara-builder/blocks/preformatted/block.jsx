@@ -1,11 +1,13 @@
 /**
  * Preformatted Block - Canvas Component
+ *
+ * Supports inline editing and text formatting toolbar integration.
  */
 
 import { useRef, useEffect, useCallback } from 'react';
 import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
 
-const PreformattedBlock = ({ props, onUpdate, isSelected }) => {
+const PreformattedBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
     const editorRef = useRef(null);
     const lastPropsText = useRef(props.text);
     const propsRef = useRef(props);
@@ -17,17 +19,23 @@ const PreformattedBlock = ({ props, onUpdate, isSelected }) => {
 
     const handleInput = useCallback(() => {
         if (editorRef.current) {
-            const newText = editorRef.current.textContent;
+            // Use innerHTML to preserve formatting (bold, italic, etc.)
+            const newText = editorRef.current.innerHTML;
             lastPropsText.current = newText;
             onUpdateRef.current({ ...propsRef.current, text: newText });
         }
     }, []);
 
+    // Stable align change handler
+    const handleAlignChange = useCallback((newAlign) => {
+        onUpdateRef.current({ ...propsRef.current, align: newAlign });
+    }, []);
+
     // Set initial content only once when becoming selected
     useEffect(() => {
         if (isSelected && editorRef.current) {
-            if (editorRef.current.textContent === '') {
-                editorRef.current.textContent = props.text || '';
+            if (editorRef.current.innerHTML === '' || editorRef.current.innerHTML === '<br>') {
+                editorRef.current.innerHTML = props.text || '';
                 lastPropsText.current = props.text;
             }
         }
@@ -37,11 +45,25 @@ const PreformattedBlock = ({ props, onUpdate, isSelected }) => {
     useEffect(() => {
         if (isSelected && editorRef.current) {
             if (props.text !== lastPropsText.current) {
-                editorRef.current.textContent = props.text || '';
+                editorRef.current.innerHTML = props.text || '';
                 lastPropsText.current = props.text;
             }
         }
     }, [props.text, isSelected]);
+
+    // Register text format props with parent when selected (for toolbar integration)
+    useEffect(() => {
+        if (isSelected && onRegisterTextFormat) {
+            onRegisterTextFormat({
+                editorRef,
+                isContentEditable: true,
+                align: propsRef.current.align || 'left',
+                onAlignChange: handleAlignChange,
+            });
+        } else if (!isSelected && onRegisterTextFormat) {
+            onRegisterTextFormat(null);
+        }
+    }, [isSelected, onRegisterTextFormat, handleAlignChange]);
 
     // Focus the editor when selected
     useEffect(() => {
@@ -57,22 +79,23 @@ const PreformattedBlock = ({ props, onUpdate, isSelected }) => {
         }
     }, [isSelected]);
 
-    // Base styles for preformatted block
+    // Base styles for preformatted block (minimal defaults, rest from layoutStyles)
     const defaultStyle = {
         fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
-        fontSize: props.fontSize || '14px',
+        fontSize: '14px',
         lineHeight: '1.6',
         padding: '16px',
-        borderRadius: props.borderRadius || '4px',
-        backgroundColor: props.backgroundColor || '#f5f5f5',
-        color: props.textColor || '#333333',
-        border: `1px solid ${props.borderColor || '#e0e0e0'}`,
+        borderRadius: '4px',
+        backgroundColor: '#f5f5f5',
+        color: '#333333',
+        border: '1px solid #e0e0e0',
         overflowX: 'auto',
         whiteSpace: 'pre-wrap',
         wordBreak: 'break-word',
     };
 
     // Apply layout styles (typography, background, spacing, border, shadow)
+    // Layout styles will override the defaults above
     const baseStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);
 
     if (isSelected) {
@@ -97,9 +120,10 @@ const PreformattedBlock = ({ props, onUpdate, isSelected }) => {
     }
 
     return (
-        <pre style={{ ...baseStyle, margin: 0 }}>
-            {props.text || 'Write preformatted text...'}
-        </pre>
+        <pre
+            style={{ ...baseStyle, margin: 0 }}
+            dangerouslySetInnerHTML={{ __html: props.text || 'Write preformatted text...' }}
+        />
     );
 };
 
