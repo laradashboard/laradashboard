@@ -1,9 +1,8 @@
 /**
  * List Block - Property Editor
- *
- * Note: Typography and colors are controlled by Layout Styles.
- * Icon color for check lists is specific to this block.
  */
+
+import { __ } from '@lara-builder/i18n';
 
 const ListBlockEditor = ({ props, onUpdate }) => {
     const handleChange = (field, value) => {
@@ -12,24 +11,22 @@ const ListBlockEditor = ({ props, onUpdate }) => {
 
     return (
         <div className="space-y-4">
-            {/* List Type Section */}
-            <Section title="List Type">
-                <Label>Type</Label>
+            <Section title={__('List Type')}>
+                <Label>{__('Type')}</Label>
                 <select
                     value={props.listType || 'bullet'}
                     onChange={(e) => handleChange('listType', e.target.value)}
                     className="form-control"
                 >
-                    <option value="bullet">Bullet List</option>
-                    <option value="number">Numbered List</option>
-                    <option value="check">Check List</option>
+                    <option value="bullet">{__('Bullet List')}</option>
+                    <option value="number">{__('Numbered List')}</option>
+                    <option value="check">{__('Check List')}</option>
                 </select>
             </Section>
 
-            {/* Style Section - only for check lists */}
             {props.listType === 'check' && (
-                <Section title="Style">
-                    <Label>Check Icon Color</Label>
+                <Section title={__('Style')}>
+                    <Label>{__('Check Icon Color')}</Label>
                     <ColorPicker
                         value={props.iconColor || '#635bff'}
                         onChange={(value) => handleChange('iconColor', value)}
@@ -37,9 +34,8 @@ const ListBlockEditor = ({ props, onUpdate }) => {
                 </Section>
             )}
 
-            {/* Info Section */}
             <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                <strong className="text-gray-700 dark:text-gray-300">Tip:</strong> Click the list in the canvas to edit items directly. Press Enter to add new items.
+                <strong className="text-gray-700 dark:text-gray-300">{__('Tip')}:</strong> {__('Click the list in the canvas to edit items directly. Press Enter to add new items.')}
             </div>
         </div>
     );

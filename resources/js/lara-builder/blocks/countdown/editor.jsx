@@ -1,4 +1,5 @@
 import React from 'react';
+import { __ } from '@lara-builder/i18n';
 
 const CountdownEditor = ({ props, updateProps }) => {
     // Calculate default date (7 days from now)
@@ -66,11 +67,11 @@ const CountdownEditor = ({ props, updateProps }) => {
     return (
         <div style={{ padding: '16px' }}>
             <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
-                Countdown Settings
+                {__('Countdown Settings')}
             </h3>
 
             <div style={fieldGroupStyle}>
-                <label style={labelStyle}>Target Date *</label>
+                <label style={labelStyle}>{__('Target Date')} *</label>
                 <input
                     type="date"
                     value={currentDate}
@@ -78,22 +79,22 @@ const CountdownEditor = ({ props, updateProps }) => {
                     style={inputStyle}
                     required
                 />
-                <div style={helpTextStyle}>The date when the countdown ends</div>
+                <div style={helpTextStyle}>{__('The date when the countdown ends')}</div>
             </div>
 
             <div style={fieldGroupStyle}>
-                <label style={labelStyle}>Target Time</label>
+                <label style={labelStyle}>{__('Target Time')}</label>
                 <input
                     type="time"
                     value={props.targetTime || '23:59'}
                     onChange={(e) => handleChange('targetTime', e.target.value)}
                     style={inputStyle}
                 />
-                <div style={helpTextStyle}>The time when the countdown ends</div>
+                <div style={helpTextStyle}>{__('The time when the countdown ends')}</div>
             </div>
 
             <div style={fieldGroupStyle}>
-                <label style={labelStyle}>Title</label>
+                <label style={labelStyle}>{__('Title')}</label>
                 <input
                     type="text"
                     value={props.title || ''}
@@ -104,7 +105,7 @@ const CountdownEditor = ({ props, updateProps }) => {
             </div>
 
             <div style={fieldGroupStyle}>
-                <label style={labelStyle}>Background Color</label>
+                <label style={labelStyle}>{__('Background Color')}</label>
                 <div style={colorInputWrapperStyle}>
                     <input
                         type="color"
@@ -125,7 +126,7 @@ const CountdownEditor = ({ props, updateProps }) => {
             </div>
 
             <div style={fieldGroupStyle}>
-                <label style={labelStyle}>Text Color</label>
+                <label style={labelStyle}>{__('Text Color')}</label>
                 <div style={colorInputWrapperStyle}>
                     <input
                         type="color"
@@ -146,7 +147,7 @@ const CountdownEditor = ({ props, updateProps }) => {
             </div>
 
             <div style={fieldGroupStyle}>
-                <label style={labelStyle}>Number Color</label>
+                <label style={labelStyle}>{__('Number Color')}</label>
                 <div style={colorInputWrapperStyle}>
                     <input
                         type="color"
@@ -167,20 +168,20 @@ const CountdownEditor = ({ props, updateProps }) => {
             </div>
 
             <div style={fieldGroupStyle}>
-                <label style={labelStyle}>Alignment</label>
+                <label style={labelStyle}>{__('Alignment')}</label>
                 <select
                     value={props.align || 'center'}
                     onChange={(e) => handleChange('align', e.target.value)}
                     style={selectStyle}
                 >
-                    <option value="left">Left</option>
-                    <option value="center">Center</option>
-                    <option value="right">Right</option>
+                    <option value="left">{__('Left')}</option>
+                    <option value="center">{__('Center')}</option>
+                    <option value="right">{__('Right')}</option>
                 </select>
             </div>
 
             <div style={fieldGroupStyle}>
-                <label style={labelStyle}>Expired Message</label>
+                <label style={labelStyle}>{__('Expired Message')}</label>
                 <input
                     type="text"
                     value={props.expiredMessage || ''}
@@ -188,7 +189,7 @@ const CountdownEditor = ({ props, updateProps }) => {
                     placeholder="This offer has expired!"
                     style={inputStyle}
                 />
-                <div style={helpTextStyle}>Message to show when countdown expires</div>
+                <div style={helpTextStyle}>{__('Message to show when countdown expires')}</div>
             </div>
         </div>
     );

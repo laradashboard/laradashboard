@@ -2,6 +2,7 @@
  * SpacingControls - Margin and Padding controls with visual box editor
  */
 import { useState } from 'react';
+import { __ } from '@lara-builder/i18n';
 
 // Input component for spacing values
 const SpacingInput = ({ value, onChange, placeholder = '' }) => {
@@ -43,7 +44,7 @@ const SpacingBoxControl = ({ label, values, onChange, linkSides, onToggleLink })
                         type="button"
                         onClick={onToggleLink}
                         className={`p-1 rounded transition-colors ${linkSides ? 'text-primary bg-primary/20' : 'text-gray-400 hover:text-gray-600'}`}
-                        title={linkSides ? 'Unlink sides' : 'Link all sides'}
+                        title={linkSides ? __('Unlink sides') : __('Link all sides')}
                     >
                         <iconify-icon icon={linkSides ? 'mdi:link' : 'mdi:link-off'} width="14" height="14"></iconify-icon>
                     </button>
@@ -51,7 +52,7 @@ const SpacingBoxControl = ({ label, values, onChange, linkSides, onToggleLink })
                         type="button"
                         onClick={() => onChange({ top: '', right: '', bottom: '', left: '' })}
                         className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
-                        title="Reset"
+                        title={__('Reset')}
                     >
                         <iconify-icon icon="mdi:refresh" width="14" height="14"></iconify-icon>
                     </button>
@@ -79,7 +80,7 @@ const SpacingBoxControl = ({ label, values, onChange, linkSides, onToggleLink })
                         />
                     </div>
                     <div className="flex-1 h-12 bg-gray-200 rounded flex items-center justify-center">
-                        <span className="text-xs text-gray-500">Content</span>
+                        <span className="text-xs text-gray-500">{__('Content')}</span>
                     </div>
                     <div className="w-20">
                         <SpacingInput
@@ -110,12 +111,12 @@ const SpacingControls = ({ margin, padding, onMarginChange, onPaddingChange }) =
     return (
         <div>
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                Spacing
+                {__('Spacing')}
             </h4>
 
             {/* Margin */}
             <SpacingBoxControl
-                label="Margin"
+                label={__('Margin')}
                 values={margin || {}}
                 onChange={onMarginChange}
                 linkSides={linkMargin}
@@ -124,7 +125,7 @@ const SpacingControls = ({ margin, padding, onMarginChange, onPaddingChange }) =
 
             {/* Padding */}
             <SpacingBoxControl
-                label="Padding"
+                label={__('Padding')}
                 values={padding || {}}
                 onChange={onPaddingChange}
                 linkSides={linkPadding}

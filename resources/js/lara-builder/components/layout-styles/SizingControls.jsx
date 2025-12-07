@@ -2,6 +2,7 @@
  * SizingControls - Width and Height dimension controls
  */
 import { useState } from 'react';
+import { __ } from '@lara-builder/i18n';
 import { SIZE_PRESETS } from './presets';
 
 // Size input with presets dropdown
@@ -29,7 +30,7 @@ const SizeInput = ({ label, value, onChange, presets = SIZE_PRESETS }) => {
                     {presets.map(preset => (
                         <option key={preset.value} value={preset.value}>{preset.label}</option>
                     ))}
-                    <option value="custom">Custom</option>
+                    <option value="custom">{__('Custom')}</option>
                 </select>
                 {showCustom && (
                     <input
@@ -56,41 +57,41 @@ const SizingControls = ({ layoutStyles = {}, onChange }) => {
     return (
         <div>
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                Sizing
+                {__('Sizing')}
             </h4>
 
             <SizeInput
-                label="Width"
+                label={__('Width')}
                 value={layoutStyles.width || ''}
                 onChange={(v) => handleChange('width', v)}
             />
 
             <SizeInput
-                label="Min. width"
+                label={__('Min. width')}
                 value={layoutStyles.minWidth || ''}
                 onChange={(v) => handleChange('minWidth', v)}
             />
 
             <SizeInput
-                label="Max. width"
+                label={__('Max. width')}
                 value={layoutStyles.maxWidth || ''}
                 onChange={(v) => handleChange('maxWidth', v)}
             />
 
             <SizeInput
-                label="Height"
+                label={__('Height')}
                 value={layoutStyles.height || ''}
                 onChange={(v) => handleChange('height', v)}
             />
 
             <SizeInput
-                label="Min. height"
+                label={__('Min. height')}
                 value={layoutStyles.minHeight || ''}
                 onChange={(v) => handleChange('minHeight', v)}
             />
 
             <SizeInput
-                label="Max. height"
+                label={__('Max. height')}
                 value={layoutStyles.maxHeight || ''}
                 onChange={(v) => handleChange('maxHeight', v)}
             />

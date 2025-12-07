@@ -2,6 +2,7 @@
  * BackgroundControls - Background color and image settings
  */
 import { useState } from 'react';
+import { __ } from '@lara-builder/i18n';
 import {
     BACKGROUND_SIZE_PRESETS,
     BACKGROUND_POSITION_PRESETS,
@@ -48,7 +49,7 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
         <div className="space-y-3">
             {/* Background Color */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Background color</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Background color')}</label>
                 <div className="flex gap-2">
                     <input
                         type="color"
@@ -68,7 +69,7 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
                             type="button"
                             onClick={() => handleColorChange('')}
                             className="p-1.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
-                            title="Clear"
+                            title={__('Clear')}
                         >
                             <iconify-icon icon="mdi:close" width="14" height="14"></iconify-icon>
                         </button>
@@ -78,7 +79,7 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
 
             {/* Background Image */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Background image</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Background image')}</label>
 
                 {/* Image preview */}
                 {background.image && (
@@ -92,7 +93,7 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
                             type="button"
                             onClick={handleClearImage}
                             className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                            title="Remove image"
+                            title={__('Remove image')}
                         >
                             <iconify-icon icon="mdi:close" width="12" height="12"></iconify-icon>
                         </button>
@@ -110,12 +111,12 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
                         {isSelecting ? (
                             <>
                                 <iconify-icon icon="mdi:loading" width="16" height="16" class="animate-spin"></iconify-icon>
-                                <span>Selecting...</span>
+                                <span>{__('Selecting...')}</span>
                             </>
                         ) : (
                             <>
                                 <iconify-icon icon="mdi:image-plus" width="16" height="16" class="text-primary"></iconify-icon>
-                                <span className="font-medium">Select from Media Library</span>
+                                <span className="font-medium">{__('Select from Media Library')}</span>
                             </>
                         )}
                     </div>
@@ -123,7 +124,7 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
 
                 {/* Or enter URL manually */}
                 <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-gray-400">or</span>
+                    <span className="text-xs text-gray-400">{__('or')}</span>
                     <input
                         type="text"
                         value={background.image || ''}
@@ -139,7 +140,7 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
                 <div className="space-y-2 pt-2 border-t border-gray-100">
                     {/* Size */}
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Size</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{__('Size')}</label>
                         <select
                             value={background.size || 'cover'}
                             onChange={(e) => onChange({ ...background, size: e.target.value })}
@@ -153,7 +154,7 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
 
                     {/* Position */}
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Position</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{__('Position')}</label>
                         <select
                             value={background.position || 'center'}
                             onChange={(e) => onChange({ ...background, position: e.target.value })}
@@ -167,7 +168,7 @@ const BackgroundControls = ({ background = {}, onChange, onImageUpload }) => {
 
                     {/* Repeat */}
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Repeat</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{__('Repeat')}</label>
                         <select
                             value={background.repeat || 'no-repeat'}
                             onChange={(e) => onChange({ ...background, repeat: e.target.value })}

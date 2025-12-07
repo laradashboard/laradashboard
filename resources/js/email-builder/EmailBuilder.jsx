@@ -17,6 +17,7 @@ import PropertiesPanel from "../lara-builder/components/PropertiesPanel";
 import Toast from "../lara-builder/components/Toast";
 import { blockRegistry } from "../lara-builder/registry/BlockRegistry";
 import { generateEmailHtml } from "./utils/generateHtml";
+import { __ } from "@lara-builder/i18n";
 
 // Helper function to get block from registry.
 const getBlock = (type) => blockRegistry.get(type);
@@ -783,7 +784,7 @@ const EmailBuilder = ({
 
     const handleSave = async () => {
         if (!templateName.trim()) {
-            showToast("error", "Validation Error", "Template name is required");
+            showToast("error", __("Validation Error"), __("Template name is required"));
             return;
         }
 
@@ -813,8 +814,8 @@ const EmailBuilder = ({
             const isEdit = !!templateData?.uuid;
             showToast(
                 "success",
-                isEdit ? "Template Updated" : "Template Created",
-                result?.message || (isEdit ? "Template updated successfully!" : "Template created successfully!")
+                isEdit ? __("Template Updated") : __("Template Created"),
+                result?.message || (isEdit ? __("Template updated successfully!") : __("Template created successfully!"))
             );
 
             // If creating a new template, redirect to edit page
@@ -824,7 +825,7 @@ const EmailBuilder = ({
                 }, 500);
             }
         } catch (error) {
-            showToast("error", "Save Failed", error.message || "Failed to save template");
+            showToast("error", __("Save Failed"), error.message || __("Failed to save template"));
         } finally {
             setSaving(false);
         }
@@ -894,7 +895,7 @@ const EmailBuilder = ({
                             onClick={(e) => {
                                 if (isDirty) {
                                     const confirmed = window.confirm(
-                                        "You have unsaved changes. Are you sure you want to leave?"
+                                        __("You have unsaved changes. Are you sure you want to leave?")
                                     );
                                     if (!confirmed) {
                                         e.preventDefault();
@@ -916,19 +917,19 @@ const EmailBuilder = ({
                                 />
                             </svg>
                             <span className="font-medium hidden sm:inline">
-                                Back to Templates
+                                {__("Back to Templates")}
                             </span>
                         </a>
                         <div className="h-6 w-px bg-gray-300 hidden sm:block"></div>
                         <h1 className="text-sm sm:text-lg font-semibold text-gray-800">
                             {templateData?.uuid
-                                ? "Edit"
-                                : "Create"}
-                            <span className="hidden sm:inline"> Template</span>
+                                ? __("Edit")
+                                : __("Create")}
+                            <span className="hidden sm:inline"> {__("Template")}</span>
                         </h1>
                         {isDirty && (
                             <span className="text-xs text-orange-600 bg-orange-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md font-medium">
-                                <span className="hidden sm:inline">Unsaved changes</span>
+                                <span className="hidden sm:inline">{__("Unsaved changes")}</span>
                                 <span className="sm:hidden">•</span>
                             </span>
                         )}
@@ -938,7 +939,7 @@ const EmailBuilder = ({
                         {/* Name input - Hidden on mobile, shown in properties drawer */}
                         <div className="hidden md:flex items-center gap-2">
                             <label className="text-sm font-medium text-gray-600">
-                                Name:
+                                {__("Name")}:
                             </label>
                             <input
                                 type="text"
@@ -946,7 +947,7 @@ const EmailBuilder = ({
                                 onChange={(e) =>
                                     setTemplateName(e.target.value)
                                 }
-                                placeholder="Template name..."
+                                placeholder={__("Template name...")}
                                 className="form-control"
                             />
                         </div>
@@ -954,7 +955,7 @@ const EmailBuilder = ({
                         {/* Subject input - Hidden on mobile, shown in properties drawer */}
                         <div className="hidden lg:flex items-center gap-2">
                             <label className="text-sm font-medium text-gray-600">
-                                Subject:
+                                {__("Subject")}:
                             </label>
                             <input
                                 type="text"
@@ -962,7 +963,7 @@ const EmailBuilder = ({
                                 onChange={(e) =>
                                     setTemplateSubject(e.target.value)
                                 }
-                                placeholder="Email subject..."
+                                placeholder={__("Email subject...")}
                                 className="form-control"
                             />
                         </div>
@@ -998,7 +999,7 @@ const EmailBuilder = ({
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                         />
                                     </svg>
-                                    <span className="hidden sm:inline">Saving...</span>
+                                    <span className="hidden sm:inline">{__("Saving...")}</span>
                                 </>
                             ) : (
                                 <>
@@ -1006,7 +1007,7 @@ const EmailBuilder = ({
                                         icon="mdi:content-save"
                                         class="h-4 w-4"
                                     ></iconify-icon>
-                                    <span className="hidden sm:inline">Update</span>
+                                    <span className="hidden sm:inline">{__("Update")}</span>
                                 </>
                             )}
                         </button>
@@ -1022,14 +1023,14 @@ const EmailBuilder = ({
                             className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg shadow-lg hover:bg-primary/90 transition-colors"
                         >
                             <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
-                            <span className="text-sm font-medium">Blocks</span>
+                            <span className="text-sm font-medium">{__("Blocks")}</span>
                         </button>
                         <button
                             onClick={() => setRightDrawerOpen(true)}
                             className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-gray-700 text-white rounded-lg shadow-lg hover:bg-gray-800 transition-colors"
                         >
                             <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
-                            <span className="text-sm font-medium">Properties</span>
+                            <span className="text-sm font-medium">{__("Properties")}</span>
                         </button>
                     </div>
 
@@ -1041,14 +1042,14 @@ const EmailBuilder = ({
                                 <button
                                     onClick={() => setLeftSidebarCollapsed(false)}
                                     className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
-                                    title="Show Blocks"
+                                    title={__("Show Blocks")}
                                 >
                                     <iconify-icon icon="mdi:chevron-right" width="20" height="20"></iconify-icon>
                                 </button>
                                 <button
                                     onClick={() => setLeftSidebarCollapsed(false)}
                                     className="mt-2 p-2 rounded-md hover:bg-primary/10 text-primary"
-                                    title="Show Blocks"
+                                    title={__("Show Blocks")}
                                 >
                                     <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
                                 </button>
@@ -1058,12 +1059,12 @@ const EmailBuilder = ({
                             <div className="flex flex-col h-full p-4">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-sm font-semibold text-gray-900">
-                                        Blocks
+                                        {__("Blocks")}
                                     </h3>
                                     <button
                                         onClick={() => setLeftSidebarCollapsed(true)}
                                         className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-                                        title="Hide Blocks"
+                                        title={__("Hide Blocks")}
                                     >
                                         <iconify-icon icon="mdi:chevron-left" width="18" height="18"></iconify-icon>
                                     </button>
@@ -1085,7 +1086,7 @@ const EmailBuilder = ({
                             <div className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl flex flex-col animate-slide-in-left">
                                 <div className="flex items-center justify-between p-4 border-b border-gray-200">
                                     <h3 className="text-sm font-semibold text-gray-900">
-                                        Blocks
+                                        {__("Blocks")}
                                     </h3>
                                     <button
                                         onClick={() => setLeftDrawerOpen(false)}
@@ -1127,14 +1128,14 @@ const EmailBuilder = ({
                                 <button
                                     onClick={() => setRightSidebarCollapsed(false)}
                                     className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
-                                    title="Show Properties"
+                                    title={__("Show Properties")}
                                 >
                                     <iconify-icon icon="mdi:chevron-left" width="20" height="20"></iconify-icon>
                                 </button>
                                 <button
                                     onClick={() => setRightSidebarCollapsed(false)}
                                     className="mt-2 p-2 rounded-md hover:bg-gray-50 text-gray-600"
-                                    title="Show Properties"
+                                    title={__("Show Properties")}
                                 >
                                     <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
                                 </button>
@@ -1144,12 +1145,12 @@ const EmailBuilder = ({
                             <div className="flex flex-col h-full p-4 overflow-hidden">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-sm font-semibold text-gray-900">
-                                        Properties
+                                        {__("Properties")}
                                     </h3>
                                     <button
                                         onClick={() => setRightSidebarCollapsed(true)}
                                         className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-                                        title="Hide Properties"
+                                        title={__("Hide Properties")}
                                     >
                                         <iconify-icon icon="mdi:chevron-right" width="18" height="18"></iconify-icon>
                                     </button>
@@ -1180,7 +1181,7 @@ const EmailBuilder = ({
                             <div className="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-xl flex flex-col animate-slide-in-right">
                                 <div className="flex items-center justify-between p-4 border-b border-gray-200">
                                     <h3 className="text-sm font-semibold text-gray-900">
-                                        Properties
+                                        {__("Properties")}
                                     </h3>
                                     <button
                                         onClick={() => setRightDrawerOpen(false)}
@@ -1193,30 +1194,30 @@ const EmailBuilder = ({
                                     {/* Mobile-only template inputs */}
                                     <div className="md:hidden mb-4 pb-4 border-b border-gray-200">
                                         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                                            Template Details
+                                            {__("Template Details")}
                                         </h4>
                                         <div className="space-y-3">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                    Name
+                                                    {__("Name")}
                                                 </label>
                                                 <input
                                                     type="text"
                                                     value={templateName}
                                                     onChange={(e) => setTemplateName(e.target.value)}
-                                                    placeholder="Template name..."
+                                                    placeholder={__("Template name...")}
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                    Subject
+                                                    {__("Subject")}
                                                 </label>
                                                 <input
                                                     type="text"
                                                     value={templateSubject}
                                                     onChange={(e) => setTemplateSubject(e.target.value)}
-                                                    placeholder="Email subject..."
+                                                    placeholder={__("Email subject...")}
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                                 />
                                             </div>

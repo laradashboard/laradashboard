@@ -27,6 +27,7 @@ import { useBlocks } from '../core/hooks/useBlocks';
 import { LaraHooks } from '../hooks-system/LaraHooks';
 import { BuilderHooks } from '../hooks-system/HookNames';
 import { blockRegistry } from '../registry/BlockRegistry';
+import { __ } from '@lara-builder/i18n';
 
 // Import components
 import BlockPanel from './BlockPanel';
@@ -636,7 +637,7 @@ function PostBuilderInner({
                                 onClick={(e) => {
                                     if (isFormDirty) {
                                         const confirmed = window.confirm(
-                                            'You have unsaved changes. Are you sure you want to leave?'
+                                            __('You have unsaved changes. Are you sure you want to leave?')
                                         );
                                         if (!confirmed) {
                                             e.preventDefault();
@@ -658,13 +659,13 @@ function PostBuilderInner({
                                     />
                                 </svg>
                                 <span className="font-medium hidden sm:inline">
-                                    Back to {postTypeModel.label}
+                                    {__('Back to :type').replace(':type', postTypeModel.label)}
                                 </span>
                             </a>
                         )}
                         <div className="h-6 w-px bg-gray-300 hidden sm:block"></div>
                         <h1 className="text-sm sm:text-lg font-semibold text-gray-800">
-                            {postData?.id ? 'Edit' : 'Create'}{' '}
+                            {postData?.id ? __('Edit :type').replace(':type', '') : __('Create :type').replace(':type', '')}{' '}
                             <span className="hidden sm:inline">{postTypeModel.label_singular}</span>
                         </h1>
 
@@ -678,7 +679,7 @@ function PostBuilderInner({
                                         ? 'hover:bg-gray-100 text-gray-600'
                                         : 'text-gray-300 cursor-not-allowed'
                                 }`}
-                                title="Undo (Ctrl+Z)"
+                                title={__('Undo (Ctrl+Z)')}
                             >
                                 <iconify-icon icon="mdi:undo" width="18" height="18"></iconify-icon>
                             </button>
@@ -690,7 +691,7 @@ function PostBuilderInner({
                                         ? 'hover:bg-gray-100 text-gray-600'
                                         : 'text-gray-300 cursor-not-allowed'
                                 }`}
-                                title="Redo (Ctrl+Shift+Z)"
+                                title={__('Redo (Ctrl+Shift+Z)')}
                             >
                                 <iconify-icon icon="mdi:redo" width="18" height="18"></iconify-icon>
                             </button>
@@ -698,7 +699,7 @@ function PostBuilderInner({
 
                         {isFormDirty && (
                             <span className="text-xs text-orange-600 bg-orange-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md font-medium">
-                                <span className="hidden sm:inline">Unsaved changes</span>
+                                <span className="hidden sm:inline">{__('Unsaved changes')}</span>
                                 <span className="sm:hidden">*</span>
                             </span>
                         )}
@@ -711,7 +712,7 @@ function PostBuilderInner({
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                placeholder={`${postTypeModel.label_singular} title...`}
+                                placeholder={__(':type title...').replace(':type', postTypeModel.label_singular)}
                                 className="form-control w-64"
                             />
                         </div>
@@ -742,13 +743,13 @@ function PostBuilderInner({
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                         />
                                     </svg>
-                                    <span className="hidden sm:inline">Saving...</span>
+                                    <span className="hidden sm:inline">{__('Saving...')}</span>
                                 </>
                             ) : (
                                 <>
                                     <iconify-icon icon="mdi:content-save" class="h-4 w-4"></iconify-icon>
                                     <span className="hidden sm:inline">
-                                        {postData?.id ? 'Update' : 'Publish'}
+                                        {postData?.id ? __('Update') : __('Publish')}
                                     </span>
                                 </>
                             )}
@@ -773,14 +774,14 @@ function PostBuilderInner({
                             className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg shadow-lg hover:bg-primary/90 transition-colors"
                         >
                             <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
-                            <span className="text-sm font-medium">Blocks</span>
+                            <span className="text-sm font-medium">{__('Blocks')}</span>
                         </button>
                         <button
                             onClick={() => setRightDrawerOpen(true)}
                             className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-gray-700 text-white rounded-lg shadow-lg hover:bg-gray-800 transition-colors"
                         >
                             <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
-                            <span className="text-sm font-medium">Properties</span>
+                            <span className="text-sm font-medium">{__('Properties')}</span>
                         </button>
                     </div>
 
@@ -795,14 +796,14 @@ function PostBuilderInner({
                                 <button
                                     onClick={() => setLeftSidebarCollapsed(false)}
                                     className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
-                                    title="Show Blocks"
+                                    title={__('Show Blocks')}
                                 >
                                     <iconify-icon icon="mdi:chevron-right" width="20" height="20"></iconify-icon>
                                 </button>
                                 <button
                                     onClick={() => setLeftSidebarCollapsed(false)}
                                     className="mt-2 p-2 rounded-md hover:bg-primary/10 text-primary"
-                                    title="Show Blocks"
+                                    title={__('Show Blocks')}
                                 >
                                     <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
                                 </button>
@@ -810,11 +811,11 @@ function PostBuilderInner({
                         ) : (
                             <div className="flex flex-col h-full p-4">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-sm font-semibold text-gray-900">Blocks</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">{__('Blocks')}</h3>
                                     <button
                                         onClick={() => setLeftSidebarCollapsed(true)}
                                         className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-                                        title="Hide Blocks"
+                                        title={__('Hide Blocks')}
                                     >
                                         <iconify-icon icon="mdi:chevron-left" width="18" height="18"></iconify-icon>
                                     </button>
@@ -833,7 +834,7 @@ function PostBuilderInner({
                             ></div>
                             <div className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl flex flex-col animate-slide-in-left">
                                 <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                                    <h3 className="text-sm font-semibold text-gray-900">Blocks</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">{__('Blocks')}</h3>
                                     <button
                                         onClick={() => setLeftDrawerOpen(false)}
                                         className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
@@ -868,10 +869,10 @@ function PostBuilderInner({
                                                 ? 'bg-primary text-white'
                                                 : 'text-gray-600 hover:bg-gray-100'
                                         }`}
-                                        title="Desktop Preview"
+                                        title={__('Desktop Preview')}
                                     >
                                         <iconify-icon icon="mdi:monitor" width="16" height="16"></iconify-icon>
-                                        <span className="hidden sm:inline">Desktop</span>
+                                        <span className="hidden sm:inline">{__('Desktop')}</span>
                                     </button>
                                     <button
                                         type="button"
@@ -881,10 +882,10 @@ function PostBuilderInner({
                                                 ? 'bg-primary text-white'
                                                 : 'text-gray-600 hover:bg-gray-100'
                                         }`}
-                                        title="Tablet Preview"
+                                        title={__('Tablet Preview')}
                                     >
                                         <iconify-icon icon="mdi:tablet" width="16" height="16"></iconify-icon>
-                                        <span className="hidden sm:inline">Tablet</span>
+                                        <span className="hidden sm:inline">{__('Tablet')}</span>
                                     </button>
                                     <button
                                         type="button"
@@ -894,10 +895,10 @@ function PostBuilderInner({
                                                 ? 'bg-primary text-white'
                                                 : 'text-gray-600 hover:bg-gray-100'
                                         }`}
-                                        title="Mobile Preview"
+                                        title={__('Mobile Preview')}
                                     >
                                         <iconify-icon icon="mdi:cellphone" width="16" height="16"></iconify-icon>
-                                        <span className="hidden sm:inline">Mobile</span>
+                                        <span className="hidden sm:inline">{__('Mobile')}</span>
                                     </button>
                                 </div>
                             </div>
@@ -936,14 +937,14 @@ function PostBuilderInner({
                                 <button
                                     onClick={() => setRightSidebarCollapsed(false)}
                                     className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
-                                    title="Show Properties"
+                                    title={__('Show Properties')}
                                 >
                                     <iconify-icon icon="mdi:chevron-left" width="20" height="20"></iconify-icon>
                                 </button>
                                 <button
                                     onClick={() => setRightSidebarCollapsed(false)}
                                     className="mt-2 p-2 rounded-md hover:bg-gray-50 text-gray-600"
-                                    title="Show Properties"
+                                    title={__('Show Properties')}
                                 >
                                     <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
                                 </button>
@@ -951,11 +952,11 @@ function PostBuilderInner({
                         ) : (
                             <div className="flex flex-col h-full pt-4 pr-4 pb-4 pl-2 overflow-hidden">
                                 <div className="flex items-center justify-between mb-4 pl-2">
-                                    <h3 className="text-sm font-semibold text-gray-900">Properties</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">{__('Properties')}</h3>
                                     <button
                                         onClick={() => setRightSidebarCollapsed(true)}
                                         className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-                                        title="Hide Properties"
+                                        title={__('Hide Properties')}
                                     >
                                         <iconify-icon icon="mdi:chevron-right" width="18" height="18"></iconify-icon>
                                     </button>
@@ -1009,7 +1010,7 @@ function PostBuilderInner({
                             ></div>
                             <div className="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-xl flex flex-col animate-slide-in-right">
                                 <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                                    <h3 className="text-sm font-semibold text-gray-900">Properties</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">{__('Properties')}</h3>
                                     <button
                                         onClick={() => setRightDrawerOpen(false)}
                                         className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
@@ -1021,13 +1022,13 @@ function PostBuilderInner({
                                     {/* Mobile title input */}
                                     <div className="md:hidden mb-4 pb-4 border-b border-gray-200">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Title
+                                            {__('Title')}
                                         </label>
                                         <input
                                             type="text"
                                             value={title}
                                             onChange={(e) => setTitle(e.target.value)}
-                                            placeholder={`${postTypeModel.label_singular} title...`}
+                                            placeholder={__(':type title...').replace(':type', postTypeModel.label_singular)}
                                             className="form-control w-full"
                                         />
                                     </div>

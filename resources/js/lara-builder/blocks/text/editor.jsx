@@ -1,10 +1,8 @@
 /**
  * Text Block - Property Editor
- *
- * Renders the property fields for the text block in the properties panel.
- * Note: Typography and colors are controlled by the central Layout Styles section.
- * Alignment is controlled via the toolbar when the block is selected.
  */
+
+import { __ } from '@lara-builder/i18n';
 
 const TextBlockEditor = ({ props, onUpdate }) => {
     const handleChange = (field, value) => {
@@ -13,13 +11,12 @@ const TextBlockEditor = ({ props, onUpdate }) => {
 
     return (
         <div className="space-y-4">
-            {/* Content Section */}
-            <Section title="Content">
-                <Label>Text Content</Label>
+            <Section title={__('Content')}>
+                <Label>{__('Text Content')}</Label>
                 <textarea
                     value={props.content || ''}
                     onChange={(e) => handleChange('content', e.target.value)}
-                    placeholder="Enter your text..."
+                    placeholder={__('Enter your text...')}
                     className="form-control"
                     rows={4}
                     style={{ resize: 'vertical' }}

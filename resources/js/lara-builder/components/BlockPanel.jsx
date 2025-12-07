@@ -3,6 +3,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { blockRegistry } from '../registry/BlockRegistry';
 import { LaraHooks } from '../hooks-system/LaraHooks';
 import { BuilderHooks } from '../hooks-system/HookNames';
+import { __ } from '@lara-builder/i18n';
 
 const DraggableBlockItem = ({ block, onAddBlock }) => {
     const [wasDragged, setWasDragged] = useState(false);
@@ -55,10 +56,10 @@ const DraggableBlockItem = ({ block, onAddBlock }) => {
             onMouseMove={handleMouseMove}
             onClick={handleClick}
             className="flex flex-col items-center justify-center p-2 bg-white border border-gray-200 rounded-lg cursor-grab hover:border-primary hover:bg-primary/10 transition-colors active:cursor-grabbing"
-            title={block.label}
+            title={__(block.label)}
         >
             <iconify-icon icon={block.icon} width="24" height="24" class="text-primary"></iconify-icon>
-            <span className="text-[10px] text-gray-600 font-medium mt-1 text-center leading-tight">{block.label}</span>
+            <span className="text-[10px] text-gray-600 font-medium mt-1 text-center leading-tight">{__(block.label)}</span>
         </div>
     );
 };
@@ -133,7 +134,7 @@ const BlockPanel = ({ onAddBlock, context = null }) => {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search blocks..."
+                        placeholder={__('Search blocks...')}
                         className="form-control pl-9 pr-8 w-full"
                     />
                     {searchQuery && (
@@ -152,7 +153,7 @@ const BlockPanel = ({ onAddBlock, context = null }) => {
                 {filteredCategories.length === 0 ? (
                     <div className="text-center py-8 text-gray-400">
                         <iconify-icon icon="mdi:package-variant" width="32" height="32" class="mb-2 opacity-50"></iconify-icon>
-                        <p className="text-sm">No blocks found</p>
+                        <p className="text-sm">{__('No blocks found')}</p>
                     </div>
                 ) : (
                     filteredCategories.map(category => {
@@ -162,7 +163,7 @@ const BlockPanel = ({ onAddBlock, context = null }) => {
                         return (
                             <div key={category} className="mb-4">
                                 <h4 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2 px-1">
-                                    {category}
+                                    {__(category)}
                                 </h4>
                                 <div className="grid grid-cols-3 gap-1.5">
                                     {categoryBlocks.map(block => (

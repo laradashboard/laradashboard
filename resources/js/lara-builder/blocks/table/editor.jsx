@@ -4,6 +4,8 @@
  * Renders the property fields for the table block in the properties panel.
  */
 
+import { __ } from '@lara-builder/i18n';
+
 const TableBlockEditor = ({ props, onUpdate }) => {
     const handleChange = (field, value) => {
         onUpdate({ ...props, [field]: value });
@@ -110,7 +112,7 @@ const TableBlockEditor = ({ props, onUpdate }) => {
         <div>
             {/* Table Data Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Table Data</div>
+                <div style={sectionTitleStyle}>{__('Table Data')}</div>
 
                 {/* Show Header Toggle */}
                 <div style={{ marginBottom: '12px' }}>
@@ -121,7 +123,7 @@ const TableBlockEditor = ({ props, onUpdate }) => {
                             onChange={(e) => handleChange('showHeader', e.target.checked)}
                             style={{ marginRight: '8px' }}
                         />
-                        <span style={labelStyle}>Show Header Row</span>
+                        <span style={labelStyle}>{__('Show Header Row')}</span>
                     </label>
                 </div>
 
@@ -188,52 +190,52 @@ const TableBlockEditor = ({ props, onUpdate }) => {
                         className="btn btn-default"
                         style={{ flex: 1, fontSize: '12px', padding: '8px' }}
                     >
-                        <iconify-icon icon="mdi:plus" width="16" height="16" /> Add Row
+                        <iconify-icon icon="mdi:plus" width="16" height="16" /> {__('Add Row')}
                     </button>
                     <button
                         onClick={addColumn}
                         className="btn btn-default"
                         style={{ flex: 1, fontSize: '12px', padding: '8px' }}
                     >
-                        <iconify-icon icon="mdi:plus" width="16" height="16" /> Add Column
+                        <iconify-icon icon="mdi:plus" width="16" height="16" /> {__('Add Column')}
                     </button>
                 </div>
             </div>
 
             {/* Style Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Style</div>
+                <div style={sectionTitleStyle}>{__('Style')}</div>
 
-                <label style={labelStyle}>Font Size</label>
+                <label style={labelStyle}>{__('Font Size')}</label>
                 <select
                     value={props.fontSize || '14px'}
                     onChange={(e) => handleChange('fontSize', e.target.value)}
                     className="form-control mb-3"
                 >
-                    <option value="12px">Small (12px)</option>
-                    <option value="14px">Medium (14px)</option>
-                    <option value="16px">Large (16px)</option>
-                    <option value="18px">X-Large (18px)</option>
+                    <option value="12px">{__('Small')} (12px)</option>
+                    <option value="14px">{__('Medium')} (14px)</option>
+                    <option value="16px">{__('Large')} (16px)</option>
+                    <option value="18px">{__('X-Large')} (18px)</option>
                 </select>
 
-                <label style={labelStyle}>Cell Padding</label>
+                <label style={labelStyle}>{__('Cell Padding')}</label>
                 <select
                     value={props.cellPadding || '12px'}
                     onChange={(e) => handleChange('cellPadding', e.target.value)}
                     className="form-control"
                 >
-                    <option value="8px">Small (8px)</option>
-                    <option value="12px">Medium (12px)</option>
-                    <option value="16px">Large (16px)</option>
-                    <option value="20px">X-Large (20px)</option>
+                    <option value="8px">{__('Small')} (8px)</option>
+                    <option value="12px">{__('Medium')} (12px)</option>
+                    <option value="16px">{__('Large')} (16px)</option>
+                    <option value="20px">{__('X-Large')} (20px)</option>
                 </select>
             </div>
 
             {/* Colors Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Colors</div>
+                <div style={sectionTitleStyle}>{__('Colors')}</div>
 
-                <label style={labelStyle}>Header Background Color</label>
+                <label style={labelStyle}>{__('Header Background Color')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                     <input
                         type="color"
@@ -257,7 +259,7 @@ const TableBlockEditor = ({ props, onUpdate }) => {
                     />
                 </div>
 
-                <label style={labelStyle}>Header Text Color</label>
+                <label style={labelStyle}>{__('Header Text Color')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                     <input
                         type="color"
@@ -281,7 +283,7 @@ const TableBlockEditor = ({ props, onUpdate }) => {
                     />
                 </div>
 
-                <label style={labelStyle}>Border Color</label>
+                <label style={labelStyle}>{__('Border Color')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <input
                         type="color"

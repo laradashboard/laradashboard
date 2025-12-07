@@ -4,6 +4,8 @@
  * Renders the property fields for the code block in the properties panel.
  */
 
+import { __ } from '@lara-builder/i18n';
+
 const CodeBlockEditor = ({ props, onUpdate }) => {
     const handleChange = (field, value) => {
         onUpdate({ ...props, [field]: value });
@@ -36,9 +38,9 @@ const CodeBlockEditor = ({ props, onUpdate }) => {
         <div>
             {/* Content Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Content</div>
+                <div style={sectionTitleStyle}>{__('Content')}</div>
 
-                <label style={labelStyle}>Code</label>
+                <label style={labelStyle}>{__('Code')}</label>
                 <textarea
                     value={props.code || ''}
                     onChange={(e) => handleChange('code', e.target.value)}
@@ -55,9 +57,9 @@ const CodeBlockEditor = ({ props, onUpdate }) => {
 
             {/* Colors Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Colors</div>
+                <div style={sectionTitleStyle}>{__('Colors')}</div>
 
-                <label style={labelStyle}>Background Color</label>
+                <label style={labelStyle}>{__('Background Color')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                     <input
                         type="color"
@@ -81,7 +83,7 @@ const CodeBlockEditor = ({ props, onUpdate }) => {
                     />
                 </div>
 
-                <label style={labelStyle}>Text Color</label>
+                <label style={labelStyle}>{__('Text Color')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <input
                         type="color"
@@ -108,36 +110,36 @@ const CodeBlockEditor = ({ props, onUpdate }) => {
 
             {/* Typography Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Typography</div>
+                <div style={sectionTitleStyle}>{__('Typography')}</div>
 
-                <label style={labelStyle}>Font Size</label>
+                <label style={labelStyle}>{__('Font Size')}</label>
                 <select
                     value={props.fontSize || '14px'}
                     onChange={(e) => handleChange('fontSize', e.target.value)}
                     className="form-control"
                 >
-                    <option value="12px">X-Small (12px)</option>
-                    <option value="14px">Small (14px)</option>
-                    <option value="16px">Medium (16px)</option>
-                    <option value="18px">Large (18px)</option>
+                    <option value="12px">{__('X-Small')} (12px)</option>
+                    <option value="14px">{__('Small')} (14px)</option>
+                    <option value="16px">{__('Medium')} (16px)</option>
+                    <option value="18px">{__('Large')} (18px)</option>
                 </select>
             </div>
 
             {/* Style Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Style</div>
+                <div style={sectionTitleStyle}>{__('Style')}</div>
 
-                <label style={labelStyle}>Border Radius</label>
+                <label style={labelStyle}>{__('Border Radius')}</label>
                 <select
                     value={props.borderRadius || '8px'}
                     onChange={(e) => handleChange('borderRadius', e.target.value)}
                     className="form-control"
                 >
-                    <option value="0">None</option>
-                    <option value="4px">Small (4px)</option>
-                    <option value="6px">Medium (6px)</option>
-                    <option value="8px">Large (8px)</option>
-                    <option value="12px">X-Large (12px)</option>
+                    <option value="0">{__('None')}</option>
+                    <option value="4px">{__('Small')} (4px)</option>
+                    <option value="6px">{__('Medium')} (6px)</option>
+                    <option value="8px">{__('Large')} (8px)</option>
+                    <option value="12px">{__('X-Large')} (12px)</option>
                 </select>
             </div>
         </div>

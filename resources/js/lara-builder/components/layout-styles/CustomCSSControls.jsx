@@ -6,6 +6,7 @@
  */
 
 import { useState, useCallback } from 'react';
+import { __ } from '@lara-builder/i18n';
 
 const CustomCSSControls = ({ customCSS = '', customClass = '', onChange, onClassChange }) => {
     const [localCSS, setLocalCSS] = useState(customCSS);
@@ -27,10 +28,10 @@ const CustomCSSControls = ({ customCSS = '', customClass = '', onChange, onClass
 
     // Example CSS snippets
     const snippets = [
-        { label: 'Shadow', css: 'box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);' },
-        { label: 'Rounded', css: 'border-radius: 12px;' },
-        { label: 'Border', css: 'border: 2px solid #e5e7eb;' },
-        { label: 'Opacity', css: 'opacity: 0.9;' },
+        { label: __('Shadow'), css: 'box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);' },
+        { label: __('Rounded'), css: 'border-radius: 12px;' },
+        { label: __('Border'), css: 'border: 2px solid #e5e7eb;' },
+        { label: __('Opacity'), css: 'opacity: 0.9;' },
     ];
 
     const insertSnippet = (css) => {
@@ -44,7 +45,7 @@ const CustomCSSControls = ({ customCSS = '', customClass = '', onChange, onClass
             {/* Quick snippets */}
             <div>
                 <label className="block text-xs font-medium text-gray-600 mb-2">
-                    Quick Add
+                    {__('Quick Add')}
                 </label>
                 <div className="flex flex-wrap gap-1.5">
                     {snippets.map((snippet) => (
@@ -63,7 +64,7 @@ const CustomCSSControls = ({ customCSS = '', customClass = '', onChange, onClass
             {/* CSS textarea */}
             <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                    CSS Properties
+                    {__('CSS Properties')}
                 </label>
                 <textarea
                     value={localCSS}
@@ -73,14 +74,14 @@ const CustomCSSControls = ({ customCSS = '', customClass = '', onChange, onClass
                     spellCheck={false}
                 />
                 <p className="mt-1 text-xs text-gray-400">
-                    CSS properties separated by semicolons
+                    {__('CSS properties separated by semicolons')}
                 </p>
             </div>
 
             {/* Custom class input */}
             <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                    Custom Class
+                    {__('Custom Class')}
                 </label>
                 <input
                     type="text"
@@ -90,7 +91,7 @@ const CustomCSSControls = ({ customCSS = '', customClass = '', onChange, onClass
                     className="w-full px-3 py-2 text-xs font-mono bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
                 <p className="mt-1 text-xs text-gray-400">
-                    Added alongside <code className="px-1 py-0.5 bg-gray-100 rounded">lb-{'{type}'}</code>
+                    {__('Added alongside')} <code className="px-1 py-0.5 bg-gray-100 rounded">lb-{'{type}'}</code>
                 </p>
             </div>
         </div>

@@ -1,8 +1,8 @@
 /**
  * Divider Block - Property Editor
- *
- * Renders the property fields for the divider block in the properties panel.
  */
+
+import { __ } from '@lara-builder/i18n';
 
 const DividerBlockEditor = ({ props, onUpdate }) => {
     const handleChange = (field, value) => {
@@ -34,22 +34,21 @@ const DividerBlockEditor = ({ props, onUpdate }) => {
 
     return (
         <div>
-            {/* Style Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Style</div>
+                <div style={sectionTitleStyle}>{__('Style')}</div>
 
-                <label style={labelStyle}>Line Style</label>
+                <label style={labelStyle}>{__('Line Style')}</label>
                 <select
                     value={props.style || 'solid'}
                     onChange={(e) => handleChange('style', e.target.value)}
                     className="form-control mb-3"
                 >
-                    <option value="solid">Solid</option>
-                    <option value="dashed">Dashed</option>
-                    <option value="dotted">Dotted</option>
+                    <option value="solid">{__('Solid')}</option>
+                    <option value="dashed">{__('Dashed')}</option>
+                    <option value="dotted">{__('Dotted')}</option>
                 </select>
 
-                <label style={labelStyle}>Thickness</label>
+                <label style={labelStyle}>{__('Thickness')}</label>
                 <select
                     value={props.thickness || '1px'}
                     onChange={(e) => handleChange('thickness', e.target.value)}
@@ -61,24 +60,23 @@ const DividerBlockEditor = ({ props, onUpdate }) => {
                     <option value="4px">4px</option>
                 </select>
 
-                <label style={labelStyle}>Width</label>
+                <label style={labelStyle}>{__('Width')}</label>
                 <select
                     value={props.width || '100%'}
                     onChange={(e) => handleChange('width', e.target.value)}
                     className="form-control"
                 >
-                    <option value="100%">Full Width</option>
+                    <option value="100%">{__('Full Width')}</option>
                     <option value="75%">75%</option>
                     <option value="50%">50%</option>
                     <option value="25%">25%</option>
                 </select>
             </div>
 
-            {/* Color Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Color</div>
+                <div style={sectionTitleStyle}>{__('Color')}</div>
 
-                <label style={labelStyle}>Line Color</label>
+                <label style={labelStyle}>{__('Line Color')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <input
                         type="color"

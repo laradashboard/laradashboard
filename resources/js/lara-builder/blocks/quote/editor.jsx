@@ -1,10 +1,8 @@
 /**
  * Quote Block - Property Editor
- *
- * Content (quote text, author, title) is now edited inline in the block.
- * Alignment is controlled via the toolbar.
- * This panel only contains color styling options.
  */
+
+import { __ } from '@lara-builder/i18n';
 
 const QuoteBlockEditor = ({ props, onUpdate }) => {
     const handleChange = (field, value) => {
@@ -13,16 +11,15 @@ const QuoteBlockEditor = ({ props, onUpdate }) => {
 
     return (
         <div className="space-y-4">
-            {/* Colors Section */}
-            <Section title="Colors">
-                <Label>Quote Text Color</Label>
+            <Section title={__('Colors')}>
+                <Label>{__('Quote Text Color')}</Label>
                 <ColorPicker
                     value={props.textColor || '#475569'}
                     onChange={(value) => handleChange('textColor', value)}
                 />
 
                 <div className="mt-3">
-                    <Label>Author Name Color</Label>
+                    <Label>{__('Author Name Color')}</Label>
                     <ColorPicker
                         value={props.authorColor || '#1e293b'}
                         onChange={(value) => handleChange('authorColor', value)}
@@ -30,7 +27,7 @@ const QuoteBlockEditor = ({ props, onUpdate }) => {
                 </div>
 
                 <div className="mt-3">
-                    <Label>Accent Border Color</Label>
+                    <Label>{__('Accent Border Color')}</Label>
                     <ColorPicker
                         value={props.borderColor || '#635bff'}
                         onChange={(value) => handleChange('borderColor', value)}
@@ -38,7 +35,7 @@ const QuoteBlockEditor = ({ props, onUpdate }) => {
                 </div>
 
                 <div className="mt-3">
-                    <Label>Background Color</Label>
+                    <Label>{__('Background Color')}</Label>
                     <ColorPicker
                         value={props.backgroundColor || '#f8fafc'}
                         onChange={(value) => handleChange('backgroundColor', value)}

@@ -1,9 +1,8 @@
 /**
  * HTML Block - Property Editor
- *
- * Renders the property fields for the HTML block in the properties panel.
- * Provides a textarea for raw HTML code editing.
  */
+
+import { __ } from '@lara-builder/i18n';
 
 const HtmlBlockEditor = ({ props, onUpdate }) => {
     const handleChange = (field, value) => {
@@ -60,20 +59,20 @@ const HtmlBlockEditor = ({ props, onUpdate }) => {
         <div>
             {/* Content Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>HTML Code</div>
+                <div style={sectionTitleStyle}>{__('HTML Code')}</div>
 
                 <div style={infoBoxStyle}>
                     <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                        Editing Tips:
+                        {__('Editing Tips:')}
                     </div>
                     <ul style={{ margin: 0, paddingLeft: '20px' }}>
-                        <li>Edit raw HTML directly here</li>
-                        <li>Double-click the block to use the visual editor</li>
-                        <li>Use inline styles for email compatibility</li>
+                        <li>{__('Edit raw HTML directly here')}</li>
+                        <li>{__('Double-click the block to use the visual editor')}</li>
+                        <li>{__('Use inline styles for email compatibility')}</li>
                     </ul>
                 </div>
 
-                <label style={labelStyle}>HTML Content</label>
+                <label style={labelStyle}>{__('HTML Content')}</label>
                 <textarea
                     value={props.code || ''}
                     onChange={(e) => handleChange('code', e.target.value)}
@@ -89,7 +88,7 @@ const HtmlBlockEditor = ({ props, onUpdate }) => {
 
             {/* Quick Templates */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Quick Templates</div>
+                <div style={sectionTitleStyle}>{__('Quick Templates')}</div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <button
@@ -99,7 +98,7 @@ const HtmlBlockEditor = ({ props, onUpdate }) => {
                         style={{ justifyContent: 'flex-start', fontSize: '13px' }}
                     >
                         <iconify-icon icon="mdi:format-align-center" width="16" height="16" style={{ marginRight: '8px' }} />
-                        Centered Container
+                        {__('Centered Container')}
                     </button>
 
                     <button
@@ -109,7 +108,7 @@ const HtmlBlockEditor = ({ props, onUpdate }) => {
                         style={{ justifyContent: 'flex-start', fontSize: '13px' }}
                     >
                         <iconify-icon icon="mdi:information" width="16" height="16" style={{ marginRight: '8px' }} />
-                        Info Box
+                        {__('Info Box')}
                     </button>
 
                     <button
@@ -119,7 +118,7 @@ const HtmlBlockEditor = ({ props, onUpdate }) => {
                         style={{ justifyContent: 'flex-start', fontSize: '13px' }}
                     >
                         <iconify-icon icon="mdi:table" width="16" height="16" style={{ marginRight: '8px' }} />
-                        Simple Table
+                        {__('Simple Table')}
                     </button>
 
                     <button
@@ -129,7 +128,7 @@ const HtmlBlockEditor = ({ props, onUpdate }) => {
                         style={{ justifyContent: 'flex-start', fontSize: '13px' }}
                     >
                         <iconify-icon icon="mdi:image" width="16" height="16" style={{ marginRight: '8px' }} />
-                        Image Container
+                        {__('Image Container')}
                     </button>
                 </div>
             </div>

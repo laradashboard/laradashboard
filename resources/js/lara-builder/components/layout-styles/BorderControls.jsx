@@ -2,14 +2,15 @@
  * BorderControls - Border width, style, color, and radius controls
  */
 import { useState } from 'react';
+import { __ } from '@lara-builder/i18n';
 
 const BORDER_STYLE_OPTIONS = [
-    { value: '', label: 'Default' },
-    { value: 'none', label: 'None' },
-    { value: 'solid', label: 'Solid' },
-    { value: 'dashed', label: 'Dashed' },
-    { value: 'dotted', label: 'Dotted' },
-    { value: 'double', label: 'Double' },
+    { value: '', label: __('Default') },
+    { value: 'none', label: __('None') },
+    { value: 'solid', label: __('Solid') },
+    { value: 'dashed', label: __('Dashed') },
+    { value: 'dotted', label: __('Dotted') },
+    { value: 'double', label: __('Double') },
 ];
 
 // Border width input for each side
@@ -99,7 +100,7 @@ const BorderControls = ({ border = {}, onChange }) => {
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="flex items-center justify-between w-full text-left py-2 group"
             >
-                <span className="text-xs font-medium text-gray-600">Border</span>
+                <span className="text-xs font-medium text-gray-600">{__('Border')}</span>
                 <div className="flex items-center gap-2">
                     {hasBorder && (
                         <span className="w-2 h-2 rounded-full bg-primary"></span>
@@ -118,12 +119,12 @@ const BorderControls = ({ border = {}, onChange }) => {
                     {/* Width */}
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-gray-600">Width</span>
+                            <span className="text-xs font-medium text-gray-600">{__('Width')}</span>
                             <button
                                 type="button"
                                 onClick={() => setLinkWidth(!linkWidth)}
                                 className={`p-1 rounded transition-colors ${linkWidth ? 'text-primary bg-primary/20' : 'text-gray-400 hover:text-gray-600'}`}
-                                title={linkWidth ? 'Unlink sides' : 'Link all sides'}
+                                title={linkWidth ? __('Unlink sides') : __('Link all sides')}
                             >
                                 <iconify-icon icon={linkWidth ? 'mdi:link' : 'mdi:link-off'} width="14" height="14"></iconify-icon>
                             </button>
@@ -160,7 +161,7 @@ const BorderControls = ({ border = {}, onChange }) => {
 
                     {/* Style */}
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Style</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{__('Style')}</label>
                         <select
                             value={style}
                             onChange={(e) => handleStyleChange(e.target.value)}
@@ -174,7 +175,7 @@ const BorderControls = ({ border = {}, onChange }) => {
 
                     {/* Color */}
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Color</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{__('Color')}</label>
                         <div className="flex gap-2">
                             <input
                                 type="color"
@@ -194,7 +195,7 @@ const BorderControls = ({ border = {}, onChange }) => {
                                     type="button"
                                     onClick={() => handleColorChange('')}
                                     className="p-1 text-gray-400 hover:text-gray-600"
-                                    title="Clear"
+                                    title={__('Clear')}
                                 >
                                     <iconify-icon icon="mdi:close" width="16" height="16"></iconify-icon>
                                 </button>
@@ -205,12 +206,12 @@ const BorderControls = ({ border = {}, onChange }) => {
                     {/* Radius */}
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-gray-600">Radius</span>
+                            <span className="text-xs font-medium text-gray-600">{__('Radius')}</span>
                             <button
                                 type="button"
                                 onClick={() => setLinkRadius(!linkRadius)}
                                 className={`p-1 rounded transition-colors ${linkRadius ? 'text-primary bg-primary/20' : 'text-gray-400 hover:text-gray-600'}`}
-                                title={linkRadius ? 'Unlink corners' : 'Link all corners'}
+                                title={linkRadius ? __('Unlink corners') : __('Link all corners')}
                             >
                                 <iconify-icon icon={linkRadius ? 'mdi:link' : 'mdi:link-off'} width="14" height="14"></iconify-icon>
                             </button>
@@ -218,22 +219,22 @@ const BorderControls = ({ border = {}, onChange }) => {
 
                         <div className="grid grid-cols-2 gap-2">
                             <RadiusInput
-                                label="Top Left"
+                                label={__('Top Left')}
                                 value={radius.topLeft}
                                 onChange={(v) => handleRadiusChange('topLeft', v)}
                             />
                             <RadiusInput
-                                label="Top Right"
+                                label={__('Top Right')}
                                 value={radius.topRight}
                                 onChange={(v) => handleRadiusChange('topRight', v)}
                             />
                             <RadiusInput
-                                label="Bottom Left"
+                                label={__('Bottom Left')}
                                 value={radius.bottomLeft}
                                 onChange={(v) => handleRadiusChange('bottomLeft', v)}
                             />
                             <RadiusInput
-                                label="Bottom Right"
+                                label={__('Bottom Right')}
                                 value={radius.bottomRight}
                                 onChange={(v) => handleRadiusChange('bottomRight', v)}
                             />
@@ -247,7 +248,7 @@ const BorderControls = ({ border = {}, onChange }) => {
                             onClick={() => onChange({})}
                             className="w-full px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
                         >
-                            Reset Border
+                            {__('Reset Border')}
                         </button>
                     )}
                 </div>

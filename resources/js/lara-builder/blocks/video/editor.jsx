@@ -5,6 +5,7 @@
  * Uses the media library for thumbnail selection.
  */
 
+import { __ } from '@lara-builder/i18n';
 import { mediaLibrary } from '../../services/MediaLibraryService';
 
 const VideoBlockEditor = ({ props, onUpdate }) => {
@@ -41,8 +42,8 @@ const VideoBlockEditor = ({ props, onUpdate }) => {
     return (
         <div className="space-y-4">
             {/* Video Section */}
-            <Section title="Video">
-                <Label>Video URL</Label>
+            <Section title={__('Video')}>
+                <Label>{__('Video URL')}</Label>
                 <div className="flex gap-2">
                     <input
                         type="url"
@@ -55,18 +56,18 @@ const VideoBlockEditor = ({ props, onUpdate }) => {
                         type="button"
                         onClick={handleSelectVideo}
                         className="btn-default px-3"
-                        title="Select from library"
+                        title={__('Select from library')}
                     >
                         <iconify-icon icon="lucide:folder-open" width="16" height="16" />
                     </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1.5">
-                    YouTube, Vimeo, Dailymotion, Wistia, Loom, or direct files (mp4, webm)
+                    {__('YouTube, Vimeo, Dailymotion, Wistia, Loom, or direct files (mp4, webm)')}
                 </p>
             </Section>
 
             {/* Thumbnail Section */}
-            <Section title="Thumbnail">
+            <Section title={__('Thumbnail')}>
                 {props.thumbnailUrl ? (
                     <div className="relative group mb-3">
                         <img
@@ -78,7 +79,7 @@ const VideoBlockEditor = ({ props, onUpdate }) => {
                             type="button"
                             onClick={handleClearThumbnail}
                             className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                            title="Remove thumbnail"
+                            title={__('Remove thumbnail')}
                         >
                             <iconify-icon icon="lucide:x" width="14" height="14" />
                         </button>
@@ -86,7 +87,7 @@ const VideoBlockEditor = ({ props, onUpdate }) => {
                 ) : (
                     <div className="flex flex-col items-center justify-center p-4 mb-3 bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
                         <iconify-icon icon="lucide:image" className="text-2xl text-gray-400 mb-1" />
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Auto-generated from video</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{__('Auto-generated from video')}</p>
                     </div>
                 )}
 
@@ -96,12 +97,12 @@ const VideoBlockEditor = ({ props, onUpdate }) => {
                     className="btn-default w-full flex items-center justify-center gap-2"
                 >
                     <iconify-icon icon="lucide:image-plus" />
-                    {props.thumbnailUrl ? 'Change Thumbnail' : 'Custom Thumbnail'}
+                    {props.thumbnailUrl ? __('Change Thumbnail') : __('Custom Thumbnail')}
                 </button>
 
                 <details className="mt-3">
                     <summary className="text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
-                        Or enter URL manually
+                        {__('Or enter URL manually')}
                     </summary>
                     <input
                         type="url"
@@ -114,8 +115,8 @@ const VideoBlockEditor = ({ props, onUpdate }) => {
             </Section>
 
             {/* Accessibility */}
-            <Section title="Accessibility">
-                <Label>Alt Text</Label>
+            <Section title={__('Accessibility')}>
+                <Label>{__('Alt Text')}</Label>
                 <input
                     type="text"
                     value={props.alt || ''}
@@ -126,21 +127,21 @@ const VideoBlockEditor = ({ props, onUpdate }) => {
             </Section>
 
             {/* Appearance Section */}
-            <Section title="Appearance">
-                <Label>Width</Label>
+            <Section title={__('Appearance')}>
+                <Label>{__('Width')}</Label>
                 <select
                     value={props.width || '100%'}
                     onChange={(e) => handleChange('width', e.target.value)}
                     className="form-control"
                 >
-                    <option value="100%">Full Width (100%)</option>
-                    <option value="75%">Three Quarters (75%)</option>
-                    <option value="50%">Half (50%)</option>
-                    <option value="25%">Quarter (25%)</option>
+                    <option value="100%">{__('Full Width')} (100%)</option>
+                    <option value="75%">{__('Three Quarters')} (75%)</option>
+                    <option value="50%">{__('Half')} (50%)</option>
+                    <option value="25%">{__('Quarter')} (25%)</option>
                 </select>
 
                 <div className="mt-3">
-                    <Label>Play Button Color</Label>
+                    <Label>{__('Play Button Color')}</Label>
                     <div className="flex gap-2">
                         <input
                             type="color"
@@ -156,7 +157,7 @@ const VideoBlockEditor = ({ props, onUpdate }) => {
                             className="form-control flex-1"
                         />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Leave empty for platform default</p>
+                    <p className="text-xs text-gray-500 mt-1">{__('Leave empty for platform default')}</p>
                 </div>
             </Section>
         </div>

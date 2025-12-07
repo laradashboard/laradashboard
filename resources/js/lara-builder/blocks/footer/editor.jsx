@@ -5,6 +5,8 @@
  * Link color is specific to this block.
  */
 
+import { __ } from '@lara-builder/i18n';
+
 const FooterEditor = ({ props, updateProps }) => {
     const handleChange = (key, value) => {
         updateProps({ [key]: value });
@@ -13,8 +15,8 @@ const FooterEditor = ({ props, updateProps }) => {
     return (
         <div className="space-y-4">
             {/* Company Information Section */}
-            <Section title="Company Information">
-                <Label>Company Name</Label>
+            <Section title={__('Company Information')}>
+                <Label>{__('Company Name')}</Label>
                 <input
                     type="text"
                     value={props.companyName || ''}
@@ -23,7 +25,7 @@ const FooterEditor = ({ props, updateProps }) => {
                     placeholder="Your Company Name"
                 />
 
-                <Label>Address</Label>
+                <Label>{__('Address')}</Label>
                 <textarea
                     value={props.address || ''}
                     onChange={(e) => handleChange('address', e.target.value)}
@@ -34,7 +36,7 @@ const FooterEditor = ({ props, updateProps }) => {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <Label>Phone</Label>
+                        <Label>{__('Phone')}</Label>
                         <input
                             type="text"
                             value={props.phone || ''}
@@ -44,7 +46,7 @@ const FooterEditor = ({ props, updateProps }) => {
                         />
                     </div>
                     <div>
-                        <Label>Email</Label>
+                        <Label>{__('Email')}</Label>
                         <input
                             type="email"
                             value={props.email || ''}
@@ -57,8 +59,8 @@ const FooterEditor = ({ props, updateProps }) => {
             </Section>
 
             {/* Unsubscribe Section */}
-            <Section title="Unsubscribe Link">
-                <Label>Unsubscribe Text</Label>
+            <Section title={__('Unsubscribe Link')}>
+                <Label>{__('Unsubscribe Text')}</Label>
                 <input
                     type="text"
                     value={props.unsubscribeText || ''}
@@ -67,7 +69,7 @@ const FooterEditor = ({ props, updateProps }) => {
                     placeholder="Unsubscribe from these emails"
                 />
 
-                <Label>Unsubscribe URL</Label>
+                <Label>{__('Unsubscribe URL')}</Label>
                 <input
                     type="text"
                     value={props.unsubscribeUrl || ''}
@@ -78,8 +80,8 @@ const FooterEditor = ({ props, updateProps }) => {
             </Section>
 
             {/* Copyright Section */}
-            <Section title="Copyright">
-                <Label>Copyright Text</Label>
+            <Section title={__('Copyright')}>
+                <Label>{__('Copyright Text')}</Label>
                 <input
                     type="text"
                     value={props.copyright || ''}
@@ -90,8 +92,8 @@ const FooterEditor = ({ props, updateProps }) => {
             </Section>
 
             {/* Style Section */}
-            <Section title="Style">
-                <Label>Link Color</Label>
+            <Section title={__('Style')}>
+                <Label>{__('Link Color')}</Label>
                 <ColorPicker
                     value={props.linkColor || '#635bff'}
                     onChange={(value) => handleChange('linkColor', value)}

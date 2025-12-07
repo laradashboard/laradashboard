@@ -1,6 +1,7 @@
 /**
  * TypographyControls - Typography settings (color, font, size, etc.)
  */
+import { __ } from '@lara-builder/i18n';
 import {
     FONT_FAMILY_PRESETS,
     FONT_SIZE_PRESETS,
@@ -21,7 +22,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
         <div className="space-y-3">
             {/* Color */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Color</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Color')}</label>
                 <div className="flex gap-2">
                     <input
                         type="color"
@@ -41,7 +42,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
                             type="button"
                             onClick={() => handleChange('color', '')}
                             className="p-1.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
-                            title="Clear"
+                            title={__('Clear')}
                         >
                             <iconify-icon icon="mdi:close" width="14" height="14"></iconify-icon>
                         </button>
@@ -51,7 +52,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
 
             {/* Font Size */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Font size</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Font size')}</label>
                 <div className="flex gap-2">
                     <select
                         value={FONT_SIZE_PRESETS.some(p => p.value === typography.fontSize) ? typography.fontSize : 'custom'}
@@ -65,7 +66,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
                         {FONT_SIZE_PRESETS.map(preset => (
                             <option key={preset.value} value={preset.value}>{preset.label}</option>
                         ))}
-                        <option value="custom">Custom</option>
+                        <option value="custom">{__('Custom')}</option>
                     </select>
                     <input
                         type="text"
@@ -79,7 +80,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
 
             {/* Text Align */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Text align</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Text align')}</label>
                 <div className="flex gap-1">
                     {[
                         { value: 'left', icon: 'mdi:format-align-left' },
@@ -106,7 +107,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
 
             {/* Text Transform */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Text transform</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Text transform')}</label>
                 <div className="flex gap-1">
                     {TEXT_TRANSFORM_PRESETS.slice(0, 4).map(({ value, label, icon }) => (
                         <button
@@ -128,7 +129,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
 
             {/* Font Family */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Font family</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Font family')}</label>
                 <select
                     value={typography.fontFamily || ''}
                     onChange={(e) => handleChange('fontFamily', e.target.value)}
@@ -142,7 +143,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
 
             {/* Font Weight */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Font weight</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Font weight')}</label>
                 <select
                     value={typography.fontWeight || ''}
                     onChange={(e) => handleChange('fontWeight', e.target.value)}
@@ -156,7 +157,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
 
             {/* Font Style */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Font style</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Font style')}</label>
                 <select
                     value={typography.fontStyle || ''}
                     onChange={(e) => handleChange('fontStyle', e.target.value)}
@@ -170,7 +171,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
 
             {/* Line Height */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Line height</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Line height')}</label>
                 <div className="flex gap-2">
                     <select
                         value={LINE_HEIGHT_PRESETS.some(p => p.value === typography.lineHeight) ? typography.lineHeight : 'custom'}
@@ -184,7 +185,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
                         {LINE_HEIGHT_PRESETS.map(preset => (
                             <option key={preset.value} value={preset.value}>{preset.label}</option>
                         ))}
-                        <option value="custom">Custom</option>
+                        <option value="custom">{__('Custom')}</option>
                     </select>
                     <input
                         type="text"
@@ -198,7 +199,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
 
             {/* Letter Spacing */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Letter spacing</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Letter spacing')}</label>
                 <div className="flex gap-2">
                     <select
                         value={LETTER_SPACING_PRESETS.some(p => p.value === typography.letterSpacing) ? typography.letterSpacing : 'custom'}
@@ -212,7 +213,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
                         {LETTER_SPACING_PRESETS.map(preset => (
                             <option key={preset.value} value={preset.value}>{preset.label}</option>
                         ))}
-                        <option value="custom">Custom</option>
+                        <option value="custom">{__('Custom')}</option>
                     </select>
                     <input
                         type="text"
@@ -226,7 +227,7 @@ const TypographyControls = ({ typography = {}, onChange }) => {
 
             {/* Text Decoration */}
             <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Text decoration</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{__('Text decoration')}</label>
                 <div className="flex gap-1">
                     {TEXT_DECORATION_PRESETS.slice(0, 4).map(({ value, label, icon }) => (
                         <button

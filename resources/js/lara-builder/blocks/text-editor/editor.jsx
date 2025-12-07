@@ -1,13 +1,8 @@
 import { useState } from 'react';
+import { __ } from '@lara-builder/i18n';
 
 /**
  * TextEditorPropertyEditor - Property editor for the Text Editor block
- *
- * Provides controls for:
- * - Text alignment (left, center, right, justify)
- * - Text color
- * - Font size
- * - Line height
  */
 const TextEditorPropertyEditor = ({ props, onUpdate }) => {
     const [localProps, setLocalProps] = useState(props);
@@ -18,12 +13,18 @@ const TextEditorPropertyEditor = ({ props, onUpdate }) => {
         onUpdate(newProps);
     };
 
+    const alignmentLabels = {
+        left: __('Left'),
+        center: __('Center'),
+        right: __('Right'),
+        justify: __('Justify'),
+    };
+
     return (
         <div className="space-y-4">
-            {/* Alignment */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Alignment
+                    {__('Alignment')}
                 </label>
                 <div className="flex gap-2">
                     {['left', 'center', 'right', 'justify'].map((align) => (
@@ -34,18 +35,17 @@ const TextEditorPropertyEditor = ({ props, onUpdate }) => {
                                 localProps.align === align
                                     ? 'bg-primary/10 border-primary text-primary'
                                     : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
-                            } hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors capitalize`}
+                            } hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`}
                         >
-                            {align}
+                            {alignmentLabels[align]}
                         </button>
                     ))}
                 </div>
             </div>
 
-            {/* Text Color */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Text Color
+                    {__('Text Color')}
                 </label>
                 <div className="flex gap-2">
                     <input
@@ -64,10 +64,9 @@ const TextEditorPropertyEditor = ({ props, onUpdate }) => {
                 </div>
             </div>
 
-            {/* Font Size */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Font Size
+                    {__('Font Size')}
                 </label>
                 <div className="flex gap-2">
                     <input
@@ -88,10 +87,9 @@ const TextEditorPropertyEditor = ({ props, onUpdate }) => {
                 </div>
             </div>
 
-            {/* Line Height */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Line Height
+                    {__('Line Height')}
                 </label>
                 <div className="flex gap-2">
                     <input
@@ -113,10 +111,9 @@ const TextEditorPropertyEditor = ({ props, onUpdate }) => {
                 </div>
             </div>
 
-            {/* Help Text */}
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Click on the text editor in the canvas to access rich formatting options like bold, italic, lists, and links.
+                    {__('Click on the text editor in the canvas to access rich formatting options like bold, italic, lists, and links.')}
                 </p>
             </div>
         </div>

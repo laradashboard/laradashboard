@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react';
+import { __ } from '@lara-builder/i18n';
 import BackgroundControls from './layout-styles/BackgroundControls';
 import TypographyControls from './layout-styles/TypographyControls';
 import SpacingControls from './layout-styles/SpacingControls';
@@ -94,7 +95,7 @@ const LayoutStylesSection = ({
             <div>
                 <SectionHeader
                     icon="mdi:palette-outline"
-                    title="Background"
+                    title={__('Background')}
                     isExpanded={isBgExpanded}
                     onToggle={() => setIsBgExpanded(!isBgExpanded)}
                 />
@@ -111,7 +112,7 @@ const LayoutStylesSection = ({
             <div className="border-t border-gray-200 pt-4">
                 <SectionHeader
                     icon="mdi:format-font"
-                    title="Typography"
+                    title={__('Typography')}
                     isExpanded={isTypoExpanded}
                     onToggle={() => setIsTypoExpanded(!isTypoExpanded)}
                 />
@@ -127,7 +128,7 @@ const LayoutStylesSection = ({
             <div className="border-t border-gray-200 pt-4">
                 <SectionHeader
                     icon="mdi:view-dashboard-outline"
-                    title="Layout"
+                    title={__('Layout')}
                     isExpanded={isLayoutExpanded}
                     onToggle={() => setIsLayoutExpanded(!isLayoutExpanded)}
                 />
@@ -154,7 +155,7 @@ const LayoutStylesSection = ({
             <div className="border-t border-gray-200 pt-4">
                 <SectionHeader
                     icon="mdi:checkbox-blank-outline"
-                    title="Border / Box Shadow"
+                    title={__('Border / Box Shadow')}
                     isExpanded={isBorderExpanded}
                     onToggle={() => setIsBorderExpanded(!isBorderExpanded)}
                 />
@@ -180,7 +181,7 @@ const LayoutStylesSection = ({
                 <div className="border-t border-gray-200 pt-4">
                     <SectionHeader
                         icon="mdi:code-braces"
-                        title="Custom CSS"
+                        title={__('Custom CSS')}
                         isExpanded={isCustomCSSExpanded}
                         onToggle={() => setIsCustomCSSExpanded(!isCustomCSSExpanded)}
                     />

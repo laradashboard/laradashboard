@@ -2,6 +2,7 @@
  * BoxShadowControls - Box shadow X, Y, blur, spread, color, and inset controls
  */
 import { useState } from 'react';
+import { __ } from '@lara-builder/i18n';
 
 // Shadow value input
 const ShadowInput = ({ label, value, onChange, placeholder = '0' }) => (
@@ -40,7 +41,7 @@ const BoxShadowControls = ({ boxShadow = {}, onChange }) => {
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="flex items-center justify-between w-full text-left py-2 group"
             >
-                <span className="text-xs font-medium text-gray-600">Box shadow</span>
+                <span className="text-xs font-medium text-gray-600">{__('Box shadow')}</span>
                 <div className="flex items-center gap-2">
                     {hasShadow && (
                         <span className="w-2 h-2 rounded-full bg-primary"></span>
@@ -56,7 +57,7 @@ const BoxShadowControls = ({ boxShadow = {}, onChange }) => {
 
             {isExpanded && (
                 <div className="mt-2 p-3 bg-gray-50 rounded-lg space-y-3">
-                    <div className="text-xs font-medium text-gray-600 mb-2">Box shadow</div>
+                    <div className="text-xs font-medium text-gray-600 mb-2">{__('Box shadow')}</div>
 
                     {/* X Offset */}
                     <ShadowInput
@@ -76,7 +77,7 @@ const BoxShadowControls = ({ boxShadow = {}, onChange }) => {
 
                     {/* Blur */}
                     <ShadowInput
-                        label="Blur"
+                        label={__('Blur')}
                         value={blur}
                         onChange={(v) => handleChange('blur', v)}
                         placeholder="6px"
@@ -84,7 +85,7 @@ const BoxShadowControls = ({ boxShadow = {}, onChange }) => {
 
                     {/* Spread */}
                     <ShadowInput
-                        label="Spread"
+                        label={__('Spread')}
                         value={spread}
                         onChange={(v) => handleChange('spread', v)}
                         placeholder="0px"
@@ -92,7 +93,7 @@ const BoxShadowControls = ({ boxShadow = {}, onChange }) => {
 
                     {/* Color */}
                     <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500 w-12">Color</span>
+                        <span className="text-xs text-gray-500 w-12">{__('Color')}</span>
                         <div className="flex-1 flex gap-2">
                             <input
                                 type="color"
@@ -112,7 +113,7 @@ const BoxShadowControls = ({ boxShadow = {}, onChange }) => {
 
                     {/* Inset */}
                     <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">Inset</span>
+                        <span className="text-xs text-gray-500">{__('Inset')}</span>
                         <button
                             type="button"
                             onClick={() => handleChange('inset', !inset)}
@@ -127,7 +128,7 @@ const BoxShadowControls = ({ boxShadow = {}, onChange }) => {
                     {/* Preview */}
                     {hasShadow && (
                         <div className="mt-3 pt-3 border-t border-gray-200">
-                            <div className="text-xs text-gray-500 mb-2">Preview</div>
+                            <div className="text-xs text-gray-500 mb-2">{__('Preview')}</div>
                             <div
                                 className="w-full h-16 bg-white rounded-lg border border-gray-200"
                                 style={{
@@ -139,35 +140,35 @@ const BoxShadowControls = ({ boxShadow = {}, onChange }) => {
 
                     {/* Quick presets */}
                     <div className="pt-2">
-                        <div className="text-xs text-gray-500 mb-2">Quick presets</div>
+                        <div className="text-xs text-gray-500 mb-2">{__('Quick presets')}</div>
                         <div className="flex flex-wrap gap-1">
                             <button
                                 type="button"
                                 onClick={() => onChange({ x: '0px', y: '1px', blur: '3px', spread: '0px', color: 'rgba(0,0,0,0.1)', inset: false })}
                                 className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                             >
-                                Subtle
+                                {__('Subtle')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => onChange({ x: '0px', y: '4px', blur: '6px', spread: '-1px', color: 'rgba(0,0,0,0.1)', inset: false })}
                                 className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                             >
-                                Medium
+                                {__('Medium')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => onChange({ x: '0px', y: '10px', blur: '15px', spread: '-3px', color: 'rgba(0,0,0,0.1)', inset: false })}
                                 className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                             >
-                                Large
+                                {__('Large')}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => onChange({ x: '0px', y: '25px', blur: '50px', spread: '-12px', color: 'rgba(0,0,0,0.25)', inset: false })}
                                 className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                             >
-                                XL
+                                {__('XL')}
                             </button>
                         </div>
                     </div>
@@ -179,7 +180,7 @@ const BoxShadowControls = ({ boxShadow = {}, onChange }) => {
                             onClick={() => onChange({})}
                             className="w-full px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
                         >
-                            Reset Shadow
+                            {__('Reset Shadow')}
                         </button>
                     )}
                 </div>

@@ -1,8 +1,8 @@
 /**
  * Spacer Block - Property Editor
- *
- * Renders the property fields for the spacer block in the properties panel.
  */
+
+import { __ } from '@lara-builder/i18n';
 
 const SpacerBlockEditor = ({ props, onUpdate }) => {
     const handleChange = (value) => {
@@ -34,11 +34,10 @@ const SpacerBlockEditor = ({ props, onUpdate }) => {
 
     return (
         <div>
-            {/* Size Section */}
             <div style={sectionStyle}>
-                <div style={sectionTitleStyle}>Size</div>
+                <div style={sectionTitleStyle}>{__('Size')}</div>
 
-                <label style={labelStyle}>Height</label>
+                <label style={labelStyle}>{__('Height')}</label>
                 <select
                     value={props.height || '40px'}
                     onChange={(e) => handleChange(e.target.value)}

@@ -1,10 +1,8 @@
 /**
  * Button Block - Property Editor
- *
- * Renders the property fields for the button block in the properties panel.
- * Note: Button text is edited inline on canvas (click button to edit).
- * Typography is controlled by the central Layout Styles section.
  */
+
+import { __ } from "@lara-builder/i18n";
 
 const ButtonBlockEditor = ({ props, onUpdate }) => {
     const handleChange = (field, value) => {
@@ -13,13 +11,12 @@ const ButtonBlockEditor = ({ props, onUpdate }) => {
 
     return (
         <div className="space-y-4">
-            {/* Link Section */}
-            <Section title="Link">
-                <Label>URL</Label>
+            <Section title={__("Link")}>
+                <Label>{__("URL")}</Label>
                 <input
                     type="url"
-                    value={props.link || ''}
-                    onChange={(e) => handleChange('link', e.target.value)}
+                    value={props.link || ""}
+                    onChange={(e) => handleChange("link", e.target.value)}
                     placeholder="https://..."
                     className="form-control"
                 />
@@ -27,25 +24,34 @@ const ButtonBlockEditor = ({ props, onUpdate }) => {
                 {props.link && (
                     <>
                         <div className="mt-3">
-                            <Label>Open In</Label>
+                            <Label>{__("Open In")}</Label>
                             <select
-                                value={props.target || '_self'}
-                                onChange={(e) => handleChange('target', e.target.value)}
+                                value={props.target || "_self"}
+                                onChange={(e) =>
+                                    handleChange("target", e.target.value)
+                                }
                                 className="form-control"
                             >
-                                <option value="_self">Same Window</option>
-                                <option value="_blank">New Tab</option>
+                                <option value="_self">
+                                    {__("Same Window")}
+                                </option>
+                                <option value="_blank">{__("New Tab")}</option>
                             </select>
                         </div>
 
                         <div className="mt-3">
-                            <Label>Rel Attribute</Label>
+                            <Label>{__("Rel Attribute")}</Label>
                             <div className="space-y-2">
                                 <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                                     <input
                                         type="checkbox"
                                         checked={props.nofollow || false}
-                                        onChange={(e) => handleChange('nofollow', e.target.checked)}
+                                        onChange={(e) =>
+                                            handleChange(
+                                                "nofollow",
+                                                e.target.checked
+                                            )
+                                        }
                                         className="rounded border-gray-300"
                                     />
                                     nofollow
@@ -54,64 +60,73 @@ const ButtonBlockEditor = ({ props, onUpdate }) => {
                                     <input
                                         type="checkbox"
                                         checked={props.sponsored || false}
-                                        onChange={(e) => handleChange('sponsored', e.target.checked)}
+                                        onChange={(e) =>
+                                            handleChange(
+                                                "sponsored",
+                                                e.target.checked
+                                            )
+                                        }
                                         className="rounded border-gray-300"
                                     />
                                     sponsored
                                 </label>
                             </div>
                             <p className="mt-1 text-xs text-gray-400">
-                                noopener & noreferrer are auto-added for new tab links
+                                {__(
+                                    "noopener & noreferrer are auto-added for new tab links"
+                                )}
                             </p>
                         </div>
                     </>
                 )}
             </Section>
 
-            {/* Colors Section */}
-            <Section title="Colors">
-                <Label>Background Color</Label>
+            <Section title={__("Colors")}>
+                <Label>{__("Background Color")}</Label>
                 <ColorPicker
-                    value={props.backgroundColor || '#635bff'}
-                    onChange={(value) => handleChange('backgroundColor', value)}
+                    value={props.backgroundColor || "#635bff"}
+                    onChange={(value) => handleChange("backgroundColor", value)}
                 />
 
                 <div className="mt-3">
-                    <Label>Text Color</Label>
+                    <Label>{__("Text Color")}</Label>
                     <ColorPicker
-                        value={props.textColor || '#ffffff'}
-                        onChange={(value) => handleChange('textColor', value)}
+                        value={props.textColor || "#ffffff"}
+                        onChange={(value) => handleChange("textColor", value)}
                     />
                 </div>
             </Section>
 
-            {/* Style Section */}
-            <Section title="Style">
-                <Label>Border Radius</Label>
+            <Section title={__("Style")}>
+                <Label>{__("Border Radius")}</Label>
                 <select
-                    value={props.borderRadius || '6px'}
-                    onChange={(e) => handleChange('borderRadius', e.target.value)}
+                    value={props.borderRadius || "6px"}
+                    onChange={(e) =>
+                        handleChange("borderRadius", e.target.value)
+                    }
                     className="form-control"
                 >
-                    <option value="0">None</option>
-                    <option value="4px">Small (4px)</option>
-                    <option value="6px">Medium (6px)</option>
-                    <option value="8px">Large (8px)</option>
-                    <option value="12px">X-Large (12px)</option>
-                    <option value="9999px">Pill</option>
+                    <option value="0">{__("None")}</option>
+                    <option value="4px">{__("Small")} (4px)</option>
+                    <option value="6px">{__("Medium")} (6px)</option>
+                    <option value="8px">{__("Large")} (8px)</option>
+                    <option value="12px">{__("X-Large")} (12px)</option>
+                    <option value="9999px">{__("Pill")}</option>
                 </select>
 
                 <div className="mt-3">
-                    <Label>Padding</Label>
+                    <Label>{__("Padding")}</Label>
                     <select
-                        value={props.padding || '12px 24px'}
-                        onChange={(e) => handleChange('padding', e.target.value)}
+                        value={props.padding || "12px 24px"}
+                        onChange={(e) =>
+                            handleChange("padding", e.target.value)
+                        }
                         className="form-control"
                     >
-                        <option value="8px 16px">Small</option>
-                        <option value="12px 24px">Medium</option>
-                        <option value="16px 32px">Large</option>
-                        <option value="20px 40px">X-Large</option>
+                        <option value="8px 16px">{__("Small")}</option>
+                        <option value="12px 24px">{__("Medium")}</option>
+                        <option value="16px 32px">{__("Large")}</option>
+                        <option value="20px 40px">{__("X-Large")}</option>
                     </select>
                 </div>
             </Section>

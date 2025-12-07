@@ -38,6 +38,7 @@ import { useBlocks } from './hooks/useBlocks';
 import { LaraHooks } from '../hooks-system/LaraHooks';
 import { BuilderHooks } from '../hooks-system/HookNames';
 import { blockRegistry } from '../registry/BlockRegistry';
+import { __ } from '@lara-builder/i18n';
 
 // Import components
 import BlockPanel from '../components/BlockPanel';
@@ -452,7 +453,7 @@ function LaraBuilderInner({
     const handleCopyAllBlocks = useCallback(async () => {
         const blocksJson = JSON.stringify(blocks, null, 2);
         await navigator.clipboard.writeText(blocksJson);
-        showToast('success', 'Copied!', 'All blocks copied to clipboard');
+        showToast('success', __('Copied!'), __('All blocks copied to clipboard'));
     }, [blocks, showToast]);
 
     // Paste blocks from clipboard
@@ -470,19 +471,19 @@ function LaraBuilderInner({
                         }
                     }
                 });
-                showToast('success', 'Pasted!', `${parsed.length} blocks pasted`);
+                showToast('success', __('Pasted!'), __(':count blocks pasted').replace(':count', parsed.length));
             }
         } catch (e) {
             // Not valid JSON - treat as HTML in code editor
             if (editorMode === 'code') {
                 setCodeEditorHtml(text);
-                showToast('success', 'Pasted!', 'HTML content pasted');
+                showToast('success', __('Pasted!'), __('HTML content pasted'));
             } else {
                 // In visual mode, create an HTML block
                 const newBlock = blockRegistry.createInstance('html', { code: text });
                 if (newBlock) {
                     actions.addBlock(newBlock);
-                    showToast('success', 'Pasted!', 'HTML block created');
+                    showToast('success', __('Pasted!'), __('HTML block created'));
                 }
             }
         }
@@ -496,7 +497,7 @@ function LaraBuilderInner({
     // Save handler
     const handleSave = async () => {
         if (context === 'email' && !templateName.trim()) {
-            showToast('error', 'Validation Error', 'Template name is required');
+            showToast('error', __('Validation Error'), __('Template name is required'));
             return;
         }
 
@@ -531,8 +532,8 @@ function LaraBuilderInner({
             const isEdit = !!templateData?.uuid;
             showToast(
                 'success',
-                isEdit ? 'Saved' : 'Created',
-                result?.message || (isEdit ? 'Saved successfully!' : 'Created successfully!')
+                isEdit ? __('Saved') : __('Created'),
+                result?.message || (isEdit ? __('Saved successfully!') : __('Created successfully!'))
             );
 
             LaraHooks.doAction(BuilderHooks.ACTION_AFTER_SAVE, result);
@@ -544,7 +545,7 @@ function LaraBuilderInner({
                 }, 500);
             }
         } catch (error) {
-            showToast('error', 'Save Failed', error.message || 'Failed to save');
+            showToast('error', __('Save Failed'), error.message || __('Failed to save'));
             LaraHooks.doAction(BuilderHooks.ACTION_SAVE_ERROR, error);
         } finally {
             setSaving(false);
@@ -576,19 +577,19 @@ function LaraBuilderInner({
     const labels = useMemo(() => {
         const contextLabels = {
             email: {
-                title: 'Email Builder',
-                backText: 'Back to Templates',
-                saveText: 'Save',
+                title: __('Email Builder'),
+                backText: __('Back to Templates'),
+                saveText: __('Save'),
             },
             page: {
-                title: 'Page Builder',
-                backText: 'Back to Posts',
-                saveText: 'Save',
+                title: __('Page Builder'),
+                backText: __('Back to Posts'),
+                saveText: __('Save'),
             },
             campaign: {
-                title: 'Campaign Editor',
-                backText: 'Back to Campaign',
-                saveText: 'Save',
+                title: __('Campaign Editor'),
+                backText: __('Back to Campaign'),
+                saveText: __('Save'),
             },
         };
 
@@ -660,7 +661,7 @@ function LaraBuilderInner({
                             )}
                             <div className="h-6 w-px bg-gray-300 hidden sm:block"></div>
                             <h1 className="text-sm sm:text-lg font-semibold text-gray-800">
-                                {templateData?.uuid ? 'Edit' : 'Create'}
+                                {templateData?.uuid ? __('Edit') : __('Create')}
                                 <span className="hidden sm:inline"> {labels.title.split(' ')[0]}</span>
                             </h1>
 
@@ -674,7 +675,7 @@ function LaraBuilderInner({
                                             ? 'hover:bg-gray-100 text-gray-600'
                                             : 'text-gray-300 cursor-not-allowed'
                                     }`}
-                                    title="Undo (Ctrl+Z)"
+                                    title={__('Undo (Ctrl+Z)')}
                                 >
                                     <iconify-icon icon="mdi:undo" width="18" height="18"></iconify-icon>
                                 </button>
@@ -686,7 +687,7 @@ function LaraBuilderInner({
                                             ? 'hover:bg-gray-100 text-gray-600'
                                             : 'text-gray-300 cursor-not-allowed'
                                     }`}
-                                    title="Redo (Ctrl+Shift+Z)"
+                                    title={__('Redo (Ctrl+Shift+Z)')}
                                 >
                                     <iconify-icon icon="mdi:redo" width="18" height="18"></iconify-icon>
                                 </button>
@@ -694,7 +695,7 @@ function LaraBuilderInner({
 
                             {isFormDirty && (
                                 <span className="text-xs text-orange-600 bg-orange-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md font-medium">
-                                    <span className="hidden sm:inline">Unsaved changes</span>
+                                    <span className="hidden sm:inline">{__('Unsaved changes')}</span>
                                     <span className="sm:hidden">*</span>
                                 </span>
                             )}
@@ -704,12 +705,12 @@ function LaraBuilderInner({
                             {/* Name input (email context) */}
                             {(context === 'email' || context === 'campaign') && (
                                 <div className="hidden md:flex items-center gap-2">
-                                    <label className="text-sm font-medium text-gray-600">Name:</label>
+                                    <label className="text-sm font-medium text-gray-600">{__('Name')}:</label>
                                     <input
                                         type="text"
                                         value={templateName}
                                         onChange={(e) => setTemplateName(e.target.value)}
-                                        placeholder="Template name..."
+                                        placeholder={__('Template name...')}
                                         className="form-control"
                                     />
                                 </div>
@@ -718,12 +719,12 @@ function LaraBuilderInner({
                             {/* Subject input (email context) */}
                             {context === 'email' && (
                                 <div className="hidden lg:flex items-center gap-2">
-                                    <label className="text-sm font-medium text-gray-600">Subject:</label>
+                                    <label className="text-sm font-medium text-gray-600">{__('Subject')}:</label>
                                     <input
                                         type="text"
                                         value={templateSubject}
                                         onChange={(e) => setTemplateSubject(e.target.value)}
-                                        placeholder="Email subject..."
+                                        placeholder={__('Email subject...')}
                                         className="form-control"
                                     />
                                 </div>
@@ -755,7 +756,7 @@ function LaraBuilderInner({
                                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                             />
                                         </svg>
-                                        <span className="hidden sm:inline">Saving...</span>
+                                        <span className="hidden sm:inline">{__('Saving...')}</span>
                                     </>
                                 ) : (
                                     <>
@@ -785,14 +786,14 @@ function LaraBuilderInner({
                             className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg shadow-lg hover:bg-primary/90 transition-colors"
                         >
                             <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
-                            <span className="text-sm font-medium">Blocks</span>
+                            <span className="text-sm font-medium">{__('Blocks')}</span>
                         </button>
                         <button
                             onClick={() => setRightDrawerOpen(true)}
                             className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-gray-700 text-white rounded-lg shadow-lg hover:bg-gray-800 transition-colors"
                         >
                             <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
-                            <span className="text-sm font-medium">Properties</span>
+                            <span className="text-sm font-medium">{__('Properties')}</span>
                         </button>
                     </div>
 
@@ -807,14 +808,14 @@ function LaraBuilderInner({
                                 <button
                                     onClick={() => setLeftSidebarCollapsed(false)}
                                     className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
-                                    title="Show Blocks"
+                                    title={__('Show Blocks')}
                                 >
                                     <iconify-icon icon="mdi:chevron-right" width="20" height="20"></iconify-icon>
                                 </button>
                                 <button
                                     onClick={() => setLeftSidebarCollapsed(false)}
                                     className="mt-2 p-2 rounded-md hover:bg-primary/10 text-primary"
-                                    title="Show Blocks"
+                                    title={__('Show Blocks')}
                                 >
                                     <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
                                 </button>
@@ -822,11 +823,11 @@ function LaraBuilderInner({
                         ) : (
                             <div className="flex flex-col h-full p-4">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-sm font-semibold text-gray-900">Blocks</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">{__('Blocks')}</h3>
                                     <button
                                         onClick={() => setLeftSidebarCollapsed(true)}
                                         className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-                                        title="Hide Blocks"
+                                        title={__('Hide Blocks')}
                                     >
                                         <iconify-icon icon="mdi:chevron-left" width="18" height="18"></iconify-icon>
                                     </button>
@@ -845,7 +846,7 @@ function LaraBuilderInner({
                             ></div>
                             <div className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl flex flex-col animate-slide-in-left">
                                 <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                                    <h3 className="text-sm font-semibold text-gray-900">Blocks</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">{__('Blocks')}</h3>
                                     <button
                                         onClick={() => setLeftDrawerOpen(false)}
                                         className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
@@ -880,10 +881,10 @@ function LaraBuilderInner({
                                                 ? 'bg-primary text-white'
                                                 : 'text-gray-600 hover:bg-gray-100'
                                         }`}
-                                        title="Desktop Preview"
+                                        title={__('Desktop Preview')}
                                     >
                                         <iconify-icon icon="mdi:monitor" width="16" height="16"></iconify-icon>
-                                        <span className="hidden sm:inline">Desktop</span>
+                                        <span className="hidden sm:inline">{__('Desktop')}</span>
                                     </button>
                                     <button
                                         type="button"
@@ -893,10 +894,10 @@ function LaraBuilderInner({
                                                 ? 'bg-primary text-white'
                                                 : 'text-gray-600 hover:bg-gray-100'
                                         }`}
-                                        title="Tablet Preview"
+                                        title={__('Tablet Preview')}
                                     >
                                         <iconify-icon icon="mdi:tablet" width="16" height="16"></iconify-icon>
-                                        <span className="hidden sm:inline">Tablet</span>
+                                        <span className="hidden sm:inline">{__('Tablet')}</span>
                                     </button>
                                     <button
                                         type="button"
@@ -906,10 +907,10 @@ function LaraBuilderInner({
                                                 ? 'bg-primary text-white'
                                                 : 'text-gray-600 hover:bg-gray-100'
                                         }`}
-                                        title="Mobile Preview"
+                                        title={__('Mobile Preview')}
                                     >
                                         <iconify-icon icon="mdi:cellphone" width="16" height="16"></iconify-icon>
-                                        <span className="hidden sm:inline">Mobile</span>
+                                        <span className="hidden sm:inline">{__('Mobile')}</span>
                                     </button>
                                 </div>
                             </div>
@@ -948,14 +949,14 @@ function LaraBuilderInner({
                                 <button
                                     onClick={() => setRightSidebarCollapsed(false)}
                                     className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
-                                    title="Show Properties"
+                                    title={__('Show Properties')}
                                 >
                                     <iconify-icon icon="mdi:chevron-left" width="20" height="20"></iconify-icon>
                                 </button>
                                 <button
                                     onClick={() => setRightSidebarCollapsed(false)}
                                     className="mt-2 p-2 rounded-md hover:bg-gray-50 text-gray-600"
-                                    title="Show Properties"
+                                    title={__('Show Properties')}
                                 >
                                     <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
                                 </button>
@@ -963,11 +964,11 @@ function LaraBuilderInner({
                         ) : (
                             <div className="flex flex-col h-full pt-4 pr-4 pb-4 pl-2 overflow-hidden">
                                 <div className="flex items-center justify-between mb-4 pl-2">
-                                    <h3 className="text-sm font-semibold text-gray-900">Properties</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">{__('Properties')}</h3>
                                     <button
                                         onClick={() => setRightSidebarCollapsed(true)}
                                         className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-                                        title="Hide Properties"
+                                        title={__('Hide Properties')}
                                     >
                                         <iconify-icon icon="mdi:chevron-right" width="18" height="18"></iconify-icon>
                                     </button>
@@ -995,7 +996,7 @@ function LaraBuilderInner({
                             ></div>
                             <div className="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-xl flex flex-col animate-slide-in-right">
                                 <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                                    <h3 className="text-sm font-semibold text-gray-900">Properties</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">{__('Properties')}</h3>
                                     <button
                                         onClick={() => setRightDrawerOpen(false)}
                                         className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
@@ -1008,31 +1009,31 @@ function LaraBuilderInner({
                                     {(context === 'email' || context === 'campaign') && (
                                         <div className="md:hidden mb-4 pb-4 border-b border-gray-200">
                                             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                                                Template Details
+                                                {__('Template Details')}
                                             </h4>
                                             <div className="space-y-3">
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                        Name
+                                                        {__('Name')}
                                                     </label>
                                                     <input
                                                         type="text"
                                                         value={templateName}
                                                         onChange={(e) => setTemplateName(e.target.value)}
-                                                        placeholder="Template name..."
+                                                        placeholder={__('Template name...')}
                                                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                                     />
                                                 </div>
                                                 {context === 'email' && (
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                            Subject
+                                                            {__('Subject')}
                                                         </label>
                                                         <input
                                                             type="text"
                                                             value={templateSubject}
                                                             onChange={(e) => setTemplateSubject(e.target.value)}
-                                                            placeholder="Email subject..."
+                                                            placeholder={__('Email subject...')}
                                                             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                                         />
                                                     </div>

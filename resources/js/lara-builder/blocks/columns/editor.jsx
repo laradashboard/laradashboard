@@ -1,3 +1,5 @@
+import { __ } from '@lara-builder/i18n';
+
 const ColumnsEditor = ({ props, onChange }) => {
     const { columns = 2, gap = '20px' } = props;
 
@@ -5,7 +7,6 @@ const ColumnsEditor = ({ props, onChange }) => {
         const columnCount = Math.min(Math.max(parseInt(newColumns) || 1, 1), 6);
         const currentChildren = props.children || [];
 
-        // Adjust children array to match new column count
         const newChildren = Array.from({ length: columnCount }, (_, i) =>
             currentChildren[i] || []
         );
@@ -25,7 +26,7 @@ const ColumnsEditor = ({ props, onChange }) => {
         <div className="space-y-4">
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Number of Columns
+                    {__('Number of Columns')}
                 </label>
                 <div className="grid grid-cols-6 gap-2">
                     {[1, 2, 3, 4, 5, 6].map((count) => (
@@ -48,20 +49,20 @@ const ColumnsEditor = ({ props, onChange }) => {
 
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Gap Between Columns
+                    {__('Gap Between Columns')}
                 </label>
                 <select
                     value={gap}
                     onChange={(e) => handleGapChange(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
-                    <option value="0px">None</option>
-                    <option value="8px">Small (8px)</option>
-                    <option value="12px">Medium (12px)</option>
-                    <option value="16px">Normal (16px)</option>
-                    <option value="20px">Large (20px)</option>
-                    <option value="24px">Extra Large (24px)</option>
-                    <option value="32px">2X Large (32px)</option>
+                    <option value="0px">{__('None')}</option>
+                    <option value="8px">{__('Small')} (8px)</option>
+                    <option value="12px">{__('Medium')} (12px)</option>
+                    <option value="16px">{__('Normal')} (16px)</option>
+                    <option value="20px">{__('Large')} (20px)</option>
+                    <option value="24px">{__('Extra Large')} (24px)</option>
+                    <option value="32px">{__('2X Large')} (32px)</option>
                 </select>
             </div>
 
@@ -81,8 +82,8 @@ const ColumnsEditor = ({ props, onChange }) => {
                         />
                     </svg>
                     <div>
-                        <p className="font-medium text-gray-700">Tip:</p>
-                        <p className="mt-1">Drag blocks from the sidebar into the column areas to build your layout. Each column can contain multiple blocks.</p>
+                        <p className="font-medium text-gray-700">{__('Tip')}:</p>
+                        <p className="mt-1">{__('Drag blocks from the sidebar into the column areas to build your layout. Each column can contain multiple blocks.')}</p>
                     </div>
                 </div>
             </div>

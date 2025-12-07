@@ -4,6 +4,8 @@
  * Renders the property fields for the social block in the properties panel.
  */
 
+import { __ } from '@lara-builder/i18n';
+
 const socialPlatforms = [
     { key: 'facebook', label: 'Facebook', icon: 'mdi:facebook', color: '#1877f2' },
     { key: 'twitter', label: 'Twitter/X', icon: 'mdi:twitter', color: '#1da1f2' },
@@ -30,36 +32,36 @@ const SocialBlockEditor = ({ props, onUpdate }) => {
     return (
         <div className="space-y-4">
             {/* Layout Section */}
-            <Section title="Layout">
-                <Label>Icon Size</Label>
+            <Section title={__('Layout')}>
+                <Label>{__('Icon Size')}</Label>
                 <select
                     value={props.iconSize || '32px'}
                     onChange={(e) => handleChange('iconSize', e.target.value)}
                     className="form-control"
                 >
-                    <option value="24px">Small (24px)</option>
-                    <option value="32px">Medium (32px)</option>
-                    <option value="40px">Large (40px)</option>
-                    <option value="48px">X-Large (48px)</option>
+                    <option value="24px">{__('Small')} (24px)</option>
+                    <option value="32px">{__('Medium')} (32px)</option>
+                    <option value="40px">{__('Large')} (40px)</option>
+                    <option value="48px">{__('X-Large')} (48px)</option>
                 </select>
 
                 <div className="mt-3">
-                    <Label>Spacing</Label>
+                    <Label>{__('Spacing')}</Label>
                     <select
                         value={props.gap || '12px'}
                         onChange={(e) => handleChange('gap', e.target.value)}
                         className="form-control"
                     >
-                        <option value="8px">Small</option>
-                        <option value="12px">Medium</option>
-                        <option value="16px">Large</option>
-                        <option value="24px">X-Large</option>
+                        <option value="8px">{__('Small')}</option>
+                        <option value="12px">{__('Medium')}</option>
+                        <option value="16px">{__('Large')}</option>
+                        <option value="24px">{__('X-Large')}</option>
                     </select>
                 </div>
             </Section>
 
             {/* Social Links Section */}
-            <Section title="Social Links">
+            <Section title={__('Social Links')}>
                 <div className="space-y-3">
                     {socialPlatforms.map((platform) => (
                         <div key={platform.key}>
