@@ -39,8 +39,11 @@ export default defineConfig({
     resolve: {
         alias: [
             // LaraBuilder aliases.
+            { find: "@lara-builder/factory", replacement: path.resolve(__dirname, "resources/js/lara-builder/factory") },
+            { find: "@lara-builder/components", replacement: path.resolve(__dirname, "resources/js/lara-builder/components") },
             { find: "@lara-builder/utils", replacement: path.resolve(__dirname, "resources/js/lara-builder/utils") },
             { find: "@lara-builder/blocks", replacement: path.resolve(__dirname, "resources/js/lara-builder/blocks") },
+            { find: "@lara-builder/i18n", replacement: path.resolve(__dirname, "resources/js/lara-builder/i18n") },
             { find: "@lara-builder", replacement: path.resolve(__dirname, "resources/js/lara-builder") },
 
             // React aliases.

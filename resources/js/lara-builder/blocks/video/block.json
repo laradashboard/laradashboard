@@ -21,45 +21,5 @@
         "width": "100%",
         "align": "center",
         "playButtonColor": ""
-    },
-    "properties": [
-        {
-            "name": "videoUrl",
-            "type": "url",
-            "label": "Video URL",
-            "placeholder": "YouTube, Vimeo, or direct video URL..."
-        },
-        {
-            "name": "thumbnailUrl",
-            "type": "image",
-            "label": "Custom Thumbnail (Optional)"
-        },
-        {
-            "name": "alt",
-            "type": "text",
-            "label": "Alt Text",
-            "placeholder": "Describe the video..."
-        },
-        {
-            "name": "width",
-            "type": "select",
-            "label": "Width",
-            "options": [
-                { "value": "100%", "label": "Full Width (100%)" },
-                { "value": "75%", "label": "Three Quarters (75%)" },
-                { "value": "50%", "label": "Half (50%)" },
-                { "value": "25%", "label": "Quarter (25%)" }
-            ]
-        },
-        {
-            "name": "align",
-            "type": "align",
-            "label": "Alignment"
-        },
-        {
-            "name": "playButtonColor",
-            "type": "color",
-            "label": "Play Button Color"
-        }
-    ]
+    }
 }

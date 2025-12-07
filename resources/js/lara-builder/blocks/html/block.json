@@ -14,12 +14,5 @@
     },
     "defaultProps": {
         "code": "<div style=\"padding: 20px; text-align: center;\">Custom HTML content</div>"
-    },
-    "properties": [
-        {
-            "name": "code",
-            "type": "html",
-            "label": "HTML Code"
-        }
-    ]
+    }
 }

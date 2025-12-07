@@ -1,42 +1,74 @@
 /**
  * Image Block
  *
- * Block file structure:
- * - index.js    : Main entry point, exports block definition
- * - block.json  : Block metadata and configuration
- * - block.jsx   : React component for builder canvas
- * - editor.jsx  : React component for properties panel
- * - save.js     : HTML generators for page/email output
+ * An image block with upload and link support.
  */
 
-import block from './block';
-import editor from './editor';
+import { createBlockFromJson } from '@lara-builder/factory';
+import { __ } from '@lara-builder/i18n';
 import config from './block.json';
+import block from './block';
 import save from './save';
 
-// Default layout styles
-const defaultLayoutStyles = {
-    margin: { top: '', right: '', bottom: '', left: '' },
-    padding: { top: '', right: '', bottom: '', left: '' },
-    width: '',
-    minWidth: '',
-    maxWidth: '',
-    height: '',
-    minHeight: '',
-    maxHeight: '',
-};
-
-// Block definition combining config and components
-const imageBlock = {
-    ...config,
-    block,
-    editor,
-    save,
-    defaultProps: {
-        ...config.defaultProps,
-        layoutStyles: { ...defaultLayoutStyles },
+// Fields defined in JS for translation support
+const fields = [
+    {
+        name: 'src',
+        type: 'image',
+        label: __('Image'),
+        section: __('Content'),
     },
-};
+    {
+        name: 'alt',
+        type: 'text',
+        label: __('Alt Text'),
+        placeholder: __('Describe the image...'),
+        section: __('Content'),
+    },
+    {
+        name: 'link',
+        type: 'url',
+        label: __('Link URL'),
+        placeholder: 'https://...',
+        section: __('Link'),
+    },
+    {
+        name: 'width',
+        type: 'select',
+        label: __('Width'),
+        section: __('Size'),
+        options: [
+            { value: '100%', label: __('Full Width') + ' (100%)' },
+            { value: '75%', label: __('Three Quarters') + ' (75%)' },
+            { value: '50%', label: __('Half') + ' (50%)' },
+            { value: '25%', label: __('Quarter') + ' (25%)' },
+            { value: 'custom', label: __('Custom') },
+        ],
+    },
+    {
+        name: 'customWidth',
+        type: 'text',
+        label: __('Custom Width'),
+        placeholder: __('e.g., 300px'),
+        section: __('Size'),
+    },
+    {
+        name: 'height',
+        type: 'select',
+        label: __('Height'),
+        section: __('Size'),
+        options: [
+            { value: 'auto', label: __('Auto') },
+            { value: 'custom', label: __('Custom') },
+        ],
+    },
+    {
+        name: 'customHeight',
+        type: 'text',
+        label: __('Custom Height'),
+        placeholder: __('e.g., 200px'),
+        section: __('Size'),
+    },
+];
 
-export { block, editor, config, save };
-export default imageBlock;
+export default createBlockFromJson(config, { block, save, fields });

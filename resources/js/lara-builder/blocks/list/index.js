@@ -1,42 +1,54 @@
 /**
  * List Block
  *
- * Block file structure:
- * - index.js    : Main entry point, exports block definition
- * - block.json  : Block metadata and configuration
- * - block.jsx   : React component for builder canvas
- * - editor.jsx  : React component for properties panel
- * - save.js     : HTML generators for page/email output
+ * A list block with bullet, numbered, or check styles.
+ * Note: Items are managed via inline editing in block.jsx
  */
 
-import block from './block';
-import editor from './editor';
+import { createBlockFromJson } from '@lara-builder/factory';
+import { __ } from '@lara-builder/i18n';
 import config from './block.json';
+import block from './block';
 import save from './save';
 
-// Default layout styles
-const defaultLayoutStyles = {
-    margin: { top: '', right: '', bottom: '', left: '' },
-    padding: { top: '', right: '', bottom: '', left: '' },
-    width: '',
-    minWidth: '',
-    maxWidth: '',
-    height: '',
-    minHeight: '',
-    maxHeight: '',
-};
-
-// Block definition combining config and components
-const listBlock = {
-    ...config,
-    block,
-    editor,
-    save,
-    defaultProps: {
-        ...config.defaultProps,
-        layoutStyles: { ...defaultLayoutStyles },
+// Fields defined in JS for translation support
+const fields = [
+    {
+        name: 'listType',
+        type: 'select',
+        label: __('List Type'),
+        section: __('Content'),
+        options: [
+            { value: 'bullet', label: __('Bullet List') },
+            { value: 'number', label: __('Numbered List') },
+            { value: 'check', label: __('Check List') },
+        ],
     },
-};
+    {
+        name: 'color',
+        type: 'color',
+        label: __('Text Color'),
+        section: __('Style'),
+    },
+    {
+        name: 'fontSize',
+        type: 'select',
+        label: __('Font Size'),
+        section: __('Style'),
+        options: [
+            { value: '12px', label: __('Small') + ' (12px)' },
+            { value: '14px', label: __('Normal') + ' (14px)' },
+            { value: '16px', label: __('Medium') + ' (16px)' },
+            { value: '18px', label: __('Large') + ' (18px)' },
+            { value: '20px', label: __('X-Large') + ' (20px)' },
+        ],
+    },
+    {
+        name: 'iconColor',
+        type: 'color',
+        label: __('Icon Color'),
+        section: __('Style'),
+    },
+];
 
-export { block, editor, config, save };
-export default listBlock;
+export default createBlockFromJson(config, { block, save, fields });

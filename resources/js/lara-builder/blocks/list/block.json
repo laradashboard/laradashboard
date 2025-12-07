@@ -26,44 +26,5 @@
         "color": "#333333",
         "fontSize": "16px",
         "iconColor": "#635bff"
-    },
-    "properties": [
-        {
-            "name": "items",
-            "type": "array",
-            "label": "List Items"
-        },
-        {
-            "name": "listType",
-            "type": "select",
-            "label": "List Type",
-            "options": [
-                { "value": "bullet", "label": "Bullet List" },
-                { "value": "number", "label": "Numbered List" },
-                { "value": "check", "label": "Check List" }
-            ]
-        },
-        {
-            "name": "color",
-            "type": "color",
-            "label": "Text Color"
-        },
-        {
-            "name": "fontSize",
-            "type": "select",
-            "label": "Font Size",
-            "options": [
-                { "value": "12px", "label": "Small (12px)" },
-                { "value": "14px", "label": "Normal (14px)" },
-                { "value": "16px", "label": "Medium (16px)" },
-                { "value": "18px", "label": "Large (18px)" },
-                { "value": "20px", "label": "X-Large (20px)" }
-            ]
-        },
-        {
-            "name": "iconColor",
-            "type": "color",
-            "label": "Icon Color"
-        }
-    ]
+    }
 }

@@ -1,31 +1,24 @@
-import block from './block';
-import editor from './editor';
+/**
+ * Text Block
+ *
+ * A text/paragraph block with inline editing support.
+ */
+
+import { createBlockFromJson } from '@lara-builder/factory';
+import { __ } from '@lara-builder/i18n';
 import config from './block.json';
+import block from './block';
 import save from './save';
 
-// Default layout styles.
-const defaultLayoutStyles = {
-    margin: { top: '', right: '', bottom: '', left: '' },
-    padding: { top: '', right: '', bottom: '', left: '' },
-    width: '',
-    minWidth: '',
-    maxWidth: '',
-    height: '',
-    minHeight: '',
-    maxHeight: '',
-};
-
-// Block definition combining config and components.
-const textBlock = {
-    ...config,
-    block,
-    editor,
-    save,
-    defaultProps: {
-        ...config.defaultProps,
-        layoutStyles: { ...defaultLayoutStyles },
+// Fields defined in JS for translation support
+const fields = [
+    {
+        name: 'content',
+        type: 'textarea',
+        label: __('Text Content'),
+        placeholder: __('Enter text content...'),
+        section: __('Content'),
     },
-};
+];
 
-export { block, editor, config, save };
-export default textBlock;
+export default createBlockFromJson(config, { block, save, fields });

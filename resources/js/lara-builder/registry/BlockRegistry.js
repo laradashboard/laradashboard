@@ -44,6 +44,7 @@ import { BuilderHooks } from '../hooks-system/HookNames';
  * @property {Object} defaultProps - Default property values
  * @property {React.ComponentType} block - React component for rendering in builder canvas
  * @property {React.ComponentType} [editor] - Custom property editor component
+ * @property {Array} [fields] - Field definitions for auto-generated editor
  * @property {Object} [save] - Per-context HTML generators { page, email, ... }
  * @property {Function} [validate] - Validation function
  * @property {Object} [transform] - Transform from other blocks
@@ -86,6 +87,7 @@ class BlockRegistryClass {
             defaultProps: definition.defaultProps || {},
             block: definition.block || null,
             editor: definition.editor || null,
+            fields: definition.fields || [], // Field definitions for auto-generated editor
             save: definition.save || {},
             validate: definition.validate || (() => true),
             transform: definition.transform || null,

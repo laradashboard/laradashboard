@@ -1,26 +1,42 @@
 /**
  * Preformatted Block
+ *
+ * Preformatted text with monospace font, inline editing.
  */
 
-import block from './block';
-import editor from './editor';
+import { createBlockFromJson } from '@lara-builder/factory';
+import { __ } from '@lara-builder/i18n';
 import config from './block.json';
+import block from './block';
 import save from './save';
 
-const defaultLayoutStyles = {
-    margin: { top: '', right: '', bottom: '', left: '' },
-    padding: { top: '', right: '', bottom: '', left: '' },
-    width: '', minWidth: '', maxWidth: '',
-    height: '', minHeight: '', maxHeight: '',
-};
+// Fields defined in JS for translation support
+const fields = [
+    {
+        name: 'borderRadius',
+        type: 'text',
+        label: __('Border Radius'),
+        section: __('Style'),
+        placeholder: '4px',
+    },
+    {
+        name: 'backgroundColor',
+        type: 'color',
+        label: __('Background Color'),
+        section: __('Colors'),
+    },
+    {
+        name: 'textColor',
+        type: 'color',
+        label: __('Text Color'),
+        section: __('Colors'),
+    },
+    {
+        name: 'borderColor',
+        type: 'color',
+        label: __('Border Color'),
+        section: __('Colors'),
+    },
+];
 
-const preformattedBlock = {
-    ...config,
-    block,
-    editor,
-    save,
-    defaultProps: { ...config.defaultProps, layoutStyles: { ...defaultLayoutStyles } },
-};
-
-export { block, editor, config, save };
-export default preformattedBlock;
+export default createBlockFromJson(config, { block, save, fields });

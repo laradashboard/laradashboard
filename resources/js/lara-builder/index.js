@@ -79,5 +79,29 @@ export {
     generateBlockHtml,
 } from './utils/generateHtml';
 
+// Factory - Simplified block creation
+export {
+    createBlock,
+    createBlockFromJson,
+    createSimpleBlock,
+    EditorField,
+    EditorSection,
+    EditorLabel,
+    AutoEditor,
+    createAutoEditor,
+    pageDiv,
+    emailTable,
+    emailTableWithLayout,
+    createSave,
+    emailTextStyles,
+    emailButton,
+    emailImage,
+    emailDivider,
+    emailSpacer,
+} from './factory';
+
+// Email Builder (consolidated from email-builder folder)
+export { default as EmailBuilder } from './EmailBuilder';
+
 // Default export
 export { default } from './core/LaraBuilder';

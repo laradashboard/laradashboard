@@ -1,86 +1,27 @@
 {
-  "type": "countdown",
-  "label": "Countdown",
-  "category": "Advanced",
-  "icon": "mdi:timer-outline",
-  "description": "Add a countdown timer",
-  "keywords": ["countdown", "timer", "deadline", "urgency"],
-  "contexts": ["email", "page", "campaign"],
-  "supports": {
-    "align": true,
-    "colors": true,
-    "layout": true,
-    "html": true,
-    "duplicate": true,
-    "remove": true
-  },
-  "defaultProps": {
-    "targetDate": "",
-    "targetTime": "23:59",
-    "title": "Sale Ends In",
-    "backgroundColor": "#1e293b",
-    "textColor": "#ffffff",
-    "numberColor": "#635bff",
-    "align": "center",
-    "expiredMessage": "This offer has expired!",
-    "layoutStyles": {}
-  },
-  "properties": [
-    {
-      "name": "targetDate",
-      "label": "Target Date",
-      "type": "date",
-      "required": true,
-      "help": "The date when the countdown ends"
+    "type": "countdown",
+    "label": "Countdown",
+    "category": "Advanced",
+    "icon": "mdi:timer-outline",
+    "description": "Add a countdown timer",
+    "keywords": ["countdown", "timer", "deadline", "urgency"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "colors": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
     },
-    {
-      "name": "targetTime",
-      "label": "Target Time",
-      "type": "time",
-      "default": "23:59",
-      "help": "The time when the countdown ends"
-    },
-    {
-      "name": "title",
-      "label": "Title",
-      "type": "text",
-      "placeholder": "Sale Ends In"
-    },
-    {
-      "name": "backgroundColor",
-      "label": "Background Color",
-      "type": "color",
-      "default": "#1e293b"
-    },
-    {
-      "name": "textColor",
-      "label": "Text Color",
-      "type": "color",
-      "default": "#ffffff"
-    },
-    {
-      "name": "numberColor",
-      "label": "Number Color",
-      "type": "color",
-      "default": "#635bff"
-    },
-    {
-      "name": "align",
-      "label": "Alignment",
-      "type": "select",
-      "options": [
-        { "label": "Left", "value": "left" },
-        { "label": "Center", "value": "center" },
-        { "label": "Right", "value": "right" }
-      ],
-      "default": "center"
-    },
-    {
-      "name": "expiredMessage",
-      "label": "Expired Message",
-      "type": "text",
-      "default": "This offer has expired!",
-      "help": "Message to show when countdown expires"
+    "defaultProps": {
+        "targetDate": "",
+        "targetTime": "23:59",
+        "title": "Sale Ends In",
+        "backgroundColor": "#1e293b",
+        "textColor": "#ffffff",
+        "numberColor": "#635bff",
+        "align": "center",
+        "expiredMessage": "This offer has expired!"
     }
-  ]
 }

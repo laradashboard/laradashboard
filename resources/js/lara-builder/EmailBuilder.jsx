@@ -11,11 +11,11 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 import { v4 as uuidv4 } from "uuid";
 
-import BlockPanel from "../lara-builder/components/BlockPanel";
-import Canvas from "../lara-builder/components/Canvas";
-import PropertiesPanel from "../lara-builder/components/PropertiesPanel";
-import Toast from "../lara-builder/components/Toast";
-import { blockRegistry } from "../lara-builder/registry/BlockRegistry";
+import BlockPanel from "./components/BlockPanel";
+import Canvas from "./components/Canvas";
+import PropertiesPanel from "./components/PropertiesPanel";
+import Toast from "./components/Toast";
+import { blockRegistry } from "./registry/BlockRegistry";
 import { generateEmailHtml } from "./utils/generateHtml";
 import { __ } from "@lara-builder/i18n";
 

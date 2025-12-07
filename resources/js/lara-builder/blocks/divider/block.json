@@ -20,44 +20,5 @@
         "thickness": "1px",
         "width": "100%",
         "margin": "20px 0"
-    },
-    "properties": [
-        {
-            "name": "style",
-            "type": "select",
-            "label": "Style",
-            "options": [
-                { "value": "solid", "label": "Solid" },
-                { "value": "dashed", "label": "Dashed" },
-                { "value": "dotted", "label": "Dotted" }
-            ]
-        },
-        {
-            "name": "color",
-            "type": "color",
-            "label": "Color"
-        },
-        {
-            "name": "thickness",
-            "type": "select",
-            "label": "Thickness",
-            "options": [
-                { "value": "1px", "label": "1px" },
-                { "value": "2px", "label": "2px" },
-                { "value": "3px", "label": "3px" },
-                { "value": "4px", "label": "4px" }
-            ]
-        },
-        {
-            "name": "width",
-            "type": "select",
-            "label": "Width",
-            "options": [
-                { "value": "100%", "label": "Full Width" },
-                { "value": "75%", "label": "75%" },
-                { "value": "50%", "label": "50%" },
-                { "value": "25%", "label": "25%" }
-            ]
-        }
-    ]
+    }
 }
