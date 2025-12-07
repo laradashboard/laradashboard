@@ -4,7 +4,7 @@
     <div class="space-y-6">
         <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div class="px-5 py-4 sm:px-6 sm:py-5 flex justify-between items-center border-b border-gray-100 dark:border-gray-800">
-                <h3 class="text-base font-medium text-gray-700 dark:text-white/90">{{ __('Post Details') }}</h3>
+                <h3 class="text-base font-medium text-gray-700 dark:text-white/90">{{ __(':type Details', ['type' => __(ucfirst($postType))]) }}</h3>
                 <div class="flex gap-2">
                     @if (auth()->user()->can('post.edit'))
                         <a href="{{ route('admin.posts.edit', [$postType, $post->id]) }}" class="btn-primary">
