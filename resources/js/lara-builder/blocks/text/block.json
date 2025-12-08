@@ -22,7 +22,7 @@
         "remove": true
     },
     "defaultProps": {
-        "content": "Click to edit this text.",
+        "content": "",
         "align": "left",
         "color": "#666666",
         "fontSize": "16px",

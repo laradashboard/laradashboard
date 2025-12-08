@@ -8,7 +8,8 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as ReactJSXRuntime from "react/jsx-runtime";
 import { createRoot } from "react-dom/client";
-import PostBuilder from "./components/PostBuilder";
+import LaraBuilder from "./core/LaraBuilder";
+import PostPropertiesPanel from "./components/PostPropertiesPanel";
 
 // Expose React globally for module blocks to use
 // This ensures module blocks use the same React instance as the main app
@@ -159,7 +160,7 @@ if (container) {
     // Mount the app
     const root = createRoot(container);
     root.render(
-        <PostBuilder
+        <LaraBuilder
             context={context}
             initialData={initialData}
             postData={postData}
@@ -173,6 +174,7 @@ if (container) {
             postType={postType}
             postTypeModel={postTypeModel}
             statuses={statuses}
+            PropertiesPanelComponent={PostPropertiesPanel}
         />
     );
 }

@@ -1,9 +1,3 @@
-/**
- * Countdown Block
- *
- * A countdown timer block.
- */
-
 import { createBlockFromJson } from '@lara-builder/factory';
 import { __ } from '@lara-builder/i18n';
 import config from './block.json';
@@ -26,7 +20,6 @@ const configWithDefaults = {
     },
 };
 
-// Fields defined in JS for translation support
 const fields = [
     {
         name: 'targetDate',

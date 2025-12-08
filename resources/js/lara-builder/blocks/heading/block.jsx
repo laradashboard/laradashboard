@@ -5,10 +5,16 @@
  * Supports inline editing when selected.
  */
 
-import { useRef, useEffect, useCallback } from 'react';
-import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
+import { useRef, useEffect, useCallback } from "react";
+import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
 
-const HeadingBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
+const HeadingBlock = ({
+    props,
+    onUpdate,
+    isSelected,
+    onRegisterTextFormat,
+    onInsertBlockAfter,
+}) => {
     const editorRef = useRef(null);
     const lastPropsText = useRef(props.text);
     const propsRef = useRef(props);
@@ -17,6 +23,27 @@ const HeadingBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => 
     // Keep refs updated
     propsRef.current = props;
     onUpdateRef.current = onUpdate;
+    const onInsertBlockAfterRef = useRef(onInsertBlockAfter);
+    onInsertBlockAfterRef.current = onInsertBlockAfter;
+
+    // Handle Enter key to create new text block, Shift+Enter for line break
+    const handleKeyDown = useCallback((e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            // Save current content first
+            if (editorRef.current) {
+                const newText = editorRef.current.innerHTML;
+                lastPropsText.current = newText;
+                onUpdateRef.current({ ...propsRef.current, text: newText });
+            }
+            // Insert new text block after this heading
+            if (onInsertBlockAfterRef.current) {
+                onInsertBlockAfterRef.current("text");
+            }
+        }
+        // Shift+Enter allows default behavior (line break)
+    }, []);
 
     const handleInput = useCallback(() => {
         if (editorRef.current) {
@@ -35,8 +62,11 @@ const HeadingBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => 
     useEffect(() => {
         if (isSelected && editorRef.current) {
             // Only set innerHTML if it's empty or different from what we expect
-            if (editorRef.current.innerHTML === '' || editorRef.current.innerHTML === '<br>') {
-                editorRef.current.innerHTML = props.text || '';
+            if (
+                editorRef.current.innerHTML === "" ||
+                editorRef.current.innerHTML === "<br>"
+            ) {
+                editorRef.current.innerHTML = props.text || "";
                 lastPropsText.current = props.text;
             }
         }
@@ -59,7 +89,7 @@ const HeadingBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => 
                     cursorOffset = preCaretRange.toString().length;
                 }
 
-                editorRef.current.innerHTML = props.text || '';
+                editorRef.current.innerHTML = props.text || "";
                 lastPropsText.current = props.text;
 
                 // Restore cursor position
@@ -81,7 +111,10 @@ const HeadingBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => 
                     for (const textNode of textNodes) {
                         const nodeLength = textNode.textContent.length;
                         if (currentOffset + nodeLength >= cursorOffset) {
-                            newRange.setStart(textNode, cursorOffset - currentOffset);
+                            newRange.setStart(
+                                textNode,
+                                cursorOffset - currentOffset
+                            );
                             newRange.collapse(true);
                             selection.removeAllRanges();
                             selection.addRange(newRange);
@@ -103,7 +136,7 @@ const HeadingBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => 
             onRegisterTextFormat({
                 editorRef,
                 isContentEditable: true,
-                align: propsRef.current.align || 'left',
+                align: propsRef.current.align || "left",
                 onAlignChange: handleAlignChange,
             });
         } else if (!isSelected && onRegisterTextFormat) {
@@ -128,26 +161,33 @@ const HeadingBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => 
     // Get default font size based on heading level
     const getDefaultFontSize = (level) => {
         switch (level) {
-            case 'h1': return '32px';
-            case 'h2': return '28px';
-            case 'h3': return '24px';
-            case 'h4': return '20px';
-            case 'h5': return '18px';
-            case 'h6': return '16px';
-            default: return '32px';
+            case "h1":
+                return "32px";
+            case "h2":
+                return "28px";
+            case "h3":
+                return "24px";
+            case "h4":
+                return "20px";
+            case "h5":
+                return "18px";
+            case "h6":
+                return "16px";
+            default:
+                return "32px";
         }
     };
 
     // Base styles for the heading block
     const defaultStyle = {
-        textAlign: props.align || 'left',
-        color: props.color || '#333333',
+        textAlign: props.align || "left",
+        color: props.color || "#333333",
         fontSize: props.fontSize || getDefaultFontSize(props.level),
-        fontWeight: props.fontWeight || 'bold',
-        lineHeight: props.lineHeight || '1.3',
+        fontWeight: props.fontWeight || "bold",
+        lineHeight: props.lineHeight || "1.3",
         margin: 0,
-        padding: '8px',
-        borderRadius: '4px',
+        padding: "8px",
+        borderRadius: "4px",
     };
 
     // Apply layout styles (typography, background, spacing, border, shadow)
@@ -162,33 +202,30 @@ const HeadingBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => 
                     suppressContentEditableWarning
                     onInput={handleInput}
                     onBlur={handleInput}
+                    onKeyDown={handleKeyDown}
                     data-placeholder="Enter heading text..."
                     style={{
                         ...baseStyle,
-                        width: '100%',
-                        border: '2px solid #635bff',
-                        outline: 'none',
-                        background: 'white',
-                        minHeight: '1.5em',
+                        width: "100%",
+                        border: "2px solid #635bff",
+                        outline: "none",
+                        background: "white",
+                        minHeight: "1.5em",
                     }}
                 />
             </div>
         );
     }
 
-    const Tag = props.level || 'h1';
+    const Tag = props.level || "h1";
 
     // Render HTML content safely for display
     const renderContent = () => {
-        const text = props.text || 'Click to edit heading';
+        const text = props.text || "Click to edit heading";
         return <span dangerouslySetInnerHTML={{ __html: text }} />;
     };
 
-    return (
-        <Tag style={baseStyle}>
-            {renderContent()}
-        </Tag>
-    );
+    return <Tag style={baseStyle}>{renderContent()}</Tag>;
 };
 
 export default HeadingBlock;

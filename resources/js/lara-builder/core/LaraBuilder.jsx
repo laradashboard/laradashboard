@@ -1,8 +1,8 @@
 /**
- * LaraBuilder - Main Builder Component
+ * LaraBuilder - Unified Visual Builder Component
  *
- * A reusable, extensible visual builder for emails, pages, and custom content.
- * Supports multiple contexts with different block sets and output formats.
+ * A reusable, extensible visual builder for emails, pages, posts, and custom content.
+ * Supports multiple contexts with different block sets, property panels, and output formats.
  *
  * @example
  * // Email builder
@@ -13,15 +13,18 @@
  *   templateData={{ name: 'My Template', subject: 'Hello' }}
  * />
  *
- * // Page builder
+ * // Post builder
  * <LaraBuilder
  *   context="page"
  *   initialData={data}
  *   onSave={handleSave}
+ *   postData={postData}
+ *   taxonomies={taxonomies}
+ *   PropertiesPanelComponent={PostPropertiesPanel}
  * />
  */
 
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import {
     DndContext,
     DragOverlay,
@@ -30,23 +33,23 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 
-import { BuilderProvider, useBuilder } from './BuilderContext';
-import { useHistory } from './hooks/useHistory';
-import { useBlocks } from './hooks/useBlocks';
-import { LaraHooks } from '../hooks-system/LaraHooks';
-import { BuilderHooks } from '../hooks-system/HookNames';
-import { blockRegistry } from '../registry/BlockRegistry';
-import { __ } from '@lara-builder/i18n';
+import { BuilderProvider, useBuilder } from "./BuilderContext";
+import { useHistory } from "./hooks/useHistory";
+import { useBlocks } from "./hooks/useBlocks";
+import { LaraHooks } from "../hooks-system/LaraHooks";
+import { BuilderHooks } from "../hooks-system/HookNames";
+import { blockRegistry } from "../registry/BlockRegistry";
+import { __ } from "@lara-builder/i18n";
 
 // Import components
-import BlockPanel from '../components/BlockPanel';
-import Canvas from '../components/Canvas';
-import PropertiesPanel from '../components/PropertiesPanel';
-import Toast from '../components/Toast';
-import EditorOptionsMenu from '../components/EditorOptionsMenu';
-import CodeEditor from '../components/CodeEditor';
+import BlockPanel from "../components/BlockPanel";
+import Canvas from "../components/Canvas";
+import PropertiesPanel from "../components/PropertiesPanel";
+import Toast from "../components/Toast";
+import EditorOptionsMenu from "../components/EditorOptionsMenu";
+import CodeEditor from "../components/CodeEditor";
 
 /**
  * LaraBuilder Inner Component (uses context)
@@ -55,9 +58,20 @@ function LaraBuilderInner({
     onSave,
     onImageUpload,
     onVideoUpload,
-    templateData,
     listUrl,
     showHeader = true,
+    // Email-specific props
+    templateData,
+    // Post-specific props
+    postData,
+    taxonomies,
+    selectedTerms: initialSelectedTerms,
+    parentPosts,
+    postType,
+    postTypeModel,
+    statuses,
+    // Custom properties panel
+    PropertiesPanelComponent,
 }) {
     const {
         state,
@@ -79,11 +93,109 @@ function LaraBuilderInner({
     // Use blocks hook for add block functionality
     const { addBlockAfterSelected } = useBlocks();
 
+    // ========================
+    // Email-specific state
+    // ========================
+    const isEmailContext = context === "email" || context === "campaign";
+
+    const [templateName, setTemplateName] = useState(templateData?.name || "");
+    const [templateSubject, setTemplateSubject] = useState(
+        templateData?.subject || ""
+    );
+
+    // Track template data changes for dirty detection
+    const templateDataRef = useRef({
+        name: templateData?.name || "",
+        subject: templateData?.subject || "",
+    });
+    const [templateDirty, setTemplateDirty] = useState(false);
+
+    useEffect(() => {
+        // Only track template dirty state for email context
+        if (!isEmailContext) {
+            setTemplateDirty(false);
+            return;
+        }
+        const hasTemplateChanges =
+            templateName !== templateDataRef.current.name ||
+            templateSubject !== templateDataRef.current.subject;
+        setTemplateDirty(hasTemplateChanges);
+    }, [templateName, templateSubject, isEmailContext]);
+
+    // ========================
+    // Post-specific state
+    // ========================
+    const isPostContext = context === "page" || context === "post";
+
+    const [title, setTitle] = useState(postData?.title || "");
+    const [slug, setSlug] = useState(postData?.slug || "");
+    const [status, setStatus] = useState(postData?.status || "draft");
+    const [excerpt, setExcerpt] = useState(postData?.excerpt || "");
+    const [publishedAt, setPublishedAt] = useState(
+        postData?.published_at || ""
+    );
+    const [parentId, setParentId] = useState(String(postData?.parent_id || ""));
+    const [selectedTerms, setSelectedTerms] = useState(
+        initialSelectedTerms || {}
+    );
+    const [featuredImage, setFeaturedImage] = useState(
+        postData?.featured_image_url || ""
+    );
+    const [removeFeaturedImage, setRemoveFeaturedImage] = useState(false);
+
+    // Track saved post data for dirty detection (use state so changes trigger re-render)
+    const [savedPostData, setSavedPostData] = useState(() => ({
+        title: postData?.title || "",
+        slug: postData?.slug || "",
+        status: postData?.status || "draft",
+        excerpt: postData?.excerpt || "",
+        publishedAt: postData?.published_at || "",
+        parentId: String(postData?.parent_id || ""),
+        featuredImage: postData?.featured_image_url || "",
+    }));
+
+    // Calculate post-specific dirty state
+    const postDirty = useMemo(() => {
+        if (!isPostContext) return false;
+        return (
+            title !== savedPostData.title ||
+            slug !== savedPostData.slug ||
+            status !== savedPostData.status ||
+            excerpt !== savedPostData.excerpt ||
+            publishedAt !== savedPostData.publishedAt ||
+            parentId !== savedPostData.parentId ||
+            featuredImage !== savedPostData.featuredImage ||
+            removeFeaturedImage
+        );
+    }, [
+        isPostContext,
+        title,
+        slug,
+        status,
+        excerpt,
+        publishedAt,
+        parentId,
+        featuredImage,
+        removeFeaturedImage,
+        savedPostData,
+    ]);
+
+    // Auto-generate slug from title
+    const generateSlug = useCallback(() => {
+        const generatedSlug = title
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-")
+            .trim();
+        setSlug(generatedSlug);
+    }, [title]);
+
+    // ========================
     // Local UI state
+    // ========================
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState(null);
-    const [templateName, setTemplateName] = useState(templateData?.name || '');
-    const [templateSubject, setTemplateSubject] = useState(templateData?.subject || '');
     const [activeId, setActiveId] = useState(null);
 
     // Mobile drawer states
@@ -95,43 +207,33 @@ function LaraBuilderInner({
     const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
 
     // Editor mode: 'visual' or 'code'
-    const [editorMode, setEditorMode] = useState('visual');
-    const [codeEditorHtml, setCodeEditorHtml] = useState('');
+    const [editorMode, setEditorMode] = useState("visual");
+    const [codeEditorHtml, setCodeEditorHtml] = useState("");
 
     // Preview mode: 'desktop', 'tablet', 'mobile'
-    const [previewMode, setPreviewMode] = useState('desktop');
+    const [previewMode, setPreviewMode] = useState("desktop");
 
     // Show toast helper
-    const showToast = useCallback((variant, title, message) => {
-        setToast({ variant, title, message });
+    const showToast = useCallback((variant, titleText, message) => {
+        setToast({ variant, title: titleText, message });
     }, []);
 
-    // Track template data changes for dirty detection
-    const templateDataRef = useRef({ name: templateData?.name, subject: templateData?.subject });
-    const [templateDirty, setTemplateDirty] = useState(false);
-
-    useEffect(() => {
-        const hasTemplateChanges =
-            templateName !== templateDataRef.current.name ||
-            templateSubject !== templateDataRef.current.subject;
-        setTemplateDirty(hasTemplateChanges);
-    }, [templateName, templateSubject]);
-
     // Combined dirty state
-    const isFormDirty = isDirty || templateDirty;
+    const isFormDirty = isDirty || templateDirty || postDirty;
 
     // Warn user before leaving with unsaved changes
     useEffect(() => {
         const handleBeforeUnload = (e) => {
             if (isFormDirty) {
                 e.preventDefault();
-                e.returnValue = '';
-                return '';
+                e.returnValue = "";
+                return "";
             }
         };
 
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () =>
+            window.removeEventListener("beforeunload", handleBeforeUnload);
     }, [isFormDirty]);
 
     // DnD sensors
@@ -152,7 +254,7 @@ function LaraBuilderInner({
 
             // Check nested in columns
             for (const block of blocks) {
-                if (block.type === 'columns' && block.props.children) {
+                if (block.type === "columns" && block.props.children) {
                     for (const column of block.props.children) {
                         const nested = column.find((b) => b.id === blockId);
                         if (nested) return nested;
@@ -174,31 +276,37 @@ function LaraBuilderInner({
             // Check if user is typing
             const activeElement = document.activeElement;
             const isEditing =
-                activeElement?.tagName === 'INPUT' ||
-                activeElement?.tagName === 'TEXTAREA' ||
+                activeElement?.tagName === "INPUT" ||
+                activeElement?.tagName === "TEXTAREA" ||
                 activeElement?.isContentEditable ||
                 activeElement?.closest('[contenteditable="true"]') ||
-                activeElement?.closest('.ProseMirror') ||
-                activeElement?.closest('.ql-editor') ||
+                activeElement?.closest(".ProseMirror") ||
+                activeElement?.closest(".ql-editor") ||
                 activeElement?.closest('[data-text-editing="true"]');
 
             if (isEditing) return;
 
             // Find block location
             let isNested = false;
-            let parentId = null;
+            let parentBlockId = null;
             let columnIndex = null;
             let blockIndex = blocks.findIndex((b) => b.id === selectedBlockId);
 
             if (blockIndex === -1) {
                 for (const block of blocks) {
-                    if (block.type === 'columns' && block.props.children) {
-                        for (let colIdx = 0; colIdx < block.props.children.length; colIdx++) {
+                    if (block.type === "columns" && block.props.children) {
+                        for (
+                            let colIdx = 0;
+                            colIdx < block.props.children.length;
+                            colIdx++
+                        ) {
                             const column = block.props.children[colIdx];
-                            const nestedIdx = column.findIndex((b) => b.id === selectedBlockId);
+                            const nestedIdx = column.findIndex(
+                                (b) => b.id === selectedBlockId
+                            );
                             if (nestedIdx !== -1) {
                                 isNested = true;
-                                parentId = block.id;
+                                parentBlockId = block.id;
                                 columnIndex = colIdx;
                                 blockIndex = nestedIdx;
                                 break;
@@ -210,26 +318,45 @@ function LaraBuilderInner({
             }
 
             // Delete on Backspace/Delete
-            if (e.key === 'Backspace' || e.key === 'Delete') {
+            if (e.key === "Backspace" || e.key === "Delete") {
                 e.preventDefault();
 
-                if (isNested && parentId !== null && columnIndex !== null) {
-                    actions.deleteNestedBlock(parentId, columnIndex, selectedBlockId);
+                if (
+                    isNested &&
+                    parentBlockId !== null &&
+                    columnIndex !== null
+                ) {
+                    actions.deleteNestedBlock(
+                        parentBlockId,
+                        columnIndex,
+                        selectedBlockId
+                    );
                 } else {
                     actions.deleteBlock(selectedBlockId);
                 }
             }
 
             // Create new text block on Enter
-            if (e.key === 'Enter') {
+            if (e.key === "Enter") {
                 e.preventDefault();
 
-                const textBlockDef = blockRegistry.get('text');
+                const textBlockDef = blockRegistry.get("text");
                 if (textBlockDef) {
-                    const newBlock = blockRegistry.createInstance('text', { content: '' });
+                    const newBlock = blockRegistry.createInstance("text", {
+                        content: "",
+                    });
 
-                    if (isNested && parentId !== null && columnIndex !== null) {
-                        actions.addNestedBlock(parentId, columnIndex, newBlock, blockIndex + 1);
+                    if (
+                        isNested &&
+                        parentBlockId !== null &&
+                        columnIndex !== null
+                    ) {
+                        actions.addNestedBlock(
+                            parentBlockId,
+                            columnIndex,
+                            newBlock,
+                            blockIndex + 1
+                        );
                     } else {
                         actions.addBlock(newBlock, blockIndex + 1);
                     }
@@ -237,8 +364,8 @@ function LaraBuilderInner({
             }
         };
 
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
     }, [selectedBlockId, blocks, actions]);
 
     // Drag handlers
@@ -259,11 +386,11 @@ function LaraBuilderInner({
         const overData = over.data.current;
 
         // Dragging from palette
-        if (active.data.current?.type === 'palette') {
+        if (active.data.current?.type === "palette") {
             const blockType = active.data.current.blockType;
 
             // Don't allow nested columns
-            if (blockType === 'columns' && overData?.type === 'column') {
+            if (blockType === "columns" && overData?.type === "column") {
                 return;
             }
 
@@ -271,17 +398,20 @@ function LaraBuilderInner({
             if (!newBlock) return;
 
             // Dropping into a column
-            if (overData?.type === 'column') {
-                const { parentId, columnIndex } = overData;
-                actions.addNestedBlock(parentId, columnIndex, newBlock);
+            if (overData?.type === "column") {
+                const { parentId: pId, columnIndex: colIdx } = overData;
+                actions.addNestedBlock(pId, colIdx, newBlock);
                 return;
             }
 
             // Add to main canvas
-            if (overId === 'canvas') {
+            if (overId === "canvas") {
                 actions.addBlock(newBlock);
-            } else if (overId.toString().startsWith('dropzone-')) {
-                const dropIndex = parseInt(overId.toString().replace('dropzone-', ''), 10);
+            } else if (overId.toString().startsWith("dropzone-")) {
+                const dropIndex = parseInt(
+                    overId.toString().replace("dropzone-", ""),
+                    10
+                );
                 actions.addBlock(newBlock, dropIndex);
             } else {
                 const overIndex = blocks.findIndex((b) => b.id === overId);
@@ -297,29 +427,44 @@ function LaraBuilderInner({
         }
 
         // Moving a nested block
-        if (active.data.current?.type === 'nested') {
-            const { parentId: sourceParentId, columnIndex: sourceColumnIndex } = active.data.current;
+        if (active.data.current?.type === "nested") {
+            const { parentId: sourceParentId, columnIndex: sourceColumnIndex } =
+                active.data.current;
 
-            if (active.id !== over.id && overData?.type === 'nested') {
-                const { parentId: targetParentId, columnIndex: targetColumnIndex } = overData;
+            if (active.id !== over.id && overData?.type === "nested") {
+                const {
+                    parentId: targetParentId,
+                    columnIndex: targetColumnIndex,
+                } = overData;
 
-                // Same column reordering - handle via local state for now
-                // This complex logic will be simplified in future iterations
-                if (sourceParentId === targetParentId && sourceColumnIndex === targetColumnIndex) {
-                    // Use arrayMove pattern through direct state update
-                    const column = blocks.find((b) => b.id === sourceParentId)?.props?.children?.[sourceColumnIndex] || [];
-                    const oldIndex = column.findIndex((b) => b.id === active.id);
+                // Same column reordering
+                if (
+                    sourceParentId === targetParentId &&
+                    sourceColumnIndex === targetColumnIndex
+                ) {
+                    const column =
+                        blocks.find((b) => b.id === sourceParentId)?.props
+                            ?.children?.[sourceColumnIndex] || [];
+                    const oldIndex = column.findIndex(
+                        (b) => b.id === active.id
+                    );
                     const newIndex = column.findIndex((b) => b.id === over.id);
 
                     if (oldIndex !== -1 && newIndex !== -1) {
-                        actions.moveNestedBlock(sourceParentId, sourceColumnIndex, oldIndex, sourceColumnIndex, newIndex);
+                        actions.moveNestedBlock(
+                            sourceParentId,
+                            sourceColumnIndex,
+                            oldIndex,
+                            sourceColumnIndex,
+                            newIndex
+                        );
                     }
                     return;
                 }
             }
 
             // Moving to empty column
-            if (overData?.type === 'column') {
+            if (overData?.type === "column") {
                 // This requires cross-column move logic
                 // For now, this is handled by the Canvas component
             }
@@ -353,8 +498,8 @@ function LaraBuilderInner({
     );
 
     const handleDeleteNestedBlock = useCallback(
-        (blockId, parentId, columnIndex) => {
-            actions.deleteNestedBlock(parentId, columnIndex, blockId);
+        (blockId, pId, colIdx) => {
+            actions.deleteNestedBlock(pId, colIdx, blockId);
         },
         [actions]
     );
@@ -365,7 +510,7 @@ function LaraBuilderInner({
             const index = blocks.findIndex((b) => b.id === blockId);
             if (index === -1) return;
 
-            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            const newIndex = direction === "up" ? index - 1 : index + 1;
             if (newIndex < 0 || newIndex >= blocks.length) return;
 
             actions.moveBlock(index, newIndex);
@@ -374,18 +519,18 @@ function LaraBuilderInner({
     );
 
     const handleMoveNestedBlock = useCallback(
-        (blockId, parentId, columnIndex, direction) => {
-            const block = blocks.find((b) => b.id === parentId);
-            if (!block?.props?.children?.[columnIndex]) return;
+        (blockId, pId, colIdx, direction) => {
+            const block = blocks.find((b) => b.id === pId);
+            if (!block?.props?.children?.[colIdx]) return;
 
-            const column = block.props.children[columnIndex];
+            const column = block.props.children[colIdx];
             const index = column.findIndex((b) => b.id === blockId);
             if (index === -1) return;
 
-            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            const newIndex = direction === "up" ? index - 1 : index + 1;
             if (newIndex < 0 || newIndex >= column.length) return;
 
-            actions.moveNestedBlock(parentId, columnIndex, index, columnIndex, newIndex);
+            actions.moveNestedBlock(pId, colIdx, index, colIdx, newIndex);
         },
         [blocks, actions]
     );
@@ -399,18 +544,21 @@ function LaraBuilderInner({
     );
 
     const handleDuplicateNestedBlock = useCallback(
-        (blockId, parentId, columnIndex) => {
-            const block = blocks.find((b) => b.id === parentId);
-            if (!block?.props?.children?.[columnIndex]) return;
+        (blockId, pId, colIdx) => {
+            const block = blocks.find((b) => b.id === pId);
+            if (!block?.props?.children?.[colIdx]) return;
 
-            const column = block.props.children[columnIndex];
+            const column = block.props.children[colIdx];
             const blockToDuplicate = column.find((b) => b.id === blockId);
             if (!blockToDuplicate) return;
 
-            const duplicatedBlock = blockRegistry.createInstance(blockToDuplicate.type, blockToDuplicate.props);
+            const duplicatedBlock = blockRegistry.createInstance(
+                blockToDuplicate.type,
+                blockToDuplicate.props
+            );
             if (duplicatedBlock) {
                 const index = column.findIndex((b) => b.id === blockId);
-                actions.addNestedBlock(parentId, columnIndex, duplicatedBlock, index + 1);
+                actions.addNestedBlock(pId, colIdx, duplicatedBlock, index + 1);
             }
         },
         [blocks, actions]
@@ -424,70 +572,139 @@ function LaraBuilderInner({
         [addBlockAfterSelected]
     );
 
-    // Editor mode handlers
-    const handleEditorModeChange = useCallback((mode) => {
-        if (mode === 'code' && editorMode === 'visual') {
-            // Switching to code mode - generate HTML from blocks
-            const html = getHtml();
-            setCodeEditorHtml(html);
-        } else if (mode === 'visual' && editorMode === 'code') {
-            // Switching to visual mode from code mode
-            // If code is empty or just whitespace, clear all blocks
-            if (!codeEditorHtml.trim()) {
-                actions.setBlocks([]);
+    // Insert a new block after a specific block (for Enter key in text/heading)
+    const handleInsertBlockAfter = useCallback(
+        (afterBlockId, blockType) => {
+            const newBlock = blockRegistry.createInstance(blockType);
+            if (!newBlock) return;
+
+            // Check if it's a top-level block
+            const topLevelIndex = blocks.findIndex(
+                (b) => b.id === afterBlockId
+            );
+            if (topLevelIndex !== -1) {
+                actions.addBlock(newBlock, topLevelIndex + 1);
+                actions.selectBlock(newBlock.id);
+                return;
             }
-        }
-        setEditorMode(mode);
-    }, [editorMode, getHtml, codeEditorHtml, actions]);
+
+            // Check nested blocks in columns
+            for (const block of blocks) {
+                if (block.type === "columns" && block.props.children) {
+                    for (
+                        let colIdx = 0;
+                        colIdx < block.props.children.length;
+                        colIdx++
+                    ) {
+                        const column = block.props.children[colIdx];
+                        const nestedIndex = column.findIndex(
+                            (b) => b.id === afterBlockId
+                        );
+                        if (nestedIndex !== -1) {
+                            actions.addNestedBlock(
+                                block.id,
+                                colIdx,
+                                newBlock,
+                                nestedIndex + 1
+                            );
+                            actions.selectBlock(newBlock.id);
+                            return;
+                        }
+                    }
+                }
+            }
+        },
+        [blocks, actions]
+    );
+
+    // Editor mode handlers
+    const handleEditorModeChange = useCallback(
+        (mode) => {
+            if (mode === "code" && editorMode === "visual") {
+                // Switching to code mode - generate HTML from blocks
+                const html = getHtml();
+                setCodeEditorHtml(html);
+            } else if (mode === "visual" && editorMode === "code") {
+                // Switching to visual mode from code mode
+                if (!codeEditorHtml.trim()) {
+                    actions.setBlocks([]);
+                }
+            }
+            setEditorMode(mode);
+        },
+        [editorMode, getHtml, codeEditorHtml, actions]
+    );
 
     // Exit code editor - switch back to visual mode
     const handleExitCodeEditor = useCallback(() => {
         if (!codeEditorHtml.trim()) {
-            // Code was cleared - clear all blocks
             actions.setBlocks([]);
         }
-        setEditorMode('visual');
+        setEditorMode("visual");
     }, [codeEditorHtml, actions]);
 
     // Copy all blocks to clipboard
     const handleCopyAllBlocks = useCallback(async () => {
         const blocksJson = JSON.stringify(blocks, null, 2);
         await navigator.clipboard.writeText(blocksJson);
-        showToast('success', __('Copied!'), __('All blocks copied to clipboard'));
+        showToast(
+            "success",
+            __("Copied!"),
+            __("All blocks copied to clipboard")
+        );
     }, [blocks, showToast]);
 
     // Paste blocks from clipboard
-    const handlePasteBlocks = useCallback((text) => {
-        try {
-            // Try to parse as JSON (blocks)
-            const parsed = JSON.parse(text);
-            if (Array.isArray(parsed)) {
-                // It's an array of blocks - add them
-                parsed.forEach((blockData) => {
-                    if (blockData.type) {
-                        const newBlock = blockRegistry.createInstance(blockData.type, blockData.props);
-                        if (newBlock) {
-                            actions.addBlock(newBlock);
+    const handlePasteBlocks = useCallback(
+        (text) => {
+            try {
+                const parsed = JSON.parse(text);
+                if (Array.isArray(parsed)) {
+                    parsed.forEach((blockData) => {
+                        if (blockData.type) {
+                            const newBlock = blockRegistry.createInstance(
+                                blockData.type,
+                                blockData.props
+                            );
+                            if (newBlock) {
+                                actions.addBlock(newBlock);
+                            }
                         }
+                    });
+                    showToast(
+                        "success",
+                        __("Pasted!"),
+                        __(":count blocks pasted").replace(
+                            ":count",
+                            parsed.length
+                        )
+                    );
+                }
+            } catch (e) {
+                if (editorMode === "code") {
+                    setCodeEditorHtml(text);
+                    showToast(
+                        "success",
+                        __("Pasted!"),
+                        __("HTML content pasted")
+                    );
+                } else {
+                    const newBlock = blockRegistry.createInstance("html", {
+                        code: text,
+                    });
+                    if (newBlock) {
+                        actions.addBlock(newBlock);
+                        showToast(
+                            "success",
+                            __("Pasted!"),
+                            __("HTML block created")
+                        );
                     }
-                });
-                showToast('success', __('Pasted!'), __(':count blocks pasted').replace(':count', parsed.length));
-            }
-        } catch (e) {
-            // Not valid JSON - treat as HTML in code editor
-            if (editorMode === 'code') {
-                setCodeEditorHtml(text);
-                showToast('success', __('Pasted!'), __('HTML content pasted'));
-            } else {
-                // In visual mode, create an HTML block
-                const newBlock = blockRegistry.createInstance('html', { code: text });
-                if (newBlock) {
-                    actions.addBlock(newBlock);
-                    showToast('success', __('Pasted!'), __('HTML block created'));
                 }
             }
-        }
-    }, [actions, editorMode, showToast]);
+        },
+        [actions, editorMode, showToast]
+    );
 
     // Handle code editor HTML change
     const handleCodeEditorHtmlChange = useCallback((html) => {
@@ -496,8 +713,17 @@ function LaraBuilderInner({
 
     // Save handler
     const handleSave = async () => {
-        if (context === 'email' && !templateName.trim()) {
-            showToast('error', __('Validation Error'), __('Template name is required'));
+        // Context-specific validation
+        if (isEmailContext && !templateName.trim()) {
+            showToast(
+                "error",
+                __("Validation Error"),
+                __("Template name is required")
+            );
+            return;
+        }
+        if (isPostContext && !title.trim()) {
+            showToast("error", __("Validation Error"), __("Title is required"));
             return;
         }
 
@@ -507,45 +733,102 @@ function LaraBuilderInner({
 
         try {
             // Use code editor HTML if in code mode, otherwise generate from blocks
-            const html = editorMode === 'code' ? codeEditorHtml : getHtml();
+            const html = editorMode === "code" ? codeEditorHtml : getHtml();
             const designJson = getSaveData();
 
-            const saveData = {
-                body_html: html,
-                design_json: designJson,
-            };
+            let saveData = {};
 
-            // Add context-specific fields
-            if (context === 'email' || context === 'campaign') {
-                saveData.name = templateName;
-                saveData.subject = templateSubject;
+            // Context-specific save data
+            if (isEmailContext) {
+                saveData = {
+                    name: templateName,
+                    subject: templateSubject,
+                    body_html: html,
+                    design_json: designJson,
+                };
+            } else if (isPostContext) {
+                // Collect taxonomy term IDs
+                const taxonomyData = {};
+                Object.entries(selectedTerms).forEach(
+                    ([taxonomyName, termIds]) => {
+                        taxonomyData[`taxonomy_${taxonomyName}`] = termIds;
+                    }
+                );
+
+                saveData = {
+                    title,
+                    slug: slug || undefined,
+                    status,
+                    excerpt,
+                    content: html,
+                    design_json: designJson,
+                    published_at:
+                        status === "scheduled" ? publishedAt : undefined,
+                    parent_id: parentId || undefined,
+                    featured_image: featuredImage || undefined,
+                    remove_featured_image: removeFeaturedImage,
+                    ...taxonomyData,
+                };
             }
 
             const result = await onSave(saveData);
 
             // Mark as saved
             actions.markSaved();
-            templateDataRef.current = { name: templateName, subject: templateSubject };
-            setTemplateDirty(false);
+
+            // Update dirty tracking state
+            if (isEmailContext) {
+                templateDataRef.current = {
+                    name: templateName,
+                    subject: templateSubject,
+                };
+                setTemplateDirty(false);
+            } else if (isPostContext) {
+                setSavedPostData({
+                    title,
+                    slug,
+                    status,
+                    excerpt,
+                    publishedAt,
+                    parentId,
+                    featuredImage,
+                });
+                setRemoveFeaturedImage(false);
+            }
 
             // Show success toast
-            const isEdit = !!templateData?.uuid;
+            const isEdit = !!(templateData?.uuid || postData?.id);
             showToast(
-                'success',
-                isEdit ? __('Saved') : __('Created'),
-                result?.message || (isEdit ? __('Saved successfully!') : __('Created successfully!'))
+                "success",
+                isEdit ? __("Saved") : __("Created"),
+                result?.message ||
+                    (isEdit
+                        ? __("Saved successfully!")
+                        : __("Created successfully!"))
             );
 
             LaraHooks.doAction(BuilderHooks.ACTION_AFTER_SAVE, result);
 
-            // Redirect for new templates
-            if (!isEdit && result?.id && listUrl) {
-                setTimeout(() => {
-                    window.location.href = `${listUrl.replace(/\/$/, '')}/${result.id}/edit`;
-                }, 500);
+            // Redirect for new items
+            if (!isEdit) {
+                if (result?.id && listUrl) {
+                    setTimeout(() => {
+                        window.location.href = `${listUrl.replace(/\/$/, "")}/${
+                            result.id
+                        }/edit`;
+                    }, 500);
+                } else if (result?.redirect) {
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 500);
+                }
             }
         } catch (error) {
-            showToast('error', __('Save Failed'), error.message || __('Failed to save'));
+            showToast(
+                "error",
+                __("Save Failed"),
+                error.message || __("Failed to save")
+            );
             LaraHooks.doAction(BuilderHooks.ACTION_SAVE_ERROR, error);
         } finally {
             setSaving(false);
@@ -558,12 +841,13 @@ function LaraBuilderInner({
 
         if (pointerCollisions.length > 0) {
             const nestedCollision = pointerCollisions.find(
-                (c) => c.data?.droppableContainer?.data?.current?.type === 'nested'
+                (c) =>
+                    c.data?.droppableContainer?.data?.current?.type === "nested"
             );
             if (nestedCollision) return [nestedCollision];
 
             const columnCollision = pointerCollisions.find((c) =>
-                c.id.toString().startsWith('column-')
+                c.id.toString().startsWith("column-")
             );
             if (columnCollision) return [columnCollision];
 
@@ -577,19 +861,28 @@ function LaraBuilderInner({
     const labels = useMemo(() => {
         const contextLabels = {
             email: {
-                title: __('Email Builder'),
-                backText: __('Back to Templates'),
-                saveText: __('Save'),
+                title: __("Email Builder"),
+                backText: __("Back to Templates"),
+                saveText: __("Save"),
             },
             page: {
-                title: __('Page Builder'),
-                backText: __('Back to Posts'),
-                saveText: __('Save'),
+                title: __("Page Builder"),
+                backText: postTypeModel?.label
+                    ? __("Back to :type").replace(":type", postTypeModel.label)
+                    : __("Back to Posts"),
+                saveText: postData?.id ? __("Update") : __("Publish"),
+            },
+            post: {
+                title: __("Post Builder"),
+                backText: postTypeModel?.label
+                    ? __("Back to :type").replace(":type", postTypeModel.label)
+                    : __("Back to Posts"),
+                saveText: postData?.id ? __("Update") : __("Publish"),
             },
             campaign: {
-                title: __('Campaign Editor'),
-                backText: __('Back to Campaign'),
-                saveText: __('Save'),
+                title: __("Campaign Editor"),
+                backText: __("Back to Campaign"),
+                saveText: __("Save"),
             },
         };
 
@@ -597,7 +890,59 @@ function LaraBuilderInner({
             `${BuilderHooks.FILTER_CONFIG}.${context}`,
             contextLabels[context] || contextLabels.email
         );
-    }, [context]);
+    }, [context, postTypeModel, postData]);
+
+    // Determine which properties panel to use
+    const ActivePropertiesPanel = PropertiesPanelComponent || PropertiesPanel;
+
+    // Build properties panel props based on context
+    const propertiesPanelProps = {
+        selectedBlock,
+        onUpdate: handleUpdateBlock,
+        onImageUpload,
+        onVideoUpload,
+        canvasSettings,
+        onCanvasSettingsUpdate: actions.updateCanvasSettings,
+    };
+
+    // Add context-specific props
+    if (isEmailContext) {
+        Object.assign(propertiesPanelProps, {
+            templateName,
+            setTemplateName,
+            templateSubject,
+            setTemplateSubject,
+            context,
+        });
+    } else if (isPostContext) {
+        Object.assign(propertiesPanelProps, {
+            title,
+            setTitle,
+            slug,
+            setSlug,
+            generateSlug,
+            status,
+            setStatus,
+            excerpt,
+            setExcerpt,
+            publishedAt,
+            setPublishedAt,
+            parentId,
+            setParentId,
+            selectedTerms,
+            setSelectedTerms,
+            featuredImage,
+            setFeaturedImage,
+            removeFeaturedImage,
+            setRemoveFeaturedImage,
+            taxonomies,
+            parentPosts,
+            postTypeModel,
+            statuses,
+            postData,
+            postType,
+        });
+    }
 
     return (
         <DndContext
@@ -635,7 +980,9 @@ function LaraBuilderInner({
                                     onClick={(e) => {
                                         if (isFormDirty) {
                                             const confirmed = window.confirm(
-                                                'You have unsaved changes. Are you sure you want to leave?'
+                                                __(
+                                                    "You have unsaved changes. Are you sure you want to leave?"
+                                                )
                                             );
                                             if (!confirmed) {
                                                 e.preventDefault();
@@ -656,13 +1003,21 @@ function LaraBuilderInner({
                                             clipRule="evenodd"
                                         />
                                     </svg>
-                                    <span className="font-medium hidden sm:inline">{labels.backText}</span>
+                                    <span className="font-medium hidden sm:inline">
+                                        {labels.backText}
+                                    </span>
                                 </a>
                             )}
                             <div className="h-6 w-px bg-gray-300 hidden sm:block"></div>
                             <h1 className="text-sm sm:text-lg font-semibold text-gray-800">
-                                {templateData?.uuid ? __('Edit') : __('Create')}
-                                <span className="hidden sm:inline"> {labels.title.split(' ')[0]}</span>
+                                {templateData?.uuid || postData?.id
+                                    ? __("Edit")
+                                    : __("Create")}
+                                <span className="hidden sm:inline">
+                                    {" "}
+                                    {postTypeModel?.label_singular ||
+                                        labels.title.split(" ")[0]}
+                                </span>
                             </h1>
 
                             {/* History buttons */}
@@ -672,60 +1027,99 @@ function LaraBuilderInner({
                                     disabled={!canUndo}
                                     className={`p-1.5 pb-0 rounded-md transition-colors ${
                                         canUndo
-                                            ? 'hover:bg-gray-100 text-gray-600'
-                                            : 'text-gray-300 cursor-not-allowed'
+                                            ? "hover:bg-gray-100 text-gray-600"
+                                            : "text-gray-300 cursor-not-allowed"
                                     }`}
-                                    title={__('Undo (Ctrl+Z)')}
+                                    title={__("Undo (Ctrl+Z)")}
                                 >
-                                    <iconify-icon icon="mdi:undo" width="18" height="18"></iconify-icon>
+                                    <iconify-icon
+                                        icon="mdi:undo"
+                                        width="18"
+                                        height="18"
+                                    ></iconify-icon>
                                 </button>
                                 <button
                                     onClick={redo}
                                     disabled={!canRedo}
                                     className={`p-1.5 pb-0 rounded-md transition-colors ${
                                         canRedo
-                                            ? 'hover:bg-gray-100 text-gray-600'
-                                            : 'text-gray-300 cursor-not-allowed'
+                                            ? "hover:bg-gray-100 text-gray-600"
+                                            : "text-gray-300 cursor-not-allowed"
                                     }`}
-                                    title={__('Redo (Ctrl+Shift+Z)')}
+                                    title={__("Redo (Ctrl+Shift+Z)")}
                                 >
-                                    <iconify-icon icon="mdi:redo" width="18" height="18"></iconify-icon>
+                                    <iconify-icon
+                                        icon="mdi:redo"
+                                        width="18"
+                                        height="18"
+                                    ></iconify-icon>
                                 </button>
                             </div>
 
                             {isFormDirty && (
                                 <span className="text-xs text-orange-600 bg-orange-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md font-medium">
-                                    <span className="hidden sm:inline">{__('Unsaved changes')}</span>
+                                    <span className="hidden sm:inline">
+                                        {__("Unsaved changes")}
+                                    </span>
                                     <span className="sm:hidden">*</span>
                                 </span>
                             )}
                         </div>
 
                         <div className="flex items-center gap-2 sm:gap-4">
-                            {/* Name input (email context) */}
-                            {(context === 'email' || context === 'campaign') && (
+                            {/* Email context: Name input */}
+                            {isEmailContext && (
                                 <div className="hidden md:flex items-center gap-2">
-                                    <label className="text-sm font-medium text-gray-600">{__('Name')}:</label>
+                                    <label className="text-sm font-medium text-gray-600">
+                                        {__("Name")}:
+                                    </label>
                                     <input
                                         type="text"
                                         value={templateName}
-                                        onChange={(e) => setTemplateName(e.target.value)}
-                                        placeholder={__('Template name...')}
+                                        onChange={(e) =>
+                                            setTemplateName(e.target.value)
+                                        }
+                                        placeholder={__("Template name...")}
                                         className="form-control"
                                     />
                                 </div>
                             )}
 
-                            {/* Subject input (email context) */}
-                            {context === 'email' && (
+                            {/* Email context: Subject input */}
+                            {context === "email" && (
                                 <div className="hidden lg:flex items-center gap-2">
-                                    <label className="text-sm font-medium text-gray-600">{__('Subject')}:</label>
+                                    <label className="text-sm font-medium text-gray-600">
+                                        {__("Subject")}:
+                                    </label>
                                     <input
                                         type="text"
                                         value={templateSubject}
-                                        onChange={(e) => setTemplateSubject(e.target.value)}
-                                        placeholder={__('Email subject...')}
+                                        onChange={(e) =>
+                                            setTemplateSubject(e.target.value)
+                                        }
+                                        placeholder={__("Email subject...")}
                                         className="form-control"
+                                    />
+                                </div>
+                            )}
+
+                            {/* Post context: Title input */}
+                            {isPostContext && (
+                                <div className="hidden md:flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={title}
+                                        onChange={(e) =>
+                                            setTitle(e.target.value)
+                                        }
+                                        placeholder={__(
+                                            ":type title..."
+                                        ).replace(
+                                            ":type",
+                                            postTypeModel?.label_singular ||
+                                                "Post"
+                                        )}
+                                        className="form-control w-64"
                                     />
                                 </div>
                             )}
@@ -735,12 +1129,17 @@ function LaraBuilderInner({
                                 onClick={handleSave}
                                 disabled={saving}
                                 className={`gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 ${
-                                    saving ? 'btn-default cursor-not-allowed' : 'btn-primary'
+                                    saving
+                                        ? "btn-default cursor-not-allowed"
+                                        : "btn-primary"
                                 }`}
                             >
                                 {saving ? (
                                     <>
-                                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                        <svg
+                                            className="animate-spin h-4 w-4"
+                                            viewBox="0 0 24 24"
+                                        >
                                             <circle
                                                 className="opacity-25"
                                                 cx="12"
@@ -756,12 +1155,19 @@ function LaraBuilderInner({
                                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                             />
                                         </svg>
-                                        <span className="hidden sm:inline">{__('Saving...')}</span>
+                                        <span className="hidden sm:inline">
+                                            {__("Saving...")}
+                                        </span>
                                     </>
                                 ) : (
                                     <>
-                                        <iconify-icon icon="mdi:content-save" class="h-4 w-4"></iconify-icon>
-                                        <span className="hidden sm:inline">{labels.saveText}</span>
+                                        <iconify-icon
+                                            icon="mdi:content-save"
+                                            class="h-4 w-4"
+                                        ></iconify-icon>
+                                        <span className="hidden sm:inline">
+                                            {labels.saveText}
+                                        </span>
                                     </>
                                 )}
                             </button>
@@ -785,54 +1191,89 @@ function LaraBuilderInner({
                             onClick={() => setLeftDrawerOpen(true)}
                             className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg shadow-lg hover:bg-primary/90 transition-colors"
                         >
-                            <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
-                            <span className="text-sm font-medium">{__('Blocks')}</span>
+                            <iconify-icon
+                                icon="mdi:plus-box-multiple"
+                                width="20"
+                                height="20"
+                            ></iconify-icon>
+                            <span className="text-sm font-medium">
+                                {__("Blocks")}
+                            </span>
                         </button>
                         <button
                             onClick={() => setRightDrawerOpen(true)}
                             className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-gray-700 text-white rounded-lg shadow-lg hover:bg-gray-800 transition-colors"
                         >
-                            <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
-                            <span className="text-sm font-medium">{__('Properties')}</span>
+                            <iconify-icon
+                                icon="mdi:cog"
+                                width="20"
+                                height="20"
+                            ></iconify-icon>
+                            <span className="text-sm font-medium">
+                                {__("Properties")}
+                            </span>
                         </button>
                     </div>
 
                     {/* Left sidebar - Block palette (Desktop) */}
                     <div
                         className={`hidden lg:flex bg-white border-r border-gray-200 overflow-hidden flex-col flex-shrink-0 transition-all duration-200 ${
-                            leftSidebarCollapsed ? 'w-12' : 'w-64'
+                            leftSidebarCollapsed ? "w-12" : "w-64"
                         }`}
                     >
                         {leftSidebarCollapsed ? (
                             <div className="flex flex-col items-center py-4">
                                 <button
-                                    onClick={() => setLeftSidebarCollapsed(false)}
+                                    onClick={() =>
+                                        setLeftSidebarCollapsed(false)
+                                    }
                                     className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
-                                    title={__('Show Blocks')}
+                                    title={__("Show Blocks")}
                                 >
-                                    <iconify-icon icon="mdi:chevron-right" width="20" height="20"></iconify-icon>
+                                    <iconify-icon
+                                        icon="mdi:chevron-right"
+                                        width="20"
+                                        height="20"
+                                    ></iconify-icon>
                                 </button>
                                 <button
-                                    onClick={() => setLeftSidebarCollapsed(false)}
+                                    onClick={() =>
+                                        setLeftSidebarCollapsed(false)
+                                    }
                                     className="mt-2 p-2 rounded-md hover:bg-primary/10 text-primary"
-                                    title={__('Show Blocks')}
+                                    title={__("Show Blocks")}
                                 >
-                                    <iconify-icon icon="mdi:plus-box-multiple" width="20" height="20"></iconify-icon>
+                                    <iconify-icon
+                                        icon="mdi:plus-box-multiple"
+                                        width="20"
+                                        height="20"
+                                    ></iconify-icon>
                                 </button>
                             </div>
                         ) : (
                             <div className="flex flex-col h-full p-4">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-sm font-semibold text-gray-900">{__('Blocks')}</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">
+                                        {__("Blocks")}
+                                    </h3>
                                     <button
-                                        onClick={() => setLeftSidebarCollapsed(true)}
+                                        onClick={() =>
+                                            setLeftSidebarCollapsed(true)
+                                        }
                                         className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-                                        title={__('Hide Blocks')}
+                                        title={__("Hide Blocks")}
                                     >
-                                        <iconify-icon icon="mdi:chevron-left" width="18" height="18"></iconify-icon>
+                                        <iconify-icon
+                                            icon="mdi:chevron-left"
+                                            width="18"
+                                            height="18"
+                                        ></iconify-icon>
                                     </button>
                                 </div>
-                                <BlockPanel onAddBlock={handleAddBlock} context={context} />
+                                <BlockPanel
+                                    onAddBlock={handleAddBlock}
+                                    context={context}
+                                />
                             </div>
                         )}
                     </div>
@@ -846,12 +1287,18 @@ function LaraBuilderInner({
                             ></div>
                             <div className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl flex flex-col animate-slide-in-left">
                                 <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                                    <h3 className="text-sm font-semibold text-gray-900">{__('Blocks')}</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">
+                                        {__("Blocks")}
+                                    </h3>
                                     <button
                                         onClick={() => setLeftDrawerOpen(false)}
                                         className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
                                     >
-                                        <iconify-icon icon="mdi:close" width="20" height="20"></iconify-icon>
+                                        <iconify-icon
+                                            icon="mdi:close"
+                                            width="20"
+                                            height="20"
+                                        ></iconify-icon>
                                     </button>
                                 </div>
                                 <div className="flex-1 p-4 overflow-hidden">
@@ -868,49 +1315,69 @@ function LaraBuilderInner({
                     )}
 
                     {/* Canvas or Code Editor based on mode */}
-                    {editorMode === 'visual' ? (
+                    {editorMode === "visual" ? (
                         <div className="flex-1 flex flex-col overflow-hidden">
                             {/* Responsive Preview Toolbar */}
                             <div className="flex items-center justify-center gap-1 py-2 px-4 bg-gray-100 border-b border-gray-200">
                                 <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-0.5">
                                     <button
                                         type="button"
-                                        onClick={() => setPreviewMode('desktop')}
+                                        onClick={() =>
+                                            setPreviewMode("desktop")
+                                        }
                                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                                            previewMode === 'desktop'
-                                                ? 'bg-primary text-white'
-                                                : 'text-gray-600 hover:bg-gray-100'
+                                            previewMode === "desktop"
+                                                ? "bg-primary text-white"
+                                                : "text-gray-600 hover:bg-gray-100"
                                         }`}
-                                        title={__('Desktop Preview')}
+                                        title={__("Desktop Preview")}
                                     >
-                                        <iconify-icon icon="mdi:monitor" width="16" height="16"></iconify-icon>
-                                        <span className="hidden sm:inline">{__('Desktop')}</span>
+                                        <iconify-icon
+                                            icon="mdi:monitor"
+                                            width="16"
+                                            height="16"
+                                        ></iconify-icon>
+                                        <span className="hidden sm:inline">
+                                            {__("Desktop")}
+                                        </span>
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => setPreviewMode('tablet')}
+                                        onClick={() => setPreviewMode("tablet")}
                                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                                            previewMode === 'tablet'
-                                                ? 'bg-primary text-white'
-                                                : 'text-gray-600 hover:bg-gray-100'
+                                            previewMode === "tablet"
+                                                ? "bg-primary text-white"
+                                                : "text-gray-600 hover:bg-gray-100"
                                         }`}
-                                        title={__('Tablet Preview')}
+                                        title={__("Tablet Preview")}
                                     >
-                                        <iconify-icon icon="mdi:tablet" width="16" height="16"></iconify-icon>
-                                        <span className="hidden sm:inline">{__('Tablet')}</span>
+                                        <iconify-icon
+                                            icon="mdi:tablet"
+                                            width="16"
+                                            height="16"
+                                        ></iconify-icon>
+                                        <span className="hidden sm:inline">
+                                            {__("Tablet")}
+                                        </span>
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => setPreviewMode('mobile')}
+                                        onClick={() => setPreviewMode("mobile")}
                                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                                            previewMode === 'mobile'
-                                                ? 'bg-primary text-white'
-                                                : 'text-gray-600 hover:bg-gray-100'
+                                            previewMode === "mobile"
+                                                ? "bg-primary text-white"
+                                                : "text-gray-600 hover:bg-gray-100"
                                         }`}
-                                        title={__('Mobile Preview')}
+                                        title={__("Mobile Preview")}
                                     >
-                                        <iconify-icon icon="mdi:cellphone" width="16" height="16"></iconify-icon>
-                                        <span className="hidden sm:inline">{__('Mobile')}</span>
+                                        <iconify-icon
+                                            icon="mdi:cellphone"
+                                            width="16"
+                                            height="16"
+                                        ></iconify-icon>
+                                        <span className="hidden sm:inline">
+                                            {__("Mobile")}
+                                        </span>
                                     </button>
                                 </div>
                             </div>
@@ -924,7 +1391,10 @@ function LaraBuilderInner({
                                 onMoveBlock={handleMoveBlock}
                                 onDuplicateBlock={handleDuplicateBlock}
                                 onMoveNestedBlock={handleMoveNestedBlock}
-                                onDuplicateNestedBlock={handleDuplicateNestedBlock}
+                                onDuplicateNestedBlock={
+                                    handleDuplicateNestedBlock
+                                }
+                                onInsertBlockAfter={handleInsertBlockAfter}
                                 canvasSettings={canvasSettings}
                                 previewMode={previewMode}
                             />
@@ -941,46 +1411,61 @@ function LaraBuilderInner({
                     {/* Right sidebar - Properties (Desktop) */}
                     <div
                         className={`hidden lg:flex bg-white border-l border-gray-200 overflow-hidden flex-col flex-shrink-0 transition-all duration-200 ${
-                            rightSidebarCollapsed ? 'w-12' : 'w-72'
+                            rightSidebarCollapsed ? "w-12" : "w-80"
                         }`}
                     >
                         {rightSidebarCollapsed ? (
                             <div className="flex flex-col items-center py-4">
                                 <button
-                                    onClick={() => setRightSidebarCollapsed(false)}
+                                    onClick={() =>
+                                        setRightSidebarCollapsed(false)
+                                    }
                                     className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
-                                    title={__('Show Properties')}
+                                    title={__("Show Properties")}
                                 >
-                                    <iconify-icon icon="mdi:chevron-left" width="20" height="20"></iconify-icon>
+                                    <iconify-icon
+                                        icon="mdi:chevron-left"
+                                        width="20"
+                                        height="20"
+                                    ></iconify-icon>
                                 </button>
                                 <button
-                                    onClick={() => setRightSidebarCollapsed(false)}
+                                    onClick={() =>
+                                        setRightSidebarCollapsed(false)
+                                    }
                                     className="mt-2 p-2 rounded-md hover:bg-gray-50 text-gray-600"
-                                    title={__('Show Properties')}
+                                    title={__("Show Properties")}
                                 >
-                                    <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
+                                    <iconify-icon
+                                        icon="mdi:cog"
+                                        width="20"
+                                        height="20"
+                                    ></iconify-icon>
                                 </button>
                             </div>
                         ) : (
                             <div className="flex flex-col h-full pt-4 pr-4 pb-4 pl-2 overflow-hidden">
                                 <div className="flex items-center justify-between mb-4 pl-2">
-                                    <h3 className="text-sm font-semibold text-gray-900">{__('Properties')}</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">
+                                        {__("Properties")}
+                                    </h3>
                                     <button
-                                        onClick={() => setRightSidebarCollapsed(true)}
+                                        onClick={() =>
+                                            setRightSidebarCollapsed(true)
+                                        }
                                         className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
-                                        title={__('Hide Properties')}
+                                        title={__("Hide Properties")}
                                     >
-                                        <iconify-icon icon="mdi:chevron-right" width="18" height="18"></iconify-icon>
+                                        <iconify-icon
+                                            icon="mdi:chevron-right"
+                                            width="18"
+                                            height="18"
+                                        ></iconify-icon>
                                     </button>
                                 </div>
                                 <div className="flex-1 overflow-y-auto pl-2">
-                                    <PropertiesPanel
-                                        selectedBlock={selectedBlock}
-                                        onUpdate={handleUpdateBlock}
-                                        onImageUpload={onImageUpload}
-                                        onVideoUpload={onVideoUpload}
-                                        canvasSettings={canvasSettings}
-                                        onCanvasSettingsUpdate={actions.updateCanvasSettings}
+                                    <ActivePropertiesPanel
+                                        {...propertiesPanelProps}
                                     />
                                 </div>
                             </div>
@@ -996,44 +1481,67 @@ function LaraBuilderInner({
                             ></div>
                             <div className="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-xl flex flex-col animate-slide-in-right">
                                 <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                                    <h3 className="text-sm font-semibold text-gray-900">{__('Properties')}</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">
+                                        {__("Properties")}
+                                    </h3>
                                     <button
-                                        onClick={() => setRightDrawerOpen(false)}
+                                        onClick={() =>
+                                            setRightDrawerOpen(false)
+                                        }
                                         className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
                                     >
-                                        <iconify-icon icon="mdi:close" width="20" height="20"></iconify-icon>
+                                        <iconify-icon
+                                            icon="mdi:close"
+                                            width="20"
+                                            height="20"
+                                        ></iconify-icon>
                                     </button>
                                 </div>
                                 <div className="flex-1 px-4 py-4 overflow-y-auto">
-                                    {/* Mobile-only template inputs */}
-                                    {(context === 'email' || context === 'campaign') && (
+                                    {/* Mobile-only template inputs for email context */}
+                                    {isEmailContext && (
                                         <div className="md:hidden mb-4 pb-4 border-b border-gray-200">
                                             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                                                {__('Template Details')}
+                                                {__("Template Details")}
                                             </h4>
                                             <div className="space-y-3">
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                        {__('Name')}
+                                                        {__("Name")}
                                                     </label>
                                                     <input
                                                         type="text"
                                                         value={templateName}
-                                                        onChange={(e) => setTemplateName(e.target.value)}
-                                                        placeholder={__('Template name...')}
+                                                        onChange={(e) =>
+                                                            setTemplateName(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        placeholder={__(
+                                                            "Template name..."
+                                                        )}
                                                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                                     />
                                                 </div>
-                                                {context === 'email' && (
+                                                {context === "email" && (
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                            {__('Subject')}
+                                                            {__("Subject")}
                                                         </label>
                                                         <input
                                                             type="text"
-                                                            value={templateSubject}
-                                                            onChange={(e) => setTemplateSubject(e.target.value)}
-                                                            placeholder={__('Email subject...')}
+                                                            value={
+                                                                templateSubject
+                                                            }
+                                                            onChange={(e) =>
+                                                                setTemplateSubject(
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            placeholder={__(
+                                                                "Email subject..."
+                                                            )}
                                                             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                                         />
                                                     </div>
@@ -1041,13 +1549,31 @@ function LaraBuilderInner({
                                             </div>
                                         </div>
                                     )}
-                                    <PropertiesPanel
-                                        selectedBlock={selectedBlock}
-                                        onUpdate={handleUpdateBlock}
-                                        onImageUpload={onImageUpload}
-                                        onVideoUpload={onVideoUpload}
-                                        canvasSettings={canvasSettings}
-                                        onCanvasSettingsUpdate={actions.updateCanvasSettings}
+                                    {/* Mobile-only title input for post context */}
+                                    {isPostContext && (
+                                        <div className="md:hidden mb-4 pb-4 border-b border-gray-200">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                {__("Title")}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={title}
+                                                onChange={(e) =>
+                                                    setTitle(e.target.value)
+                                                }
+                                                placeholder={__(
+                                                    ":type title..."
+                                                ).replace(
+                                                    ":type",
+                                                    postTypeModel?.label_singular ||
+                                                        "Post"
+                                                )}
+                                                className="form-control w-full"
+                                            />
+                                        </div>
+                                    )}
+                                    <ActivePropertiesPanel
+                                        {...propertiesPanelProps}
                                     />
                                 </div>
                             </div>
@@ -1058,10 +1584,14 @@ function LaraBuilderInner({
 
             {/* Drag overlay */}
             <DragOverlay>
-                {activeId && activeId.toString().startsWith('palette-') && (
+                {activeId && activeId.toString().startsWith("palette-") && (
                     <div className="p-4 bg-white border-2 border-primary rounded-lg shadow-lg opacity-80">
                         <span className="text-sm font-medium">
-                            {blockRegistry.get(activeId.replace('palette-', ''))?.label}
+                            {
+                                blockRegistry.get(
+                                    activeId.replace("palette-", "")
+                                )?.label
+                            }
                         </span>
                     </div>
                 )}
@@ -1077,15 +1607,26 @@ function LaraBuilderInner({
  * LaraBuilder - Main exported component
  */
 function LaraBuilder({
-    context = 'email',
+    context = "email",
     initialData = null,
     onSave,
     onImageUpload,
     onVideoUpload,
-    templateData,
     listUrl,
     config = {},
     showHeader = true,
+    // Email-specific props
+    templateData,
+    // Post-specific props
+    postData = null,
+    taxonomies = [],
+    selectedTerms = {},
+    parentPosts = {},
+    postType = "post",
+    postTypeModel = {},
+    statuses = {},
+    // Custom properties panel component
+    PropertiesPanelComponent,
 }) {
     // Fire init action
     useEffect(() => {
@@ -1102,9 +1643,17 @@ function LaraBuilder({
                 onSave={onSave}
                 onImageUpload={onImageUpload}
                 onVideoUpload={onVideoUpload}
-                templateData={templateData}
                 listUrl={listUrl}
                 showHeader={showHeader}
+                templateData={templateData}
+                postData={postData}
+                taxonomies={taxonomies}
+                selectedTerms={selectedTerms}
+                parentPosts={parentPosts}
+                postType={postType}
+                postTypeModel={postTypeModel}
+                statuses={statuses}
+                PropertiesPanelComponent={PropertiesPanelComponent}
             />
         </BuilderProvider>
     );

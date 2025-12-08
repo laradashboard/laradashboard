@@ -1,17 +1,9 @@
-/**
- * List Block
- *
- * A list block with bullet, numbered, or check styles.
- * Note: Items are managed via inline editing in block.jsx
- */
-
 import { createBlockFromJson } from '@lara-builder/factory';
 import { __ } from '@lara-builder/i18n';
 import config from './block.json';
 import block from './block';
 import save from './save';
 
-// Fields defined in JS for translation support
 const fields = [
     {
         name: 'listType',

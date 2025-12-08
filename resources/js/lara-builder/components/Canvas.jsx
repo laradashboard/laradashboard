@@ -38,7 +38,7 @@ const DropZone = ({ id, isFirst = false }) => {
 // Note: Block features are now read from block.json supports configuration
 // via getBlockSupports() instead of hardcoded arrays
 
-const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, totalBlocks, blockIndex }) => {
+const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, onInsertBlockAfter, totalBlocks, blockIndex }) => {
     const [textFormatProps, setTextFormatProps] = useState(null);
 
     const {
@@ -179,6 +179,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                 props={block.props}
                 isSelected={isSelected}
                 onUpdate={(newProps) => onUpdate(block.id, newProps)}
+                onInsertBlockAfter={onInsertBlockAfter ? (blockType) => onInsertBlockAfter(block.id, blockType) : undefined}
                 {...(hasTextFormatting ? {
                     onRegisterTextFormat: setTextFormatProps,
                 } : {})}
@@ -213,7 +214,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     );
 };
 
-const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, canvasSettings, previewMode = 'desktop' }) => {
+const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, onInsertBlockAfter, canvasSettings, previewMode = 'desktop' }) => {
     const { setNodeRef, isOver } = useDroppable({
         id: 'canvas',
     });
@@ -324,6 +325,7 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
                                                 onDuplicateBlock={onDuplicateBlock}
                                                 onMoveNestedBlock={onMoveNestedBlock}
                                                 onDuplicateNestedBlock={onDuplicateNestedBlock}
+                                                onInsertBlockAfter={onInsertBlockAfter}
                                             />
                                             {/* Drop zone after each block */}
                                             <DropZone id={`dropzone-${index + 1}`} />

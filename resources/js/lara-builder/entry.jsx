@@ -10,6 +10,7 @@ import * as ReactDOM from "react-dom";
 import * as ReactJSXRuntime from "react/jsx-runtime";
 import { createRoot } from "react-dom/client";
 import LaraBuilder from "./core/LaraBuilder";
+import EmailPropertiesPanel from "./components/EmailPropertiesPanel";
 
 // Expose React globally for module blocks to use
 // This ensures module blocks use the same React instance as the main app
@@ -169,6 +170,7 @@ function initLaraBuilder(elementId = "lara-builder-root") {
             onImageUpload={handleImageUpload}
             onVideoUpload={handleVideoUpload}
             showHeader={showHeader}
+            PropertiesPanelComponent={EmailPropertiesPanel}
         />
     );
 

@@ -6,6 +6,7 @@ export default function TextBlock({
     onUpdate,
     isSelected,
     onRegisterTextFormat,
+    onInsertBlockAfter,
 }) {
     const editorRef = useRef(null);
     const lastPropsContent = useRef(props.content);
@@ -15,6 +16,27 @@ export default function TextBlock({
     // Keep refs updated
     propsRef.current = props;
     onUpdateRef.current = onUpdate;
+    const onInsertBlockAfterRef = useRef(onInsertBlockAfter);
+    onInsertBlockAfterRef.current = onInsertBlockAfter;
+
+    // Handle Enter key to create new block, Shift+Enter for line break
+    const handleKeyDown = useCallback((e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            // Save current content first
+            if (editorRef.current) {
+                const newContent = editorRef.current.innerHTML;
+                lastPropsContent.current = newContent;
+                onUpdateRef.current({ ...propsRef.current, content: newContent });
+            }
+            // Insert new text block after this one
+            if (onInsertBlockAfterRef.current) {
+                onInsertBlockAfterRef.current('text');
+            }
+        }
+        // Shift+Enter allows default behavior (line break)
+    }, []);
 
     const handleInput = useCallback(() => {
         if (editorRef.current) {
@@ -152,6 +174,7 @@ export default function TextBlock({
                     suppressContentEditableWarning
                     onInput={handleInput}
                     onBlur={handleInput}
+                    onKeyDown={handleKeyDown}
                     data-placeholder="Enter text..."
                     style={{
                         ...baseStyle,
@@ -167,8 +190,10 @@ export default function TextBlock({
 
     // Render HTML content safely for display
     const renderContent = () => {
-        const text = props.content || "Click to edit text";
-        return <span dangerouslySetInnerHTML={{ __html: text }} />;
+        if (!props.content) {
+            return <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Start typing...</span>;
+        }
+        return <span dangerouslySetInnerHTML={{ __html: props.content }} />;
     };
 
     return <div style={baseStyle}>{renderContent()}</div>;
