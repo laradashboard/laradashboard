@@ -7,6 +7,8 @@ export default function TextBlock({
     isSelected,
     onRegisterTextFormat,
     onInsertBlockAfter,
+    onDelete,
+    blockId,
 }) {
     const editorRef = useRef(null);
     const lastPropsContent = useRef(props.content);
@@ -18,8 +20,11 @@ export default function TextBlock({
     onUpdateRef.current = onUpdate;
     const onInsertBlockAfterRef = useRef(onInsertBlockAfter);
     onInsertBlockAfterRef.current = onInsertBlockAfter;
+    const onDeleteRef = useRef(onDelete);
+    onDeleteRef.current = onDelete;
 
     // Handle Enter key to create new block, Shift+Enter for line break
+    // Handle Backspace on empty content to delete block
     const handleKeyDown = useCallback((e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -33,6 +38,19 @@ export default function TextBlock({
             // Insert new text block after this one
             if (onInsertBlockAfterRef.current) {
                 onInsertBlockAfterRef.current('text');
+            }
+        }
+        // Backspace on empty content deletes the block
+        if (e.key === 'Backspace') {
+            const content = editorRef.current?.innerHTML || '';
+            // Check if content is empty (or just has <br> or whitespace)
+            const isEmpty = !content || content === '<br>' || content.replace(/<br\s*\/?>/gi, '').trim() === '';
+            if (isEmpty) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (onDeleteRef.current) {
+                    onDeleteRef.current();
+                }
             }
         }
         // Shift+Enter allows default behavior (line break)

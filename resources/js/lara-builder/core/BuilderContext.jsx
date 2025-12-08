@@ -15,7 +15,7 @@
  */
 
 import React, { createContext, useContext, useReducer, useCallback, useMemo, useEffect } from 'react';
-import { builderReducer, initialState, actions as actionCreators } from './BuilderReducer';
+import { builderReducer, initialState, actions as actionCreators, createDefaultTextBlock } from './BuilderReducer';
 import { LaraHooks } from '../hooks-system/LaraHooks';
 import { BuilderHooks } from '../hooks-system/HookNames';
 import { OutputAdapterRegistry } from '../registry/OutputAdapterRegistry';
@@ -60,6 +60,14 @@ export function BuilderProvider({
 
     // Prepare initial state
     const preparedInitialState = useMemo(() => {
+        // Use provided blocks, or create a default empty text block
+        const initialBlocks = initialData?.blocks?.length > 0
+            ? initialData.blocks
+            : [createDefaultTextBlock()];
+
+        // Select the first block by default for better UX
+        const initialSelectedId = initialBlocks[0]?.id || null;
+
         let state = {
             ...initialState,
             context,
@@ -68,7 +76,8 @@ export function BuilderProvider({
                 ...defaultSettings,
                 ...initialData?.canvasSettings,
             },
-            blocks: initialData?.blocks || [],
+            blocks: initialBlocks,
+            selectedBlockId: initialSelectedId,
         };
 
         // Apply filter for initial state customization

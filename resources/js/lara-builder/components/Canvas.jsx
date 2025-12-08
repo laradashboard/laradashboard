@@ -182,6 +182,8 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                 onInsertBlockAfter={onInsertBlockAfter ? (blockType) => onInsertBlockAfter(block.id, blockType) : undefined}
                 {...(hasTextFormatting ? {
                     onRegisterTextFormat: setTextFormatProps,
+                    onDelete: () => onDelete(block.id),
+                    blockId: block.id,
                 } : {})}
                 {...(hasColumnCount ? {
                     blockId: block.id,

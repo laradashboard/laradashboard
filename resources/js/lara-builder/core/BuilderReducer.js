@@ -82,6 +82,23 @@ function generateId() {
 }
 
 /**
+ * Helper: Create a default empty text block
+ */
+function createDefaultTextBlock() {
+    return {
+        id: generateId(),
+        type: 'text',
+        props: {
+            content: '',
+            align: 'left',
+            color: '#666666',
+            fontSize: '16px',
+            lineHeight: '1.6',
+        },
+    };
+}
+
+/**
  * Helper: Find block by ID in a nested structure
  */
 function findBlockById(blocks, id) {
@@ -277,28 +294,35 @@ export function builderReducer(state, action) {
         case ActionTypes.DELETE_BLOCK: {
             const { id } = action.payload;
 
-            // Determine next selection after deletion
+            // Delete the block
+            let newBlocks = deleteBlockFromTree(state.blocks, id);
+
+            // Ensure at least one text block always exists
             let nextSelectedId = state.selectedBlockId;
-            if (state.selectedBlockId === id) {
-                // Find the index of the deleted block
+            if (newBlocks.length === 0) {
+                const defaultBlock = createDefaultTextBlock();
+                newBlocks = [defaultBlock];
+                nextSelectedId = defaultBlock.id;
+            } else if (state.selectedBlockId === id) {
+                // Find the index of the deleted block to select previous/next
                 const deletedIndex = state.blocks.findIndex((b) => b.id === id);
                 if (deletedIndex !== -1) {
-                    // Select previous block if exists, otherwise next, otherwise null
+                    // Select previous block if exists, otherwise next
                     if (deletedIndex > 0) {
                         nextSelectedId = state.blocks[deletedIndex - 1].id;
                     } else if (state.blocks.length > 1) {
                         nextSelectedId = state.blocks[deletedIndex + 1].id;
                     } else {
-                        nextSelectedId = null;
+                        nextSelectedId = newBlocks[0]?.id || null;
                     }
                 } else {
-                    nextSelectedId = null;
+                    nextSelectedId = newBlocks[0]?.id || null;
                 }
             }
 
             newState = {
                 ...state,
-                blocks: deleteBlockFromTree(state.blocks, id),
+                blocks: newBlocks,
                 selectedBlockId: nextSelectedId,
                 past: pastWithCurrent,
                 future: [],
@@ -708,4 +732,5 @@ export const actions = {
     loadState: (blocks, canvasSettings) => ({ type: ActionTypes.LOAD_STATE, payload: { blocks, canvasSettings } }),
 };
 
+export { createDefaultTextBlock };
 export default builderReducer;
