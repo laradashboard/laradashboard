@@ -117,9 +117,11 @@ function LaraBuilderInner({
     const {
         templateName,
         templateSubject,
+        templateStatus,
         templateDirty,
         setTemplateName,
         setTemplateSubject,
+        setTemplateStatus,
         markEmailSaved,
     } = useEmailState({ templateData, isEmailContext });
 
@@ -412,7 +414,9 @@ function LaraBuilderInner({
             if (isEmailContext) {
                 saveData = {
                     name: templateName,
-                    subject: templateSubject,
+                    // Use template name as subject if subject is empty
+                    subject: templateSubject || templateName,
+                    is_active: templateStatus,
                     body_html: html,
                     design_json: designJson,
                 };
@@ -533,6 +537,8 @@ function LaraBuilderInner({
             setTemplateName,
             templateSubject,
             setTemplateSubject,
+            templateStatus,
+            setTemplateStatus,
             context,
         });
     } else if (isPostContext) {
@@ -598,6 +604,7 @@ function LaraBuilderInner({
                         isFormDirty={isFormDirty}
                         labels={labels}
                         isPostContext={isPostContext}
+                        isEmailContext={isEmailContext}
                         templateData={templateData}
                         postData={postData}
                         postTypeModel={postTypeModel}
@@ -607,6 +614,8 @@ function LaraBuilderInner({
                         redo={redo}
                         title={title}
                         setTitle={setTitle}
+                        templateName={templateName}
+                        setTemplateName={setTemplateName}
                         saving={saving}
                         onSave={handleSave}
                         editorMode={editorMode}

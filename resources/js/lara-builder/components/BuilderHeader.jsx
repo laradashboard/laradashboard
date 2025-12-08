@@ -15,6 +15,7 @@ function BuilderHeader({
     labels,
     // Context info
     isPostContext,
+    isEmailContext,
     templateData,
     postData,
     postTypeModel,
@@ -26,6 +27,9 @@ function BuilderHeader({
     // Post state
     title,
     setTitle,
+    // Email state
+    templateName,
+    setTemplateName,
     // Save
     saving,
     onSave,
@@ -129,6 +133,19 @@ function BuilderHeader({
                                 ":type",
                                 postTypeModel?.label_singular || "Post"
                             )}
+                            className="form-control w-64"
+                        />
+                    </div>
+                )}
+
+                {/* Email context: Template name input */}
+                {isEmailContext && (
+                    <div className="hidden md:flex items-center gap-2">
+                        <input
+                            type="text"
+                            value={templateName}
+                            onChange={(e) => setTemplateName(e.target.value)}
+                            placeholder={__("Template name...")}
                             className="form-control w-64"
                         />
                     </div>

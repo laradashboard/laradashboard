@@ -73,6 +73,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
             Route::get('{email_template}', [EmailTemplatesController::class, 'show'])->name('show')->where('email_template', '[0-9]+');
             Route::delete('{email_template}', [EmailTemplatesController::class, 'destroy'])->name('destroy')->where('email_template', '[0-9]+');
 
+            // API routes for AJAX/JS
+            Route::get('api/list', [EmailTemplatesController::class, 'apiList'])->name('api.list');
+
             // Utility routes
             Route::get('by-type/{type}', [EmailTemplatesController::class, 'getByType'])->name('by-type');
             Route::get('{email_template}/content', [EmailTemplatesController::class, 'getContent'])->name('content')->where('email_template', '[0-9]+');

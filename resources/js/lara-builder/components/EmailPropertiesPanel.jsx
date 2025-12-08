@@ -21,6 +21,8 @@ const EmailPropertiesPanel = ({
     setTemplateName,
     templateSubject,
     setTemplateSubject,
+    templateStatus,
+    setTemplateStatus,
     context,
 }) => {
     // Handle canvas layout styles update
@@ -56,20 +58,6 @@ const EmailPropertiesPanel = ({
                     </span>
                 </div>
 
-                {/* Template Name */}
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {__('Name')}
-                    </label>
-                    <input
-                        type="text"
-                        value={templateName}
-                        onChange={(e) => setTemplateName(e.target.value)}
-                        placeholder={__('Template name...')}
-                        className="form-control"
-                    />
-                </div>
-
                 {/* Email Subject */}
                 {context === 'email' && (
                     <div className="mb-4">
@@ -83,6 +71,32 @@ const EmailPropertiesPanel = ({
                             placeholder={__('Email subject...')}
                             className="form-control"
                         />
+                        <p className="text-xs text-gray-400 mt-1">
+                            {__('Leave empty to use template name as subject')}
+                        </p>
+                    </div>
+                )}
+
+                {/* Status */}
+                {context === 'email' && (
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {__('Status')}
+                        </label>
+                        <div className="flex items-center gap-3">
+                            <label className="inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={templateStatus}
+                                    onChange={(e) => setTemplateStatus(e.target.checked)}
+                                    className="sr-only peer"
+                                />
+                                <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                <span className="ms-2 text-sm text-gray-600">
+                                    {templateStatus ? __('Active') : __('Inactive')}
+                                </span>
+                            </label>
+                        </div>
                     </div>
                 )}
             </div>

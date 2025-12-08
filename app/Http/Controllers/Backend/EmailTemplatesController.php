@@ -100,23 +100,57 @@ class EmailTemplatesController extends Controller
     }
 
     /**
-     * Show the custom drag-drop email builder for creating a new template.
+     * API endpoint to list all active templates for AJAX requests.
      */
-    public function builder(): Renderable
+    public function apiList(): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
+        $templates = EmailTemplate::where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->map(fn (EmailTemplate $template) => [
+                'id' => $template->id,
+                'uuid' => $template->uuid,
+                'name' => $template->name,
+                'subject' => $template->subject,
+                'type' => $template->type,
+                'type_label' => $template->type_label,
+                'body_html' => $template->body_html ?? '',
+            ]);
+
+        return response()->json([
+            'templates' => $templates,
+        ]);
+    }
+
+    /**
+     * Show the custom drag-drop email builder for creating a new template.
+     */
+    public function builder(Request $request): Renderable
+    {
+        $this->authorize('manage', Setting::class);
+
+        // Support redirect_url for extensibility - any module can pass a redirect URL
+        // to return to after saving the template
+        $redirectUrl = $request->query('redirect_url');
+
         return view('email-templates.builder', [
             'saveUrl' => route('admin.email-templates.store'),
+            'redirectUrl' => $redirectUrl,
         ]);
     }
 
     /**
      * Show the custom drag-drop email builder for editing an existing template.
      */
-    public function builderEdit(EmailTemplate $emailTemplate): Renderable
+    public function builderEdit(Request $request, EmailTemplate $emailTemplate): Renderable
     {
         $this->authorize('manage', Setting::class);
+
+        // Support redirect_url for extensibility - any module can pass a redirect URL
+        // to return to after saving the template
+        $redirectUrl = $request->query('redirect_url');
 
         return view('email-templates.builder', [
             'template' => $emailTemplate,
@@ -125,8 +159,10 @@ class EmailTemplatesController extends Controller
                 'uuid' => $emailTemplate->uuid,
                 'name' => $emailTemplate->name,
                 'subject' => $emailTemplate->subject,
+                'is_active' => $emailTemplate->is_active,
             ],
             'saveUrl' => route('admin.email-templates.update', $emailTemplate),
+            'redirectUrl' => $redirectUrl,
         ]);
     }
 
@@ -140,6 +176,7 @@ class EmailTemplatesController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'subject' => 'nullable|string|max:255',
+            'is_active' => 'nullable|boolean',
             'body_html' => 'required|string',
             'design_json' => 'required|array',
         ]);
@@ -148,6 +185,7 @@ class EmailTemplatesController extends Controller
             $template = $this->emailTemplateService->createTemplate([
                 'name' => $validated['name'],
                 'subject' => $validated['subject'] ?? '',
+                'is_active' => $validated['is_active'] ?? true,
                 'body_html' => $validated['body_html'],
                 'design_json' => $validated['design_json'],
                 'type' => TemplateType::EMAIL->value,
@@ -182,6 +220,7 @@ class EmailTemplatesController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'subject' => 'nullable|string|max:255',
+            'is_active' => 'nullable|boolean',
             'body_html' => 'required|string',
             'design_json' => 'required|array',
         ]);
@@ -190,6 +229,7 @@ class EmailTemplatesController extends Controller
             $this->emailTemplateService->updateTemplate($emailTemplate, [
                 'name' => $validated['name'],
                 'subject' => $validated['subject'] ?? '',
+                'is_active' => $validated['is_active'] ?? $emailTemplate->is_active,
                 'body_html' => $validated['body_html'],
                 'design_json' => $validated['design_json'],
             ]);
