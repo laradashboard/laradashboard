@@ -496,6 +496,7 @@ const setNestedValue = (obj, path, value) => {
  * and automatically renders all the form fields.
  *
  * Supports nested field names using dot notation (e.g., "links.facebook")
+ * Supports linkedFields to update multiple props when a field changes
  *
  * @param {Object} props
  * @param {Array} props.fields - Field definitions array
@@ -503,8 +504,19 @@ const setNestedValue = (obj, path, value) => {
  * @param {Function} props.onUpdate - Update handler
  */
 export const AutoEditor = ({ fields = [], blockProps, onUpdate }) => {
-    const handleChange = (name, value) => {
-        const newProps = setNestedValue(blockProps, name, value);
+    const handleChange = (name, value, field) => {
+        let newProps = setNestedValue(blockProps, name, value);
+
+        // Handle linkedFields - update related props when this field changes
+        if (field?.linkedFields) {
+            Object.entries(field.linkedFields).forEach(([linkedName, transformer]) => {
+                const linkedValue = typeof transformer === 'function'
+                    ? transformer(value)
+                    : transformer;
+                newProps = setNestedValue(newProps, linkedName, linkedValue);
+            });
+        }
+
         onUpdate(newProps);
     };
 
@@ -529,7 +541,7 @@ export const AutoEditor = ({ fields = [], blockProps, onUpdate }) => {
                             name={field.name}
                             label={field.label}
                             value={getNestedValue(blockProps, field.name)}
-                            onChange={(value) => handleChange(field.name, value)}
+                            onChange={(value) => handleChange(field.name, value, field)}
                             options={field.options}
                             placeholder={field.placeholder}
                             min={field.min}

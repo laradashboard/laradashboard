@@ -6,27 +6,6 @@ import save from './save';
 
 const fields = [
     {
-        name: 'text',
-        type: 'textarea',
-        label: __('Quote Text'),
-        placeholder: __('Enter quote text...'),
-        section: __('Content'),
-    },
-    {
-        name: 'author',
-        type: 'text',
-        label: __('Author Name'),
-        placeholder: 'John Doe',
-        section: __('Author'),
-    },
-    {
-        name: 'authorTitle',
-        type: 'text',
-        label: __('Author Title'),
-        placeholder: 'CEO, Company',
-        section: __('Author'),
-    },
-    {
         name: 'borderColor',
         type: 'color',
         label: __('Border Color'),

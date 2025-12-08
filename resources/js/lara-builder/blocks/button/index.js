@@ -6,13 +6,6 @@ import save from './save';
 
 const fields = [
     {
-        name: 'text',
-        type: 'text',
-        label: __('Button Text'),
-        placeholder: __('Click Here'),
-        section: __('Content'),
-    },
-    {
         name: 'link',
         type: 'url',
         label: __('Link URL'),

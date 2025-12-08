@@ -1,6 +1,6 @@
 import { __ } from '@lara-builder/i18n';
 
-const ColumnsEditor = ({ props, onChange }) => {
+const ColumnsEditor = ({ props, onUpdate }) => {
     const { columns = 2, gap = '20px' } = props;
 
     const handleColumnsChange = (newColumns) => {
@@ -11,7 +11,7 @@ const ColumnsEditor = ({ props, onChange }) => {
             currentChildren[i] || []
         );
 
-        onChange({
+        onUpdate({
             ...props,
             columns: columnCount,
             children: newChildren
@@ -19,7 +19,7 @@ const ColumnsEditor = ({ props, onChange }) => {
     };
 
     const handleGapChange = (newGap) => {
-        onChange({ ...props, gap: newGap });
+        onUpdate({ ...props, gap: newGap });
     };
 
     return (

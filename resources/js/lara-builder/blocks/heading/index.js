@@ -4,14 +4,20 @@ import config from './block.json';
 import block from './block';
 import save from './save';
 
+/**
+ * Default font sizes for each heading level
+ * These provide sensible typography defaults when switching heading levels
+ */
+export const HEADING_FONT_SIZES = {
+    h1: '32px',
+    h2: '28px',
+    h3: '24px',
+    h4: '20px',
+    h5: '18px',
+    h6: '16px',
+};
+
 const fields = [
-    {
-        name: 'text',
-        type: 'text',
-        label: __('Heading Text'),
-        placeholder: __('Enter heading text...'),
-        section: __('Content'),
-    },
     {
         name: 'level',
         type: 'select',
@@ -25,6 +31,10 @@ const fields = [
             { value: 'h5', label: __('H5 - Small Heading') },
             { value: 'h6', label: __('H6 - Smallest Heading') },
         ],
+        // When level changes, also update fontSize to the default for that level
+        linkedFields: {
+            fontSize: (level) => HEADING_FONT_SIZES[level] || '24px',
+        },
     },
 ];
 
