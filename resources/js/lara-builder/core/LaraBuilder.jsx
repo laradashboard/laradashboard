@@ -160,6 +160,7 @@ function LaraBuilderInner({
         handleDuplicateNestedBlock,
         handleAddBlock,
         handleInsertBlockAfter,
+        handleReplaceBlock,
     } = useBlockOperations({ blocks, actions, addBlockAfterSelected });
 
     // Drag and drop
@@ -687,8 +688,10 @@ function LaraBuilderInner({
                                 onMoveNestedBlock={handleMoveNestedBlock}
                                 onDuplicateNestedBlock={handleDuplicateNestedBlock}
                                 onInsertBlockAfter={handleInsertBlockAfter}
+                                onReplaceBlock={handleReplaceBlock}
                                 canvasSettings={canvasSettings}
                                 previewMode={previewMode}
+                                context={context}
                             />
                         </div>
                     ) : (

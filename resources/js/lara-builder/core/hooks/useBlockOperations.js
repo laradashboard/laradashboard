@@ -201,6 +201,47 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
         [blocks, actions]
     );
 
+    // Replace a block with a new block of different type (for slash commands)
+    const handleReplaceBlock = useCallback(
+        (blockId, newBlockType) => {
+            const newBlock = blockRegistry.createInstance(newBlockType);
+            if (!newBlock) return;
+
+            // Find the block's position
+            const blockIndex = blocks.findIndex((b) => b.id === blockId);
+            if (blockIndex !== -1) {
+                // Delete the old block and insert new one at same position
+                actions.deleteBlock(blockId);
+                // Use setTimeout to ensure delete completes first
+                setTimeout(() => {
+                    actions.addBlock(newBlock, blockIndex);
+                    actions.selectBlock(newBlock.id);
+                }, 0);
+                return;
+            }
+
+            // Check nested blocks in columns
+            for (const block of blocks) {
+                if (block.type === "columns" && block.props.children) {
+                    for (let colIdx = 0; colIdx < block.props.children.length; colIdx++) {
+                        const column = block.props.children[colIdx];
+                        const nestedIndex = column.findIndex((b) => b.id === blockId);
+                        if (nestedIndex !== -1) {
+                            // Delete nested block and insert new one
+                            actions.deleteNestedBlock(block.id, colIdx, blockId);
+                            setTimeout(() => {
+                                actions.addNestedBlock(block.id, colIdx, newBlock, nestedIndex);
+                                actions.selectBlock(newBlock.id);
+                            }, 0);
+                            return;
+                        }
+                    }
+                }
+            }
+        },
+        [blocks, actions]
+    );
+
     return {
         // Helpers
         findBlock,
@@ -215,6 +256,7 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
         handleDuplicateNestedBlock,
         handleAddBlock,
         handleInsertBlockAfter,
+        handleReplaceBlock,
     };
 }
 

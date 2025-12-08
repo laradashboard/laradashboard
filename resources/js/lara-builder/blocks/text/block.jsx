@@ -1,5 +1,7 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
+import { __ } from "@lara-builder/i18n";
 import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
+import SlashCommandMenu from "../../components/SlashCommandMenu";
 
 export default function TextBlock({
     props,
@@ -8,12 +10,18 @@ export default function TextBlock({
     onRegisterTextFormat,
     onInsertBlockAfter,
     onDelete,
-    blockId,
+    onReplaceBlock,
+    context = "post",
 }) {
     const editorRef = useRef(null);
     const lastPropsContent = useRef(props.content);
     const propsRef = useRef(props);
     const onUpdateRef = useRef(onUpdate);
+
+    // Slash command state
+    const [showSlashMenu, setShowSlashMenu] = useState(false);
+    const [slashQuery, setSlashQuery] = useState("");
+    const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
     // Keep refs updated
     propsRef.current = props;
@@ -22,29 +30,81 @@ export default function TextBlock({
     onInsertBlockAfterRef.current = onInsertBlockAfter;
     const onDeleteRef = useRef(onDelete);
     onDeleteRef.current = onDelete;
+    const onReplaceBlockRef = useRef(onReplaceBlock);
+    onReplaceBlockRef.current = onReplaceBlock;
+
+    // Get plain text content from editor
+    const getPlainContent = useCallback(() => {
+        if (!editorRef.current) return "";
+        return editorRef.current.textContent || "";
+    }, []);
+
+    // Calculate menu position
+    const calculateMenuPosition = useCallback(() => {
+        if (!editorRef.current) return { top: 40, left: 8 };
+        const rect = editorRef.current.getBoundingClientRect();
+        return {
+            top: rect.height + 4,
+            left: 0,
+        };
+    }, []);
+
+    // Handle slash command selection
+    const handleSlashSelect = useCallback((blockType) => {
+        setShowSlashMenu(false);
+        setSlashQuery("");
+
+        // Replace current block with selected type
+        if (onReplaceBlockRef.current) {
+            onReplaceBlockRef.current(blockType);
+        }
+    }, []);
 
     // Handle Enter key to create new block, Shift+Enter for line break
     // Handle Backspace on empty content to delete block
     const handleKeyDown = useCallback((e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        // If slash menu is open, let it handle navigation keys
+        if (showSlashMenu) {
+            if (["ArrowDown", "ArrowUp", "Escape"].includes(e.key)) {
+                return; // Let SlashCommandMenu handle these
+            }
+            if (e.key === "Enter") {
+                e.preventDefault();
+                e.stopPropagation();
+                return; // SlashCommandMenu will handle selection
+            }
+        }
+
+        if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             e.stopPropagation();
+
+            // If slash menu is open, don't create new block
+            if (showSlashMenu) return;
+
             // Save current content first
             if (editorRef.current) {
                 const newContent = editorRef.current.innerHTML;
                 lastPropsContent.current = newContent;
-                onUpdateRef.current({ ...propsRef.current, content: newContent });
+                onUpdateRef.current({
+                    ...propsRef.current,
+                    content: newContent,
+                });
             }
             // Insert new text block after this one
             if (onInsertBlockAfterRef.current) {
-                onInsertBlockAfterRef.current('text');
+                onInsertBlockAfterRef.current("text");
             }
         }
+
         // Backspace on empty content deletes the block
-        if (e.key === 'Backspace') {
-            const content = editorRef.current?.innerHTML || '';
+        if (e.key === "Backspace") {
+            const content = editorRef.current?.innerHTML || "";
             // Check if content is empty (or just has <br> or whitespace)
-            const isEmpty = !content || content === '<br>' || content.replace(/<br\s*\/?>/gi, '').trim() === '';
+            const isEmpty =
+                !content ||
+                content === "<br>" ||
+                content.replace(/<br\s*\/?>/gi, "").trim() === "";
             if (isEmpty) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -53,16 +113,36 @@ export default function TextBlock({
                 }
             }
         }
+
+        // Escape closes slash menu
+        if (e.key === "Escape" && showSlashMenu) {
+            e.preventDefault();
+            setShowSlashMenu(false);
+            setSlashQuery("");
+        }
         // Shift+Enter allows default behavior (line break)
-    }, []);
+    }, [showSlashMenu]);
 
     const handleInput = useCallback(() => {
         if (editorRef.current) {
             const newContent = editorRef.current.innerHTML;
+            const plainContent = getPlainContent();
+
             lastPropsContent.current = newContent;
             onUpdateRef.current({ ...propsRef.current, content: newContent });
+
+            // Check for slash command
+            if (plainContent.startsWith("/")) {
+                const query = plainContent.slice(1);
+                setSlashQuery(query);
+                setMenuPosition(calculateMenuPosition());
+                setShowSlashMenu(true);
+            } else {
+                setShowSlashMenu(false);
+                setSlashQuery("");
+            }
         }
-    }, []);
+    }, [getPlainContent, calculateMenuPosition]);
 
     // Stable align change handler that uses refs
     const handleAlignChange = useCallback((newAlign) => {
@@ -80,6 +160,11 @@ export default function TextBlock({
                 editorRef.current.innerHTML = props.content || "";
                 lastPropsContent.current = props.content;
             }
+        }
+        // Reset slash menu when selection changes
+        if (!isSelected) {
+            setShowSlashMenu(false);
+            setSlashQuery("");
         }
     }, [isSelected]);
 
@@ -183,9 +268,22 @@ export default function TextBlock({
     // Apply layout styles (typography, background, spacing, border, shadow)
     const baseStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);
 
+    // Check if content is empty for placeholder display
+    const isEmpty =
+        !props.content ||
+        props.content === "<br>" ||
+        props.content.replace(/<br\s*\/?>/gi, "").trim() === "";
+
+    // Check if showing slash command (content is just "/..." )
+    const isSlashCommand = props.content && getPlainContent().startsWith("/");
+
     if (isSelected) {
         return (
-            <div data-text-editing="true" className="relative">
+            <div
+                data-text-editing="true"
+                data-no-selection-style="true"
+                className="relative"
+            >
                 <div
                     ref={editorRef}
                     contentEditable
@@ -193,15 +291,40 @@ export default function TextBlock({
                     onInput={handleInput}
                     onBlur={handleInput}
                     onKeyDown={handleKeyDown}
-                    data-placeholder="Enter text..."
                     style={{
                         ...baseStyle,
                         width: "100%",
-                        border: "2px solid #635bff",
                         outline: "none",
-                        background: "white",
                     }}
                 />
+                {isEmpty && !isSlashCommand && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: baseStyle.padding || "8px",
+                            left: baseStyle.padding || "8px",
+                            color: "#9ca3af",
+                            pointerEvents: "none",
+                            fontSize: baseStyle.fontSize || "16px",
+                            lineHeight: baseStyle.lineHeight || "1.6",
+                        }}
+                    >
+                        {__("Type / to choose a block")}
+                    </div>
+                )}
+                {showSlashMenu && (
+                    <SlashCommandMenu
+                        isOpen={showSlashMenu}
+                        searchQuery={slashQuery}
+                        onSelect={handleSlashSelect}
+                        onClose={() => {
+                            setShowSlashMenu(false);
+                            setSlashQuery("");
+                        }}
+                        position={menuPosition}
+                        context={context}
+                    />
+                )}
             </div>
         );
     }
@@ -209,7 +332,11 @@ export default function TextBlock({
     // Render HTML content safely for display
     const renderContent = () => {
         if (!props.content) {
-            return <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Start typing...</span>;
+            return (
+                <span style={{ color: "#9ca3af" }}>
+                    {__("Type / to choose a block")}
+                </span>
+            );
         }
         return <span dangerouslySetInnerHTML={{ __html: props.content }} />;
     };
