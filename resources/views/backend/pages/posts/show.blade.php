@@ -1,177 +1,246 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
     {!! Hook::applyFilters(PostFilterHook::POSTS_SHOW_AFTER_BREADCRUMBS, '', $postType) !!}
 
-    <div class="space-y-6">
-        <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div class="px-5 py-4 sm:px-6 sm:py-5 flex justify-between items-center border-b border-gray-100 dark:border-gray-800">
-                <h3 class="text-base font-medium text-gray-700 dark:text-white/90">{{ __(':type Details', ['type' => __(ucfirst($postType))]) }}</h3>
-                <div class="flex gap-2">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            <x-card.card bodyClass="!p-5">
+                <x-slot:header>{{ __('Content') }}</x-slot:header>
+
+                @if($post->content)
+                    <div class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-headings:text-gray-700 dark:prose-headings:text-white/90 prose-p:text-gray-700 dark:prose-p:text-gray-300 lb-content-preview">
+                        {!! $post->renderContent() !!}
+                    </div>
+                    @if($post->design_json)
+                        {{-- LaraBuilder CSS styles for rendered content --}}
+                        <style>
+                            /* Base block styles */
+                            .lb-content-preview .lb-block { display: block; margin-bottom: 16px; }
+                            .lb-content-preview .lb-content { max-width: 100%; }
+
+                            /* Text blocks */
+                            .lb-content-preview .lb-heading { margin-bottom: 16px; }
+                            .lb-content-preview .lb-text { margin-bottom: 16px; }
+                            .lb-content-preview .lb-text-editor { margin-bottom: 16px; }
+                            .lb-content-preview .lb-list { margin-bottom: 16px; }
+
+                            /* Image block */
+                            .lb-content-preview .lb-image { margin-bottom: 16px; }
+                            .lb-content-preview .lb-image img { max-width: 100%; height: auto; }
+
+                            /* Button block */
+                            .lb-content-preview .lb-button { margin-bottom: 16px; }
+                            .lb-content-preview .lb-button a { text-decoration: none; transition: opacity 0.2s ease; }
+                            .lb-content-preview .lb-button a:hover { opacity: 0.9; }
+
+                            /* Columns block */
+                            .lb-content-preview .lb-columns { margin-bottom: 16px; }
+                            .lb-content-preview .lb-column { flex: 1; min-width: 0; }
+
+                            /* Divider & Spacer */
+                            .lb-content-preview .lb-divider { border: none; }
+                            .lb-content-preview .lb-spacer { display: block; }
+
+                            /* Quote block */
+                            .lb-content-preview .lb-quote { margin-bottom: 16px; }
+
+                            /* Video block */
+                            .lb-content-preview .lb-video { margin-bottom: 16px; }
+                            .lb-content-preview .lb-video-container { cursor: pointer; }
+                            .lb-content-preview .lb-video-play-btn:hover { background: rgba(0,0,0,0.9) !important; }
+
+                            /* Social block */
+                            .lb-content-preview .lb-social { margin-bottom: 16px; }
+
+                            /* Table block */
+                            .lb-content-preview .lb-table { margin-bottom: 16px; }
+                            .lb-content-preview .lb-table-inner { width: 100%; border-collapse: collapse; }
+
+                            /* Footer block */
+                            .lb-content-preview .lb-footer { margin-bottom: 16px; }
+
+                            /* Countdown block */
+                            .lb-content-preview .lb-countdown { margin-bottom: 16px; }
+
+                            /* Accordion block */
+                            .lb-content-preview .lb-accordion { margin-bottom: 16px; }
+
+                            /* Section block */
+                            .lb-content-preview .lb-section { margin-bottom: 16px; }
+
+                            /* Code block */
+                            .lb-content-preview .lb-code { margin-bottom: 16px; }
+
+                            /* HTML block */
+                            .lb-content-preview .lb-html { margin-bottom: 16px; }
+
+                            /* Table of Contents block */
+                            .lb-content-preview .lb-toc { margin-bottom: 16px; }
+                            .lb-content-preview .lb-toc-list { margin: 0; padding: 0; }
+                            .lb-content-preview .lb-toc-list li { margin-bottom: 6px; line-height: 1.6; }
+                            .lb-content-preview .lb-toc-list a { text-decoration: none; transition: opacity 0.2s; }
+                            .lb-content-preview .lb-toc-list a:hover { opacity: 0.8; text-decoration: underline; }
+
+                            /* Responsive */
+                            @media (max-width: 768px) {
+                                .lb-content-preview .lb-columns { flex-direction: column; }
+                                .lb-content-preview .lb-column { flex: none !important; width: 100% !important; }
+                            }
+                        </style>
+                    @endif
+                @else
+                    <p class="text-gray-400 dark:text-gray-500 italic">{{ __('No content available.') }}</p>
+                @endif
+            </x-card.card>
+        </div>
+
+        {{-- Sidebar (Right - 1 column) --}}
+        <div class="lg:col-span-1 space-y-6">
+            {{-- Actions Card --}}
+            <x-card.card bodyClass="!p-4 !space-y-2">
+                <x-slot:header>{{ __('Actions') }}</x-slot:header>
+
+                <div>
+                    <h1 class="text-2xl lg:text-3xl font-semibold text-gray-900 dark:text-white">{{ $post->title }}</h1>
+                    @if($post->slug)
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            <iconify-icon icon="lucide:link" class="inline-block mr-1"></iconify-icon>
+                            {{ $post->slug }}
+                        </p>
+                    @endif
+                </div>
+
+                <div class="flex flex-col gap-2">
                     @if (auth()->user()->can('post.edit'))
-                        <a href="{{ route('admin.posts.edit', [$postType, $post->id]) }}" class="btn-primary">
+                        <a href="{{ route('admin.posts.edit', [$postType, $post->id]) }}" class="btn-primary w-full justify-center">
                             <iconify-icon icon="lucide:pencil" class="mr-2"></iconify-icon>
-                            {{ __('Edit') }}
+                            {{ __('Edit :type', ['type' => __(ucfirst($postType))]) }}
                         </a>
                     @endif
-                    <a href="{{ route('admin.posts.index', $postType) }}" class="btn-default">
+                    <a href="{{ route('admin.posts.index', $postType) }}" class="btn-default w-full justify-center">
                         <iconify-icon icon="lucide:arrow-left" class="mr-2"></iconify-icon>
-                        {{ __('Back') }}
+                        {{ __('Back to List') }}
                     </a>
                 </div>
-            </div>
+            </x-card.card>
 
-            <div class="px-5 py-4 sm:px-6 sm:py-5">
-                <!-- Meta Information -->
-                <div class="mb-6 flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-300">
-                    <div class="flex items-center">
-                        <iconify-icon icon="lucide:user" class="mr-1"></iconify-icon>
-                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('Author:') }} {{ $post->user->full_name }}</span>
+            {{-- Featured image --}}
+            @if($post->hasFeaturedImage())
+                <x-card.card bodyClass="!p-4 !space-y-0">
+                    <x-slot:header>{{ __('Featured Image') }}</x-slot:header>
+
+                    <div class="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
+                        <img src="{{ $post->getFeaturedImageUrl() }}" alt="{{ $post->title }}" class="w-full h-auto object-cover max-h-96">
                     </div>
-                    <div class="flex items-center">
-                        <iconify-icon icon="lucide:calendar" class="mr-1"></iconify-icon>
-                        {{ __('Created:') }} {{ $post->created_at->format('M d, Y h:i A') }}
-                    </div>
-                    @if($post->created_at != $post->updated_at)
-                        <div class="flex items-center">
-                            <iconify-icon icon="lucide:clock" class="mr-1"></iconify-icon>
-                            {{ __('Updated:') }} {{ $post->updated_at->format('M d, Y h:i A') }}
-                        </div>
-                    @endif
-                    <div class="flex items-center">
-                        <iconify-icon icon="lucide:tag" class="mr-1"></iconify-icon>
-                        {{ __('Status:') }}
-                        <span class="ml-1 {{ get_post_status_class($post->status) }}">{{ ucfirst($post->status) }}</span>
+                </x-card.card>
+            @endif
+
+            {{-- Excerpt Card --}}
+            @if($post->excerpt)
+                <x-card.card bodyClass="!p-4 !space-y-0">
+                    <x-slot:header>{{ __('Excerpt') }}</x-slot:header>
+
+                    <p class="text-gray-600 dark:text-gray-300 italic leading-relaxed text-sm">{{ $post->excerpt }}</p>
+                </x-card.card>
+            @endif
+
+            {{-- Status & Info Card --}}
+            <x-card.card bodyClass="!p-4 !space-y-4">
+                <x-slot:header>{{ __('Status & Info') }}</x-slot:header>
+
+                {{-- Status --}}
+                <div>
+                    <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Status') }}</label>
+                    <div class="mt-1">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium {{ get_post_status_class($post->status) }}">
+                            {{ ucfirst($post->status) }}
+                        </span>
                     </div>
                 </div>
 
-                <!-- Featured Image -->
-                @if($post->featured_image)
-                    <div class="mb-6">
-                        <img src="{{ $post->featured_image }}" alt="{{ $post->title }}" class="max-h-64 rounded-md">
+                {{-- Published At --}}
+                @if($post->published_at)
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Published') }}</label>
+                        <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                            {{ $post->published_at->format('M d, Y') }}
+                            <span class="text-gray-500 dark:text-gray-400">{{ $post->published_at->format('h:i A') }}</span>
+                        </p>
                     </div>
                 @endif
 
-                <!-- Excerpt -->
-                @if($post->excerpt)
-                    <div class="mb-6">
-                        <h4 class="text-lg font-medium text-gray-700 dark:text-white/90 mb-2">{{ __('Excerpt') }}</h4>
-                        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-md text-gray-700 dark:text-gray-300">
-                            {{ $post->excerpt }}
-                        </div>
-                    </div>
-                @endif
-
-                <!-- Content -->
-                <div class="mb-6">
-                    <h4 class="text-lg font-medium text-gray-700 dark:text-white/90 mb-2">{{ __('Content') }}</h4>
-                    @if($post->content)
-                        <div class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-headings:text-gray-700 dark:prose-headings:text-white/90 prose-p:text-gray-700 dark:prose-p:text-gray-300 lb-content-preview">
-                            {!! $post->renderContent() !!}
-                        </div>
-                        @if($post->design_json)
-                            {{-- LaraBuilder CSS styles for rendered content --}}
-                            <style>
-                                /* Base block styles - layout styles are now applied directly to each block's main element */
-                                .lb-content-preview .lb-block { display: block; margin-bottom: 16px; }
-                                .lb-content-preview .lb-content { max-width: 100%; }
-
-                                /* Text blocks */
-                                .lb-content-preview .lb-heading { margin-bottom: 16px; }
-                                .lb-content-preview .lb-text { margin-bottom: 16px; }
-                                .lb-content-preview .lb-text-editor { margin-bottom: 16px; }
-                                .lb-content-preview .lb-list { margin-bottom: 16px; }
-
-                                /* Image block */
-                                .lb-content-preview .lb-image { margin-bottom: 16px; }
-                                .lb-content-preview .lb-image img { max-width: 100%; height: auto; }
-
-                                /* Button block - wrapper has layout styles, inner button has specific styles */
-                                .lb-content-preview .lb-button { margin-bottom: 16px; }
-                                .lb-content-preview .lb-button a { text-decoration: none; transition: opacity 0.2s ease; }
-                                .lb-content-preview .lb-button a:hover { opacity: 0.9; }
-
-                                /* Columns block - layout styles on main element */
-                                .lb-content-preview .lb-columns { margin-bottom: 16px; }
-                                .lb-content-preview .lb-column { flex: 1; min-width: 0; }
-
-                                /* Divider & Spacer */
-                                .lb-content-preview .lb-divider { border: none; }
-                                .lb-content-preview .lb-spacer { display: block; }
-
-                                /* Quote block */
-                                .lb-content-preview .lb-quote { margin-bottom: 16px; }
-
-                                /* Video block */
-                                .lb-content-preview .lb-video { margin-bottom: 16px; }
-                                .lb-content-preview .lb-video-container { cursor: pointer; }
-                                .lb-content-preview .lb-video-play-btn:hover { background: rgba(0,0,0,0.9) !important; }
-
-                                /* Social block */
-                                .lb-content-preview .lb-social { margin-bottom: 16px; }
-
-                                /* Table block */
-                                .lb-content-preview .lb-table { margin-bottom: 16px; }
-                                .lb-content-preview .lb-table-inner { width: 100%; border-collapse: collapse; }
-
-                                /* Footer block */
-                                .lb-content-preview .lb-footer { margin-bottom: 16px; }
-
-                                /* Countdown block */
-                                .lb-content-preview .lb-countdown { margin-bottom: 16px; }
-
-                                /* Accordion block */
-                                .lb-content-preview .lb-accordion { margin-bottom: 16px; }
-
-                                /* Section block */
-                                .lb-content-preview .lb-section { margin-bottom: 16px; }
-
-                                /* Code block */
-                                .lb-content-preview .lb-code { margin-bottom: 16px; }
-
-                                /* HTML block */
-                                .lb-content-preview .lb-html { margin-bottom: 16px; }
-
-                                /* Table of Contents block */
-                                .lb-content-preview .lb-toc { margin-bottom: 16px; }
-                                .lb-content-preview .lb-toc-list { margin: 0; padding: 0; }
-                                .lb-content-preview .lb-toc-list li { margin-bottom: 6px; line-height: 1.6; }
-                                .lb-content-preview .lb-toc-list a { text-decoration: none; transition: opacity 0.2s; }
-                                .lb-content-preview .lb-toc-list a:hover { opacity: 0.8; text-decoration: underline; }
-
-                                /* Responsive */
-                                @media (max-width: 768px) {
-                                    .lb-content-preview .lb-columns { flex-direction: column; }
-                                    .lb-content-preview .lb-column { flex: none !important; width: 100% !important; }
-                                }
-                            </style>
+                {{-- Author --}}
+                <div>
+                    <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Author') }}</label>
+                    <div class="mt-1 flex items-center gap-2">
+                        @if($post->user->avatar)
+                            <img src="{{ $post->user->avatar }}" alt="{{ $post->user->full_name }}" class="w-6 h-6 rounded-full">
+                        @else
+                            <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                <iconify-icon icon="lucide:user" class="text-xs text-gray-500 dark:text-gray-400"></iconify-icon>
+                            </div>
                         @endif
-                    @else
-                        <p class="text-gray-400 dark:text-gray-500 italic">{{ __('No content available.') }}</p>
-                    @endif
+                        <span class="text-sm text-gray-700 dark:text-gray-300">{{ $post->user->full_name }}</span>
+                    </div>
                 </div>
 
-                <!-- Taxonomies -->
-                @if($post->terms->count() > 0)
-                    <div class="mb-6">
-                        <h4 class="text-lg font-medium text-gray-700 dark:text-white/90 mb-2">{{ __('Taxonomies') }}</h4>
-                        <div class="space-y-3">
-                            @php
-                                $groupedTerms = $post->terms->groupBy('taxonomy');
-                            @endphp
+                {{-- Created At --}}
+                <div>
+                    <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Created') }}</label>
+                    <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                        {{ $post->created_at->format('M d, Y') }}
+                        <span class="text-gray-500 dark:text-gray-400">{{ $post->created_at->format('h:i A') }}</span>
+                    </p>
+                </div>
 
-                            @foreach($groupedTerms as $taxonomy => $terms)
-                                <div>
-                                    <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ ucfirst($taxonomy) }}</h5>
-                                    <div class="flex flex-wrap gap-1">
-                                        @foreach($terms as $term)
-                                            <span class="badge">{{ $term->name }}</span>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
+                {{-- Updated At --}}
+                @if($post->created_at != $post->updated_at)
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Last Updated') }}</label>
+                        <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                            {{ $post->updated_at->format('M d, Y') }}
+                            <span class="text-gray-500 dark:text-gray-400">{{ $post->updated_at->format('h:i A') }}</span>
+                        </p>
                     </div>
                 @endif
-            </div>
+            </x-card.card>
+
+            {{-- Taxonomies Card --}}
+            @if($post->terms->count() > 0)
+                <x-card.card bodyClass="!p-4 !space-y-4">
+                    <x-slot:header>{{ __('Taxonomies') }}</x-slot:header>
+
+                    @php
+                        $groupedTerms = $post->terms->groupBy('taxonomy');
+                    @endphp
+
+                    @foreach($groupedTerms as $taxonomy => $terms)
+                        <div>
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ ucfirst($taxonomy) }}</label>
+                            <div class="mt-2 flex flex-wrap gap-1.5">
+                                @foreach($terms as $term)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                                        {{ $term->name }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </x-card.card>
+            @endif
+
+            {{-- Post Meta Card (if any custom meta exists) --}}
+            @if($post->postMeta && $post->postMeta->count() > 0)
+                <x-card.card bodyClass="!p-4 !space-y-3">
+                    <x-slot:header>{{ __('Custom Fields') }}</x-slot:header>
+
+                    @foreach($post->postMeta as $meta)
+                        <div>
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $meta->meta_key }}</label>
+                            <p class="mt-1 text-sm text-gray-700 dark:text-gray-300 break-words">{{ $meta->meta_value }}</p>
+                        </div>
+                    @endforeach
+                </x-card.card>
+            @endif
         </div>
     </div>
 

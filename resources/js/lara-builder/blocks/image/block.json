@@ -1,5 +1,6 @@
 {
     "type": "image",
+    "version": "1.0.0",
     "label": "Image",
     "category": "Content",
     "icon": "mdi:image-outline",

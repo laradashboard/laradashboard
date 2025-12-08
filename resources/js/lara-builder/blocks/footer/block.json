@@ -1,5 +1,6 @@
 {
     "type": "footer",
+    "version": "1.0.0",
     "label": "Footer",
     "category": "Layout",
     "icon": "mdi:page-layout-footer",

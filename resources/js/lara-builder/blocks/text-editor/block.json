@@ -1,5 +1,6 @@
 {
     "type": "text-editor",
+    "version": "1.0.0",
     "label": "Text Editor",
     "category": "Content",
     "icon": "mdi:text-box-edit-outline",

@@ -1,5 +1,6 @@
 {
     "type": "divider",
+    "version": "1.0.0",
     "label": "Divider",
     "category": "Layout",
     "icon": "mdi:minus",

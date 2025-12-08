@@ -64,7 +64,7 @@ class BlockRenderer
     /**
      * Render a block using its callback
      */
-    protected function renderBlock(string $blockType, array $props, string $context): ?string
+    protected function renderBlock(string $blockType, array $props, string $context, ?string $blockId = null): ?string
     {
         $callback = $this->getBlockRenderCallback($blockType);
 
@@ -72,7 +72,7 @@ class BlockRenderer
             return null;
         }
 
-        return call_user_func($callback, $props, $context);
+        return call_user_func($callback, $props, $context, $blockId);
     }
 
     /**
@@ -88,9 +88,9 @@ class BlockRenderer
     public function processContent(string $content, string $context = 'page'): string
     {
         // Find all block placeholders - match the full element including closing tag
-        // Pattern matches: <div data-lara-block="type" data-props='...'></div>
+        // Pattern matches: <div data-lara-block="type" [data-block-id="id"] data-props='...'></div>
         // The data-props value is wrapped in single quotes and may contain complex JSON
-        $pattern = '/<div\s+data-lara-block="([^"]+)"\s+data-props=\'((?:[^\']|&#39;)*)\'>([^<]*)<\/div>/is';
+        $pattern = '/<div\s+data-lara-block="([^"]+)"(?:\s+data-block-id="([^"]*)")?\s+data-props=\'((?:[^\']|&#39;)*)\'>([^<]*)<\/div>/is';
 
         if (! preg_match_all($pattern, $content, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
             return $content;
@@ -101,7 +101,8 @@ class BlockRenderer
 
         foreach ($matches as $match) {
             $blockType = $match[1][0];
-            $propsJson = $match[2][0];
+            $blockId = (\count($match) > 2 && $match[2][0] !== '') ? $match[2][0] : null;
+            $propsJson = $match[3][0];
             $startPos = (int) $match[0][1];
             $fullMatch = $match[0][0];
 
@@ -111,7 +112,7 @@ class BlockRenderer
                 $props = json_decode($propsJson, true) ?? [];
 
                 // Use auto-discovery method which checks registered + discovers render.php
-                $rendered = $this->renderBlock($blockType, $props, $context);
+                $rendered = $this->renderBlock($blockType, $props, $context, $blockId);
 
                 if ($rendered !== null) {
                     $replacements[] = [

@@ -1,5 +1,6 @@
 {
     "type": "table",
+    "version": "1.0.0",
     "label": "Table",
     "category": "Advanced",
     "icon": "mdi:table",

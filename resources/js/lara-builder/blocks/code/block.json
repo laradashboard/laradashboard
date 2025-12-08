@@ -1,5 +1,6 @@
 {
     "type": "code",
+    "version": "1.0.0",
     "label": "Code",
     "category": "Advanced",
     "icon": "mdi:code-braces",

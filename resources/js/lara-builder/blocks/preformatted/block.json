@@ -1,5 +1,6 @@
 {
     "type": "preformatted",
+    "version": "1.0.0",
     "label": "Preformatted",
     "category": "Content",
     "icon": "mdi:format-text-wrapping-wrap",

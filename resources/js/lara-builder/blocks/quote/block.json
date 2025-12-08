@@ -1,5 +1,6 @@
 {
     "type": "quote",
+    "version": "1.0.0",
     "label": "Quote",
     "category": "Content",
     "icon": "mdi:format-quote-close",

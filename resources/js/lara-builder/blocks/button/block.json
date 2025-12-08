@@ -1,5 +1,6 @@
 {
     "type": "button",
+    "version": "1.0.0",
     "label": "Button",
     "category": "Content",
     "icon": "mdi:button-cursor",

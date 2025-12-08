@@ -1,5 +1,6 @@
 {
   "type": "columns",
+  "version": "1.0.0",
   "label": "Columns",
   "category": "Layout",
   "icon": "mdi:view-column-outline",

@@ -1,5 +1,6 @@
 {
     "type": "html",
+    "version": "1.0.0",
     "label": "HTML",
     "category": "Advanced",
     "icon": "mdi:code-tags",

@@ -1,5 +1,6 @@
 {
     "type": "accordion",
+    "version": "1.0.0",
     "label": "Accordion",
     "category": "Content",
     "icon": "mdi:arrow-collapse-vertical",

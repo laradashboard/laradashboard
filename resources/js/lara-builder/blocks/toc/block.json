@@ -1,5 +1,6 @@
 {
     "type": "toc",
+    "version": "1.0.0",
     "label": "Table of Contents",
     "category": "Content",
     "icon": "mdi:table-of-contents",

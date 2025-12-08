@@ -1,5 +1,6 @@
 {
     "type": "video",
+    "version": "1.0.0",
     "label": "Video",
     "category": "Content",
     "icon": "mdi:play-circle-outline",

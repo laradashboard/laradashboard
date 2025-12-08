@@ -1,66 +1,67 @@
 /**
  * Quote Block - Save/Output Generators
  *
- * Generates HTML output for different contexts (page/web and email).
- * Supports HTML formatted content from inline editing (bold, italic, etc.)
+ * Page context: Returns placeholder for server-side rendering via render.php
+ * Email context: Generates inline HTML (email clients can't call server)
+ *
+ * This approach ensures:
+ * - Single source of truth (render.php) for page display
+ * - Semantic HTML with proper blockquote/cite elements
+ * - Email still works without server calls
  */
-
-import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
 
 /**
- * Generate HTML for web/page context
+ * Generate placeholder for server-side rendering (page context)
  */
-export const page = (props) => {
-    const type = 'quote';
-    const blockClasses = buildBlockClasses(type, props);
+export const page = (props, options = {}) => {
+    const serverProps = {
+        text: props.text || '',
+        author: props.author || '',
+        authorTitle: props.authorTitle || '',
+        align: props.align || 'left',
+        borderColor: props.borderColor || '#635bff',
+        backgroundColor: props.backgroundColor || '#f8fafc',
+        textColor: props.textColor || '#475569',
+        authorColor: props.authorColor || '#1e293b',
+        layoutStyles: props.layoutStyles || {},
+        customCSS: props.customCSS || '',
+        customClass: props.customClass || '',
+    };
 
-    // Block-specific styles
-    const blockStyles = [
-        `padding: 20px`,
-        `padding-left: 24px`,
-        `text-align: ${props.align || 'left'}`,
-        `margin: 10px 0`,
-    ];
+    // Escape for HTML attribute
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-    // Only add if not controlled by layoutStyles
-    if (!props.layoutStyles?.background?.color) {
-        blockStyles.push(`background-color: ${props.backgroundColor || '#f8fafc'}`);
-    }
-    if (!props.layoutStyles?.border) {
-        blockStyles.push(`border-left: 4px solid ${props.borderColor || '#635bff'}`);
-        blockStyles.push(`border-radius: 4px`);
-    }
-
-    const mergedStyles = mergeBlockStyles(props, blockStyles.join('; '));
-
-    // Note: Content may contain HTML formatting (bold, italic, etc.)
-    // We wrap with quotes using CSS pseudo-elements or inline quotes
-    const quoteText = props.text || '';
-    const author = props.author || '';
-    const authorTitle = props.authorTitle || '';
-
-    return `
-        <blockquote class="${blockClasses}" style="${mergedStyles}">
-            <p style="color: ${props.textColor || '#475569'}; font-size: 1.125rem; font-style: italic; line-height: 1.6; margin: 0 0 12px 0;">"${quoteText}"</p>
-            ${author ? `<cite style="color: ${props.authorColor || '#1e293b'}; font-size: 0.875rem; font-weight: 600; font-style: normal; display: block;">${author}</cite>` : ''}
-            ${authorTitle ? `<span style="color: ${props.textColor || '#475569'}; font-size: 0.75rem;">${authorTitle}</span>` : ''}
-        </blockquote>
-    `;
+    return `<div data-lara-block="quote" data-props='${propsJson}'></div>`;
 };
 
 /**
- * Generate HTML for email context
+ * Generate HTML for email context (no server rendering available)
  */
-export const email = (props) => {
-    const quoteText = props.text || '';
+export const email = (props, options = {}) => {
+    const text = props.text || '';
     const author = props.author || '';
     const authorTitle = props.authorTitle || '';
+    const align = props.align || 'left';
+    const borderColor = props.borderColor || '#635bff';
+    const backgroundColor = props.backgroundColor || '#f8fafc';
+    const textColor = props.textColor || '#475569';
+    const authorColor = props.authorColor || '#1e293b';
+
+    let authorHtml = '';
+    if (author) {
+        authorHtml = `<p style="color: ${authorColor}; font-size: 14px; font-weight: 600; margin: 0;">${author}</p>`;
+    }
+
+    let authorTitleHtml = '';
+    if (authorTitle) {
+        authorTitleHtml = `<p style="color: ${textColor}; font-size: 12px; margin: 0;">${authorTitle}</p>`;
+    }
 
     return `
-        <div style="padding: 20px; padding-left: 24px; background-color: ${props.backgroundColor || '#f8fafc'}; border-left: 4px solid ${props.borderColor || '#635bff'}; text-align: ${props.align || 'left'}; border-radius: 4px; margin: 10px 0;">
-            <p style="color: ${props.textColor || '#475569'}; font-size: 16px; font-style: italic; line-height: 1.6; margin: 0 0 12px 0;">"${quoteText}"</p>
-            ${author ? `<p style="color: ${props.authorColor || '#1e293b'}; font-size: 14px; font-weight: 600; margin: 0;">${author}</p>` : ''}
-            ${authorTitle ? `<p style="color: ${props.textColor || '#475569'}; font-size: 12px; margin: 0;">${authorTitle}</p>` : ''}
+        <div style="padding: 20px; padding-left: 24px; background-color: ${backgroundColor}; border-left: 4px solid ${borderColor}; text-align: ${align}; border-radius: 4px; margin: 10px 0;">
+            <p style="color: ${textColor}; font-size: 16px; font-style: italic; line-height: 1.6; margin: 0 0 12px 0;">"${text}"</p>
+            ${authorHtml}
+            ${authorTitleHtml}
         </div>
     `;
 };

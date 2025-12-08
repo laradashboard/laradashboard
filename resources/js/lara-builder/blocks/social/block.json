@@ -1,5 +1,6 @@
 {
     "type": "social",
+    "version": "1.0.0",
     "label": "Social",
     "category": "Content",
     "icon": "mdi:share-variant-outline",

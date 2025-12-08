@@ -1,5 +1,6 @@
 {
     "type": "heading",
+    "version": "1.0.0",
     "label": "Heading",
     "category": "Content",
     "icon": "mdi:format-header-1",

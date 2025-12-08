@@ -1,5 +1,6 @@
 {
     "type": "text",
+    "version": "1.0.0",
     "label": "Text",
     "category": "Content",
     "icon": "mdi:format-text",

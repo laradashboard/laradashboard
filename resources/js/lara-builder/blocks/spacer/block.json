@@ -1,5 +1,6 @@
 {
     "type": "spacer",
+    "version": "1.0.0",
     "label": "Spacer",
     "category": "Layout",
     "icon": "mdi:arrow-expand-vertical",

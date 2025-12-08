@@ -1,93 +1,60 @@
 /**
  * Button Block - Save/Output Generators
  *
- * Generates HTML output for different contexts (page/web and email).
+ * Page context: Returns placeholder for server-side rendering via render.php
+ * Email context: Generates inline HTML (email clients can't call server)
+ *
+ * This approach ensures:
+ * - Single source of truth (render.php) for page display
+ * - Security: URL sanitization happens server-side
+ * - Email still works without server calls
  */
-
-import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
 
 /**
- * Generate HTML for web/page context
+ * Generate placeholder for server-side rendering (page context)
  */
 export const page = (props, options = {}) => {
-    const type = 'button';
+    const serverProps = {
+        text: props.text || 'Click Here',
+        link: props.link || '',
+        target: props.target || '_self',
+        align: props.align || 'center',
+        backgroundColor: props.backgroundColor || '#635bff',
+        textColor: props.textColor || '#ffffff',
+        borderRadius: props.borderRadius || '6px',
+        padding: props.padding || '12px 24px',
+        fontSize: props.fontSize || '16px',
+        fontWeight: props.fontWeight || '600',
+        nofollow: props.nofollow || false,
+        sponsored: props.sponsored || false,
+        layoutStyles: props.layoutStyles || {},
+        customCSS: props.customCSS || '',
+        customClass: props.customClass || '',
+    };
 
-    // Button element styles (applied to the inner button/link)
-    const buttonElementStyles = [
-        'display: inline-block',
-        'text-decoration: none',
-        'border: none',
-        'cursor: pointer',
-        'transition: opacity 0.2s ease',
-    ];
+    // Escape for HTML attribute
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-    // These are now controlled by layoutStyles (Typography, Background, Border)
-    // But we keep defaults for backward compatibility if layoutStyles not set
-    if (!props.layoutStyles?.background?.color) {
-        buttonElementStyles.push(`background-color: ${props.backgroundColor || '#635bff'}`);
-    }
-    if (!props.layoutStyles?.typography?.color) {
-        buttonElementStyles.push(`color: ${props.textColor || '#ffffff'}`);
-    }
-    if (!props.layoutStyles?.typography?.fontSize) {
-        buttonElementStyles.push(`font-size: ${props.fontSize || '16px'}`);
-    }
-    if (!props.layoutStyles?.typography?.fontWeight) {
-        buttonElementStyles.push(`font-weight: ${props.fontWeight || '600'}`);
-    }
-    if (!props.layoutStyles?.border) {
-        buttonElementStyles.push(`border-radius: ${props.borderRadius || '6px'}`);
-    }
-
-    // Padding is specific to button
-    buttonElementStyles.push(`padding: ${props.padding || '12px 24px'}`);
-
-    const blockClasses = buildBlockClasses(type, props);
-    const text = props.text || 'Click Here';
-    const align = props.align || 'center';
-
-    // Merge layout styles into the button element styles
-    const mergedStyles = mergeBlockStyles(props, buttonElementStyles.join('; '));
-
-    // Build the button/link element
-    let buttonElement;
-
-    if (props.link) {
-        // Has link - render as <a> tag
-        const target = props.target || '_self';
-
-        // Build rel attribute
-        const relParts = [];
-        if (target === '_blank') {
-            relParts.push('noopener', 'noreferrer');
-        }
-        if (props.nofollow) relParts.push('nofollow');
-        if (props.sponsored) relParts.push('sponsored');
-
-        const relAttr = relParts.length > 0 ? ` rel="${relParts.join(' ')}"` : '';
-        const targetAttr = target !== '_self' ? ` target="${target}"` : '';
-
-        buttonElement = `<a href="${props.link}"${targetAttr}${relAttr} class="${blockClasses}" style="${mergedStyles}">${text}</a>`;
-    } else {
-        // No link - render as <span> (styled as button)
-        buttonElement = `<span class="${blockClasses}" style="${mergedStyles}">${text}</span>`;
-    }
-
-    // Wrapper only for alignment, no layout styles here
-    return `
-        <div class="lb-button-wrapper" style="text-align: ${align}; padding: 10px 0;">
-            ${buttonElement}
-        </div>
-    `;
+    return `<div data-lara-block="button" data-props='${propsJson}'></div>`;
 };
 
 /**
- * Generate HTML for email context
+ * Generate HTML for email context (no server rendering available)
  */
 export const email = (props, options = {}) => {
+    const text = props.text || 'Click Here';
+    const link = props.link || '#';
+    const align = props.align || 'center';
+    const backgroundColor = props.backgroundColor || '#635bff';
+    const textColor = props.textColor || '#ffffff';
+    const borderRadius = props.borderRadius || '6px';
+    const padding = props.padding || '12px 24px';
+    const fontSize = props.fontSize || '16px';
+    const fontWeight = props.fontWeight || '600';
+
     return `
-        <div style="text-align: ${props.align || 'center'}; padding: 10px 0;">
-            <a href="${props.link || '#'}" target="_blank" style="display: inline-block; background-color: ${props.backgroundColor || '#635bff'}; color: ${props.textColor || '#ffffff'}; padding: ${props.padding || '12px 24px'}; border-radius: ${props.borderRadius || '6px'}; text-decoration: none; font-size: ${props.fontSize || '16px'}; font-weight: ${props.fontWeight || '600'};">${props.text || 'Click Here'}</a>
+        <div style="text-align: ${align}; padding: 10px 0;">
+            <a href="${link}" target="_blank" style="display: inline-block; background-color: ${backgroundColor}; color: ${textColor}; padding: ${padding}; border-radius: ${borderRadius}; text-decoration: none; font-size: ${fontSize}; font-weight: ${fontWeight};">${text}</a>
         </div>
     `;
 };

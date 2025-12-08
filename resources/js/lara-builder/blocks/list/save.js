@@ -1,58 +1,63 @@
-import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
+/**
+ * List Block - Save/Output Generators
+ *
+ * Page context: Returns placeholder for server-side rendering via render.php
+ * Email context: Generates inline HTML (email clients can't call server)
+ *
+ * This approach ensures:
+ * - Single source of truth (render.php) for page display
+ * - Semantic HTML with proper ul/ol/li elements
+ * - Shortcode support in list items (server-side)
+ * - Email still works without server calls
+ */
 
 /**
- * Generate HTML for web/page context
+ * Generate placeholder for server-side rendering (page context)
  */
 export const page = (props, options = {}) => {
-    const type = 'list';
-    const listTag = props.listType === 'number' ? 'ol' : 'ul';
-    const blockClasses = buildBlockClasses(type, props);
+    const serverProps = {
+        items: props.items || [],
+        listType: props.listType || 'bullet',
+        color: props.color || '#333333',
+        fontSize: props.fontSize || '16px',
+        iconColor: props.iconColor || '#635bff',
+        layoutStyles: props.layoutStyles || {},
+        customCSS: props.customCSS || '',
+        customClass: props.customClass || '',
+    };
 
-    const blockStyles = [
-        `line-height: 1.8`,
-        `margin: 0`,
-        props.listType === 'check' ? 'list-style: none; padding-left: 0;' : 'padding-left: 24px;',
-    ];
+    // Escape for HTML attribute
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-    // Only add if not controlled by layoutStyles
-    if (!props.layoutStyles?.typography?.color) {
-        blockStyles.push(`color: ${props.color || '#333333'}`);
-    }
-    if (!props.layoutStyles?.typography?.fontSize) {
-        blockStyles.push(`font-size: ${props.fontSize || '16px'}`);
-    }
-
-    const mergedStyles = mergeBlockStyles(props, blockStyles.join('; '));
-
-    const items = (props.items || []).map(item => {
-        if (props.listType === 'check') {
-            return `<li style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
-                <span style="color: ${props.iconColor || '#635bff'}; flex-shrink: 0;">✓</span>
-                <span>${item}</span>
-            </li>`;
-        }
-        return `<li style="margin-bottom: 8px;">${item}</li>`;
-    }).join('');
-
-    return `<${listTag} class="${blockClasses} lb-list-${props.listType || 'bullet'}" style="${mergedStyles}">${items}</${listTag}>`;
+    return `<div data-lara-block="list" data-props='${propsJson}'></div>`;
 };
 
 /**
- * Generate HTML for email context
+ * Generate HTML for email context (no server rendering available)
  */
 export const email = (props, options = {}) => {
-    const listItems = (props.items || []).map(item => {
-        if (props.listType === 'check') {
-            return `<tr><td style="vertical-align: top; padding-right: 8px; color: ${props.iconColor || '#635bff'};">&#10003;</td><td style="color: ${props.color || '#333333'}; font-size: ${props.fontSize || '16px'}; padding-bottom: 8px;">${item}</td></tr>`;
-        }
-        return `<li style="margin-bottom: 8px;">${item}</li>`;
-    }).join('');
+    const items = props.items || [];
+    const listType = props.listType || 'bullet';
+    const color = props.color || '#333333';
+    const fontSize = props.fontSize || '16px';
+    const iconColor = props.iconColor || '#635bff';
 
-    if (props.listType === 'check') {
-        return `<table style="color: ${props.color || '#333333'}; font-size: ${props.fontSize || '16px'}; line-height: 1.6;">${listItems}</table>`;
+    // Check list uses table layout for email
+    if (listType === 'check') {
+        const listItems = items.map(item =>
+            `<tr><td style="vertical-align: top; padding-right: 8px; color: ${iconColor};">&#10003;</td><td style="color: ${color}; font-size: ${fontSize}; padding-bottom: 8px;">${item}</td></tr>`
+        ).join('');
+
+        return `<table style="color: ${color}; font-size: ${fontSize}; line-height: 1.6;">${listItems}</table>`;
     }
-    const listTag = props.listType === 'number' ? 'ol' : 'ul';
-    return `<${listTag} style="color: ${props.color || '#333333'}; font-size: ${props.fontSize || '16px'}; line-height: 1.8; margin: 0; padding-left: 24px;">${listItems}</${listTag}>`;
+
+    // Regular bullet or numbered list
+    const listTag = listType === 'number' ? 'ol' : 'ul';
+    const listItems = items.map(item =>
+        `<li style="margin-bottom: 8px;">${item}</li>`
+    ).join('');
+
+    return `<${listTag} style="color: ${color}; font-size: ${fontSize}; line-height: 1.8; margin: 0; padding-left: 24px;">${listItems}</${listTag}>`;
 };
 
 export default {

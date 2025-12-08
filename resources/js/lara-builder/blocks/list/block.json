@@ -1,5 +1,6 @@
 {
     "type": "list",
+    "version": "1.0.0",
     "label": "List",
     "category": "Content",
     "icon": "mdi:format-list-bulleted",
