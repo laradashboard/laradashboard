@@ -23,7 +23,6 @@ class NotificationResource extends JsonResource
             'description' => $this->description,
             'notification_type' => $this->notification_type,
             'email_template_id' => $this->email_template_id,
-            'body_html' => $this->body_html,
             'receiver_type' => $this->receiver_type,
             'receiver_ids' => $this->receiver_ids,
             'receiver_emails' => $this->receiver_emails,

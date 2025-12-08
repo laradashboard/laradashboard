@@ -52,7 +52,7 @@ class AdminResetPasswordNotification extends BaseResetPassword
     {
         return (new EmailSender())
             ->setSubject($notification->emailTemplate->subject ?? __('Reset Password Notification'))
-            ->setContent($notification->body_html ?? $notification->emailTemplate->body_html)
+            ->setContent($notification->emailTemplate->body_html)
             ->getMailMessage(
                 $notification->from_email,
                 [

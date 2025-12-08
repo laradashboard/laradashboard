@@ -89,10 +89,13 @@ test('authenticated user can list notifications', function () {
     $this->authenticateUser();
 
     if (class_exists(Notification::class)) {
+        $emailTemplate = EmailTemplate::factory()->create();
+
         Notification::create([
             'name' => 'Test Notification',
             'description' => 'Test',
             'notification_type' => 'custom',
+            'email_template_id' => $emailTemplate->id,
             'receiver_type' => 'any_email',
             'is_active' => true,
         ]);
@@ -114,10 +117,13 @@ test('authenticated user can create notification', function () {
     $this->authenticateUser();
 
     if (class_exists(Notification::class)) {
+        $emailTemplate = EmailTemplate::factory()->create();
+
         $data = [
             'name' => 'API Notification',
             'description' => 'Test',
             'notification_type' => 'custom',
+            'email_template_id' => $emailTemplate->id,
             'receiver_type' => 'any_email',
             'is_active' => true,
         ];

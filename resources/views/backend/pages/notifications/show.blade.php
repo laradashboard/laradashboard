@@ -57,35 +57,74 @@
                                 @endif
                             </table>
 
-                            @php
-                                // Either show custom notification content (body_html) or fallback to the linked email template's body HTML.
-                                $htmlContent = $notification->body_html ?? ($notification->emailTemplate?->body_html ?? null);
-                            @endphp
-
-                            @if($htmlContent)
+                            @if($notification->emailTemplate)
                             <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Email Template Content') }}</h4>
+                                    <a href="{{ route('admin.email-templates.edit', $notification->email_template_id) }}"
+                                       class="btn-primary text-sm"
+                                       target="_blank">
+                                        <iconify-icon icon="lucide:edit" class="mr-1.5"></iconify-icon>
+                                        {{ __('Edit Template') }}
+                                    </a>
+                                </div>
+
+                                <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <div class="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+                                        <iconify-icon icon="lucide:info" class="text-blue-500"></iconify-icon>
+                                        {{ __('Email content is managed through the linked email template. Edit the template to modify the notification content.') }}
+                                    </div>
+                                </div>
+
                                 <div class="mt-2">
                                     <div x-data="{ active: 'html' }" class="mb-6">
                                         <div class="border-b border-gray-200 dark:border-gray-700 mb-4">
                                             <x-tabs :tabs="[
-                                                ['id' => 'html', 'label' => __('HTML Content')],
+                                                ['id' => 'html', 'label' => __('Preview')],
                                                 ['id' => 'source', 'label' => __('Source Code')]
                                             ]" />
                                         </div>
 
                                         <div x-show="active === 'html'" x-cloak id="content-html">
-                                            <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                <div class="prose prose-sm max-w-none dark:prose-invert">
-                                                    {!! $htmlContent !!}
-                                                </div>
+                                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white">
+                                                <iframe id="preview-iframe"
+                                                        class="w-full"
+                                                        style="min-height: 400px;"
+                                                        sandbox="allow-same-origin">
+                                                </iframe>
                                             </div>
                                         </div>
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', function() {
+                                                const iframe = document.getElementById('preview-iframe');
+                                                if (iframe) {
+                                                    const content = @json($previewHtml);
+                                                    const doc = iframe.contentDocument || iframe.contentWindow.document;
+                                                    doc.open();
+                                                    doc.write(content);
+                                                    doc.close();
+
+                                                    // Adjust height after content loads
+                                                    setTimeout(() => {
+                                                        try {
+                                                            const height = doc.body ? doc.body.scrollHeight : 400;
+                                                            iframe.style.height = Math.min(Math.max(height + 20, 400), 800) + 'px';
+                                                        } catch (e) {}
+                                                    }, 200);
+                                                }
+                                            });
+                                        </script>
 
                                         <div x-show="active === 'source'" x-cloak id="content-source">
-                                            <pre class="whitespace-pre-wrap font-mono text-xs bg-gray-50 dark:bg-gray-800 p-4 rounded-md text-gray-700 dark:text-gray-300 overflow-auto max-h-[500px]"><code>{{ $htmlContent }}</code></pre>
+                                            <pre class="whitespace-pre-wrap font-mono text-xs bg-gray-50 dark:bg-gray-800 p-4 rounded-md text-gray-700 dark:text-gray-300 overflow-auto max-h-[500px]"><code>{{ $previewHtml }}</code></pre>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            @else
+                            <div class="text-center py-8">
+                                <iconify-icon icon="lucide:mail-x" class="text-4xl text-gray-300 dark:text-gray-600 mb-2"></iconify-icon>
+                                <p class="text-gray-500 dark:text-gray-400">{{ __('No email template linked to this notification.') }}</p>
                             </div>
                             @endif
 
@@ -136,7 +175,7 @@
                                                 {{ $notification->emailTemplate->name }}
                                             </a>
                                         @else
-                                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('Using custom content') }}</span>
+                                            <span class="text-sm text-red-500 dark:text-red-400">{{ __('No template assigned') }}</span>
                                         @endif
                                     </td>
                                 </tr>

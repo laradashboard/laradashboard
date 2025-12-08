@@ -2,6 +2,7 @@
     method="POST"
     action="{{ isset($notification) ? route('admin.notifications.update', $notification->id) : route('admin.notifications.store') }}"
     data-prevent-unsaved-changes
+    x-data="notificationForm()"
 >
     @csrf
     @if (isset($notification))
@@ -16,11 +17,12 @@
                     required />
 
                 <x-inputs.combobox
-                    label="{{ __('Email Template (Optional)') }}"
+                    label="{{ __('Email Template') }}"
                     name="email_template_id"
                     :options="$emailTemplates ?? []"
                     placeholder="{{ __('Select Email Template') }}"
                     selected="{{ old('email_template_id', $notification->email_template_id ?? '') }}"
+                    required
                 />
 
                 <div id="receiver-settings" class="flex flex-col gap-3">
@@ -91,29 +93,97 @@
                         placeholder="{{ __('Brief description of this notification...') }}"
                         class="min-h-20"
                     />
+                </div>
+            </x-card>
 
-                    <div>
-                        <div class="flex items-center justify-between mb-2 w-full">
-                            <label class="form-label" html-for="body_html">{{ __('Notification Content') }}</label>
-                            @if (isset($notification) && $notification->email_template_id)
-                                <button type="button" onclick="loadTemplateContent({{ $notification->email_template_id }})" class="text-xs btn btn-secondary py-1 px-2">
-                                    <svg class="w-3 h-3 mr-1 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                    </svg>
-                                    {{ __('Load Template Content') }}
-                                </button>
-                            @endif
+            {{-- Email Template Preview Section --}}
+            <x-card class="mt-6">
+                <x-slot name="header">
+                    <div class="flex items-center gap-2">
+                        <iconify-icon icon="lucide:mail" class="text-primary"></iconify-icon>
+                        {{ __('Email Template Preview') }}
+                    </div>
+                </x-slot>
+                <x-slot name="headerRight">
+                    <template x-if="selectedTemplateId">
+                        <a :href="`{{ route('admin.email-templates.index') }}/${selectedTemplateId}/edit`"
+                           class="btn-primary text-sm"
+                           target="_blank">
+                            <iconify-icon icon="lucide:edit" class="mr-1.5"></iconify-icon>
+                            {{ __('Edit Template') }}
+                        </a>
+                    </template>
+                </x-slot>
+
+                <div x-show="!selectedTemplateId" class="text-center py-12">
+                    <iconify-icon icon="lucide:mail-question" class="text-5xl text-gray-300 dark:text-gray-600 mb-4"></iconify-icon>
+                    <p class="text-gray-500 dark:text-gray-400">{{ __('Select an email template to see preview') }}</p>
+                </div>
+
+                <div x-show="selectedTemplateId && loading" class="text-center py-12">
+                    <iconify-icon icon="lucide:loader-2" class="text-3xl text-primary animate-spin"></iconify-icon>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2">{{ __('Loading template preview...') }}</p>
+                </div>
+
+                <div x-show="selectedTemplateId && !loading" x-cloak>
+                    <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Template Name:') }}</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400" x-text="templateData.name"></span>
                         </div>
-                        <textarea name="body_html" id="body_html" rows="4" class="block w-full border-0 focus:ring-0 focus:outline-none" placeholder="{{ __('Compose your email content...') }}">{{ old('body_html', $notification->body_html ?? '') }}</textarea>
-                        @push('scripts')
-                            <x-text-editor :minHeight="'400px'" :maxHeight="'1200px'" :editor-id="'body_html'" type="full" />
-                        @endpush
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Subject:') }}</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400" x-text="templateData.subject"></span>
+                        </div>
+                    </div>
+
+                    <div x-data="{ previewTab: 'preview' }" class="mb-4">
+                        <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                            <button type="button"
+                                @click="previewTab = 'preview'"
+                                :class="previewTab === 'preview' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors">
+                                {{ __('Preview') }}
+                            </button>
+                            <button type="button"
+                                @click="previewTab = 'source'"
+                                :class="previewTab === 'source' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors">
+                                {{ __('Source Code') }}
+                            </button>
+                        </div>
+
+                        <div x-show="previewTab === 'preview'" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <iframe id="template-preview-iframe"
+                                    class="w-full bg-white"
+                                    style="min-height: 400px; max-height: 600px;"
+                                    sandbox="allow-same-origin">
+                            </iframe>
+                        </div>
+
+                        <div x-show="previewTab === 'source'" x-cloak>
+                            <pre class="whitespace-pre-wrap font-mono text-xs bg-gray-50 dark:bg-gray-800 p-4 rounded-md text-gray-700 dark:text-gray-300 overflow-auto max-h-[500px] border border-gray-200 dark:border-gray-700"><code x-text="templateData.body_html"></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <iconify-icon icon="lucide:info" class="text-blue-500"></iconify-icon>
+                        <p class="text-sm text-blue-700 dark:text-blue-300">
+                            {{ __('To modify the email content, please edit the email template directly.') }}
+                            <template x-if="selectedTemplateId">
+                                <a :href="`{{ route('admin.email-templates.index') }}/${selectedTemplateId}/edit`"
+                                   class="font-medium underline hover:no-underline"
+                                   target="_blank">
+                                    {{ __('Edit Template') }}
+                                </a>
+                            </template>
+                        </p>
                     </div>
                 </div>
             </x-card>
 
             <div x-data="{ openEmailSenderSettings: false }" class="mt-6">
-                <x-card class="mt-6">
+                <x-card>
                     <x-slot name="header">
                         {{ __('Email Sender Settings') }}
                     </x-slot>
@@ -160,114 +230,141 @@
 </form>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.addEventListener('combobox-change', function(event) {
-        if (event.detail.name === 'receiver_type') {
-            toggleReceiverFields(event.detail.value);
-        }
-        if (event.detail.name === 'email_template_id') {
-            loadTemplateContentFromCombobox(event.detail.value);
-        }
-    });
-    
-    const receiverTypeSelect = document.querySelector('select[name="receiver_type"]');
-    if (receiverTypeSelect) {
-        receiverTypeSelect.addEventListener('change', function() {
-            toggleReceiverFields(this.value);
-        });
-        toggleReceiverFields(receiverTypeSelect.value);
-    }
+function notificationForm() {
+    return {
+        selectedTemplateId: '{{ old('email_template_id', $notification->email_template_id ?? '') }}',
+        loading: false,
+        templateData: {
+            name: '',
+            subject: '',
+            body_html: ''
+        },
 
-    // Direct select listener for email template
-    const templateSelect = document.querySelector('select[name="email_template_id"]');
-    if (templateSelect) {
-        templateSelect.addEventListener('change', function() {
-            loadTemplateContentFromCombobox(this.value);
-        });
-    }
-});
-
-function toggleReceiverFields(receiverType) {
-    const receiverIdsField = document.getElementById('receiver_ids_field');
-    const receiverEmailsField = document.getElementById('receiver_emails_field');
-    
-    receiverIdsField.classList.add('hidden');
-    receiverEmailsField.classList.add('hidden');
-    
-    if (receiverType === 'contact' || receiverType === 'user') {
-        receiverIdsField.classList.remove('hidden');
-    } else if (receiverType === 'any_email') {
-        receiverEmailsField.classList.remove('hidden');
-    }
-}
-
-function loadTemplateContentFromCombobox(templateId) {
-    if (!templateId || templateId === '') {
-        return;
-    }
-    loadTemplateContent(templateId);
-}
-
-function loadTemplateContent(templateId) {
-    if (!templateId) {
-        return;
-    }
-    
-    // Check if there's existing content in the editor
-    let hasExistingContent = false;
-    if (typeof tinymce !== 'undefined') {
-        const editor = tinymce.get('body_html');
-        if (editor) {
-            const content = editor.getContent();
-            hasExistingContent = content && content.trim().length > 0;
-        }
-    } else {
-        const htmlEditor = document.getElementById('body_html');
-        if (htmlEditor) {
-            hasExistingContent = htmlEditor.value && htmlEditor.value.trim().length > 0;
-        }
-    }
-    
-    // Confirm before overwriting existing content
-    if (hasExistingContent) {
-        if (!confirm('This will replace the current content. Are you sure?')) {
-            return;
-        }
-    }
-    
-    fetch(`/admin/settings/email-templates/${templateId}/content`)
-        .then(response => response.json())
-        .then(data => {
-            // Load HTML content into TinyMCE editor
-            if (data.body_html) {
-                // Check if TinyMCE is initialized
-                if (typeof tinymce !== 'undefined') {
-                    const editor = tinymce.get('body_html');
-                    if (editor) {
-                        // Set content in TinyMCE
-                        editor.setContent(data.body_html);
-                        console.log('Template content loaded successfully into editor');
-                    } else {
-                        // Fallback: Set textarea value and wait for TinyMCE to initialize
-                        const htmlEditor = document.getElementById('body_html');
-                        if (htmlEditor) {
-                            htmlEditor.value = data.body_html;
-                            console.log('Template content loaded successfully into textarea');
-                        }
-                    }
-                } else {
-                    // TinyMCE not loaded yet, set textarea value
-                    const htmlEditor = document.getElementById('body_html');
-                    if (htmlEditor) {
-                        htmlEditor.value = data.body_html;
-                        console.log('Template content loaded successfully into textarea (TinyMCE not ready)');
-                    }
+        init() {
+            // Listen for combobox changes
+            document.addEventListener('combobox-change', (event) => {
+                if (event.detail.name === 'receiver_type') {
+                    this.toggleReceiverFields(event.detail.value);
                 }
+                if (event.detail.name === 'email_template_id') {
+                    this.selectedTemplateId = event.detail.value;
+                    this.loadTemplatePreview(event.detail.value);
+                }
+            });
+
+            // Initialize receiver fields
+            const receiverTypeSelect = document.querySelector('select[name="receiver_type"]');
+            if (receiverTypeSelect) {
+                receiverTypeSelect.addEventListener('change', (e) => {
+                    this.toggleReceiverFields(e.target.value);
+                });
+                this.toggleReceiverFields(receiverTypeSelect.value);
             }
-        })
-        .catch(error => {
-            console.error('Error loading template content:', error);
-            alert('Failed to load template content. Please try again.');
-        });
+
+            // Initialize template select
+            const templateSelect = document.querySelector('select[name="email_template_id"]');
+            if (templateSelect) {
+                templateSelect.addEventListener('change', (e) => {
+                    this.selectedTemplateId = e.target.value;
+                    this.loadTemplatePreview(e.target.value);
+                });
+            }
+
+            // Load initial template preview if template is already selected
+            if (this.selectedTemplateId) {
+                this.loadTemplatePreview(this.selectedTemplateId);
+            }
+        },
+
+        toggleReceiverFields(receiverType) {
+            const receiverIdsField = document.getElementById('receiver_ids_field');
+            const receiverEmailsField = document.getElementById('receiver_emails_field');
+
+            receiverIdsField.classList.add('hidden');
+            receiverEmailsField.classList.add('hidden');
+
+            if (receiverType === 'contact' || receiverType === 'user') {
+                receiverIdsField.classList.remove('hidden');
+            } else if (receiverType === 'any_email') {
+                receiverEmailsField.classList.remove('hidden');
+            }
+        },
+
+        async loadTemplatePreview(templateId) {
+            if (!templateId || templateId === '') {
+                this.templateData = { name: '', subject: '', body_html: '' };
+                return;
+            }
+
+            this.loading = true;
+
+            try {
+                const url = `/admin/settings/email-templates/${templateId}/content`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                this.templateData = {
+                    name: data.name || '',
+                    subject: data.subject || '',
+                    body_html: data.body_html || ''
+                };
+
+                // Set loading to false first so the iframe becomes visible
+                this.loading = false;
+
+                // Wait for DOM to update, then write to iframe
+                await this.$nextTick();
+
+                // Use setTimeout to ensure the iframe is fully rendered
+                setTimeout(() => {
+                    this.updateIframeContent();
+                }, 100);
+
+            } catch (error) {
+                console.error('Error loading template preview:', error);
+                this.templateData = { name: '', subject: '', body_html: '' };
+                this.loading = false;
+            }
+        },
+
+        updateIframeContent() {
+            const iframe = document.getElementById('template-preview-iframe');
+            if (!iframe || !this.templateData.body_html) {
+                return;
+            }
+
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(this.templateData.body_html);
+                doc.close();
+
+                // Adjust iframe height based on content after it loads
+                setTimeout(() => {
+                    try {
+                        const height = doc.body ? doc.body.scrollHeight : 400;
+                        iframe.style.height = Math.min(Math.max(height + 20, 400), 600) + 'px';
+                    } catch (e) {
+                        // Cross-origin restriction, use default height
+                        iframe.style.height = '400px';
+                    }
+                }, 200);
+            } catch (e) {
+                console.error('Error updating iframe:', e);
+            }
+        }
+    };
 }
 </script>

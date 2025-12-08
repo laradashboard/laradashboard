@@ -72,16 +72,14 @@ test('admin send email template uses EmailSender', function () {
 
 test('admin send notification uses EmailSender', function () {
     \Illuminate\Support\Facades\Mail::fake();
-    $this->withoutExceptionHandling();
 
     $emailTemplate = EmailTemplate::factory()->create();
 
     $notification = Notification::create([
         'name' => 'Test Notification',
-        'notification_type' => 'manual',
+        'notification_type' => 'custom',
         'email_template_id' => $emailTemplate->id,
-        'body_html' => '<p>Notification body</p>',
-        'receiver_type' => 'single',
+        'receiver_type' => 'user',
     ]);
 
     $mailMessage = new MailMessage();

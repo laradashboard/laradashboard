@@ -91,30 +91,12 @@ class EmailTemplatesController extends Controller
     public function getContent(EmailTemplate $emailTemplate): JsonResponse
     {
         $this->authorize('manage', Setting::class);
-        try {
-            // Load header and footer templates
-            $emailTemplate->load(['headerTemplate', 'footerTemplate']);
 
-            // Combine header, body, and footer content
-            $combinedHtml = '';
-
-            if ($emailTemplate->headerTemplate) {
-                $combinedHtml .= $emailTemplate->headerTemplate->body_html;
-            }
-
-            $combinedHtml .= $emailTemplate->body_html;
-
-            if ($emailTemplate->footerTemplate) {
-                $combinedHtml .= $emailTemplate->footerTemplate->body_html;
-            }
-
-            return response()->json([
-                'subject' => $emailTemplate->subject,
-                'body_html' => $combinedHtml,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        return response()->json([
+            'name' => $emailTemplate->name,
+            'subject' => $emailTemplate->subject,
+            'body_html' => $emailTemplate->body_html ?? '',
+        ]);
     }
 
     /**

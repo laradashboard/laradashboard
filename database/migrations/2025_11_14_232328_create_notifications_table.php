@@ -13,8 +13,7 @@ return new class () extends Migration {
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('notification_type');
-            $table->foreignId('email_template_id')->nullable()->constrained('email_templates')->onDelete('set null');
-            $table->longText('body_html')->nullable();
+            $table->foreignId('email_template_id')->constrained('email_templates')->onDelete('cascade');
             $table->string('receiver_type');
             $table->json('receiver_ids')->nullable();
             $table->json('receiver_emails')->nullable();

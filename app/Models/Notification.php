@@ -28,7 +28,6 @@ class Notification extends Model
         'from_name',
         'reply_to_email',
         'reply_to_name',
-        'body_html',
         'receiver_type',
         'receiver_ids',
         'receiver_emails',

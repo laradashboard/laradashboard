@@ -67,9 +67,7 @@ class SendTestEmailController extends Controller
     public function sendTestNotification(Notification $notification, string $email): JsonResponse
     {
         try {
-            if ($notification->email_template_id) {
-                $notification->load(['emailTemplate', 'emailTemplate.headerTemplate', 'emailTemplate.footerTemplate']);
-            }
+            $notification->load('emailTemplate');
 
             if (! $notification->emailTemplate) {
                 throw new \Exception('No email template associated with this notification.');
@@ -77,12 +75,14 @@ class SendTestEmailController extends Controller
 
             $emailSender = app(EmailSender::class);
             $emailSender->setSubject($notification->emailTemplate->subject)
-                ->setContent($notification->body_html ?? $notification->emailTemplate->body_html ?? '');
+                ->setContent($notification->emailTemplate->body_html ?? '');
 
             $this->sendMailMessageToRecipient($emailSender, $email, null, $this->emailVariable->getPreviewSampleData());
+
             return response()->json(['message' => __('Test email sent successfully.')]);
         } catch (\Exception $e) {
             Log::error('Failed to send test notification email', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
             return response()->json(['message' => 'Failed to send test email: ' . $e->getMessage()], 500);
         }
     }

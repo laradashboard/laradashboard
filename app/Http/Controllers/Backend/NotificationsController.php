@@ -46,10 +46,7 @@ class NotificationsController extends Controller
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.create', [
             'notificationTypes' => NotificationTypeRegistry::getDropdownItems(),
             'receiverTypes' => ReceiverTypeRegistry::getDropdownItems(),
-            'emailTemplates' => array_merge(
-                ['' => __('None - Use Custom Content')],
-                $this->emailTemplateService->getEmailTemplatesDropdown()
-            ),
+            'emailTemplates' => $this->emailTemplateService->getEmailTemplatesDropdown(),
         ]);
     }
 
@@ -79,12 +76,13 @@ class NotificationsController extends Controller
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
 
-        $notification->body_html = $this->emailVariable->replaceVariables(
-            $notification->body_html ?? $notification->emailTemplate->body_html ?? '',
-            $this->emailVariable->getPreviewSampleData()
-        );
+        // Load the email template relationship
+        $notification->load('emailTemplate');
 
-        return $this->renderViewWithBreadcrumbs('backend.pages.notifications.show', compact('notification'));
+        // Use raw template HTML to show the template structure with variable placeholders visible
+        $previewHtml = $notification->emailTemplate->body_html ?? '';
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.notifications.show', compact('notification', 'previewHtml'));
     }
 
     public function edit(Notification $notification): Renderable
@@ -99,10 +97,7 @@ class NotificationsController extends Controller
             'notification' => $notification,
             'notificationTypes' => NotificationTypeRegistry::getDropdownItems(),
             'receiverTypes' => ReceiverTypeRegistry::getDropdownItems(),
-            'emailTemplates' => array_merge(
-                ['' => __('None - Use Custom Content')],
-                $this->emailTemplateService->getEmailTemplatesDropdown()
-            ),
+            'emailTemplates' => $this->emailTemplateService->getEmailTemplatesDropdown(),
         ]);
     }
 
