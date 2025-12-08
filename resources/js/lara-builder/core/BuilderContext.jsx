@@ -6,7 +6,7 @@
  *
  * @example
  * // Wrap your component with BuilderProvider
- * <BuilderProvider context="email" initialData={data}>
+ * <BuilderProvider context="post" initialData={data}>
  *   <LaraBuilder />
  * </BuilderProvider>
  *
@@ -48,7 +48,7 @@ const BuilderContext = createContext(null);
  */
 export function BuilderProvider({
     children,
-    context = 'email',
+    context = 'post',
     config = {},
     initialData = null,
     onStateChange = null,

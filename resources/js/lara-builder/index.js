@@ -23,7 +23,7 @@
  *
  * // Use the builder
  * <LaraBuilder
- *   context="email"
+ *   context="post"
  *   initialData={data}
  *   onSave={handleSave}
  * />

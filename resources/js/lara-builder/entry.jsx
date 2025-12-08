@@ -46,7 +46,7 @@ function initLaraBuilder(elementId = "lara-builder-root") {
     }
 
     // Parse data attributes
-    const context = mountElement.dataset.context || "email";
+    const context = mountElement.dataset.context || "post";
     const initialData = mountElement.dataset.initialData
         ? JSON.parse(mountElement.dataset.initialData)
         : null;

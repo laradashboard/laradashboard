@@ -8,9 +8,6 @@
  * - block.jsx   : React component for builder canvas
  * - editor.jsx  : React component for properties panel
  * - render.php  : Server-side rendering (optional)
- *
- * This module provides a bridge between the old block system and the new
- * modular block architecture. As blocks are migrated, they're added here.
  */
 
 // Import all block modules (new modular format)
@@ -152,7 +149,6 @@ export const blockSupports = (type, feature) => {
 
 /**
  * Register modular blocks with the block registry
- * This merges modular block definitions with legacy blocks
  */
 export const registerModularBlocks = (registry) => {
     modularBlocks.forEach((block, index) => {
@@ -163,24 +159,6 @@ export const registerModularBlocks = (registry) => {
         }
         // Modular blocks include component references
         registry.register(block);
-    });
-};
-
-/**
- * Enhance legacy block definitions with modular components
- * Call this to add component/propertyEditor from modular blocks to legacy definitions
- */
-export const enhanceLegacyBlocks = (legacyBlocks) => {
-    return legacyBlocks.map((block) => {
-        const modularBlock = modularBlockMap[block.type];
-        if (modularBlock) {
-            // Merge modular block into legacy block (modular takes priority)
-            return {
-                ...block,
-                ...modularBlock,
-            };
-        }
-        return block;
     });
 };
 
@@ -196,5 +174,4 @@ export default {
     getBlockSupports,
     blockSupports,
     registerModularBlocks,
-    enhanceLegacyBlocks,
 };
