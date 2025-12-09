@@ -111,8 +111,13 @@ const TextFormatToolbar = ({ textareaRef, value, onChange, align, onAlignChange,
         const selected = value.substring(sel.start, sel.end);
         const after = value.substring(sel.end);
 
-        // Remove HTML tags from selected text
-        const cleaned = selected.replace(/<[^>]*>/g, '');
+        // Remove HTML tags from selected text (loop until fully sanitized)
+        let cleaned = selected;
+        let prevCleaned;
+        do {
+            prevCleaned = cleaned;
+            cleaned = cleaned.replace(/<[^>]*>/g, '');
+        } while (cleaned !== prevCleaned);
         onChange(before + cleaned + after);
 
         setTimeout(() => {

@@ -24,8 +24,13 @@ const extractHeadings = (blocks, minLevel, maxLevel) => {
                 const level = parseInt(levelStr.replace("h", ""), 10);
 
                 if (level >= minLevel && level <= maxLevel) {
-                    // Strip HTML tags from text
-                    const text = block.props.text.replace(/<[^>]*>/g, "");
+                    // Strip HTML tags from text (loop until fully sanitized)
+                    let text = block.props.text;
+                    let prevText;
+                    do {
+                        prevText = text;
+                        text = text.replace(/<[^>]*>/g, "");
+                    } while (text !== prevText);
                     if (text.trim()) {
                         headings.push({
                             id: block.id,
