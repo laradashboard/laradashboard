@@ -96,6 +96,9 @@ class BlockRenderer
             return $content;
         }
 
+        // Pre-calculate word count for time-to-read blocks
+        $wordCount = $this->calculateWordCount($content);
+
         // Process blocks in reverse order to maintain correct positions
         $replacements = [];
 
@@ -110,6 +113,11 @@ class BlockRenderer
                 // Decode props from JSON
                 $propsJson = html_entity_decode($propsJson, ENT_QUOTES, 'UTF-8');
                 $props = json_decode($propsJson, true) ?? [];
+
+                // Inject word count for time-to-read block
+                if ($blockType === 'time-to-read') {
+                    $props['_wordCount'] = $wordCount;
+                }
 
                 // Use auto-discovery method which checks registered + discovers render.php
                 $rendered = $this->renderBlock($blockType, $props, $context, $blockId);
@@ -143,6 +151,32 @@ class BlockRenderer
         }
 
         return $content;
+    }
+
+    /**
+     * Calculate word count from HTML content
+     *
+     * Strips HTML tags and counts words for reading time calculation.
+     */
+    protected function calculateWordCount(string $content): int
+    {
+        // Strip all HTML tags
+        $text = strip_tags($content);
+
+        // Decode HTML entities
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+
+        // Remove extra whitespace and normalize
+        $text = preg_replace('/\s+/', ' ', $text);
+        $text = trim($text);
+
+        // Return 0 for empty content
+        if ($text === '') {
+            return 0;
+        }
+
+        // Count words
+        return str_word_count($text);
     }
 
     /**
