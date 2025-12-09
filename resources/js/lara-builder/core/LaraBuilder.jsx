@@ -281,8 +281,16 @@ function LaraBuilderInner({
             if (e.key === "Backspace" || e.key === "Delete") {
                 e.preventDefault();
 
-                if (isNested && parentBlockId !== null && columnIndex !== null) {
-                    actions.deleteNestedBlock(parentBlockId, columnIndex, selectedBlockId);
+                if (
+                    isNested &&
+                    parentBlockId !== null &&
+                    columnIndex !== null
+                ) {
+                    actions.deleteNestedBlock(
+                        parentBlockId,
+                        columnIndex,
+                        selectedBlockId
+                    );
                 } else {
                     actions.deleteBlock(selectedBlockId);
                 }
@@ -298,7 +306,11 @@ function LaraBuilderInner({
                         content: "",
                     });
 
-                    if (isNested && parentBlockId !== null && columnIndex !== null) {
+                    if (
+                        isNested &&
+                        parentBlockId !== null &&
+                        columnIndex !== null
+                    ) {
                         actions.addNestedBlock(
                             parentBlockId,
                             columnIndex,
@@ -343,7 +355,11 @@ function LaraBuilderInner({
     const handleCopyAllBlocks = useCallback(async () => {
         const blocksJson = JSON.stringify(blocks, null, 2);
         await navigator.clipboard.writeText(blocksJson);
-        showToast("success", __("Copied!"), __("All blocks copied to clipboard"));
+        showToast(
+            "success",
+            __("Copied!"),
+            __("All blocks copied to clipboard")
+        );
     }, [blocks, showToast]);
 
     // Paste blocks from clipboard
@@ -366,18 +382,31 @@ function LaraBuilderInner({
                     showToast(
                         "success",
                         __("Pasted!"),
-                        __(":count blocks pasted").replace(":count", parsed.length)
+                        __(":count blocks pasted").replace(
+                            ":count",
+                            parsed.length
+                        )
                     );
                 }
             } catch (e) {
                 if (editorMode === "code") {
                     setCodeEditorHtml(text);
-                    showToast("success", __("Pasted!"), __("HTML content pasted"));
+                    showToast(
+                        "success",
+                        __("Pasted!"),
+                        __("HTML content pasted")
+                    );
                 } else {
-                    const newBlock = blockRegistry.createInstance("html", { code: text });
+                    const newBlock = blockRegistry.createInstance("html", {
+                        code: text,
+                    });
                     if (newBlock) {
                         actions.addBlock(newBlock);
-                        showToast("success", __("Pasted!"), __("HTML block created"));
+                        showToast(
+                            "success",
+                            __("Pasted!"),
+                            __("HTML block created")
+                        );
                     }
                 }
             }
@@ -393,7 +422,11 @@ function LaraBuilderInner({
     const handleSave = async () => {
         // Context-specific validation
         if (isEmailContext && !templateName.trim()) {
-            showToast("error", __("Validation Error"), __("Template name is required"));
+            showToast(
+                "error",
+                __("Validation Error"),
+                __("Template name is required")
+            );
             return;
         }
         if (isPostContext && !title.trim()) {
@@ -422,9 +455,11 @@ function LaraBuilderInner({
                 };
             } else if (isPostContext) {
                 const taxonomyData = {};
-                Object.entries(selectedTerms).forEach(([taxonomyName, termIds]) => {
-                    taxonomyData[`taxonomy_${taxonomyName}`] = termIds;
-                });
+                Object.entries(selectedTerms).forEach(
+                    ([taxonomyName, termIds]) => {
+                        taxonomyData[`taxonomy_${taxonomyName}`] = termIds;
+                    }
+                );
 
                 saveData = {
                     title,
@@ -433,7 +468,8 @@ function LaraBuilderInner({
                     excerpt,
                     content: html,
                     design_json: designJson,
-                    published_at: status === "scheduled" ? publishedAt : undefined,
+                    published_at:
+                        status === "scheduled" ? publishedAt : undefined,
                     parent_id: parentId || undefined,
                     featured_image: featuredImage || undefined,
                     remove_featured_image: removeFeaturedImage,
@@ -458,7 +494,9 @@ function LaraBuilderInner({
                 "success",
                 isEdit ? __("Saved") : __("Created"),
                 result?.message ||
-                    (isEdit ? __("Saved successfully!") : __("Created successfully!"))
+                    (isEdit
+                        ? __("Saved successfully!")
+                        : __("Created successfully!"))
             );
 
             LaraHooks.doAction(BuilderHooks.ACTION_AFTER_SAVE, result);
@@ -467,7 +505,9 @@ function LaraBuilderInner({
             if (!isEdit) {
                 if (result?.id && listUrl) {
                     setTimeout(() => {
-                        window.location.href = `${listUrl.replace(/\/$/, "")}/${result.id}/edit`;
+                        window.location.href = `${listUrl.replace(/\/$/, "")}/${
+                            result.id
+                        }/edit`;
                     }, 500);
                 } else if (result?.redirect) {
                     setTimeout(() => {
@@ -476,7 +516,11 @@ function LaraBuilderInner({
                 }
             }
         } catch (error) {
-            showToast("error", __("Save Failed"), error.message || __("Failed to save"));
+            showToast(
+                "error",
+                __("Save Failed"),
+                error.message || __("Failed to save")
+            );
             LaraHooks.doAction(BuilderHooks.ACTION_SAVE_ERROR, error);
         } finally {
             setSaving(false);
@@ -597,32 +641,34 @@ function LaraBuilderInner({
             `}</style>
 
             <div className="h-screen flex flex-col bg-gray-100">
-                {/* Header */}
+                {/* Header - click to deselect blocks */}
                 {showHeader && (
-                    <BuilderHeader
-                        listUrl={listUrl}
-                        isFormDirty={isFormDirty}
-                        labels={labels}
-                        isPostContext={isPostContext}
-                        isEmailContext={isEmailContext}
-                        templateData={templateData}
-                        postData={postData}
-                        postTypeModel={postTypeModel}
-                        canUndo={canUndo}
-                        canRedo={canRedo}
-                        undo={undo}
-                        redo={redo}
-                        title={title}
-                        setTitle={setTitle}
-                        templateName={templateName}
-                        setTemplateName={setTemplateName}
-                        saving={saving}
-                        onSave={handleSave}
-                        editorMode={editorMode}
-                        onEditorModeChange={handleEditorModeChange}
-                        onCopyAllBlocks={handleCopyAllBlocks}
-                        onPasteBlocks={handlePasteBlocks}
-                    />
+                    <div onClick={() => actions.selectBlock(null)}>
+                        <BuilderHeader
+                            listUrl={listUrl}
+                            isFormDirty={isFormDirty}
+                            labels={labels}
+                            isPostContext={isPostContext}
+                            isEmailContext={isEmailContext}
+                            templateData={templateData}
+                            postData={postData}
+                            postTypeModel={postTypeModel}
+                            canUndo={canUndo}
+                            canRedo={canRedo}
+                            undo={undo}
+                            redo={redo}
+                            title={title}
+                            setTitle={setTitle}
+                            templateName={templateName}
+                            setTemplateName={setTemplateName}
+                            saving={saving}
+                            onSave={handleSave}
+                            editorMode={editorMode}
+                            onEditorModeChange={handleEditorModeChange}
+                            onCopyAllBlocks={handleCopyAllBlocks}
+                            onPasteBlocks={handlePasteBlocks}
+                        />
+                    </div>
                 )}
 
                 {/* Main content */}
@@ -633,11 +679,12 @@ function LaraBuilderInner({
                         onOpenRightDrawer={() => setRightDrawerOpen(true)}
                     />
 
-                    {/* Left sidebar - Block palette (Desktop) */}
+                    {/* Left sidebar - Block palette (Desktop) - click to deselect blocks */}
                     <div
                         className={`hidden lg:flex bg-white border-r border-gray-200 overflow-hidden flex-col flex-shrink-0 transition-all duration-200 ${
                             leftSidebarCollapsed ? "w-12" : "w-64"
                         }`}
+                        onClick={() => actions.selectBlock(null)}
                     >
                         <LeftSidebar
                             collapsed={leftSidebarCollapsed}
@@ -658,31 +705,56 @@ function LaraBuilderInner({
                     {/* Canvas or Code Editor based on mode */}
                     {editorMode === "visual" ? (
                         <div className="flex-1 flex flex-col overflow-hidden">
-                            {/* Responsive Preview Toolbar */}
-                            <div className="flex items-center justify-center gap-1 py-2 px-4 bg-gray-100 border-b border-gray-200">
+                            {/* Responsive Preview Toolbar - click to deselect blocks */}
+                            <div
+                                className="flex items-center justify-center gap-1 py-2 px-4 bg-gray-100 border-b border-gray-200"
+                                onClick={() => actions.selectBlock(null)}
+                            >
                                 <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-0.5">
-                                    {["desktop", "tablet", "mobile"].map((mode) => (
-                                        <button
-                                            key={mode}
-                                            type="button"
-                                            onClick={() => setPreviewMode(mode)}
-                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                                                previewMode === mode
-                                                    ? "bg-primary text-white"
-                                                    : "text-gray-600 hover:bg-gray-100"
-                                            }`}
-                                            title={__(`${mode.charAt(0).toUpperCase() + mode.slice(1)} Preview`)}
-                                        >
-                                            <iconify-icon
-                                                icon={`mdi:${mode === "desktop" ? "monitor" : mode === "tablet" ? "tablet" : "cellphone"}`}
-                                                width="16"
-                                                height="16"
-                                            ></iconify-icon>
-                                            <span className="hidden sm:inline">
-                                                {__(mode.charAt(0).toUpperCase() + mode.slice(1))}
-                                            </span>
-                                        </button>
-                                    ))}
+                                    {["desktop", "tablet", "mobile"].map(
+                                        (mode) => (
+                                            <button
+                                                key={mode}
+                                                type="button"
+                                                onClick={() =>
+                                                    setPreviewMode(mode)
+                                                }
+                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                                                    previewMode === mode
+                                                        ? "bg-primary text-white"
+                                                        : "text-gray-600 hover:bg-gray-100"
+                                                }`}
+                                                title={__(
+                                                    `${
+                                                        mode
+                                                            .charAt(0)
+                                                            .toUpperCase() +
+                                                        mode.slice(1)
+                                                    } Preview`
+                                                )}
+                                            >
+                                                <iconify-icon
+                                                    icon={`mdi:${
+                                                        mode === "desktop"
+                                                            ? "monitor"
+                                                            : mode === "tablet"
+                                                            ? "tablet"
+                                                            : "cellphone"
+                                                    }`}
+                                                    width="16"
+                                                    height="16"
+                                                ></iconify-icon>
+                                                <span className="hidden sm:inline">
+                                                    {__(
+                                                        mode
+                                                            .charAt(0)
+                                                            .toUpperCase() +
+                                                            mode.slice(1)
+                                                    )}
+                                                </span>
+                                            </button>
+                                        )
+                                    )}
                                 </div>
                             </div>
                             <Canvas
@@ -695,7 +767,9 @@ function LaraBuilderInner({
                                 onMoveBlock={handleMoveBlock}
                                 onDuplicateBlock={handleDuplicateBlock}
                                 onMoveNestedBlock={handleMoveNestedBlock}
-                                onDuplicateNestedBlock={handleDuplicateNestedBlock}
+                                onDuplicateNestedBlock={
+                                    handleDuplicateNestedBlock
+                                }
                                 onInsertBlockAfter={handleInsertBlockAfter}
                                 onReplaceBlock={handleReplaceBlock}
                                 canvasSettings={canvasSettings}
@@ -751,7 +825,11 @@ function LaraBuilderInner({
                 {activeId && activeId.toString().startsWith("palette-") && (
                     <div className="p-4 bg-white border-2 border-primary rounded-lg shadow-lg opacity-80">
                         <span className="text-sm font-medium">
-                            {blockRegistry.get(activeId.replace("palette-", ""))?.label}
+                            {
+                                blockRegistry.get(
+                                    activeId.replace("palette-", "")
+                                )?.label
+                            }
                         </span>
                     </div>
                 )}
@@ -794,7 +872,11 @@ function LaraBuilder({
     }, []);
 
     return (
-        <BuilderProvider context={context} initialData={initialData} config={config}>
+        <BuilderProvider
+            context={context}
+            initialData={initialData}
+            config={config}
+        >
             <LaraBuilderInner
                 onSave={onSave}
                 onImageUpload={onImageUpload}
