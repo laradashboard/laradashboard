@@ -109,7 +109,6 @@
 
             <div
                 class="flex md:items-center gap-3 flex-wrap"
-                @if($enableLivewire) wire:ignore @endif
             >
                 <div
                     class="flex items-center gap-2"
@@ -236,12 +235,24 @@
                     @if($customFilters)
                         {!! $customFilters !!}
                     @else
-                        @if(isset($filters))
+                        @if(isset($filters) && count($filters) > 0)
+                            @if($enableLivewire && method_exists($this, 'hasActiveFilters') && $this->hasActiveFilters())
+                                <button
+                                    type="button"
+                                    wire:click="clearFilters"
+                                    class="text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 flex items-center gap-1 transition-colors duration-200"
+                                    title="{{ __('Clear all filters') }}"
+                                >
+                                    <iconify-icon icon="lucide:x-circle" class="text-base"></iconify-icon>
+                                    {{ __('Clear') }}
+                                </button>
+                            @endif
+
                             @foreach($filters as $filter)
                             <div class="flex items-center justify-center relative" x-data="{ open: false }">
                                 <button
                                     @click="open = !open"
-                                    class="btn-default flex items-center justify-center gap-2"
+                                    class="btn-default flex items-center justify-center gap-2 {{ !empty($filter['selected']) ? 'ring-2 ring-primary/50 bg-primary/5' : '' }}"
                                     type="button"
                                 >
                                     @if($filter['icon'] ?? false)
@@ -249,6 +260,9 @@
                                     @endif
 
                                     {{ $filter['filterLabel'] }}
+                                    @if(!empty($filter['selected']))
+                                        <span class="inline-flex items-center justify-center w-2 h-2 rounded-full bg-primary"></span>
+                                    @endif
                                     <iconify-icon icon="lucide:chevron-down" class="transition-transform duration-200" :class="{'rotate-180': open}"></iconify-icon>
                                 </button>
 
@@ -259,7 +273,7 @@
                                     class="absolute top-10 right-0 mt-2 w-56 rounded-md shadow bg-white dark:bg-gray-700 z-10 p-3 overflow-y-auto max-h-80"
                                 >
                                     <ul class="space-y-2">
-                                        <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded"
+                                        <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ empty($filter['selected']) ? 'bg-gray-200 dark:bg-gray-600 font-bold' : '' }}"
                                             @if($enableLivewire)
                                                 wire:click="$set('{{ $filter['id'] }}', ''); $dispatch('resetPage')"
                                             @endif

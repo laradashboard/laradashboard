@@ -164,6 +164,33 @@ abstract class Datatable extends Component
         return [];
     }
 
+    public function hasActiveFilters(): bool
+    {
+        foreach ($this->filters as $filter) {
+            if (! empty($filter['selected'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getFilterPropertyNames(): array
+    {
+        return array_column($this->filters, 'id');
+    }
+
+    public function clearFilters(): void
+    {
+        foreach ($this->getFilterPropertyNames() as $filterName) {
+            if (property_exists($this, $filterName)) {
+                $this->{$filterName} = '';
+            }
+        }
+
+        $this->resetPage();
+    }
+
     protected function getSnakeCaseModel(): string
     {
         return Str::snake(class_basename($this->getModelClass()));
@@ -322,7 +349,7 @@ abstract class Datatable extends Component
 
     protected function getData(): CursorPaginator|LengthAwarePaginator|Paginator
     {
-        return$this->getPaginatedData($this->buildQuery());
+        return $this->getPaginatedData($this->buildQuery());
     }
 
     protected function buildQuery(): QueryBuilder
@@ -361,6 +388,7 @@ abstract class Datatable extends Component
     public function render(): Renderable
     {
         $this->headers = $this->getHeaders();
+        $this->filters = $this->getFilters();
 
         return view('backend.livewire.datatable.datatable', [
             'headers' => $this->headers,
