@@ -9,6 +9,7 @@
     "contexts": ["email", "page", "campaign"],
     "supports": {
         "columnCount": true,
+        "align": false,
         "spacing": true,
         "nesting": true,
         "layout": true,

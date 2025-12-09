@@ -190,6 +190,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     blockId: block.id,
                     onSelect: onSelect,
                     selectedBlockId: selectedBlockId,
+                    onUpdateNested: onUpdate, // Raw handler for nested blocks (takes blockId, newProps)
                     onDeleteNested: onDeleteNested,
                     onMoveNestedBlock: onMoveNestedBlock,
                     onDuplicateNestedBlock: onDuplicateNestedBlock,

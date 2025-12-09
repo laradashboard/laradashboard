@@ -9,6 +9,7 @@
     "contexts": ["page"],
     "supports": {
         "colors": true,
+        "align": false,
         "layout": true,
         "html": true,
         "duplicate": true,

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
     SortableContext,
@@ -24,6 +25,9 @@ const NestedSortableBlock = ({
     blockIndex,
     totalBlocks,
 }) => {
+    const [textFormatProps, setTextFormatProps] = useState(null);
+    const [alignProps, setAlignProps] = useState(null);
+
     const {
         attributes,
         listeners,
@@ -51,6 +55,31 @@ const NestedSortableBlock = ({
 
     const canMoveUp = blockIndex > 0;
     const canMoveDown = blockIndex < totalBlocks - 1;
+
+    // Handler for blocks to register their text format capabilities
+    const handleRegisterTextFormat = (formatProps) => {
+        if (formatProps) {
+            setTextFormatProps({
+                editorRef: formatProps.editorRef,
+                align: formatProps.align,
+                onAlignChange: formatProps.onAlignChange,
+            });
+        } else {
+            setTextFormatProps(null);
+        }
+    };
+
+    // Handler for blocks to register alignment-only capabilities
+    const handleRegisterAlign = (alignData) => {
+        if (alignData) {
+            setAlignProps({
+                align: alignData.align,
+                onAlignChange: alignData.onAlignChange,
+            });
+        } else {
+            setAlignProps(null);
+        }
+    };
 
     if (!BlockComponent) {
         return (
@@ -94,6 +123,8 @@ const NestedSortableBlock = ({
                     }
                     canMoveUp={canMoveUp}
                     canMoveDown={canMoveDown}
+                    textFormatProps={textFormatProps}
+                    alignProps={alignProps}
                 />
             )}
 
@@ -101,6 +132,8 @@ const NestedSortableBlock = ({
                 props={block.props}
                 isSelected={isSelected}
                 onUpdate={(newProps) => onUpdate(block.id, newProps)}
+                onRegisterTextFormat={handleRegisterTextFormat}
+                onRegisterAlign={handleRegisterAlign}
             />
         </div>
     );
@@ -196,7 +229,7 @@ const ColumnsBlock = ({
     blockId,
     onSelect,
     selectedBlockId,
-    onUpdate,
+    onUpdateNested,
     onDeleteNested,
     onMoveNestedBlock,
     onDuplicateNestedBlock,
@@ -280,7 +313,7 @@ const ColumnsBlock = ({
                             blocks={columnBlocks}
                             onSelect={onSelect}
                             selectedBlockId={selectedBlockId}
-                            onUpdate={onUpdate}
+                            onUpdate={onUpdateNested}
                             onDelete={onDeleteNested}
                             onMoveNested={onMoveNestedBlock}
                             onDuplicateNested={onDuplicateNestedBlock}
