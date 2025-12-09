@@ -1,13 +1,29 @@
-import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { getBlockComponent } from '../index';
-import BlockToolbar from '../../components/BlockToolbar';
-import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
-import { __ } from '@lara-builder/i18n';
+import { useDroppable } from "@dnd-kit/core";
+import {
+    SortableContext,
+    verticalListSortingStrategy,
+    useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { getBlockComponent } from "../index";
+import BlockToolbar from "../../components/BlockToolbar";
+import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
+import { __ } from "@lara-builder/i18n";
 
 // Nested sortable block within a column
-const NestedSortableBlock = ({ block, columnIndex, parentId, onSelect, selectedBlockId, onUpdate, onDelete, onMoveNested, onDuplicateNested, blockIndex, totalBlocks }) => {
+const NestedSortableBlock = ({
+    block,
+    columnIndex,
+    parentId,
+    onSelect,
+    selectedBlockId,
+    onUpdate,
+    onDelete,
+    onMoveNested,
+    onDuplicateNested,
+    blockIndex,
+    totalBlocks,
+}) => {
     const {
         attributes,
         listeners,
@@ -18,7 +34,7 @@ const NestedSortableBlock = ({ block, columnIndex, parentId, onSelect, selectedB
     } = useSortable({
         id: block.id,
         data: {
-            type: 'nested',
+            type: "nested",
             columnIndex,
             parentId,
         },
@@ -38,7 +54,11 @@ const NestedSortableBlock = ({ block, columnIndex, parentId, onSelect, selectedB
 
     if (!BlockComponent) {
         return (
-            <div ref={setNodeRef} style={style} className="p-2 bg-red-100 text-red-600 rounded text-xs">
+            <div
+                ref={setNodeRef}
+                style={style}
+                className="p-2 bg-red-100 text-red-600 rounded text-xs"
+            >
                 Unknown: {block.type}
             </div>
         );
@@ -48,7 +68,9 @@ const NestedSortableBlock = ({ block, columnIndex, parentId, onSelect, selectedB
         <div
             ref={setNodeRef}
             style={style}
-            className={`relative group cursor-grab active:cursor-grabbing ${isDragging ? 'z-50' : ''}`}
+            className={`relative group cursor-grab active:cursor-grabbing ${
+                isDragging ? "z-50" : ""
+            }`}
             onClick={(e) => {
                 e.stopPropagation();
                 onSelect(block.id);
@@ -60,10 +82,16 @@ const NestedSortableBlock = ({ block, columnIndex, parentId, onSelect, selectedB
             {isSelected && (
                 <BlockToolbar
                     block={block}
-                    onMoveUp={() => onMoveNested(block.id, parentId, columnIndex, 'up')}
-                    onMoveDown={() => onMoveNested(block.id, parentId, columnIndex, 'down')}
+                    onMoveUp={() =>
+                        onMoveNested(block.id, parentId, columnIndex, "up")
+                    }
+                    onMoveDown={() =>
+                        onMoveNested(block.id, parentId, columnIndex, "down")
+                    }
                     onDelete={() => onDelete(block.id, parentId, columnIndex)}
-                    onDuplicate={() => onDuplicateNested(block.id, parentId, columnIndex)}
+                    onDuplicate={() =>
+                        onDuplicateNested(block.id, parentId, columnIndex)
+                    }
                     canMoveUp={canMoveUp}
                     canMoveDown={canMoveDown}
                 />
@@ -79,32 +107,45 @@ const NestedSortableBlock = ({ block, columnIndex, parentId, onSelect, selectedB
 };
 
 // Droppable column zone
-const DroppableColumn = ({ columnIndex, parentId, blocks, onSelect, selectedBlockId, onUpdate, onDelete, onMoveNested, onDuplicateNested }) => {
+const DroppableColumn = ({
+    columnIndex,
+    parentId,
+    blocks,
+    onSelect,
+    selectedBlockId,
+    onUpdate,
+    onDelete,
+    onMoveNested,
+    onDuplicateNested,
+}) => {
     const droppableId = `column-${parentId}-${columnIndex}`;
 
     const { setNodeRef, isOver } = useDroppable({
         id: droppableId,
         data: {
-            type: 'column',
+            type: "column",
             columnIndex,
             parentId,
         },
     });
 
-    const blockIds = blocks.map(b => b.id);
+    const blockIds = blocks.map((b) => b.id);
 
     return (
         <div
             ref={setNodeRef}
             className={`min-h-[60px] p-2 rounded-lg transition-colors ${
                 isOver
-                    ? 'bg-primary/10 border-2 border-primary border-dashed'
+                    ? "bg-primary/10 border-2 border-primary border-dashed"
                     : blocks.length === 0
-                        ? 'bg-gray-50 border-2 border-dashed border-gray-300'
-                        : 'bg-gray-50/50'
+                    ? "bg-gray-50 border-2 border-dashed border-gray-300"
+                    : "bg-gray-50/50"
             }`}
         >
-            <SortableContext items={blockIds} strategy={verticalListSortingStrategy}>
+            <SortableContext
+                items={blockIds}
+                strategy={verticalListSortingStrategy}
+            >
                 {blocks.length > 0 ? (
                     <div className="space-y-2">
                         {blocks.map((block, index) => (
@@ -140,7 +181,7 @@ const DroppableColumn = ({ columnIndex, parentId, blocks, onSelect, selectedBloc
                                     d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                                 />
                             </svg>
-                            <span>{__('Drop here')}</span>
+                            <span>{__("Drop here")}</span>
                         </div>
                     </div>
                 )}
@@ -149,47 +190,102 @@ const DroppableColumn = ({ columnIndex, parentId, blocks, onSelect, selectedBloc
     );
 };
 
-const ColumnsBlock = ({ props, isSelected, blockId, onSelect, selectedBlockId, onUpdate, onDeleteNested, onMoveNestedBlock, onDuplicateNestedBlock }) => {
-    const { columns = 2, gap = '20px', children = [] } = props;
+const ColumnsBlock = ({
+    props,
+    isSelected,
+    blockId,
+    onSelect,
+    selectedBlockId,
+    onUpdate,
+    onDeleteNested,
+    onMoveNestedBlock,
+    onDuplicateNestedBlock,
+}) => {
+    const {
+        columns = 2,
+        gap = "20px",
+        children = [],
+        verticalAlign = "stretch",
+        horizontalAlign = "stretch",
+    } = props;
 
     const columnCount = Math.min(Math.max(parseInt(columns) || 2, 1), 6);
 
     // Ensure children array has correct length
-    const columnChildren = Array.from({ length: columnCount }, (_, i) => children[i] || []);
+    const columnChildren = Array.from(
+        { length: columnCount },
+        (_, i) => children[i] || []
+    );
+
+    // Map alignment values to CSS
+    const alignItemsMap = {
+        start: "flex-start",
+        center: "center",
+        end: "flex-end",
+        stretch: "stretch",
+    };
+
+    const justifyContentMap = {
+        start: "flex-start",
+        center: "center",
+        end: "flex-end",
+        stretch: "stretch",
+        "space-between": "space-between",
+        "space-around": "space-around",
+    };
 
     // Base container styles
     const defaultContainerStyle = {
-        padding: '8px 0',
+        padding: "8px 0",
     };
 
     // Apply layout styles to container
-    const containerStyle = applyLayoutStyles(defaultContainerStyle, props.layoutStyles);
+    const containerStyle = applyLayoutStyles(
+        defaultContainerStyle,
+        props.layoutStyles
+    );
+
+    // Grid styles with alignment
+    const gridStyle = {
+        display: "flex",
+        flexWrap: "wrap",
+        gap: gap,
+        alignItems: alignItemsMap[verticalAlign] || "stretch",
+        justifyContent: justifyContentMap[horizontalAlign] || "stretch",
+    };
+
+    // Column style - flex basis for equal widths when stretch
+    const getColumnStyle = () => {
+        if (horizontalAlign === "stretch") {
+            return {
+                flex: `1 1 calc(${100 / columnCount}% - ${gap})`,
+                minWidth: 0,
+            };
+        }
+        return {
+            flex: "0 0 auto",
+            width: `calc(${100 / columnCount}% - ${gap})`,
+            minWidth: 0,
+        };
+    };
 
     return (
-        <div
-            className="transition-all"
-            style={containerStyle}
-        >
-            <div
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${columnCount}, 1fr)`,
-                    gap: gap,
-                }}
-            >
+        <div className="transition-all" style={containerStyle}>
+            <div style={gridStyle}>
                 {columnChildren.map((columnBlocks, index) => (
-                    <DroppableColumn
-                        key={index}
-                        columnIndex={index}
-                        parentId={blockId}
-                        blocks={columnBlocks}
-                        onSelect={onSelect}
-                        selectedBlockId={selectedBlockId}
-                        onUpdate={onUpdate}
-                        onDelete={onDeleteNested}
-                        onMoveNested={onMoveNestedBlock}
-                        onDuplicateNested={onDuplicateNestedBlock}
-                    />
+                    <div key={index} style={getColumnStyle()}>
+                        <DroppableColumn
+                            columnIndex={index}
+                            parentId={blockId}
+                            blocks={columnBlocks}
+                            onSelect={onSelect}
+                            selectedBlockId={selectedBlockId}
+                            onUpdate={onUpdate}
+                            onDelete={onDeleteNested}
+                            onMoveNested={onMoveNestedBlock}
+                            onDuplicateNested={onDuplicateNestedBlock}
+                        />
+                    </div>
                 ))}
             </div>
         </div>
