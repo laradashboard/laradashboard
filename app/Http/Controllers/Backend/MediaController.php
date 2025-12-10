@@ -32,16 +32,7 @@ class MediaController extends Controller
 
         $breadcrumbs = [
             'title' => __('Media Library'),
-            'links' => [
-                [
-                    'name' => __('Dashboard'),
-                    'url' => route('admin.dashboard'),
-                ],
-                [
-                    'name' => __('Media Library'),
-                    'url' => '#',
-                ],
-            ],
+            'icon' => 'lucide:image',
         ];
 
         $result = $this->mediaLibraryService->getMediaList(

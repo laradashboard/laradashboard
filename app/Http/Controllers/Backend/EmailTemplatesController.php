@@ -29,7 +29,14 @@ class EmailTemplatesController extends Controller
         $this->authorize('manage', Setting::class);
 
         $this->setBreadcrumbTitle(__('Email Templates'))
-            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'));
+            ->setBreadcrumbIcon('lucide:mail')
+            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
+            ->setBreadcrumbActionButton(
+                route('admin.email-templates.create'),
+                __('New Template'),
+                'feather:plus',
+                'settings.edit'
+            );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.email-templates.index');
     }
@@ -43,6 +50,7 @@ class EmailTemplatesController extends Controller
         $emailTemplate->body_html = $rendered['body_html'];
 
         $this->setBreadcrumbTitle(__('View Template'))
+            ->setBreadcrumbIcon('lucide:mail')
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Email Templates'), route('admin.email-templates.index'));
 

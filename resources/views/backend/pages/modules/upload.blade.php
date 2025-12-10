@@ -1,4 +1,39 @@
-<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
+<x-layouts.backend-layout>
+    <x-slot name="breadcrumbsData">
+        <x-breadcrumbs :breadcrumbs="$breadcrumbs">
+            <x-slot name="title_after">
+                <x-popover position="bottom" width="w-[300px]">
+                    <x-slot name="trigger">
+                        <iconify-icon icon="lucide:info" class="text-lg ml-3" title="{{ __('Module Requirements') }}"></iconify-icon>
+                    </x-slot>
+
+                    <div class="w-[300px] p-4 font-normal">
+                        <h3 class="font-medium text-gray-700 dark:text-white mb-2">{{ __('Module Requirements') }}</h3>
+                        <p class="mb-2">{{ __('You can upload custom modules to extend functionality.') }}</p>
+                        <ul class="list-disc pl-5 space-y-1 text-sm">
+                            <li>{{ __('Modules must be in .zip format') }}</li>
+                            <li>{{ __('Each module should have a valid module.json file') }}</li>
+                            <li>{{ __('Module name must be unique') }}</li>
+                            <li>
+                                {{ __('Must follow guidelines.') }}&nbsp;
+                                <a href="https://laradashboard.com/docs/how-to-create-a-module-in-lara-dashboard/" class="text-primary hover:underline" target="_blank">
+                                    {{ __('Learn more') }}
+                                    <iconify-icon icon="lucide:external-link" class="text-sm"></iconify-icon>
+                                </a>
+                            </li>
+                        </ul>
+                        @if(config('app.demo_mode', false))
+                        <div class="bg-yellow-50 text-yellow-700 rounded-md mt-4 p-3">
+                            <iconify-icon icon="lucide:alert-triangle"></iconify-icon> &nbsp;
+                            {{ __('Note: Module uploads are disabled in demo mode.') }}
+                        </div>
+                        @endif
+                    </div>
+                </x-popover>
+            </x-slot>
+        </x-breadcrumbs>
+    </x-slot>
+
     <div id="module-uploader"
          x-data="{
             files: [],

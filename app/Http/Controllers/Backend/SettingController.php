@@ -38,6 +38,7 @@ class SettingController extends Controller
             ->with([
                 'breadcrumbs' => [
                     'title' => __('Settings'),
+                    'icon' => 'lucide:settings',
                 ],
             ]);
     }

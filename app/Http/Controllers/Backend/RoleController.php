@@ -28,7 +28,14 @@ class RoleController extends Controller
     {
         $this->authorize('viewAny', Role::class);
 
-        $this->setBreadcrumbTitle(__('Roles'));
+        $this->setBreadcrumbTitle(__('Roles'))
+            ->setBreadcrumbIcon('lucide:shield')
+            ->setBreadcrumbActionButton(
+                route('admin.roles.create'),
+                __('New Role'),
+                'feather:plus',
+                'role.create'
+            );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.roles.index');
     }
@@ -38,6 +45,7 @@ class RoleController extends Controller
         $this->authorize('create', Role::class);
 
         $this->setBreadcrumbTitle(__('New Role'))
+            ->setBreadcrumbIcon('lucide:shield-plus')
             ->addBreadcrumbItem(__('Roles'), route('admin.roles.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.roles.create', [
@@ -82,6 +90,7 @@ class RoleController extends Controller
         $this->authorize('update', $role);
 
         $this->setBreadcrumbTitle(__('Edit Role'))
+            ->setBreadcrumbIcon('lucide:shield')
             ->addBreadcrumbItem(__('Roles'), route('admin.roles.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.roles.edit', [

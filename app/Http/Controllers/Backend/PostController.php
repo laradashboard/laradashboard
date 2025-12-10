@@ -58,7 +58,14 @@ class PostController extends Controller
             'tag' => $request->tag,
         ];
 
-        $this->setBreadcrumbTitle($postTypeModel->label);
+        $this->setBreadcrumbTitle($postTypeModel->label)
+            ->setBreadcrumbIcon($postTypeModel->icon ?? 'lucide:file-text')
+            ->setBreadcrumbActionButton(
+                route('admin.posts.create', $postType),
+                __('New :postType', ['postType' => $postTypeModel->label_singular]),
+                'feather:plus',
+                'post.create'
+            );
 
         // Get categories and tags for filters.
         $categories = Term::where('taxonomy', 'category')->select('id', 'name')->get();
@@ -95,6 +102,7 @@ class PostController extends Controller
         }
 
         $this->setBreadcrumbTitle(__('New :postType', ['postType' => $postTypeModel->label_singular]))
+            ->setBreadcrumbIcon($postTypeModel->icon ?? 'lucide:file-plus')
             ->addBreadcrumbItem($postTypeModel->label, route('admin.posts.index', $postType));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.posts.create', compact('postType', 'postTypeModel', 'taxonomies', 'parentPosts'));
@@ -176,6 +184,7 @@ class PostController extends Controller
         $postTypeModel = $this->contentService->getPostType($postType);
 
         $this->setBreadcrumbTitle(__('View :postName', ['postName' => $post->title]))
+            ->setBreadcrumbIcon($postTypeModel->icon ?? 'lucide:file-text')
             ->addBreadcrumbItem($postTypeModel->label, route('admin.posts.index', $postType));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.posts.show', compact('post', 'postType', 'postTypeModel'));
@@ -227,6 +236,7 @@ class PostController extends Controller
         }
 
         $this->setBreadcrumbTitle(__('Edit :postType', ['postType' => $postTypeModel->label_singular]))
+            ->setBreadcrumbIcon($postTypeModel->icon ?? 'lucide:file-pen')
             ->addBreadcrumbItem($postTypeModel->label, route('admin.posts.index', $postType));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.posts.edit', compact('post', 'postType', 'postTypeModel', 'taxonomies', 'parentPosts', 'selectedTerms'));

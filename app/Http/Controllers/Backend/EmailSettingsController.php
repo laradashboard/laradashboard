@@ -26,6 +26,7 @@ class EmailSettingsController extends Controller
         $this->authorize('manage', Setting::class);
 
         $this->setBreadcrumbTitle(__('Email Settings'))
+            ->setBreadcrumbIcon('lucide:mail')
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.email-settings.index');

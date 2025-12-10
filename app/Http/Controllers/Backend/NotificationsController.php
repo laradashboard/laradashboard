@@ -30,7 +30,14 @@ class NotificationsController extends Controller
         $this->authorize('manage', Setting::class);
 
         $this->setBreadcrumbTitle(__('Notifications'))
-            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'));
+            ->setBreadcrumbIcon('lucide:bell')
+            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
+            ->setBreadcrumbActionButton(
+                route('admin.notifications.create'),
+                __('New Notification'),
+                'feather:plus',
+                'settings.edit'
+            );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.index');
     }
@@ -40,6 +47,7 @@ class NotificationsController extends Controller
         $this->authorize('manage', Setting::class);
 
         $this->setBreadcrumbTitle(__('Create Notification'))
+            ->setBreadcrumbIcon('lucide:bell-plus')
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
 
@@ -73,6 +81,7 @@ class NotificationsController extends Controller
         $this->authorize('manage', Setting::class);
 
         $this->setBreadcrumbTitle(__('View Notification'))
+            ->setBreadcrumbIcon('lucide:bell')
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
 
@@ -90,6 +99,7 @@ class NotificationsController extends Controller
         $this->authorize('manage', Setting::class);
 
         $this->setBreadcrumbTitle(__('Edit Notification'))
+            ->setBreadcrumbIcon('lucide:bell')
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
 

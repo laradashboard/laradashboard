@@ -20,7 +20,8 @@ class PermissionController extends Controller
     {
         $this->authorize('viewAny', Permission::class);
 
-        $this->setBreadcrumbTitle(__('Permissions'));
+        $this->setBreadcrumbTitle(__('Permissions'))
+            ->setBreadcrumbIcon('lucide:key');
 
         return $this->renderViewWithBreadcrumbs('backend.pages.permissions.index');
     }
@@ -30,6 +31,7 @@ class PermissionController extends Controller
         $this->authorize('view', $permission);
 
         $this->setBreadcrumbTitle(__('Permission Details'))
+            ->setBreadcrumbIcon('lucide:key')
             ->addBreadcrumbItem(__('Permissions'), route('admin.permissions.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.permissions.show', [

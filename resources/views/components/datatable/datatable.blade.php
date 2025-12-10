@@ -13,7 +13,7 @@
     'customBulkActions' => null,
     'direction' => 'desc',
 
-    'enableNewResourceLink' => true,
+    'enableNewResourceLink' => false,
     'newResourceLinkPermission' => '',
     'newResourceLinkIcon' => 'feather:plus',
     'newResourceLinkRouteName' => '',

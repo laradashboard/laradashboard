@@ -33,7 +33,14 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        $this->setBreadcrumbTitle(__('Users'));
+        $this->setBreadcrumbTitle(__('Users'))
+            ->setBreadcrumbIcon('lucide:users')
+            ->setBreadcrumbActionButton(
+                route('admin.users.create'),
+                __('New User'),
+                'feather:plus',
+                'user.create'
+            );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.users.index');
     }
@@ -43,6 +50,7 @@ class UserController extends Controller
         $this->authorize('create', User::class);
 
         $this->setBreadcrumbTitle(__('New User'))
+            ->setBreadcrumbIcon('lucide:user-plus')
             ->addBreadcrumbItem(__('Users'), route('admin.users.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.users.create', [
@@ -82,6 +90,7 @@ class UserController extends Controller
         $this->authorize('update', $user);
 
         $this->setBreadcrumbTitle(__('Edit User'))
+            ->setBreadcrumbIcon('lucide:user-pen')
             ->addBreadcrumbItem(__('Users'), route('admin.users.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.users.edit', [

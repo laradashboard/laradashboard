@@ -22,7 +22,14 @@ class ModuleController extends Controller
     {
         $this->authorize('viewAny', Module::class);
 
-        $this->setBreadcrumbTitle(__('Modules'));
+        $this->setBreadcrumbTitle(__('Modules'))
+            ->setBreadcrumbIcon('lucide:puzzle')
+            ->setBreadcrumbActionButton(
+                route('admin.modules.upload'),
+                __('Install Module'),
+                'lucide:package-plus',
+                'module.create'
+            );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.modules.index', [
             'modules' => $this->moduleService->getPaginatedModules(),
@@ -34,6 +41,7 @@ class ModuleController extends Controller
         $this->authorize('create', Module::class);
 
         $this->setBreadcrumbTitle(__('Install Modules'))
+            ->setBreadcrumbIcon('lucide:puzzle')
             ->addBreadcrumbItem(__('Modules'), route('admin.modules.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.modules.upload', [

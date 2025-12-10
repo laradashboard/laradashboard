@@ -45,7 +45,8 @@ class TermController extends Controller
             $term = Term::findOrFail($request->edit);
         }
 
-        $this->setBreadcrumbTitle($taxonomyModel->label);
+        $this->setBreadcrumbTitle($taxonomyModel->label)
+            ->setBreadcrumbIcon($taxonomyModel->icon ?? 'lucide:tag');
 
         return $this->renderViewWithBreadcrumbs('backend.pages.terms.index', compact('taxonomy', 'taxonomyModel', 'parentTerms', 'term'));
     }
@@ -154,6 +155,7 @@ class TermController extends Controller
         }
 
         $this->setBreadcrumbTitle(__('Edit :taxLabel', ['taxLabel' => $taxonomyModel->label_singular]))
+            ->setBreadcrumbIcon($taxonomyModel->icon ?? 'lucide:tag')
             ->addBreadcrumbItem($taxonomyModel->label, route('admin.terms.index', $taxonomy));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.terms.edit', compact('taxonomy', 'taxonomyModel', 'term', 'parentTerms'));

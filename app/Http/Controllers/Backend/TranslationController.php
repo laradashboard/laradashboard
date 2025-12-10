@@ -71,6 +71,7 @@ class TranslationController extends Controller
             ->with([
                 'breadcrumbs' => [
                     'title' => __('Translations'),
+                    'icon' => 'lucide:languages',
                 ],
             ]);
     }
