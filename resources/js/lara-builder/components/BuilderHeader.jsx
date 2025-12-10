@@ -39,9 +39,16 @@ function BuilderHeader({
     onCopyAllBlocks,
     onPasteBlocks,
 }) {
+    // Determine the icon based on context
+    const getBackIcon = () => {
+        if (isEmailContext) return "lucide:mail";
+        if (isPostContext) return postTypeModel?.icon || "lucide:file-text";
+        return "lucide:file-text";
+    };
+
     return (
         <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between shadow-sm flex-shrink-0">
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2">
                 {listUrl && (
                     <a
                         href={listUrl}
@@ -57,26 +64,13 @@ function BuilderHeader({
                                 }
                             }
                         }}
-                        className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+                        title={__("Go back")}
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                        <span className="font-medium hidden sm:inline">
-                            {labels.backText}
-                        </span>
+                        <iconify-icon icon={getBackIcon()} width="20" height="20"></iconify-icon>
                     </a>
                 )}
-                <div className="h-6 w-px bg-gray-300 hidden sm:block"></div>
+                <iconify-icon icon="lucide:chevron-right" width="16" height="16" class="text-gray-400"></iconify-icon>
                 <h1 className="text-sm sm:text-lg font-semibold text-gray-800">
                     {templateData?.uuid || postData?.id ? __("Edit") : __("Create")}
                     <span className="hidden sm:inline">
@@ -86,7 +80,7 @@ function BuilderHeader({
                 </h1>
 
                 {/* History buttons */}
-                <div className="hidden sm:flex items-center gap-1 ml-2">
+                <div className="hidden sm:flex items-center gap-1">
                     <button
                         onClick={undo}
                         disabled={!canUndo}

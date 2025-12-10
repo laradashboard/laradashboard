@@ -37,6 +37,7 @@
             'supports_editor' => $postTypeModel->supports_editor,
             'supports_excerpt' => $postTypeModel->supports_excerpt,
             'supports_thumbnail' => $postTypeModel->supports_thumbnail,
+            'icon' => $postTypeModel->icon ?? 'lucide:file-text',
         ]) }}"
         data-statuses="{{ json_encode(\App\Models\Post::getPostStatuses()) }}"
         data-translations='@json(__("*"))'
