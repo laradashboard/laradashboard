@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Nwidart\Modules\Facades\Module as ModuleFacade;
 use Nwidart\Modules\Module;
 use App\Models\Module as ModuleModel;
+use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Foundation\Vite as ViteFoundation;
 
@@ -69,6 +70,29 @@ class ModuleService
     }
 
     /**
+     * Clean up orphaned entries from module_statuses.json.
+     * Removes entries for modules whose folders have been manually deleted.
+     */
+    public function cleanupOrphanedModuleStatuses(): void
+    {
+        $moduleStatuses = $this->getModuleStatuses();
+        $statusesModified = false;
+
+        foreach (array_keys($moduleStatuses) as $moduleName) {
+            $modulePath = $this->modulesPath . '/' . $moduleName;
+            if (! File::exists($modulePath)) {
+                unset($moduleStatuses[$moduleName]);
+                $statusesModified = true;
+                Log::info("Cleaned up orphaned module status entry: {$moduleName}");
+            }
+        }
+
+        if ($statusesModified) {
+            File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
+        }
+    }
+
+    /**
      * Get all modules from the Modules folder.
      */
     public function getPaginatedModules(int $perPage = 15): LengthAwarePaginator
@@ -103,6 +127,10 @@ class ModuleService
 
     public function uploadModule(Request $request)
     {
+        // First, clean up orphaned entries from module_statuses.json
+        // This handles cases where module folders were manually deleted
+        $this->cleanupOrphanedModuleStatuses();
+
         $file = $request->file('module');
         $filePath = $file->storeAs('modules', $file->getClientOriginalName());
 
@@ -142,10 +170,10 @@ class ModuleService
         $moduleJson = json_decode(File::get($moduleJsonPath), true);
         $moduleName = $moduleJson['name'] ?? $folderName;
 
-        // Security: Check if a module with this name already exists in statuses (case-insensitive).
+        // Security: Check if a module with this name already exists (case-insensitive).
         $moduleStatuses = $this->getModuleStatuses();
         foreach (array_keys($moduleStatuses) as $existingModule) {
-            if (strcasecmp($existingModule, $moduleName) === 0) {
+            if (strcasecmp($existingModule, $moduleName) === 0 && File::exists($this->modulesPath . '/' . $existingModule)) {
                 // Clean up the extracted files
                 File::deleteDirectory($this->modulesPath . '/' . $folderName);
                 throw new ModuleException(__('A module with this name already exists. Please delete the existing module first or use a different name.'));
@@ -157,15 +185,24 @@ class ModuleService
         $moduleStatuses[$moduleName] = false;
         File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
 
+        // Regenerate Composer autoloader so the new module classes can be found.
+        // Without this, activating the module will fail with "Class not found" error.
+        $this->regenerateAutoloader();
+
         // Clear the cache.
         Artisan::call('cache:clear');
 
-        return true;
+        // Return the module name for use in responses
+        return $moduleName;
     }
 
     public function toggleModule($moduleName, $enable = true): bool
     {
         try {
+            // Reload Composer autoloader to ensure newly uploaded module classes are available.
+            // This is critical when activating a module that was just uploaded in a previous request.
+            $this->reloadAutoloader();
+
             // Clear the cache.
             Artisan::call('cache:clear');
 
@@ -180,6 +217,28 @@ class ModuleService
         return true;
     }
 
+    /**
+     * Reload Composer autoloader to pick up newly added module classes.
+     */
+    protected function reloadAutoloader(): void
+    {
+        $autoloadFile = base_path('vendor/autoload.php');
+        if (File::exists($autoloadFile)) {
+            // Get the Composer ClassLoader instance and reload it
+            $loader = require $autoloadFile;
+
+            // Re-register the PSR-4 autoload mappings for modules
+            $modulesPath = $this->modulesPath;
+            if (File::isDirectory($modulesPath)) {
+                foreach (File::directories($modulesPath) as $moduleDir) {
+                    $moduleName = basename($moduleDir);
+                    $namespace = "Modules\\{$moduleName}\\";
+                    $loader->addPsr4($namespace, $moduleDir . '/');
+                }
+            }
+        }
+    }
+
     public function toggleModuleStatus(string $moduleName): bool
     {
         $moduleStatuses = $this->getModuleStatuses();
@@ -188,10 +247,10 @@ class ModuleService
             throw new ModuleException(__('Module not found.'));
         }
 
-        // Just enable it first so that it would be in the getModuleStatuses()
+        // If module is not in statuses file, add it as disabled first
+        // then the toggle will enable it (fixing the double-click issue)
         if (! isset($moduleStatuses[$moduleName])) {
-            Artisan::call('module:enable', ['module' => $moduleName]);
-            $moduleStatuses = $this->getModuleStatuses();
+            $moduleStatuses[$moduleName] = false;
         }
 
         // Toggle the status.
@@ -203,6 +262,72 @@ class ModuleService
         $this->toggleModule($moduleName, ! empty($moduleStatuses[$moduleName]));
 
         return $moduleStatuses[$moduleName];
+    }
+
+    /**
+     * Bulk activate multiple modules.
+     *
+     * @param  array<string>  $moduleNames
+     * @return array<string, bool> Results for each module
+     */
+    public function bulkActivate(array $moduleNames): array
+    {
+        $results = [];
+        $moduleStatuses = $this->getModuleStatuses();
+
+        foreach ($moduleNames as $moduleName) {
+            try {
+                if (! File::exists($this->modulesPath . '/' . $moduleName)) {
+                    $results[$moduleName] = false;
+                    continue;
+                }
+
+                $moduleStatuses[$moduleName] = true;
+                $this->toggleModule($moduleName, true);
+                $results[$moduleName] = true;
+            } catch (\Throwable $e) {
+                Log::error("Failed to activate module {$moduleName}: " . $e->getMessage());
+                $results[$moduleName] = false;
+            }
+        }
+
+        File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
+        Artisan::call('cache:clear');
+
+        return $results;
+    }
+
+    /**
+     * Bulk deactivate multiple modules.
+     *
+     * @param  array<string>  $moduleNames
+     * @return array<string, bool> Results for each module
+     */
+    public function bulkDeactivate(array $moduleNames): array
+    {
+        $results = [];
+        $moduleStatuses = $this->getModuleStatuses();
+
+        foreach ($moduleNames as $moduleName) {
+            try {
+                if (! File::exists($this->modulesPath . '/' . $moduleName)) {
+                    $results[$moduleName] = false;
+                    continue;
+                }
+
+                $moduleStatuses[$moduleName] = false;
+                $this->toggleModule($moduleName, false);
+                $results[$moduleName] = true;
+            } catch (\Throwable $e) {
+                Log::error("Failed to deactivate module {$moduleName}: " . $e->getMessage());
+                $results[$moduleName] = false;
+            }
+        }
+
+        File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
+        Artisan::call('cache:clear');
+
+        return $results;
     }
 
     public function deleteModule(string $moduleName): void
@@ -228,6 +353,30 @@ class ModuleService
 
         // Clear the cache.
         Artisan::call('cache:clear');
+    }
+
+    /**
+     * Regenerate Composer autoloader to recognize new module classes.
+     * This is necessary after uploading a module via zip file.
+     */
+    protected function regenerateAutoloader(): void
+    {
+        try {
+            $composerPath = base_path('composer.phar');
+            $command = file_exists($composerPath)
+                ? ['php', $composerPath, 'dump-autoload', '--no-interaction']
+                : ['composer', 'dump-autoload', '--no-interaction'];
+
+            $process = new Process($command, base_path());
+            $process->setTimeout(120);
+            $process->run();
+
+            if (! $process->isSuccessful()) {
+                Log::warning('Failed to regenerate autoloader: ' . $process->getErrorOutput());
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Failed to regenerate autoloader: ' . $e->getMessage());
+        }
     }
 
     public function getModuleAssetPath(): array

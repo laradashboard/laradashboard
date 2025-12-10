@@ -52,8 +52,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
 
     // Modules Routes.
     Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
+    Route::get('/modules/upload', [ModuleController::class, 'upload'])->name('modules.upload');
     Route::post('/modules/toggle-status/{module}', [ModuleController::class, 'toggleStatus'])->name('modules.toggle-status');
-    Route::post('/modules/upload', [ModuleController::class, 'store'])->name('modules.store');
+    Route::post('/modules/bulk-activate', [ModuleController::class, 'bulkActivate'])->name('modules.bulk-activate');
+    Route::post('/modules/bulk-deactivate', [ModuleController::class, 'bulkDeactivate'])->name('modules.bulk-deactivate');
+    Route::post('/modules/store', [ModuleController::class, 'store'])->name('modules.store');
+    Route::post('/modules/upload-ajax', [ModuleController::class, 'uploadAjax'])->name('modules.upload-ajax');
     Route::delete('/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.delete');
 
     Route::group(['prefix' => 'settings'], function () {
