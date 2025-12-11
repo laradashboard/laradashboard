@@ -76,6 +76,13 @@
                         {{ __($action['label']) }}
                     </a>
                 @endif
+            @elseif(is_array($action) && isset($action['click']) && isset($action['label']))
+                @if(!isset($action['permission']) || auth()->user()->can($action['permission']))
+                    <button @click="{{ $action['click'] }}" type="button" class="btn-primary flex items-center gap-2">
+                        <iconify-icon icon="{{ $action['icon'] ?? 'feather:plus' }}" height="16"></iconify-icon>
+                        {{ __($action['label']) }}
+                    </button>
+                @endif
             @else
                 {!! $action !!}
             @endif
