@@ -44,11 +44,17 @@
         bulkDeleteModalOpen: false,
         toggleSelectAll() {
             if (this.selectAll) {
-                this.selectedItems = [...this.allIds];
+                // Add current page items to selection (preserve items from other pages)
+                this.allIds.forEach(id => {
+                    if (!this.selectedItems.includes(id)) {
+                        this.selectedItems.push(id);
+                    }
+                });
             } else {
-                this.selectedItems = [];
+                // Remove only current page items from selection (preserve items from other pages)
+                this.selectedItems = this.selectedItems.filter(id => !this.allIds.includes(id));
             }
-            // Update all checkboxes
+            // Update all checkboxes on current page
             document.querySelectorAll('.item-checkbox').forEach(checkbox => {
                 checkbox.checked = this.selectAll;
             });
@@ -58,7 +64,8 @@
             }
         },
         updateSelectAll() {
-            this.selectAll = this.selectedItems.length === this.allIds.length && this.allIds.length > 0;
+            // Check if all current page items are selected
+            this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
             // Sync with Livewire
             if (@json($enableLivewire)) {
                 $wire.set('selectedItems', this.selectedItems);
@@ -72,6 +79,20 @@
             this.updateSelectAll();
         },
         init() {
+            // Set initial selectAll state based on loaded selectedItems
+            this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
+
+            // Update allIds when Livewire re-renders (e.g., pagination/perPage change)
+            Livewire.hook('morph.updated', ({ el, component }) => {
+                if (el === this.$root) {
+                    // Get fresh IDs from the DOM after Livewire update
+                    const checkboxes = this.$root.querySelectorAll('.item-checkbox');
+                    this.allIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+                    // Update selectAll state based on new page items
+                    this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
+                }
+            });
+
             window.addEventListener('resetSelectedItems', () => {
                 this.selectedItems = [];
                 this.selectAll = false;
@@ -383,6 +404,7 @@
                                         type="checkbox"
                                         class="item-checkbox form-checkbox"
                                         value="{{ $item->id }}"
+                                        :checked="selectedItems.includes({{ $item->id }})"
                                         @change="
                                             if ($event.target.checked) {
                                                 if (!selectedItems.includes({{ $item->id }})) {

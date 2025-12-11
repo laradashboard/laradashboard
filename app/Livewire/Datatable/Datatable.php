@@ -14,6 +14,7 @@ use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Route;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -36,7 +37,9 @@ abstract class Datatable extends Component
     public string $sort = 'created_at';
     public string $direction = 'desc';
     public int $page = 1;
-    public int|string $perPage = 10;
+
+    #[Url(except: 10)]
+    public int $perPage = 10;
     public array $perPageOptions = [];
     public int $paginateOnEachSlide = 0;
     public array $filters = [];
@@ -55,7 +58,6 @@ abstract class Datatable extends Component
         'sort' => ['except' => 'created_at'],
         'direction' => ['except' => 'asc'],
         'page' => ['except' => 1],
-        'perPage' => ['except' => 10],
     ];
 
     public array $queryString = self::QUERY_STRING_DEFAULTS;
@@ -110,7 +112,6 @@ abstract class Datatable extends Component
         $this->headers = $this->getHeaders();
         $this->noResultsMessage = $this->getNoResultsMessage();
         $this->customNoResultsMessage = $this->getCustomNoResultsMessage();
-        $this->perPage = request()->per_page ?? config('settings.default_pagination', 10);
         $this->paginateOnEachSlide = 0;
     }
 
@@ -334,7 +335,7 @@ abstract class Datatable extends Component
     protected function getPaginatedData($query)
     {
         $paginationUi = $this->getSettingsPaginatorUi();
-        $perPage = $this->perPage == __('All') ? 999999 : (int) $this->perPage;
+        $perPage = (int) $this->perPage;
 
         switch ($paginationUi) {
             case 'cursor':
