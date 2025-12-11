@@ -86,10 +86,13 @@ const TextEditorBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) 
 
                     editor.on('blur', () => {
                         const newContent = editor.getContent();
-                        onUpdateRef.current({
-                            ...propsRef.current,
-                            content: newContent,
-                        });
+                        // Only update if content has actually changed
+                        if (newContent !== propsRef.current.content) {
+                            onUpdateRef.current({
+                                ...propsRef.current,
+                                content: newContent,
+                            });
+                        }
                     });
                 },
                 // Floating toolbar configuration

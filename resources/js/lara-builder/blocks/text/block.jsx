@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { __ } from "@lara-builder/i18n";
 import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
 import SlashCommandMenu from "../../components/SlashCommandMenu";
+import { useEditableContent } from "../../core/hooks/useEditableContent";
 
 export default function TextBlock({
     props,
@@ -60,6 +61,16 @@ export default function TextBlock({
         }
     }, []);
 
+    // Use shared hook for content change detection
+    const { handleContentChange, isEmpty: isContentEmpty } = useEditableContent({
+        editorRef,
+        contentKey: "content",
+        useInnerHTML: true,
+        propsRef,
+        onUpdateRef,
+        lastContentRef: lastPropsContent,
+    });
+
     // Handle Enter key to create new block, Shift+Enter for line break
     // Handle Backspace on empty content to delete block
     const handleKeyDown = useCallback((e) => {
@@ -100,12 +111,7 @@ export default function TextBlock({
         // Backspace on empty content deletes the block
         if (e.key === "Backspace") {
             const content = editorRef.current?.innerHTML || "";
-            // Check if content is empty (or just has <br> or whitespace)
-            const isEmpty =
-                !content ||
-                content === "<br>" ||
-                content.replace(/<br\s*\/?>/gi, "").trim() === "";
-            if (isEmpty) {
+            if (isContentEmpty(content)) {
                 e.preventDefault();
                 e.stopPropagation();
                 if (onDeleteRef.current) {
@@ -121,28 +127,24 @@ export default function TextBlock({
             setSlashQuery("");
         }
         // Shift+Enter allows default behavior (line break)
-    }, [showSlashMenu]);
+    }, [showSlashMenu, isContentEmpty]);
 
     const handleInput = useCallback(() => {
-        if (editorRef.current) {
-            const newContent = editorRef.current.innerHTML;
-            const plainContent = getPlainContent();
+        // Handle content change (only updates if actually changed)
+        handleContentChange();
 
-            lastPropsContent.current = newContent;
-            onUpdateRef.current({ ...propsRef.current, content: newContent });
-
-            // Check for slash command
-            if (plainContent.startsWith("/")) {
-                const query = plainContent.slice(1);
-                setSlashQuery(query);
-                setMenuPosition(calculateMenuPosition());
-                setShowSlashMenu(true);
-            } else {
-                setShowSlashMenu(false);
-                setSlashQuery("");
-            }
+        // Check for slash command
+        const plainContent = getPlainContent();
+        if (plainContent.startsWith("/")) {
+            const query = plainContent.slice(1);
+            setSlashQuery(query);
+            setMenuPosition(calculateMenuPosition());
+            setShowSlashMenu(true);
+        } else {
+            setShowSlashMenu(false);
+            setSlashQuery("");
         }
-    }, [getPlainContent, calculateMenuPosition]);
+    }, [handleContentChange, getPlainContent, calculateMenuPosition]);
 
     // Stable align change handler that uses refs
     const handleAlignChange = useCallback((newAlign) => {
@@ -269,10 +271,7 @@ export default function TextBlock({
     const baseStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);
 
     // Check if content is empty for placeholder display
-    const isEmpty =
-        !props.content ||
-        props.content === "<br>" ||
-        props.content.replace(/<br\s*\/?>/gi, "").trim() === "";
+    const isEmpty = isContentEmpty(props.content);
 
     // Check if showing slash command (content is just "/..." )
     const isSlashCommand = props.content && getPlainContent().startsWith("/");

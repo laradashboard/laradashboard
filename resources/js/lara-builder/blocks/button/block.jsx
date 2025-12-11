@@ -7,6 +7,7 @@
 
 import { useRef, useEffect, useCallback } from 'react';
 import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
+import { useEditableContent } from '../../core/hooks/useEditableContent';
 
 const ButtonBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
     const editorRef = useRef(null);
@@ -18,14 +19,19 @@ const ButtonBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
     propsRef.current = props;
     onUpdateRef.current = onUpdate;
 
+    // Use shared hook for content change detection
+    const { handleContentChange } = useEditableContent({
+        editorRef,
+        contentKey: "text",
+        useInnerHTML: true, // Preserve formatting (bold, italic, underline)
+        propsRef,
+        onUpdateRef,
+        lastContentRef: lastPropsText,
+    });
+
     const handleInput = useCallback(() => {
-        if (editorRef.current) {
-            // Use innerHTML to preserve formatting (bold, italic, underline)
-            const newText = editorRef.current.innerHTML;
-            lastPropsText.current = newText;
-            onUpdateRef.current({ ...propsRef.current, text: newText });
-        }
-    }, []);
+        handleContentChange();
+    }, [handleContentChange]);
 
     // Stable align change handler
     const handleAlignChange = useCallback((newAlign) => {

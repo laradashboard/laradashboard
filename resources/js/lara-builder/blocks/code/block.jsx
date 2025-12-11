@@ -6,6 +6,7 @@
 
 import { useRef, useEffect, useCallback } from 'react';
 import { applyLayoutStyles } from '../../components/layout-styles/styleHelpers';
+import { useEditableContent } from '../../core/hooks/useEditableContent';
 
 const CodeBlock = ({ props, onUpdate, isSelected }) => {
     const editorRef = useRef(null);
@@ -17,13 +18,19 @@ const CodeBlock = ({ props, onUpdate, isSelected }) => {
     propsRef.current = props;
     onUpdateRef.current = onUpdate;
 
+    // Use shared hook for content change detection (textContent for code blocks)
+    const { handleContentChange } = useEditableContent({
+        editorRef,
+        contentKey: "code",
+        useInnerHTML: false, // Use textContent for code blocks
+        propsRef,
+        onUpdateRef,
+        lastContentRef: lastPropsCode,
+    });
+
     const handleInput = useCallback(() => {
-        if (editorRef.current) {
-            const newCode = editorRef.current.textContent;
-            lastPropsCode.current = newCode;
-            onUpdateRef.current({ ...propsRef.current, code: newCode });
-        }
-    }, []);
+        handleContentChange();
+    }, [handleContentChange]);
 
     // Set initial content only once when becoming selected
     useEffect(() => {
