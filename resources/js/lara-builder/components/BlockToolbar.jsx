@@ -646,32 +646,6 @@ const TextFormatControls = ({
     );
 };
 
-// Heading level controls for heading block (dropdown)
-const HeadingLevelControls = ({ level, onLevelChange }) => {
-    const handleChange = (e) => {
-        e.stopPropagation();
-        onLevelChange(e.target.value);
-    };
-
-    return (
-        <select
-            value={level || "h1"}
-            onChange={handleChange}
-            onPointerDown={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-            className="px-2 py-1 text-xs font-semibold uppercase bg-gray-100 border-0 rounded cursor-pointer hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-primary text-gray-700"
-            title={__("Heading Level")}
-        >
-            <option value="h1">H1</option>
-            <option value="h2">H2</option>
-            <option value="h3">H3</option>
-            <option value="h4">H4</option>
-            <option value="h5">H5</option>
-            <option value="h6">H6</option>
-        </select>
-    );
-};
-
 // Column selector controls for columns block
 const ColumnControls = ({ columns, onColumnsChange }) => {
     const columnOptions = [1, 2, 3, 4, 5, 6];
@@ -711,8 +685,6 @@ const BlockToolbar = ({
     alignProps,
     // Column props (optional - for columns block)
     columnsProps,
-    // Heading level props (optional - for heading block)
-    headingLevelProps,
     // Drag handle props for dnd-kit
     dragHandleProps,
     // Position: 'top' (default) or 'bottom'
@@ -730,7 +702,6 @@ const BlockToolbar = ({
     const hasTextFormatting =
         supports.bold || supports.italic || supports.underline;
     const hasAlignOnly = supports.align && !hasTextFormatting;
-    const hasHeadingLevel = supports.headingLevel === true;
     const hasColumnCount = supports.columnCount === true;
 
     // Blocks with their own editor (like text-editor with TinyMCE) - check via block type for now
@@ -828,17 +799,6 @@ const BlockToolbar = ({
                     </button>
                 </div>
             </div>
-
-            {/* Heading Level Controls - based on supports.headingLevel */}
-            {hasHeadingLevel && headingLevelProps && (
-                <>
-                    <HeadingLevelControls
-                        level={headingLevelProps.level}
-                        onLevelChange={headingLevelProps.onLevelChange}
-                    />
-                    <div className="w-px h-5 bg-gray-200 mx-1"></div>
-                </>
-            )}
 
             {/* Text Format Controls - based on supports (bold, italic, underline, etc.) */}
             {hasTextFormatting && !hasSelfEditor && textFormatProps && (
