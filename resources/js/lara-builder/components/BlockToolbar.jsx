@@ -16,24 +16,49 @@ const AlignmentDropdown = ({ align, onAlignChange, showJustify = false }) => {
     const dropdownRef = useRef(null);
 
     const alignOptions = [
-        { value: "left", label: __("Align text left"), icon: "mdi:format-align-left" },
-        { value: "center", label: __("Align text center"), icon: "mdi:format-align-center" },
-        { value: "right", label: __("Align text right"), icon: "mdi:format-align-right" },
-        ...(showJustify ? [{ value: "justify", label: __("Justify text"), icon: "mdi:format-align-justify" }] : []),
+        {
+            value: "left",
+            label: __("Align text left"),
+            icon: "mdi:format-align-left",
+        },
+        {
+            value: "center",
+            label: __("Align text center"),
+            icon: "mdi:format-align-center",
+        },
+        {
+            value: "right",
+            label: __("Align text right"),
+            icon: "mdi:format-align-right",
+        },
+        ...(showJustify
+            ? [
+                  {
+                      value: "justify",
+                      label: __("Justify text"),
+                      icon: "mdi:format-align-justify",
+                  },
+              ]
+            : []),
     ];
 
-    const currentAlign = alignOptions.find((opt) => opt.value === align) || alignOptions[0];
+    const currentAlign =
+        alignOptions.find((opt) => opt.value === align) || alignOptions[0];
 
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
                 setShowDropdown(false);
             }
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const handleSelect = (value) => {
@@ -41,14 +66,17 @@ const AlignmentDropdown = ({ align, onAlignChange, showJustify = false }) => {
         setShowDropdown(false);
     };
 
-    const buttonClass = "p-1.5 pb-1 rounded hover:bg-gray-100 transition-colors text-gray-600";
+    const buttonClass =
+        "p-1.5 pb-1 rounded hover:bg-gray-100 transition-colors text-gray-600";
 
     return (
         <div className="relative" ref={dropdownRef}>
             <button
                 type="button"
                 onClick={() => setShowDropdown(!showDropdown)}
-                className={`${buttonClass} flex items-center gap-0.5 ${showDropdown ? "bg-gray-100" : ""}`}
+                className={`${buttonClass} flex items-center gap-0.5 ${
+                    showDropdown ? "bg-gray-100" : ""
+                }`}
                 title={currentAlign.label}
             >
                 <iconify-icon
@@ -72,14 +100,20 @@ const AlignmentDropdown = ({ align, onAlignChange, showJustify = false }) => {
                             type="button"
                             onClick={() => handleSelect(option.value)}
                             className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 ${
-                                align === option.value ? "text-primary bg-primary/5" : "text-gray-700"
+                                align === option.value
+                                    ? "text-primary bg-primary/5"
+                                    : "text-gray-700"
                             }`}
                         >
                             <iconify-icon
                                 icon={option.icon}
                                 width="16"
                                 height="16"
-                                class={align === option.value ? "text-primary" : "text-gray-500"}
+                                class={
+                                    align === option.value
+                                        ? "text-primary"
+                                        : "text-gray-500"
+                                }
                             ></iconify-icon>
                             <span>{option.label}</span>
                         </button>
@@ -306,7 +340,9 @@ const MoreTextControls = ({ editorRef, saveSelection, restoreSelection }) => {
                 type="button"
                 onMouseDown={saveSelection}
                 onClick={() => setShowDropdown(!showDropdown)}
-                className={`${buttonClass} ${showDropdown ? "bg-gray-100" : ""}`}
+                className={`${buttonClass} ${
+                    showDropdown ? "bg-gray-100" : ""
+                }`}
                 title={__("More text controls")}
             >
                 <iconify-icon
@@ -612,10 +648,17 @@ const TextFormatControls = ({
 
 // Heading level controls for heading block (dropdown)
 const HeadingLevelControls = ({ level, onLevelChange }) => {
+    const handleChange = (e) => {
+        e.stopPropagation();
+        onLevelChange(e.target.value);
+    };
+
     return (
         <select
             value={level || "h1"}
-            onChange={(e) => onLevelChange(e.target.value)}
+            onChange={handleChange}
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
             className="px-2 py-1 text-xs font-semibold uppercase bg-gray-100 border-0 rounded cursor-pointer hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-primary text-gray-700"
             title={__("Heading Level")}
         >
@@ -670,6 +713,8 @@ const BlockToolbar = ({
     columnsProps,
     // Heading level props (optional - for heading block)
     headingLevelProps,
+    // Drag handle props for dnd-kit
+    dragHandleProps,
     // Position: 'top' (default) or 'bottom'
     position = "top",
 }) => {
@@ -716,14 +761,32 @@ const BlockToolbar = ({
             className={`lb-block-toolbar ${positionClasses} flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg shadow-md px-0.5 py-0.5 z-50`}
             onClick={(e) => e.stopPropagation()}
         >
-            {/* Block type icon/label with move controls */}
-            <div className="flex items-center gap-1.5 px-2 py-1 border-r border-gray-200 mr-1">
+            {/* Block type icon/label with drag handle and move controls */}
+            <div className="flex items-center gap-1 px-1.5 py-1 border-r border-gray-200 mr-1">
+                {/* Block icon */}
                 <iconify-icon
                     icon={blockConfig?.icon || "mdi:square-outline"}
                     width="16"
                     height="16"
                     class="text-gray-600"
                 ></iconify-icon>
+
+                {/* Drag handle (grip icon) */}
+                {dragHandleProps && (
+                    <button
+                        type="button"
+                        className="flex justify-center items-center p-1 hover:bg-gray-100 rounded transition-colors cursor-grab active:cursor-grabbing"
+                        title={__("Drag")}
+                        {...dragHandleProps}
+                    >
+                        <iconify-icon
+                            icon="mdi:drag"
+                            width="20"
+                            height="20"
+                            class="text-gray-400"
+                        ></iconify-icon>
+                    </button>
+                )}
 
                 {/* Compact move up/down controls */}
                 <div className="flex flex-col gap-px">
@@ -732,7 +795,9 @@ const BlockToolbar = ({
                         onClick={onMoveUp}
                         disabled={!canMoveUp}
                         className={`p-0.5 hover:bg-gray-100 rounded transition-colors leading-none ${
-                            !canMoveUp ? "opacity-30 cursor-not-allowed" : ""
+                            !canMoveUp
+                                ? "opacity-30 cursor-not-allowed"
+                                : "cursor-pointer"
                         }`}
                         title={__("Move up")}
                     >
@@ -748,7 +813,9 @@ const BlockToolbar = ({
                         onClick={onMoveDown}
                         disabled={!canMoveDown}
                         className={`p-0.5 hover:bg-gray-100 rounded transition-colors leading-none ${
-                            !canMoveDown ? "opacity-30 cursor-not-allowed" : ""
+                            !canMoveDown
+                                ? "opacity-30 cursor-not-allowed"
+                                : "cursor-pointer"
                         }`}
                         title={__("Move down")}
                     >
