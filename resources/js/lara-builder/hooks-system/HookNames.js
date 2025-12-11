@@ -51,6 +51,7 @@ export const BuilderHooks = {
     FILTER_RIGHT_PANEL: 'builder.ui.panel.right',
     FILTER_TOOLBAR: 'builder.ui.toolbar',
     FILTER_BLOCK_TOOLBAR: 'builder.ui.blockToolbar',
+    FILTER_MORE_TEXT_CONTROLS: 'builder.ui.moreTextControls',
 
     // State
     FILTER_INITIAL_STATE: 'builder.state.initial',

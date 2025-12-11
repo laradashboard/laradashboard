@@ -1,59 +1,349 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { blockRegistry } from "../registry/BlockRegistry";
 import { getBlockSupports } from "../blocks/blockLoader";
 import { __ } from "@lara-builder/i18n";
+import { LaraHooks } from "../hooks-system/LaraHooks";
+import { BuilderHooks } from "../hooks-system/HookNames";
 
 // Get block config from registry
 const getBlock = (type) => blockRegistry.get(type);
 
-// Alignment-only controls for non-text blocks (image, button, video, etc.)
-const AlignOnlyControls = ({ align, onAlignChange }) => {
-    const buttonClass =
-        "p-1.5 pb-0 rounded hover:bg-gray-100 transition-colors text-gray-600";
-    const activeButtonClass = "p-1.5 pb-0 rounded bg-gray-100 text-gray-800";
+/**
+ * AlignmentDropdown - Compact dropdown for text alignment options
+ */
+const AlignmentDropdown = ({ align, onAlignChange, showJustify = false }) => {
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const alignOptions = [
+        { value: "left", label: __("Align text left"), icon: "mdi:format-align-left" },
+        { value: "center", label: __("Align text center"), icon: "mdi:format-align-center" },
+        { value: "right", label: __("Align text right"), icon: "mdi:format-align-right" },
+        ...(showJustify ? [{ value: "justify", label: __("Justify text"), icon: "mdi:format-align-justify" }] : []),
+    ];
+
+    const currentAlign = alignOptions.find((opt) => opt.value === align) || alignOptions[0];
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleSelect = (value) => {
+        onAlignChange(value);
+        setShowDropdown(false);
+    };
+
+    const buttonClass = "p-1.5 pb-1 rounded hover:bg-gray-100 transition-colors text-gray-600";
 
     return (
-        <>
-            {/* Align Left */}
+        <div className="relative" ref={dropdownRef}>
             <button
                 type="button"
-                onClick={() => onAlignChange("left")}
-                className={align === "left" ? activeButtonClass : buttonClass}
-                title={__("Align Left")}
+                onClick={() => setShowDropdown(!showDropdown)}
+                className={`${buttonClass} flex items-center gap-0.5 ${showDropdown ? "bg-gray-100" : ""}`}
+                title={currentAlign.label}
             >
                 <iconify-icon
-                    icon="mdi:format-align-left"
+                    icon={currentAlign.icon}
+                    width="16"
+                    height="16"
+                ></iconify-icon>
+                <iconify-icon
+                    icon="mdi:chevron-down"
+                    width="12"
+                    height="12"
+                    class="text-gray-400"
+                ></iconify-icon>
+            </button>
+
+            {showDropdown && (
+                <div className="absolute left-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
+                    {alignOptions.map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => handleSelect(option.value)}
+                            className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 ${
+                                align === option.value ? "text-primary bg-primary/5" : "text-gray-700"
+                            }`}
+                        >
+                            <iconify-icon
+                                icon={option.icon}
+                                width="16"
+                                height="16"
+                                class={align === option.value ? "text-primary" : "text-gray-500"}
+                            ></iconify-icon>
+                            <span>{option.label}</span>
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+// Alignment-only controls for non-text blocks (image, button, video, etc.)
+// Now uses AlignmentDropdown for consistency
+const AlignOnlyControls = ({ align, onAlignChange }) => {
+    return (
+        <AlignmentDropdown
+            align={align}
+            onAlignChange={onAlignChange}
+            showJustify={false}
+        />
+    );
+};
+
+/**
+ * Default text control items for the "More" dropdown
+ * Each item has: id, label, icon, tag (HTML tag to wrap), command (optional execCommand)
+ */
+const getDefaultMoreTextControls = () => [
+    {
+        id: "highlight",
+        label: __("Highlight"),
+        icon: "mdi:marker",
+        tag: "mark",
+        position: 10,
+    },
+    {
+        id: "inlineCode",
+        label: __("Inline code"),
+        icon: "mdi:code-tags",
+        tag: "code",
+        position: 20,
+    },
+    {
+        id: "keyboard",
+        label: __("Keyboard input"),
+        icon: "mdi:keyboard",
+        tag: "kbd",
+        position: 30,
+    },
+    {
+        id: "strikethrough",
+        label: __("Strikethrough"),
+        icon: "mdi:format-strikethrough",
+        command: "strikeThrough",
+        position: 40,
+    },
+    {
+        id: "subscript",
+        label: __("Subscript"),
+        icon: "mdi:format-subscript",
+        command: "subscript",
+        position: 50,
+    },
+    {
+        id: "superscript",
+        label: __("Superscript"),
+        icon: "mdi:format-superscript",
+        command: "superscript",
+        position: 60,
+    },
+];
+
+/**
+ * MoreTextControls - Extensible dropdown for additional text formatting options
+ *
+ * Extensibility via hooks:
+ * - Use FILTER_MORE_TEXT_CONTROLS to add/remove/modify items
+ *
+ * @example Adding a custom control:
+ * LaraHooks.addFilter(BuilderHooks.FILTER_MORE_TEXT_CONTROLS, (items) => {
+ *   return [
+ *     ...items,
+ *     {
+ *       id: 'myCustomFormat',
+ *       label: 'My Format',
+ *       icon: 'mdi:star',
+ *       tag: 'span',
+ *       className: 'my-custom-class', // Optional: add class to the tag
+ *       style: { color: 'red' }, // Optional: inline styles
+ *       position: 25, // Controls order (lower = earlier)
+ *       onClick: (execFormat, wrapWithTag) => { // Optional: custom handler
+ *         wrapWithTag('span', { className: 'custom' });
+ *       }
+ *     }
+ *   ];
+ * });
+ *
+ * @example Removing a control:
+ * LaraHooks.addFilter(BuilderHooks.FILTER_MORE_TEXT_CONTROLS, (items) => {
+ *   return items.filter(item => item.id !== 'strikethrough');
+ * });
+ */
+const MoreTextControls = ({ editorRef, saveSelection, restoreSelection }) => {
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+
+    // Get items from hook system (allows extension)
+    const items = useMemo(() => {
+        const defaultItems = getDefaultMoreTextControls();
+        const filteredItems = LaraHooks.applyFilters(
+            BuilderHooks.FILTER_MORE_TEXT_CONTROLS,
+            defaultItems
+        );
+        // Sort by position
+        return [...filteredItems].sort(
+            (a, b) => (a.position || 100) - (b.position || 100)
+        );
+    }, []);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Execute formatting via execCommand
+    const execFormat = (command, value = null) => {
+        restoreSelection();
+        document.execCommand(command, false, value);
+        if (editorRef?.current) {
+            editorRef.current.focus();
+        }
+    };
+
+    // Wrap selected text with HTML tag
+    const wrapWithTag = (tag, options = {}) => {
+        restoreSelection();
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+
+        const range = selection.getRangeAt(0);
+        if (range.collapsed) return; // No text selected
+
+        const selectedText = range.toString();
+        if (!selectedText) return;
+
+        // Create the wrapper element
+        const wrapper = document.createElement(tag);
+
+        // Apply optional className
+        if (options.className) {
+            wrapper.className = options.className;
+        }
+
+        // Apply optional inline styles
+        if (options.style) {
+            Object.assign(wrapper.style, options.style);
+        }
+
+        // Apply optional attributes
+        if (options.attributes) {
+            Object.entries(options.attributes).forEach(([key, value]) => {
+                wrapper.setAttribute(key, value);
+            });
+        }
+
+        // Wrap the selection
+        try {
+            range.surroundContents(wrapper);
+        } catch (e) {
+            // If surroundContents fails (e.g., partial selection across elements),
+            // fall back to extracting and inserting
+            const fragment = range.extractContents();
+            wrapper.appendChild(fragment);
+            range.insertNode(wrapper);
+        }
+
+        // Move cursor to after the wrapped element so user can continue typing normally
+        const newRange = document.createRange();
+        newRange.setStartAfter(wrapper);
+        newRange.setEndAfter(wrapper);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+
+        if (editorRef?.current) {
+            editorRef.current.focus();
+        }
+    };
+
+    // Handle item click
+    const handleItemClick = (item) => {
+        // Custom onClick handler takes precedence
+        if (item.onClick) {
+            item.onClick(execFormat, wrapWithTag);
+        } else if (item.command) {
+            // Use execCommand
+            execFormat(item.command, item.commandValue || null);
+        } else if (item.tag) {
+            // Wrap with HTML tag
+            wrapWithTag(item.tag, {
+                className: item.className,
+                style: item.style,
+                attributes: item.attributes,
+            });
+        }
+        setShowDropdown(false);
+    };
+
+    const buttonClass =
+        "p-1.5 pb-0 rounded hover:bg-gray-100 transition-colors text-gray-600";
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <button
+                type="button"
+                onMouseDown={saveSelection}
+                onClick={() => setShowDropdown(!showDropdown)}
+                className={`${buttonClass} ${showDropdown ? "bg-gray-100" : ""}`}
+                title={__("More text controls")}
+            >
+                <iconify-icon
+                    icon="mdi:chevron-down"
                     width="16"
                     height="16"
                 ></iconify-icon>
             </button>
-            {/* Align Center */}
-            <button
-                type="button"
-                onClick={() => onAlignChange("center")}
-                className={align === "center" ? activeButtonClass : buttonClass}
-                title={__("Align Center")}
-            >
-                <iconify-icon
-                    icon="mdi:format-align-center"
-                    width="16"
-                    height="16"
-                ></iconify-icon>
-            </button>
-            {/* Align Right */}
-            <button
-                type="button"
-                onClick={() => onAlignChange("right")}
-                className={align === "right" ? activeButtonClass : buttonClass}
-                title={__("Align Right")}
-            >
-                <iconify-icon
-                    icon="mdi:format-align-right"
-                    width="16"
-                    height="16"
-                ></iconify-icon>
-            </button>
-        </>
+
+            {showDropdown && (
+                <div className="absolute left-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
+                    {items.map((item, index) => (
+                        <div key={item.id || index}>
+                            {/* Separator support */}
+                            {item.type === "separator" ? (
+                                <div className="border-t border-gray-100 my-1"></div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => handleItemClick(item)}
+                                    className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    disabled={item.disabled}
+                                >
+                                    <iconify-icon
+                                        icon={item.icon || "mdi:format-text"}
+                                        width="16"
+                                        height="16"
+                                        class="text-gray-500"
+                                    ></iconify-icon>
+                                    <span>{item.label}</span>
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 };
 
@@ -71,6 +361,7 @@ const TextFormatControls = ({
     const showLink = supports.link === true;
     const showJustify = supports.justify === true;
     const showClearFormat = supports.clearFormat !== false;
+    const showMoreControls = supports.moreControls !== false;
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkUrl, setLinkUrl] = useState("");
     const linkInputRef = useRef(null);
@@ -158,7 +449,6 @@ const TextFormatControls = ({
 
     const buttonClass =
         "p-1.5 pb-0 rounded hover:bg-gray-100 transition-colors text-gray-600";
-    const activeButtonClass = "p-1.5 pb-0 rounded bg-gray-100 text-gray-800";
 
     // Check if any text formatting buttons are shown
     const hasTextFormatting = showBold || showItalic || showUnderline;
@@ -216,59 +506,12 @@ const TextFormatControls = ({
                 <div className="w-px h-5 bg-gray-200 mx-0.5"></div>
             )}
 
-            {/* Alignment Buttons */}
-            <button
-                type="button"
-                onClick={() => onAlignChange("left")}
-                className={align === "left" ? activeButtonClass : buttonClass}
-                title={__("Align Left")}
-            >
-                <iconify-icon
-                    icon="mdi:format-align-left"
-                    width="16"
-                    height="16"
-                ></iconify-icon>
-            </button>
-            <button
-                type="button"
-                onClick={() => onAlignChange("center")}
-                className={align === "center" ? activeButtonClass : buttonClass}
-                title={__("Align Center")}
-            >
-                <iconify-icon
-                    icon="mdi:format-align-center"
-                    width="16"
-                    height="16"
-                ></iconify-icon>
-            </button>
-            <button
-                type="button"
-                onClick={() => onAlignChange("right")}
-                className={align === "right" ? activeButtonClass : buttonClass}
-                title={__("Align Right")}
-            >
-                <iconify-icon
-                    icon="mdi:format-align-right"
-                    width="16"
-                    height="16"
-                ></iconify-icon>
-            </button>
-            {showJustify && (
-                <button
-                    type="button"
-                    onClick={() => onAlignChange("justify")}
-                    className={
-                        align === "justify" ? activeButtonClass : buttonClass
-                    }
-                    title={__("Justify")}
-                >
-                    <iconify-icon
-                        icon="mdi:format-align-justify"
-                        width="16"
-                        height="16"
-                    ></iconify-icon>
-                </button>
-            )}
+            {/* Alignment Dropdown */}
+            <AlignmentDropdown
+                align={align}
+                onAlignChange={onAlignChange}
+                showJustify={showJustify}
+            />
 
             {/* Link Button */}
             {showLink && (
@@ -353,6 +596,15 @@ const TextFormatControls = ({
                         ></iconify-icon>
                     </button>
                 </>
+            )}
+
+            {/* More Text Controls Dropdown */}
+            {showMoreControls && (
+                <MoreTextControls
+                    editorRef={editorRef}
+                    saveSelection={saveSelection}
+                    restoreSelection={restoreSelection}
+                />
             )}
         </>
     );
@@ -461,10 +713,10 @@ const BlockToolbar = ({
 
     return (
         <div
-            className={`lb-block-toolbar ${positionClasses} flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg shadow-md px-1 py-1 z-50`}
+            className={`lb-block-toolbar ${positionClasses} flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg shadow-md px-0.5 py-0.5 z-50`}
             onClick={(e) => e.stopPropagation()}
         >
-            {/* Block type icon/label */}
+            {/* Block type icon/label with move controls */}
             <div className="flex items-center gap-1.5 px-2 py-1 border-r border-gray-200 mr-1">
                 <iconify-icon
                     icon={blockConfig?.icon || "mdi:square-outline"}
@@ -472,9 +724,42 @@ const BlockToolbar = ({
                     height="16"
                     class="text-gray-600"
                 ></iconify-icon>
-                <span className="text-xs font-medium text-gray-700">
-                    {__(blockConfig?.label || block.type)}
-                </span>
+
+                {/* Compact move up/down controls */}
+                <div className="flex flex-col gap-px">
+                    <button
+                        type="button"
+                        onClick={onMoveUp}
+                        disabled={!canMoveUp}
+                        className={`p-0.5 hover:bg-gray-100 rounded transition-colors leading-none ${
+                            !canMoveUp ? "opacity-30 cursor-not-allowed" : ""
+                        }`}
+                        title={__("Move up")}
+                    >
+                        <iconify-icon
+                            icon="mdi:chevron-up"
+                            width="12"
+                            height="12"
+                            class="text-gray-500 block"
+                        ></iconify-icon>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onMoveDown}
+                        disabled={!canMoveDown}
+                        className={`p-0.5 hover:bg-gray-100 rounded transition-colors leading-none ${
+                            !canMoveDown ? "opacity-30 cursor-not-allowed" : ""
+                        }`}
+                        title={__("Move down")}
+                    >
+                        <iconify-icon
+                            icon="mdi:chevron-down"
+                            width="12"
+                            height="12"
+                            class="text-gray-500 block"
+                        ></iconify-icon>
+                    </button>
+                </div>
             </div>
 
             {/* Heading Level Controls - based on supports.headingLevel */}
@@ -522,61 +807,6 @@ const BlockToolbar = ({
                     <div className="w-px h-5 bg-gray-200 mx-1"></div>
                 </>
             )}
-
-            {/* Move Up */}
-            <button
-                type="button"
-                onClick={onMoveUp}
-                disabled={!canMoveUp}
-                className={`p-1.5 rounded hover:bg-gray-100 transition-colors ${
-                    !canMoveUp ? "opacity-30 cursor-not-allowed" : ""
-                }`}
-                title={__("Move up")}
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 text-gray-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 15l7-7 7 7"
-                    />
-                </svg>
-            </button>
-
-            {/* Move Down */}
-            <button
-                type="button"
-                onClick={onMoveDown}
-                disabled={!canMoveDown}
-                className={`p-1.5 rounded hover:bg-gray-100 transition-colors ${
-                    !canMoveDown ? "opacity-30 cursor-not-allowed" : ""
-                }`}
-                title={__("Move down")}
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 text-gray-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                    />
-                </svg>
-            </button>
-
-            {/* Divider */}
-            <div className="w-px h-5 bg-gray-200 mx-1"></div>
 
             {/* Duplicate */}
             <button
