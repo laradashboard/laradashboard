@@ -12,6 +12,15 @@
             </a>
         </li>
         <li class="me-2" role="presentation">
+            <a href="{{ route('admin.email-connections.index') }}"
+                class="flex items-center justify-center p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300
+                {{ $currentTab === 'connections' ? 'text-primary border-primary dark:text-primary dark:border-primary' : 'text-gray-500 border-transparent dark:text-gray-400' }}"
+                role="tab">
+                <iconify-icon icon="lucide:plug" class="mr-2"></iconify-icon>
+                {{ __('Connections') }}
+            </a>
+        </li>
+        <li class="me-2" role="presentation">
             <a href="{{ route('admin.email-templates.index') }}"
                 class="flex items-center justify-center p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300
                 {{ $currentTab === 'email-templates' ? 'text-primary border-primary dark:text-primary dark:border-primary' : 'text-gray-500 border-transparent dark:text-gray-400' }}"

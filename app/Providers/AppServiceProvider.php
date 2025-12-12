@@ -8,6 +8,11 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Observers\ContactObserver;
 use App\Observers\EmailObserver;
+use App\Services\EmailConnectionService;
+use App\Services\EmailProviderRegistry;
+use App\Services\Emails\Mailer;
+use App\Services\EmailProviders\PhpMailProvider;
+use App\Services\EmailProviders\SmtpProvider;
 use App\Support\Facades\Hook;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
@@ -26,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
         if (PHP_VERSION_ID >= 80400) {
             error_reporting(E_ALL & ~E_DEPRECATED);
         }
+
+        // Register Mailer service as singleton for unified email sending
+        $this->app->singleton(Mailer::class, function ($app) {
+            return new Mailer($app->make(EmailConnectionService::class));
+        });
     }
 
     /**
@@ -87,5 +97,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Register contact observer for automatic email subscriptions
         Contact::observe(ContactObserver::class);
+
+        // Register built-in email providers
+        EmailProviderRegistry::registerProvider(PhpMailProvider::class);
+        EmailProviderRegistry::registerProvider(SmtpProvider::class);
     }
 }

@@ -5,6 +5,7 @@
     :perPageOptions="$perPageOptions"
     :headers="$headers"
     :enableCheckbox="$enableCheckbox"
+    :enableNewResourceLink="$showCreateButton"
     :noResultsMessage="$noResultsMessage"
     :customNoResultsMessage="$customNoResultsMessage"
     :data="$data"

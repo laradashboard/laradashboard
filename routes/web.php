@@ -8,6 +8,7 @@ use App\Http\Controllers\Backend\Auth\ScreenshotGeneratorLoginController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\DuplicateEmailTemplateController;
 use App\Http\Controllers\Backend\EditorController;
+use App\Http\Controllers\Backend\EmailConnectionsController;
 use App\Http\Controllers\Backend\EmailSettingsController;
 use App\Http\Controllers\Backend\EmailTemplatesController;
 use App\Http\Controllers\Backend\LocaleController;
@@ -69,6 +70,20 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
         Route::get('emails', [EmailSettingsController::class, 'index'])->name('email-settings.index');
         Route::post('emails', [EmailSettingsController::class, 'update'])->name('email-settings.update');
         Route::post('emails/send-test', [SendTestEmailController::class, 'sendTestEmail'])->name('emails.send-test');
+
+        // Email Connections Management Routes.
+        Route::group(['prefix' => 'email-connections', 'as' => 'email-connections.'], function () {
+            Route::get('/', [EmailConnectionsController::class, 'index'])->name('index');
+            Route::post('/', [EmailConnectionsController::class, 'store'])->name('store');
+            Route::get('providers', [EmailConnectionsController::class, 'getProviders'])->name('providers');
+            Route::get('providers/{providerType}', [EmailConnectionsController::class, 'getProviderFields'])->name('providers.fields');
+            Route::get('{email_connection}', [EmailConnectionsController::class, 'show'])->name('show');
+            Route::put('{email_connection}', [EmailConnectionsController::class, 'update'])->name('update');
+            Route::delete('{email_connection}', [EmailConnectionsController::class, 'destroy'])->name('destroy');
+            Route::post('{email_connection}/test', [EmailConnectionsController::class, 'testConnection'])->name('test');
+            Route::post('{email_connection}/default', [EmailConnectionsController::class, 'setDefault'])->name('default');
+            Route::post('reorder', [EmailConnectionsController::class, 'reorder'])->name('reorder');
+        });
 
         // Email Templates Management Routes.
         Route::group(['prefix' => 'email-templates', 'as' => 'email-templates.'], function () {
