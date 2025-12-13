@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             SettingsSeeder::class,
             ContentSeeder::class,
+            EmailTemplateSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }

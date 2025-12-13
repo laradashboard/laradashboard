@@ -1,0 +1,30 @@
+{
+    "type": "time-to-read",
+    "version": "1.0.0",
+    "label": "Time to Read",
+    "category": "Content",
+    "icon": "mdi:clock-outline",
+    "description": "Display estimated reading time for the content",
+    "keywords": ["time", "read", "reading", "minutes", "duration", "estimate"],
+    "contexts": ["page"],
+    "supports": {
+        "align": true,
+        "colors": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "wordsPerMinute": 200,
+        "displayAsRange": true,
+        "prefix": "",
+        "suffix": "",
+        "align": "left",
+        "color": "#666666",
+        "fontSize": "14px",
+        "iconColor": "#666666",
+        "showIcon": true
+    }
+}

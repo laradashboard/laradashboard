@@ -5,11 +5,13 @@
     :perPageOptions="$perPageOptions"
     :headers="$headers"
     :enableCheckbox="$enableCheckbox"
+    :enableNewResourceLink="$showCreateButton"
     :noResultsMessage="$noResultsMessage"
     :customNoResultsMessage="$customNoResultsMessage"
     :data="$data"
     :newResourceLinkPermission="$newResourceLinkPermission"
     :newResourceLinkRouteName="$newResourceLinkRouteName"
+    :customNewResourceLink="$this->getCustomNewResourceLink()"
     :newResourceLinkRouteUrl="$this->getCreateRouteUrl()"
     :newResourceLinkLabel="$newResourceLinkLabel"
 />

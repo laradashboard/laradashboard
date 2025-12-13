@@ -1,0 +1,20 @@
+{
+    "type": "spacer",
+    "version": "1.0.0",
+    "label": "Spacer",
+    "category": "Layout",
+    "icon": "mdi:arrow-expand-vertical",
+    "description": "Add vertical spacing between blocks",
+    "keywords": ["spacer", "space", "gap", "padding"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "height": "40px"
+    }
+}

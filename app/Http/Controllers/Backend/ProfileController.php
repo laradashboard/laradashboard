@@ -45,6 +45,7 @@ class ProfileController extends Controller
             ->with([
                 'breadcrumbs' => [
                     'title' => __('Edit Profile'),
+                    'icon' => 'lucide:user-cog',
                 ],
             ]);
     }

@@ -56,24 +56,28 @@ function createPermissions(): void
 function createBasePermissions(): void
 {
     if (class_exists(Permission::class)) {
-        // User permissions
+        // User permissions.
         Permission::firstOrCreate(['name' => 'user.view']);
         Permission::firstOrCreate(['name' => 'user.create']);
         Permission::firstOrCreate(['name' => 'user.edit']);
         Permission::firstOrCreate(['name' => 'user.delete']);
 
-        // Post permissions
+        // Post permissions.
         Permission::firstOrCreate(['name' => 'post.view']);
         Permission::firstOrCreate(['name' => 'post.create']);
         Permission::firstOrCreate(['name' => 'post.edit']);
         Permission::firstOrCreate(['name' => 'post.delete']);
 
-        // Role/Permission management permissions
+        // Role/Permission management permissions.
         Permission::firstOrCreate(['name' => 'role.view']);
         Permission::firstOrCreate(['name' => 'role.create']);
         Permission::firstOrCreate(['name' => 'role.edit']);
         Permission::firstOrCreate(['name' => 'role.delete']);
         Permission::firstOrCreate(['name' => 'permission.view']);
+
+        // Settings permissions.
+        Permission::firstOrCreate(['name' => 'settings.view']);
+        Permission::firstOrCreate(['name' => 'settings.edit']);
     }
 }
 

@@ -1,0 +1,28 @@
+{
+    "type": "columns",
+    "version": "1.0.0",
+    "label": "Columns",
+    "category": "Layout",
+    "icon": "mdi:view-column-outline",
+    "description": "Create multi-column layouts",
+    "keywords": ["columns", "layout", "grid", "sections"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "columnCount": true,
+        "align": false,
+        "spacing": true,
+        "nesting": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "columns": 2,
+        "gap": "20px",
+        "verticalAlign": "stretch",
+        "horizontalAlign": "stretch",
+        "stackOnMobile": true,
+        "children": [[], []]
+    }
+}

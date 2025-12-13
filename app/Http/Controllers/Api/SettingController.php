@@ -19,12 +19,10 @@ class SettingController extends ApiController
 
     /**
      * Settings list.
-     *
-     * @tags Settings
      */
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('viewAny', \App\Models\Setting::class);
+        $this->authorize('viewAny', Setting::class);
         $settings = $this->settingService->getAllSettings(
             $request->input('search'),
             $request->integer('autoload')
@@ -38,8 +36,6 @@ class SettingController extends ApiController
 
     /**
      * Show Setting.
-     *
-     * @tags Settings
      */
     public function show(string $option_name): JsonResponse
     {
@@ -59,8 +55,6 @@ class SettingController extends ApiController
 
     /**
      * Update Settings.
-     *
-     * @tags Settings
      */
     public function update(UpdateSettingsRequest $request): JsonResponse
     {

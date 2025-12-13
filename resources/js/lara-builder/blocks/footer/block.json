@@ -1,0 +1,31 @@
+{
+    "type": "footer",
+    "version": "1.0.0",
+    "label": "Footer",
+    "category": "Layout",
+    "icon": "mdi:page-layout-footer",
+    "description": "Add an email footer with company info",
+    "keywords": ["footer", "unsubscribe", "company", "contact"],
+    "contexts": ["email", "campaign"],
+    "supports": {
+        "align": true,
+        "colors": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "companyName": "Your Company Name",
+        "address": "123 Street Name, City, Country",
+        "phone": "+1 234 567 890",
+        "email": "contact@company.com",
+        "unsubscribeText": "Unsubscribe from these emails",
+        "unsubscribeUrl": "#unsubscribe",
+        "copyright": "© 2024 Your Company. All rights reserved.",
+        "textColor": "#6b7280",
+        "linkColor": "#635bff",
+        "fontSize": "12px",
+        "align": "center"
+    }
+}

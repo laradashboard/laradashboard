@@ -38,6 +38,7 @@ class SettingController extends Controller
             ->with([
                 'breadcrumbs' => [
                     'title' => __('Settings'),
+                    'icon' => 'lucide:settings',
                 ],
             ]);
     }
@@ -105,6 +106,8 @@ class SettingController extends Controller
         }
 
         $this->envWriter->batchWriteKeysToEnvFile($fields);
+
+        // dd($fields);
 
         $this->storeActionLog(ActionType::UPDATED, [
             'settings' => $fields,

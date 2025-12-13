@@ -1,12 +1,9 @@
 {!! Hook::applyFilters(SettingFilterHook::SETTINGS_APPEARANCE_TAB_BEFORE_SECTION_START, '') !!}
-<div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] mt-4">
-    <div class="px-5 py-4 sm:px-6 sm:py-5">
-        <h3 class="text-base font-medium text-gray-700 dark:text-white/90">
-            {{ __('Site Appearance') }}
-        </h3>
-    </div>
-    <div class="space-y-6 border-t border-gray-100 p-5 sm:p-6 dark:border-gray-800">
-
+<x-card>
+    <x-slot name="header">
+        {{ __('Site Appearance') }}
+    </x-slot>
+    <div class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
                 <label for="color-picker-theme_primary_color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -278,18 +275,15 @@
         </div>
     </div>
     {!! Hook::applyFilters(SettingFilterHook::SETTINGS_APPEARANCE_TAB_BEFORE_SECTION_END, '') !!}
-</div>
+</x-card>
 {!! Hook::applyFilters(SettingFilterHook::SETTINGS_APPEARANCE_TAB_AFTER_SECTION_END, '') !!}
 
 <!-- Custom CSS & JS Section -->
-<div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] mt-4">
-    <div class="px-5 py-4 sm:px-6 sm:py-5">
-        <h3 class="text-base font-medium text-gray-700 dark:text-white/90">
-            {{ __('Custom CSS & JavaScript') }}
-        </h3>
-    </div>
-    <div class="space-y-6 border-t border-gray-100 p-5 sm:p-6 dark:border-gray-800">
-        <!-- Custom CSS -->
+<x-card class="mt-6">
+    <x-slot name="header">
+        {{ __('Custom CSS & JavaScript') }}
+    </x-slot>
+    <div class="space-y-4">
         <div>
             <label for="global_custom_css" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ __('Global Custom CSS') }}
@@ -302,7 +296,6 @@
             </p>
         </div>
 
-        <!-- Custom JavaScript -->
         <div>
             <label for="global_custom_js" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ __('Global Custom JavaScript') }}
@@ -315,8 +308,9 @@
             </p>
         </div>
     </div>
-</div>
+</x-card>
 
+@push('scripts')
 <script>
     function syncColor(field, fromInput = false) {
         const colorPicker = document.getElementById(`color-picker-${field}`);
@@ -328,3 +322,4 @@
         }
     }
 </script>
+@endpush

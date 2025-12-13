@@ -27,6 +27,6 @@
     {!! Hook::applyFilters(PostFilterHook::AFTER_POST_FORM, '', $postType) !!}
 
     @push('scripts')
-        <x-quill-editor :editor-id="'content'" height="200px" maxHeight="-1" />
+        <x-text-editor :editor-id="'content'" :minHeight="'200px'" :maxHeight="'1200px'" type="full" />
     @endpush
 </x-layouts.backend-layout>

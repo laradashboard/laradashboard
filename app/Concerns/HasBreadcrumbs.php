@@ -13,6 +13,9 @@ trait HasBreadcrumbs
         'show_home' => true,
         'show_current' => true,
         'items' => [],
+        'back_url' => null,
+        'icon' => null,
+        'action' => null,
     ];
 
     public function setBreadcrumbTitle(string $title): self
@@ -53,10 +56,70 @@ trait HasBreadcrumbs
         return $this;
     }
 
+    public function setBreadcrumbBackUrl(?string $url): self
+    {
+        $this->breadcrumbs['back_url'] = $url;
+
+        return $this;
+    }
+
+    public function setBreadcrumbIcon(?string $icon): self
+    {
+        $this->breadcrumbs['icon'] = $icon;
+
+        return $this;
+    }
+
+    /**
+     * Set the action button for the page header.
+     *
+     * @param  array|string  $action  Can be an array with 'url', 'label', 'icon', 'permission' keys, or raw HTML string
+     */
+    public function setBreadcrumbAction(array|string $action): self
+    {
+        $this->breadcrumbs['action'] = $action;
+
+        return $this;
+    }
+
+    /**
+     * Set the action button using individual parameters.
+     */
+    public function setBreadcrumbActionButton(string $url, string $label, ?string $icon = 'feather:plus', ?string $permission = null, bool $isPill = false): self
+    {
+        $this->breadcrumbs['action'] = [
+            'url' => $url,
+            'label' => $label,
+            'icon' => $icon,
+            'permission' => $permission,
+            'pill' => $isPill,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Set the action button with a click handler (for Alpine.js or JavaScript).
+     *
+     * @param  string  $click  The click handler expression (e.g., "uploadModalOpen = true" for Alpine.js)
+     * @param  string  $label  The button label
+     * @param  string|null  $icon  The icon to display
+     * @param  string|null  $permission  The permission required to see this button
+     */
+    public function setBreadcrumbActionClick(string $click, string $label, ?string $icon = 'feather:plus', ?string $permission = null): self
+    {
+        $this->breadcrumbs['action'] = [
+            'click' => $click,
+            'label' => $label,
+            'icon' => $icon,
+            'permission' => $permission,
+        ];
+
+        return $this;
+    }
+
     public function renderViewWithBreadcrumbs($view, $data = []): View
     {
-        return view($view, array_merge($data, [
-            'breadcrumbs' => $this->breadcrumbs,
-        ]));
+        return view($view, [...$data, 'breadcrumbs' => $this->breadcrumbs]);
     }
 }

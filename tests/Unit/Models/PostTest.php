@@ -20,6 +20,7 @@ it('has fillable attributes', function () {
         'slug',
         'excerpt',
         'content',
+        'design_json',
         'status',
         'meta',
         'parent_id',
@@ -32,6 +33,8 @@ it('has casted attributes', function () {
     $casts = $post->getCasts();
     expect($casts)->toHaveKey('meta');
     expect($casts['meta'])->toEqual('array');
+    expect($casts)->toHaveKey('design_json');
+    expect($casts['design_json'])->toEqual('array');
     expect($casts)->toHaveKey('published_at');
     expect($casts['published_at'])->toEqual('datetime');
 });

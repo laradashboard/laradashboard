@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Enums\PostStatus;
+use App\Services\Builder\BlockService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,9 +25,21 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
+        $blockService = app(BlockService::class);
+
         return [
             'title' => fake()->sentence(),
-            'content' => fake()->paragraph(),
+            'content' => $blockService->parseBlocks([
+                $blockService->heading(fake()->sentence(6), 'h2'),
+                $blockService->text(fake()->paragraph()),
+            ]),
+            'design_json' => [
+                'blocks' => [
+                    $blockService->heading(fake()->sentence(6), 'h2'),
+                    $blockService->text(fake()->paragraph()),
+                ],
+                'version' => 1,
+            ],
             'excerpt' => fake()->sentence(10),
             'status' => fake()->randomElement(collect(PostStatus::cases())->pluck('value')->toArray()),
             'post_type' => fake()->randomElement(['post', 'page']),

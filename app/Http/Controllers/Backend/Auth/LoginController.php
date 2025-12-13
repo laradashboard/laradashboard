@@ -59,14 +59,14 @@ class LoginController extends Controller
             $this->demoAppService->maybeSetDemoLocaleToEnByDefault();
             session()->flash('success', 'Successfully Logged in!');
 
-            return redirect()->route('admin.dashboard');
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         if (Auth::guard('web')->attempt(['username' => $request->email, 'password' => $request->password], $request->remember)) {
             $this->demoAppService->maybeSetDemoLocaleToEnByDefault();
             session()->flash('success', 'Successfully Logged in!');
 
-            return redirect()->route('admin.dashboard');
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         return $this->sendFailedLoginResponse($request);

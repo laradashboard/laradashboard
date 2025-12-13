@@ -1,5 +1,6 @@
-<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
-    <div x-data="{
+
+<div
+    x-data="{
         selectedMedia: [],
         selectAll: false,
         bulkDeleteModalOpen: false,
@@ -17,7 +18,9 @@
             this.selectedMedia = [id.toString()];
             this.bulkDeleteModalOpen = true;
         }
-    }" id="mediaManager">
+    }" id="mediaManager"
+>
+    <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
         {!! Hook::applyFilters(CommonFilterHook::MEDIA_AFTER_BREADCRUMBS, '') !!}
 
         @if ($errors->any())
@@ -226,13 +229,6 @@
                             <span class="hidden sm:inline"
                                 x-text="viewMode === 'grid' ? '{{ __('List View') }}' : '{{ __('Grid View') }}'"></span>
                         </button>
-
-                        @if (auth()->user()->can('media.create') && count($media))
-                            <button @click="uploadModalOpen = true" class="btn-primary flex items-center gap-2">
-                                <iconify-icon icon="lucide:upload" height="16"></iconify-icon>
-                                {{ __('Upload Media') }}
-                            </button>
-                        @endif
                     </div>
                 </div>
 
@@ -245,7 +241,7 @@
                                     <div
                                         class="relative group border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800">
                                         <div class="absolute top-2 left-2 z-10 transition-opacity duration-200"
-                                             :class="selectedMedia.includes('{{ $item->id }}') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
+                                            :class="selectedMedia.includes('{{ $item->id }}') ? 'opacity-100' : 'group-hover:opacity-100'">
                                             <input type="checkbox" value="{{ $item->id }}" x-model="selectedMedia"
                                                 class="form-checkbox">
                                         </div>
@@ -431,7 +427,7 @@
                                                 <input type="checkbox" value="{{ $item->id }}"
                                                     x-model="selectedMedia"
                                                     class="media-checkbox form-checkbox"
-                                                    :class="selectedMedia.includes('{{ $item->id }}') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
+                                                    :class="selectedMedia.includes('{{ $item->id }}') ? 'opacity-100' : 'group-hover:opacity-100'">
                                             </td>
                                             <td class="table-td">
                                                 <div class="flex-shrink-0 h-12 w-12 mr-3">
@@ -555,273 +551,273 @@
 
         <!-- Bulk Delete Modal -->
         @include('backend.pages.media.partials.bulk-delete-modal')
-    </div>
 
-    <!-- Image Modal -->
-    <div id="imageModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75"
-        onclick="closeImageModal()">
-        <div class="max-w-4xl max-h-[90vh] p-4" onclick="event.stopPropagation()">
-            <img id="modalImage" src="" alt="" class="max-w-full max-h-full object-contain">
+        <!-- Image Modal -->
+        <div id="imageModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75"
+            onclick="closeImageModal()">
+            <div class="max-w-4xl max-h-[90vh] p-4" onclick="event.stopPropagation()">
+                <img id="modalImage" src="" alt="" class="max-w-full max-h-full object-contain">
+            </div>
+            <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-gray-300">
+                <iconify-icon icon="lucide:x" class="text-2xl"></iconify-icon>
+            </button>
         </div>
-        <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-gray-300">
-            <iconify-icon icon="lucide:x" class="text-2xl"></iconify-icon>
-        </button>
-    </div>
 
-    <!-- Video Modal -->
-    <div id="videoModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75"
-        onclick="closeVideoModal()">
-        <div class="max-w-6xl max-h-[90vh] p-4" onclick="event.stopPropagation()">
-            <video id="modalVideo"
-                   class="max-w-full max-h-full"
-                   controls
-                   preload="metadata"
-                   style="outline: none;"
-                   onloadstart="this.volume=0.5">
-                <!-- Source will be set dynamically -->
-            </video>
+        <!-- Video Modal -->
+        <div id="videoModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75"
+            onclick="closeVideoModal()">
+            <div class="max-w-6xl max-h-[90vh] p-4" onclick="event.stopPropagation()">
+                <video id="modalVideo"
+                    class="max-w-full max-h-full"
+                    controls
+                    preload="metadata"
+                    style="outline: none;"
+                    onloadstart="this.volume=0.5">
+                    <!-- Source will be set dynamically -->
+                </video>
+            </div>
+            <button onclick="closeVideoModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
+                <iconify-icon icon="lucide:x" class="text-2xl"></iconify-icon>
+            </button>
         </div>
-        <button onclick="closeVideoModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
-            <iconify-icon icon="lucide:x" class="text-2xl"></iconify-icon>
-        </button>
-    </div>
 
-    <!-- Audio Modal -->
-    <div id="audioModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75"
-        onclick="closeAudioModal()">
-        <div class="max-w-2xl max-h-[90vh] p-4" onclick="event.stopPropagation()">
-            <div class="bg-gradient-to-br from-green-100 to-emerald-200 dark:from-green-900 dark:to-emerald-800 rounded-lg p-8 text-center">
-                <!-- Audio Visualization -->
-                <div class="mb-6">
-                    <iconify-icon icon="lucide:music" class="text-8xl text-green-600 dark:text-green-300 mb-4"></iconify-icon>
-                    <h3 id="modalAudioTitle" class="text-xl font-semibold text-green-800 dark:text-green-200 mb-2"></h3>
-                    <p class="text-green-600 dark:text-green-400 text-sm">Audio Player</p>
-                </div>
+        <!-- Audio Modal -->
+        <div id="audioModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75"
+            onclick="closeAudioModal()">
+            <div class="max-w-2xl max-h-[90vh] p-4" onclick="event.stopPropagation()">
+                <div class="bg-gradient-to-br from-green-100 to-emerald-200 dark:from-green-900 dark:to-emerald-800 rounded-lg p-8 text-center">
+                    <!-- Audio Visualization -->
+                    <div class="mb-6">
+                        <iconify-icon icon="lucide:music" class="text-8xl text-green-600 dark:text-green-300 mb-4"></iconify-icon>
+                        <h3 id="modalAudioTitle" class="text-xl font-semibold text-green-800 dark:text-green-200 mb-2"></h3>
+                        <p class="text-green-600 dark:text-green-400 text-sm">Audio Player</p>
+                    </div>
 
-                <!-- Audio Player -->
-                <div class="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg p-4">
-                    <audio id="modalAudio"
-                           class="w-full mb-4"
-                           controls
-                           preload="metadata"
-                           style="height: 40px;"
-                           onloadstart="this.volume=0.5">
-                        <!-- Source will be set dynamically -->
-                    </audio>
+                    <!-- Audio Player -->
+                    <div class="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg p-4">
+                        <audio id="modalAudio"
+                            class="w-full mb-4"
+                            controls
+                            preload="metadata"
+                            style="height: 40px;"
+                            onloadstart="this.volume=0.5">
+                            <!-- Source will be set dynamically -->
+                        </audio>
 
-                    <!-- Audio Info -->
-                    <div id="modalAudioInfo" class="text-sm text-green-700 dark:text-green-300 space-y-1">
-                        <!-- Audio details will be inserted here -->
+                        <!-- Audio Info -->
+                        <div id="modalAudioInfo" class="text-sm text-green-700 dark:text-green-300 space-y-1">
+                            <!-- Audio details will be inserted here -->
+                        </div>
                     </div>
                 </div>
             </div>
+            <button onclick="closeAudioModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
+                <iconify-icon icon="lucide:x" class="text-2xl"></iconify-icon>
+            </button>
         </div>
-        <button onclick="closeAudioModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
-            <iconify-icon icon="lucide:x" class="text-2xl"></iconify-icon>
-        </button>
-    </div>
 
-    <!-- PDF Modal -->
-    <div id="pdfModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75"
-        onclick="closePdfModal()">
-        <div class="max-w-7xl md:w-7xl max-h-[95vh] p-4" onclick="event.stopPropagation()">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden h-full">
-                <!-- PDF Header -->
-                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <iconify-icon icon="lucide:file-text" class="text-red-500 text-xl"></iconify-icon>
-                        <h3 id="modalPdfTitle" class="text-lg font-semibold text-gray-900 dark:text-white"></h3>
+        <!-- PDF Modal -->
+        <div id="pdfModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-75"
+            onclick="closePdfModal()">
+            <div class="max-w-7xl md:w-7xl max-h-[95vh] p-4" onclick="event.stopPropagation()">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden h-full">
+                    <!-- PDF Header -->
+                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-b border-gray-200 dark:border-gray-600 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <iconify-icon icon="lucide:file-text" class="text-red-500 text-xl"></iconify-icon>
+                            <h3 id="modalPdfTitle" class="text-lg font-semibold text-gray-900 dark:text-white"></h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a id="pdfDownloadLink" href="#" download
+                            class="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm flex items-center gap-2">
+                                <iconify-icon icon="lucide:download" class="text-sm"></iconify-icon>
+                                {{ __('Download') }}
+                            </a>
+                            <button type="button" onclick="closePdfModal()"
+                                    class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <a id="pdfDownloadLink" href="#" download
-                           class="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm flex items-center gap-2">
-                            <iconify-icon icon="lucide:download" class="text-sm"></iconify-icon>
-                            {{ __('Download') }}
-                        </a>
-                        <button type="button" onclick="closePdfModal()"
-                                class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                            <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
-                        </button>
-                    </div>
-                </div>
 
-                <!-- PDF Viewer -->
-                <div class="h-full bg-gray-100 dark:bg-gray-900">
-                    <iframe id="modalPdfViewer"
-                            src=""
-                            class="w-full h-full border-0"
-                            style="min-height: 600px;">
-                    </iframe>
+                    <!-- PDF Viewer -->
+                    <div class="h-full bg-gray-100 dark:bg-gray-900">
+                        <iframe id="modalPdfViewer"
+                                src=""
+                                class="w-full h-full border-0"
+                                style="min-height: 600px;">
+                        </iframe>
+                    </div>
                 </div>
             </div>
+            <button onclick="closePdfModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
+                <iconify-icon icon="lucide:x" class="text-2xl"></iconify-icon>
+            </button>
         </div>
-        <button onclick="closePdfModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
-            <iconify-icon icon="lucide:x" class="text-2xl"></iconify-icon>
-        </button>
-    </div>
 
-    @push('scripts')
-        <script>
-            function copyToClipboard(text) {
-                navigator.clipboard.writeText(text).then(() => {
-                    // Show success message
-                    if (window.showToast) {
-                        window.showToast('success', '{{ __('Success') }}', '{{ __('URL copied to clipboard') }}');
+        @push('scripts')
+            <script>
+                function copyToClipboard(text) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        // Show success message
+                        if (window.showToast) {
+                            window.showToast('success', '{{ __('Success') }}', '{{ __('URL copied to clipboard') }}');
+                        }
+                    });
+                }
+
+                function openImageModal(src, alt) {
+                    const modal = document.getElementById('imageModal');
+                    const img = document.getElementById('modalImage');
+                    img.src = src;
+                    img.alt = alt;
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex', 'items-center', 'justify-center');
+                }
+
+                function closeImageModal() {
+                    const modal = document.getElementById('imageModal');
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex', 'items-center', 'justify-center');
+                }
+
+                // Close modal on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        closeImageModal();
                     }
                 });
-            }
 
-            function openImageModal(src, alt) {
-                const modal = document.getElementById('imageModal');
-                const img = document.getElementById('modalImage');
-                img.src = src;
-                img.alt = alt;
-                modal.classList.remove('hidden');
-                modal.classList.add('flex', 'items-center', 'justify-center');
-            }
+                // Video Modal Functions
+                function openVideoModal(url, title) {
+                    const modal = document.getElementById('videoModal');
+                    const video = document.getElementById('modalVideo');
 
-            function closeImageModal() {
-                const modal = document.getElementById('imageModal');
-                modal.classList.add('hidden');
-                modal.classList.remove('flex', 'items-center', 'justify-center');
-            }
+                    // Set video source
+                    video.src = url;
+                    video.load(); // Reload video with new source
 
-            // Close modal on escape key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeImageModal();
+                    // Show modal
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex', 'items-center', 'justify-center');
+
+                    // Focus on video for keyboard controls
+                    setTimeout(() => video.focus(), 100);
                 }
-            });
 
-            // Video Modal Functions
-            function openVideoModal(url, title) {
-                const modal = document.getElementById('videoModal');
-                const video = document.getElementById('modalVideo');
+                function closeVideoModal() {
+                    const modal = document.getElementById('videoModal');
+                    const video = document.getElementById('modalVideo');
 
-                // Set video source
-                video.src = url;
-                video.load(); // Reload video with new source
+                    // Pause and reset video
+                    video.pause();
+                    video.src = '';
 
-                // Show modal
-                modal.classList.remove('hidden');
-                modal.classList.add('flex', 'items-center', 'justify-center');
-
-                // Focus on video for keyboard controls
-                setTimeout(() => video.focus(), 100);
-            }
-
-            function closeVideoModal() {
-                const modal = document.getElementById('videoModal');
-                const video = document.getElementById('modalVideo');
-
-                // Pause and reset video
-                video.pause();
-                video.src = '';
-
-                // Hide modal
-                modal.classList.add('hidden');
-                modal.classList.remove('flex', 'items-center', 'justify-center');
-            }
-
-            // Audio Modal Functions
-            function openAudioModal(url, title, fileSize) {
-                const modal = document.getElementById('audioModal');
-                const audio = document.getElementById('modalAudio');
-                const titleElement = document.getElementById('modalAudioTitle');
-                const infoElement = document.getElementById('modalAudioInfo');
-
-                // Set audio source and title
-                audio.src = url;
-                audio.load(); // Reload audio with new source
-                titleElement.textContent = title || 'Audio File';
-
-                // Add audio info
-                infoElement.innerHTML = `
-                    <div>File: ${title || 'Audio File'}</div>
-                    ${fileSize ? `<div>Size: ${fileSize}</div>` : ''}
-                    <div>Format: ${url.split('.').pop().toUpperCase()}</div>
-                `;
-
-                // Show modal
-                modal.classList.remove('hidden');
-                modal.classList.add('flex', 'items-center', 'justify-center');
-
-                // Focus on audio for keyboard controls
-                setTimeout(() => audio.focus(), 100);
-            }
-
-            function closeAudioModal() {
-                const modal = document.getElementById('audioModal');
-                const audio = document.getElementById('modalAudio');
-
-                // Pause and reset audio
-                audio.pause();
-                audio.src = '';
-
-                // Hide modal
-                modal.classList.add('hidden');
-                modal.classList.remove('flex', 'items-center', 'justify-center');
-            }
-
-            // Enhanced keyboard navigation for modals
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    // Close any open modal
-                    closeImageModal();
-                    closeVideoModal();
-                    closeAudioModal();
-                    closePdfModal();
+                    // Hide modal
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex', 'items-center', 'justify-center');
                 }
-            });
 
-            // PDF Modal Functions
-            function openPdfModal(url, title) {
-                const modal = document.getElementById('pdfModal');
-                const iframe = document.getElementById('modalPdfViewer');
-                const titleElement = document.getElementById('modalPdfTitle');
-                const downloadLink = document.getElementById('pdfDownloadLink');
+                // Audio Modal Functions
+                function openAudioModal(url, title, fileSize) {
+                    const modal = document.getElementById('audioModal');
+                    const audio = document.getElementById('modalAudio');
+                    const titleElement = document.getElementById('modalAudioTitle');
+                    const infoElement = document.getElementById('modalAudioInfo');
 
-                // Set PDF source and title
-                iframe.src = url;
-                titleElement.textContent = title || 'PDF Document';
-                downloadLink.href = url;
-                downloadLink.download = title || 'document.pdf';
+                    // Set audio source and title
+                    audio.src = url;
+                    audio.load(); // Reload audio with new source
+                    titleElement.textContent = title || 'Audio File';
 
-                // Show modal
-                modal.classList.remove('hidden');
-                modal.classList.add('flex', 'items-center', 'justify-center');
-            }
+                    // Add audio info
+                    infoElement.innerHTML = `
+                        <div>File: ${title || 'Audio File'}</div>
+                        ${fileSize ? `<div>Size: ${fileSize}</div>` : ''}
+                        <div>Format: ${url.split('.').pop().toUpperCase()}</div>
+                    `;
 
-            function closePdfModal() {
-                const modal = document.getElementById('pdfModal');
-                const iframe = document.getElementById('modalPdfViewer');
+                    // Show modal
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex', 'items-center', 'justify-center');
 
-                // Clear iframe source
-                iframe.src = '';
+                    // Focus on audio for keyboard controls
+                    setTimeout(() => audio.focus(), 100);
+                }
 
-                // Hide modal
-                modal.classList.add('hidden');
-                modal.classList.remove('flex', 'items-center', 'justify-center');
-            }
+                function closeAudioModal() {
+                    const modal = document.getElementById('audioModal');
+                    const audio = document.getElementById('modalAudio');
 
-            // Video/Audio/PDF preview button enhancements
-            function handleVideoPreview(event, url, title) {
-                event.preventDefault();
-                event.stopPropagation();
-                openVideoModal(url, title);
-            }
+                    // Pause and reset audio
+                    audio.pause();
+                    audio.src = '';
 
-            function handleAudioPreview(event, url, title, fileSize) {
-                event.preventDefault();
-                event.stopPropagation();
-                openAudioModal(url, title, fileSize);
-            }
+                    // Hide modal
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex', 'items-center', 'justify-center');
+                }
 
-            function handlePdfPreview(event, url, title) {
-                event.preventDefault();
-                event.stopPropagation();
-                openPdfModal(url, title);
-            }
-        </script>
-    @endpush
-</x-layouts.backend-layout>
+                // Enhanced keyboard navigation for modals
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        // Close any open modal
+                        closeImageModal();
+                        closeVideoModal();
+                        closeAudioModal();
+                        closePdfModal();
+                    }
+                });
+
+                // PDF Modal Functions
+                function openPdfModal(url, title) {
+                    const modal = document.getElementById('pdfModal');
+                    const iframe = document.getElementById('modalPdfViewer');
+                    const titleElement = document.getElementById('modalPdfTitle');
+                    const downloadLink = document.getElementById('pdfDownloadLink');
+
+                    // Set PDF source and title
+                    iframe.src = url;
+                    titleElement.textContent = title || 'PDF Document';
+                    downloadLink.href = url;
+                    downloadLink.download = title || 'document.pdf';
+
+                    // Show modal
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex', 'items-center', 'justify-center');
+                }
+
+                function closePdfModal() {
+                    const modal = document.getElementById('pdfModal');
+                    const iframe = document.getElementById('modalPdfViewer');
+
+                    // Clear iframe source
+                    iframe.src = '';
+
+                    // Hide modal
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex', 'items-center', 'justify-center');
+                }
+
+                // Video/Audio/PDF preview button enhancements
+                function handleVideoPreview(event, url, title) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openVideoModal(url, title);
+                }
+
+                function handleAudioPreview(event, url, title, fileSize) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openAudioModal(url, title, fileSize);
+                }
+
+                function handlePdfPreview(event, url, title) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openPdfModal(url, title);
+                }
+            </script>
+        @endpush
+    </x-layouts.backend-layout>
+</div>

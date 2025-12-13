@@ -1,0 +1,25 @@
+{
+    "type": "divider",
+    "version": "1.0.0",
+    "label": "Divider",
+    "category": "Layout",
+    "icon": "mdi:minus",
+    "description": "Add a horizontal line divider",
+    "keywords": ["divider", "line", "separator", "hr"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "colors": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "style": "solid",
+        "color": "#e5e7eb",
+        "thickness": "1px",
+        "width": "100%",
+        "margin": "20px 0"
+    }
+}

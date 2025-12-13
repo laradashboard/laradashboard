@@ -1,5 +1,4 @@
 {
     "Crm": true,
-    "TaskManager": true,
-    "Site": true
+    "CustomForm": false
 }

@@ -19,9 +19,6 @@ class ModuleServiceProvider extends ServiceProvider
 
             return new CustomFileRepository($app, $path);
         });
-
-        // // Also bind the 'modules' alias
-        // $this->app->alias(RepositoryInterface::class, 'modules');
     }
 
     /**
@@ -29,6 +26,23 @@ class ModuleServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Check for auto-disabled modules from bootstrap/modules.php
+        $disabledPath = storage_path('framework/modules_auto_disabled.json');
+
+        if (file_exists($disabledPath)) {
+            $disabledModules = json_decode(file_get_contents($disabledPath), true) ?? [];
+
+            if (! empty($disabledModules)) {
+                foreach ($disabledModules as $moduleName => $reason) {
+                    session()->flash('warning', __('Module ":module" was auto-disabled: :reason', [
+                        'module' => $moduleName,
+                        'reason' => $reason,
+                    ]));
+                }
+
+                // Clear the file after showing notifications
+                unlink($disabledPath);
+            }
+        }
     }
 }

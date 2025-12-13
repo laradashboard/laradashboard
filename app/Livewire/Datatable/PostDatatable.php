@@ -30,7 +30,7 @@ class PostDatatable extends Datatable
 
     public function getSearchbarPlaceholder(): string
     {
-        return __('Search by title or content...');
+        return __('Search by title or content') . '...';
     }
 
     public function updatingStatus()
@@ -261,4 +261,5 @@ class PostDatatable extends Datatable
     {
         return $post->categories->pluck('name')->map(fn ($name) => "<span class='badge'>" . ucfirst($name) . "</span>")->join(' ');
     }
+
 }

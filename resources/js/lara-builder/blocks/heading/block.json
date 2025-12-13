@@ -1,0 +1,35 @@
+{
+    "type": "heading",
+    "version": "1.0.0",
+    "label": "Heading",
+    "category": "Content",
+    "icon": "mdi:format-header-1",
+    "description": "Add a heading to your content",
+    "keywords": ["heading", "title", "h1", "h2", "h3"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "justify": true,
+        "bold": true,
+        "italic": true,
+        "underline": true,
+        "clearFormat": true,
+        "headingLevel": true,
+        "colors": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "text": "",
+        "level": "h1",
+        "align": "left",
+        "color": "#333333",
+        "fontSize": "32px",
+        "fontWeight": "bold",
+        "lineHeight": "1.2",
+        "letterSpacing": "0"
+    }
+}

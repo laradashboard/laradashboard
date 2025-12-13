@@ -1,0 +1,24 @@
+{
+    "type": "code",
+    "version": "1.0.0",
+    "label": "Code",
+    "category": "Advanced",
+    "icon": "mdi:code-braces",
+    "description": "Add a code snippet",
+    "keywords": ["code", "snippet", "programming", "syntax"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "colors": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "code": "<?php echo \"hello\"; ?>",
+        "fontSize": "14px",
+        "backgroundColor": "#1e1e1e",
+        "textColor": "#d4d4d4",
+        "borderRadius": "8px"
+    }
+}

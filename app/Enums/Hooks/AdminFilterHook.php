@@ -24,6 +24,7 @@ enum AdminFilterHook: string
     case USER_DROPDOWN_BEFORE = 'filter.user_dropdown_before';
     case USER_DROPDOWN_AFTER_USER_INFO = 'filter.user_dropdown_after_user_info';
     case USER_DROPDOWN_AFTER_PROFILE_LINKS = 'filter.user_dropdown_after_profile_links';
+    case USER_DROPDOWN_AFTER_SETTINGS_LINK = 'filter.user_dropdown_after_settings_link';
     case USER_DROPDOWN_AFTER_LOGOUT = 'filter.user_dropdown_after_logout';
 
     // Sidebar menu.

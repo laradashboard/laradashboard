@@ -1,0 +1,29 @@
+{
+    "type": "social",
+    "version": "1.0.0",
+    "label": "Social",
+    "category": "Content",
+    "icon": "mdi:share-variant-outline",
+    "description": "Add social media links",
+    "keywords": ["social", "facebook", "twitter", "instagram", "linkedin", "youtube"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "align": "center",
+        "iconSize": "32px",
+        "gap": "12px",
+        "links": {
+            "facebook": "",
+            "twitter": "",
+            "instagram": "",
+            "linkedin": "",
+            "youtube": ""
+        }
+    }
+}

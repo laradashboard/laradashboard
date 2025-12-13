@@ -1,0 +1,26 @@
+{
+    "type": "text-editor",
+    "version": "1.0.0",
+    "label": "Text Editor",
+    "category": "Content",
+    "icon": "mdi:text-box-edit-outline",
+    "description": "Rich text editor with formatting",
+    "keywords": ["text", "editor", "rich", "wysiwyg", "formatting"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "colors": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "content": "",
+        "align": "left",
+        "color": "#333333",
+        "fontSize": "16px",
+        "lineHeight": "1.6"
+    }
+}

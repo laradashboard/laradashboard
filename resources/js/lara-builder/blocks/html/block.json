@@ -1,0 +1,19 @@
+{
+    "type": "html",
+    "version": "1.0.0",
+    "label": "HTML",
+    "category": "Advanced",
+    "icon": "mdi:code-tags",
+    "description": "Add custom HTML content",
+    "keywords": ["html", "code", "custom", "embed"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "code": "<div style=\"padding: 20px; text-align: center;\">Custom HTML content</div>"
+    }
+}

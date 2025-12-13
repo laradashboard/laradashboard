@@ -1,0 +1,28 @@
+{
+    "type": "image",
+    "version": "1.0.0",
+    "label": "Image",
+    "category": "Content",
+    "icon": "mdi:image-outline",
+    "description": "Add an image to your content",
+    "keywords": ["image", "picture", "photo", "media"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "src": "",
+        "alt": "Image description",
+        "width": "100%",
+        "height": "auto",
+        "customWidth": "",
+        "customHeight": "",
+        "align": "center",
+        "link": ""
+    }
+}

@@ -1,0 +1,142 @@
+{
+    "type": "accordion",
+    "version": "1.0.0",
+    "label": "Accordion",
+    "category": "Content",
+    "icon": "mdi:arrow-collapse-vertical",
+    "description": "Add collapsible accordion sections",
+    "keywords": ["accordion", "collapse", "expand", "faq"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "colors": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "items": [
+            {
+                "title": "Accordion Item 1",
+                "content": "Content for the first accordion item."
+            },
+            {
+                "title": "Accordion Item 2",
+                "content": "Content for the second accordion item."
+            }
+        ],
+        "independentToggle": false,
+        "transitionDuration": 200,
+        "headerBgColor": "#ffffff",
+        "headerBgColorActive": "#f9fafb",
+        "headerPadding": "16px",
+        "titleColor": "#1f2937",
+        "titleFontSize": "16px",
+        "titleFontWeight": "600",
+        "contentBgColor": "#ffffff",
+        "contentColor": "#4b5563",
+        "contentFontSize": "14px",
+        "contentPadding": "16px",
+        "iconColor": "#6b7280",
+        "iconPosition": "right",
+        "borderColor": "#e5e7eb",
+        "borderRadius": "8px"
+    },
+    "properties": [
+        {
+            "name": "items",
+            "type": "array",
+            "label": "Accordion Items"
+        },
+        {
+            "name": "independentToggle",
+            "type": "boolean",
+            "label": "Independent Toggle"
+        },
+        {
+            "name": "transitionDuration",
+            "type": "number",
+            "label": "Transition Duration (ms)"
+        },
+        {
+            "name": "headerBgColor",
+            "type": "color",
+            "label": "Header Background Color"
+        },
+        {
+            "name": "headerBgColorActive",
+            "type": "color",
+            "label": "Header Active Background Color"
+        },
+        {
+            "name": "headerPadding",
+            "type": "text",
+            "label": "Header Padding"
+        },
+        {
+            "name": "titleColor",
+            "type": "color",
+            "label": "Title Color"
+        },
+        {
+            "name": "titleFontSize",
+            "type": "text",
+            "label": "Title Font Size"
+        },
+        {
+            "name": "titleFontWeight",
+            "type": "select",
+            "label": "Title Font Weight",
+            "options": [
+                { "value": "400", "label": "Normal (400)" },
+                { "value": "500", "label": "Medium (500)" },
+                { "value": "600", "label": "Semi-bold (600)" },
+                { "value": "700", "label": "Bold (700)" }
+            ]
+        },
+        {
+            "name": "contentBgColor",
+            "type": "color",
+            "label": "Content Background Color"
+        },
+        {
+            "name": "contentColor",
+            "type": "color",
+            "label": "Content Color"
+        },
+        {
+            "name": "contentFontSize",
+            "type": "text",
+            "label": "Content Font Size"
+        },
+        {
+            "name": "contentPadding",
+            "type": "text",
+            "label": "Content Padding"
+        },
+        {
+            "name": "iconColor",
+            "type": "color",
+            "label": "Icon Color"
+        },
+        {
+            "name": "iconPosition",
+            "type": "select",
+            "label": "Icon Position",
+            "options": [
+                { "value": "left", "label": "Left" },
+                { "value": "right", "label": "Right" }
+            ]
+        },
+        {
+            "name": "borderColor",
+            "type": "color",
+            "label": "Border Color"
+        },
+        {
+            "name": "borderRadius",
+            "type": "text",
+            "label": "Border Radius"
+        }
+    ]
+}

@@ -1,0 +1,28 @@
+{
+    "type": "countdown",
+    "version": "1.0.0",
+    "label": "Countdown",
+    "category": "Advanced",
+    "icon": "mdi:timer-outline",
+    "description": "Add a countdown timer",
+    "keywords": ["countdown", "timer", "deadline", "urgency"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "colors": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "targetDate": "",
+        "targetTime": "23:59",
+        "title": "Sale Ends In",
+        "backgroundColor": "#1e293b",
+        "textColor": "#ffffff",
+        "numberColor": "#635bff",
+        "align": "center",
+        "expiredMessage": "This offer has expired!"
+    }
+}

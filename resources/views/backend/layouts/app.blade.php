@@ -27,6 +27,8 @@
 
     @include('backend.layouts.partials.integration-scripts')
 
+    @stack('head-scripts')
+
     {!! Hook::applyFilters(AdminFilterHook::ADMIN_HEAD, '') !!}
 </head>
 

@@ -1,0 +1,32 @@
+{
+    "type": "text",
+    "version": "1.0.0",
+    "label": "Text",
+    "category": "Content",
+    "icon": "mdi:format-text",
+    "description": "Add a paragraph of text to your content",
+    "keywords": ["text", "paragraph", "content", "body"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "justify": true,
+        "bold": true,
+        "italic": true,
+        "underline": true,
+        "link": true,
+        "clearFormat": true,
+        "colors": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "content": "",
+        "align": "left",
+        "color": "#666666",
+        "fontSize": "16px",
+        "lineHeight": "1.6"
+    }
+}

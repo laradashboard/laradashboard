@@ -13,7 +13,8 @@ class ActionLogController extends Controller
     {
         $this->authorize('viewAny', ActionLog::class);
 
-        $this->setBreadcrumbTitle(__('Action Logs'));
+        $this->setBreadcrumbTitle(__('Action Logs'))
+            ->setBreadcrumbIcon('lucide:scroll-text');
 
         return $this->renderViewWithBreadcrumbs('backend.pages.action-logs.index');
     }

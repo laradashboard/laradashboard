@@ -1,8 +1,8 @@
 @props(['enableLivewire' => false, 'placeholder' => null])
 
 @if($enableLivewire ?? false)
-    <div class="relative flex items-center justify-center min-w-auto md:min-w-[280px]" wire:ignore.self>
-        <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 mt-1">
+    <div class="relative flex items-center justify-center min-w-full md:min-w-[280px]" wire:ignore.self>
+        <span class="pointer-events-none absolute left-4 flex">
             <iconify-icon icon="lucide:search" class="text-gray-500 dark:text-gray-400" width="20" height="20"></iconify-icon>
         </span>
         <input
@@ -43,8 +43,8 @@
             @endif
         @endforeach
 
-        <div class="relative">
-            <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 mt-1">
+        <div class="relative flex items-center justify-center min-w-auto md:min-w-[280px]">
+            <span class="pointer-events-none absolute left-4 flex">
                 <iconify-icon icon="lucide:search" class="text-gray-500 dark:text-gray-400" width="20" height="20"></iconify-icon>
             </span>
             <input
