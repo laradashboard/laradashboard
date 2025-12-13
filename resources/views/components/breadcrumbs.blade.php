@@ -67,24 +67,37 @@
     </div>
 
     {{-- Action button area (replaces the old breadcrumb navigation) --}}
-    @if($action)
+    @if($action || isset($actions_before) || isset($actions_after))
         <div class="flex items-center gap-2">
-            @if(is_array($action) && isset($action['url']) && isset($action['label']))
-                @if(!isset($action['permission']) || auth()->user()->can($action['permission']))
-                    <a href="{{ $action['url'] }}" class="btn-primary flex items-center gap-2">
-                        <iconify-icon icon="{{ $action['icon'] ?? 'feather:plus' }}" height="16"></iconify-icon>
-                        {{ __($action['label']) }}
-                    </a>
+            {{-- Actions before slot - for additional buttons/dropdowns before main action --}}
+            @if(isset($actions_before))
+                {!! $actions_before !!}
+            @endif
+
+            {{-- Main action button --}}
+            @if($action)
+                @if(is_array($action) && isset($action['url']) && isset($action['label']))
+                    @if(!isset($action['permission']) || auth()->user()->can($action['permission']))
+                        <a href="{{ $action['url'] }}" class="btn-primary flex items-center gap-2">
+                            <iconify-icon icon="{{ $action['icon'] ?? 'feather:plus' }}" height="16"></iconify-icon>
+                            {{ __($action['label']) }}
+                        </a>
+                    @endif
+                @elseif(is_array($action) && isset($action['click']) && isset($action['label']))
+                    @if(!isset($action['permission']) || auth()->user()->can($action['permission']))
+                        <button @click="{{ $action['click'] }}" type="button" class="btn-primary flex items-center gap-2">
+                            <iconify-icon icon="{{ $action['icon'] ?? 'feather:plus' }}" height="16"></iconify-icon>
+                            {{ __($action['label']) }}
+                        </button>
+                    @endif
+                @else
+                    {!! $action !!}
                 @endif
-            @elseif(is_array($action) && isset($action['click']) && isset($action['label']))
-                @if(!isset($action['permission']) || auth()->user()->can($action['permission']))
-                    <button @click="{{ $action['click'] }}" type="button" class="btn-primary flex items-center gap-2">
-                        <iconify-icon icon="{{ $action['icon'] ?? 'feather:plus' }}" height="16"></iconify-icon>
-                        {{ __($action['label']) }}
-                    </button>
-                @endif
-            @else
-                {!! $action !!}
+            @endif
+
+            {{-- Actions after slot - for additional buttons/dropdowns after main action --}}
+            @if(isset($actions_after))
+                {!! $actions_after !!}
             @endif
         </div>
     @endif
