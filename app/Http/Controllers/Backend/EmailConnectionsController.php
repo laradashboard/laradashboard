@@ -65,8 +65,33 @@ class EmailConnectionsController extends Controller
 
         $provider = EmailProviderRegistry::getProvider($emailConnection->provider_type);
 
+        // Get credentials for editing (mask sensitive fields like password)
+        $credentials = $emailConnection->credentials ?? [];
+        $safeCredentials = [];
+        if ($provider) {
+            foreach ($provider->getFormFields() as $field) {
+                if (! ($field['is_credential'] ?? false)) {
+                    continue;
+                }
+                $fieldName = $field['name'];
+                // Return non-password credentials, mask passwords
+                if ($field['type'] === 'password') {
+                    // Indicate if password exists (for UI feedback) but don't return actual value
+                    $safeCredentials[$fieldName] = isset($credentials[$fieldName]) && ! empty($credentials[$fieldName])
+                        ? '********'
+                        : '';
+                } else {
+                    $safeCredentials[$fieldName] = $credentials[$fieldName] ?? '';
+                }
+            }
+        }
+
+        // Merge safe credentials into connection data
+        $connectionData = $emailConnection->toArray();
+        $connectionData['credentials'] = $safeCredentials;
+
         return response()->json([
-            'connection' => $emailConnection,
+            'connection' => $connectionData,
             'provider' => $provider ? [
                 'key' => $provider->getKey(),
                 'name' => $provider->getName(),

@@ -37,7 +37,10 @@ class EmailConnectionService
     public function update(EmailConnection $connection, array $data): EmailConnection
     {
         return DB::transaction(function () use ($connection, $data) {
-            $connection->fill($this->prepareData($data));
+            $data = $this->mergeCredentials($connection, $data);
+            $preparedData = $this->prepareData($data);
+
+            $connection->fill($preparedData);
             $connection->updated_by = Auth::id();
             $connection->save();
 
@@ -48,6 +51,29 @@ class EmailConnectionService
 
             return $connection;
         });
+    }
+
+    /**
+     * Merge new credentials with existing ones.
+     * Preserves existing values when new values are empty or masked (********).
+     */
+    protected function mergeCredentials(EmailConnection $connection, array $data): array
+    {
+        $existingCredentials = $connection->credentials ?? [];
+        $newCredentials = $data['credentials'] ?? [];
+
+        // Merge: keep existing value if new value is empty or masked
+        $mergedCredentials = $existingCredentials;
+        foreach ($newCredentials as $key => $value) {
+            // Only update if new value is not empty and not a masked password
+            if (! empty($value) && $value !== '********') {
+                $mergedCredentials[$key] = $value;
+            }
+        }
+
+        $data['credentials'] = $mergedCredentials;
+
+        return $data;
     }
 
     /**

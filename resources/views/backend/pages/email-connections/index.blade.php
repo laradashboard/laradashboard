@@ -29,7 +29,7 @@
                 is_default: connection.is_default,
                 priority: connection.priority,
                 settings: connection.settings || {},
-                credentials: {},
+                credentials: connection.credentials || {},
             };
         }
     };

@@ -102,11 +102,22 @@
                                         <span x-show="field.required" class="text-red-500">*</span>
                                     </label>
 
-                                    <!-- Text/Email Input -->
-                                    <template x-if="field.type === 'text' || field.type === 'email'">
+                                    <!-- Text/Email Input (Credential) -->
+                                    <template x-if="(field.type === 'text' || field.type === 'email') && field.is_credential">
                                         <input
                                             :type="field.type"
-                                            x-model="field.is_credential ? formData.credentials[field.name] : formData.settings[field.name]"
+                                            x-model="formData.credentials[field.name]"
+                                            class="form-control"
+                                            :required="field.required"
+                                            :placeholder="field.placeholder"
+                                        >
+                                    </template>
+
+                                    <!-- Text/Email Input (Setting) -->
+                                    <template x-if="(field.type === 'text' || field.type === 'email') && !field.is_credential">
+                                        <input
+                                            :type="field.type"
+                                            x-model="formData.settings[field.name]"
                                             class="form-control"
                                             :required="field.required"
                                             :placeholder="field.placeholder"
@@ -125,11 +136,22 @@
                                         >
                                     </template>
 
-                                    <!-- Number Input -->
-                                    <template x-if="field.type === 'number'">
+                                    <!-- Number Input (Credential) -->
+                                    <template x-if="field.type === 'number' && field.is_credential">
                                         <input
                                             type="number"
-                                            x-model="field.is_credential ? formData.credentials[field.name] : formData.settings[field.name]"
+                                            x-model="formData.credentials[field.name]"
+                                            class="form-control"
+                                            :required="field.required"
+                                            :placeholder="field.placeholder"
+                                        >
+                                    </template>
+
+                                    <!-- Number Input (Setting) -->
+                                    <template x-if="field.type === 'number' && !field.is_credential">
+                                        <input
+                                            type="number"
+                                            x-model="formData.settings[field.name]"
                                             class="form-control"
                                             :required="field.required"
                                             :placeholder="field.placeholder"
@@ -247,25 +269,36 @@
                     const data = await response.json();
                     this.provider = data.provider;
 
-                    // Initialize settings with defaults
-                    if (this.provider && this.provider.fields) {
-                        this.provider.fields.forEach(field => {
-                            if (field.default !== undefined) {
-                                if (field.is_credential) {
-                                    this.formData.credentials[field.name] = field.default;
-                                } else {
-                                    this.formData.settings[field.name] = field.default;
-                                }
-                            }
-                        });
-                    }
-
-                    // If editing, load existing data
+                    // If editing, load existing data first
                     if (store.editingId) {
                         this.formData = { ...this.formData, ...store.formData };
+                        // Ensure credentials object exists
+                        if (!this.formData.credentials) {
+                            this.formData.credentials = {};
+                        }
+                        if (!this.formData.settings) {
+                            this.formData.settings = {};
+                        }
                     } else {
                         // Auto-generate default connection name for new connections
                         this.formData.name = this.provider ? `${this.provider.name} Connection` : '';
+                    }
+
+                    // Initialize ALL fields (not just those with defaults) to ensure Alpine reactivity
+                    if (this.provider && this.provider.fields) {
+                        this.provider.fields.forEach(field => {
+                            if (field.is_credential) {
+                                // Only set if not already set (preserve existing values when editing)
+                                if (this.formData.credentials[field.name] === undefined) {
+                                    this.formData.credentials[field.name] = field.default ?? '';
+                                }
+                            } else {
+                                // Only set if not already set (preserve existing values when editing)
+                                if (this.formData.settings[field.name] === undefined) {
+                                    this.formData.settings[field.name] = field.default ?? '';
+                                }
+                            }
+                        });
                     }
                 } catch (error) {
                     console.error('Error loading provider fields:', error);
