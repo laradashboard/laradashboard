@@ -74,14 +74,20 @@ const PreformattedBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }
     // Focus the editor when selected
     useEffect(() => {
         if (isSelected && editorRef.current) {
-            editorRef.current.focus();
-            // Place cursor at the end
-            const range = document.createRange();
-            range.selectNodeContents(editorRef.current);
-            range.collapse(false);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
+            // Use requestAnimationFrame to ensure focus happens after click event completes
+            // This is necessary when inserting blocks via click from the BlockPanel
+            requestAnimationFrame(() => {
+                if (editorRef.current) {
+                    editorRef.current.focus();
+                    // Place cursor at the end
+                    const range = document.createRange();
+                    range.selectNodeContents(editorRef.current);
+                    range.collapse(false);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            });
         }
     }, [isSelected]);
 

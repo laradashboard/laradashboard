@@ -51,7 +51,13 @@ export default function ListBlock({
             editorRef.current.innerHTML = items
                 .map((item) => `<li>${item || "<br>"}</li>`)
                 .join("");
-            editorRef.current.focus();
+            // Use requestAnimationFrame to ensure focus happens after click event completes
+            // This is necessary when inserting blocks via click from the BlockPanel
+            requestAnimationFrame(() => {
+                if (editorRef.current) {
+                    editorRef.current.focus();
+                }
+            });
         }
     }, [isSelected]);
 
