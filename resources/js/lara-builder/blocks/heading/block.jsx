@@ -9,6 +9,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { __ } from "@lara-builder/i18n";
 import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
 import SlashCommandMenu from "../../components/SlashCommandMenu";
+import { useEditableContent } from "../../core/hooks/useEditableContent";
 
 const HeadingBlock = ({
     props,
@@ -67,6 +68,16 @@ const HeadingBlock = ({
         }
     }, []);
 
+    // Use shared hook for content change detection
+    const { handleContentChange, isEmpty: isContentEmpty } = useEditableContent({
+        editorRef,
+        contentKey: "text",
+        useInnerHTML: true,
+        propsRef,
+        onUpdateRef,
+        lastContentRef: lastPropsText,
+    });
+
     // Handle Enter key to create new text block, Shift+Enter for line break
     // Handle Backspace on empty content to delete block
     const handleKeyDown = useCallback((e) => {
@@ -104,12 +115,7 @@ const HeadingBlock = ({
         // Backspace on empty content deletes the block
         if (e.key === "Backspace") {
             const content = editorRef.current?.innerHTML || "";
-            // Check if content is empty (or just has <br> or whitespace)
-            const isEmpty =
-                !content ||
-                content === "<br>" ||
-                content.replace(/<br\s*\/?>/gi, "").trim() === "";
-            if (isEmpty) {
+            if (isContentEmpty(content)) {
                 e.preventDefault();
                 e.stopPropagation();
                 if (onDeleteRef.current) {
@@ -125,28 +131,24 @@ const HeadingBlock = ({
             setSlashQuery("");
         }
         // Shift+Enter allows default behavior (line break)
-    }, [showSlashMenu]);
+    }, [showSlashMenu, isContentEmpty]);
 
     const handleInput = useCallback(() => {
-        if (editorRef.current) {
-            const newText = editorRef.current.innerHTML;
-            const plainContent = getPlainContent();
+        // Handle content change (only updates if actually changed)
+        handleContentChange();
 
-            lastPropsText.current = newText;
-            onUpdateRef.current({ ...propsRef.current, text: newText });
-
-            // Check for slash command
-            if (plainContent.startsWith("/")) {
-                const query = plainContent.slice(1);
-                setSlashQuery(query);
-                setMenuPosition(calculateMenuPosition());
-                setShowSlashMenu(true);
-            } else {
-                setShowSlashMenu(false);
-                setSlashQuery("");
-            }
+        // Check for slash command
+        const plainContent = getPlainContent();
+        if (plainContent.startsWith("/")) {
+            const query = plainContent.slice(1);
+            setSlashQuery(query);
+            setMenuPosition(calculateMenuPosition());
+            setShowSlashMenu(true);
+        } else {
+            setShowSlashMenu(false);
+            setSlashQuery("");
         }
-    }, [getPlainContent, calculateMenuPosition]);
+    }, [handleContentChange, getPlainContent, calculateMenuPosition]);
 
     // Stable align change handler that uses refs
     const handleAlignChange = useCallback((newAlign) => {
@@ -247,14 +249,20 @@ const HeadingBlock = ({
     // Focus the editor when selected
     useEffect(() => {
         if (isSelected && editorRef.current) {
-            editorRef.current.focus();
-            // Place cursor at the end
-            const range = document.createRange();
-            range.selectNodeContents(editorRef.current);
-            range.collapse(false);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
+            // Use requestAnimationFrame to ensure focus happens after click event completes
+            // This is necessary when inserting blocks via click from the BlockPanel
+            requestAnimationFrame(() => {
+                if (editorRef.current) {
+                    editorRef.current.focus();
+                    // Place cursor at the end
+                    const range = document.createRange();
+                    range.selectNodeContents(editorRef.current);
+                    range.collapse(false);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            });
         }
     }, [isSelected]);
 
@@ -294,10 +302,7 @@ const HeadingBlock = ({
     const baseStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);
 
     // Check if content is empty for placeholder display
-    const isEmpty =
-        !props.text ||
-        props.text === "<br>" ||
-        props.text.replace(/<br\s*\/?>/gi, "").trim() === "";
+    const isEmpty = isContentEmpty(props.text);
 
     // Check if showing slash command
     const isSlashCommand = props.text && getPlainContent().startsWith("/");

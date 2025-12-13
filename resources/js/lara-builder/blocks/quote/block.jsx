@@ -122,13 +122,19 @@ const QuoteBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }) => {
     // Focus the quote field when selected
     useEffect(() => {
         if (isSelected && quoteRef.current) {
-            quoteRef.current.focus();
-            const range = document.createRange();
-            range.selectNodeContents(quoteRef.current);
-            range.collapse(false);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
+            // Use requestAnimationFrame to ensure focus happens after click event completes
+            // This is necessary when inserting blocks via click from the BlockPanel
+            requestAnimationFrame(() => {
+                if (quoteRef.current) {
+                    quoteRef.current.focus();
+                    const range = document.createRange();
+                    range.selectNodeContents(quoteRef.current);
+                    range.collapse(false);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            });
         }
     }, [isSelected]);
 

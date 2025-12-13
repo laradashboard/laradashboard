@@ -19,8 +19,8 @@
             </h3>
             <button x-on:click="uploadModalOpen = false"
                     aria-label="close modal"
-                    class="text-gray-400 hover:bg-gray-200 hover:text-gray-700 rounded-md p-1 dark:hover:bg-gray-600 dark:hover:text-white">
-                <iconify-icon icon="lucide:x" class="w-5 h-5"></iconify-icon>
+                    class="text-gray-400 hover:bg-gray-200 hover:text-gray-700 rounded-md p-2 dark:hover:bg-gray-600 dark:hover:text-white flex justify-center items-center">
+                <iconify-icon icon="lucide:x"></iconify-icon>
             </button>
         </div>
         

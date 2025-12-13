@@ -16,7 +16,8 @@
                 if (this.selectAll) {
                     this.selectedModules = [];
                 } else {
-                    this.selectedModules = [...document.querySelectorAll('.module-checkbox')].map(cb => cb.value);
+                    // Use Set to deduplicate since both grid and list views have checkboxes
+                    this.selectedModules = [...new Set([...document.querySelectorAll('.module-checkbox')].map(cb => cb.value))];
                 }
                 this.selectAll = !this.selectAll;
             },
@@ -125,7 +126,8 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             @foreach ($modules as $module)
                                 <div tabindex="0"
-                                    class="rounded-md border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-brand-800 transition-all duration-200 hover:shadow-md"
+                                    @click="toggleSelection('{{ $module->name }}')"
+                                    class="cursor-pointer rounded-md border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-brand-800 transition-all duration-200 hover:shadow-md"
                                     :class="{ 'ring-2 ring-primary dark:ring-brand-800': isSelected('{{ $module->name }}') }">
                                     <div class="flex justify-between" x-data="{ deleteModalOpen: false, errorModalOpen: false, errorMessage: '', dropdownOpen: false }">
                                         <div class="py-3 flex items-start gap-3">
@@ -134,7 +136,7 @@
                                                 value="{{ $module->name }}"
                                                 class="module-checkbox form-checkbox mt-1"
                                                 :checked="isSelected('{{ $module->name }}')"
-                                                @change="toggleSelection('{{ $module->name }}')">
+                                                @click.stop="toggleSelection('{{ $module->name }}')">
                                             <div>
                                                 <h2>
                                                     <i class="bi {{ $module->icon }} text-3xl text-gray-500 dark:text-gray-300"></i>
@@ -145,7 +147,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="relative">
+                                        <div class="relative" @click.stop>
                                             <button @click="dropdownOpen = !dropdownOpen" class="inline-flex items-center h-9 p-2 text-sm font-medium text-center text-gray-700 bg-white rounded-md hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600" type="button">
                                                 <iconify-icon icon="lucide:more-vertical"></iconify-icon>
                                             </button>

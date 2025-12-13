@@ -11,15 +11,16 @@ use App\Models\EmailTemplate;
 use App\Models\Notification;
 use App\Services\Emails\EmailVariable;
 use App\Services\Emails\EmailSender;
+use App\Services\Emails\Mailer;
 use App\Support\Facades\Hook;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class SendTestEmailController extends Controller
 {
     public function __construct(
         private readonly EmailVariable $emailVariable,
+        private readonly Mailer $mailer,
     ) {
     }
 
@@ -106,11 +107,11 @@ class SendTestEmailController extends Controller
             $fromName = 'Lara Dashboard';
         }
 
-        Mail::send([], [], function ($message) use ($html, $subject, $recipient, $fromEmail, $fromName, $replyTo) {
+        // Use the unified Mailer service which respects email connections
+        $this->mailer->html($html, function ($message) use ($subject, $recipient, $fromEmail, $fromName, $replyTo) {
             $message->to($recipient)
                 ->from($fromEmail, $fromName)
-                ->subject($subject)
-                ->html($html);
+                ->subject($subject);
             if (! empty($replyTo)) {
                 $message->replyTo($replyTo[0] ?? $replyTo, $replyTo[1] ?? null);
             }

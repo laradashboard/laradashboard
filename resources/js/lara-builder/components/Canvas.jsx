@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -40,15 +40,54 @@ const DropZone = ({ id, isFirst = false }) => {
 
 const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, onInsertBlockAfter, onReplaceBlock, totalBlocks, blockIndex, context }) => {
     const [textFormatProps, setTextFormatProps] = useState(null);
+    const [isTyping, setIsTyping] = useState(false);
+    const typingTimeoutRef = useRef(null);
+    const blockRef = useRef(null);
+    const blockPropsRef = useRef(block.props);
+
+    // Keep block props ref updated
+    blockPropsRef.current = block.props;
 
     const {
         attributes,
         listeners,
         setNodeRef,
+        setActivatorNodeRef,
         transform,
         transition,
         isDragging,
     } = useSortable({ id: block.id });
+
+    // Detect typing in contentEditable elements (only real keyboard typing, not toolbar actions)
+    const handleInput = useCallback((e) => {
+        // Only trigger typing mode for actual keyboard input, not programmatic changes
+        // Check if the input was from a key press (not from execCommand or other programmatic changes)
+        if (!e.inputType || e.inputType.startsWith('insert') || e.inputType.startsWith('delete')) {
+            setIsTyping(true);
+            // Clear existing timeout
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
+            }
+            // Hide toolbar while typing, show after 1.5s pause
+            typingTimeoutRef.current = setTimeout(() => {
+                setIsTyping(false);
+            }, 1500);
+        }
+    }, []);
+
+    // Setup input listener for typing detection
+    useEffect(() => {
+        const blockElement = blockRef.current;
+        if (!blockElement) return;
+
+        blockElement.addEventListener('input', handleInput);
+        return () => {
+            blockElement.removeEventListener('input', handleInput);
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
+            }
+        };
+    }, [handleInput]);
 
     // Note: Layout styles and custom CSS are now applied directly to each block's
     // main element (inside the block component), not to this wrapper.
@@ -112,26 +151,12 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
         },
     } : null;
 
-    // Heading level props for blocks with headingLevel support
-    const headingLevelProps = supports.headingLevel ? {
-        level: block.props?.level || 'h1',
-        onLevelChange: (newLevel) => {
-            // Get default font size for the new level
-            const fontSizeMap = {
-                h1: '32px',
-                h2: '28px',
-                h3: '24px',
-                h4: '20px',
-                h5: '18px',
-                h6: '16px',
-            };
-            onUpdate(block.id, {
-                ...block.props,
-                level: newLevel,
-                fontSize: fontSizeMap[newLevel] || '32px',
-            });
-        },
-    } : null;
+
+    // Drag handle ref for drag-and-drop
+    const dragHandleProps = {
+        ref: setActivatorNodeRef,
+        ...listeners,
+    };
 
     if (!BlockComponent) {
         return (
@@ -144,21 +169,37 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     const canMoveUp = blockIndex > 0;
     const canMoveDown = blockIndex < totalBlocks - 1;
 
+    // Determine if block is text-editable (has text formatting or is text-editor)
+    const isTextEditable = hasTextFormatting || hasSelfEditor;
+
+    // Cursor: text blocks get text cursor when selected, otherwise grab cursor
+    const cursorClass = isSelected && isTextEditable
+        ? 'cursor-text'
+        : 'cursor-grab active:cursor-grabbing';
+
+    // Show toolbar when selected, not typing, and not dragging
+    const showToolbar = isSelected && !isTyping && !isDragging;
+
+    // Combine refs
+    const setRefs = (el) => {
+        setNodeRef(el);
+        blockRef.current = el;
+    };
+
     return (
         <div
-            ref={setNodeRef}
+            ref={setRefs}
             style={style}
-            className={`${blockClasses} relative group cursor-grab active:cursor-grabbing ${isDragging ? 'z-50' : ''} ${isSelected ? 'lb-block-selected' : ''}`}
+            className={`${blockClasses} relative group ${cursorClass} ${isDragging ? 'z-50' : ''} ${isSelected ? 'lb-block-selected' : ''}`}
             data-block-type={block.type}
             onClick={(e) => {
                 e.stopPropagation();
                 onSelect(block.id);
             }}
             {...attributes}
-            {...listeners}
         >
             {/* Block Toolbar at TOP - for regular blocks */}
-            {isSelected && !toolbarAtBottom && (
+            {showToolbar && !toolbarAtBottom && (
                 <BlockToolbar
                     block={block}
                     onMoveUp={() => onMoveBlock(block.id, 'up')}
@@ -170,7 +211,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     textFormatProps={textFormatProps}
                     alignProps={alignProps}
                     columnsProps={columnsProps}
-                    headingLevelProps={headingLevelProps}
+                    dragHandleProps={dragHandleProps}
                 />
             )}
 
@@ -198,7 +239,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
             />
 
             {/* Block Toolbar at BOTTOM - for blocks with their own toolbar (like text-editor) */}
-            {isSelected && toolbarAtBottom && (
+            {showToolbar && toolbarAtBottom && (
                 <BlockToolbar
                     block={block}
                     onMoveUp={() => onMoveBlock(block.id, 'up')}
@@ -210,7 +251,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     textFormatProps={textFormatProps}
                     alignProps={alignProps}
                     columnsProps={columnsProps}
-                    headingLevelProps={headingLevelProps}
+                    dragHandleProps={dragHandleProps}
                     position="bottom"
                 />
             )}

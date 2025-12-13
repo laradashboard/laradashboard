@@ -97,6 +97,26 @@ trait HasBreadcrumbs
         return $this;
     }
 
+    /**
+     * Set the action button with a click handler (for Alpine.js or JavaScript).
+     *
+     * @param  string  $click  The click handler expression (e.g., "uploadModalOpen = true" for Alpine.js)
+     * @param  string  $label  The button label
+     * @param  string|null  $icon  The icon to display
+     * @param  string|null  $permission  The permission required to see this button
+     */
+    public function setBreadcrumbActionClick(string $click, string $label, ?string $icon = 'feather:plus', ?string $permission = null): self
+    {
+        $this->breadcrumbs['action'] = [
+            'click' => $click,
+            'label' => $label,
+            'icon' => $icon,
+            'permission' => $permission,
+        ];
+
+        return $this;
+    }
+
     public function renderViewWithBreadcrumbs($view, $data = []): View
     {
         return view($view, [...$data, 'breadcrumbs' => $this->breadcrumbs]);

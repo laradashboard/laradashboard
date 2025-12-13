@@ -38,7 +38,9 @@ const DraggableBlockItem = ({ block, onAddBlock }) => {
         }
     };
 
-    const handleClick = () => {
+    const handleClick = (e) => {
+        // Stop propagation to prevent the sidebar's onClick from deselecting the block
+        e.stopPropagation();
         // Only add block if user didn't drag
         if (!wasDragged && onAddBlock) {
             onAddBlock(block.type);

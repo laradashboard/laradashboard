@@ -23,7 +23,7 @@
         "remove": true
     },
     "defaultProps": {
-        "text": "Your Heading Here",
+        "text": "",
         "level": "h1",
         "align": "left",
         "color": "#333333",
