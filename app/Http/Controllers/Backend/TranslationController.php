@@ -57,7 +57,16 @@ class TranslationController extends Controller
         // Calculate translation statistics
         $translationStats = $this->translationService->calculateTranslationStats($translations, $enTranslations, $selectedGroup);
 
-        return view('backend.pages.translations.index', compact(
+         $this->setBreadcrumbTitle(__('Translations'))
+            ->setBreadcrumbIcon('lucide:languages')
+            ->setBreadcrumbActionClick(
+                "addLanguageModalOpen = true",
+                __('New Translation'),
+                'feather:plus',
+                'settings.view'
+            );
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.translations.index', compact(
             'languages',
             'groups',
             'enTranslations',
@@ -67,13 +76,7 @@ class TranslationController extends Controller
             'availableGroups',
             'allLanguages',
             'translationStats',
-        ))
-            ->with([
-                'breadcrumbs' => [
-                    'title' => __('Translations'),
-                    'icon' => 'lucide:languages',
-                ],
-            ]);
+        ));
     }
 
     /**
@@ -81,7 +84,7 @@ class TranslationController extends Controller
      */
     public function create(Request $request): RedirectResponse
     {
-        $this->authorize('update', Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $request->validate([
             'language_code' => 'required|string|max:10',
@@ -106,6 +109,11 @@ class TranslationController extends Controller
             'translations' => "Created new translation file for {$languageName}, group: {$group}",
         ]);
 
+        session()->flash(__('New language :language (:group) has been added successfully.', [
+            'language' => $languageName,
+            'group' => $group,
+        ]));
+
         return redirect()
             ->route('admin.translations.index', ['lang' => $lang, 'group' => $group])
             ->with('success', "New language {$languageName} ({$group}) has been added successfully.");
@@ -116,7 +124,7 @@ class TranslationController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
-        $this->authorize('update', Setting::class);
+        $this->authorize('manage', Setting::class);
 
         $lang = $request->input('lang', 'bn');
         $group = $request->input('group', 'json');
@@ -143,6 +151,11 @@ class TranslationController extends Controller
             'translations' => "Updated {$languageName} translations for group '{$group}'",
             'count' => $translationCount,
         ]);
+
+        session()->flash(__('Translations for :language (:group) have been updated successfully.', [
+            'language' => $languageName,
+            'group' => $group,
+        ]));
 
         return redirect()
             ->route('admin.translations.index', ['lang' => $lang, 'group' => $group])
