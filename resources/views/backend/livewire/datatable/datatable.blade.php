@@ -9,6 +9,7 @@
     :noResultsMessage="$noResultsMessage"
     :customNoResultsMessage="$customNoResultsMessage"
     :data="$data"
+    :enableNewResourceLink="true"
     :newResourceLinkPermission="$newResourceLinkPermission"
     :newResourceLinkRouteName="$newResourceLinkRouteName"
     :customNewResourceLink="$this->getCustomNewResourceLink()"
