@@ -31,7 +31,7 @@
                 </div>
             @endisset
 
-            <div class="py-8 md:px-8 space-y-8 p-4 {{ isset($footer) ? 'border-b border-gray-200 dark:border-gray-800' : '' }} {{ $bodyClass ?? '' }}">
+            <div class="py-8 md:px-8 space-y-6 p-4 {{ isset($footer) ? 'border-b border-gray-200 dark:border-gray-800' : '' }} {{ $bodyClass ?? '' }}">
                 {{ $slot }}
             </div>
 
