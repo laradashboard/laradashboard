@@ -12,7 +12,6 @@ use App\Services\Emails\EmailTemplateService;
 use App\Http\Requests\NotificationRequest;
 use App\Models\Notification;
 use App\Models\Setting;
-use App\Services\Emails\EmailVariable;
 use App\Services\NotificationTypeRegistry;
 use App\Services\ReceiverTypeRegistry;
 
@@ -21,7 +20,6 @@ class NotificationsController extends Controller
     public function __construct(
         private readonly NotificationService $notificationService,
         private readonly EmailTemplateService $emailTemplateService,
-        private readonly EmailVariable $emailVariable,
     ) {
     }
 
@@ -31,7 +29,6 @@ class NotificationsController extends Controller
 
         $this->setBreadcrumbTitle(__('Notifications'))
             ->setBreadcrumbIcon('lucide:bell')
-            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->setBreadcrumbActionButton(
                 route('admin.notifications.create'),
                 __('New Notification'),
