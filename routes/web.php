@@ -14,7 +14,7 @@ use App\Http\Controllers\Backend\EmailTemplateController;
 use App\Http\Controllers\Backend\LocaleController;
 use App\Http\Controllers\Backend\MediaController;
 use App\Http\Controllers\Backend\ModuleController;
-use App\Http\Controllers\Backend\NotificationsController;
+use App\Http\Controllers\Backend\NotificationController;
 use App\Http\Controllers\Backend\SendTestEmailController;
 use App\Http\Controllers\Backend\PermissionController;
 use App\Http\Controllers\Backend\PostController;
@@ -110,7 +110,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
         });
 
         // Notifications Management Routes.
-        Route::resource('notifications', NotificationsController::class);
+        Route::resource('notifications', NotificationController::class);
     });
 
     // Translation Routes.
