@@ -79,7 +79,7 @@
                 @php
                     $isPill = is_array($action) && ($action['pill'] ?? false);
                     $btnClass = $isPill
-                        ? 'btn-primary flex items-center gap-2 rounded-full'
+                        ? 'btn-default flex items-center gap-2 rounded-full'
                         : 'btn-primary flex items-center gap-2';
                 @endphp
                 @if(is_array($action) && isset($action['url']) && isset($action['label']))
