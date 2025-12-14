@@ -57,14 +57,14 @@ class TranslationController extends Controller
         // Calculate translation statistics
         $translationStats = $this->translationService->calculateTranslationStats($translations, $enTranslations, $selectedGroup);
 
-         $this->setBreadcrumbTitle(__('Translations'))
-            ->setBreadcrumbIcon('lucide:languages')
-            ->setBreadcrumbActionClick(
-                "addLanguageModalOpen = true",
-                __('New Translation'),
-                'feather:plus',
-                'settings.view'
-            );
+        $this->setBreadcrumbTitle(__('Translations'))
+           ->setBreadcrumbIcon('lucide:languages')
+           ->setBreadcrumbActionClick(
+               "addLanguageModalOpen = true",
+               __('New Translation'),
+               'feather:plus',
+               'settings.view'
+           );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.translations.index', compact(
             'languages',
