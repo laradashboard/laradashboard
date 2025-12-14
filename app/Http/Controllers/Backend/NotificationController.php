@@ -15,7 +15,7 @@ use App\Models\Setting;
 use App\Services\NotificationTypeRegistry;
 use App\Services\ReceiverTypeRegistry;
 
-class NotificationsController extends Controller
+class NotificationController extends Controller
 {
     public function __construct(
         private readonly NotificationService $notificationService,
@@ -98,7 +98,14 @@ class NotificationsController extends Controller
         $this->setBreadcrumbTitle(__('Edit Notification'))
             ->setBreadcrumbIcon('lucide:bell')
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
-            ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
+            ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'))
+            ->setBreadcrumbActionButton(
+                route('admin.notifications.show', $notification->id),
+                __('View Notification'),
+                'lucide:eye',
+                'settings.view',
+                true,
+            );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.edit', [
             'notification' => $notification,
