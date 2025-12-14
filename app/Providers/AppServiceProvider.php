@@ -3,10 +3,8 @@
 namespace App\Providers;
 
 use App\Enums\Hooks\AdminFilterHook;
-use Modules\Crm\Models\Contact;
 use App\Models\Setting;
 use App\Models\User;
-use App\Observers\ContactObserver;
 use App\Observers\EmailObserver;
 use App\Services\EmailConnectionService;
 use App\Services\EmailProviderRegistry;
@@ -96,9 +94,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Register email observer for automatic unsubscribe links
         Event::listen(MessageSending::class, [EmailObserver::class, 'sending']);
-
-        // Register contact observer for automatic email subscriptions
-        Contact::observe(ContactObserver::class);
 
         // Register built-in email providers
         EmailProviderRegistry::registerProvider(PhpMailProvider::class);
