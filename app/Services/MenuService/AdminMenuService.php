@@ -123,7 +123,7 @@ class AdminMenuService
             'label' => __('Modules'),
             'icon' => 'lucide:boxes',
             'route' => route('admin.modules.index'),
-            'active' => Route::is('admin.modules.index'),
+            'active' => Route::is('admin.modules.index') || Route::is('admin.modules.upload'),
             'id' => 'modules',
             'priority' => 25,
             'permissions' => 'module.view',
