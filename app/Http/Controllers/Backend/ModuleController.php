@@ -23,7 +23,7 @@ class ModuleController extends Controller
         $this->authorize('viewAny', Module::class);
 
         $this->setBreadcrumbTitle(__('Modules'))
-            ->setBreadcrumbIcon('lucide:puzzle')
+            ->setBreadcrumbIcon('lucide:boxes')
             ->setBreadcrumbActionButton(
                 route('admin.modules.upload'),
                 __('Install Module'),
@@ -41,7 +41,7 @@ class ModuleController extends Controller
         $this->authorize('create', Module::class);
 
         $this->setBreadcrumbTitle(__('Install Modules'))
-            ->setBreadcrumbIcon('lucide:puzzle')
+            ->setBreadcrumbIcon('lucide:boxes')
             ->addBreadcrumbItem(__('Modules'), route('admin.modules.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.modules.upload', [

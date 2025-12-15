@@ -95,34 +95,6 @@
 
         {{-- Sidebar (Right - 1 column) --}}
         <div class="lg:col-span-1 space-y-6">
-            {{-- Actions Card --}}
-            <x-card.card bodyClass="!p-4 !space-y-2">
-                <x-slot:header>{{ __('Actions') }}</x-slot:header>
-
-                <div>
-                    <h1 class="text-2xl lg:text-3xl font-semibold text-gray-900 dark:text-white">{{ $post->title }}</h1>
-                    @if($post->slug)
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            <iconify-icon icon="lucide:link" class="inline-block mr-1"></iconify-icon>
-                            {{ $post->slug }}
-                        </p>
-                    @endif
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    @if (auth()->user()->can('post.edit'))
-                        <a href="{{ route('admin.posts.edit', [$postType, $post->id]) }}" class="btn-primary w-full justify-center">
-                            <iconify-icon icon="lucide:pencil" class="mr-2"></iconify-icon>
-                            {{ __('Edit :type', ['type' => __(ucfirst($postType))]) }}
-                        </a>
-                    @endif
-                    <a href="{{ route('admin.posts.index', $postType) }}" class="btn-default w-full justify-center">
-                        <iconify-icon icon="lucide:arrow-left" class="mr-2"></iconify-icon>
-                        {{ __('Back to List') }}
-                    </a>
-                </div>
-            </x-card.card>
-
             {{-- Featured image --}}
             @if($post->hasFeaturedImage())
                 <x-card.card bodyClass="!p-4 !space-y-0">
@@ -144,14 +116,19 @@
             @endif
 
             {{-- Status & Info Card --}}
-            <x-card.card bodyClass="!p-4 !space-y-4">
+            <x-card.card bodyClass="!space-y-4 pt-2">
                 <x-slot:header>{{ __('Status & Info') }}</x-slot:header>
+                {{-- Slug --}}
+                <div>
+                    <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Slug') }}</label>
+                    <p class="mt-1 text-sm text-gray-700 dark:text-gray-300 break-words">{{ $post->slug }}</p>
+                </div>
 
                 {{-- Status --}}
                 <div>
                     <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Status') }}</label>
                     <div class="mt-1">
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium {{ get_post_status_class($post->status) }}">
+                        <span class="badge {{ get_post_status_class($post->status) }}">
                             {{ ucfirst($post->status) }}
                         </span>
                     </div>
@@ -162,8 +139,7 @@
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Published') }}</label>
                         <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                            {{ $post->published_at->format('M d, Y') }}
-                            <span class="text-gray-500 dark:text-gray-400">{{ $post->published_at->format('h:i A') }}</span>
+                            {{ $post->published_at->format('M d, Y h:i A') }}
                         </p>
                     </div>
                 @endif
@@ -187,8 +163,7 @@
                 <div>
                     <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Created') }}</label>
                     <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                        {{ $post->created_at->format('M d, Y') }}
-                        <span class="text-gray-500 dark:text-gray-400">{{ $post->created_at->format('h:i A') }}</span>
+                        {{ $post->created_at->format('M d, Y h:i A') }}
                     </p>
                 </div>
 
@@ -197,8 +172,7 @@
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Last Updated') }}</label>
                         <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                            {{ $post->updated_at->format('M d, Y') }}
-                            <span class="text-gray-500 dark:text-gray-400">{{ $post->updated_at->format('h:i A') }}</span>
+                            {{ $post->updated_at->format('M d, Y h:i A') }}
                         </p>
                     </div>
                 @endif

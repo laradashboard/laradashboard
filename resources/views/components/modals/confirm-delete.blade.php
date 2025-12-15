@@ -10,18 +10,19 @@
     'wireClick' => null,
 ])
 
-<div
-    x-cloak
-    x-show="{{ $modalTrigger }}"
-    x-transition.opacity.duration.200ms
-    x-trap.inert.noscroll="{{ $modalTrigger }}"
-    x-on:keydown.esc.window="{{ $modalTrigger }} = false"
-    x-on:click.self="{{ $modalTrigger }} = false"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-md"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="{{ $id }}-title"
->
+<template x-teleport="body">
+    <div
+        x-cloak
+        x-show="{{ $modalTrigger }}"
+        x-transition.opacity.duration.200ms
+        x-trap.inert.noscroll="{{ $modalTrigger }}"
+        x-on:keydown.esc.window="{{ $modalTrigger }} = false"
+        x-on:click.self="{{ $modalTrigger }} = false"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-md"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="{{ $id }}-title"
+    >
     <div
         x-show="{{ $modalTrigger }}"
         x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity"
@@ -87,4 +88,5 @@
             @endif
         </div>
     </div>
-</div>
+    </div>
+</template>

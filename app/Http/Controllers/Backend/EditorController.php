@@ -18,15 +18,16 @@ class EditorController extends Controller
     {
         $this->authorize('create', Media::class);
 
-        // Validate the uploaded file
-        $validated = $request->validate([
+        // Validate the uploaded file.
+        $request->validate([
             'file' => 'required|file|mimes:jpg,jpeg,png,gif|max:2048', // Allow only image files up to 2MB
         ]);
+
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $fileName = time().'_'.Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
 
-            // Save file to public storage
+            // Save file to public storage.
             $path = 'uploads/editor/'.date('Y/m');
             $file->move(public_path($path), $fileName);
 

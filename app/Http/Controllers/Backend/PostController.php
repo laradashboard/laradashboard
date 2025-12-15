@@ -14,7 +14,6 @@ use App\Http\Requests\Common\BulkDeleteRequest;
 use App\Models\Post;
 use App\Models\Term;
 use App\Services\Content\ContentService;
-use App\Services\ImageService;
 use App\Services\MediaLibraryService;
 use App\Services\PostMetaService;
 use App\Services\PostService;
@@ -33,7 +32,6 @@ class PostController extends Controller
         private readonly ContentService $contentService,
         private readonly PostMetaService $postMetaService,
         private readonly PostService $postService,
-        private readonly ImageService $imageService,
         private readonly MediaLibraryService $mediaService
     ) {
     }
@@ -185,7 +183,13 @@ class PostController extends Controller
 
         $this->setBreadcrumbTitle(__('View :postName', ['postName' => $post->title]))
             ->setBreadcrumbIcon($postTypeModel->icon ?? 'lucide:file-text')
-            ->addBreadcrumbItem($postTypeModel->label, route('admin.posts.index', $postType));
+            ->addBreadcrumbItem($postTypeModel->label, route('admin.posts.index', $postType))
+            ->setBreadcrumbActionButton(
+                route('admin.posts.edit', [$postType, $post->id]),
+                __('Edit :postType', ['postType' => $postTypeModel->label_singular]),
+                'feather:edit-2',
+                'post.edit'
+            );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.posts.show', compact('post', 'postType', 'postTypeModel'));
     }

@@ -1,26 +1,31 @@
+@php
+    // Handle enum values by getting the string value
+    $fieldValue = $model->{$actionField};
+    $fieldValueString = is_object($fieldValue) && enum_exists(get_class($fieldValue)) ? $fieldValue->value : $fieldValue;
+@endphp
 <div x-data="{ open: false }" class="relative inline-block">
     <button
         @click="open = !open"
         type="button"
         class="px-3 py-1 inline-flex text-xs leading-5 font-medium rounded-full cursor-pointer
-            @if ($model->{$actionField} == 'open') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
-            @elseif($model->{$actionField} == 'in_progress') bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
-            @elseif($model->{$actionField} == 'waiting') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
-            @elseif($model->{$actionField} == 'resolved') bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200
-            @elseif($model->{$actionField} == 'closed') bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
-            @elseif($model->{$actionField} == 'low') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
-            @elseif($model->{$actionField} == 'medium') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
-            @elseif($model->{$actionField} == 'high') bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
-            @elseif($model->{$actionField} == 'lead') bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200
-            @elseif($model->{$actionField} == 'customer') bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200
-            @elseif($model->{$actionField} == 'opportunity') bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200
-            @elseif($model->{$actionField} == 'subscriber') bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200
-            @elseif($model->{$actionField} == true || $model->{$actionField} === 'completed' || $model->{$actionField} === 'active') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+            @if ($fieldValueString == 'open') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+            @elseif($fieldValueString == 'in_progress') bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+            @elseif($fieldValueString == 'waiting') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+            @elseif($fieldValueString == 'resolved') bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200
+            @elseif($fieldValueString == 'closed') bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+            @elseif($fieldValueString == 'low') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+            @elseif($fieldValueString == 'medium') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+            @elseif($fieldValueString == 'high') bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+            @elseif($fieldValueString == 'lead') bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200
+            @elseif($fieldValueString == 'customer') bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200
+            @elseif($fieldValueString == 'opportunity') bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200
+            @elseif($fieldValueString == 'subscriber') bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200
+            @elseif($fieldValueString == true || $fieldValueString === 'completed' || $fieldValueString === 'active') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
             @else bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 @endif
             flex items-center gap-1"
     >
-        {{ $options[$model->{$actionField}] ?? ucfirst(str_replace('_', ' ', $model->{$actionField})) }}
-        {{ empty($options[$model->{$actionField}]) || empty($model->{$actionField}) ? __('Status') : '' }}
+        {{ $options[$fieldValueString] ?? ucfirst(str_replace('_', ' ', $fieldValueString ?? '')) }}
+        {{ empty($options[$fieldValueString]) || empty($fieldValueString) ? __('Status') : '' }}
         <iconify-icon
             icon="heroicons:chevron-down"
             class="w-3 h-3 ml-1"
@@ -46,7 +51,7 @@
                 wire:click="changeStatusTo('{{ $key }}')"
                 @click="open = false"
                 class="block w-full text-left px-4 py-2 text-sm
-                    {{ $model->{$actionField} == $key ? 'font-bold bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }}
+                    {{ $fieldValueString == $key ? 'font-bold bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }}
                     @if ($key == 'open') text-green-700 dark:text-green-400
                     @elseif($key == 'in_progress') text-blue-700 dark:text-blue-400
                     @elseif($key == 'waiting') text-yellow-700 dark:text-yellow-400
@@ -62,7 +67,7 @@
                     @elseif($key == true || $key === 'completed' || $key === 'active') text-green-700 dark:text-green-400
                     @else text-yellow-700 dark:text-yellow-400 @endif"
                 type="button"
-                @if($model->{$actionField} == $key) disabled @endif
+                @if($fieldValueString == $key) disabled @endif
             >
                 {{ $label }}
             </button>

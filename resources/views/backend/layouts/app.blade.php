@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', config('app.name'))</title>
+    <title>@yield('title', isset($breadcrumbs['title']) ? ($breadcrumbs['title'] . ' | ' . config('app.name')) : config('app.name'))</title>
 
     <link rel="icon" href="{{ config('settings.site_favicon') ?? asset('favicon.ico') }}" type="image/x-icon">
 

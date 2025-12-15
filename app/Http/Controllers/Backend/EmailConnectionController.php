@@ -16,7 +16,7 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class EmailConnectionsController extends Controller
+class EmailConnectionController extends Controller
 {
     public function __construct(
         private readonly EmailConnectionService $connectionService,
@@ -29,7 +29,6 @@ class EmailConnectionsController extends Controller
 
         $this->setBreadcrumbTitle(__('Email Connections'))
             ->setBreadcrumbIcon('lucide:plug')
-            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->setBreadcrumbActionClick(
                 "openProviderSelector()",
                 __('New Connection'),

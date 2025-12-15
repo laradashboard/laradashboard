@@ -71,8 +71,8 @@ jobs:
 
       - name: Install NPM Dependencies
         run: |
-          rm -rf node_modules
-          npm ci
+          rm -rf node_modules package-lock.json
+          npm install
 
       - name: Build Assets
         run: npm run build

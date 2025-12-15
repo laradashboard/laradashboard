@@ -1,4 +1,4 @@
-<x-layouts.backend-layout>
+<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
     <x-slot name="breadcrumbsData">
         <x-breadcrumbs :breadcrumbs="$breadcrumbs">
             <x-slot name="title_after">

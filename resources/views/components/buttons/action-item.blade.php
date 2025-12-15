@@ -49,7 +49,7 @@
         type="button"
         {{ $attributes->merge(['class' => $baseClasses]) }}
         @if($modalTarget)
-            x-on:click="{{ $closeAction }} {{ $modalTarget }} = true"
+            x-on:click="{{ $modalTarget }} = true; $nextTick(() => { isOpen = false; openedWithKeyboard = false; })"
         @endif
         role="menuitem"
     >

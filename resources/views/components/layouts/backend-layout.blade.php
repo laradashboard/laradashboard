@@ -11,7 +11,7 @@
 @endsection
 
 @section('admin-content')
-    <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+    <div class="ld-container">
         @if ($breadcrumbsData ?? false)
             {!! $breadcrumbsData !!}
         @else

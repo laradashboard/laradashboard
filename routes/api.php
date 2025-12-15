@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\TermController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\EmailTemplateController;
 use App\Http\Controllers\Api\NotificationController;
-use App\Http\Controllers\Api\EmailSettingsController;
+use App\Http\Controllers\Api\EmailSettingController;
 use App\Http\Controllers\Backend\Api\TermController as BackendTermController;
 use Illuminate\Support\Facades\Route;
 
@@ -119,8 +119,8 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     Route::get('notifications/by-receiver-type/{type}', [NotificationController::class, 'getByReceiverType'])->name('api.notifications.by-receiver-type');
 
     // Email settings endpoints.
-    Route::get('email-settings', [EmailSettingsController::class, 'index'])->name('api.email-settings.index');
-    Route::put('email-settings', [EmailSettingsController::class, 'update'])->name('api.email-settings.update');
+    Route::get('email-settings', [EmailSettingController::class, 'index'])->name('api.email-settings.index');
+    Route::put('email-settings', [EmailSettingController::class, 'update'])->name('api.email-settings.update');
 });
 
 // Admin API routes (for backward compatibility with existing web-based API calls).

@@ -1,35 +1,30 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
+    <x-slot name="breadcrumbsData">
+        <x-breadcrumbs :breadcrumbs="array_merge($breadcrumbs, ['title' => $emailTemplate->name])">
+            <x-slot name="title_after">
+                <span class="badge {{ $emailTemplate->is_active ? 'badge-success': 'badge-default' }}">
+                    {{ $emailTemplate->is_active ? __('Active') : __('Inactive') }}
+                </span>
+            </x-slot>
+            <x-slot name="actions_before">
+                <button onclick="openTestEmailModal('{{ $emailTemplate->id }}', 'email-template')" class="btn-default">
+                    <iconify-icon icon="lucide:mail" class="mr-2"></iconify-icon>
+                    {{ __('Send Test') }}
+                </button>
+                <button onclick='openDuplicateEmailTemplateModal("{{ $emailTemplate->id }}", "{{ route("admin.email-templates.duplicate", $emailTemplate->id) }}")' class="btn-default">
+                    <iconify-icon icon="lucide:copy" class="mr-2"></iconify-icon>
+                    {{ __('Duplicate') }}
+                </button>
+                <a href="{{ route('admin.email-templates.edit', $emailTemplate->id) }}" class="btn-primary">
+                    <iconify-icon icon="feather:edit-2" class="mr-2"></iconify-icon>
+                    {{ __('Edit') }}
+                </a>
+            </x-slot>
+        </x-breadcrumbs>
+    </x-slot>
+
     <div class="space-y-6">
         <x-card>
-            <x-slot name="header">
-                <div class="flex items-center justify-between w-full">
-                    <div class="flex items-center gap-3">
-                        <h3 class="text-base font-medium text-gray-700 dark:text-white/90">
-                            {{ $emailTemplate->name }}
-                        </h3>
-                        <div class="flex items-center gap-1.5">
-                            <span class="badge {{ $emailTemplate->is_active ? 'badge-success': 'badge-default' }}">
-                                {{ $emailTemplate->is_active ? __('Active') : __('Inactive') }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="openTestEmailModal('{{ $emailTemplate->id }}', 'email-template')" class="btn-default">
-                            <iconify-icon icon="lucide:mail" class="mr-2"></iconify-icon>
-                            {{ __('Send Test') }}
-                        </button>
-                        <button onclick='openDuplicateEmailTemplateModal("{{ $emailTemplate->id }}", "{{ route("admin.email-templates.duplicate", $emailTemplate->id) }}")' class="btn-default">
-                            <iconify-icon icon="lucide:copy" class="mr-2"></iconify-icon>
-                            {{ __('Duplicate') }}
-                        </button>
-                        <a href="{{ route('admin.email-templates.edit', $emailTemplate->id) }}" class="btn-primary">
-                            <iconify-icon icon="lucide:pencil" class="mr-2"></iconify-icon>
-                            {{ __('Edit') }}
-                        </a>
-                    </div>
-                </div>
-            </x-slot>
-
             <table class="w-full mb-6">
                 <tr>
                     <td class="w-1/4 font-medium text-gray-700 dark:text-white/90 py-2">{{ __('Created:') }}</td>
