@@ -22,7 +22,6 @@ class UserDatatable extends Datatable
         'role' => [],
     ];
     public string $model = User::class;
-    public array $disabledRoutes = ['view'];
 
     public function getSearchbarPlaceholder(): string
     {

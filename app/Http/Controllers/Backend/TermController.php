@@ -54,6 +54,7 @@ class TermController extends Controller
     public function store(StoreTermRequest $request, string $taxonomy)
     {
         $this->authorize('create', Term::class);
+
         // Get taxonomy using service
         $taxonomyModel = $this->termService->getTaxonomy($taxonomy);
 

@@ -11,7 +11,7 @@ use App\Services\SettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class EmailSettingsController extends ApiController
+class EmailSettingController extends ApiController
 {
     public function __construct(private readonly SettingService $settingService)
     {

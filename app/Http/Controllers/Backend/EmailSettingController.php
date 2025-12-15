@@ -13,7 +13,7 @@ use App\Services\SettingService;
 use App\Services\EnvWriter;
 use App\Enums\ActionType;
 
-class EmailSettingsController extends Controller
+class EmailSettingController extends Controller
 {
     public function __construct(
         private readonly SettingService $settingService,
@@ -26,8 +26,7 @@ class EmailSettingsController extends Controller
         $this->authorize('manage', Setting::class);
 
         $this->setBreadcrumbTitle(__('Email Settings'))
-            ->setBreadcrumbIcon('lucide:mail')
-            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'));
+            ->setBreadcrumbIcon('lucide:mail');
 
         return $this->renderViewWithBreadcrumbs('backend.pages.email-settings.index');
     }

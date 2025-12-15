@@ -12,7 +12,7 @@
     $dropdownContainerId = $dropdownContainerId ?? 'dropdown-container-' . uniqid();
 @endphp
 <div class="w-full flex flex-row-reverse">
-    <button type="button" id="{{ $buttonId }}" class="btn-default w-56">
+    <button type="button" id="{{ $buttonId }}" class="btn-default w-65">
         <span>{{ __($label) }}</span>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />

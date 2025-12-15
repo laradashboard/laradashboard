@@ -38,7 +38,9 @@ jobs:
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
 
       - name: Build assets
         run: npm run build

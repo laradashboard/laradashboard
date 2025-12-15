@@ -11,7 +11,7 @@
         @click="isOpen = !isOpen"
         @click.outside="isOpen = false"
         type="button"
-        class="btn-default bg-white gap-2 !border !border-gray-400"
+        class="btn-default bg-white gap-2 !border border-gray-300"
     >
         <iconify-icon icon="{{ $icon }}" width="18" height="18" class="text-gray-500 dark:text-gray-400"></iconify-icon>
         <span>{{ $label }}</span>

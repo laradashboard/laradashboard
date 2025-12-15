@@ -102,6 +102,52 @@
 @endpush
 
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
+    <x-slot name="breadcrumbsData">
+        <x-breadcrumbs :breadcrumbs="$breadcrumbs">
+            <x-slot name="title_after">
+                <x-popover position="bottom" width="w-[340px]">
+                    <x-slot name="trigger">
+                        <iconify-icon icon="lucide:info" class="text-lg ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" title="{{ __('How Email Connections Work') }}"></iconify-icon>
+                    </x-slot>
+
+                    <div class="w-[340px] p-4 font-normal">
+                        <h3 class="font-medium text-gray-700 dark:text-white mb-2">{{ __('How Email Connections Work') }}</h3>
+                        <p class="mb-3 text-sm text-gray-600 dark:text-gray-300">{{ __('Email connections provide a unified way to send all emails from your application.') }}</p>
+
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-start gap-2">
+                                <div class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span class="text-xs font-medium text-blue-600 dark:text-blue-400">1</span>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-300">
+                                    <strong class="text-gray-700 dark:text-white">{{ __('No connections added:') }}</strong>
+                                    {{ __('Emails are sent using your .env file credentials (MAIL_HOST, MAIL_USERNAME, etc.)') }}
+                                </p>
+                            </div>
+
+                            <div class="flex items-start gap-2">
+                                <div class="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <span class="text-xs font-medium text-green-600 dark:text-green-400">2</span>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-300">
+                                    <strong class="text-gray-700 dark:text-white">{{ __('With connections:') }}</strong>
+                                    {{ __('The system uses the "best" connection - either the one marked as default, or the highest priority active connection.') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+                            <p class="text-xs text-amber-700 dark:text-amber-400 flex items-start gap-2">
+                                <iconify-icon icon="lucide:lightbulb" class="text-sm mt-0.5 flex-shrink-0"></iconify-icon>
+                                <span>{{ __('Tip: All emails including password resets, notifications, and CRM emails will use your configured connection.') }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </x-popover>
+            </x-slot>
+        </x-breadcrumbs>
+    </x-slot>
+
     <x-email-tabs.navigation currentTab="connections" />
 
     <div class="space-y-6">
