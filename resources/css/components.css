@@ -1,4 +1,10 @@
 @layer components {
+    /* Container styles */
+    .ld-container {
+        @apply mx-auto px-4 sm:px-6 lg:px-8 py-6;
+        max-width: var(--breakpoint-2xl);
+    }
+
     /* Buttons */
     .btn {
         @apply flex justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center focus:ring-blue-300 dark:focus:ring-blue-800;
