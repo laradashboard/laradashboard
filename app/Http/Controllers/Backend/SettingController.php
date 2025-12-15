@@ -34,13 +34,10 @@ class SettingController extends Controller
 
         $tab = $tab ?? request()->input('tab', 'general');
 
-        return view('backend.pages.settings.index', compact('tab'))
-            ->with([
-                'breadcrumbs' => [
-                    'title' => __('Settings'),
-                    'icon' => 'lucide:settings',
-                ],
-            ]);
+        $this->setBreadcrumbTitle(__('Settings'))
+            ->setBreadcrumbIcon('lucide:settings');
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.settings.index', compact('tab'));
     }
 
     public function store(Request $request)
@@ -106,8 +103,6 @@ class SettingController extends Controller
         }
 
         $this->envWriter->batchWriteKeysToEnvFile($fields);
-
-        // dd($fields);
 
         $this->storeActionLog(ActionType::UPDATED, [
             'settings' => $fields,

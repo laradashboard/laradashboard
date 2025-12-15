@@ -50,7 +50,7 @@ class UserController extends Controller
         $this->authorize('create', User::class);
 
         $this->setBreadcrumbTitle(__('New User'))
-            ->setBreadcrumbIcon('lucide:user-plus')
+            ->setBreadcrumbIcon('lucide:users')
             ->addBreadcrumbItem(__('Users'), route('admin.users.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.users.create', [
@@ -83,6 +83,28 @@ class UserController extends Controller
         return redirect()->route('admin.users.index');
     }
 
+    public function show(int $id): Renderable
+    {
+        $user = User::with(['avatar', 'roles', 'userMeta'])->findOrFail($id);
+
+        $this->authorize('view', $user);
+
+        $this->setBreadcrumbTitle($user->full_name)
+            ->setBreadcrumbIcon('lucide:users')
+            ->addBreadcrumbItem(__('Users'), route('admin.users.index'))
+            ->setBreadcrumbActionButton(
+                route('admin.users.edit', $user->id),
+                __('Edit User'),
+                'feather:edit-2',
+                'user.edit',
+                true
+            );
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.users.show', [
+            'user' => $user,
+        ]);
+    }
+
     public function edit(int $id): Renderable
     {
         $user = User::with('avatar')->findOrFail($id);
@@ -90,8 +112,15 @@ class UserController extends Controller
         $this->authorize('update', $user);
 
         $this->setBreadcrumbTitle(__('Edit User'))
-            ->setBreadcrumbIcon('lucide:user-pen')
-            ->addBreadcrumbItem(__('Users'), route('admin.users.index'));
+            ->setBreadcrumbIcon('lucide:users')
+            ->addBreadcrumbItem(__('Users'), route('admin.users.index'))
+            ->setBreadcrumbActionButton(
+                route('admin.users.show', $user->id),
+                __('View User'),
+                'feather:eye',
+                'user.view',
+                true
+            );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.users.edit', [
             'user' => $user,

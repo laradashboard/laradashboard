@@ -16,7 +16,7 @@ use App\Models\Setting;
 use App\Services\Emails\EmailVariable;
 use Illuminate\Support\Facades\Log;
 
-class EmailTemplatesController extends Controller
+class EmailTemplateController extends Controller
 {
     public function __construct(
         private readonly EmailTemplateService $emailTemplateService,
@@ -30,7 +30,6 @@ class EmailTemplatesController extends Controller
 
         $this->setBreadcrumbTitle(__('Email Templates'))
             ->setBreadcrumbIcon('lucide:mail')
-            ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->setBreadcrumbActionButton(
                 route('admin.email-templates.create'),
                 __('New Template'),

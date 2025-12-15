@@ -85,13 +85,14 @@ trait HasBreadcrumbs
     /**
      * Set the action button using individual parameters.
      */
-    public function setBreadcrumbActionButton(string $url, string $label, ?string $icon = 'feather:plus', ?string $permission = null): self
+    public function setBreadcrumbActionButton(string $url, string $label, ?string $icon = 'feather:plus', ?string $permission = null, bool $isPill = false): self
     {
         $this->breadcrumbs['action'] = [
             'url' => $url,
             'label' => $label,
             'icon' => $icon,
             'permission' => $permission,
+            'pill' => $isPill,
         ];
 
         return $this;

@@ -109,7 +109,7 @@
                         <a :href="`{{ route('admin.email-templates.index') }}/${selectedTemplateId}/edit`"
                            class="btn-primary text-sm"
                            target="_blank">
-                            <iconify-icon icon="lucide:edit" class="mr-1.5"></iconify-icon>
+                            <iconify-icon icon="feather:edit-2" class="mr-1.5"></iconify-icon>
                             {{ __('Edit Template') }}
                         </a>
                     </template>

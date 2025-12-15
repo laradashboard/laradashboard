@@ -76,17 +76,23 @@
 
             {{-- Main action button --}}
             @if($action)
+                @php
+                    $isPill = is_array($action) && ($action['pill'] ?? false);
+                    $btnClass = $isPill
+                        ? 'btn-default flex items-center gap-2 rounded-full'
+                        : 'btn-primary flex items-center gap-2';
+                @endphp
                 @if(is_array($action) && isset($action['url']) && isset($action['label']))
                     @if(!isset($action['permission']) || auth()->user()->can($action['permission']))
-                        <a href="{{ $action['url'] }}" class="btn-primary flex items-center gap-2">
-                            <iconify-icon icon="{{ $action['icon'] ?? 'feather:plus' }}" height="16"></iconify-icon>
+                        <a href="{{ $action['url'] }}" class="{{ $btnClass }}">
+                            <iconify-icon icon="{{ $action['icon'] ?? 'feather:plus' }}" height="{{ $isPill ? '14' : '16' }}"></iconify-icon>
                             {{ __($action['label']) }}
                         </a>
                     @endif
                 @elseif(is_array($action) && isset($action['click']) && isset($action['label']))
                     @if(!isset($action['permission']) || auth()->user()->can($action['permission']))
-                        <button @click="{{ $action['click'] }}" type="button" class="btn-primary flex items-center gap-2">
-                            <iconify-icon icon="{{ $action['icon'] ?? 'feather:plus' }}" height="16"></iconify-icon>
+                        <button @click="{{ $action['click'] }}" type="button" class="{{ $btnClass }}">
+                            <iconify-icon icon="{{ $action['icon'] ?? 'feather:plus' }}" height="{{ $isPill ? '14' : '16' }}"></iconify-icon>
                             {{ __($action['label']) }}
                         </button>
                     @endif

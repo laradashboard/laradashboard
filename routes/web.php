@@ -8,13 +8,13 @@ use App\Http\Controllers\Backend\Auth\ScreenshotGeneratorLoginController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\DuplicateEmailTemplateController;
 use App\Http\Controllers\Backend\EditorController;
-use App\Http\Controllers\Backend\EmailConnectionsController;
-use App\Http\Controllers\Backend\EmailSettingsController;
-use App\Http\Controllers\Backend\EmailTemplatesController;
+use App\Http\Controllers\Backend\EmailConnectionController;
+use App\Http\Controllers\Backend\EmailSettingController;
+use App\Http\Controllers\Backend\EmailTemplateController;
 use App\Http\Controllers\Backend\LocaleController;
 use App\Http\Controllers\Backend\MediaController;
 use App\Http\Controllers\Backend\ModuleController;
-use App\Http\Controllers\Backend\NotificationsController;
+use App\Http\Controllers\Backend\NotificationController;
 use App\Http\Controllers\Backend\SendTestEmailController;
 use App\Http\Controllers\Backend\PermissionController;
 use App\Http\Controllers\Backend\PostController;
@@ -67,50 +67,50 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
         Route::post('/', [SettingController::class, 'store'])->name('settings.store');
 
         // Email Settings Management Routes.
-        Route::get('emails', [EmailSettingsController::class, 'index'])->name('email-settings.index');
-        Route::post('emails', [EmailSettingsController::class, 'update'])->name('email-settings.update');
+        Route::get('emails', [EmailSettingController::class, 'index'])->name('email-settings.index');
+        Route::post('emails', [EmailSettingController::class, 'update'])->name('email-settings.update');
         Route::post('emails/send-test', [SendTestEmailController::class, 'sendTestEmail'])->name('emails.send-test');
 
         // Email Connections Management Routes.
         Route::group(['prefix' => 'email-connections', 'as' => 'email-connections.'], function () {
-            Route::get('/', [EmailConnectionsController::class, 'index'])->name('index');
-            Route::post('/', [EmailConnectionsController::class, 'store'])->name('store');
-            Route::get('providers', [EmailConnectionsController::class, 'getProviders'])->name('providers');
-            Route::get('providers/{providerType}', [EmailConnectionsController::class, 'getProviderFields'])->name('providers.fields');
-            Route::get('{email_connection}', [EmailConnectionsController::class, 'show'])->name('show');
-            Route::put('{email_connection}', [EmailConnectionsController::class, 'update'])->name('update');
-            Route::delete('{email_connection}', [EmailConnectionsController::class, 'destroy'])->name('destroy');
-            Route::post('{email_connection}/test', [EmailConnectionsController::class, 'testConnection'])->name('test');
-            Route::post('{email_connection}/default', [EmailConnectionsController::class, 'setDefault'])->name('default');
-            Route::post('reorder', [EmailConnectionsController::class, 'reorder'])->name('reorder');
+            Route::get('/', [EmailConnectionController::class, 'index'])->name('index');
+            Route::post('/', [EmailConnectionController::class, 'store'])->name('store');
+            Route::get('providers', [EmailConnectionController::class, 'getProviders'])->name('providers');
+            Route::get('providers/{providerType}', [EmailConnectionController::class, 'getProviderFields'])->name('providers.fields');
+            Route::get('{email_connection}', [EmailConnectionController::class, 'show'])->name('show');
+            Route::put('{email_connection}', [EmailConnectionController::class, 'update'])->name('update');
+            Route::delete('{email_connection}', [EmailConnectionController::class, 'destroy'])->name('destroy');
+            Route::post('{email_connection}/test', [EmailConnectionController::class, 'testConnection'])->name('test');
+            Route::post('{email_connection}/default', [EmailConnectionController::class, 'setDefault'])->name('default');
+            Route::post('reorder', [EmailConnectionController::class, 'reorder'])->name('reorder');
         });
 
         // Email Templates Management Routes.
         Route::group(['prefix' => 'email-templates', 'as' => 'email-templates.'], function () {
-            // List and view routes
-            Route::get('/', [EmailTemplatesController::class, 'index'])->name('index');
-            Route::get('{email_template}', [EmailTemplatesController::class, 'show'])->name('show')->where('email_template', '[0-9]+');
-            Route::delete('{email_template}', [EmailTemplatesController::class, 'destroy'])->name('destroy')->where('email_template', '[0-9]+');
+            // List and view routes.
+            Route::get('/', [EmailTemplateController::class, 'index'])->name('index');
+            Route::get('{email_template}', [EmailTemplateController::class, 'show'])->name('show')->where('email_template', '[0-9]+');
+            Route::delete('{email_template}', [EmailTemplateController::class, 'destroy'])->name('destroy')->where('email_template', '[0-9]+');
 
-            // API routes for AJAX/JS
-            Route::get('api/list', [EmailTemplatesController::class, 'apiList'])->name('api.list');
+            // API routes for AJAX/JS.
+            Route::get('api/list', [EmailTemplateController::class, 'apiList'])->name('api.list');
 
-            // Utility routes
-            Route::get('by-type/{type}', [EmailTemplatesController::class, 'getByType'])->name('by-type');
-            Route::get('{email_template}/content', [EmailTemplatesController::class, 'getContent'])->name('content')->where('email_template', '[0-9]+');
+            // Utility routes.
+            Route::get('by-type/{type}', [EmailTemplateController::class, 'getByType'])->name('by-type');
+            Route::get('{email_template}/content', [EmailTemplateController::class, 'getContent'])->name('content')->where('email_template', '[0-9]+');
             Route::post('{email_template}/duplicate', [DuplicateEmailTemplateController::class, 'store'])->name('duplicate');
 
-            // Email Builder Routes (create/edit now use the drag-drop builder)
-            Route::get('create', [EmailTemplatesController::class, 'builder'])->name('create');
-            Route::get('{email_template}/edit', [EmailTemplatesController::class, 'builderEdit'])->name('edit')->where('email_template', '[0-9]+');
-            Route::post('/', [EmailTemplatesController::class, 'builderStore'])->name('store');
-            Route::put('{email_template}', [EmailTemplatesController::class, 'builderUpdate'])->name('update')->where('email_template', '[0-9]+');
-            Route::post('upload-image', [EmailTemplatesController::class, 'uploadImage'])->name('upload-image');
-            Route::post('upload-video', [EmailTemplatesController::class, 'uploadVideo'])->name('upload-video');
+            // Email Builder Routes.
+            Route::get('create', [EmailTemplateController::class, 'builder'])->name('create');
+            Route::get('{email_template}/edit', [EmailTemplateController::class, 'builderEdit'])->name('edit')->where('email_template', '[0-9]+');
+            Route::post('/', [EmailTemplateController::class, 'builderStore'])->name('store');
+            Route::put('{email_template}', [EmailTemplateController::class, 'builderUpdate'])->name('update')->where('email_template', '[0-9]+');
+            Route::post('upload-image', [EmailTemplateController::class, 'uploadImage'])->name('upload-image');
+            Route::post('upload-video', [EmailTemplateController::class, 'uploadVideo'])->name('upload-video');
         });
 
         // Notifications Management Routes.
-        Route::resource('notifications', NotificationsController::class);
+        Route::resource('notifications', NotificationController::class);
     });
 
     // Translation Routes.
