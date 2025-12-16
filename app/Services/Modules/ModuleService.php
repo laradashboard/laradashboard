@@ -571,8 +571,8 @@ class ModuleService
         // Disable the module before deletion.
         Artisan::call('module:disable', ['module' => $module->getName()]);
 
-        // Remove the module files.
-        $modulePath = base_path('modules/' . $module->getName());
+        // Remove the module files using the actual module path.
+        $modulePath = $module->getPath();
 
         if (! is_dir($modulePath)) {
             throw new ModuleException(__('Module directory does not exist. Please ensure the module is installed correctly.'));
