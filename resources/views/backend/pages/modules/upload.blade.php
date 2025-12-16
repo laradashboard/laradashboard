@@ -40,6 +40,7 @@
             isDragging: false,
             maxUploadBytes: {{ $maxUploadBytes }},
             maxUploadFormatted: '{{ $maxUploadFormatted }}',
+            isDemoMode: {{ config('app.demo_mode', false) ? 'true' : 'false' }},
 
             // Conflict modal state
             showConflictModal: false,
@@ -49,11 +50,20 @@
 
             handleDrop(event) {
                 this.isDragging = false;
+                if (this.isDemoMode) {
+                    this.showToast('warning', '{{ __('Demo Mode') }}', '{{ __('Module upload is disabled in demo mode.') }}');
+                    return;
+                }
                 const droppedFiles = Array.from(event.dataTransfer.files);
                 this.addFiles(droppedFiles);
             },
 
             handleFileSelect(event) {
+                if (this.isDemoMode) {
+                    this.showToast('warning', '{{ __('Demo Mode') }}', '{{ __('Module upload is disabled in demo mode.') }}');
+                    event.target.value = '';
+                    return;
+                }
                 const selectedFiles = Array.from(event.target.files);
                 this.addFiles(selectedFiles);
                 event.target.value = '';
@@ -364,26 +374,30 @@
                     <h3 class="font-medium text-gray-900 dark:text-white mb-4">{{ __('Add Modules') }}</h3>
 
                     <!-- Drop Zone -->
-                    <div class="border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 cursor-pointer"
-                         :class="isDragging ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-gray-300 dark:border-gray-600 hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-700/50'"
-                         @click="$refs.fileInput.click()"
-                         @dragover.prevent="isDragging = true"
+                    <div class="border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200"
+                         :class="isDemoMode
+                             ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-60'
+                             : (isDragging ? 'border-primary bg-primary/5 dark:bg-primary/10 cursor-pointer' : 'border-gray-300 dark:border-gray-600 hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer')"
+                         @click="!isDemoMode && $refs.fileInput.click()"
+                         @dragover.prevent="!isDemoMode && (isDragging = true)"
                          @dragleave.prevent="isDragging = false"
                          @drop.prevent="handleDrop($event)">
 
                         <div class="flex flex-col items-center">
                             <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-3">
-                                <iconify-icon icon="lucide:upload-cloud" class="text-2xl text-gray-400"></iconify-icon>
+                                <iconify-icon :icon="isDemoMode ? 'lucide:lock' : 'lucide:upload-cloud'" class="text-2xl text-gray-400"></iconify-icon>
                             </div>
                             <p class="text-sm text-gray-600 dark:text-gray-300 font-medium mb-1">
-                                {{ __('Drop files here') }}
+                                <span x-show="!isDemoMode">{{ __('Drop files here') }}</span>
+                                <span x-show="isDemoMode">{{ __('Upload Disabled') }}</span>
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ __('or click to browse') }}
+                                <span x-show="!isDemoMode">{{ __('or click to browse') }}</span>
+                                <span x-show="isDemoMode">{{ __('Demo mode is active') }}</span>
                             </p>
                         </div>
 
-                        <input type="file" x-ref="fileInput" accept=".zip" multiple class="hidden" @change="handleFileSelect($event)">
+                        <input type="file" x-ref="fileInput" accept=".zip" multiple class="hidden" @change="handleFileSelect($event)" :disabled="isDemoMode">
                     </div>
 
                     <div class="mt-4 text-xs text-gray-500 dark:text-gray-400 space-y-1">
