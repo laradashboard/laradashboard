@@ -41,6 +41,12 @@
             maxUploadBytes: {{ $maxUploadBytes }},
             maxUploadFormatted: '{{ $maxUploadFormatted }}',
 
+            // Conflict modal state
+            showConflictModal: false,
+            conflictData: null,
+            conflictFileItem: null,
+            isReplacing: false,
+
             handleDrop(event) {
                 this.isDragging = false;
                 const droppedFiles = Array.from(event.dataTransfer.files);
@@ -143,10 +149,26 @@
 
                 try {
                     const response = await this.uploadWithProgress(fileItem, formData);
+                    const data = await response.json();
+
+                    // Handle conflict (409 status)
+                    if (response.status === 409 && data.conflict) {
+                        fileItem.steps[0].status = 'complete';
+                        fileItem.progress = 100;
+
+                        // Show conflict modal
+                        this.conflictData = data;
+                        this.conflictFileItem = fileItem;
+                        this.showConflictModal = true;
+
+                        // Set status to waiting for user decision
+                        fileItem.status = 'conflict';
+                        fileItem.message = '{{ __('Module already exists - waiting for your decision') }}';
+                        return;
+                    }
 
                     if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || '{{ __('Upload failed') }}');
+                        throw new Error(data.message || '{{ __('Upload failed') }}');
                     }
 
                     fileItem.steps[0].status = 'complete';
@@ -170,7 +192,6 @@
                     await this.delay(400);
                     fileItem.steps[3].status = 'complete';
 
-                    const data = await response.json();
                     fileItem.moduleName = data.module_name || '';
                     fileItem.message = data.message || '{{ __('Module installed successfully') }}';
                     fileItem.status = 'success';
@@ -210,6 +231,104 @@
 
             delay(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
+            },
+
+            async replaceModule() {
+                if (!this.conflictData || !this.conflictFileItem) return;
+
+                this.isReplacing = true;
+                const fileItem = this.conflictFileItem;
+
+                try {
+                    fileItem.status = 'uploading';
+                    fileItem.currentStep = 1;
+                    fileItem.steps[1].status = 'processing';
+
+                    const response = await fetch('{{ route('admin.modules.replace') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            temp_path: this.conflictData.temp_path,
+                            existing_module_name: this.conflictData.current.name
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || '{{ __('Failed to replace module') }}');
+                    }
+
+                    fileItem.steps[1].status = 'complete';
+
+                    // Step 3: Validating
+                    fileItem.currentStep = 2;
+                    fileItem.steps[2].status = 'processing';
+                    await this.delay(400);
+                    fileItem.steps[2].status = 'complete';
+
+                    // Step 4: Installing
+                    fileItem.currentStep = 3;
+                    fileItem.steps[3].status = 'processing';
+                    await this.delay(400);
+                    fileItem.steps[3].status = 'complete';
+
+                    fileItem.moduleName = data.module_name || '';
+                    fileItem.message = data.message || '{{ __('Module replaced successfully') }}';
+                    fileItem.status = 'success';
+
+                    this.showToast('success', '{{ __('Success') }}', '{{ __('Module replaced successfully!') }}');
+
+                } catch (error) {
+                    fileItem.steps[fileItem.currentStep].status = 'error';
+                    fileItem.message = error.message;
+                    fileItem.status = 'error';
+                    this.showToast('error', '{{ __('Error') }}', error.message);
+                } finally {
+                    this.showConflictModal = false;
+                    this.conflictData = null;
+                    this.conflictFileItem = null;
+                    this.isReplacing = false;
+                }
+            },
+
+            async cancelReplacement() {
+                if (this.conflictData?.temp_path) {
+                    try {
+                        await fetch('{{ route('admin.modules.cancel-replacement') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                temp_path: this.conflictData.temp_path
+                            })
+                        });
+                    } catch (e) {
+                        // Ignore cleanup errors
+                    }
+                }
+
+                // Reset file to pending so user can retry the upload
+                if (this.conflictFileItem) {
+                    this.conflictFileItem.status = 'pending';
+                    this.conflictFileItem.message = '';
+                    this.conflictFileItem.progress = 0;
+                    this.conflictFileItem.currentStep = 0;
+                    this.conflictFileItem.steps.forEach(s => s.status = 'pending');
+                }
+
+                this.showConflictModal = false;
+                this.conflictData = null;
+                this.conflictFileItem = null;
+
+                this.showToast('info', '{{ __('Cancelled') }}', '{{ __('You can retry the upload by clicking Install.') }}');
             },
 
             async activateModule(fileItem) {
@@ -341,12 +460,14 @@
                                              'bg-gray-100 dark:bg-gray-700': fileItem.status === 'pending',
                                              'bg-blue-100 dark:bg-blue-900/30': fileItem.status === 'uploading',
                                              'bg-green-100 dark:bg-green-900/30': fileItem.status === 'success',
-                                             'bg-red-100 dark:bg-red-900/30': fileItem.status === 'error'
+                                             'bg-red-100 dark:bg-red-900/30': fileItem.status === 'error',
+                                             'bg-amber-100 dark:bg-amber-900/30': fileItem.status === 'conflict'
                                          }">
                                         <iconify-icon x-show="fileItem.status === 'pending'" icon="lucide:file-archive" class="text-xl text-gray-500"></iconify-icon>
                                         <iconify-icon x-show="fileItem.status === 'uploading'" icon="lucide:loader-2" class="text-xl text-blue-500 animate-spin"></iconify-icon>
                                         <iconify-icon x-show="fileItem.status === 'success'" icon="lucide:check-circle" class="text-xl text-green-500"></iconify-icon>
                                         <iconify-icon x-show="fileItem.status === 'error'" icon="lucide:x-circle" class="text-xl text-red-500"></iconify-icon>
+                                        <iconify-icon x-show="fileItem.status === 'conflict'" icon="lucide:alert-triangle" class="text-xl text-amber-500"></iconify-icon>
                                     </div>
 
                                     <!-- File Info -->
@@ -412,6 +533,11 @@
                                             </span>
                                         </div>
 
+                                        <!-- Conflict Message -->
+                                        <div x-show="fileItem.status === 'conflict'" class="mt-2">
+                                            <p class="text-sm text-amber-600 dark:text-amber-400" x-text="fileItem.message"></p>
+                                        </div>
+
                                         <!-- Error Message -->
                                         <div x-show="fileItem.status === 'error'" class="mt-2">
                                             <p class="text-sm text-red-600 dark:text-red-400" x-text="fileItem.message"></p>
@@ -456,5 +582,15 @@
                 </div>
             </div>
         </div>
+
+        <!-- Conflict Resolution Modal -->
+        <x-modals.module-conflict
+            id="module-conflict-modal"
+            modalTrigger="showConflictModal"
+            conflictDataVar="conflictData"
+            isReplacingVar="isReplacing"
+            onReplace="replaceModule()"
+            onCancel="cancelReplacement()"
+        />
     </div>
 </x-layouts.backend-layout>

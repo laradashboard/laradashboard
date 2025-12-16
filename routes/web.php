@@ -59,6 +59,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::post('/modules/bulk-deactivate', [ModuleController::class, 'bulkDeactivate'])->name('modules.bulk-deactivate');
     Route::post('/modules/store', [ModuleController::class, 'store'])->name('modules.store');
     Route::post('/modules/upload-ajax', [ModuleController::class, 'uploadAjax'])->name('modules.upload-ajax');
+    Route::post('/modules/replace', [ModuleController::class, 'replaceModule'])->name('modules.replace');
+    Route::post('/modules/cancel-replacement', [ModuleController::class, 'cancelReplacement'])->name('modules.cancel-replacement');
     Route::delete('/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.delete');
 
     Route::group(['prefix' => 'settings'], function () {

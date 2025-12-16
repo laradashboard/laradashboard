@@ -643,6 +643,36 @@ Please visit at Lara Dashboard to get more premium moduels - https://laradashboa
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## 📦 Module Development
+
+Lara Dashboard uses [nwidart/laravel-modules](https://laravelmodules.com/) for modular architecture. Modules are self-contained packages with pre-compiled assets - no npm required on the server.
+
+### Quick Start
+
+```bash
+# Create a new module
+php artisan module:make Blog
+
+# Build and package for distribution
+php artisan module:compile-css Blog --dist
+php artisan module:package Blog --no-vendor
+# Output: Blog-v1.0.0.zip
+```
+
+### Installing Modules
+
+**Via Web UI:** Upload ZIP at **Modules → Install Module** (assets publish automatically)
+
+**Via CLI:**
+```bash
+unzip Blog-v1.0.0.zip -d modules/
+php artisan module:enable Blog
+```
+
+**[📖 Full Module Development Guide](docs/module-development.md)** - Covers module structure, Tailwind CSS setup, building, packaging, and best practices.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## 👥 Contributing
 
 Want to contribute? Fork the project, make your changes, and submit a pull request. Even small improvements to documentation are appreciated!

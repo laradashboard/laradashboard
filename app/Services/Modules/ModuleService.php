@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Modules;
 
+use App\Exceptions\ModuleConflictException;
 use App\Exceptions\ModuleException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -125,7 +126,13 @@ class ModuleService
         return $paged;
     }
 
-    public function uploadModule(Request $request)
+    /**
+     * Upload a new module from a zip file.
+     *
+     * @throws ModuleException If the upload fails
+     * @throws ModuleConflictException If a module with the same name already exists
+     */
+    public function uploadModule(Request $request): string
     {
         // First, clean up orphaned entries from module_statuses.json
         // This handles cases where module folders were manually deleted
@@ -142,48 +149,170 @@ class ModuleService
             throw new ModuleException(__('Module upload failed. The file may not be a valid zip archive.'));
         }
 
-        $folderName = $zip->getNameIndex(0); // Retrieve the module folder name before closing.
-
-        // Check valid module structure.
-        $folderName = str_replace('/', '', $folderName);
-
-        // Security: Prevent overwriting existing modules to avoid malicious code injection.
-        // An attacker could upload a module with the same name as an already-enabled module
-        // (e.g., Crm, TaskManager, Site) to immediately execute malicious code.
-        if (File::exists($this->modulesPath . '/' . $folderName)) {
-            $zip->close();
-            throw new ModuleException(__('A module with this name already exists. Please delete the existing module first or use a different name.'));
-        }
-
-        // Extract the module.
-        $zip->extractTo($this->modulesPath);
+        // Extract to a temporary location first to read module.json
+        $tempPath = storage_path('app/modules_temp/' . uniqid('module_', true));
+        File::ensureDirectoryExists($tempPath);
+        $zip->extractTo($tempPath);
         $zip->close();
 
-        $moduleJsonPath = $this->modulesPath . '/' . $folderName . '/module.json';
-        if (! File::exists($moduleJsonPath)) {
-            // Clean up the extracted files if module.json is missing
-            File::deleteDirectory($this->modulesPath . '/' . $folderName);
+        // Find the module folder and module.json (handles various zip structures)
+        $moduleInfo = $this->findModuleInTempPath($tempPath);
+
+        if (! $moduleInfo) {
+            // Clean up the temp files if module.json is missing
+            File::deleteDirectory($tempPath);
             throw new ModuleException(__('Failed to find the module in the system. Please ensure the module has a valid module.json file.'));
         }
 
-        // Get the actual module name from module.json (this is what nwidart/laravel-modules uses).
-        $moduleJson = json_decode(File::get($moduleJsonPath), true);
-        $moduleName = $moduleJson['name'] ?? $folderName;
+        $extractedPath = $moduleInfo['path'];
+        $folderName = $moduleInfo['folder'];
+        $moduleJsonPath = $extractedPath . '/module.json';
 
-        // Security: Check if a module with this name already exists (case-insensitive).
+        // Get the uploaded module info from module.json
+        $uploadedModuleJson = json_decode(File::get($moduleJsonPath), true);
+        $moduleName = $uploadedModuleJson['name'] ?? $folderName;
+
+        // Check if a module with this name already exists
+        $existingModulePath = $this->modulesPath . '/' . $folderName;
         $moduleStatuses = $this->getModuleStatuses();
-        foreach (array_keys($moduleStatuses) as $existingModule) {
-            if (strcasecmp($existingModule, $moduleName) === 0 && File::exists($this->modulesPath . '/' . $existingModule)) {
-                // Clean up the extracted files
-                File::deleteDirectory($this->modulesPath . '/' . $folderName);
-                throw new ModuleException(__('A module with this name already exists. Please delete the existing module first or use a different name.'));
+        $conflictingModule = null;
+
+        // First check by folder name
+        if (File::exists($existingModulePath)) {
+            $conflictingModule = $folderName;
+        }
+
+        // Also check case-insensitive by module name in statuses
+        if (! $conflictingModule) {
+            foreach (array_keys($moduleStatuses) as $existingModule) {
+                if (strcasecmp($existingModule, $moduleName) === 0 && File::exists($this->modulesPath . '/' . $existingModule)) {
+                    $conflictingModule = $existingModule;
+                    break;
+                }
             }
+        }
+
+        // If there's a conflict, throw ModuleConflictException with comparison data
+        if ($conflictingModule) {
+            $currentModuleInfo = $this->getModuleInfoFromPath($this->modulesPath . '/' . $conflictingModule);
+            $uploadedModuleInfo = $this->getModuleInfoFromPath($extractedPath);
+
+            throw new ModuleConflictException(
+                __('A module with this name already exists.'),
+                $currentModuleInfo,
+                $uploadedModuleInfo,
+                $tempPath
+            );
+        }
+
+        // No conflict - proceed with installation
+        return $this->installModuleFromTemp($tempPath, $folderName, $moduleName);
+    }
+
+    /**
+     * Replace an existing module with the uploaded one.
+     *
+     * @param string $tempPath The temporary path where the uploaded module was extracted
+     * @param string $existingModuleName The name of the existing module to replace
+     */
+    public function replaceModule(string $tempPath, string $existingModuleName): string
+    {
+        // Find the module folder and module.json
+        $moduleInfo = $this->findModuleInTempPath($tempPath);
+
+        if (! $moduleInfo) {
+            File::deleteDirectory($tempPath);
+            throw new ModuleException(__('Failed to find the module in the system. Please ensure the module has a valid module.json file.'));
+        }
+
+        $extractedPath = $moduleInfo['path'];
+        $folderName = $moduleInfo['folder'];
+        $moduleJsonPath = $extractedPath . '/module.json';
+
+        $uploadedModuleJson = json_decode(File::get($moduleJsonPath), true);
+        $moduleName = $uploadedModuleJson['name'] ?? $folderName;
+
+        // Check if module was enabled
+        $moduleStatuses = $this->getModuleStatuses();
+        $wasEnabled = $moduleStatuses[$existingModuleName] ?? false;
+
+        // Delete the existing module (but preserve the status for re-enabling)
+        $existingModulePath = $this->modulesPath . '/' . $existingModuleName;
+        if (File::exists($existingModulePath)) {
+            // Clean up old assets first
+            $this->cleanupModuleAssets($existingModuleName);
+
+            // Disable the module before deletion
+            if ($wasEnabled) {
+                try {
+                    Artisan::call('module:disable', ['module' => $existingModuleName]);
+                } catch (\Throwable $e) {
+                    Log::warning("Could not disable module before replacement: " . $e->getMessage());
+                }
+            }
+
+            // Delete the old module files
+            File::deleteDirectory($existingModulePath);
+        }
+
+        // Remove old status entry if module name changed
+        if ($existingModuleName !== $moduleName && isset($moduleStatuses[$existingModuleName])) {
+            unset($moduleStatuses[$existingModuleName]);
+            File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
+        }
+
+        // Install the new module
+        $installedModuleName = $this->installModuleFromTemp($tempPath, $folderName, $moduleName);
+
+        // Re-enable if was previously enabled
+        if ($wasEnabled) {
+            try {
+                $this->toggleModule($installedModuleName, true);
+            } catch (\Throwable $e) {
+                Log::warning("Could not re-enable module after replacement: " . $e->getMessage());
+            }
+        }
+
+        return $installedModuleName;
+    }
+
+    /**
+     * Install a module from a temporary extraction path.
+     */
+    protected function installModuleFromTemp(string $tempPath, string $folderName, string $moduleName): string
+    {
+        $targetPath = $this->modulesPath . '/' . $folderName;
+
+        // Check if the module is in a subdirectory or at the root of temp path
+        $extractedPath = $tempPath . '/' . $folderName;
+
+        if (File::isDirectory($extractedPath) && File::exists($extractedPath . '/module.json')) {
+            // Module is in a subdirectory (standard structure)
+            File::moveDirectory($extractedPath, $targetPath);
+            // Clean up temp directory
+            File::deleteDirectory($tempPath);
+        } elseif (File::exists($tempPath . '/module.json')) {
+            // Module is at root of temp path (zipped from inside module folder)
+            // We need to move the entire temp directory content to target
+            File::moveDirectory($tempPath, $targetPath);
+        } else {
+            // Fallback: try the subdirectory approach
+            File::moveDirectory($extractedPath, $targetPath);
+            File::deleteDirectory($tempPath);
         }
 
         // Save this module to the modules_statuses.json file as DISABLED.
         // New modules are disabled by default for security - admin must explicitly enable them.
+        $moduleStatuses = $this->getModuleStatuses();
         $moduleStatuses[$moduleName] = false;
         File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
+
+        // Publish pre-built assets if the module contains them.
+        // This allows modules with pre-compiled CSS/JS to work without npm build.
+        if ($this->hasPrebuiltAssets($moduleName)) {
+            $this->publishModuleAssets($moduleName, force: true);
+            Log::info("Published pre-built assets for module {$moduleName}");
+        }
 
         // Regenerate Composer autoloader so the new module classes can be found.
         // Without this, activating the module will fail with "Class not found" error.
@@ -192,8 +321,109 @@ class ModuleService
         // Clear the cache.
         Artisan::call('cache:clear');
 
-        // Return the module name for use in responses
         return $moduleName;
+    }
+
+    /**
+     * Get module information from a module path.
+     *
+     * @return array<string, mixed>
+     */
+    protected function getModuleInfoFromPath(string $modulePath): array
+    {
+        $moduleJsonPath = $modulePath . '/module.json';
+
+        if (! File::exists($moduleJsonPath)) {
+            return [
+                'name' => basename($modulePath),
+                'version' => 'Unknown',
+                'description' => '',
+                'author' => '',
+            ];
+        }
+
+        $moduleJson = json_decode(File::get($moduleJsonPath), true);
+
+        return [
+            'name' => $moduleJson['name'] ?? basename($modulePath),
+            'version' => $moduleJson['version'] ?? '1.0.0',
+            'description' => $moduleJson['description'] ?? '',
+            'author' => $this->extractAuthor($moduleJson),
+            'keywords' => $moduleJson['keywords'] ?? [],
+            'icon' => $moduleJson['icon'] ?? 'bi-box',
+        ];
+    }
+
+    /**
+     * Extract author name from module.json.
+     */
+    protected function extractAuthor(array $moduleJson): string
+    {
+        if (isset($moduleJson['author'])) {
+            if (is_string($moduleJson['author'])) {
+                return $moduleJson['author'];
+            }
+            if (is_array($moduleJson['author']) && isset($moduleJson['author']['name'])) {
+                return $moduleJson['author']['name'];
+            }
+        }
+
+        if (isset($moduleJson['authors']) && is_array($moduleJson['authors'])) {
+            $firstAuthor = $moduleJson['authors'][0] ?? null;
+            if ($firstAuthor && isset($firstAuthor['name'])) {
+                return $firstAuthor['name'];
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Cancel a pending module replacement by cleaning up temp files.
+     */
+    public function cancelModuleReplacement(string $tempPath): void
+    {
+        if (File::exists($tempPath) && str_starts_with($tempPath, storage_path('app/modules_temp/'))) {
+            File::deleteDirectory($tempPath);
+        }
+    }
+
+    /**
+     * Find module.json in the temp extraction path.
+     * Handles various zip structures:
+     * - ModuleName/module.json (standard)
+     * - module.json at root (zipped from inside module folder)
+     * - Nested structures
+     *
+     * @return array{path: string, folder: string}|null
+     */
+    protected function findModuleInTempPath(string $tempPath): ?array
+    {
+        // First, check if module.json is directly in temp path (zipped from inside module)
+        if (File::exists($tempPath . '/module.json')) {
+            // Read the module name from module.json to determine folder name
+            $moduleJson = json_decode(File::get($tempPath . '/module.json'), true);
+            $folderName = $moduleJson['name'] ?? basename($tempPath);
+
+            return [
+                'path' => $tempPath,
+                'folder' => $folderName,
+            ];
+        }
+
+        // Check subdirectories for module.json
+        $directories = File::directories($tempPath);
+        foreach ($directories as $directory) {
+            if (File::exists($directory . '/module.json')) {
+                return [
+                    'path' => $directory,
+                    'folder' => basename($directory),
+                ];
+            }
+        }
+
+        // Not found
+        return null;
     }
 
     public function toggleModule($moduleName, $enable = true): bool
@@ -348,6 +578,9 @@ class ModuleService
             throw new ModuleException(__('Module directory does not exist. Please ensure the module is installed correctly.'));
         }
 
+        // Clean up published assets from public directory.
+        $this->cleanupModuleAssets($module->getName());
+
         // Delete the module from the database.
         ModuleFacade::delete($module->getName());
 
@@ -395,11 +628,91 @@ class ModuleService
     /**
      * Support for Vite hot reload overriding manifest file.
      */
-    public function moduleViteCompile(string $module, string $asset, ?string $hotFilePath = null, $manifestFile = '.vite/manifest.json'): ViteFoundation
+    public function moduleViteCompile(string $module, string $asset, ?string $hotFilePath = null, $manifestFile = 'manifest.json'): ViteFoundation
     {
         return Vite::useHotFile($hotFilePath ?: storage_path('vite.hot'))
             ->useBuildDirectory($module)
             ->useManifestFilename($manifestFile)
             ->withEntryPoints([$asset]);
+    }
+
+    /**
+     * Publish pre-built assets from module's dist directory to public directory.
+     * This allows modules with pre-compiled CSS/JS to work without npm build.
+     *
+     * @param string $moduleName The module name
+     * @param bool $force Whether to overwrite existing assets
+     * @return bool Whether assets were published
+     */
+    public function publishModuleAssets(string $moduleName, bool $force = false): bool
+    {
+        $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
+        $sourcePath = $this->modulesPath . '/' . $moduleName . '/dist/build-' . $moduleSlug;
+        $targetPath = public_path('build-' . $moduleSlug);
+
+        // Check if module has pre-built assets
+        if (! File::isDirectory($sourcePath)) {
+            Log::info("Module {$moduleName} has no pre-built assets at {$sourcePath}");
+            return false;
+        }
+
+        // Check if target already exists
+        if (File::isDirectory($targetPath)) {
+            if (! $force) {
+                Log::info("Assets for module {$moduleName} already exist at {$targetPath}, skipping");
+                return true;
+            }
+            // Remove existing assets
+            File::deleteDirectory($targetPath);
+        }
+
+        // Copy assets from module dist to public
+        try {
+            File::copyDirectory($sourcePath, $targetPath);
+            Log::info("Published assets for module {$moduleName} from {$sourcePath} to {$targetPath}");
+            return true;
+        } catch (\Throwable $e) {
+            Log::error("Failed to publish assets for module {$moduleName}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Check if a module has pre-built assets in its dist directory.
+     *
+     * @param string $moduleName The module name
+     * @return bool Whether the module has pre-built assets
+     */
+    public function hasPrebuiltAssets(string $moduleName): bool
+    {
+        $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
+        $distPath = $this->modulesPath . '/' . $moduleName . '/dist/build-' . $moduleSlug;
+
+        return File::isDirectory($distPath) && File::exists($distPath . '/manifest.json');
+    }
+
+    /**
+     * Clean up published assets for a module from the public directory.
+     *
+     * @param string $moduleName The module name
+     * @return bool Whether cleanup was successful
+     */
+    public function cleanupModuleAssets(string $moduleName): bool
+    {
+        $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
+        $targetPath = public_path('build-' . $moduleSlug);
+
+        if (! File::isDirectory($targetPath)) {
+            return true; // Nothing to clean up
+        }
+
+        try {
+            File::deleteDirectory($targetPath);
+            Log::info("Cleaned up assets for module {$moduleName} from {$targetPath}");
+            return true;
+        } catch (\Throwable $e) {
+            Log::error("Failed to clean up assets for module {$moduleName}: " . $e->getMessage());
+            return false;
+        }
     }
 }

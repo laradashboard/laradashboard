@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Backend;
 
+use App\Exceptions\ModuleConflictException;
 use App\Helpers\FileHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Module\StoreModuleRequest;
 use App\Models\Module;
 use App\Services\Modules\ModuleService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ModuleController extends Controller
@@ -175,12 +177,89 @@ class ModuleController extends Controller
                 'message' => __('Module uploaded successfully. You can now activate it.'),
                 'module_name' => $moduleName,
             ]);
+        } catch (ModuleConflictException $e) {
+            // Return conflict data for the user to decide
+            $comparisonData = $e->getComparisonData();
+
+            return response()->json([
+                'success' => false,
+                'conflict' => true,
+                'message' => $e->getMessage(),
+                'current' => $comparisonData['current'],
+                'uploaded' => $comparisonData['uploaded'],
+                'temp_path' => $comparisonData['temp_path'],
+            ], 409); // 409 Conflict
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
                 'message' => $th->getMessage(),
             ], 422);
         }
+    }
+
+    /**
+     * Replace an existing module with uploaded one.
+     */
+    public function replaceModule(Request $request): JsonResponse
+    {
+        $this->authorize('create', Module::class);
+
+        if (config('app.demo_mode', false)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Module replacement is restricted in demo mode. Please try on your local/live environment.'),
+            ], 403);
+        }
+
+        $tempPath = $request->input('temp_path');
+        $existingModuleName = $request->input('existing_module_name');
+
+        if (! $tempPath || ! $existingModuleName) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Invalid request. Missing required parameters.'),
+            ], 400);
+        }
+
+        // Validate temp path is within our expected directory for security
+        if (! str_starts_with($tempPath, storage_path('app/modules_temp/'))) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Invalid temporary path.'),
+            ], 400);
+        }
+
+        try {
+            $moduleName = $this->moduleService->replaceModule($tempPath, $existingModuleName);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Module replaced successfully.'),
+                'module_name' => $moduleName,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
+     * Cancel a pending module replacement.
+     */
+    public function cancelReplacement(Request $request): JsonResponse
+    {
+        $tempPath = $request->input('temp_path');
+
+        if ($tempPath && str_starts_with($tempPath, storage_path('app/modules_temp/'))) {
+            $this->moduleService->cancelModuleReplacement($tempPath);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Module installation cancelled.'),
+        ]);
     }
 
     public function destroy(string $module)

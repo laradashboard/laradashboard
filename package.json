@@ -1,7 +1,7 @@
 {
     "name": "laradashboard",
     "private": true,
-    "version": "2.3.1",
+    "version": "2.3.2",
     "type": "module",
     "scripts": {
         "build": "npm run build:app && npm run build:modules",
@@ -28,9 +28,9 @@
         "eslint": "^9.17.0",
         "eslint-config-prettier": "^10.0.1",
         "husky": "^9.1.7",
-        "laravel-vite-plugin": "^1.2",
+        "laravel-vite-plugin": "^2.0",
         "tailwindcss": "^4.0.15",
-        "vite": "^6.3"
+        "vite": "^7.2.7"
     },
     "dependencies": {
         "@alpinejs/focus": "^3.14.9",
