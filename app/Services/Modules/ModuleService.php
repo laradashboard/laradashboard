@@ -439,6 +439,11 @@ class ModuleService
             // Activate/Deactivate the module.
             $callbackName = $enable ? 'module:enable' : 'module:disable';
             Artisan::call($callbackName, ['module' => $moduleName]);
+
+            // Publish pre-built assets when enabling a module
+            if ($enable) {
+                $this->publishModuleAssets($moduleName);
+            }
         } catch (\Throwable $th) {
             Log::error("Failed to toggle module {$moduleName}: " . $th->getMessage());
             throw new ModuleException(__('Failed to toggle module status. Please check the logs for more details.'));
@@ -646,8 +651,15 @@ class ModuleService
      */
     public function publishModuleAssets(string $moduleName, bool $force = false): bool
     {
+        $module = $this->findModuleByName($moduleName);
+        if (! $module) {
+            Log::info("Module {$moduleName} not found for asset publishing");
+            return false;
+        }
+
         $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
-        $sourcePath = $this->modulesPath . '/' . $moduleName . '/dist/build-' . $moduleSlug;
+        // Use actual module path to handle case sensitivity (folder might be lowercase)
+        $sourcePath = $module->getPath() . '/dist/build-' . $moduleSlug;
         $targetPath = public_path('build-' . $moduleSlug);
 
         // Check if module has pre-built assets
@@ -685,8 +697,14 @@ class ModuleService
      */
     public function hasPrebuiltAssets(string $moduleName): bool
     {
+        $module = $this->findModuleByName($moduleName);
+        if (! $module) {
+            return false;
+        }
+
         $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
-        $distPath = $this->modulesPath . '/' . $moduleName . '/dist/build-' . $moduleSlug;
+        // Use actual module path to handle case sensitivity
+        $distPath = $module->getPath() . '/dist/build-' . $moduleSlug;
 
         return File::isDirectory($distPath) && File::exists($distPath . '/manifest.json');
     }
