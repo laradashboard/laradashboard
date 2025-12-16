@@ -308,9 +308,9 @@ class ModuleService
         File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
 
         // Publish pre-built assets if the module contains them.
-        // This allows modules with pre-compiled CSS/JS to work without npm build.
-        if ($this->hasPrebuiltAssets($moduleName)) {
-            $this->publishModuleAssets($moduleName, force: true);
+        // Use path-based method since module isn't registered in Module facade yet.
+        if ($this->hasPrebuiltAssetsAtPath($targetPath, $moduleName)) {
+            $this->publishModuleAssetsFromPath($targetPath, $moduleName, force: true);
             Log::info("Published pre-built assets for module {$moduleName}");
         }
 
@@ -730,6 +730,64 @@ class ModuleService
             return true;
         } catch (\Throwable $e) {
             Log::error("Failed to clean up assets for module {$moduleName}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Check if a module has pre-built assets using a direct filesystem path.
+     * Use this during upload when the module isn't registered in the Module facade yet.
+     *
+     * @param string $modulePath The absolute path to the module directory
+     * @param string $moduleName The module name (for slug generation)
+     * @return bool Whether the module has pre-built assets
+     */
+    public function hasPrebuiltAssetsAtPath(string $modulePath, string $moduleName): bool
+    {
+        $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
+        $distPath = $modulePath . '/dist/build-' . $moduleSlug;
+
+        return File::isDirectory($distPath) && File::exists($distPath . '/manifest.json');
+    }
+
+    /**
+     * Publish pre-built assets from a module's dist directory using a direct filesystem path.
+     * Use this during upload when the module isn't registered in the Module facade yet.
+     *
+     * @param string $modulePath The absolute path to the module directory
+     * @param string $moduleName The module name (for slug generation)
+     * @param bool $force Whether to overwrite existing assets
+     * @return bool Whether assets were published
+     */
+    public function publishModuleAssetsFromPath(string $modulePath, string $moduleName, bool $force = false): bool
+    {
+        $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
+        $sourcePath = $modulePath . '/dist/build-' . $moduleSlug;
+        $targetPath = public_path('build-' . $moduleSlug);
+
+        // Check if module has pre-built assets
+        if (! File::isDirectory($sourcePath)) {
+            Log::info("Module {$moduleName} has no pre-built assets at {$sourcePath}");
+            return false;
+        }
+
+        // Check if target already exists
+        if (File::isDirectory($targetPath)) {
+            if (! $force) {
+                Log::info("Assets for module {$moduleName} already exist at {$targetPath}, skipping");
+                return true;
+            }
+            // Remove existing assets
+            File::deleteDirectory($targetPath);
+        }
+
+        // Copy assets from module dist to public
+        try {
+            File::copyDirectory($sourcePath, $targetPath);
+            Log::info("Published assets for module {$moduleName} from {$sourcePath} to {$targetPath}");
+            return true;
+        } catch (\Throwable $e) {
+            Log::error("Failed to publish assets for module {$moduleName}: " . $e->getMessage());
             return false;
         }
     }
