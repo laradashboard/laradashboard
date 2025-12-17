@@ -87,7 +87,12 @@
                 if (el === this.$root) {
                     // Get fresh IDs from the DOM after Livewire update
                     const checkboxes = this.$root.querySelectorAll('.item-checkbox');
-                    this.allIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+                    // Handle both numeric and string IDs
+                    this.allIds = Array.from(checkboxes).map(cb => {
+                        const val = cb.value;
+                        const num = parseInt(val);
+                        return isNaN(num) ? val : num;
+                    });
                     // Update selectAll state based on new page items
                     this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
                 }
@@ -336,19 +341,24 @@
                     @forelse ($data as $item)
                         <tr class="{{ $loop->index + 1 != count($data) ?  'table-tr' : '' }}">
                             @if($enableCheckbox ?? true && can('delete', $item))
+                                @php
+                                    $itemId = $item->id;
+                                    $itemIdJson = json_encode($itemId);
+                                @endphp
                                 <td class="table-td table-td-checkbox" wire:ignore>
                                     <input
                                         type="checkbox"
                                         class="item-checkbox form-checkbox"
-                                        value="{{ $item->id }}"
-                                        :checked="selectedItems.includes({{ $item->id }})"
+                                        value="{{ $itemId }}"
+                                        :checked="selectedItems.includes({{ $itemIdJson }})"
                                         @change="
+                                            const itemId = {{ $itemIdJson }};
                                             if ($event.target.checked) {
-                                                if (!selectedItems.includes({{ $item->id }})) {
-                                                    selectedItems.push({{ $item->id }});
+                                                if (!selectedItems.includes(itemId)) {
+                                                    selectedItems.push(itemId);
                                                 }
                                             } else {
-                                                selectedItems = selectedItems.filter(id => id !== {{ $item->id }});
+                                                selectedItems = selectedItems.filter(id => id !== itemId);
                                             }
                                             updateSelectAll();
                                         "

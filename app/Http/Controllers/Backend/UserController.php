@@ -97,7 +97,6 @@ class UserController extends Controller
                 __('Edit User'),
                 'feather:edit-2',
                 'user.edit',
-                true
             );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.users.show', [

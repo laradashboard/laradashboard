@@ -4,17 +4,17 @@ This guide covers everything you need to know about developing, building, and di
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Getting Started](#getting-started)
-- [Module Structure](#module-structure)
-- [Creating a New Module](#creating-a-new-module)
-- [Module Configuration](#module-configuration)
-- [Frontend Assets (CSS/JS)](#frontend-assets-cssjs)
-- [Building for Distribution](#building-for-distribution)
-- [Installing Modules](#installing-modules)
-- [Module Commands Reference](#module-commands-reference)
-- [Best Practices](#best-practices)
-- [Troubleshooting](#troubleshooting)
+-   [Overview](#overview)
+-   [Getting Started](#getting-started)
+-   [Module Structure](#module-structure)
+-   [Creating a New Module](#creating-a-new-module)
+-   [Module Configuration](#module-configuration)
+-   [Frontend Assets (CSS/JS)](#frontend-assets-cssjs)
+-   [Building for Distribution](#building-for-distribution)
+-   [Installing Modules](#installing-modules)
+-   [Module Commands Reference](#module-commands-reference)
+-   [Best Practices](#best-practices)
+-   [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -23,10 +23,11 @@ This guide covers everything you need to know about developing, building, and di
 Lara Dashboard uses [nwidart/laravel-modules](https://laravelmodules.com/) for modular architecture. Modules are self-contained packages that extend the dashboard functionality.
 
 **Key Features:**
-- Self-contained modules with their own controllers, models, views, and assets
-- Pre-compiled CSS/JS support (no npm required on server)
-- Easy installation via ZIP upload or CLI
-- Automatic asset publishing on module upload
+
+-   Self-contained modules with their own controllers, models, views, and assets
+-   Pre-compiled CSS/JS support (no npm required on server)
+-   Easy installation via ZIP upload or CLI
+-   Automatic asset publishing on module upload
 
 ---
 
@@ -34,9 +35,9 @@ Lara Dashboard uses [nwidart/laravel-modules](https://laravelmodules.com/) for m
 
 ### Prerequisites
 
-- Lara Dashboard installed and running
-- Node.js (for development/building only)
-- Composer
+-   Lara Dashboard installed and running
+-   Node.js (for development/building only)
+-   Composer
 
 ### Quick Start
 
@@ -134,30 +135,80 @@ Every module requires a `module.json` file:
 
 ```json
 {
-  "name": "Blog",
-  "alias": "blog",
-  "description": "Blog management module",
-  "keywords": ["blog", "posts", "articles"],
-  "category": "content",
-  "priority": 10,
-  "providers": ["Modules\\Blog\\Providers\\BlogServiceProvider"],
-  "files": [],
-  "icon": "bi-journal-text",
-  "version": "1.0.0"
+    "name": "blog",
+    "title": "Blog",
+    "description": "Blog management module for creating and managing posts, categories, and comments.",
+    "keywords": ["blog", "posts", "articles"],
+    "category": "content",
+    "priority": 10,
+    "providers": ["Modules\\Blog\\Providers\\BlogServiceProvider"],
+    "files": [],
+    "icon": "lucide:book-open",
+    "logo_image": null,
+    "banner_image": null,
+    "version": "1.0.0",
+    "author": "Your Name",
+    "author_url": "https://yourwebsite.com",
+    "documentation_url": "https://docs.yourwebsite.com/blog"
 }
 ```
 
-| Field | Description |
-|-------|-------------|
-| `name` | Module name (PascalCase) |
-| `alias` | URL-friendly slug |
-| `description` | Short description |
-| `keywords` | Search keywords |
-| `category` | Module category |
-| `priority` | Load order (lower = earlier) |
-| `providers` | Service provider classes |
-| `icon` | Bootstrap icon class |
-| `version` | Semantic version |
+| Field               | Description                                                        | Required |
+| ------------------- | ------------------------------------------------------------------ | -------- |
+| `name`              | Module identifier (lowercase, slug format: `a-z`, `0-9`, `-`)      | Yes      |
+| `title`             | Display name shown in UI                                           | Yes      |
+| `description`       | Short description                                                  | No       |
+| `keywords`          | Search keywords for module discovery                               | No       |
+| `category`          | Module category                                                    | No       |
+| `priority`          | Load order (lower = earlier)                                       | No       |
+| `providers`         | Service provider classes                                           | Yes      |
+| `icon`              | Iconify icon class (e.g., `lucide:book-open`, `bi:journal-text`)   | No       |
+| `logo_image`        | Path to logo image (relative to module assets or absolute URL)     | No       |
+| `banner_image`      | Path to banner image (relative to module assets or absolute URL)   | No       |
+| `version`           | Semantic version (e.g., `1.0.0`)                                   | Yes      |
+| `author`            | Module author name                                                 | No       |
+| `author_url`        | Link to author's website or profile                                | No       |
+| `documentation_url` | Link to module documentation                                       | No       |
+
+### Module Images (Logo & Banner)
+
+You can add branding images to your module that will be displayed in the module list and detail pages.
+
+**Logo Image (`logo_image`):**
+- Displayed in the module list (40x40px) and detail page (96x96px)
+- Falls back to the `icon` if not provided
+- Recommended size: 256x256px (square)
+
+**Banner Image (`banner_image`):**
+- Displayed at the top of the module detail page
+- Recommended size: 1200x400px
+
+**Image Paths:**
+- **Relative path**: Relative to module's built assets (e.g., `images/logo.png` will resolve to `public/build-{module}/images/logo.png`)
+- **Absolute URL**: External URLs are supported (e.g., `https://example.com/logo.png`)
+
+**Example with images:**
+```json
+{
+    "name": "crm",
+    "title": "CRM",
+    "icon": "lucide:users",
+    "logo_image": "images/crm-logo.png",
+    "banner_image": "images/crm-banner.jpg",
+    "version": "1.0.0"
+}
+```
+
+To include images in your distribution:
+1. Place images in `modules/YourModule/dist/build-yourmodule/images/`
+2. Reference them in `module.json` as `images/filename.png`
+3. Images will be published to `public/build-yourmodule/images/` on module upload
+
+**Important Notes:**
+
+-   `name` must be **lowercase** and match the folder name when possible
+-   `name` is used for status tracking, routes, and internal identification
+-   `title` is what users see in the admin panel
 
 ### Service Provider
 
@@ -222,36 +273,36 @@ Create `resources/assets/css/app.css`:
 Create `vite.config.js` in your module root:
 
 ```javascript
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
-import tailwindcss from '@tailwindcss/vite';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { defineConfig } from "vite";
+import laravel from "laravel-vite-plugin";
+import tailwindcss from "@tailwindcss/vite";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Support both development and distribution builds
-const isDistBuild = process.env.MODULE_DIST_BUILD === 'true';
+const isDistBuild = process.env.MODULE_DIST_BUILD === "true";
 
-const distOutDir = path.resolve(__dirname, 'dist/build-blog');
-const devOutDir = path.resolve(__dirname, '../../public/build-blog');
+const distOutDir = path.resolve(__dirname, "dist/build-blog");
+const devOutDir = path.resolve(__dirname, "../../public/build-blog");
 
 export default defineConfig({
     build: {
         outDir: isDistBuild ? distOutDir : devOutDir,
         emptyOutDir: true,
-        manifest: 'manifest.json',
+        manifest: "manifest.json",
     },
     plugins: [
         laravel({
             publicDirectory: isDistBuild
-                ? path.resolve(__dirname, 'dist')
-                : path.resolve(__dirname, '../../public'),
-            buildDirectory: 'build-blog',
+                ? path.resolve(__dirname, "dist")
+                : path.resolve(__dirname, "../../public"),
+            buildDirectory: "build-blog",
             input: [
-                path.resolve(__dirname, 'resources/assets/css/app.css'),
-                path.resolve(__dirname, 'resources/assets/js/app.js'),
+                path.resolve(__dirname, "resources/assets/css/app.css"),
+                path.resolve(__dirname, "resources/assets/js/app.js"),
             ],
             refresh: true,
         }),
@@ -404,31 +455,31 @@ When a module with pre-built assets is uploaded:
 
 ### Core Module Commands
 
-| Command | Description |
-|---------|-------------|
-| `php artisan module:make {name}` | Create a new module |
-| `php artisan module:enable {name}` | Enable a module |
-| `php artisan module:disable {name}` | Disable a module |
+| Command                             | Description           |
+| ----------------------------------- | --------------------- |
+| `php artisan module:make {name}`    | Create a new module   |
+| `php artisan module:enable {name}`  | Enable a module       |
+| `php artisan module:disable {name}` | Disable a module      |
 | `php artisan module:migrate {name}` | Run module migrations |
-| `php artisan module:seed {name}` | Run module seeders |
-| `php artisan module:list` | List all modules |
+| `php artisan module:seed {name}`    | Run module seeders    |
+| `php artisan module:list`           | List all modules      |
 
 ### Asset Commands
 
-| Command | Description |
-|---------|-------------|
-| `php artisan module:compile-css {name}` | Build assets for development |
-| `php artisan module:compile-css {name} --dist` | Build assets for distribution |
-| `php artisan module:compile-css {name} --watch` | Watch mode |
-| `php artisan module:publish-assets {name}` | Publish pre-built assets |
-| `php artisan module:publish-assets` | Publish all module assets |
+| Command                                         | Description                   |
+| ----------------------------------------------- | ----------------------------- |
+| `php artisan module:compile-css {name}`         | Build assets for development  |
+| `php artisan module:compile-css {name} --dist`  | Build assets for distribution |
+| `php artisan module:compile-css {name} --watch` | Watch mode                    |
+| `php artisan module:publish-assets {name}`      | Publish pre-built assets      |
+| `php artisan module:publish-assets`             | Publish all module assets     |
 
 ### Packaging Commands
 
-| Command | Description |
-|---------|-------------|
-| `php artisan module:package {name}` | Create distributable ZIP |
-| `php artisan module:package {name} --compile` | Compile and package |
+| Command                                         | Description              |
+| ----------------------------------------------- | ------------------------ |
+| `php artisan module:package {name}`             | Create distributable ZIP |
+| `php artisan module:package {name} --compile`   | Compile and package      |
 | `php artisan module:package {name} --no-vendor` | Exclude vendor directory |
 
 ### Generator Commands
@@ -456,9 +507,24 @@ php artisan module:make-test PostTest Blog
 
 ### Naming Conventions
 
-- Module name: `PascalCase` (e.g., `TaskManager`)
-- Folder/alias: `kebab-case` (e.g., `task-manager`)
-- CSS prefix: `lowercase` (e.g., `taskmanager-`)
+| Item                            | Format                      | Example                              |
+| ------------------------------- | --------------------------- | ------------------------------------ |
+| Module `name` (in module.json)  | `lowercase` or `kebab-case` | `crm`, `task-manager`                |
+| Module `title` (in module.json) | Human-readable              | `CRM`, `Task Manager`                |
+| Folder name                     | Same as `name`              | `crm`, `task-manager`                |
+| Namespace                       | `PascalCase`                | `Modules\Crm`, `Modules\TaskManager` |
+| CSS prefix                      | `lowercase`                 | `crm-`, `taskmanager-`               |
+
+**Example:**
+
+```
+Folder: modules/task-manager/
+module.json:
+  "name": "task-manager"
+  "title": "Task Manager"
+Namespace: Modules\TaskManager
+CSS prefix: taskmanager-
+```
 
 ### CSS Class Prefixing
 
@@ -528,6 +594,7 @@ php artisan test modules/Blog/tests/
 **Cause:** Assets not built or manifest in wrong location.
 
 **Solution:**
+
 ```bash
 # Rebuild assets
 php artisan module:compile-css YourModule
@@ -541,6 +608,7 @@ php artisan module:publish-assets YourModule
 **Cause:** Composer autoloader not updated.
 
 **Solution:**
+
 ```bash
 composer dump-autoload
 ```
@@ -550,6 +618,7 @@ composer dump-autoload
 **Cause:** Tailwind classes not compiled or prefix mismatch.
 
 **Solution:**
+
 1. Check your `app.css` has correct `@source` directives
 2. Rebuild assets: `php artisan module:compile-css YourModule`
 3. Ensure you're using the correct prefix in your blade files
@@ -559,6 +628,7 @@ composer dump-autoload
 **Cause:** Invalid `module.json` or service provider error.
 
 **Solution:**
+
 1. Validate `module.json` syntax
 2. Check Laravel logs: `storage/logs/laravel.log`
 3. Ensure service provider class exists and is correct
@@ -569,10 +639,10 @@ composer dump-autoload
 
 We're building a module marketplace where you can:
 
-- Browse and discover modules
-- One-click install from the dashboard
-- Publish your own modules
-- Manage updates and versioning
+-   Browse and discover modules
+-   One-click install from the dashboard
+-   Publish your own modules
+-   Manage updates and versioning
 
 Stay tuned for updates!
 
@@ -580,15 +650,15 @@ Stay tuned for updates!
 
 ## Resources
 
-- [Laravel Modules Documentation](https://laravelmodules.com/docs)
-- [Tailwind CSS v4 Documentation](https://tailwindcss.com/docs)
-- [Lara Dashboard Documentation](https://laradashboard.com/docs/)
-- [Example Modules](https://github.com/laradashboard)
+-   [Laravel Modules Documentation](https://laravelmodules.com/docs)
+-   [Tailwind CSS v4 Documentation](https://tailwindcss.com/docs)
+-   [Lara Dashboard Documentation](https://laradashboard.com/docs/)
+-   [Example Modules](https://github.com/laradashboard)
 
 ---
 
 ## Need Help?
 
-- [GitHub Issues](https://github.com/laradashboard/laradashboard/issues)
-- [Facebook Community](https://www.facebook.com/groups/laradashboard)
-- [Discord Server](https://discord.gg/laradashboard)
+-   [GitHub Issues](https://github.com/laradashboard/laradashboard/issues)
+-   [Facebook Community](https://www.facebook.com/groups/laradashboard)
+-   [Discord Server](https://discord.gg/laradashboard)

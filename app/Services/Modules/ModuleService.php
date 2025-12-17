@@ -31,9 +31,87 @@ class ModuleService
         $this->modulesStatusesPath = base_path('modules_statuses.json');
     }
 
+    /**
+     * Normalize module name to lowercase for comparison purposes.
+     */
+    public function normalizeModuleName(string $moduleName): string
+    {
+        return strtolower(trim($moduleName));
+    }
+
+    /**
+     * Get the actual module folder name from disk (case-sensitive).
+     * Returns null if module folder doesn't exist.
+     */
+    public function getActualModuleFolderName(string $moduleName): ?string
+    {
+        $normalizedSearch = $this->normalizeModuleName($moduleName);
+
+        if (! File::exists($this->modulesPath)) {
+            return null;
+        }
+
+        foreach (File::directories($this->modulesPath) as $directory) {
+            $folderName = basename($directory);
+            if ($this->normalizeModuleName($folderName) === $normalizedSearch) {
+                return $folderName;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the module name as defined in module.json.
+     * This is the canonical lowercase name used for status tracking.
+     */
+    public function getModuleJsonName(string $moduleName): ?string
+    {
+        $folderName = $this->getActualModuleFolderName($moduleName);
+        if (! $folderName) {
+            return null;
+        }
+
+        $moduleJsonPath = $this->modulesPath . '/' . $folderName . '/module.json';
+        if (! File::exists($moduleJsonPath)) {
+            return $this->normalizeModuleName($folderName); // Fallback to lowercase folder name
+        }
+
+        $moduleData = json_decode(File::get($moduleJsonPath), true);
+
+        // name should be lowercase, but normalize just in case
+        return $this->normalizeModuleName($moduleData['name'] ?? $folderName);
+    }
+
+    /**
+     * Get the module title for display purposes.
+     */
+    public function getModuleTitle(string $moduleName): ?string
+    {
+        $folderName = $this->getActualModuleFolderName($moduleName);
+        if (! $folderName) {
+            return null;
+        }
+
+        $moduleJsonPath = $this->modulesPath . '/' . $folderName . '/module.json';
+        if (! File::exists($moduleJsonPath)) {
+            return ucfirst($folderName);
+        }
+
+        $moduleData = json_decode(File::get($moduleJsonPath), true);
+
+        return $moduleData['title'] ?? $moduleData['name'] ?? ucfirst($folderName);
+    }
+
     public function findModuleByName(string $moduleName): ?Module
     {
-        return ModuleFacade::find(strtolower($moduleName));
+        // Use actual folder name for lookup
+        $actualName = $this->getActualModuleFolderName($moduleName);
+        if (! $actualName) {
+            return null;
+        }
+
+        return ModuleFacade::find($actualName);
     }
 
     public function getModuleByName(string $moduleName): ?ModuleModel
@@ -46,20 +124,31 @@ class ModuleService
         $moduleData = json_decode(File::get($module->getPath() . '/module.json'), true);
         $moduleStatuses = $this->getModuleStatuses();
 
+        // Use lowercase name from module.json for status lookup
+        $jsonName = $this->normalizeModuleName($moduleData['name'] ?? $module->getName());
+
         return new ModuleModel([
-            'id' => $module->getName(),
-            'name' => $module->getName(),
-            'title' => $moduleData['name'] ?? $module->getName(),
+            'id' => $jsonName,
+            'name' => $jsonName,
+            'title' => $moduleData['title'] ?? $moduleData['name'] ?? $module->getName(),
             'description' => $moduleData['description'] ?? '',
-            'icon' => $moduleData['icon'] ?? 'bi-box',
-            'status' => $moduleStatuses[$module->getName()] ?? false,
+            'icon' => $moduleData['icon'] ?? 'lucide:box',
+            'logo_image' => $moduleData['logo_image'] ?? null,
+            'banner_image' => $moduleData['banner_image'] ?? null,
+            'status' => $moduleStatuses[$jsonName] ?? false,
             'version' => $moduleData['version'] ?? '1.0.0',
+            'author' => $moduleData['author'] ?? null,
+            'author_url' => $moduleData['author_url'] ?? null,
+            'documentation_url' => $moduleData['documentation_url'] ?? null,
             'tags' => $moduleData['keywords'] ?? [],
+            'category' => $moduleData['category'] ?? null,
+            'priority' => $moduleData['priority'] ?? 0,
         ]);
     }
 
     /**
      * Get the module statuses from the modules_statuses.json file.
+     * Keys are mapped to module.json names (what nwidart uses).
      */
     public function getModuleStatuses(): array
     {
@@ -67,29 +156,84 @@ class ModuleService
             return [];
         }
 
-        return json_decode(File::get($this->modulesStatusesPath), true) ?? [];
+        $statuses = json_decode(File::get($this->modulesStatusesPath), true) ?? [];
+
+        // Map to module.json names and merge duplicates
+        $normalized = [];
+        foreach ($statuses as $name => $status) {
+            $jsonName = $this->getModuleJsonName($name);
+            if ($jsonName) {
+                // If duplicate exists, prefer the enabled status
+                if (isset($normalized[$jsonName])) {
+                    $normalized[$jsonName] = $normalized[$jsonName] || $status;
+                } else {
+                    $normalized[$jsonName] = $status;
+                }
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Save module statuses to the modules_statuses.json file.
+     * Uses module.json names (what nwidart/laravel-modules uses).
+     */
+    protected function saveModuleStatuses(array $statuses): void
+    {
+        // Ensure all keys are module.json names
+        $normalized = [];
+        foreach ($statuses as $name => $status) {
+            $jsonName = $this->getModuleJsonName($name);
+            if ($jsonName) {
+                $normalized[$jsonName] = $status;
+            }
+        }
+
+        File::put($this->modulesStatusesPath, json_encode($normalized, JSON_PRETTY_PRINT));
     }
 
     /**
      * Clean up orphaned entries from module_statuses.json.
      * Removes entries for modules whose folders have been manually deleted.
+     * Normalizes module names to match module.json names (what nwidart uses).
      */
     public function cleanupOrphanedModuleStatuses(): void
     {
-        $moduleStatuses = $this->getModuleStatuses();
-        $statusesModified = false;
+        if (! File::exists($this->modulesStatusesPath)) {
+            return;
+        }
 
-        foreach (array_keys($moduleStatuses) as $moduleName) {
-            $modulePath = $this->modulesPath . '/' . $moduleName;
-            if (! File::exists($modulePath)) {
-                unset($moduleStatuses[$moduleName]);
-                $statusesModified = true;
+        // Read raw file to detect if cleanup is needed
+        $rawStatuses = json_decode(File::get($this->modulesStatusesPath), true) ?? [];
+        $cleanedStatuses = [];
+        $needsSave = false;
+
+        foreach ($rawStatuses as $moduleName => $status) {
+            $jsonName = $this->getModuleJsonName($moduleName);
+
+            if ($jsonName) {
+                // Check if key needs to be updated to module.json name
+                if ($moduleName !== $jsonName) {
+                    $needsSave = true;
+                    Log::info("Normalizing module name: {$moduleName} -> {$jsonName}");
+                }
+
+                // If duplicate exists, prefer enabled status
+                if (isset($cleanedStatuses[$jsonName])) {
+                    $cleanedStatuses[$jsonName] = $cleanedStatuses[$jsonName] || $status;
+                } else {
+                    $cleanedStatuses[$jsonName] = $status;
+                }
+            } else {
+                $needsSave = true;
                 Log::info("Cleaned up orphaned module status entry: {$moduleName}");
             }
         }
 
-        if ($statusesModified) {
-            File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
+        // Save if any changes were made
+        if ($needsSave || \count($rawStatuses) !== \count($cleanedStatuses)) {
+            $this->saveModuleStatuses($cleanedStatuses);
         }
     }
 
@@ -476,27 +620,28 @@ class ModuleService
 
     public function toggleModuleStatus(string $moduleName): bool
     {
-        $moduleStatuses = $this->getModuleStatuses();
+        $jsonName = $this->getModuleJsonName($moduleName);
 
-        if (! isset($moduleStatuses[$moduleName]) && ! File::exists($this->modulesPath . '/' . $moduleName)) {
+        if (! $jsonName) {
             throw new ModuleException(__('Module not found.'));
         }
 
+        $moduleStatuses = $this->getModuleStatuses();
+
         // If module is not in statuses file, add it as disabled first
         // then the toggle will enable it (fixing the double-click issue)
-        if (! isset($moduleStatuses[$moduleName])) {
-            $moduleStatuses[$moduleName] = false;
+        if (! isset($moduleStatuses[$jsonName])) {
+            $moduleStatuses[$jsonName] = false;
         }
 
         // Toggle the status.
-        $moduleStatuses[$moduleName] = ! $moduleStatuses[$moduleName];
+        $moduleStatuses[$jsonName] = ! $moduleStatuses[$jsonName];
+        $newStatus = $moduleStatuses[$jsonName];
 
-        // Save the updated statuses.
-        File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
+        // Run the module enable/disable artisan command (uses module.json name)
+        $this->toggleModule($jsonName, $newStatus);
 
-        $this->toggleModule($moduleName, ! empty($moduleStatuses[$moduleName]));
-
-        return $moduleStatuses[$moduleName];
+        return $newStatus;
     }
 
     /**
@@ -508,25 +653,23 @@ class ModuleService
     public function bulkActivate(array $moduleNames): array
     {
         $results = [];
-        $moduleStatuses = $this->getModuleStatuses();
 
         foreach ($moduleNames as $moduleName) {
+            $jsonName = $this->getModuleJsonName($moduleName);
             try {
-                if (! File::exists($this->modulesPath . '/' . $moduleName)) {
+                if (! $jsonName) {
                     $results[$moduleName] = false;
                     continue;
                 }
 
-                $moduleStatuses[$moduleName] = true;
-                $this->toggleModule($moduleName, true);
-                $results[$moduleName] = true;
+                $this->toggleModule($jsonName, true);
+                $results[$jsonName] = true;
             } catch (\Throwable $e) {
-                Log::error("Failed to activate module {$moduleName}: " . $e->getMessage());
-                $results[$moduleName] = false;
+                Log::error("Failed to activate module " . ($jsonName ?? $moduleName) . ": " . $e->getMessage());
+                $results[$jsonName ?? $moduleName] = false;
             }
         }
 
-        File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
         Artisan::call('cache:clear');
 
         return $results;
@@ -541,25 +684,23 @@ class ModuleService
     public function bulkDeactivate(array $moduleNames): array
     {
         $results = [];
-        $moduleStatuses = $this->getModuleStatuses();
 
         foreach ($moduleNames as $moduleName) {
+            $jsonName = $this->getModuleJsonName($moduleName);
             try {
-                if (! File::exists($this->modulesPath . '/' . $moduleName)) {
+                if (! $jsonName) {
                     $results[$moduleName] = false;
                     continue;
                 }
 
-                $moduleStatuses[$moduleName] = false;
-                $this->toggleModule($moduleName, false);
-                $results[$moduleName] = true;
+                $this->toggleModule($jsonName, false);
+                $results[$jsonName] = true;
             } catch (\Throwable $e) {
-                Log::error("Failed to deactivate module {$moduleName}: " . $e->getMessage());
-                $results[$moduleName] = false;
+                Log::error("Failed to deactivate module " . ($jsonName ?? $moduleName) . ": " . $e->getMessage());
+                $results[$jsonName ?? $moduleName] = false;
             }
         }
 
-        File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
         Artisan::call('cache:clear');
 
         return $results;

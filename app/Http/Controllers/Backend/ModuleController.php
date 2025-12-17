@@ -33,8 +33,27 @@ class ModuleController extends Controller
                 'module.create'
             );
 
-        return $this->renderViewWithBreadcrumbs('backend.pages.modules.index', [
-            'modules' => $this->moduleService->getPaginatedModules(),
+        return $this->renderViewWithBreadcrumbs('backend.pages.modules.index');
+    }
+
+    public function show(string $moduleName)
+    {
+        $module = $this->moduleService->getModuleByName($moduleName);
+
+        if (! $module) {
+            session()->flash('error', __('Module not found.'));
+
+            return redirect()->route('admin.modules.index');
+        }
+
+        $this->authorize('view', $module);
+
+        $this->setBreadcrumbTitle($module->title)
+            ->setBreadcrumbIcon('lucide:boxes')
+            ->addBreadcrumbItem(__('Modules'), route('admin.modules.index'));
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.modules.show', [
+            'module' => $module,
         ]);
     }
 

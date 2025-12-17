@@ -2,12 +2,12 @@
     <x-slot name="breadcrumbsData">
         <x-breadcrumbs :breadcrumbs="$breadcrumbs">
             <x-slot name="title_after">
-                <x-popover position="bottom" width="w-[300px]">
+                <x-popover position="bottom" width="w-75">
                     <x-slot name="trigger">
                         <iconify-icon icon="lucide:info" class="text-lg ml-3" title="{{ __('Module Requirements') }}"></iconify-icon>
                     </x-slot>
 
-                    <div class="w-[300px] p-4 font-normal">
+                    <div class="w-75 p-4 font-normal">
                         <h3 class="font-medium text-gray-700 dark:text-white mb-2">{{ __('Module Requirements') }}</h3>
                         <p class="mb-2">{{ __('You can upload custom modules to extend functionality.') }}</p>
                         <ul class="list-disc pl-5 space-y-1 text-sm">

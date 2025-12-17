@@ -148,8 +148,8 @@
                 <div>
                     <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Author') }}</label>
                     <div class="mt-1 flex items-center gap-2">
-                        @if($post->user->avatar)
-                            <img src="{{ $post->user->avatar }}" alt="{{ $post->user->full_name }}" class="w-6 h-6 rounded-full">
+                        @if(!empty($post->user->avatar_url))
+                            <img src="{{ $post->user->avatar_url }}" alt="{{ $post->user->full_name }}" class="w-6 h-6 rounded-full">
                         @else
                             <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                                 <iconify-icon icon="lucide:user" class="text-xs text-gray-500 dark:text-gray-400"></iconify-icon>
