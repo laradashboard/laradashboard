@@ -8,6 +8,7 @@ use App\Models\Permission;
 use Spatie\Permission\Models\Permission as SpatiePermission;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 
 class PermissionService
 {
@@ -355,5 +356,37 @@ class PermissionService
         }
 
         return $query->get();
+    }
+
+    /**
+     * Format a permission name to be human-readable.
+     *
+     * Converts "contact_type.edit" to "Edit Contact Type"
+     * Converts "user.create" to "Create User"
+     */
+    public static function formatPermissionName(string $permissionName): string
+    {
+        $parts = explode('.', $permissionName);
+
+        if (\count($parts) !== 2) {
+            return Str::title(str_replace(['_', '.'], ' ', $permissionName));
+        }
+
+        [$entity, $action] = $parts;
+
+        $formattedEntity = Str::title(str_replace('_', ' ', $entity));
+        $formattedAction = Str::title($action);
+
+        return "{$formattedAction} {$formattedEntity}";
+    }
+
+    /**
+     * Format a permission group name to be human-readable.
+     *
+     * Converts "contact_type" to "Contact Type"
+     */
+    public static function formatGroupName(string $groupName): string
+    {
+        return Str::title(str_replace('_', ' ', $groupName));
     }
 }

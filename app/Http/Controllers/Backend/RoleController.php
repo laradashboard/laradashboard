@@ -45,7 +45,7 @@ class RoleController extends Controller
         $this->authorize('create', Role::class);
 
         $this->setBreadcrumbTitle(__('New Role'))
-            ->setBreadcrumbIcon('lucide:shield-plus')
+            ->setBreadcrumbIcon('lucide:shield')
             ->addBreadcrumbItem(__('Roles'), route('admin.roles.index'));
 
         return $this->renderViewWithBreadcrumbs('backend.pages.roles.create', [
