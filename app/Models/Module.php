@@ -66,8 +66,8 @@ class Module implements Arrayable, ArrayAccess
             }
         }
 
-        if (! isset($this->id)) {
-            $this->id = $this->name ?? '';
+        if ($this->id === '') {
+            $this->id = $this->name;
         }
 
         $this->status = $attributes['status'] ?? false;

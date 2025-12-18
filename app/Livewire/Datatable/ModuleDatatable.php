@@ -149,6 +149,7 @@ class ModuleDatatable extends Datatable
     {
         // Not used for ModuleDatatable, but required by parent.
         // We override getData() instead.
+        /** @phpstan-ignore-next-line Module is not an Eloquent model */
         return QueryBuilder::for(Module::class);
     }
 
@@ -165,7 +166,7 @@ class ModuleDatatable extends Datatable
      */
     public function renderDescriptionColumn(Module $module): string
     {
-        $description = $module->description ?? '';
+        $description = $module->description;
         if (strlen($description) > 100) {
             $description = substr($description, 0, 100) . '...';
         }
@@ -186,7 +187,7 @@ class ModuleDatatable extends Datatable
      */
     public function renderVersionColumn(Module $module): string
     {
-        return '<span class="text-sm text-gray-500 dark:text-gray-400">v' . e($module->version ?? '1.0.0') . '</span>';
+        return '<span class="text-sm text-gray-500 dark:text-gray-400">v' . e($module->version) . '</span>';
     }
 
     /**

@@ -86,7 +86,7 @@ class ModuleCompileCssCommand extends Command
 
         // Set environment variable for dist build
         if ($this->option('dist')) {
-            $env = $process->getEnv() ?? [];
+            $env = $process->getEnv();
             $env['MODULE_DIST_BUILD'] = 'true';
             $process->setEnv($env);
         }

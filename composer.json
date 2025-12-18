@@ -147,7 +147,8 @@
         "test": [
             "@pint",
             "@phpstan",
-            "@type-check"
+            "@type-check",
+            "@pest"
         ],
         "test:modules": [
             "@pint",

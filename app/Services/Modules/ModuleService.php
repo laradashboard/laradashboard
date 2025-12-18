@@ -665,8 +665,8 @@ class ModuleService
                 $this->toggleModule($jsonName, true);
                 $results[$jsonName] = true;
             } catch (\Throwable $e) {
-                Log::error("Failed to activate module " . ($jsonName ?? $moduleName) . ": " . $e->getMessage());
-                $results[$jsonName ?? $moduleName] = false;
+                Log::error("Failed to activate module " . $jsonName . ": " . $e->getMessage());
+                $results[$jsonName] = false;
             }
         }
 
@@ -696,8 +696,8 @@ class ModuleService
                 $this->toggleModule($jsonName, false);
                 $results[$jsonName] = true;
             } catch (\Throwable $e) {
-                Log::error("Failed to deactivate module " . ($jsonName ?? $moduleName) . ": " . $e->getMessage());
-                $results[$jsonName ?? $moduleName] = false;
+                Log::error("Failed to deactivate module " . $jsonName . ": " . $e->getMessage());
+                $results[$jsonName] = false;
             }
         }
 
