@@ -14,7 +14,7 @@
     $hiddenActiveCount = collect($hiddenFilters)->filter(fn($f) => !empty($f['selected']))->count();
 @endphp
 
-<div class="flex items-center gap-2 flex-wrap">
+<div class="flex items-center gap-2 flex-wrap w-full" style="justify-content: end;">
     <!-- Clear Filters Button -->
     @if($hasActiveFilters)
         <button
@@ -156,10 +156,10 @@
     </div>
 
     <!-- Mobile: All Filters in Single Dropdown -->
-    <div class="md:hidden relative" x-data="{ mobileFiltersOpen: false }">
+    <div class="md:hidden relative w-full" x-data="{ mobileFiltersOpen: false }">
         <button
             @click="mobileFiltersOpen = !mobileFiltersOpen"
-            class="btn-default flex items-center justify-center gap-2"
+            class="btn-default flex items-center justify-center gap-2 w-full md:w-auto"
             type="button"
         >
             <iconify-icon icon="lucide:filter"></iconify-icon>
