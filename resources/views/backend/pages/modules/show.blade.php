@@ -1,30 +1,13 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
-    <div class="space-y-6">
-        {{-- Header Card with Actions --}}
-        <x-card>
-            <x-slot name="header">
-                <div class="flex items-center gap-4">
-                    @if($module->hasLogoImage())
-                        <img
-                            src="{{ $module->getLogoUrl() }}"
-                            alt="{{ $module->title }}"
-                            class="w-12 h-12 rounded-lg object-cover border-2 border-gray-200 dark:border-gray-700"
-                        />
-                    @else
-                        <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-200 dark:border-gray-600">
-                            <iconify-icon icon="{{ $module->icon }}" class="text-2xl text-gray-500 dark:text-gray-300"></iconify-icon>
-                        </div>
-                    @endif
-                    <div>
-                        <h3 class="text-base font-medium text-gray-700 dark:text-white/90">
-                            {{ $module->title }}
-                        </h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">v{{ $module->version }}</p>
-                    </div>
-                </div>
+    <x-slot name="breadcrumbsData">
+        <x-breadcrumbs :breadcrumbs="$breadcrumbs">
+            <x-slot name="title_before">
+                <iconify-icon icon="{{ $module->icon }}" class="text-2xl text-gray-500 dark:text-gray-300"></iconify-icon>
             </x-slot>
-
-            <x-slot name="headerRight">
+            <x-slot name="title_after">
+                <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">v{{ $module->version }}</span>
+            </x-slot>
+            <x-slot name="actions_after">
                 <div class="flex gap-2" x-data="{ isToggling: false }">
                     @if($module->documentation_url)
                         <a
@@ -75,149 +58,129 @@
                     </button>
                 </div>
             </x-slot>
+        </x-breadcrumbs>
+    </x-slot>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {{-- Main Content (Left - 2 columns) --}}
-                <div class="lg:col-span-2 space-y-6">
-                    {{-- Banner Image --}}
-                    @if($module->hasBannerImage())
-                        <div class="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-                            <img
-                                src="{{ $module->getBannerUrl() }}"
-                                alt="{{ $module->title }} Banner"
-                                class="w-full h-auto object-cover max-h-64"
-                            />
+    <div class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-6">
+                {{-- Banner Image --}}
+                @if($module->hasBannerImage())
+                    <div class="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
+                        <img
+                            src="{{ $module->getBannerUrl() }}"
+                            alt="{{ $module->title }} Banner"
+                            class="w-full h-auto object-cover max-h-64"
+                        />
+                    </div>
+                @endif
+
+                <x-card.card bodyClass="!p-5">
+                    <x-slot:header>{{ __('Module Details') }}</x-slot:header>
+
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                        {{ $module->description }}
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Module Name') }}</label>
+                            <p class="mt-1 text-sm text-gray-700 dark:text-gray-300 font-mono">{{ $module->name }}</p>
                         </div>
-                    @endif
 
-                    {{-- Description --}}
-                    @if($module->description)
-                        <x-card.card bodyClass="!p-5">
-                            <x-slot:header>{{ __('Description') }}</x-slot:header>
+                        <div>
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Version') }}</label>
+                            <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ $module->version }}</p>
+                        </div>
 
-                            <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                {{ $module->description }}
-                            </p>
-                        </x-card.card>
-                    @endif
-
-                    {{-- Module Information --}}
-                    <x-card.card bodyClass="!p-5 !space-y-4">
-                        <x-slot:header>{{ __('Module Information') }}</x-slot:header>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @if($module->category)
                             <div>
-                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Module Name') }}</label>
-                                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300 font-mono">{{ $module->name }}</p>
+                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Category') }}</label>
+                                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ ucfirst($module->category) }}</p>
                             </div>
+                        @endif
 
+                        <div>
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Priority') }}</label>
+                            <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ $module->priority }}</p>
+                        </div>
+
+                        @if($module->author)
                             <div>
-                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Version') }}</label>
-                                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ $module->version }}</p>
-                            </div>
-
-                            @if($module->category)
-                                <div>
-                                    <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Category') }}</label>
-                                    <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ ucfirst($module->category) }}</p>
-                                </div>
-                            @endif
-
-                            <div>
-                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Priority') }}</label>
-                                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ $module->priority }}</p>
-                            </div>
-
-                            @if($module->author)
-                                <div>
-                                    <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Author') }}</label>
-                                    <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                                        @if($module->author_url)
-                                            <a href="{{ $module->author_url }}" target="_blank" rel="noopener" class="text-primary-600 hover:underline">
-                                                {{ $module->author }}
-                                            </a>
-                                        @else
+                                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Author') }}</label>
+                                <p class="flex gap-4 mt-1 text-sm text-gray-700 dark:text-gray-300">
+                                    @if($module->author_url)
+                                        <a href="{{ $module->author_url }}" target="_blank" rel="noopener" class="text-primary-600 hover:underline">
                                             {{ $module->author }}
-                                        @endif
-                                    </p>
-                                </div>
-                            @endif
-                        </div>
-                    </x-card.card>
-                </div>
+                                        </a>
+                                    @else
+                                        {{ $module->author }}
+                                    @endif
 
-                {{-- Sidebar (Right - 1 column) --}}
-                <div class="lg:col-span-1 space-y-6">
-                    {{-- Status Card --}}
-                    <x-card.card bodyClass="!p-4 !space-y-4">
-                        <x-slot:header>{{ __('Status') }}</x-slot:header>
+                                    @if($module->author_url)
+                                        <a href="{{ $module->author_url }}" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">
+                                            <iconify-icon icon="lucide:external-link" class="text-base"></iconify-icon>
+                                            {{ __('Author Website') }}
+                                        </a>
+                                    @endif
+                                </p>
 
-                        <div>
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Module Status') }}</label>
-                            <div class="mt-1">
-                                @if($module->status)
-                                    <span class="badge badge-success">
-                                        <iconify-icon icon="lucide:check-circle" class="mr-1"></iconify-icon>
-                                        {{ __('Enabled') }}
-                                    </span>
-                                @else
-                                    <span class="badge badge-danger">
-                                        <iconify-icon icon="lucide:x-circle" class="mr-1"></iconify-icon>
-                                        {{ __('Disabled') }}
-                                    </span>
-                                @endif
+
                             </div>
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Icon') }}</label>
-                            <div class="mt-1 flex items-center gap-2">
-                                <iconify-icon icon="{{ $module->icon }}" class="text-xl text-gray-500 dark:text-gray-400"></iconify-icon>
-                                <span class="text-sm text-gray-700 dark:text-gray-300 font-mono">{{ $module->icon }}</span>
-                            </div>
-                        </div>
-                    </x-card.card>
-
-                    {{-- Tags Card --}}
-                    @if(!empty($module->tags))
-                        <x-card.card bodyClass="!p-4">
-                            <x-slot:header>{{ __('Tags') }}</x-slot:header>
-
-                            <div class="flex flex-wrap gap-1.5">
-                                @foreach($module->tags as $tag)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                                        {{ $tag }}
-                                    </span>
-                                @endforeach
-                            </div>
-                        </x-card.card>
-                    @endif
-
-                    {{-- Quick Links --}}
-                    @if($module->author_url || $module->documentation_url)
-                        <x-card.card bodyClass="!p-4 !space-y-3">
-                            <x-slot:header>{{ __('Links') }}</x-slot:header>
-
-                            @if($module->author_url)
-                                <a href="{{ $module->author_url }}" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">
-                                    <iconify-icon icon="lucide:external-link" class="text-base"></iconify-icon>
-                                    {{ __('Author Website') }}
-                                </a>
-                            @endif
-
-                            @if($module->documentation_url)
-                                <a href="{{ $module->documentation_url }}" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">
-                                    <iconify-icon icon="lucide:book-open" class="text-base"></iconify-icon>
-                                    {{ __('Documentation') }}
-                                </a>
-                            @endif
-                        </x-card.card>
-                    @endif
-                </div>
+                        @endif
+                    </div>
+                </x-card.card>
             </div>
-        </x-card>
 
-        {{-- Danger Zone --}}
+            {{-- Sidebar (Right - 1 column) --}}
+            <div class="lg:col-span-1 space-y-6">
+                {{-- Status Card --}}
+                <x-card.card bodyClass="!p-4 !space-y-4">
+                    <x-slot:header>{{ __('Status') }}</x-slot:header>
+
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Module Status') }}</label>
+                        <div class="mt-1">
+                            @if($module->status)
+                                <span class="badge badge-success">
+                                    <iconify-icon icon="lucide:check-circle" class="mr-1"></iconify-icon>
+                                    {{ __('Enabled') }}
+                                </span>
+                            @else
+                                <span class="badge badge-danger">
+                                    <iconify-icon icon="lucide:x-circle" class="mr-1"></iconify-icon>
+                                    {{ __('Disabled') }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Icon') }}</label>
+                        <div class="mt-1 flex items-center gap-2">
+                            <iconify-icon icon="{{ $module->icon }}" class="text-xl text-gray-500 dark:text-gray-400"></iconify-icon>
+                            <span class="text-sm text-gray-700 dark:text-gray-300 font-mono">{{ $module->icon }}</span>
+                        </div>
+                    </div>
+                </x-card.card>
+
+                {{-- Tags Card --}}
+                @if(!empty($module->tags))
+                    <x-card.card bodyClass="!p-4">
+                        <x-slot:header>{{ __('Tags') }}</x-slot:header>
+
+                        <div class="flex flex-wrap gap-1.5">
+                            @foreach($module->tags as $tag)
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                                    {{ $tag }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </x-card.card>
+                @endif
+            </div>
+        </div>
+
         @can('delete', $module)
             <x-card.card class="border-red-200 dark:border-red-900/50">
                 <x-slot:header>
