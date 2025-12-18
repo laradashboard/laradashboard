@@ -227,7 +227,7 @@
                                     value="{{ $optionValue }}"
                                     {{ $filter['selected'] == $optionValue ? 'selected' : '' }}
                                 >
-                                    {{ ucfirst($optionLabel) }}
+                                    {!! ucfirst($optionLabel) !!}
                                 </option>
                             @endforeach
                         </select>

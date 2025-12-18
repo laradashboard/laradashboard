@@ -51,7 +51,8 @@
     @endphp
 
     <li class="menu-item-{{ $item->id }}" style="{!! $item->itemStyles !!}">
-        <a :style="`color: ${textColor}`" href="{{ $item->route ?? '#' }}" class="menu-item group {{ $isActive }}" {!! $target !!}>
+        <a :style="`color: ${textColor}`" href="{{ $item->route ?? '#' }}" class="menu-item group {{ $isActive }}" {!! $target !!}
+           @click="if(window.innerWidth < 1024) { sidebarToggle = false; }">
             @if (!empty($item->icon))
                 <iconify-icon icon="{{ $item->icon }}" class="menu-item-icon" width="18" height="18"></iconify-icon>
             @elseif (!empty($item->iconClass))

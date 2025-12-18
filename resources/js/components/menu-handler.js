@@ -27,6 +27,10 @@ window.handleMenuItemClick = function (buttonElement, submenuId, firstChildRoute
         
         // If there's a first child route, we're not currently on a child page, and we're not already on that route, navigate to it.
         if (firstChildRoute && !isOnChildPage && window.location.href !== firstChildRoute) {
+            // Close sidebar on mobile before navigating
+            if (window.innerWidth < 1024) {
+                closeMobileSidebar();
+            }
             setTimeout(() => {
                 window.location.href = firstChildRoute;
             }, 50);
@@ -41,3 +45,18 @@ window.handleMenuItemClick = function (buttonElement, submenuId, firstChildRoute
         arrowIcon.style.transform = 'rotate(0deg)';
     }
 };
+
+/**
+ * Close the sidebar on mobile devices.
+ * This function sets the Alpine.js sidebarToggle to false.
+ */
+function closeMobileSidebar() {
+    // Access the Alpine.js data on the body element
+    const bodyEl = document.body;
+    if (bodyEl && bodyEl._x_dataStack) {
+        const alpineData = bodyEl._x_dataStack[0];
+        if (alpineData && typeof alpineData.sidebarToggle !== 'undefined') {
+            alpineData.sidebarToggle = false;
+        }
+    }
+}
