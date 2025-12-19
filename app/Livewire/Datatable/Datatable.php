@@ -14,6 +14,7 @@ use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Route;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -36,7 +37,9 @@ abstract class Datatable extends Component
     public string $sort = 'created_at';
     public string $direction = 'desc';
     public int $page = 1;
-    public int|string $perPage = 10;
+
+    #[Url(except: 10)]
+    public int $perPage = 10;
     public array $perPageOptions = [];
     public int $paginateOnEachSlide = 0;
     public array $filters = [];
@@ -46,6 +49,7 @@ abstract class Datatable extends Component
     public array $disabledRoutes = [];
     public bool $enableCheckbox = true;
     public bool $enablePagination = true;
+    public bool $showCreateButton = false;
     public string $noResultsMessage = '';
     public string $customNoResultsMessage = '';
     public array $headers = [];
@@ -55,7 +59,6 @@ abstract class Datatable extends Component
         'sort' => ['except' => 'created_at'],
         'direction' => ['except' => 'asc'],
         'page' => ['except' => 1],
-        'perPage' => ['except' => 10],
     ];
 
     public array $queryString = self::QUERY_STRING_DEFAULTS;
@@ -110,7 +113,6 @@ abstract class Datatable extends Component
         $this->headers = $this->getHeaders();
         $this->noResultsMessage = $this->getNoResultsMessage();
         $this->customNoResultsMessage = $this->getCustomNoResultsMessage();
-        $this->perPage = request()->per_page ?? config('settings.default_pagination', 10);
         $this->paginateOnEachSlide = 0;
     }
 
@@ -126,7 +128,7 @@ abstract class Datatable extends Component
 
     protected function getNoResultsMessage(): string
     {
-        return __('No :items found.', ['items' => $this->getModelNamePlural()]);
+        return __('No :items found.', ['items' => $this->getModelNamePluralLower()]);
     }
 
     protected function getCustomNoResultsMessage(): string
@@ -156,12 +158,39 @@ abstract class Datatable extends Component
 
     protected function getNewResourceLinkLabel(): string
     {
-        return __('New :model', ['model' => $this->getModelNameSingular()]);
+        return __('New :model', ['model' => __($this->getModelNameSingular())]);
     }
 
     protected function getFilters(): array
     {
         return [];
+    }
+
+    public function hasActiveFilters(): bool
+    {
+        foreach ($this->filters as $filter) {
+            if (! empty($filter['selected'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getFilterPropertyNames(): array
+    {
+        return array_column($this->filters, 'id');
+    }
+
+    public function clearFilters(): void
+    {
+        foreach ($this->getFilterPropertyNames() as $filterName) {
+            if (property_exists($this, $filterName)) {
+                $this->{$filterName} = '';
+            }
+        }
+
+        $this->resetPage();
     }
 
     protected function getSnakeCaseModel(): string
@@ -180,6 +209,11 @@ abstract class Datatable extends Component
     protected function getModelNamePlural(): string
     {
         return str($this->getModelNameSingular())->plural()->toString();
+    }
+
+    protected function getModelNamePluralLower(): string
+    {
+        return str($this->getModelNameSingular())->plural()->lower()->toString();
     }
 
     protected function getPermissions(): array
@@ -289,6 +323,11 @@ abstract class Datatable extends Component
         return $routes;
     }
 
+    protected function getCustomNewResourceLink(): string|Renderable
+    {
+        return '';
+    }
+
     protected function getSettingsPaginatorUi(): string
     {
         return config('settings.default_pagination_ui', 'default');
@@ -297,7 +336,7 @@ abstract class Datatable extends Component
     protected function getPaginatedData($query)
     {
         $paginationUi = $this->getSettingsPaginatorUi();
-        $perPage = $this->perPage == __('All') ? 999999 : (int) $this->perPage;
+        $perPage = (int) $this->perPage;
 
         switch ($paginationUi) {
             case 'cursor':
@@ -312,7 +351,7 @@ abstract class Datatable extends Component
 
     protected function getData(): CursorPaginator|LengthAwarePaginator|Paginator
     {
-        return$this->getPaginatedData($this->buildQuery());
+        return $this->getPaginatedData($this->buildQuery());
     }
 
     protected function buildQuery(): QueryBuilder
@@ -351,6 +390,7 @@ abstract class Datatable extends Component
     public function render(): Renderable
     {
         $this->headers = $this->getHeaders();
+        $this->filters = $this->getFilters();
 
         return view('backend.livewire.datatable.datatable', [
             'headers' => $this->headers,

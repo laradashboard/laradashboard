@@ -123,7 +123,7 @@ class AdminMenuService
             'label' => __('Modules'),
             'icon' => 'lucide:boxes',
             'route' => route('admin.modules.index'),
-            'active' => Route::is('admin.modules.index'),
+            'active' => Route::is('admin.modules.index') || Route::is('admin.modules.upload') || Route::is('admin.modules.show'),
             'id' => 'modules',
             'priority' => 25,
             'permissions' => 'module.view',
@@ -162,7 +162,7 @@ class AdminMenuService
                 'id' => 'access-control-submenu',
                 'active' => Route::is('admin.roles.*') || Route::is('admin.permissions.*') || Route::is('admin.users.*'),
                 'priority' => 30,
-                'permissions' => ['role.create', 'role.view', 'role.edit', 'role.delete', 'user.create', 'user.view', 'user.edit', 'user.delete'],
+                'permissions' => ['role.create', 'role.view', 'role.edit', 'role.delete', 'role.show', 'user.create', 'user.view', 'user.edit', 'user.delete'],
                 'children' => [
                     [
                         'label' => __('Users'),
@@ -174,7 +174,7 @@ class AdminMenuService
                     [
                         'label' => __('Roles'),
                         'route' => route('admin.roles.index'),
-                        'active' => Route::is('admin.roles.index') || Route::is('admin.roles.create') || Route::is('admin.roles.edit'),
+                        'active' => Route::is('admin.roles.index') || Route::is('admin.roles.create') || Route::is('admin.roles.edit') || Route::is('admin.roles.show'),
                         'priority' => 20,
                         'permissions' => 'role.view',
                     ],
@@ -194,7 +194,7 @@ class AdminMenuService
             'label' => __('Settings'),
             'icon' => 'lucide:settings',
             'id' => 'settings-submenu',
-            'active' => Route::is('admin.settings.*') || Route::is('admin.translations.*'),
+            'active' => Route::is('admin.settings.*') || Route::is('admin.translations.*') || Route::is('admin.email-templates.*') || Route::is('admin.notifications.*') || Route::is('admin.email-settings.*') || Route::is('admin.email-connections.*'),
             'priority' => 40,
             'permissions' => ['settings.edit', 'translations.view'],
             'children' => [
@@ -203,6 +203,13 @@ class AdminMenuService
                     'route' => route('admin.settings.index'),
                     'active' => Route::is('admin.settings.index'),
                     'priority' => 20,
+                    'permissions' => 'settings.edit',
+                ],
+                [
+                    'label' => __('Emails'),
+                    'route' => route('admin.email-settings.index'),
+                    'active' => Route::is('admin.email-templates.*') || Route::is('admin.notifications.*') || Route::is('admin.email-settings.*') || Route::is('admin.email-connections.*'),
+                    'priority' => 15,
                     'permissions' => 'settings.edit',
                 ],
                 [

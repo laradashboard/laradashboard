@@ -63,7 +63,7 @@ class ModuleController extends ApiController
     public function toggleStatus(Request $request, string $name): JsonResponse
     {
         $module = $this->moduleService->getModuleByName($name);
-        $previousStatus = $module ? $module->status ?? false : false;
+        $previousStatus = $module ? $module->status : false;
 
         if (! $module) {
             return $this->errorResponse('Module not found', 404);

@@ -1,0 +1,26 @@
+{
+    "type": "video",
+    "version": "1.0.0",
+    "label": "Video",
+    "category": "Content",
+    "icon": "mdi:play-circle-outline",
+    "description": "Add a video with thumbnail",
+    "keywords": ["video", "media", "youtube", "play", "vimeo", "thumbnail"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "thumbnailUrl": "",
+        "videoUrl": "",
+        "alt": "Video thumbnail",
+        "width": "100%",
+        "align": "center",
+        "playButtonColor": ""
+    }
+}

@@ -46,6 +46,11 @@ class AiContentGeneratorService
 
     public function generateContent(string $prompt, string $type = 'general'): array
     {
+        // Check if API key is configured before making request
+        if (empty($this->apiKey)) {
+            throw new Exception(__('AI service is not configured. Please contact the administrator to set up the API key.'));
+        }
+
         try {
             $systemPrompt = $this->getSystemPrompt($type);
             $response = $this->sendRequest($systemPrompt, $prompt);
@@ -141,7 +146,7 @@ Example format:
     private function parseResponse(Response $response): array
     {
         if (! $response->successful()) {
-            throw new Exception('AI API request failed: ' . $response->body());
+            throw new Exception($this->parseApiError($response));
         }
 
         $data = $response->json();
@@ -152,8 +157,11 @@ Example format:
             default => throw new Exception("Unknown provider: {$this->provider}")
         };
 
+        // Clean the content - remove markdown code blocks if present
+        $cleanedContent = $this->extractJsonFromResponse($content);
+
         // Try to parse as JSON first
-        $parsedContent = json_decode($content, true);
+        $parsedContent = json_decode($cleanedContent, true);
 
         if (json_last_error() === JSON_ERROR_NONE && is_array($parsedContent)) {
             // Ensure we have the required keys
@@ -165,7 +173,7 @@ Example format:
         }
 
         // If not valid JSON, try to structure the content better
-        $lines = explode('\n', trim($content));
+        $lines = explode("\n", trim($content));
         $lines = array_filter($lines, fn ($line) => ! empty(trim($line)));
 
         if (count($lines) >= 2) {
@@ -194,6 +202,142 @@ Example format:
             'excerpt' => 'Generated excerpt from AI',
             'content' => $content,
         ];
+    }
+
+    /**
+     * Extract JSON from AI response, handling markdown code blocks and extra text
+     */
+    private function extractJsonFromResponse(string $content): string
+    {
+        $content = trim($content);
+
+        // Remove markdown code blocks (```json ... ``` or ``` ... ```)
+        if (preg_match('/```(?:json)?\s*([\s\S]*?)\s*```/', $content, $matches)) {
+            $content = trim($matches[1]);
+        }
+
+        // Try to find JSON object in the response (starts with { and ends with })
+        if (preg_match('/\{[\s\S]*\}/', $content, $matches)) {
+            $content = $matches[0];
+        }
+
+        return $content;
+    }
+
+    /**
+     * Parse API error response into user-friendly message
+     */
+    private function parseApiError(Response $response): string
+    {
+        $statusCode = $response->status();
+        $body = $response->json() ?? [];
+
+        // Handle OpenAI errors
+        if (isset($body['error']['message'])) {
+            $errorMessage = $body['error']['message'];
+            $errorType = $body['error']['type'] ?? '';
+
+            // Map common error types to user-friendly messages
+            if (str_contains($errorMessage, 'API key') || $errorType === 'invalid_request_error') {
+                return __('AI service is not configured. Please contact the administrator to set up the API key.');
+            }
+
+            if ($errorType === 'insufficient_quota') {
+                return __('AI service quota exceeded. Please try again later or contact the administrator.');
+            }
+
+            if ($errorType === 'rate_limit_error') {
+                return __('Too many requests. Please wait a moment and try again.');
+            }
+
+            return __('AI service error: :message', ['message' => $this->truncateMessage($errorMessage)]);
+        }
+
+        // Handle Claude/Anthropic errors
+        if (isset($body['error']['message'])) {
+            return __('AI service error: :message', ['message' => $this->truncateMessage($body['error']['message'])]);
+        }
+
+        // Handle HTTP status codes
+        return match ($statusCode) {
+            401 => __('AI service authentication failed. Please contact the administrator.'),
+            403 => __('AI service access denied. Please contact the administrator.'),
+            429 => __('Too many requests. Please wait a moment and try again.'),
+            500, 502, 503 => __('AI service is temporarily unavailable. Please try again later.'),
+            default => __('AI service request failed. Please try again.'),
+        };
+    }
+
+    /**
+     * Truncate error message to a reasonable length
+     */
+    private function truncateMessage(string $message, int $maxLength = 100): string
+    {
+        if (strlen($message) <= $maxLength) {
+            return $message;
+        }
+
+        return substr($message, 0, $maxLength) . '...';
+    }
+
+    /**
+     * Modify text based on user instruction
+     */
+    public function modifyText(string $text, string $instruction): string
+    {
+        // Check if API key is configured before making request
+        if (empty($this->apiKey)) {
+            throw new Exception(__('AI service is not configured. Please contact the administrator to set up the API key.'));
+        }
+
+        try {
+            $systemPrompt = 'You are a helpful writing assistant. Your task is to modify the given text according to the user\'s instruction.
+
+IMPORTANT RULES:
+- Only return the modified text, nothing else
+- Do not add any explanations, introductions, or conclusions
+- Do not wrap the response in quotes or any other formatting
+- Preserve any HTML tags that are present in the original text
+- Keep the same general format (if it\'s a paragraph, return a paragraph)';
+
+            $userPrompt = "Instruction: {$instruction}\n\nText to modify:\n{$text}";
+
+            $response = $this->sendRequest($systemPrompt, $userPrompt);
+
+            return $this->parseTextResponse($response);
+        } catch (\Exception $e) {
+            Log::error('AI Text Modification Error', [
+                'provider' => $this->provider,
+                'error' => $e->getMessage(),
+                'text' => substr($text, 0, 100) . '...',
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Parse response for simple text modification (not JSON)
+     */
+    private function parseTextResponse(Response $response): string
+    {
+        if (! $response->successful()) {
+            throw new Exception($this->parseApiError($response));
+        }
+
+        $data = $response->json();
+
+        $content = match ($this->provider) {
+            'openai' => $data['choices'][0]['message']['content'] ?? '',
+            'claude' => $data['content'][0]['text'] ?? '',
+            default => throw new Exception("Unknown provider: {$this->provider}")
+        };
+
+        // Clean up the response - remove any quotes wrapping the text
+        $content = trim($content);
+        $content = preg_replace('/^["\']|["\']$/', '', $content);
+
+        return $content;
     }
 
     public function getAvailableProviders(): array

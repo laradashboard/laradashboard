@@ -6,12 +6,21 @@
     'class' => '',
     'type' => 'link', // link, button, or modal-trigger
     'modalTarget' => '',
+    'closeDropdown' => true, // Auto-close parent dropdown
 ])
+
+@php
+    $baseClasses = 'flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ' . $class;
+    $closeAction = $closeDropdown ? 'isOpen = false; openedWithKeyboard = false;' : '';
+@endphp
 
 @if($type === 'link')
     <a
         href="{{ $href }}"
-        {{ $attributes->merge(['class' => 'flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ' . $class]) }}
+        {{ $attributes->merge(['class' => $baseClasses]) }}
+        @if($closeDropdown)
+            x-on:click="isOpen = false; openedWithKeyboard = false"
+        @endif
         role="menuitem"
     >
         @if($icon)
@@ -21,9 +30,12 @@
     </a>
 @elseif($type === 'button')
     <button
-        {{ $attributes->merge(['class' => 'flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ' . $class]) }}
+        type="button"
+        {{ $attributes->merge(['class' => $baseClasses]) }}
         @if($onClick)
-            onclick="{{ $onClick }}"
+            x-on:click="{{ $closeAction }} {{ $onClick }}"
+        @elseif($closeDropdown)
+            x-on:click="isOpen = false; openedWithKeyboard = false"
         @endif
         role="menuitem"
     >
@@ -34,9 +46,10 @@
     </button>
 @elseif($type === 'modal-trigger')
     <button
-        {{ $attributes->merge(['class' => 'flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ' . $class]) }}
+        type="button"
+        {{ $attributes->merge(['class' => $baseClasses]) }}
         @if($modalTarget)
-            x-on:click="{{ $modalTarget }} = true"
+            x-on:click="{{ $modalTarget }} = true; $nextTick(() => { isOpen = false; openedWithKeyboard = false; })"
         @endif
         role="menuitem"
     >

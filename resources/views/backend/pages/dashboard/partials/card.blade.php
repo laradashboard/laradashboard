@@ -1,8 +1,12 @@
 @php
     $enable_full_div_click = $enable_full_div_click ?? true;
+    $cardStatus = $status ?? null;
+    $currentStatus = request()->query('status');
+    $isActive = !empty($cardStatus) && $currentStatus === $cardStatus;
+    $activeClass = $isActive ? 'border-indigo-500 dark:border-indigo-400 border-2 shadow-lg' : '';
 @endphp
 
-<div class="relative overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6 dark:bg-gray-800 {{ $enable_full_div_click ? 'cursor-pointer hover:shadow-lg transition-shadow duration-300' : '' }}"
+<div class="group relative overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6 dark:bg-gray-800 {{ $enable_full_div_click ? 'cursor-pointer hover:shadow-lg transition-shadow duration-300' : '' }} {{ $activeClass }}"
     @if($enable_full_div_click)
         onclick="window.location.href='{{ $url ?? '#' }}'"
     @endif
@@ -25,10 +29,8 @@
         <p class="text-xl font-semibold text-gray-800 dark:text-gray-100">{!! $value ?? 0 !!}</p>
 
         <div class="absolute inset-x-0 bottom-0 bg-gray-50 dark:bg-gray-700 px-4 py-4 sm:px-6">
-            <div class="text-sm">
-                <a href="{{ $url ?? '#' }}" class="font-medium flex items-center text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">View all
-                    <iconify-icon icon="heroicons:arrow-right" class="inline-block ml-1" width="16" height="16"></iconify-icon>
-                    <span class="sr-only"> {{ $label }} stats</span></a>
+            <div class="text-sm mt-1">
+                <x-arrow-link href="{{ $url ?? '#' }}" text="{{ __('View all') }}"></x-arrow-link>
             </div>
         </div>
     </dd>

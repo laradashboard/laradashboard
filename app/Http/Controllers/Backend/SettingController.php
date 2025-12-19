@@ -34,12 +34,10 @@ class SettingController extends Controller
 
         $tab = $tab ?? request()->input('tab', 'general');
 
-        return view('backend.pages.settings.index', compact('tab'))
-            ->with([
-                'breadcrumbs' => [
-                    'title' => __('Settings'),
-                ],
-            ]);
+        $this->setBreadcrumbTitle(__('Settings'))
+            ->setBreadcrumbIcon('lucide:settings');
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.settings.index', compact('tab'));
     }
 
     public function store(Request $request)

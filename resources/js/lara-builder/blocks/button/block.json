@@ -1,0 +1,34 @@
+{
+    "type": "button",
+    "version": "1.0.0",
+    "label": "Button",
+    "category": "Content",
+    "icon": "mdi:button-cursor",
+    "description": "Add a call-to-action button",
+    "keywords": ["button", "cta", "link", "action"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "bold": true,
+        "italic": true,
+        "underline": true,
+        "clearFormat": true,
+        "colors": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "text": "Click Here",
+        "link": "#",
+        "backgroundColor": "#635bff",
+        "textColor": "#ffffff",
+        "borderRadius": "6px",
+        "padding": "12px 24px",
+        "align": "center",
+        "fontSize": "16px",
+        "fontWeight": "600"
+    }
+}

@@ -2,6 +2,18 @@
 
 /*
 |--------------------------------------------------------------------------
+| Safe Module Loader
+|--------------------------------------------------------------------------
+|
+| Validate modules before Laravel boots to prevent broken modules from
+| crashing the entire application. This runs before any Laravel code.
+|
+*/
+
+require __DIR__ . '/modules.php';
+
+/*
+|--------------------------------------------------------------------------
 | Create The Application
 |--------------------------------------------------------------------------
 |

@@ -15,7 +15,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 class RoleDatatable extends Datatable
 {
     public string $model = Role::class;
-    public array $disabledRoutes = ['view'];
 
     public function getSearchbarPlaceholder(): string
     {
@@ -88,7 +87,7 @@ class RoleDatatable extends Datatable
     public function renderNameColumn(Role $role): string
     {
         return "
-            <a href=\"" . route('admin.roles.edit', $role) . "\" class='text-primary hover:underline'>" . $role->name . "</a>
+            <a href=\"" . route('admin.roles.show', $role) . "\" class='text-primary hover:underline'>" . $role->name . "</a>
             <p class='text-sm text-gray-500'>" . $role->permissions_count . " " . __('permissions') . "</p>
         ";
     }

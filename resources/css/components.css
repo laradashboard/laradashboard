@@ -1,35 +1,62 @@
 @layer components {
+    /* Container styles */
+    .ld-container {
+        @apply mx-auto px-4 sm:px-6 lg:px-8 py-6;
+        max-width: var(--breakpoint-2xl);
+    }
+
     /* Buttons */
     .btn {
-        @apply flex justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center focus:ring-blue-300 dark:focus:ring-blue-800;
+        @apply inline-flex gap-1 justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center focus:ring-blue-300 dark:focus:ring-blue-800;
     }
 
     .btn-primary {
-        @apply flex justify-center items-center text-white hover:opacity-90 transition-all font-medium rounded-md text-sm px-5 py-2.5 text-center bg-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50 dark:focus:ring-blue-800;
+        @apply inline-flex gap-1 justify-center items-center text-white hover:opacity-90 transition-all font-medium rounded-md text-sm px-5 py-2.5 text-center bg-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50 dark:focus:ring-blue-800;
     }
 
     .btn-secondary {
-        @apply flex justify-center items-center text-gray-800 hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-gray-100 hover:bg-gray-200 focus:ring-gray-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-500;
+        @apply inline-flex gap-1 justify-center items-center text-gray-800 hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-gray-100 hover:bg-gray-200 focus:ring-gray-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-500;
     }
 
     .btn-danger {
-        @apply flex justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-red-500 focus:ring-red-300 dark:focus:ring-red-800;
+        @apply inline-flex gap-1 justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-red-500 focus:ring-red-300 dark:focus:ring-red-800;
     }
 
     .btn-success {
-        @apply flex justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-green-500 focus:ring-green-300 dark:focus:ring-green-800;
+        @apply inline-flex gap-1 justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-green-500 focus:ring-green-300 dark:focus:ring-green-800;
     }
 
     .btn-default {
-        @apply flex justify-center items-center hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center text-gray-800 dark:text-white bg-gray-200 dark:bg-gray-800 focus:ring-gray-100 dark:focus:ring-green-800;
+        @apply inline-flex gap-1 justify-center items-center hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center text-gray-800 dark:text-white bg-gray-200 dark:bg-gray-800 focus:ring-gray-100 dark:focus:ring-green-800;
     }
 
     .btn-warning {
-        @apply flex justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-orange-500 focus:ring-orange-300 dark:focus:ring-orange-800;
+        @apply inline-flex gap-1 justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-orange-500 focus:ring-orange-300 dark:focus:ring-orange-800;
     }
 
     .btn-info {
-        @apply flex justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-blue-500 focus:ring-blue-300 dark:focus:ring-blue-800;
+        @apply inline-flex gap-1 justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-blue-500 focus:ring-blue-300 dark:focus:ring-blue-800;
+    }
+
+    /* Outline buttons */
+    .btn-outline-primary {
+        @apply inline-flex gap-1 justify-center items-center text-primary hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center border border-primary bg-transparent focus:ring-primary/50;
+    }
+
+    .btn-outline-secondary {
+        @apply inline-flex gap-1 justify-center items-center text-gray-800 hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center border border-gray-300 bg-transparent hover:bg-gray-100 focus:ring-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-500;
+    }
+
+    .btn-outline-danger {
+        @apply inline-flex gap-1 justify-center items-center text-red-500 hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center border border-red-500 bg-transparent focus:ring-red-300;
+    }
+
+    .btn-outline-success {
+        @apply inline-flex gap-1 justify-center items-center text-green-500 hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center border border-green-500 bg-transparent focus:ring-green-300;
+    }
+
+    .btn-outline-warning {
+        @apply inline-flex gap-1 justify-center items-center text-orange-500 hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center border border-orange-500 bg-transparent focus:ring-orange-300;
     }
 
     /* Badge */
@@ -38,7 +65,7 @@
     }
 
     .badge-primary {
-        @apply inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-white bg-brand-300 dark:bg-primary/20 rounded-full;
+        @apply inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-white bg-brand-500 dark:bg-primary/20 rounded-full;
     }
 
     .badge-success {
@@ -64,6 +91,21 @@
     /* Inputs */
     .form-control {
         @apply rounded border-0 px-4 py-2.5 text-sm leading-5 text-gray-800 ring-1 ring-gray-200 h-10 w-full placeholder:text-gray-400 focus:outline-primary focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:ring-gray-700 dark:focus:border-brand-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30;
+    }
+
+    /* Select specific styling with chevron icon */
+    select.form-control {
+        @apply appearance-none cursor-pointer;
+        padding-right: 2.5rem;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2398a2b3' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 1.2rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+    }
+
+    /* Dark mode chevron for select */
+    .dark select.form-control {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2398a2b3' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     }
 
     .form-control-file {
@@ -97,7 +139,7 @@
     }
 
     .form-control-combobox {
-        @apply h-10 inline-flex w-full items-center justify-between gap-2 whitespace-nowrap border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 rounded-md;
+        @apply rounded border-0 px-4 py-2.5 text-sm leading-5 text-gray-800 ring-1 ring-gray-200 h-10 w-full inline-flex items-center justify-between gap-2 whitespace-nowrap placeholder:text-gray-400 focus:outline-primary focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50 dark:ring-gray-700 dark:focus:border-brand-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 cursor-pointer appearance-none;
     }
 
     /* Input Group */

@@ -10,17 +10,21 @@ use App\Models\Term;
 use App\Services\Content\ContentService;
 use App\Concerns\HasActionLogTrait;
 use App\Enums\PostStatus;
+use App\Services\Builder\BlockService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ContentSeeder extends Seeder
 {
     use HasActionLogTrait;
 
-    public function __construct(private readonly ContentService $contentService)
-    {
+    public function __construct(
+        private readonly ContentService $contentService,
+        private readonly BlockService $blockService
+    ) {
     }
 
     /**
@@ -123,8 +127,8 @@ class ContentSeeder extends Seeder
 
                 $this->command->info("Created category: {$category['name']}");
             } catch (\Exception $e) {
-                $this->command->error("Error creating category {$category['name']}: ".$e->getMessage());
-                Log::error("Error in ContentSeeder creating category {$category['name']}: ".$e->getMessage());
+                $this->command->error("Error creating category {$category['name']}: " . $e->getMessage());
+                Log::error("Error in ContentSeeder creating category {$category['name']}: " . $e->getMessage());
             }
         }
     }
@@ -160,8 +164,8 @@ class ContentSeeder extends Seeder
 
                 $this->command->info("Created tag: {$tag['name']}");
             } catch (\Exception $e) {
-                $this->command->error("Error creating tag {$tag['name']}: ".$e->getMessage());
-                Log::error("Error in ContentSeeder creating tag {$tag['name']}: ".$e->getMessage());
+                $this->command->error("Error creating tag {$tag['name']}: " . $e->getMessage());
+                Log::error("Error in ContentSeeder creating tag {$tag['name']}: " . $e->getMessage());
             }
         }
     }
@@ -214,8 +218,8 @@ class ContentSeeder extends Seeder
             $fontSize = 5;
             $textWidth = imagefontwidth($fontSize) * strlen($textToDisplay);
             $textHeight = imagefontheight($fontSize);
-            $x = (int)((300 - $textWidth) / 2);
-            $y = (int)((200 - $textHeight) / 2);
+            $x = (int) ((300 - $textWidth) / 2);
+            $y = (int) ((200 - $textHeight) / 2);
 
             // Draw text
             imagestring($image, $fontSize, $x, $y, $textToDisplay, $textColor);
@@ -233,8 +237,8 @@ class ContentSeeder extends Seeder
 
             $this->command->info("Generated placeholder image: $imagePath");
         } catch (\Exception $e) {
-            $this->command->error('Error generating image: '.$e->getMessage());
-            Log::error('Error generating image: '.$e->getMessage());
+            $this->command->error('Error generating image: ' . $e->getMessage());
+            Log::error('Error generating image: ' . $e->getMessage());
         }
     }
 
@@ -244,27 +248,35 @@ class ContentSeeder extends Seeder
             [
                 'id' => 1,
                 'title' => 'Welcome to Our Blog',
-                'content' => '<p>This is the first post on our new blog. We\'re excited to share our thoughts with you!</p><p>Stay tuned for more updates.</p>',
                 'excerpt' => 'Welcome to our new blog! We\'re excited to share our thoughts with you.',
                 'status' => PostStatus::PUBLISHED->value,
                 'categories' => ['Uncategorized'],
                 'tags' => [],
+                'blocks' => [
+                    $this->blockService->heading('Welcome to Our Blog'),
+                    $this->blockService->text('This is the first post on our new blog. We\'re excited to share our thoughts with you!'),
+                    $this->blockService->spacer('16px'),
+                    $this->blockService->text('Stay tuned for more updates.'),
+                ],
             ],
         ];
 
         foreach ($posts as $postData) {
-            // Create post.
             $post = Post::firstOrCreate([
                 'id' => $postData['id'],
                 'title' => $postData['title'],
                 'post_type' => 'post',
             ], [
-                'slug' => \Illuminate\Support\Str::slug($postData['title']),
-                'content' => $postData['content'],
+                'slug' => Str::slug($postData['title']),
                 'excerpt' => $postData['excerpt'],
                 'status' => $postData['status'],
                 'user_id' => 1, // Assuming user ID 1 exists
                 'published_at' => now()->subDays(rand(0, 30)),
+                'design_json' => [
+                    'blocks' => $postData['blocks'],
+                    'version' => 1,
+                ],
+                'content' => $this->blockService->parseBlocks($postData['blocks']),
             ]);
 
             $this->logAction(ActionType::CREATED->value, Post::class, $post->toArray());
@@ -276,7 +288,6 @@ class ContentSeeder extends Seeder
                     ->where('taxonomy', 'category')
                     ->pluck('id')
                     ->toArray();
-
                 $post->terms()->syncWithoutDetaching($categoryIds);
             }
 
@@ -287,7 +298,6 @@ class ContentSeeder extends Seeder
                     ->where('taxonomy', 'tag')
                     ->pluck('id')
                     ->toArray();
-
                 $post->terms()->syncWithoutDetaching($tagIds);
             }
         }
@@ -301,8 +311,13 @@ class ContentSeeder extends Seeder
             [
                 'id' => 2,
                 'title' => 'Sample Page',
-                'content' => '<p>This is a sample page created to demonstrate the page functionality.</p><p>Feel free to edit this content in the admin panel.</p>',
                 'status' => PostStatus::PUBLISHED->value,
+                'blocks' => [
+                    $this->blockService->heading('Sample Page', 'h1'),
+                    $this->blockService->text('This is a sample page created to demonstrate the page functionality.'),
+                    $this->blockService->spacer('16px'),
+                    $this->blockService->text('Feel free to edit this content in the admin panel.'),
+                ],
             ],
         ];
 
@@ -312,11 +327,15 @@ class ContentSeeder extends Seeder
                 'title' => $pageData['title'],
                 'post_type' => 'page',
             ], [
-                'slug' => \Illuminate\Support\Str::slug($pageData['title']),
-                'content' => $pageData['content'],
+                'slug' => Str::slug($pageData['title']),
                 'status' => $pageData['status'],
                 'user_id' => 1, // Assuming user ID 1 exists
                 'published_at' => now(),
+                'design_json' => [
+                    'blocks' => $pageData['blocks'],
+                    'version' => 1,
+                ],
+                'content' => $this->blockService->parseBlocks($pageData['blocks']),
             ]);
 
             $this->logAction(ActionType::CREATED->value, Post::class, $page->toArray());

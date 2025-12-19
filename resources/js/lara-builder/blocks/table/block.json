@@ -1,0 +1,30 @@
+{
+    "type": "table",
+    "version": "1.0.0",
+    "label": "Table",
+    "category": "Advanced",
+    "icon": "mdi:table",
+    "description": "Add a data table",
+    "keywords": ["table", "data", "grid", "rows", "columns"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "colors": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "headers": ["Product", "Qty", "Price"],
+        "rows": [
+            ["Product Name 1", "2", "$29.99"],
+            ["Product Name 2", "1", "$49.99"]
+        ],
+        "showHeader": true,
+        "headerBgColor": "#f1f5f9",
+        "headerTextColor": "#1e293b",
+        "borderColor": "#e2e8f0",
+        "cellPadding": "12px",
+        "fontSize": "14px"
+    }
+}

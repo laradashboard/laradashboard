@@ -12,6 +12,7 @@ use Illuminate\Auth\Notifications\ResetPassword as DefaultResetPassword;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -39,6 +40,7 @@ class User extends Authenticatable
         'password',
         'username',
         'avatar_id',
+        'email_subscribed',
     ];
 
     /**
@@ -76,7 +78,7 @@ class User extends Authenticatable
         'avatar',
     ];
 
-    public function actionLogs()
+    public function actionLogs(): HasMany
     {
         return $this->hasMany(ActionLog::class, 'action_by');
     }
@@ -84,7 +86,7 @@ class User extends Authenticatable
     /**
      * Get the user's metadata.
      */
-    public function userMeta()
+    public function userMeta(): HasMany
     {
         return $this->hasMany(UserMeta::class);
     }
@@ -151,6 +153,10 @@ class User extends Authenticatable
      */
     public function getGravatarUrl(int $size = 80): string
     {
+        if (! empty($this->avatar_id)) {
+            return asset('storage/media/' . $this->avatar->file_name);
+        }
+
         return "https://ui-avatars.com/api/{$this->full_name}/{$size}/635bff/fff/2";
     }
 

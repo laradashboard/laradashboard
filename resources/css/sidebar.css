@@ -175,6 +175,29 @@
     .app-sidebar-minified .menu-item .menu-item-arrow {
         display: inline-block;
     }
+
+    /* On mobile, show submenus and menu group headings even when sidebar is "minified" */
+    .app-sidebar-minified .submenu.submenu-expanded {
+        display: block;
+    }
+
+    .app-sidebar-minified .menu-group-heading {
+        display: block;
+    }
+
+    /* On mobile, always show the full logo and hide the icon when sidebar is open */
+    .app-sidebar-minified .logo {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    .app-sidebar-minified .logo-icon {
+        display: none !important;
+    }
+
+    .app-sidebar-minified .sidebar-header {
+        justify-content: space-between !important;
+    }
 }
 /* .menu-item .menu-item-arrow {
     margin-right: 10px;

@@ -1,0 +1,31 @@
+{
+    "type": "list",
+    "version": "1.0.0",
+    "label": "List",
+    "category": "Content",
+    "icon": "mdi:format-list-bulleted",
+    "description": "Add a bullet or numbered list",
+    "keywords": ["list", "bullet", "number", "items", "check", "checklist"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "justify": true,
+        "bold": true,
+        "italic": true,
+        "underline": true,
+        "link": true,
+        "clearFormat": true,
+        "colors": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "items": ["First item", "Second item", "Third item"],
+        "listType": "bullet",
+        "color": "#333333",
+        "fontSize": "16px",
+        "iconColor": "#635bff"
+    }
+}

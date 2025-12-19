@@ -31,6 +31,12 @@ enum UserFilterHook: string
     case USER_AFTER_BREADCRUMBS = 'filter.users.after_breadcrumbs';
     case USER_AFTER_TABLE = 'filter.users.after_table';
 
+    // User Show Page Hooks.
+    case USER_SHOW_AFTER_BREADCRUMBS = 'filter.user.show.after_breadcrumbs';
+    case USER_SHOW_AFTER_MAIN_CONTENT = 'filter.user.show.after_main_content';
+    case USER_SHOW_AFTER_SIDEBAR = 'filter.user.show.after_sidebar';
+    case USER_SHOW_AFTER_CONTENT = 'filter.user.show.after_content';
+
     // User Form Field Hooks.
     case USER_FORM_AFTER_AVATAR = 'filter.user.form.after_avatar';
     case USER_FORM_AFTER_SOCIAL_LINKS = 'filter.user.form.after_social_links';

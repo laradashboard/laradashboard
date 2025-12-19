@@ -13,7 +13,7 @@
     'customBulkActions' => null,
     'direction' => 'desc',
 
-    'enableNewResourceLink' => true,
+    'enableNewResourceLink' => false,
     'newResourceLinkPermission' => '',
     'newResourceLinkIcon' => 'feather:plus',
     'newResourceLinkRouteName' => '',
@@ -44,11 +44,17 @@
         bulkDeleteModalOpen: false,
         toggleSelectAll() {
             if (this.selectAll) {
-                this.selectedItems = [...this.allIds];
+                // Add current page items to selection (preserve items from other pages)
+                this.allIds.forEach(id => {
+                    if (!this.selectedItems.includes(id)) {
+                        this.selectedItems.push(id);
+                    }
+                });
             } else {
-                this.selectedItems = [];
+                // Remove only current page items from selection (preserve items from other pages)
+                this.selectedItems = this.selectedItems.filter(id => !this.allIds.includes(id));
             }
-            // Update all checkboxes
+            // Update all checkboxes on current page
             document.querySelectorAll('.item-checkbox').forEach(checkbox => {
                 checkbox.checked = this.selectAll;
             });
@@ -58,7 +64,8 @@
             }
         },
         updateSelectAll() {
-            this.selectAll = this.selectedItems.length === this.allIds.length && this.allIds.length > 0;
+            // Check if all current page items are selected
+            this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
             // Sync with Livewire
             if (@json($enableLivewire)) {
                 $wire.set('selectedItems', this.selectedItems);
@@ -72,6 +79,25 @@
             this.updateSelectAll();
         },
         init() {
+            // Set initial selectAll state based on loaded selectedItems
+            this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
+
+            // Update allIds when Livewire re-renders (e.g., pagination/perPage change)
+            Livewire.hook('morph.updated', ({ el, component }) => {
+                if (el === this.$root) {
+                    // Get fresh IDs from the DOM after Livewire update
+                    const checkboxes = this.$root.querySelectorAll('.item-checkbox');
+                    // Handle both numeric and string IDs
+                    this.allIds = Array.from(checkboxes).map(cb => {
+                        const val = cb.value;
+                        const num = parseInt(val);
+                        return isNaN(num) ? val : num;
+                    });
+                    // Update selectAll state based on new page items
+                    this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
+                }
+            });
+
             window.addEventListener('resetSelectedItems', () => {
                 this.selectedItems = [];
                 this.selectAll = false;
@@ -86,40 +112,37 @@
 >
     <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="px-5 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row justify-between items-center gap-3">
+            {!! Hook::applyFilters(DatatableHook::BEFORE_SEARCHBOX, '', $searchbarPlaceholder) !!}
+            @if($enableLivewire)
+                {{ method_exists($this, 'renderBeforeSearchbar') ? $this->renderBeforeSearchbar() : '' }}
+            @endif
 
-            <div class="flex items-center gap-3">
-                {!! Hook::applyFilters(DatatableHook::BEFORE_SEARCHBOX, '', $searchbarPlaceholder) !!}
-                @if($enableLivewire)
-                    {{ method_exists($this, 'renderBeforeSearchbar') ? $this->renderBeforeSearchbar() : '' }}
+            @if($enableSearchbar)
+                @if($customSeachForm)
+                    {!! $customSeachForm !!}
+                @else
+                    <x-datatable.searchbar
+                        :placeholder="$searchbarPlaceholder"
+                        :enableLivewire="$enableLivewire"
+                    />
                 @endif
+            @endif
 
-                @if($enableSearchbar)
-                    @if($customSeachForm)
-                        {!! $customSeachForm !!}
-                    @else
-                        <x-datatable.searchbar
-                            :placeholder="$searchbarPlaceholder"
-                            :enableLivewire="$enableLivewire"
-                        />
-                    @endif
-                @endif
+            @if($enableLivewire)
+                {{ method_exists($this, 'renderAfterSearchbar') ? $this->renderAfterSearchbar() : '' }}
+            @endif
+            {!! Hook::applyFilters(DatatableHook::AFTER_SEARCHBOX, '', $searchbarPlaceholder) !!}
 
-                @if($enableLivewire)
-                    {{ method_exists($this, 'renderAfterSearchbar') ? $this->renderAfterSearchbar() : '' }}
-                @endif
-                {!! Hook::applyFilters(DatatableHook::AFTER_SEARCHBOX, '', $searchbarPlaceholder) !!}
-            </div>
-
-            <div
-                class="flex items-center gap-3"
-                @if($enableLivewire) wire:ignore @endif
-            >
-                <div class="flex items-center gap-2">
+            <div class="flex items-start w-full md:items-end gap-3 flex-wrap md:w-auto md:justify-items-end">
+                <div
+                    class="flex items-center gap-2"
+                    x-show="selectedItems.length > 0"
+                >
                     @if($enableBulkActions)
                         @if($customBulkActions)
                             {!! $customBulkActions !!}
                         @else
-                            <div class="relative flex items-center justify-center" x-show="selectedItems.length > 0" x-data="{ open: false }">
+                            <div class="relative flex items-center justify-center" x-data="{ open: false }">
                                 <button @click="open = !open" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
                                     <iconify-icon icon="lucide:more-vertical"></iconify-icon>
                                     <span>{{ __('Bulk Actions') }} (<span x-text="selectedItems.length"></span>)</span>
@@ -236,54 +259,12 @@
                     @if($customFilters)
                         {!! $customFilters !!}
                     @else
-                        @if(isset($filters))
-                            @foreach($filters as $filter)
-                            <div class="flex items-center justify-center relative" x-data="{ open: false }">
-                                <button
-                                    @click="open = !open"
-                                    class="btn-default flex items-center justify-center gap-2"
-                                    type="button"
-                                >
-                                    @if($filter['icon'] ?? false)
-                                        <iconify-icon icon="{{ $filter['icon'] ?? '' }}"></iconify-icon>
-                                    @endif
-
-                                    {{ $filter['filterLabel'] }}
-                                    <iconify-icon icon="lucide:chevron-down" class="transition-transform duration-200" :class="{'rotate-180': open}"></iconify-icon>
-                                </button>
-
-                                <div
-                                    x-show="open"
-                                    @click.outside="open = false"
-                                    x-transition
-                                    class="absolute top-10 right-0 mt-2 w-56 rounded-md shadow bg-white dark:bg-gray-700 z-10 p-3 overflow-y-auto max-h-80"
-                                >
-                                    <ul class="space-y-2">
-                                        <li class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded"
-                                            @if($enableLivewire)
-                                                wire:click="$set('{{ $filter['id'] }}', ''); $dispatch('resetPage')"
-                                            @endif
-                                            @click="open = false"
-                                        >
-                                            {{ $filter['allLabel'] }}
-                                        </li>
-                                        @foreach ($filter['options'] as $key => $value)
-                                            <li
-                                                class="cursor-pointer text-sm text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 px-2 py-1.5 rounded {{ $filter['selected'] == $key ? 'bg-gray-200 dark:bg-gray-600 font-bold' : '' }}"
-                                                @if($enableLivewire)
-                                                    wire:click="$set('{{ $filter['id'] }}', '{{ $key }}'); $dispatch('resetPage')"
-                                                @else
-                                                    onclick="window.location.href = '{{ $filter['route'] }}?{{ $filter['id'] }}={{ $key }}';"
-                                                @endif
-                                                @click="open = false"
-                                            >
-                                                {{ ucfirst($value) }}
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                            @endforeach
+                        @if(isset($filters) && count($filters) > 0)
+                            <x-datatable.responsive-filters
+                                :filters="$filters"
+                                :enableLivewire="$enableLivewire"
+                                :hasActiveFilters="$enableLivewire && method_exists($this, 'hasActiveFilters') && $this->hasActiveFilters()"
+                            />
                         @endif
                     @endif
                 @endif
@@ -358,18 +339,24 @@
                     @forelse ($data as $item)
                         <tr class="{{ $loop->index + 1 != count($data) ?  'table-tr' : '' }}">
                             @if($enableCheckbox ?? true && can('delete', $item))
+                                @php
+                                    $itemId = $item->id;
+                                    $itemIdJson = json_encode($itemId);
+                                @endphp
                                 <td class="table-td table-td-checkbox" wire:ignore>
                                     <input
                                         type="checkbox"
                                         class="item-checkbox form-checkbox"
-                                        value="{{ $item->id }}"
+                                        value="{{ $itemId }}"
+                                        :checked="selectedItems.includes({{ $itemIdJson }})"
                                         @change="
+                                            const itemId = {{ $itemIdJson }};
                                             if ($event.target.checked) {
-                                                if (!selectedItems.includes({{ $item->id }})) {
-                                                    selectedItems.push({{ $item->id }});
+                                                if (!selectedItems.includes(itemId)) {
+                                                    selectedItems.push(itemId);
                                                 }
                                             } else {
-                                                selectedItems = selectedItems.filter(id => id !== {{ $item->id }});
+                                                selectedItems = selectedItems.filter(id => id !== itemId);
                                             }
                                             updateSelectAll();
                                         "

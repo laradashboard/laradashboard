@@ -1,0 +1,29 @@
+{
+    "type": "toc",
+    "version": "1.0.0",
+    "label": "Table of Contents",
+    "category": "Content",
+    "icon": "mdi:table-of-contents",
+    "description": "Auto-generated table of contents from headings",
+    "keywords": ["toc", "table of contents", "navigation", "headings", "index"],
+    "contexts": ["page"],
+    "supports": {
+        "colors": true,
+        "align": false,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "title": "Table of Contents",
+        "showTitle": true,
+        "minLevel": "h1",
+        "maxLevel": "h4",
+        "listStyle": "bullet",
+        "backgroundColor": "#f8fafc",
+        "borderColor": "#e2e8f0",
+        "titleColor": "#1e293b",
+        "linkColor": "#3b82f6"
+    }
+}

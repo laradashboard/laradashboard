@@ -20,6 +20,7 @@ it('has fillable attributes', function () {
         'password',
         'username',
         'avatar_id',
+        'email_subscribed',
     ]);
 });
 

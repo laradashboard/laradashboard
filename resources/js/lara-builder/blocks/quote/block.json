@@ -1,0 +1,33 @@
+{
+    "type": "quote",
+    "version": "1.0.0",
+    "label": "Quote",
+    "category": "Content",
+    "icon": "mdi:format-quote-close",
+    "description": "Add a quote or testimonial with inline editing",
+    "keywords": ["quote", "testimonial", "blockquote", "citation"],
+    "contexts": ["email", "page", "campaign"],
+    "supports": {
+        "align": true,
+        "justify": true,
+        "bold": true,
+        "italic": true,
+        "underline": true,
+        "clearFormat": true,
+        "colors": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "text": "This is a quote or testimonial that stands out from the rest of the content.",
+        "author": "John Doe",
+        "authorTitle": "CEO, Company",
+        "borderColor": "#635bff",
+        "backgroundColor": "#f8fafc",
+        "textColor": "#475569",
+        "authorColor": "#1e293b",
+        "align": "left"
+    }
+}

@@ -1,0 +1,38 @@
+/**
+ * LaraBuilder Block Editor Styles
+ *
+ * Styles specific to the block editor canvas and components.
+ */
+
+@layer components {
+    /* Block link styles */
+    .lb-block a {
+        @apply text-primary;
+    }
+
+    .lb-block a:hover {
+        @apply text-primary/80;
+    }
+
+    /* Block selected state - skip blocks with no-selection-style or in text editing mode */
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > div:not([data-text-editing="true"]):not(.lb-block-toolbar),
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > p,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > blockquote,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > section,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > nav,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > pre:not([contenteditable="true"]),
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > ul:not([contenteditable="true"]),
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > ol:not([contenteditable="true"]),
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > figure,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > hr,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > h1,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > h2,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > h3,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > h4,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > h5,
+    .lb-block-selected:not(:has([data-no-selection-style="true"])) > h6 {
+        outline: 2px solid theme('colors.primary.DEFAULT');
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+}

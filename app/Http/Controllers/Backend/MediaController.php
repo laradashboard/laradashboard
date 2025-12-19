@@ -30,20 +30,6 @@ class MediaController extends Controller
             ])->withInput();
         }
 
-        $breadcrumbs = [
-            'title' => __('Media Library'),
-            'links' => [
-                [
-                    'name' => __('Dashboard'),
-                    'url' => route('admin.dashboard'),
-                ],
-                [
-                    'name' => __('Media Library'),
-                    'url' => '#',
-                ],
-            ],
-        ];
-
         $result = $this->mediaLibraryService->getMediaList(
             $request->get('search'),
             $request->get('type'),
@@ -73,9 +59,17 @@ class MediaController extends Controller
         // Get upload limits for frontend
         $uploadLimits = MediaHelper::getUploadLimits();
 
-        return view('backend.pages.media.index', [
+        $this->setBreadcrumbTitle(__('Media Library'))
+            ->setBreadcrumbIcon('lucide:image')
+            ->setBreadcrumbActionClick(
+                "uploadModalOpen = true",
+                __('Upload Media'),
+                'feather:upload',
+                'media.create'
+            );
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.media.index', [
             'media' => $result['media'],
-            'breadcrumbs' => $breadcrumbs,
             'stats' => $result['stats'],
             'uploadLimits' => $uploadLimits,
         ]);
