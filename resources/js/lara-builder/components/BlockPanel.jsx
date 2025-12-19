@@ -124,8 +124,8 @@ const BlockPanel = ({ onAddBlock, context = null }) => {
     return (
         <div className="h-full flex flex-col overflow-hidden">
             {/* Search input */}
-            <div className="mb-3 flex-shrink-0">
-                <div className="relative">
+            <div className="mb-3 shrink-0">
+                <div className="relative m-0.5">
                     <iconify-icon
                         icon="mdi:magnify"
                         width="18"

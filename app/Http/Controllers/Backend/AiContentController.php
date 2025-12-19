@@ -87,4 +87,48 @@ class AiContentController extends Controller
             ], 500);
         }
     }
+
+    public function modifyText(Request $request): JsonResponse
+    {
+        $this->authorize('create', Post::class);
+
+        $validator = Validator::make($request->all(), [
+            'text' => 'required|string|min:1|max:5000',
+            'instruction' => 'required|string|min:3|max:500',
+            'provider' => 'nullable|string|in:openai,claude',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()->toArray(),
+            ], 422);
+        }
+
+        try {
+            // Set provider if specified
+            if ($request->filled('provider')) {
+                $this->aiService->setProvider($request->provider);
+            }
+
+            $modifiedText = $this->aiService->modifyText(
+                $request->text,
+                $request->instruction
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Text modified successfully',
+                'data' => ['text' => $modifiedText],
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to modify text: ' . $e->getMessage(),
+                'data' => null,
+            ], 500);
+        }
+    }
 }

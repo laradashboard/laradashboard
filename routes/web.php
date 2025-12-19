@@ -169,6 +169,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::prefix('ai')->name('ai.')->group(function () {
         Route::get('/providers', [AiContentController::class, 'getProviders'])->name('providers');
         Route::post('/generate-content', [AiContentController::class, 'generateContent'])->name('generate-content');
+        Route::post('/modify-text', [AiContentController::class, 'modifyText'])->name('modify-text');
     });
 });
 

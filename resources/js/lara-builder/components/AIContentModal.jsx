@@ -284,7 +284,7 @@ function AIContentModal({
                                 href="/admin/settings?tab=integrations"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md transition-colors"
+                                className="btn-primary"
                             >
                                 <iconify-icon
                                     icon="mdi:cog"

@@ -544,10 +544,11 @@ Visit the [Laravel Boost documentation](https://github.com/laravel/boost).
   <tr>
     <td width="50%">
       <strong>AI Providers Settings</strong><br/>
-      <img width="100%" alt="AI Providers Settings" src="/demo-screenshots/70-AI-Providers-Lite-Mode.png"/>
+      <img width="100%" alt="AI Content Generation" src="/demo-screenshots/70-AI-Providers-Lite-Mode-Post.png"/>
     </td>
     <td width="50%">
-      <!-- Reserved for future AI screenshot -->
+      <strong>AI Providers Settings</strong><br/>
+      <img width="100%" alt="Inline AI" src="/demo-screenshots/71-Inline-AI-Editor.png"/>
     </td>
   </tr>
 </table>

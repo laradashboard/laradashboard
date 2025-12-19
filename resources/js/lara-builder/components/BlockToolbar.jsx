@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { blockRegistry } from "../registry/BlockRegistry";
 import { getBlockSupports } from "../blocks/blockLoader";
 import { __ } from "@lara-builder/i18n";
 import { LaraHooks } from "../hooks-system/LaraHooks";
 import { BuilderHooks } from "../hooks-system/HookNames";
+import AITextAssistant from "./AITextAssistant";
 
 // Get block config from registry
 const getBlock = (type) => blockRegistry.get(type);
@@ -389,6 +390,7 @@ const TextFormatControls = ({
     align,
     onAlignChange,
     supports = {},
+    onContentChange,
 }) => {
     // Feature flags from block supports
     const showBold = supports.bold !== false;
@@ -398,10 +400,17 @@ const TextFormatControls = ({
     const showJustify = supports.justify === true;
     const showClearFormat = supports.clearFormat !== false;
     const showMoreControls = supports.moreControls !== false;
+    const showAIAssistant = supports.aiAssistant !== false;
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkUrl, setLinkUrl] = useState("");
     const linkInputRef = useRef(null);
     const savedSelection = useRef(null);
+
+    // AI Assistant state
+    const [showAI, setShowAI] = useState(false);
+    const [selectedText, setSelectedText] = useState("");
+    const [aiPosition, setAiPosition] = useState({ top: 0, left: 0 });
+    const aiButtonRef = useRef(null);
 
     useEffect(() => {
         if (showLinkInput && linkInputRef.current) {
@@ -482,6 +491,67 @@ const TextFormatControls = ({
             editorRef.current.focus();
         }
     };
+
+    // AI Assistant handlers
+    const handleAIClick = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        const selection = window.getSelection();
+        const text = selection?.toString()?.trim() || "";
+
+        if (!text) {
+            // If no selection, use entire content
+            const content = editorRef?.current?.innerText || "";
+            setSelectedText(content);
+        } else {
+            saveSelection();
+            setSelectedText(text);
+        }
+
+        // Position the AI popover near the button
+        if (aiButtonRef.current) {
+            const rect = aiButtonRef.current.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+
+            // Calculate left position - ensure it stays within viewport
+            let left = rect.left - 140; // Center the 320px popover roughly under the button
+            if (left < 10) left = 10;
+            if (left + 320 > viewportWidth - 10) left = viewportWidth - 330;
+
+            setAiPosition({
+                top: rect.bottom + 8,
+                left: left,
+            });
+        }
+
+        setShowAI(true);
+    };
+
+    const handleAIApply = useCallback(
+        (newText) => {
+            // Check if we have a saved selection (partial text selected)
+            if (savedSelection.current && !savedSelection.current.collapsed) {
+                restoreSelection();
+                document.execCommand("insertText", false, newText);
+            } else {
+                // Replace entire content
+                if (editorRef?.current) {
+                    editorRef.current.innerText = newText;
+                }
+            }
+
+            // Trigger content change callback if provided
+            if (onContentChange && editorRef?.current) {
+                onContentChange(editorRef.current.innerHTML);
+            }
+
+            if (editorRef?.current) {
+                editorRef.current.focus();
+            }
+        },
+        [editorRef, onContentChange, restoreSelection]
+    );
 
     const buttonClass =
         "p-1.5 pb-0 rounded hover:bg-gray-100 transition-colors text-gray-600";
@@ -634,12 +704,43 @@ const TextFormatControls = ({
                 </>
             )}
 
+            {/* AI Assistant Button */}
+            {showAIAssistant && (
+                <>
+                    <div className="w-px h-5 bg-gray-200 mx-0.5"></div>
+                    <button
+                        ref={aiButtonRef}
+                        type="button"
+                        onClick={handleAIClick}
+                        className="p-1.5 pb-0 rounded hover:bg-purple-50 transition-colors text-purple-600 hover:text-purple-700"
+                        title={__("AI Assistant")}
+                    >
+                        <iconify-icon
+                            icon="mdi:lightning-bolt"
+                            width="16"
+                            height="16"
+                        ></iconify-icon>
+                    </button>
+                </>
+            )}
+
             {/* More Text Controls Dropdown */}
             {showMoreControls && (
                 <MoreTextControls
                     editorRef={editorRef}
                     saveSelection={saveSelection}
                     restoreSelection={restoreSelection}
+                />
+            )}
+
+            {/* AI Text Assistant Popover */}
+            {showAI && (
+                <AITextAssistant
+                    isOpen={showAI}
+                    onClose={() => setShowAI(false)}
+                    selectedText={selectedText}
+                    onApply={handleAIApply}
+                    position={aiPosition}
                 />
             )}
         </>
