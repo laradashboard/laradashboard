@@ -48,8 +48,10 @@ password - 12345678
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 📝 Changelog
+**[v0.9.0] - 2025-12-19**
+-   **chore:** Revamping the versions to v0.9.x.
 
-**[v2.4.0] - 2025-12-19**
+**[v2.4.0-beta] - 2025-12-19**
 
 -   **Feat:** Post / Page Builder - Manage posts/pages with visual drag and drop builder.
 -   **Feat:** Email Management System - Email connections, email templates with visual builder.
@@ -59,7 +61,7 @@ password - 12345678
 -   **Enhancement:** Improved role detail page with better UI/UX.
 -   **Enhancement:** Module installation process improved with better UI/UX.
 
-**[v2.3.0] - 2025-09-07**
+**[v2.3.0-beta] - 2025-09-07**
 
 -   **Feat:** Datatable integration for Users, Roles, Permissions, Posts, Categories, Tags.
 -   **Feat:** Several new components.
@@ -68,7 +70,7 @@ password - 12345678
 -   **Enhancement:** Updated code structure, new components, improved code quality.
 -   **Fix:** Several small UI bugs.
 
-**[v2.2.0] - 2025-08-17**
+**[v2.2.0-beta] - 2025-08-17**
 
 -   **Feat:** Media library manager.
 -   **Feat:** Improved user / profile UI/UX with lots of options.
@@ -76,7 +78,7 @@ password - 12345678
 -   **Enhancement:** Update menu structure.
 -   **Fix:** Several small UI bugs.
 
-**[v2.0.1] - 2025-07-27**
+**[v2.0.1-beta] - 2025-07-27**
 
 -   **Feat:** Refactor Lara Dashboard whole Admin UI - Icons, Accessibility, Components, Pages, Layouts and so on.
 -   **Enhancement:** Keep search form design consistent as `form-control` height.
@@ -87,26 +89,26 @@ password - 12345678
 -   **Fix:** Remove some unnecessary console logs.
 -   **Doc:** Added Coding standard docs.
 
-**[v2.0] - 2025-07-20**
+**[v2.0-beta] - 2025-07-20**
 
 -   **Feat:** Refactor Lara Dashboard whole Admin UI - Icons, Accessibility, Components, Pages, Layouts and so on.
 -   **Enhancement:** Improve components, reusibility, and code quality.
 -   **Fix:** Some random UI fixes.
 
-**[v1.7.0] - 2025-07-13**
+**[v1.7.0-beta] - 2025-07-13**
 
 -   **Feat:** Rest API For Lara Dashboard, Scramble API documentation.
 -   **Enhancement:** Cleanup class names to use more standard class names.
 -   **Fix:** Some random UI fixes.
 
-**[v1.6.0] - 2025-06-21**
+**[v1.6.0-beta] - 2025-06-21**
 
 -   **Enhancement:** Write/Update Standard Unit Tests, pint, rector, phpstan for the project.
 -   **Fix:** Potential fix for code scanning alert no. 1: Workflow does not contain permissions.
 -   **Fix:** Language switcher if no icon is selected.
 -   **Fix:** Non-Translated keys keep empty instead the placeholder.
 
-**[v1.5.0] - 2025-06-01**
+**[v1.5.0-beta] - 2025-06-01**
 
 -   **Feature**: Content Management System (CMS) with Content(Post/Page), Content Category, Content Tag management.
 -   **Feature**: Post/Page activity chart in Dashboard.
@@ -116,13 +118,13 @@ password - 12345678
 -   **Fix**: System dark mode issues.
 -   **Fix**: Modules refactorring in demo mode.
 
-**[v1.3.0] - 2025-05-18**
+**[v1.3.0-beta] - 2025-05-18**
 
 -   **Feature**: Admin Menu architecture with more extendible way.
 -   **Feature**: Permission List and detail page.
 -   **Enhancement**: Improved module compatibility.
 
-**[v1.2.0] - 2025-05-12**
+**[v1.2.0-beta] - 2025-05-12**
 
 -   **Feature - Translation Management**: Added Translation management sytem with supporting 21 languages by default and possibility to add any in a second.
 -   **Enhancement - Dashboard Redesign**: Dashboard redesigned with new card, user history chart, several more design improvements.
@@ -136,7 +138,7 @@ password - 12345678
 -   **Fix**: Fixed Sidebar toggle was not persistent issue.
 -   **Fix**: Fixed Role create -> selecting permission group can't check the permissions in that group checkboxes automatically.
 
-**[v1.0.0] - 2025-04-21**
+**[v1.0.0-beta] - 2025-04-21**
 
 -   **Feature - Forget Password Management**: Enhanced the forget password functionality for better reliability and user experience.
 -   **Feature - Settings Management**: Added comprehensive settings management features, including API support.
@@ -151,7 +153,7 @@ password - 12345678
 
 ## 🔄 Versions:
 
-Latest version `v2.4.0` - https://github.com/laradashboard/laradashboard/releases/tag/v2.4.0
+Latest version `v0.9.0` - https://github.com/laradashboard/laradashboard/releases/tag/v0.9.0
 
 <details>
 <summary>View Old versions</summary>
