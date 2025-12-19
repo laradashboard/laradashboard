@@ -152,8 +152,11 @@ Example format:
             default => throw new Exception("Unknown provider: {$this->provider}")
         };
 
+        // Clean the content - remove markdown code blocks if present
+        $cleanedContent = $this->extractJsonFromResponse($content);
+
         // Try to parse as JSON first
-        $parsedContent = json_decode($content, true);
+        $parsedContent = json_decode($cleanedContent, true);
 
         if (json_last_error() === JSON_ERROR_NONE && is_array($parsedContent)) {
             // Ensure we have the required keys
@@ -165,7 +168,7 @@ Example format:
         }
 
         // If not valid JSON, try to structure the content better
-        $lines = explode('\n', trim($content));
+        $lines = explode("\n", trim($content));
         $lines = array_filter($lines, fn ($line) => ! empty(trim($line)));
 
         if (count($lines) >= 2) {
@@ -194,6 +197,26 @@ Example format:
             'excerpt' => 'Generated excerpt from AI',
             'content' => $content,
         ];
+    }
+
+    /**
+     * Extract JSON from AI response, handling markdown code blocks and extra text
+     */
+    private function extractJsonFromResponse(string $content): string
+    {
+        $content = trim($content);
+
+        // Remove markdown code blocks (```json ... ``` or ``` ... ```)
+        if (preg_match('/```(?:json)?\s*([\s\S]*?)\s*```/', $content, $matches)) {
+            $content = trim($matches[1]);
+        }
+
+        // Try to find JSON object in the response (starts with { and ends with })
+        if (preg_match('/\{[\s\S]*\}/', $content, $matches)) {
+            $content = $matches[0];
+        }
+
+        return $content;
     }
 
     public function getAvailableProviders(): array

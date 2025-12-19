@@ -5,8 +5,10 @@
  * context-specific inputs, save button, and editor options menu.
  */
 
+import { useState } from "react";
 import { __ } from "@lara-builder/i18n";
 import EditorOptionsMenu from "./EditorOptionsMenu";
+import AIContentModal from "./AIContentModal";
 
 function BuilderHeader({
     // Navigation
@@ -27,6 +29,8 @@ function BuilderHeader({
     // Post state
     title,
     setTitle,
+    excerpt,
+    setExcerpt,
     // Email state
     templateName,
     setTemplateName,
@@ -38,7 +42,11 @@ function BuilderHeader({
     onEditorModeChange,
     onCopyAllBlocks,
     onPasteBlocks,
+    // AI Content
+    onInsertAIContent,
 }) {
+    // AI modal state
+    const [aiModalOpen, setAiModalOpen] = useState(false);
     // Determine the icon based on context
     const getBackIcon = () => {
         if (isEmailContext) return "lucide:mail";
@@ -116,9 +124,21 @@ function BuilderHeader({
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">
-                {/* Post context: Title input */}
+                {/* Post context: AI Button + Title input */}
                 {isPostContext && (
                     <div className="hidden md:flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setAiModalOpen(true)}
+                            className="inline-flex items-center justify-center w-8 h-8 text-white bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md"
+                            title={__("Generate content with AI")}
+                        >
+                            <iconify-icon
+                                icon="mdi:lightning-bolt"
+                                width="16"
+                                height="16"
+                            ></iconify-icon>
+                        </button>
                         <input
                             type="text"
                             value={title}
@@ -192,6 +212,16 @@ function BuilderHeader({
                     onPasteBlocks={onPasteBlocks}
                 />
             </div>
+
+            {/* AI Content Modal */}
+            <AIContentModal
+                isOpen={aiModalOpen}
+                onClose={() => setAiModalOpen(false)}
+                onInsertContent={onInsertAIContent}
+                isPostContext={isPostContext}
+                setTitle={setTitle}
+                setExcerpt={setExcerpt}
+            />
         </header>
     );
 }

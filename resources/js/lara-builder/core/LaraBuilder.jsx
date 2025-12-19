@@ -414,6 +414,28 @@ function LaraBuilderInner({
         [actions, editorMode, showToast]
     );
 
+    // Insert AI-generated content as blocks
+    const handleInsertAIContent = useCallback(
+        (blocksToInsert) => {
+            if (!Array.isArray(blocksToInsert) || blocksToInsert.length === 0) {
+                return;
+            }
+
+            blocksToInsert.forEach((block) => {
+                if (block) {
+                    actions.addBlock(block);
+                }
+            });
+
+            showToast(
+                "success",
+                __("AI Content Inserted"),
+                __(":count blocks added").replace(":count", blocksToInsert.length)
+            );
+        },
+        [actions, showToast]
+    );
+
     const handleCodeEditorHtmlChange = useCallback((html) => {
         setCodeEditorHtml(html);
     }, []);
@@ -659,6 +681,8 @@ function LaraBuilderInner({
                             redo={redo}
                             title={title}
                             setTitle={setTitle}
+                            excerpt={excerpt}
+                            setExcerpt={setExcerpt}
                             templateName={templateName}
                             setTemplateName={setTemplateName}
                             saving={saving}
@@ -667,6 +691,7 @@ function LaraBuilderInner({
                             onEditorModeChange={handleEditorModeChange}
                             onCopyAllBlocks={handleCopyAllBlocks}
                             onPasteBlocks={handlePasteBlocks}
+                            onInsertAIContent={handleInsertAIContent}
                         />
                     </div>
                 )}
