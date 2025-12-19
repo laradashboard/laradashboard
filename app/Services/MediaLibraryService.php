@@ -69,10 +69,11 @@ class MediaLibraryService
         $media = $query->paginate($perPage)->withQueryString();
 
         // Enhance media items with additional information
+        // Note: human_readable_size is already provided by Spatie's Media model
         $media->getCollection()->transform(function ($item) {
-            $item->human_readable_size = $this->formatFileSize($item->size);
-            $item->file_type_category = $this->getFileTypeCategory($item->mime_type);
-            $item->icon = $this->getMediaIcon($item->mime_type);
+            $item->setAttribute('file_type_category', $this->getFileTypeCategory($item->mime_type));
+            $item->setAttribute('media_icon', $this->getMediaIcon($item->mime_type));
+
             return $item;
         });
 
