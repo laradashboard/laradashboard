@@ -65,7 +65,10 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "barryvdh/laravel-debugbar",
+                "beyondcode/laravel-dump-server"
+            ]
         },
         "merge-plugin": {
             "include": [
