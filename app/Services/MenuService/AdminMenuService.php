@@ -162,7 +162,7 @@ class AdminMenuService
                 'id' => 'access-control-submenu',
                 'active' => Route::is('admin.roles.*') || Route::is('admin.permissions.*') || Route::is('admin.users.*'),
                 'priority' => 30,
-                'permissions' => ['role.create', 'role.view', 'role.edit', 'role.delete', 'user.create', 'user.view', 'user.edit', 'user.delete'],
+                'permissions' => ['role.create', 'role.view', 'role.edit', 'role.delete', 'role.show', 'user.create', 'user.view', 'user.edit', 'user.delete'],
                 'children' => [
                     [
                         'label' => __('Users'),
@@ -174,7 +174,7 @@ class AdminMenuService
                     [
                         'label' => __('Roles'),
                         'route' => route('admin.roles.index'),
-                        'active' => Route::is('admin.roles.index') || Route::is('admin.roles.create') || Route::is('admin.roles.edit'),
+                        'active' => Route::is('admin.roles.index') || Route::is('admin.roles.create') || Route::is('admin.roles.edit') || Route::is('admin.roles.show'),
                         'priority' => 20,
                         'permissions' => 'role.view',
                     ],

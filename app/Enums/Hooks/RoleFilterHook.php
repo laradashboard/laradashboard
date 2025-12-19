@@ -27,4 +27,10 @@ enum RoleFilterHook: string
     case ROLE_EDIT_BEFORE_FORM = 'filter.role.edit_before_form';
     case ROLE_CREATE_AFTER_FORM = 'filter.role.create_after_form';
     case ROLE_EDIT_AFTER_FORM = 'filter.role.edit_after_form';
+
+    // Role Show Page Hooks.
+    case ROLE_SHOW_AFTER_BREADCRUMBS = 'filter.role.show.after_breadcrumbs';
+    case ROLE_SHOW_AFTER_MAIN_CONTENT = 'filter.role.show.after_main_content';
+    case ROLE_SHOW_AFTER_SIDEBAR = 'filter.role.show.after_sidebar';
+    case ROLE_SHOW_AFTER_CONTENT = 'filter.role.show.after_content';
 }

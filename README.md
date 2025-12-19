@@ -49,6 +49,16 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v2.4.0] - 2025-12-19**
+
+-   **Feat:** Post / Page Builder - Manage posts/pages with visual drag and drop builder.
+-   **Feat:** Email Management System - Email connections, email templates with visual builder.
+-   **Feat:** Notifications Management - Centralized notification settings and management.
+-   **Feat:** Detail Pages - User, Role, Permission, Module detail views with comprehensive information.
+-   **Enhancement:** Improved module detail page with better UI/UX.
+-   **Enhancement:** Improved role detail page with better UI/UX.
+-   **Enhancement:** Module installation process improved with better UI/UX.
+
 **[v2.3.0] - 2025-09-07**
 
 -   **Feat:** Datatable integration for Users, Roles, Permissions, Posts, Categories, Tags.
@@ -141,7 +151,7 @@ password - 12345678
 
 ## 🔄 Versions:
 
-Latest version `v2.0` - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v2.0
+Latest version `v2.4.0` - https://github.com/laradashboard/laradashboard/releases/tag/v2.4.0
 
 <details>
 <summary>View Old versions</summary>
@@ -258,15 +268,18 @@ git remote set-url origin git@github.com:laradashboard/laradashboard.git
 1. Check by login with the new credentials.
 1. If you've not enough permission to do any task, you'll get a warning message.
 1. Dashboard with Beautiful chart integrated
-1. Module Based Development - Custom Module Add/Enable/Disable/Delete
+1. Module Based Development - Custom Module Add/Enable/Disable/Delete with detail view
 1. Monitoring - Logging of every action of your application
 1. Monitoring - Laravel Pulse
 1. Translation Management - Add/Edit/Delete Language, Add/Edit/Delete Translation
-1. Settings - General, Site Appearance, Content, Integration settings
+1. Settings - General, Site Appearance, Content, Integration, Performance & Security settings
 1. Admin Menu - Add/Edit/Delete Menu, Submenu, Link
 1. Admin Impersonation - Login as another user and switch back to your original account
 1. Custom Error Pages - 404, 500, 503, 403
 1. Content Management System - Add/Edit/Delete Content, Content Category, Content Tag
+1. AI Content Generation - Configure AI providers (OpenAI, Anthropic, etc.) for content generation
+1. Email Management - Email connections, email templates with visual builder, notifications
+1. Detail Pages - User, Role, Permission, Module detail views with comprehensive information
 1. Rest API - Rest API's for Users, Roles, Permissions, Settings, Translations, Content(Post/Page/Category/Tag) and so on.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -289,6 +302,8 @@ MAIL_FROM_NAME="${APP_NAME}"
 ```
 
 Browse Emails - http://localhost:8025
+
+>[!NOTE] You can also create custom Email connection from Email Connections page.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -410,8 +425,21 @@ Visit the [Laravel Boost documentation](https://github.com/laravel/boost).
   </tr>
   <tr>
     <td width="50%">
+      <strong>Role Detail</strong><br/>
+      <img width="100%" alt="Role Detail" src="/demo-screenshots/08_1-Role-Detail-Lite-Mode.png"/>
+    </td>
+    <td width="50%">
       <strong>Permission List</strong><br/>
       <img width="100%" alt="Permission List" src="/demo-screenshots/09-Permissions-List-Lite-Mode.png"/>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Permission Detail</strong><br/>
+      <img width="100%" alt="Permission Detail" src="/demo-screenshots/09_1-Permission-Detail-Lite-Mode.png"/>
+    </td>
+    <td width="50%">
+      <!-- Reserved for future screenshot -->
     </td>
   </tr>
 </table>
@@ -431,12 +459,21 @@ Visit the [Laravel Boost documentation](https://github.com/laravel/boost).
   </tr>
   <tr>
     <td width="50%">
+      <strong>User Detail</strong><br/>
+      <img width="100%" alt="User Detail" src="/demo-screenshots/12_1-User-Detail-Lite-Mode.png"/>
+    </td>
+    <td width="50%">
       <strong>Profile Edit</strong><br/>
       <img width="100%" alt="Profile Edit" src="/demo-screenshots/12-Profile-Edit-Lite-Mode.png"/>
     </td>
+  </tr>
+  <tr>
     <td width="50%">
       <strong>User Delete</strong><br/>
       <img width="100%" alt="User Delete" src="/demo-screenshots/13-User-Delete-Lite-Mode.png" />
+    </td>
+    <td width="50%">
+      <!-- Reserved for future screenshot -->
     </td>
   </tr>
 </table>
@@ -491,12 +528,51 @@ Visit the [Laravel Boost documentation](https://github.com/laravel/boost).
 <table>
   <tr>
     <td width="50%">
-      <strong>Media List</strong><br/>
+      <strong>Media List (Light Mode)</strong><br/>
       <img width="100%" alt="Media List" src="/demo-screenshots/60-Media-List-Lite-Mode.png"/>
     </td>
     <td width="50%">
-      <strong>Media Modal View</strong><br/>
-      <img width="100%" alt="Media Modal View" src="/demo-screenshots/61-Media-Modal-View.png"/>
+      <strong>Media List (Dark Mode)</strong><br/>
+      <img width="100%" alt="Media List Dark" src="/demo-screenshots/61-Media-List-Dark-Mode.png"/>
+    </td>
+  </tr>
+</table>
+
+### 🤖 AI Content Generation
+
+<table>
+  <tr>
+    <td width="50%">
+      <strong>AI Providers Settings</strong><br/>
+      <img width="100%" alt="AI Providers Settings" src="/demo-screenshots/70-AI-Providers-Lite-Mode.png"/>
+    </td>
+    <td width="50%">
+      <!-- Reserved for future AI screenshot -->
+    </td>
+  </tr>
+</table>
+
+### 📧 Email Management
+
+<table>
+  <tr>
+    <td width="50%">
+      <strong>Email Connections</strong><br/>
+      <img width="100%" alt="Email Connections" src="/demo-screenshots/72-Email-Connections-Lite-Mode.png"/>
+    </td>
+    <td width="50%">
+      <strong>Email Templates</strong><br/>
+      <img width="100%" alt="Email Templates" src="/demo-screenshots/73-Email-Templates-Lite-Mode.png"/>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Email Template Create</strong><br/>
+      <img width="100%" alt="Email Template Create" src="/demo-screenshots/74-Email-Templates-Create-Dark-Mode.png"/>
+    </td>
+    <td width="50%">
+      <strong>Notifications Settings</strong><br/>
+      <img width="100%" alt="Notifications Settings" src="/demo-screenshots/75-Notifications-Lite-Mode.png"/>
     </td>
   </tr>
 </table>
@@ -510,8 +586,17 @@ Visit the [Laravel Boost documentation](https://github.com/laravel/boost).
       <img width="100%" alt="Module List" src="/demo-screenshots/14-Module-List.png"/>
     </td>
     <td width="50%">
-      <strong>Upload Module</strong><br/>
-      <img width="100%" alt="Upload Module" src="/demo-screenshots/15-Module-Upload.png"/>
+      <strong>Install Module</strong><br/>
+      <img width="100%" alt="Install Module" src="/demo-screenshots/15-Module-Install.png"/>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Module Detail</strong><br/>
+      <img width="100%" alt="Module Detail" src="/demo-screenshots/16-Module-Detail-Lite-Mode.png"/>
+    </td>
+    <td width="50%">
+      <!-- Reserved for future module screenshot -->
     </td>
   </tr>
 </table>
@@ -552,21 +637,12 @@ Visit the [Laravel Boost documentation](https://github.com/laravel/boost).
 <table>
   <tr>
     <td width="50%">
-      <strong>Translations List</strong><br/>
+      <strong>Translations List (Light Mode)</strong><br/>
       <img width="100%" alt="Translations List" src="/demo-screenshots/50-Translation-List-Lite-Mode.png" />
     </td>
     <td width="50%">
-      <strong>Add Language</strong><br/>
-      <img width="100%" alt="Create Translation" src="/demo-screenshots/51-Translation-Create-Dark-Mode.png" />
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <strong>Language Switcher</strong><br/>
-      <img width="100%" alt="Language Switcher" src="/demo-screenshots/90-Language-Switcher.png" />
-    </td>
-    <td width="50%">
-      <!-- Reserved for future screenshot -->
+      <strong>Translations List (Dark Mode)</strong><br/>
+      <img width="100%" alt="Translations List Dark" src="/demo-screenshots/51-Translation-List-Dark-Mode.png" />
     </td>
   </tr>
 </table>

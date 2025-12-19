@@ -78,6 +78,28 @@ class RoleController extends Controller
         return redirect()->route('admin.roles.index');
     }
 
+    public function show(int $id): Renderable|RedirectResponse
+    {
+        $role = Role::with(['permissions', 'users'])->withCount(['permissions', 'users'])->findOrFail($id);
+
+        $this->authorize('view', $role);
+
+        $this->setBreadcrumbTitle($role->name)
+            ->setBreadcrumbIcon('lucide:shield')
+            ->addBreadcrumbItem(__('Roles'), route('admin.roles.index'))
+            ->setBreadcrumbActionButton(
+                route('admin.roles.edit', $role->id),
+                __('Edit Role'),
+                'feather:edit-2',
+                'role.edit'
+            );
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.roles.show', [
+            'role' => $role,
+            'permission_groups' => $this->permissionService->getDatabasePermissionGroups(),
+        ]);
+    }
+
     public function edit(int $id): Renderable|RedirectResponse
     {
         $role = $this->rolesService->findRoleById($id);
@@ -91,7 +113,14 @@ class RoleController extends Controller
 
         $this->setBreadcrumbTitle(__('Edit Role'))
             ->setBreadcrumbIcon('lucide:shield')
-            ->addBreadcrumbItem(__('Roles'), route('admin.roles.index'));
+            ->addBreadcrumbItem(__('Roles'), route('admin.roles.index'))
+            ->setBreadcrumbActionButton(
+                route('admin.roles.show', $role->id),
+                __('View Role'),
+                'feather:eye',
+                'role.view',
+                true
+            );
 
         return $this->renderViewWithBreadcrumbs('backend.pages.roles.edit', [
             'role' => $role,

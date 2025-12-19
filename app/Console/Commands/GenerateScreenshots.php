@@ -37,6 +37,7 @@ class GenerateScreenshots extends Command
             ->windowSize($route['width'] ?? $defaultWidth, $route['height'] ?? $defaultHeight);
 
         if (isset($route['mode']) && $route['mode'] === 'dark') {
+            // Auth pages use .dark-mode-toggle class (not #darkModeToggle)
             $browsershot->click('.dark-mode-toggle')->waitUntilNetworkIdle();
         }
 
@@ -62,7 +63,7 @@ class GenerateScreenshots extends Command
 
             // Apply dark mode if needed.
             if (isset($route['mode']) && $route['mode'] === 'dark') {
-                $browser->click('.dark-mode-toggle')->setDelay(500)->waitUntilNetworkIdle(true);
+                $browser->click('#darkModeToggle')->setDelay(500)->waitUntilNetworkIdle(true);
             }
 
             // Perform custom actions if specified.
@@ -189,10 +190,9 @@ class GenerateScreenshots extends Command
                 'mode' => 'lite',
             ],
             [
-                'name' => '15-Module-Upload',
-                'url' => '/admin/modules',
+                'name' => '15-Module-Install',
+                'url' => '/admin/modules/upload',
                 'mode' => 'lite',
-                'customAction' => '.btn-upload-module',
             ],
 
             // Action log
@@ -221,7 +221,7 @@ class GenerateScreenshots extends Command
             [
                 'name' => '33-Post-Edit-Dark-Mode',
                 'url' => '/admin/posts/post/1/edit',
-                'mode' => 'dark',
+                'mode' => 'lite',
             ],
             [
                 'name' => '34-Category-List-Lite-Mode',
@@ -251,7 +251,7 @@ class GenerateScreenshots extends Command
             [
                 'name' => '39-Pages-Edit-Dark-Mode',
                 'url' => '/admin/posts/page/2/edit',
-                'mode' => 'dark',
+                'mode' => 'lite',
             ],
 
             // Settings pages
@@ -288,32 +288,77 @@ class GenerateScreenshots extends Command
                 'mode' => 'lite',
             ],
             [
-                'name' => '51-Translation-Create-Dark-Mode',
+                'name' => '51-Translation-List-Dark-Mode',
                 'url' => '/admin/translations',
                 'mode' => 'dark',
-                'customAction' => '#add-language-button',
             ],
 
-            // Media pages.
+            // Media pages
             [
                 'name' => '60-Media-List-Lite-Mode',
                 'url' => '/admin/media',
                 'mode' => 'lite',
             ],
             [
-                'name' => '61-Media-Modal-View',
-                'url' => '/admin/posts/post/1/edit',
+                'name' => '61-Media-List-Dark-Mode',
+                'url' => '/admin/media',
+                'mode' => 'dark',
+            ],
+
+            // AI pages
+            [
+                'name' => '70-AI-Providers-Lite-Mode',
+                'url' => '/admin/ai/providers',
                 'mode' => 'lite',
-                'customAction' => '.ql-media-modal',
+            ],
+
+            // Email management pages
+            [
+                'name' => '72-Email-Connections-Lite-Mode',
+                'url' => '/admin/settings/email-connections',
+                'mode' => 'lite',
+            ],
+            [
+                'name' => '73-Email-Templates-Lite-Mode',
+                'url' => '/admin/settings/email-templates',
+                'mode' => 'lite',
+            ],
+            [
+                'name' => '74-Email-Templates-Create-Dark-Mode',
+                'url' => '/admin/settings/email-templates/create',
+                'mode' => 'lite',
+            ],
+
+            // Notifications pages
+            [
+                'name' => '75-Notifications-Lite-Mode',
+                'url' => '/admin/settings/notifications',
+                'mode' => 'lite',
+            ],
+
+            // Detail/Show pages
+            [
+                'name' => '16-Module-Detail-Lite-Mode',
+                'url' => '/admin/modules/Crm',
+                'mode' => 'lite',
+            ],
+            [
+                'name' => '09_1-Permission-Detail-Lite-Mode',
+                'url' => '/admin/permissions/1',
+                'mode' => 'lite',
+            ],
+            [
+                'name' => '08_1-Role-Detail-Lite-Mode',
+                'url' => '/admin/roles/1',
+                'mode' => 'lite',
+            ],
+            [
+                'name' => '12_1-User-Detail-Lite-Mode',
+                'url' => '/admin/users/1',
+                'mode' => 'lite',
             ],
 
             // Other features
-            [
-                'name' => '90-Language-Switcher',
-                'url' => '/admin',
-                'mode' => 'lite',
-                'customAction' => '#language-switcher',
-            ],
             [
                 'name' => '91-Laravel-Pulse-Dashboard-for-Monitoring',
                 'url' => '/pulse',
@@ -323,7 +368,7 @@ class GenerateScreenshots extends Command
                 'name' => '101-Beautiful-Drawer-component-Category-Add',
                 'url' => '/admin/posts/post/create',
                 'mode' => 'lite',
-                'customAction' => '#term-drawer-category',
+                'customAction' => '#term-drawer-category button',
             ],
         ];
     }
