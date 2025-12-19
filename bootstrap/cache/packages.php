@@ -1,45 +1,9 @@
 <?php return array (
-  'barryvdh/laravel-debugbar' => 
-  array (
-    'aliases' => 
-    array (
-      'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
-    ),
-    'providers' => 
-    array (
-      0 => 'Barryvdh\\Debugbar\\ServiceProvider',
-    ),
-  ),
-  'beyondcode/laravel-dump-server' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'BeyondCode\\DumpServer\\DumpServerServiceProvider',
-    ),
-  ),
   'dedoc/scramble' => 
   array (
     'providers' => 
     array (
       0 => 'Dedoc\\Scramble\\ScrambleServiceProvider',
-    ),
-  ),
-  'laravel/boost' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Boost\\BoostServiceProvider',
-    ),
-  ),
-  'laravel/mcp' => 
-  array (
-    'aliases' => 
-    array (
-      'Mcp' => 'Laravel\\Mcp\\Server\\Facades\\Mcp',
-    ),
-    'providers' => 
-    array (
-      0 => 'Laravel\\Mcp\\Server\\McpServiceProvider',
     ),
   ),
   'laravel/pulse' => 
@@ -51,20 +15,6 @@
     'providers' => 
     array (
       0 => 'Laravel\\Pulse\\PulseServiceProvider',
-    ),
-  ),
-  'laravel/roster' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Roster\\RosterServiceProvider',
-    ),
-  ),
-  'laravel/sail' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Sail\\SailServiceProvider',
     ),
   ),
   'laravel/sanctum' => 
@@ -131,13 +81,6 @@
       0 => 'Carbon\\Laravel\\ServiceProvider',
     ),
   ),
-  'nunomaduro/collision' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    ),
-  ),
   'nunomaduro/termwind' => 
   array (
     'providers' => 
@@ -154,17 +97,6 @@
     'providers' => 
     array (
       0 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
-    ),
-  ),
-  'spatie/laravel-ignition' => 
-  array (
-    'aliases' => 
-    array (
-      'Flare' => 'Spatie\\LaravelIgnition\\Facades\\Flare',
-    ),
-    'providers' => 
-    array (
-      0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
     ),
   ),
   'spatie/laravel-medialibrary' => 

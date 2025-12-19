@@ -14,6 +14,15 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 RELEASE_DIR="$PROJECT_ROOT/releases"
 
+# Trap to restore composer.json if script fails
+cleanup_on_error() {
+    if [ -f "$PROJECT_ROOT/composer.json.backup" ]; then
+        echo -e "${RED}Error occurred. Restoring original composer.json...${NC}"
+        mv "$PROJECT_ROOT/composer.json.backup" "$PROJECT_ROOT/composer.json"
+    fi
+}
+trap cleanup_on_error ERR
+
 # Get version from package.json
 VERSION=$(grep -o '"version": "[^"]*' "$PROJECT_ROOT/package.json" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
 if [ -z "$VERSION" ]; then
@@ -71,9 +80,44 @@ else
     echo -e "${YELLOW}Attempting to continue without Node.js...${NC}"
 fi
 
-# Install dependencies
+# Clear bootstrap cache to avoid stale provider references (like debugbar from dev)
+echo -e "${GREEN}Clearing bootstrap cache...${NC}"
+rm -f "$PROJECT_ROOT/bootstrap/cache/packages.php"
+rm -f "$PROJECT_ROOT/bootstrap/cache/services.php"
+
+# Create a clean composer.json without module autoload entries for the release build
+echo -e "${GREEN}Creating clean composer.json for release build...${NC}"
+cp "$PROJECT_ROOT/composer.json" "$PROJECT_ROOT/composer.json.backup"
+
+# Remove module autoload entries and merge-plugin config using PHP
+php -r '
+$json = json_decode(file_get_contents("'"$PROJECT_ROOT"'/composer.json"), true);
+
+// Remove module-related autoload entries
+$json["autoload"]["psr-4"] = array_filter($json["autoload"]["psr-4"], function($path, $namespace) {
+    return strpos($path, "modules/") !== 0 && strpos($namespace, "Modules\\\\") !== 0;
+}, ARRAY_FILTER_USE_BOTH);
+
+// Remove merge-plugin config that includes modules
+if (isset($json["extra"]["merge-plugin"])) {
+    unset($json["extra"]["merge-plugin"]);
+}
+
+// Remove wikimedia/composer-merge-plugin from allow-plugins since we removed merge-plugin
+if (isset($json["config"]["allow-plugins"]["wikimedia/composer-merge-plugin"])) {
+    unset($json["config"]["allow-plugins"]["wikimedia/composer-merge-plugin"]);
+}
+
+file_put_contents("'"$PROJECT_ROOT"'/composer.json", json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+'
+
+# Install dependencies (skip scripts to avoid package:discover loading dev providers)
 echo -e "${GREEN}Installing composer dependencies...${NC}"
-composer install --no-dev --optimize-autoloader
+composer install --no-dev --optimize-autoloader --no-scripts
+
+# Restore original composer.json
+echo -e "${GREEN}Restoring original composer.json...${NC}"
+mv "$PROJECT_ROOT/composer.json.backup" "$PROJECT_ROOT/composer.json"
 
 # Only run npm commands if Node.js is available
 if command -v node &> /dev/null; then
@@ -122,3 +166,5 @@ echo -e "${GREEN}Release zip file: $RELEASE_DIR/${RELEASE_NAME}.zip${NC}"
 
 # Optional: List the created files
 ls -lh "$RELEASE_DIR"/${RELEASE_NAME}.zip
+
+echo -e "${YELLOW}Note: Dev dependencies were removed. Run 'composer install' to restore them for development.${NC}"
