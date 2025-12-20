@@ -16,6 +16,7 @@ use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -36,6 +37,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(Mailer::class, function ($app) {
             return new Mailer($app->make(EmailConnectionService::class));
         });
+
+        // Register Debugbar only in local environment
+        if (App::environment('local') && class_exists(\Barryvdh\Debugbar\ServiceProvider::class)) {
+            $this->app->register(\Barryvdh\Debugbar\ServiceProvider::class);
+        }
+
+        // Register Dump Server only in local environment (for CLI debugging)
+        if (App::environment('local') && class_exists(\BeyondCode\DumpServer\DumpServerServiceProvider::class)) {
+            $this->app->register(\BeyondCode\DumpServer\DumpServerServiceProvider::class);
+        }
     }
 
     /**

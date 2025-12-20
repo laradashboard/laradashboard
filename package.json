@@ -1,7 +1,7 @@
 {
     "name": "laradashboard",
     "private": true,
-    "version": "2.4.0",
+    "version": "0.9.0",
     "type": "module",
     "scripts": {
         "build": "npm run build:app && npm run build:modules",
