@@ -61,7 +61,7 @@
                             @endif
                             @click="open = false"
                         >
-                            {{ $filter['allLabel'] }}
+                            {{ $filter['allLabel'] ?? __('All') }}
                         </li>
                         @foreach ($filter['options'] as $key => $value)
                             @php
@@ -132,7 +132,7 @@
                                         onchange="window.location.href = '{{ $filter['route'] ?? '' }}?{{ $filter['id'] }}=' + this.value;"
                                     @endif
                                 >
-                                    <option value="">{{ $filter['allLabel'] }}</option>
+                                    <option value="">{{ $filter['allLabel'] ?? __('All') }}</option>
                                     @foreach ($filter['options'] as $key => $value)
                                         @php
                                             $isLabelValuePair = is_array($value) && isset($value['label']);
@@ -216,7 +216,7 @@
                                 onchange="window.location.href = '{{ $filter['route'] ?? '' }}?{{ $filter['id'] }}=' + this.value;"
                             @endif
                         >
-                            <option value="">{{ $filter['allLabel'] }}</option>
+                            <option value="">{{ $filter['allLabel'] ?? __('All') }}</option>
                             @foreach ($filter['options'] as $key => $value)
                                 @php
                                     $isLabelValuePair = is_array($value) && isset($value['label']);
