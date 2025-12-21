@@ -138,6 +138,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::delete('/posts/{postType}/{post}', [PostController::class, 'destroy'])->name('posts.destroy')->where('post', '[0-9]+');
     Route::delete('/posts/{postType}/delete/bulk-delete', [PostController::class, 'bulkDelete'])->name('posts.bulk-delete');
 
+    // Post Import/Export Routes.
+    Route::get('/posts/{postType}/import/form', [PostController::class, 'importForm'])->name('posts.import.form');
+    Route::get('/posts/{postType}/import/sample', [PostController::class, 'downloadSample'])->name('posts.import.sample');
+
     // Post Builder Routes (LaraBuilder-based editing - now default for create/edit).
     Route::get('/posts/{postType}/create', [PostController::class, 'builderCreate'])->name('posts.create');
     Route::get('/posts/{postType}/{post}/edit', [PostController::class, 'builderEdit'])->name('posts.edit')->where('post', '[0-9]+');

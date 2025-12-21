@@ -846,4 +846,64 @@ class PostController extends Controller
 
         return $slug;
     }
+
+    /**
+     * Show the import form
+     */
+    public function importForm(string $postType = 'post'): Renderable
+    {
+        $this->authorize('create', Post::class);
+
+        $postTypeModel = $this->contentService->getPostType($postType);
+
+        if (! $postTypeModel) {
+            return redirect()->route('admin.posts.index')->with('error', 'Post type not found');
+        }
+
+        $this->setBreadcrumbTitle(__('Import :postType', ['postType' => $postTypeModel->label]))
+            ->setBreadcrumbIcon('lucide:upload')
+            ->addBreadcrumbItem($postTypeModel->label, route('admin.posts.index', $postType));
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.posts.import', compact('postType', 'postTypeModel'));
+    }
+
+    /**
+     * Download sample CSV for import
+     */
+    public function downloadSample(string $postType = 'post')
+    {
+        $this->authorize('create', Post::class);
+
+        $headers = [
+            'title',
+            'slug',
+            'excerpt',
+            'content',
+            'status',
+            'post_type',
+            'published_at',
+        ];
+
+        $sampleData = [
+            ['Sample Post 1', 'sample-post-1', 'This is a sample excerpt', 'Sample content goes here', 'published', $postType, now()->format('Y-m-d H:i:s')],
+            ['Sample Post 2', 'sample-post-2', 'Another sample excerpt', 'More sample content', 'draft', $postType, ''],
+            ['Sample Post 3', 'sample-post-3', 'Third sample excerpt', 'Even more content', 'published', $postType, now()->format('Y-m-d H:i:s')],
+        ];
+
+        $filename = strtolower($postType) . '-import-sample-' . now()->format('YmdHis') . '.csv';
+        $path = storage_path("app/exports/{$filename}");
+
+        if (! is_dir(dirname($path))) {
+            mkdir(dirname($path), 0777, true);
+        }
+
+        $csv = implode(',', $headers) . "\n";
+        foreach ($sampleData as $row) {
+            $csv .= implode(',', $row) . "\n";
+        }
+
+        file_put_contents($path, $csv);
+
+        return response()->download($path)->deleteFileAfterSend(true);
+    }
 }

@@ -312,28 +312,31 @@ class ImportService
     {
         $normalized = ucfirst(strtolower(str_ends_with($modelType, 's') ? substr($modelType, 0, -1) : $modelType));
 
-        // Try different naming patterns for CRM module
+        // Try CRM module patterns
         $patterns = [
             "Modules\\Crm\\Http\\Requests\\{$normalized}Request",
             "Modules\\Crm\\Http\\Requests\\{$normalized}FormRequest",
         ];
-
         foreach ($patterns as $crmClass) {
             if (class_exists($crmClass)) {
                 return $crmClass;
             }
         }
 
-        // Fallback to core app patterns
+        // Try core app patterns
         $corePatterns = [
             "App\\Http\\Requests\\{$normalized}Request",
             "App\\Http\\Requests\\{$normalized}FormRequest",
         ];
-
         foreach ($corePatterns as $coreClass) {
             if (class_exists($coreClass)) {
                 return $coreClass;
             }
+        }
+
+        // Special fallback for Post model
+        if ($normalized === 'Post' && class_exists('App\\Http\\Requests\\Post\\PostFormRequest')) {
+            return 'App\\Http\\Requests\\Post\\PostFormRequest';
         }
 
         return "App\\Http\\Requests\\{$normalized}FormRequest";

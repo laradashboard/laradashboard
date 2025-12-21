@@ -101,6 +101,10 @@ class ExportService
             $row = [];
             foreach ($exportColumns as $col) {
                 $value = $record->$col;
+                // Exclude HTML/CSS from content and excerpt fields
+                if (in_array($col, ['content', 'excerpt']) && is_string($value)) {
+                    $value = strip_tags($value);
+                }
                 if (is_null($value) || $value === '') {
                     $row[] = '';
                 } elseif (is_scalar($value)) {

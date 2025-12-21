@@ -31,6 +31,30 @@ class Post extends Model implements SpatieHasMedia
     use QueryBuilderTrait;
     use HasMedia;
 
+    /**
+     * Get the required columns for import.
+     */
+    public static function requiredImportColumns(): array
+    {
+        return ['title', 'post_type'];
+    }
+
+    /**
+     * Get all valid columns for import.
+     */
+    public static function validImportColumns(): array
+    {
+        return [
+            'title',
+            'slug',
+            'excerpt',
+            'content',
+            'status',
+            'post_type',
+            'published_at',
+        ];
+    }
+
     protected $fillable = [
         'user_id',
         'post_type',
