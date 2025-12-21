@@ -26,7 +26,7 @@
     @mouseleave="if(sidebarToggle) { isHovered = false; $el.classList.add('lg:w-[85px]', 'app-sidebar-minified'); $el.classList.remove('lg:w-[290px]'); }"
 >
     <!-- Sidebar Header -->
-    <div class="flex items-center justify-center gap-2 sidebar-header py-5 px-6 h-[100px] transition-all duration-300">
+    <div class="flex items-center justify-center gap-2 py-5 px-6 h-[100px] transition-all duration-300">
         @php
             $siteName = config('settings.app_name') ?: config('app.name', 'Lara Dashboard');
             $hasLiteLogo = !empty(config('settings.site_logo_lite'));
@@ -38,7 +38,7 @@
             <span class="logo transition-opacity duration-300" :class="sidebarToggle && !isHovered ? 'hidden opacity-0' : 'opacity-100'">
                 @if($hasLiteLogo)
                     <img
-                        class="dark:hidden max-h-[80px]"
+                        class="dark:hidden max-h-20"
                         src="{{ config('settings.site_logo_lite') }}"
                         alt="{{ $siteName }}"
                     />
@@ -50,7 +50,7 @@
                 @endif
                 @if($hasDarkLogo)
                     <img
-                        class="hidden dark:block max-h-[80px]"
+                        class="hidden dark:block max-h-20"
                         src="{{ config('settings.site_logo_dark') }}"
                         alt="{{ $siteName }}"
                     />

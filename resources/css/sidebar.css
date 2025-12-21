@@ -194,14 +194,7 @@
     .app-sidebar-minified .logo-icon {
         display: none !important;
     }
-
-    .app-sidebar-minified .sidebar-header {
-        justify-content: space-between !important;
-    }
 }
-/* .menu-item .menu-item-arrow {
-    margin-right: 10px;
-} */
 .sidebar:hover {
     width: 290px;
 }
@@ -210,9 +203,6 @@
 }
 .sidebar:hover .logo-icon {
     display: none;
-}
-.sidebar:hover .sidebar-header {
-    justify-content: space-between;
 }
 .sidebar:hover .menu-group-title {
     display: block;
