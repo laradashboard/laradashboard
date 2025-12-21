@@ -1,12 +1,8 @@
 <div>
     {{-- Header --}}
     <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-            <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
-        </div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ __('Lara Dashboard Installation') }}</h1>
+        <img src="{{ asset('images/logo/icon.png') }}" alt="Installation" class="w-10 h-10 mx-auto" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mt-3">{{ __('Lara Dashboard Installation') }}</h1>
         <p class="text-gray-500 dark:text-gray-400 mt-2">{{ __('Follow the steps below to set up your application') }}</p>
     </div>
 

@@ -162,7 +162,6 @@
                     label="{{ $confirmPasswordLabel }}"
                     placeholder="{{ __('Confirm Password') }}"
                     :required="$isCreate"
-                    :autogenerate="true"
                 />
                 {!! Hook::applyFilters(UserFilterHook::USER_FORM_AFTER_CONFIRM_PASSWORD, '', $user) !!}
             </div>
