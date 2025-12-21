@@ -10,9 +10,9 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ImportService
 {
-    protected $modelType;
-    protected $modelClass;
-    protected $modelNamespace;
+    protected string $modelType;
+    protected ?string $modelClass;
+    protected ?string $modelNamespace;
 
     /**
      * Create a new ImportService instance.
@@ -213,7 +213,7 @@ class ImportService
                 if ($fileColIndex !== false && isset($row[$fileColIndex])) {
                     $value = $row[$fileColIndex];
                     // Convert empty strings to null
-                    $data[$modelField] = ($value === '' || $value === null) ? null : $value;
+                    $data[$modelField] = ($value === '') ? null : $value;
                 }
             }
 

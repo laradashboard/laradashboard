@@ -850,7 +850,7 @@ class PostController extends Controller
     /**
      * Show the import form
      */
-    public function importForm(string $postType = 'post'): Renderable
+    public function importForm(string $postType = 'post'): Renderable|RedirectResponse
     {
         $this->authorize('create', Post::class);
 

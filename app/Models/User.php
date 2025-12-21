@@ -50,7 +50,7 @@ class User extends Authenticatable
             'email_subscribed',
         ];
     }
-    
+
     /**
      * The attributes that are mass assignable.
      *

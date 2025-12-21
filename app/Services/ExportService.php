@@ -9,10 +9,10 @@ use Illuminate\Support\Str;
 
 class ExportService
 {
-    protected $modelType;
-    protected $modelClass;
-    protected $modelNamespace;
-    protected $routePrefix;
+    protected string $modelType;
+    protected ?string $modelClass;
+    protected ?string $modelNamespace;
+    protected ?string $routePrefix;
 
     /**
      * Create a new ExportService instance.
