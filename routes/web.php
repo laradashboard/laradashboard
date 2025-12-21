@@ -123,6 +123,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
 
     // Login as & Switch back.
     Route::resource('users', UserController::class);
+    Route::get('users/import/form', [UserController::class, 'importForm'])->name('users.import.form');
+    Route::get('users/import/sample', [UserController::class, 'downloadSample'])->name('users.import.sample');
     Route::delete('users/delete/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
     Route::get('users/{id}/login-as', [UserLoginAsController::class, 'loginAs'])->name('users.login-as');
     Route::post('users/switch-back', [UserLoginAsController::class, 'switchBack'])->name('users.switch-back');
