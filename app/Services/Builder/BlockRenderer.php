@@ -87,12 +87,12 @@ class BlockRenderer
      */
     public function processContent(string $content, string $context = 'page'): string
     {
-        // Find all block placeholders - match the full element including closing tag
-        // Pattern matches: <div data-lara-block="type" [data-block-id="id"] data-props='...'></div>
-        // The data-props value is wrapped in single quotes and may contain complex JSON
-        $pattern = '/<div\s+data-lara-block="([^"]+)"(?:\s+data-block-id="([^"]*)")?\s+data-props=\'((?:[^\']|&#39;)*)\'>([^<]*)<\/div>/is';
+        // Find all block placeholders by locating opening tags with data-lara-block attribute
+        // Pattern matches the opening tag: <div data-lara-block="type" [data-block-id="id"] data-props='...' [other-attrs]>
+        // This allows for any additional attributes (like style) after data-props
+        $openingTagPattern = '/<div\s+data-lara-block="([^"]+)"(?:\s+data-block-id="([^"]*)")?\s+data-props=\'((?:[^\']|&#39;)*)\'[^>]*>/is';
 
-        if (! preg_match_all($pattern, $content, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
+        if (! preg_match_all($openingTagPattern, $content, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
             return $content;
         }
 
@@ -107,7 +107,13 @@ class BlockRenderer
             $blockId = (\count($match) > 2 && $match[2][0] !== '') ? $match[2][0] : null;
             $propsJson = $match[3][0];
             $startPos = (int) $match[0][1];
-            $fullMatch = $match[0][0];
+
+            // Find the full block HTML including nested content and proper closing tag
+            $fullMatch = $this->findFullBlockHtml($content, $startPos);
+
+            if ($fullMatch === null) {
+                continue;
+            }
 
             try {
                 // Decode props from JSON
