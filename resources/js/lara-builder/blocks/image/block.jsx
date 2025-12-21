@@ -115,7 +115,7 @@ const ImageBlock = ({ props, onUpdate, isSelected }) => {
                                     alignItems: 'center',
                                     gap: '6px',
                                     padding: '8px 16px',
-                                    backgroundColor: '#635bff',
+                                    backgroundColor: 'var(--color-primary, #635bff)',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '6px',
@@ -156,7 +156,7 @@ const ImageBlock = ({ props, onUpdate, isSelected }) => {
                     style={{ cursor: 'pointer' }}
                     className={`bg-gray-100 dark:bg-gray-800 border-2 border-dashed ${
                         isHovered || isSelected
-                            ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20'
+                            ? 'border-primary bg-primary/10 dark:bg-primary/20'
                             : 'border-gray-300 dark:border-gray-600'
                     } text-gray-500 dark:text-gray-400 p-8 rounded-lg text-center transition-colors`}
                 >
@@ -165,7 +165,7 @@ const ImageBlock = ({ props, onUpdate, isSelected }) => {
                         width="40"
                         height="40"
                         class="mb-2"
-                        style={{ color: isHovered || isSelected ? '#635bff' : undefined }}
+                        style={{ color: isHovered || isSelected ? 'var(--color-primary, #635bff)' : undefined }}
                     ></iconify-icon>
                     <div className="text-sm font-medium">
                         {isHovered || isSelected ? __('Click to select image') : __('Click to add image')}

@@ -44,7 +44,7 @@ class NotificationController extends Controller
         $this->authorize('manage', Setting::class);
 
         $this->setBreadcrumbTitle(__('Create Notification'))
-            ->setBreadcrumbIcon('lucide:bell-plus')
+            ->setBreadcrumbIcon('lucide:bell')
             ->addBreadcrumbItem(__('Settings'), route('admin.settings.index'))
             ->addBreadcrumbItem(__('Notifications'), route('admin.notifications.index'));
 

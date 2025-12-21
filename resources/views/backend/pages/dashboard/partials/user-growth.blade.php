@@ -8,7 +8,7 @@
         </h3>
         <div class="flex gap-2 items-center">
             <span
-                class="bg-indigo-100 text-indigo-900 px-4 py-2 rounded-full text-sm">
+                class="px-4 py-2 rounded-full text-sm" style="background-color: var(--color-brand-100); color: var(--color-brand-800);">
                 {{ __(ucfirst(str_replace('_', ' ', $currentFilter))) }}
             </span>
 
@@ -24,43 +24,43 @@
                     <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
                         <li>
                             <a href="{{ route('admin.dashboard') }}?chart_filter_period=last_6_months"
-                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_6_months' ? 'bg-blue-100 dark:bg-gray-600' : '' }}">
+                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_6_months' ? 'dark:bg-gray-600' : '' }}" style="{{ $currentFilter === 'last_6_months' ? 'background-color: var(--color-brand-100);' : '' }}">
                                 <span class="ml-2"> {{ __('Last 6 months') }}</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('admin.dashboard') }}?chart_filter_period=last_12_months"
-                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_12_months' ? 'bg-blue-100 dark:bg-gray-600' : '' }}">
+                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_12_months' ? 'dark:bg-gray-600' : '' }}" style="{{ $currentFilter === 'last_12_months' ? 'background-color: var(--color-brand-100);' : '' }}">
                                 <span class="ml-2"> {{ __('Last 12 months') }}</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('admin.dashboard') }}?chart_filter_period=this_year"
-                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'this_year' ? 'bg-blue-100 dark:bg-gray-600' : '' }}">
+                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'this_year' ? 'dark:bg-gray-600' : '' }}" style="{{ $currentFilter === 'this_year' ? 'background-color: var(--color-brand-100);' : '' }}">
                                 <span class="ml-2"> {{ __('This year') }}</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('admin.dashboard') }}?chart_filter_period=last_year"
-                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_year' ? 'bg-blue-100 dark:bg-gray-600' : '' }}">
+                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_year' ? 'dark:bg-gray-600' : '' }}" style="{{ $currentFilter === 'last_year' ? 'background-color: var(--color-brand-100);' : '' }}">
                                 <span class="ml-2"> {{ __('Last year') }}</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('admin.dashboard') }}?chart_filter_period=last_30_days"
-                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_30_days' ? 'bg-blue-100 dark:bg-gray-600' : '' }}">
+                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_30_days' ? 'dark:bg-gray-600' : '' }}" style="{{ $currentFilter === 'last_30_days' ? 'background-color: var(--color-brand-100);' : '' }}">
                                 <span class="ml-2"> {{ __('Last 30 days') }}</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('admin.dashboard') }}?chart_filter_period=last_7_days"
-                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_7_days' ? 'bg-blue-100 dark:bg-gray-600' : '' }}">
+                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'last_7_days' ? 'dark:bg-gray-600' : '' }}" style="{{ $currentFilter === 'last_7_days' ? 'background-color: var(--color-brand-100);' : '' }}">
                                 <span class="ml-2"> {{ __('Last 7 days') }}</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('admin.dashboard') }}?chart_filter_period=this_month"
-                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'this_month' ? 'bg-blue-100 dark:bg-gray-600' : '' }}">
+                               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $currentFilter === 'this_month' ? 'dark:bg-gray-600' : '' }}" style="{{ $currentFilter === 'this_month' ? 'background-color: var(--color-brand-100);' : '' }}">
                                 <span class="ml-2"> {{ __('This month') }}</span>
                             </a>
                         </li>
@@ -78,6 +78,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Get brand color from CSS variable
+            const brandColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#635BFF';
+
             // Pass the current filter to JavaScript
             const currentFilter = "{{ $currentFilter }}";
 
@@ -232,7 +235,7 @@
                         w
                     }) {
                         const value = series[seriesIndex][dataPointIndex];
-                        return `<div class="relative px-3 py-1 bg-indigo-50 text-indigo-600 font-medium">
+                        return `<div class="relative px-3 py-1 font-medium" style="background-color: var(--color-brand-100); color: var(--color-brand-700);">
                             ${value}
 
                         </div>`;
@@ -256,8 +259,8 @@
                     gradient: {
                         opacityFrom: 0.55,
                         opacityTo: 0,
-                        shade: "#635BFF",
-                        gradientToColors: ["#635BFF"],
+                        shade: brandColor,
+                        gradientToColors: [brandColor],
                     },
                 },
                 dataLabels: {
@@ -266,7 +269,7 @@
                 stroke: {
                     width: 6,
                     curve: 'smooth',
-                    colors: ['#635BFF'],
+                    colors: [brandColor],
                     lineCap: 'round' // Rounded line ends prevent edge cutoffs
                 },
                 grid: {
@@ -293,7 +296,7 @@
                 series: [{
                     name: "Users",
                     data: chartData,
-                    color: "#635BFF",
+                    color: brandColor,
                 }],
                 xaxis: {
                     categories: chartCategories,

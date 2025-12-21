@@ -161,7 +161,7 @@ export function createSimpleBlock(config) {
     // Wrap render in a proper React component
     const BlockComponent = ({ props, isSelected }) => {
         const baseStyle = {
-            outline: isSelected ? '2px solid #635bff' : 'none',
+            outline: isSelected ? '2px solid var(--color-primary, #635bff)' : 'none',
             borderRadius: '4px',
         };
 

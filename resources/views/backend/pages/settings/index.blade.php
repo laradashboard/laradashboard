@@ -36,7 +36,7 @@
             ])
 
             <div class="mt-4">
-                <x-buttons.submit-buttons />
+                <x-buttons.submit-buttons :submit-label="__('Save Changes')" />
             </div>
         </form>
     </div>

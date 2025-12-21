@@ -228,7 +228,7 @@ function AIContentModal({
                 {/* Modal Header */}
                 <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
                     <div className="flex items-center space-x-3">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-600 text-white">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full text-white" style={{ backgroundColor: 'var(--color-primary, #635bff)' }}>
                             <iconify-icon
                                 icon="mdi:lightning-bolt"
                                 width="16"
@@ -378,7 +378,8 @@ function AIContentModal({
                                     type="button"
                                     onClick={generateContent}
                                     disabled={!prompt.trim() || loading}
-                                    className="inline-flex items-center px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                    className="inline-flex items-center px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                    style={{ backgroundColor: 'var(--color-primary, #635bff)' }}
                                 >
                                     {loading ? (
                                         <>

@@ -13,6 +13,10 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Get brand color from CSS variable
+        const brandColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#635bff';
+        const brandColor300 = getComputedStyle(document.documentElement).getPropertyValue('--color-brand-300').trim() || '#fb923c';
+
         // Post data from the server
         const postData = @json($post_stats);
 
@@ -102,7 +106,7 @@
             },
             fill: {
                 opacity: 1,
-                colors: ['#635bff', '#fb923c']
+                colors: [brandColor, brandColor300]
             },
             tooltip: {
                 y: {

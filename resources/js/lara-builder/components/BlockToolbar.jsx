@@ -712,7 +712,7 @@ const TextFormatControls = ({
                         ref={aiButtonRef}
                         type="button"
                         onClick={handleAIClick}
-                        className="p-1.5 pb-0 rounded hover:bg-purple-50 transition-colors text-purple-600 hover:text-purple-700"
+                        className="p-1.5 pb-0 rounded hover:bg-primary/10 transition-colors text-primary hover:opacity-80"
                         title={__("AI Assistant")}
                     >
                         <iconify-icon

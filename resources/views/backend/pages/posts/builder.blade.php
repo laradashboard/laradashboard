@@ -10,6 +10,7 @@
     {{-- Load iconify for icons --}}
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
 
+    @include('backend.layouts.partials.theme-colors')
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/lara-builder/post-entry.jsx'])
 

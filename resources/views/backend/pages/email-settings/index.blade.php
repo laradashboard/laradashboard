@@ -7,7 +7,7 @@
             @include('backend.pages.email-settings.partials.email-settings-form')
 
             <div class="mt-6">
-                <x-buttons.submit-buttons />
+                <x-buttons.submit-buttons :submit-label="__('Save Changes')" />
             </div>
         </form>
     </div>

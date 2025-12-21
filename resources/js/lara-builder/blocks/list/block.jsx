@@ -131,7 +131,7 @@ export default function ListBlock({
                         paddingTop: "8px",
                         paddingRight: "8px",
                         paddingBottom: "8px",
-                        border: "2px solid #635bff",
+                        border: "2px solid var(--color-primary, #635bff)",
                         borderRadius: "4px",
                         outline: "none",
                         background: "white",

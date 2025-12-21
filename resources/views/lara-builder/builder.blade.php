@@ -7,6 +7,9 @@
 
     <title>{{ isset($templateData) && $templateData ? 'Edit' : 'Create' }} {{ ucfirst($context ?? 'Content') }} - {{ config('app.name', 'Laravel') }}</title>
 
+    {{-- Inject theme colors (brand color from settings) --}}
+    @include('backend.layouts.partials.theme-colors')
+
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/lara-builder/entry.jsx', 'resources/js/app.js'])
 

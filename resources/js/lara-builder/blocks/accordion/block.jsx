@@ -194,7 +194,7 @@ const AccordionBlock = ({ props, isSelected, onUpdate }) => {
                                             style={{
                                                 ...titleStyle,
                                                 outline: 'none',
-                                                border: '1px solid #635bff',
+                                                border: '1px solid var(--color-primary, #635bff)',
                                                 borderRadius: '4px',
                                                 padding: '4px 8px',
                                                 backgroundColor: 'white',
@@ -263,7 +263,7 @@ const AccordionBlock = ({ props, isSelected, onUpdate }) => {
                                         style={{
                                             ...contentStyle,
                                             outline: 'none',
-                                            border: '2px solid #635bff',
+                                            border: '2px solid var(--color-primary, #635bff)',
                                             minHeight: '80px',
                                         }}
                                     >
@@ -294,7 +294,7 @@ const AccordionBlock = ({ props, isSelected, onUpdate }) => {
                         gap: '6px',
                         marginTop: '12px',
                         padding: '8px 16px',
-                        backgroundColor: '#635bff',
+                        backgroundColor: 'var(--color-primary, #635bff)',
                         color: 'white',
                         border: 'none',
                         borderRadius: '6px',

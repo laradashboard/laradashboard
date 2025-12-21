@@ -121,7 +121,7 @@ const PreformattedBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }
                     onBlur={handleInput}
                     style={{
                         ...baseStyle,
-                        border: '2px solid #635bff',
+                        border: '2px solid var(--color-primary, #635bff)',
                         outline: 'none',
                         margin: 0,
                         minHeight: '60px',

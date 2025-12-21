@@ -18,6 +18,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Get brand color from CSS variable
+            const brandColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#6366f1';
+
             // Get user counts from controller data
             const newUsers = @json($user_history_data['new_users'] ?? 0);
             const oldUsers = @json($user_history_data['old_users'] ?? 0);
@@ -25,7 +28,7 @@
             const getChartOptions = () => {
                 return {
                     series: [oldUsers, newUsers], // Old Users, New Users
-                    colors: ["#f3f4f6", "#6366f1"], // Slight gray and Indigo
+                    colors: ["#f3f4f6", brandColor], // Slight gray and Brand color
                     chart: {
                         height: 320,
                         width: "100%",

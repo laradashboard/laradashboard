@@ -157,7 +157,9 @@ class User extends Authenticatable
             return asset('storage/media/' . $this->avatar->file_name);
         }
 
-        return "https://ui-avatars.com/api/{$this->full_name}/{$size}/635bff/fff/2";
+        $brandColor = ltrim(config('settings.theme_primary_color', '#635bff'), '#');
+
+        return "https://ui-avatars.com/api/{$this->full_name}/{$size}/{$brandColor}/fff/2";
     }
 
     /**

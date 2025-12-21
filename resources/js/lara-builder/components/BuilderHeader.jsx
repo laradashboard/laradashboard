@@ -130,7 +130,8 @@ function BuilderHeader({
                         <button
                             type="button"
                             onClick={() => setAiModalOpen(true)}
-                            className="inline-flex items-center justify-center w-8 h-8 text-white bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="inline-flex items-center justify-center w-8 h-8 text-white rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:opacity-90"
+                            style={{ backgroundColor: 'var(--color-primary, #635bff)' }}
                             title={__("Generate content with AI")}
                         >
                             <iconify-icon

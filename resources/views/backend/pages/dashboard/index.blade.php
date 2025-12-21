@@ -14,7 +14,7 @@
                 {!! Hook::applyFilters(DashboardFilterHook::DASHBOARD_CARDS_BEFORE_USERS, '') !!}
                 @include('backend.pages.dashboard.partials.card', [
                     "icon" => 'heroicons:user-group',
-                    'icon_bg' => '#635BFF',
+                    'icon_bg' => 'var(--color-brand-500)',
                     'label' => __('Users'),
                     'value' => $total_users,
                     'class' => 'bg-white',

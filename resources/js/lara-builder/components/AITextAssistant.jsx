@@ -254,13 +254,13 @@ function AITextAssistant({
             onClick={(e) => e.stopPropagation()}
         >
             {/* Header */}
-            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50 shrink-0">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-primary/10 shrink-0">
                 <div className="flex items-center gap-2">
                     <iconify-icon
                         icon="mdi:lightning-bolt"
                         width="16"
                         height="16"
-                        class="text-purple-600"
+                        class="text-primary"
                     ></iconify-icon>
                     <span className="text-sm font-medium text-gray-800">
                         {__("AI Assistant")}
@@ -300,7 +300,7 @@ function AITextAssistant({
                             icon="mdi:loading"
                             width="24"
                             height="24"
-                            class="animate-spin text-purple-500"
+                            class="animate-spin text-primary"
                         ></iconify-icon>
                         <span className="ml-2 text-sm text-gray-600">
                             {__("Processing...")}
@@ -405,7 +405,7 @@ function AITextAssistant({
                                     key={action.id}
                                     type="button"
                                     onClick={() => handleQuickAction(action)}
-                                    className="flex items-center gap-2 p-2 text-left text-sm text-gray-700 bg-gray-50 hover:bg-purple-50 hover:text-purple-700 rounded-md transition-colors border border-gray-200 hover:border-purple-200"
+                                    className="flex items-center gap-2 p-2 text-left text-sm text-gray-700 bg-gray-50 hover:bg-primary/10 hover:text-primary rounded-md transition-colors border border-gray-200 hover:border-primary/30"
                                 >
                                     <iconify-icon
                                         icon={action.icon}
@@ -426,7 +426,7 @@ function AITextAssistant({
                                 <button
                                     type="button"
                                     onClick={() => setShowCustomInput(true)}
-                                    className="w-full flex items-center justify-center gap-2 p-2 text-sm text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-md transition-colors"
+                                    className="w-full flex items-center justify-center gap-2 p-2 text-sm text-primary hover:opacity-80 hover:bg-primary/10 rounded-md transition-colors"
                                 >
                                     <iconify-icon
                                         icon="mdi:pencil"
@@ -446,7 +446,7 @@ function AITextAssistant({
                                         placeholder={__(
                                             "e.g., Make it sound more exciting..."
                                         )}
-                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                                         rows={2}
                                         onKeyDown={(e) => {
                                             if (
@@ -463,7 +463,7 @@ function AITextAssistant({
                                             type="button"
                                             onClick={handleCustomPrompt}
                                             disabled={!customPrompt.trim()}
-                                            className="flex-1 px-3 py-1.5 text-sm font-medium text-white bg-purple-500 hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-md transition-colors"
+                                            className="flex-1 px-3 py-1.5 text-sm font-medium text-white bg-primary hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-md transition-colors"
                                         >
                                             {__("Apply")}
                                         </button>
