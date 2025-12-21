@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Enums\Hooks\AdminFilterHook;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\InstallationService;
 use App\Observers\EmailObserver;
 use App\Services\EmailConnectionService;
 use App\Services\EmailProviderRegistry;
@@ -85,17 +86,20 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        // Check if settings table schema is present.
-        try {
-            if (Schema::hasTable('settings')) {
-                $settings = Setting::pluck('option_value', 'option_name')->toArray();
-                foreach ($settings as $key => $value) {
-                    config(['settings.' . $key => $value]);
+        // Check if database is configured before attempting to load settings
+        // This prevents errors during installation when database isn't configured yet
+        if (InstallationService::isDatabaseConfigured()) {
+            try {
+                if (Schema::hasTable('settings')) {
+                    $settings = Setting::pluck('option_value', 'option_name')->toArray();
+                    foreach ($settings as $key => $value) {
+                        config(['settings.' . $key => $value]);
+                    }
                 }
+            } catch (\Exception $e) {
+                // Skip loading settings if database connection fails
+                // This prevents errors during package discovery in CI environment
             }
-        } catch (\Exception $e) {
-            // Skip loading settings if database connection fails
-            // This prevents errors during package discovery in CI environment
         }
 
         // Only allowed people can view the pulse.
@@ -123,6 +127,20 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureDefaultMailer(): void
     {
+        // Skip if database isn't configured (during installation)
+        if (! InstallationService::isDatabaseConfigured()) {
+            return;
+        }
+
+        // Skip if email_connections table doesn't exist yet (during installation before migrations)
+        try {
+            if (! Schema::hasTable('email_connections')) {
+                return;
+            }
+        } catch (\Exception $e) {
+            return;
+        }
+
         try {
             $connectionService = app(EmailConnectionService::class);
             $connection = $connectionService->getBestConnection();
@@ -149,10 +167,8 @@ class AppServiceProvider extends ServiceProvider
                 Config::set('mail.from.name', $connection->from_name ?: config('app.name'));
             }
         } catch (\Exception $e) {
-            // Log but don't fail - allow fallback to default .env mail config
-            Log::warning('Failed to configure default mailer from email connection', [
-                'error' => $e->getMessage(),
-            ]);
+            // Silently fail during installation - allow fallback to default .env mail config
+            // Don't log during installation as it would flood logs with expected errors
         }
     }
 }

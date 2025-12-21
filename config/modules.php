@@ -257,7 +257,7 @@ return [
     'composer' => [
         'vendor' => env('MODULE_VENDOR', 'laradashboard'),
         'author' => [
-            'name' => env('MODULE_AUTHOR_NAME', 'LaraDashboard'),
+            'name' => env('MODULE_AUTHOR_NAME', 'Lara Dashboard'),
             'email' => env('MODULE_AUTHOR_EMAIL', 'admin@laradashboard.com'),
         ],
         'composer-output' => false,

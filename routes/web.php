@@ -39,6 +39,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Installation routes
+require __DIR__.'/install.php';
+
 /**
  * Admin routes.
  */

@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use App\Helpers\FileHelper;
+use Illuminate\Encryption\MissingAppKeyException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\PostTooLargeException;
 use Throwable;
@@ -15,7 +16,7 @@ class Handler extends ExceptionHandler
      * @var array<int, string>
      */
     protected $dontReport = [
-        //
+        MissingAppKeyException::class,
     ];
 
     /**
@@ -38,6 +39,14 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        // Handle MissingAppKeyException - redirect to installation wizard
+        if ($exception instanceof MissingAppKeyException) {
+            // Skip if already on install route
+            if (! str_starts_with($request->path(), 'install')) {
+                return redirect('/install');
+            }
+        }
+
         // Handle PostTooLargeException with user-friendly message
         if ($exception instanceof PostTooLargeException) {
             $effectiveMaxFormatted = FileHelper::getMaxUploadSizeFormatted();

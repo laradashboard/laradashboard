@@ -23,8 +23,8 @@ class EnvWriter
         $path = base_path('.env');
         $file = file_get_contents($path);
 
-        // Wrap the value in double quotes.
-        $formattedValue = "\"$value\"";
+        // Format the value - only quote if needed (contains spaces, special chars, or is empty)
+        $formattedValue = $this->formatValue($value);
 
         $file = preg_replace("/^$key=.*/m", "$key=$formattedValue", $file);
 
@@ -42,6 +42,30 @@ class EnvWriter
             flock($fp, LOCK_UN);
         }
         fclose($fp);
+    }
+
+    /**
+     * Format a value for .env file.
+     * Only wraps in quotes if the value contains spaces, special characters, or is empty.
+     */
+    protected function formatValue(string $value): string
+    {
+        // Empty values should be empty (not quoted)
+        if ($value === '') {
+            return '';
+        }
+
+        // Check if value needs quotes (contains spaces, #, quotes, or special shell chars)
+        $needsQuotes = preg_match('/[\s#"\'\\\\$`!]/', $value) === 1;
+
+        if ($needsQuotes) {
+            // Escape existing double quotes and wrap in quotes
+            $escaped = str_replace('"', '\\"', $value);
+
+            return "\"$escaped\"";
+        }
+
+        return $value;
     }
 
     public function get($key)
@@ -73,6 +97,13 @@ class EnvWriter
     {
         return Hook::applyFilters(CommonFilterHook::AVAILABLE_KEYS, [
             'app_name' => 'APP_NAME',
+            'app_key' => 'APP_KEY',
+            'db_connection' => 'DB_CONNECTION',
+            'db_host' => 'DB_HOST',
+            'db_port' => 'DB_PORT',
+            'db_database' => 'DB_DATABASE',
+            'db_username' => 'DB_USERNAME',
+            'db_password' => 'DB_PASSWORD',
         ]);
     }
 
@@ -96,14 +127,14 @@ class EnvWriter
                     $currentValue = $this->get($envKey);
 
                     // Normalize the current value by stripping surrounding quotes
-                    $normalizedCurrentValue = trim($currentValue, '"');
+                    $normalizedCurrentValue = trim($currentValue ?? '', '"');
 
                     // Skip writing if the normalized value hasn't changed or is null
                     if ($normalizedCurrentValue === (string) $value || $value === null) {
                         continue;
                     }
 
-                    $formattedValue = "\"$value\"";
+                    $formattedValue = $this->formatValue((string) $value);
                     $file = preg_replace("/^$envKey=.*/m", "$envKey=$formattedValue", $file);
 
                     if (! preg_match("/^$envKey=/m", $file)) {

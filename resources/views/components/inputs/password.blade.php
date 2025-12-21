@@ -9,10 +9,12 @@
     'autocomplete' => 'new-password',
     'autogenerate' => false,
     'showTooltip' => __('Show password'),
+    'hint' => '',
 ])
 
 @php
     $inputId = $id ?? $name;
+    $wireModel = $attributes->whereStartsWith('wire:model')->first();
 @endphp
 
 <div class="w-full flex flex-col gap-1">
@@ -32,15 +34,23 @@
                     pass += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
                 this.password = pass;
+                // Set the input value directly and dispatch input event for Livewire
+                this.$refs.passwordInput.value = pass;
+                this.$refs.passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
             }
         }"
         class="relative"
     >
         <input
+            x-ref="passwordInput"
             :type="showPassword ? 'text' : 'password'"
             name="{{ $name }}"
             id="{{ $inputId }}"
-            x-model="password"
+            @if($wireModel)
+                {{ $attributes->whereStartsWith('wire:model') }}
+            @else
+                x-model="password"
+            @endif
             placeholder="{{ $placeholder }}"
             @if($required) required @endif
             class="form-control {{ $class }}"
@@ -63,4 +73,8 @@
             @endif
         </div>
     </div>
+
+    @if($hint)
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $hint }}</p>
+    @endif
 </div>

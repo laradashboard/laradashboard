@@ -16,7 +16,17 @@ return [
     |
     */
 
-    'enabled' => env('TELESCOPE_ENABLED', true),
+    /*
+    |--------------------------------------------------------------------------
+    | Telescope is disabled until installation is complete
+    |--------------------------------------------------------------------------
+    |
+    | Telescope checks for the .installed flag file which is created after
+    | successful installation. This prevents errors during fresh installation
+    | when the database hasn't been migrated yet.
+    |
+    */
+    'enabled' => env('TELESCOPE_ENABLED', true) && file_exists(storage_path('app/.installed')),
 
     /*
     |--------------------------------------------------------------------------

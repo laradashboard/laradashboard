@@ -2,6 +2,42 @@
 
 /*
 |--------------------------------------------------------------------------
+| Auto-generate APP_KEY if missing
+|--------------------------------------------------------------------------
+|
+| Ensure APP_KEY exists before Laravel boots to prevent encryption errors.
+| This is essential for the installation wizard to work properly.
+|
+*/
+
+$envPath = dirname(__DIR__) . '/.env';
+if (file_exists($envPath)) {
+    $envContent = file_get_contents($envPath);
+
+    // Check if APP_KEY is missing or empty
+    if (! preg_match('/^APP_KEY=.+$/m', $envContent) || preg_match('/^APP_KEY=\s*$/m', $envContent)) {
+        // Generate a new APP_KEY
+        $key = 'base64:' . base64_encode(random_bytes(32));
+
+        // Update or add APP_KEY in .env
+        if (preg_match('/^APP_KEY=/m', $envContent)) {
+            $envContent = preg_replace('/^APP_KEY=.*$/m', 'APP_KEY="' . $key . '"', $envContent);
+        } else {
+            $envContent .= PHP_EOL . 'APP_KEY="' . $key . '"';
+        }
+
+        // Write back to .env file
+        file_put_contents($envPath, $envContent);
+
+        // Set in environment for current request
+        $_ENV['APP_KEY'] = $key;
+        $_SERVER['APP_KEY'] = $key;
+        putenv('APP_KEY=' . $key);
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
 | Safe Module Loader
 |--------------------------------------------------------------------------
 |

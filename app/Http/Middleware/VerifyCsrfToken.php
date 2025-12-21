@@ -12,6 +12,6 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        //
+        'install/complete', // Installation completion (protected by redirect.if.installed middleware)
     ];
 }

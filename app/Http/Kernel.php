@@ -16,6 +16,7 @@ class Kernel extends HttpKernel
     protected $middleware = [
         // \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
+        \App\Http\Middleware\CheckInstallation::class,
         \App\Http\Middleware\CheckForMaintenanceMode::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
@@ -68,5 +69,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.upload.limits' => \App\Http\Middleware\CheckPhpUploadLimits::class,
         'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
+        'redirect.if.installed' => \App\Http\Middleware\RedirectIfInstalled::class,
     ];
 }
