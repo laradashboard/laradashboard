@@ -181,12 +181,20 @@ class ExportService
     {
         // Try CRM route first
         if (\Illuminate\Support\Facades\Route::has('admin.crm.export.download')) {
-            return route('admin.crm.export.download', ['filename' => $filename]);
+            try {
+                return route('admin.crm.export.download', ['filename' => $filename]);
+            } catch (\Exception $e) {
+                // Fall through to next option
+            }
         }
 
         // Fallback to generic export route
         if (\Illuminate\Support\Facades\Route::has($this->routePrefix . '.export.download')) {
-            return route($this->routePrefix . '.export.download', ['filename' => $filename]);
+            try {
+                return route($this->routePrefix . '.export.download', ['filename' => $filename]);
+            } catch (\Exception $e) {
+                // Fall through to default
+            }
         }
 
         // Default fallback

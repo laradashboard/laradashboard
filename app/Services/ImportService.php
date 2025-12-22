@@ -227,6 +227,9 @@ class ImportService
             // Clean empty values to null
             $data = $this->cleanEmptyValues($data);
 
+            // Hash sensitive fields before database insertion
+            $data = $this->hashSensitiveFields($data);
+
             // Check for missing required fields after mapping
             $missingRequired = [];
             foreach ($requiredColumns as $requiredField) {
@@ -366,6 +369,22 @@ class ImportService
                 $data[$key] = null;
             }
         }
+        return $data;
+    }
+
+    /**
+     * Hash sensitive fields like passwords before database insertion.
+     */
+    protected function hashSensitiveFields(array $data): array
+    {
+        $sensitiveFields = ['password', 'password_confirmation'];
+        
+        foreach ($sensitiveFields as $field) {
+            if (isset($data[$field]) && $data[$field] !== null) {
+                $data[$field] = \Illuminate\Support\Facades\Hash::make($data[$field]);
+            }
+        }
+        
         return $data;
     }
 
