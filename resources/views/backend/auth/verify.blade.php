@@ -1,20 +1,19 @@
-@extends('auth.layouts.app')
+@extends('backend.auth.layouts.app')
 
 @section('title')
     {{ __('Verify Your Email') }} | {{ config('app.name') }}
 @endsection
 
-@section('content')
+@section('admin-content')
 <div>
-    {{-- Header --}}
-    <div class="mb-4 text-center">
-        <div class="mx-auto w-10 h-10 bg-brand-100 dark:bg-brand-900/30 rounded-full flex items-center justify-center mb-2">
-            <iconify-icon icon="lucide:mail-check" class="text-lg text-brand-600 dark:text-brand-400"></iconify-icon>
+    <div class="mb-5 sm:mb-8">
+        <div class="mx-auto w-14 h-14 bg-brand-100 dark:bg-brand-900/30 rounded-full flex items-center justify-center mb-4">
+            <iconify-icon icon="lucide:mail-check" class="text-2xl text-brand-600 dark:text-brand-400"></iconify-icon>
         </div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+        <h1 class="mb-2 font-semibold text-gray-700 text-title-sm dark:text-white/90 sm:text-title-md text-center">
             {{ __('Verify Your Email') }}
         </h1>
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p class="text-sm text-gray-500 dark:text-gray-300 text-center">
             {{ __("We've sent a verification link to your email address.") }}
         </p>
     </div>
@@ -28,9 +27,9 @@
         </div>
     @endif
 
-    <div class="space-y-4">
-        <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 text-xs">
-            <p class="mb-1">
+    <div class="space-y-5">
+        <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 text-sm">
+            <p class="mb-2">
                 {{ __("Before proceeding, please check your email for a verification link.") }}
             </p>
             <p>

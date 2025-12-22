@@ -14,38 +14,58 @@
             {{ __('Enter your email address and we will send you a link to reset your password.') }}
         </p>
     </div>
+
+    {!! Hook::applyFilters(AuthFilterHook::PASSWORD_RESET_FORM_BEFORE, '') !!}
+
     <div>
-        <form action="{{ route('admin.password.email') }}" method="POST">
+        <form action="{{ route('password.email') }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
             @csrf
             <div class="space-y-5">
                 <x-messages />
+
+                @if (session('status'))
+                    <div class="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm">
+                        <div class="flex items-center gap-2">
+                            <iconify-icon icon="lucide:check-circle" class="text-lg"></iconify-icon>
+                            {{ session('status') }}
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Email -->
                 <div>
                     <label class="form-label">
                         {{ __('Email') }}<span class="text-error-500">*</span>
                     </label>
-                    <input autofocus type="text" id="email" name="email" autocomplete="username"
+                    <input autofocus type="email" id="email" name="email" autocomplete="email"
                         placeholder="{{ __('Enter your email address') }}"
-                        class="form-control">
+                        value="{{ old('email') }}"
+                        class="form-control @error('email') border-red-500 ring-red-500 @enderror"
+                        required>
+                    @error('email')
+                        <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                    @enderror
                 </div>
-                
+
                 <x-recaptcha page="forgot_password" />
 
                 <div>
-                    <button type="submit" class="btn-primary w-full">
-                        {{ __('Send Reset Link') }}
-                        <iconify-icon icon="lucide:log-in" class="ml-2"></iconify-icon>
+                    <button type="submit" class="btn-primary w-full" :disabled="loading">
+                        <span x-show="!loading">{{ __('Send Reset Link') }}</span>
+                        <iconify-icon x-show="loading" icon="lucide:loader-circle" class="animate-spin"></iconify-icon>
+                        <iconify-icon x-show="!loading" icon="lucide:mail" class="ml-2"></iconify-icon>
                     </button>
                 </div>
             </div>
         </form>
         <div class="flex justify-center items-center mt-5 text-sm font-normal text-center text-gray-700 dark:text-gray-300 sm:text-start">
-            <a href="{{ route('admin.login') }}" class="btn text-primary">
+            <a href="{{ route('login') }}" class="btn text-primary">
                 <iconify-icon icon="lucide:chevron-left" class="mr-2"></iconify-icon>
                 {{ __('Back to Login') }}
             </a>
         </div>
     </div>
+
+    {!! Hook::applyFilters(AuthFilterHook::PASSWORD_RESET_FORM_AFTER, '') !!}
 </div>
 @endsection
-

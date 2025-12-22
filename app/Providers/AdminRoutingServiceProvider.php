@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Http\Controllers\Backend\Auth\ForgotPasswordController;
-use App\Http\Controllers\Backend\Auth\LoginController;
-use App\Http\Controllers\Backend\Auth\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,34 +22,30 @@ class AdminRoutingServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->registerDynamicAdminRoutes();
+        $this->registerAdminAuthRedirects();
     }
 
     /**
-     * Register dynamic admin authentication routes.
+     * Register redirects from old admin auth routes to the unified auth routes.
+     *
+     * This ensures backward compatibility for any links or bookmarks
+     * pointing to /admin/login, /admin/password/reset, etc.
      */
-    protected function registerDynamicAdminRoutes(): void
+    protected function registerAdminAuthRedirects(): void
     {
-        $adminLoginRoute = config('settings.admin_login_route', 'admin/login');
+        Route::middleware(['web'])->group(function () {
+            // Redirect old admin login routes to unified /login
+            Route::get('admin/login', fn () => redirect()->route('login'))->name('admin.login');
+            Route::post('admin/login', fn () => redirect()->route('login'))->name('admin.login.submit');
 
-        Route::middleware(['web', 'guest'])->group(function () use ($adminLoginRoute) {
-            // Dynamic login routes
-            Route::get($adminLoginRoute, [LoginController::class, 'showLoginForm'])->name('admin.login');
-            Route::post($adminLoginRoute, [LoginController::class, 'login'])
-                ->middleware(['recaptcha:login', 'throttle:20,1'])->name('admin.login.submit');
+            // Redirect old admin password reset routes
+            Route::get('admin/password/reset', fn () => redirect()->route('password.request'))->name('admin.password.request');
+            Route::post('admin/password/email', fn () => redirect()->route('password.request'))->name('admin.password.email');
+            Route::get('admin/password/reset/{token}', fn ($token) => redirect()->route('password.reset', ['token' => $token]))->name('admin.password.reset');
+            Route::post('admin/password/reset', fn () => redirect()->route('password.request'))->name('admin.password.reset.submit');
 
-            // Password reset routes (keeping these at standard locations)
-            Route::prefix('admin')->name('admin.')->group(function () {
-                Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-                Route::post('/password/reset', [ResetPasswordController::class, 'reset'])
-                    ->middleware('throttle:20,1')->name('password.reset.submit');
-                Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-                Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])
-                    ->middleware(['recaptcha:forgot_password', 'throttle:20,1'])->name('password.email');
-            });
+            // Redirect old admin logout route
+            Route::post('admin/logout/submit', fn () => redirect()->route('logout'))->name('admin.logout.submit');
         });
-
-        // Admin logout route (always at the standard location)
-        Route::middleware('web')->post('/admin/logout/submit', [LoginController::class, 'logout'])->name('admin.logout.submit');
     }
 }

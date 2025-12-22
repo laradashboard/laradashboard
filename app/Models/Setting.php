@@ -121,6 +121,33 @@ class Setting extends Model
 
     public const MAIL_FROM_NAME = 'mail_from_name';
 
+    // =========================================================================
+    // Authentication Settings
+    // =========================================================================
+    public const AUTH_ENABLE_PUBLIC_LOGIN = 'auth_enable_public_login';
+
+    public const AUTH_ENABLE_PUBLIC_REGISTRATION = 'auth_enable_public_registration';
+
+    public const AUTH_ENABLE_PASSWORD_RESET = 'auth_enable_password_reset';
+
+    public const AUTH_ENABLE_EMAIL_VERIFICATION = 'auth_enable_email_verification';
+
+    public const AUTH_DEFAULT_USER_ROLE = 'auth_default_user_role';
+
+    public const AUTH_REDIRECT_AFTER_LOGIN = 'auth_redirect_after_login';
+
+    public const AUTH_REDIRECT_AFTER_REGISTER = 'auth_redirect_after_register';
+
+    public const AUTH_LOGIN_PAGE_TITLE = 'auth_login_page_title';
+
+    public const AUTH_LOGIN_PAGE_DESCRIPTION = 'auth_login_page_description';
+
+    public const AUTH_REGISTER_PAGE_TITLE = 'auth_register_page_title';
+
+    public const AUTH_REGISTER_PAGE_DESCRIPTION = 'auth_register_page_description';
+
+    public const AUTH_SHOW_SOCIAL_LOGIN = 'auth_show_social_login';
+
     protected $fillable = [
         'option_name',
         'option_value',

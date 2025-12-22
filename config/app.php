@@ -231,6 +231,7 @@ return [
         App\Providers\AdminRoutingServiceProvider::class,
         App\Providers\HookServiceProvider::class,
         App\Providers\BuilderServiceProvider::class,
+        App\Providers\AuthSettingsServiceProvider::class,
     ],
 
     /*
@@ -291,6 +292,8 @@ return [
          * Hook Aliases.
          */
         'Hook' => App\Support\Facades\Hook::class,
+        'AuthFilterHook' => App\Enums\Hooks\AuthFilterHook::class,
+        'AuthActionHook' => App\Enums\Hooks\AuthActionHook::class,
         'AdminFilterHook' => App\Enums\Hooks\AdminFilterHook::class,
         'DashboardFilterHook' => App\Enums\Hooks\DashboardFilterHook::class,
         'DatatableHook' => App\Enums\Hooks\DatatableHook::class,

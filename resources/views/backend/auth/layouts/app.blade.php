@@ -1,12 +1,24 @@
+@php
+    use App\Enums\Hooks\AuthActionHook;
+    use App\Enums\Hooks\AuthFilterHook;
+    use App\Support\Facades\Hook;
+@endphp
 <!doctype html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', config('app.name'))</title>
-    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    @php
+        $favicon = config('settings.site_favicon');
+    @endphp
+    @if($favicon)
+        <link rel="icon" href="{{ $favicon }}" type="image/x-icon">
+    @else
+        <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    @endif
 
     @include('backend.layouts.partials.theme-colors')
     @yield('before_vite_build')
@@ -77,12 +89,24 @@ x-init="
                             </div>
 
                             <div class="flex flex-col items-center max-w-xs">
-                                <a href="#" class="block mb-4">
-                                    <img src="/images/logo/lara-dashboard-dark.png" alt="Logo">
+                                <a href="{{ url('/') }}" class="block mb-4">
+                                    @php
+                                        $logoDark = config('settings.site_logo_dark');
+                                    @endphp
+                                    @if($logoDark)
+                                        <img src="{{ $logoDark }}" alt="{{ config('app.name') }}" class="h-10">
+                                    @else
+                                        <span class="text-2xl font-bold text-white">{{ config('app.name') }}</span>
+                                    @endif
                                 </a>
+                                @php
+                                    $siteTagline = config('settings.site_tagline');
+                                @endphp
+                                @if($siteTagline)
                                 <p class="text-center text-gray-400 dark:text-white/60">
-                                    {{ __('Free and Open-Source Laravel Admin Dashboard Template') }}
+                                    {{ $siteTagline }}
                                 </p>
+                                @endif
                             </div>
                         </div>
                     </div>

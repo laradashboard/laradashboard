@@ -60,6 +60,7 @@
     56 => 'App\\Providers\\AdminRoutingServiceProvider',
     57 => 'App\\Providers\\HookServiceProvider',
     58 => 'App\\Providers\\BuilderServiceProvider',
+    59 => 'App\\Providers\\AuthSettingsServiceProvider',
   ),
   'eager' => 
   array (
@@ -108,6 +109,7 @@
     42 => 'App\\Providers\\AdminRoutingServiceProvider',
     43 => 'App\\Providers\\HookServiceProvider',
     44 => 'App\\Providers\\BuilderServiceProvider',
+    45 => 'App\\Providers\\AuthSettingsServiceProvider',
   ),
   'deferred' => 
   array (

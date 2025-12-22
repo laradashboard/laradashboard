@@ -3,52 +3,62 @@
 declare(strict_types=1);
 
 /**
- * Frontend auth imports.
+ * Auth controller imports.
  */
-use App\Http\Controllers\Auth\RegisterController as UserRegisterController;
-use App\Http\Controllers\Auth\LoginController as UserLoginController;
-use App\Http\Controllers\Auth\ForgotPasswordController as UserForgotPasswordController;
-use App\Http\Controllers\Auth\VerificationController as UserVerificationController;
-use App\Http\Controllers\Auth\ResetPasswordController as UserResetPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\VerificationController;
 
 /*
 |--------------------------------------------------------------------------
 | Auth Routes
 |--------------------------------------------------------------------------
 |
-| Authentication related routes.
+| Authentication related routes. These routes handle login, registration,
+| password reset, and email verification.
+|
+| Login is always available. Registration and password reset features
+| can be controlled via settings.
 |
 */
 
-// Public User authentication routes with reCAPTCHA middleware.
+// Guest routes (not logged in)
 Route::group(['middleware' => 'guest'], function () {
-    // Registration Routes.
-    Route::get('register', [UserRegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('register', [UserRegisterController::class, 'register'])
-        ->middleware(['recaptcha:registration', 'throttle:20,1']);
-
-    // Login Routes.
-    Route::get('login', [UserLoginController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [UserLoginController::class, 'login'])
+    // Login Routes - Always available
+    Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('login', [LoginController::class, 'login'])
         ->middleware(['recaptcha:login', 'throttle:20,1']);
 
-    // Password Reset Routes.
-    Route::get('password/reset', [UserForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-    Route::post('password/email', [UserForgotPasswordController::class, 'sendResetLinkEmail'])
-        ->middleware(['recaptcha:forgot_password', 'throttle:20,1'])->name('password.email');
-    Route::get('password/reset/{token}', [UserResetPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('password/reset', [UserResetPasswordController::class, 'reset'])
-        ->middleware('throttle:20,1')->name('password.update');
+    // Registration Routes - Controlled by auth_enable_public_registration setting
+    Route::middleware(['public.auth:register'])->group(function () {
+        Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+        Route::post('register', [RegisterController::class, 'register'])
+            ->middleware(['recaptcha:registration', 'throttle:20,1']);
+    });
 
-    // Email Verification Routes.
-    Route::get('email/verify', [UserVerificationController::class, 'show'])->name('verification.notice');
-    Route::get('email/verify/{id}/{hash}', [UserVerificationController::class, 'verify'])->name('verification.verify');
-    Route::post('email/resend', [UserVerificationController::class, 'resend'])
-        ->middleware('throttle:20,1')->name('verification.resend');
+    // Password Reset Routes - Controlled by auth_enable_password_reset setting
+    Route::middleware(['public.auth:password_reset'])->group(function () {
+        Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+        Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+            ->middleware(['recaptcha:forgot_password', 'throttle:20,1'])->name('password.email');
+        Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+        Route::post('password/reset', [ResetPasswordController::class, 'reset'])
+            ->middleware('throttle:20,1')->name('password.update');
+    });
 });
 
-// User Logout Route.
-Route::post('logout', [UserLoginController::class, 'logout'])->name('logout');
+// Email Verification Routes (requires auth, not guest)
+Route::middleware('auth')->group(function () {
+    Route::get('email/verify', [VerificationController::class, 'show'])->name('verification.notice');
+    Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
+        ->middleware('signed')
+        ->name('verification.verify');
+    Route::post('email/resend', [VerificationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('verification.resend');
+});
 
-// Admin authentication routes are now handled by AdminRoutingServiceProvider
-// to support dynamic admin login URLs
+// Logout Route (requires auth)
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');

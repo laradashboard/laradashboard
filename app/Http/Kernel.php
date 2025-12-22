@@ -66,9 +66,10 @@ class Kernel extends HttpKernel
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         'check.upload.limits' => \App\Http\Middleware\CheckPhpUploadLimits::class,
         'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
         'redirect.if.installed' => \App\Http\Middleware\RedirectIfInstalled::class,
+        'public.auth' => \App\Http\Middleware\CheckPublicAuthEnabled::class,
     ];
 }
