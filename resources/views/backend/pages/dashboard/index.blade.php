@@ -1,3 +1,5 @@
+@section('title', __('Dashboard') . ' | ' . config('app.name'))
+
 <x-layouts.backend-layout>
     <div class="mb-6">
         <h2 class="text-xl font-semibold text-gray-700 dark:text-white/90 flex items-center gap-2">
