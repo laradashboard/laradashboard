@@ -30,6 +30,85 @@ class ExportService
     }
 
     /**
+     * Get available filter options for export.
+     */
+    public function getFilterOptions(): array
+    {
+        if (!$this->modelClass) {
+            return [];
+        }
+
+        $filters = [];
+        $table = (new $this->modelClass())->getTable();
+        $columns = Schema::getColumnListing($table);
+
+        // Add common filter fields
+        if (in_array('type', $columns)) {
+            $filters['type'] = $this->getDistinctValues('type');
+        }
+        if (in_array('status', $columns)) {
+            $filters['status'] = $this->getDistinctValues('status');
+        }
+        if (in_array('is_active', $columns)) {
+            $filters['is_active'] = [['value' => '1', 'label' => 'Active'], ['value' => '0', 'label' => 'Inactive']];
+        }
+
+        // Add relationship filters - use actual column names (with _id)
+        if (in_array('category_id', $columns) && method_exists($this->modelClass, 'category')) {
+            $filters['category_id'] = $this->getRelationshipOptions('category', 'name');
+        }
+        if (in_array('status_id', $columns) && method_exists($this->modelClass, 'status')) {
+            $filters['status_id'] = $this->getRelationshipOptions('status', 'name');
+        }
+        if (in_array('type_id', $columns) && method_exists($this->modelClass, 'contactType')) {
+            $filters['type_id'] = $this->getRelationshipOptions('contactType', 'name');
+        }
+
+        return $filters;
+    }
+
+    /**
+     * Get distinct values for a column.
+     */
+    protected function getDistinctValues(string $column): array
+    {
+        return $this->modelClass::distinct()
+            ->whereNotNull($column)
+            ->pluck($column)
+            ->map(fn($value) => ['value' => $value, 'label' => ucfirst($value)])
+            ->toArray();
+    }
+
+    /**
+     * Get relationship options for filters.
+     */
+    protected function getRelationshipOptions(string $relation, string $labelField): array
+    {
+        try {
+            $relatedModel = (new $this->modelClass())->$relation()->getRelated();
+            $table = $relatedModel->getTable();
+            
+            // Check if the label field exists, fallback to common alternatives
+            if (!Schema::hasColumn($table, $labelField)) {
+                $alternatives = ['title', 'label', 'value', 'id'];
+                foreach ($alternatives as $alt) {
+                    if (Schema::hasColumn($table, $alt)) {
+                        $labelField = $alt;
+                        break;
+                    }
+                }
+            }
+            
+            return $relatedModel::select('id', $labelField)
+                ->get()
+                ->map(fn($item) => ['value' => $item->id, 'label' => $item->$labelField])
+                ->toArray();
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
      * Get available columns for export from the model's table.
      */
     public function getAvailableColumns(): array
@@ -40,10 +119,6 @@ class ExportService
         }
         return [];
     }
-
-    /**
-     * Export data to CSV file.
-     */
     public function export(array $selectedColumns, array $filters = []): array
     {
         if (! $this->modelClass || empty($selectedColumns)) {
@@ -81,13 +156,15 @@ class ExportService
             $relations[] = Str::camel(str_replace('_id', '', $col));
         }
 
-        // Apply filters to the query
+        // Apply filters to the query - only when explicitly set
         $query = $this->modelClass::query()->select($exportColumns)->with($relations);
+        
         foreach ($filters as $key => $value) {
-            if (in_array($key, $actualColumns) && $value !== '') {
+            if (in_array($key, $actualColumns) && $value !== '' && $value !== null) {
                 $query->where($key, $value);
             }
         }
+        
         $records = $query->get();
 
         $header = $exportColumns;

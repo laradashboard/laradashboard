@@ -21,17 +21,11 @@
                             <label for="{{ $field }}" class="form-label">
                                 {{ __(ucwords(str_replace('_', ' ', $field))) }}
                             </label>
-                            @php
-                                if (is_numeric($options[0]['value'])) {
-                                    $fieldName = $field . '_id';
-                                } else {
-                                    $fieldName = $field;
-                                }
-                            @endphp
-                            <select name="{{ $fieldName }}" 
-                                    id="{{ $fieldName }}" 
-                                    wire:model.live="filtersValues.{{ $fieldName }}" 
+                            <select name="{{ $field }}" 
+                                    id="{{ $field }}" 
+                                    wire:model.live="filtersValues.{{ $field }}" 
                                     class="form-control">
+                                <option value="">{{ __('All') }}</option>
                                 @foreach ($options as $option)
                                     <option value="{{ $option['value'] }}">
                                         {{ $option['label'] }}

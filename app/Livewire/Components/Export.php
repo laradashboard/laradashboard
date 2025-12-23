@@ -25,22 +25,19 @@ class Export extends Component
         $this->modelType = $modelType;
         $this->modelNamespace = $modelNamespace;
         $this->routePrefix = $routePrefix;
+        
+        $exportService = new ExportService($modelType, $modelNamespace, $routePrefix);
+        $this->availableColumns = $exportService->getAvailableColumns();
+        
+        // Only use filters if explicitly passed
         $this->filtersItems = $filtersItems;
-        $this->availableColumns = (new ExportService($modelType, $modelNamespace, $routePrefix))->getAvailableColumns();
+        
         $this->selectedColumns = $this->availableColumns;
         $this->allSelected = count($this->selectedColumns) === count($this->availableColumns);
 
-        // Initialize filter values to first option if available
-        foreach ($filtersItems as $field => $options) {
-            if (! empty($options)) {
-                // Use _id suffix for numeric options (foreign keys)
-                if (is_numeric($options[0]['value'])) {
-                    $fieldName = $field . '_id';
-                } else {
-                    $fieldName = $field;
-                }
-                $this->filtersValues[$fieldName] = $options[0]['value'];
-            }
+        // Initialize filter values
+        foreach ($this->filtersItems as $field => $options) {
+            $this->filtersValues[$field] = '';
         }
     }
 
