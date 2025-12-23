@@ -209,7 +209,15 @@ class LoginController extends Controller
             return $response;
         }
 
-        $logoutRedirect = Hook::applyFilters(AuthFilterHook::LOGOUT_REDIRECT_PATH, route('login'));
+        // Use custom login route if configured and default is hidden
+        $customLoginRoute = config('settings.custom_login_route');
+        $hideDefaultLogin = config('settings.hide_default_login_url', '0') === '1';
+
+        $defaultLogoutRedirect = ($customLoginRoute && $hideDefaultLogin)
+            ? url($customLoginRoute)
+            : route('login');
+
+        $logoutRedirect = Hook::applyFilters(AuthFilterHook::LOGOUT_REDIRECT_PATH, $defaultLogoutRedirect);
 
         return $request->wantsJson()
             ? new \Illuminate\Http\JsonResponse([], 204)

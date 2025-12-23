@@ -26,15 +26,22 @@ class AdminRedirectMiddleware
             }
 
             // For non-authenticated users:
-            $disableRedirect = config('settings.disable_default_admin_redirect', '0') === '1';
+            $hideAdminUrl = config('settings.hide_admin_url', '0') === '1';
 
-            // If redirect is disabled, show 403
-            if ($disableRedirect) {
+            // If hide admin URL is enabled, show 403
+            if ($hideAdminUrl) {
                 abort(403, __('Unauthorized access'));
             }
 
-            // Otherwise redirect to login (using the admin.login route which points to the custom path)
-            return redirect()->route('admin.login');
+            // Redirect to the appropriate login URL
+            $customLoginRoute = config('settings.custom_login_route');
+            $hideDefaultLogin = config('settings.hide_default_login_url', '0') === '1';
+
+            if ($customLoginRoute && $hideDefaultLogin) {
+                return redirect()->to(url($customLoginRoute));
+            }
+
+            return redirect()->route('login');
         }
 
         return $next($request);

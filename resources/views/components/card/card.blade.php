@@ -13,7 +13,7 @@
         <div>
             @isset($header)
                 <div class="py-4 px-4 md:px-8 space-y-6 sm:p-4 border-b border-gray-200 dark:border-gray-800 font-semibold flex justify-between items-center {{ $headerClass }}">
-                    <div class="w-full flex justify-between items-center {{ isset($headerTitleClass) ? $headerTitleClass : '' }}">
+                    <div class="w-full flex justify-between mb-0 items-center {{ isset($headerTitleClass) ? $headerTitleClass : '' }}">
                         {!! $header !!}
 
                         @isset($headerRight)
@@ -24,7 +24,7 @@
                     </div>
 
                     @isset($headerDescription)
-                        <p class="text-sm text-gray-500 font-normal dark:text-gray-400 {{ $headerDescriptionClass ?? '' }}">
+                        <p class="mt-2 text-sm text-gray-500 font-normal dark:text-gray-400 {{ $headerDescriptionClass ?? '' }}">
                             {!! $headerDescription !!}
                         </p>
                     @endisset

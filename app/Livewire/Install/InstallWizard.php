@@ -433,7 +433,7 @@ class InstallWizard extends Component
             return false;
         }
 
-        // Verify we can query the settings table
+        // Verify we can query the settings table.
         try {
             \Illuminate\Support\Facades\DB::table('settings')->count();
         } catch (\Exception $e) {
@@ -441,9 +441,6 @@ class InstallWizard extends Component
 
             return false;
         }
-
-        // Run essential seeders
-        $this->installationService->runEssentialSeeders();
 
         return true;
     }

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Enums\Hooks\SettingFilterHook;
+use App\Http\Controllers\Auth\LoginController;
 use App\Support\Facades\Hook;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -30,6 +32,7 @@ class AuthSettingsServiceProvider extends ServiceProvider
     {
         $this->registerSettingsTab();
         $this->registerDefaultSettings();
+        $this->registerCustomLoginRoute();
     }
 
     /**
@@ -66,7 +69,7 @@ class AuthSettingsServiceProvider extends ServiceProvider
             'auth_enable_public_registration' => '0',
             'auth_enable_password_reset' => '1',
             'auth_enable_email_verification' => '0',
-            'auth_default_user_role' => 'user',
+            'auth_default_user_role' => 'Subscriber',
             'auth_redirect_after_login' => '/',
             'auth_redirect_after_register' => '/',
         ];
@@ -76,5 +79,32 @@ class AuthSettingsServiceProvider extends ServiceProvider
                 config(['settings.'.$key => $value]);
             }
         }
+    }
+
+    /**
+     * Register custom login route if configured.
+     */
+    protected function registerCustomLoginRoute(): void
+    {
+        $customLoginRoute = config('settings.custom_login_route');
+
+        if (empty($customLoginRoute)) {
+            return;
+        }
+
+        // Sanitize the route path
+        $customLoginRoute = trim($customLoginRoute, '/');
+
+        // Don't register if it's the same as the default login route
+        if ($customLoginRoute === 'login') {
+            return;
+        }
+
+        Route::middleware(['web', 'guest'])->group(function () use ($customLoginRoute) {
+            Route::get($customLoginRoute, [LoginController::class, 'showLoginForm'])
+                ->name('login.custom');
+            Route::post($customLoginRoute, [LoginController::class, 'login'])
+                ->middleware(['recaptcha:login', 'throttle:20,1']);
+        });
     }
 }

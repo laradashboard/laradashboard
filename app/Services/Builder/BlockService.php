@@ -27,6 +27,126 @@ class BlockService
         ];
     }
 
+    /**
+     * Default canvas settings for email templates.
+     */
+    public function getDefaultCanvasSettings(): array
+    {
+        return [
+            'width' => '600px',
+            'contentPadding' => '32px',
+            'contentMargin' => '40px',
+            'layoutStyles' => [
+                'background' => ['color' => '#ffffff'],
+                'typography' => [
+                    'fontFamily' => 'Arial, sans-serif',
+                    'fontSize' => '16px',
+                    'color' => '#333333',
+                ],
+                'border' => [
+                    'radius' => [
+                        'topLeft' => '8px',
+                        'topRight' => '8px',
+                        'bottomLeft' => '8px',
+                        'bottomRight' => '8px',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Generate complete HTML email from blocks and canvas settings.
+     */
+    public function generateEmailHtml(array $blocks, ?array $canvasSettings = null): string
+    {
+        $canvasSettings = $canvasSettings ?? $this->getDefaultCanvasSettings();
+        $layoutStyles = $canvasSettings['layoutStyles'] ?? [];
+        $bgColor = $layoutStyles['background']['color'] ?? '#ffffff';
+        $borderRadius = $layoutStyles['border']['radius'] ?? [];
+        $radiusTL = $borderRadius['topLeft'] ?? '8px';
+        $radiusTR = $borderRadius['topRight'] ?? '8px';
+        $radiusBL = $borderRadius['bottomLeft'] ?? '8px';
+        $radiusBR = $borderRadius['bottomRight'] ?? '8px';
+        $contentPadding = $canvasSettings['contentPadding'] ?? '32px';
+        $contentMargin = $canvasSettings['contentMargin'] ?? '40px';
+        $maxWidth = $canvasSettings['width'] ?? '600px';
+
+        $blocksHtml = $this->parseBlocks($blocks);
+
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Email</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
+        <tr>
+            <td align="center" style="padding: {$contentMargin} 20px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: {$maxWidth}; background-color: {$bgColor}; border-top-left-radius: {$radiusTL}; border-top-right-radius: {$radiusTR}; border-bottom-left-radius: {$radiusBL}; border-bottom-right-radius: {$radiusBR};">
+                    <tr>
+                        <td style="padding: {$contentPadding};">
+                            {$blocksHtml}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
+    }
+
+    /**
+     * Create a complete template data array ready for database insertion.
+     */
+    public function createTemplateData(
+        string $name,
+        string $subject,
+        string $type,
+        string $description,
+        array $blocks,
+        bool $isActive = false,
+        bool $isDeletable = true,
+        int $createdBy = 1
+    ): array {
+        $canvasSettings = $this->getDefaultCanvasSettings();
+        $designJson = [
+            'blocks' => $blocks,
+            'canvasSettings' => $canvasSettings,
+            'version' => 1,
+        ];
+
+        return [
+            'uuid' => (string) Str::uuid(),
+            'name' => $name,
+            'subject' => $subject,
+            'body_html' => $this->generateEmailHtml($blocks, $canvasSettings),
+            'design_json' => $designJson,
+            'type' => $type,
+            'description' => $description,
+            'is_active' => $isActive,
+            'is_deleteable' => $isDeletable,
+            'created_by' => $createdBy,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+    }
+
     public function parseBlocks(array $blocks): string
     {
         $html = '';

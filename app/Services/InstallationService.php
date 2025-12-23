@@ -612,24 +612,6 @@ class InstallationService
     }
 
     /**
-     * Run essential seeders for default data.
-     */
-    public function runEssentialSeeders(): void
-    {
-        try {
-            // Run settings seeder if it exists
-            if (class_exists(\Database\Seeders\SettingsSeeder::class)) {
-                Artisan::call('db:seed', [
-                    '--class' => 'SettingsSeeder',
-                    '--force' => true,
-                ]);
-            }
-        } catch (\Exception $e) {
-            // Silently fail if seeder doesn't exist or fails
-        }
-    }
-
-    /**
      * Complete the installation process.
      */
     public function completeInstallation(): void

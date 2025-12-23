@@ -18,7 +18,7 @@
     {!! Hook::applyFilters(AuthFilterHook::LOGIN_FORM_BEFORE, '') !!}
 
     <div>
-      <form action="{{ route('login') }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
+      <form action="{{ request()->url() }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
         @csrf
         <div class="space-y-5">
           <x-messages />

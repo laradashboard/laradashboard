@@ -18,17 +18,25 @@ class Authenticate extends Middleware
         if (! $request->expectsJson()) {
             // Check if the request is for an admin route
             if ($request->is('admin/*') || $request->is('admin')) {
-                $disableRedirect = config('settings.disable_default_admin_redirect', '0') === '1';
+                $hideAdminUrl = config('settings.hide_admin_url', '0') === '1';
 
-                // If redirect is disabled, show 403.
-                if ($disableRedirect) {
+                // If hide admin URL is enabled, show 403.
+                if ($hideAdminUrl) {
                     return abort(403, 'Unauthorized access');
                 }
 
                 return route('admin.login');
             }
 
-            // For frontend routes, redirect to frontend login.
+            // For frontend routes, redirect to the appropriate login.
+            // Use custom login route if configured and default is hidden
+            $customLoginRoute = config('settings.custom_login_route');
+            $hideDefaultLogin = config('settings.hide_default_login_url', '0') === '1';
+
+            if ($customLoginRoute && $hideDefaultLogin) {
+                return url($customLoginRoute);
+            }
+
             return route('login');
         }
 

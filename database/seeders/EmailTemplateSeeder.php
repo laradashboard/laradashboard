@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\EmailTemplate;
 use App\Enums\TemplateType;
+use App\Models\EmailTemplate;
 use App\Services\Builder\BlockService;
-use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
 
 class EmailTemplateSeeder extends Seeder
 {
@@ -19,15 +18,29 @@ class EmailTemplateSeeder extends Seeder
     public function run(): void
     {
         $templates = $this->getAllTemplates();
+        $created = 0;
+        $skipped = 0;
 
         foreach ($templates as $template) {
-            EmailTemplate::updateOrCreate(
-                ['name' => $template['name']],
-                $template
-            );
+            $existing = EmailTemplate::where('name', $template['name'])->first();
+
+            if ($existing) {
+                if ($existing->is_deleteable) {
+                    $existing->update($template);
+                    $created++;
+                } else {
+                    $skipped++; // Essential template from migration
+                }
+            } else {
+                EmailTemplate::create($template);
+                $created++;
+            }
         }
 
-        $this->command->info('✅ Created ' . count($templates) . ' email templates!');
+        $this->command->info("✅ Created/updated {$created} email template(s).");
+        if ($skipped > 0) {
+            $this->command->info("→ Skipped {$skipped} essential template(s) (already exist from migration).");
+        }
     }
 
     private function getAllTemplates(): array
@@ -46,10 +59,10 @@ class EmailTemplateSeeder extends Seeder
     private function getAuthTemplates(): array
     {
         return [
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Forgot Password',
                 'Reset Your Password - {app_name}',
-                TemplateType::AUTHENTICATION,
+                TemplateType::AUTHENTICATION->value,
                 'Password reset email with security tips',
                 $this->getPasswordResetBlocks(),
                 true,
@@ -61,38 +74,38 @@ class EmailTemplateSeeder extends Seeder
     private function getWelcomeTemplates(): array
     {
         return [
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Modern Welcome - Blue',
                 'Welcome to {app_name}, {first_name}! 🎉',
-                TemplateType::WELCOME,
+                TemplateType::WELCOME->value,
                 'Modern blue-themed welcome email',
                 $this->getModernWelcomeBlueBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Welcome with Video',
                 'Hi {first_name}, Watch Our Welcome Video!',
-                TemplateType::WELCOME,
+                TemplateType::WELCOME->value,
                 'Welcome email with embedded video',
                 $this->getWelcomeWithVideoBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Minimalist Welcome',
                 'Welcome {first_name} - Let\'s Get Started',
-                TemplateType::WELCOME,
+                TemplateType::WELCOME->value,
                 'Clean minimalist welcome design',
                 $this->getMinimalistWelcomeBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Welcome with Checklist',
                 'Your Getting Started Guide, {first_name}',
-                TemplateType::WELCOME,
+                TemplateType::WELCOME->value,
                 'Welcome with actionable checklist',
                 $this->getWelcomeChecklistBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Bold Welcome',
                 '{first_name}, You\'re In! Welcome Aboard 🚀',
-                TemplateType::WELCOME,
+                TemplateType::WELCOME->value,
                 'Bold and energetic welcome email',
                 $this->getBoldWelcomeBlocks()
             ),
@@ -102,38 +115,38 @@ class EmailTemplateSeeder extends Seeder
     private function getMarketingTemplates(): array
     {
         return [
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Flash Sale - Urgent',
                 '⚡ Flash Sale! {first_name}, 24 Hours Only',
-                TemplateType::PROMOTIONAL,
+                TemplateType::PROMOTIONAL->value,
                 'Urgent flash sale template',
                 $this->getFlashSaleBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Product Launch',
                 'Introducing Our Latest: Mastering Success in 2025',
-                TemplateType::PROMOTIONAL,
+                TemplateType::PROMOTIONAL->value,
                 'Product launch announcement',
                 $this->getProductLaunchBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Limited Offer',
                 '{first_name}, Exclusive Offer Expires Soon',
-                TemplateType::PROMOTIONAL,
+                TemplateType::PROMOTIONAL->value,
                 'Limited time offer template',
                 $this->getLimitedOfferBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Black Friday Special',
                 'BLACK FRIDAY: Up to 70% Off!',
-                TemplateType::PROMOTIONAL,
+                TemplateType::PROMOTIONAL->value,
                 'Black Friday sale template',
                 $this->getBlackFridayBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Cyber Monday',
                 'Cyber Monday Deals Start NOW!',
-                TemplateType::PROMOTIONAL,
+                TemplateType::PROMOTIONAL->value,
                 'Cyber Monday template',
                 $this->getCyberMondayBlocks()
             ),
@@ -143,31 +156,31 @@ class EmailTemplateSeeder extends Seeder
     private function getTransactionalTemplates(): array
     {
         return [
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Order Confirmation',
                 'Order Confirmed - #1010123',
-                TemplateType::TRANSACTIONAL,
+                TemplateType::TRANSACTIONAL->value,
                 'Order confirmation email',
                 $this->getOrderConfirmationBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Shipping Notification',
                 'Your Order Has Shipped! 📦',
-                TemplateType::TRANSACTIONAL,
+                TemplateType::TRANSACTIONAL->value,
                 'Shipping notification',
                 $this->getShippingNotificationBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Invoice',
                 'Invoice #1010123 from {app_name}',
-                TemplateType::TRANSACTIONAL,
+                TemplateType::TRANSACTIONAL->value,
                 'Invoice template',
                 $this->getInvoiceBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Receipt',
                 'Your Receipt from {app_name}',
-                TemplateType::TRANSACTIONAL,
+                TemplateType::TRANSACTIONAL->value,
                 'Payment receipt',
                 $this->getReceiptBlocks()
             ),
@@ -177,38 +190,38 @@ class EmailTemplateSeeder extends Seeder
     private function getNewsletterTemplates(): array
     {
         return [
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Weekly Digest',
                 '📰 Your Weekly Update - {date}',
-                TemplateType::NEWSLETTER,
+                TemplateType::NEWSLETTER->value,
                 'Weekly newsletter digest',
                 $this->getWeeklyDigestBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Blog Roundup',
                 'Top Articles This Month',
-                TemplateType::NEWSLETTER,
+                TemplateType::NEWSLETTER->value,
                 'Blog posts roundup',
                 $this->getBlogRoundupBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Industry News',
                 'Industry Insights for Industry 2025',
-                TemplateType::NEWSLETTER,
+                TemplateType::NEWSLETTER->value,
                 'Industry news newsletter',
                 $this->getIndustryNewsBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Company Newsletter',
                 'Company News & Updates - {month}',
-                TemplateType::NEWSLETTER,
+                TemplateType::NEWSLETTER->value,
                 'Company newsletter',
                 $this->getCompanyNewsletterBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Tips & Tricks',
                 'Weekly Tips: Boost Your Productivity',
-                TemplateType::NEWSLETTER,
+                TemplateType::NEWSLETTER->value,
                 'Tips and tricks newsletter',
                 $this->getTipsNewsletterBlocks()
             ),
@@ -218,38 +231,38 @@ class EmailTemplateSeeder extends Seeder
     private function getEventTemplates(): array
     {
         return [
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Webinar Invitation',
                 'You\'re Invited: Mastering Success in {year}',
-                TemplateType::REMINDER,
+                TemplateType::REMINDER->value,
                 'Webinar invitation',
                 $this->getWebinarInvitationBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Event Reminder',
                 'Tomorrow: Mastering Success in {year} Starts at {time}',
-                TemplateType::REMINDER,
+                TemplateType::REMINDER->value,
                 'Event reminder',
                 $this->getEventReminderBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Conference Invite',
                 'Join Us at the Annual Conference {year}',
-                TemplateType::REMINDER,
+                TemplateType::REMINDER->value,
                 'Conference invitation',
                 $this->getConferenceInviteBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Virtual Event',
                 'Virtual Event: Mastering Success in {year} - Register Now',
-                TemplateType::REMINDER,
+                TemplateType::REMINDER->value,
                 'Virtual event template',
                 $this->getVirtualEventBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Event Thank You',
                 'Thank You for Attending Mastering Success in {year}',
-                TemplateType::FOLLOW_UP,
+                TemplateType::FOLLOW_UP->value,
                 'Post-event thank you',
                 $this->getEventThankYouBlocks()
             ),
@@ -259,162 +272,42 @@ class EmailTemplateSeeder extends Seeder
     private function getEcommerceTemplates(): array
     {
         return [
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Cart Abandonment',
                 '{first_name}, You Left Something Behind! 🛒',
-                TemplateType::REMINDER,
+                TemplateType::REMINDER->value,
                 'Abandoned cart recovery',
                 $this->getCartAbandonmentBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Product Recommendation',
                 'Based on Your Interests, {first_name}',
-                TemplateType::PROMOTIONAL,
+                TemplateType::PROMOTIONAL->value,
                 'Personalized recommendations',
                 $this->getProductRecommendationBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Back in Stock',
                 'Product XYZ is Back in Stock!',
-                TemplateType::PROMOTIONAL,
+                TemplateType::PROMOTIONAL->value,
                 'Back in stock notification',
                 $this->getBackInStockBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Review Request',
                 'How Was Your Purchase, {first_name}?',
-                TemplateType::FOLLOW_UP,
+                TemplateType::FOLLOW_UP->value,
                 'Product review request',
                 $this->getReviewRequestBlocks()
             ),
-            $this->createTemplate(
+            $this->blockService->createTemplateData(
                 'Birthday Discount',
                 'Happy Birthday {first_name}! 🎂',
-                TemplateType::PROMOTIONAL,
+                TemplateType::PROMOTIONAL->value,
                 'Birthday special offer',
                 $this->getBirthdayDiscountBlocks()
             ),
         ];
-    }
-
-    /**
-     * Create a template with LaraBuilder block format
-     */
-    private function createTemplate(string $name, string $subject, TemplateType $type, string $description, array $blocks, $active = false, $deletable = true): array
-    {
-        $canvasSettings = $this->getDefaultCanvasSettings();
-        $designJson = [
-            'blocks' => $blocks,
-            'canvasSettings' => $canvasSettings,
-            'version' => 1,
-        ];
-
-        // Generate HTML for preview in list view
-        $bodyHtml = $this->generateHtml($blocks, $canvasSettings);
-
-        return [
-            'uuid' => Str::uuid(),
-            'name' => $name,
-            'subject' => $subject,
-            'body_html' => $bodyHtml,
-            'design_json' => $designJson,
-            'type' => $type->value,
-            'description' => $description,
-            'is_active' => $active,
-            'is_deleteable' => $deletable,
-            'created_by' => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
-    }
-
-    /**
-     * Default canvas settings for email templates
-     */
-    private function getDefaultCanvasSettings(): array
-    {
-        return [
-            'width' => '600px',
-            'contentPadding' => '32px',
-            'contentMargin' => '40px',
-            'layoutStyles' => [
-                'background' => [
-                    'color' => '#ffffff',
-                ],
-                'typography' => [
-                    'fontFamily' => 'Arial, sans-serif',
-                    'fontSize' => '16px',
-                    'color' => '#333333',
-                ],
-                'border' => [
-                    'radius' => [
-                        'topLeft' => '8px',
-                        'topRight' => '8px',
-                        'bottomLeft' => '8px',
-                        'bottomRight' => '8px',
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * Generate complete HTML email from blocks and canvas settings
-     */
-    private function generateHtml(array $blocks, array $canvasSettings): string
-    {
-        $layoutStyles = $canvasSettings['layoutStyles'] ?? [];
-        $bgColor = $layoutStyles['background']['color'] ?? '#ffffff';
-        $fontFamily = $layoutStyles['typography']['fontFamily'] ?? 'Arial, sans-serif';
-        $borderRadius = $layoutStyles['border']['radius'] ?? [];
-        $radiusTL = $borderRadius['topLeft'] ?? '8px';
-        $radiusTR = $borderRadius['topRight'] ?? '8px';
-        $radiusBL = $borderRadius['bottomLeft'] ?? '8px';
-        $radiusBR = $borderRadius['bottomRight'] ?? '8px';
-        $contentPadding = $canvasSettings['contentPadding'] ?? '32px';
-        $contentMargin = $canvasSettings['contentMargin'] ?? '40px';
-        $maxWidth = $canvasSettings['width'] ?? '600px';
-
-        $blocksHtml = '';
-        foreach ($blocks as $block) {
-            $blocksHtml .= $this->blockService->renderBlock($block);
-        }
-
-        return <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Email</title>
-    <!--[if mso]>
-    <noscript>
-        <xml>
-            <o:OfficeDocumentSettings>
-                <o:PixelsPerInch>96</o:PixelsPerInch>
-            </o:OfficeDocumentSettings>
-        </xml>
-    </noscript>
-    <![endif]-->
-</head>
-<body style="margin: 0; padding: 0; background-color: #f4f4f4;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
-        <tr>
-            <td align="center" style="padding: {$contentMargin} 20px;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: {$maxWidth}; background-color: {$bgColor}; border-top-left-radius: {$radiusTL}; border-top-right-radius: {$radiusTR}; border-bottom-left-radius: {$radiusBL}; border-bottom-right-radius: {$radiusBR};">
-                    <tr>
-                        <td style="padding: {$contentPadding};">
-                            {$blocksHtml}
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-HTML;
     }
 
     // ========================================

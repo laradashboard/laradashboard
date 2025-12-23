@@ -53,27 +53,28 @@ class SettingController extends Controller
                 'recaptcha_secret_key',
                 'recaptcha_enabled_pages',
                 'recaptcha_score_threshold',
-                'admin_login_route',
-                'disable_default_admin_redirect',
+                'hide_admin_url',
+                'custom_login_route',
+                'hide_default_login_url',
             ]);
             $fields = $request->except($restrictedFields);
         } else {
             $fields = $request->all();
         }
 
-        // Validate admin login route if provided
-        if ($request->has('admin_login_route')) {
+        // Validate custom login route if provided
+        if ($request->filled('custom_login_route')) {
             $request->validate([
-                'admin_login_route' => 'required|regex:/^[a-zA-Z0-9\-\_\/]+$/|min:3|max:50',
+                'custom_login_route' => 'regex:/^[a-zA-Z0-9\-\_\/]+$/|min:3|max:50',
             ], [
-                'admin_login_route.regex' => 'The admin login route can only contain letters, numbers, hyphens, underscores and forward slashes.',
+                'custom_login_route.regex' => __('The custom login route can only contain letters, numbers, hyphens, underscores and forward slashes.'),
             ]);
         }
 
         $uploadPath = 'uploads/settings';
 
         // Handle checkbox fields that might not be present when unchecked
-        $checkboxFields = ['disable_default_admin_redirect'];
+        $checkboxFields = ['hide_admin_url', 'hide_default_login_url'];
         foreach ($checkboxFields as $checkboxField) {
             // Skip restricted fields in demo mode
             if (config('app.demo_mode', false) && in_array($checkboxField, $restrictedFields ?? [])) {

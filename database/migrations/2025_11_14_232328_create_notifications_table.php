@@ -1,8 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Enums\NotificationType;
+use App\Enums\ReceiverType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 return new class () extends Migration {
     public function up(): void
@@ -34,10 +40,55 @@ return new class () extends Migration {
             $table->index('receiver_type');
             $table->index('is_active');
         });
+
+        // Seed essential notifications
+        $this->seedEssentialNotifications();
     }
 
     public function down(): void
     {
         Schema::dropIfExists('notifications');
+    }
+
+    /**
+     * Seed essential notifications required for core application functionality.
+     */
+    private function seedEssentialNotifications(): void
+    {
+        $template = DB::table('email_templates')
+            ->where('name', 'Forgot Password')
+            ->first();
+
+        if (! $template) {
+            return; // Template doesn't exist, can't create notification
+        }
+
+        // Temporarily disable foreign key checks for seeding (no users exist yet during migration)
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        DB::table('notifications')->insert([
+            'uuid' => (string) Str::uuid(),
+            'name' => 'Forgot Password Notification',
+            'description' => 'Automated notification sent when a user requests password reset',
+            'notification_type' => NotificationType::FORGOT_PASSWORD->value,
+            'email_template_id' => $template->id,
+            'receiver_type' => ReceiverType::USER->value,
+            'receiver_ids' => null,
+            'receiver_emails' => null,
+            'is_active' => true,
+            'is_deleteable' => false,
+            'track_opens' => true,
+            'track_clicks' => true,
+            'from_email' => null,
+            'from_name' => null,
+            'reply_to_email' => null,
+            'reply_to_name' => null,
+            'settings' => null,
+            'created_by' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
 };
