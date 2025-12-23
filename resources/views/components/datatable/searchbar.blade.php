@@ -3,14 +3,26 @@
 @if($enableLivewire ?? false)
     <div class="relative flex items-center justify-center min-w-full md:min-w-[280px]"
         wire:ignore.self
-        x-data="{ searchValue: $wire.search || '' }"
-        x-init="$watch('$wire.search', value => searchValue = value || '')"
+        x-data="{
+            searchValue: $wire.search || '',
+            isMac: navigator.platform.toUpperCase().indexOf('MAC') >= 0
+        }"
+        x-init="
+            $watch('$wire.search', value => searchValue = value || '');
+            window.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    $refs.searchInput.focus();
+                }
+            });
+        "
     >
         <span class="pointer-events-none absolute left-4 flex">
             <iconify-icon icon="lucide:search" class="text-gray-500 dark:text-gray-400" width="20" height="20"></iconify-icon>
         </span>
         <input
             id="search-input"
+            x-ref="searchInput"
             type="text"
             wire:model.live="search"
             x-model="searchValue"
@@ -37,7 +49,12 @@
             x-show="searchValue.length === 0"
             class="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-md border border-gray-200 bg-gray-50 px-2 py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/3 dark:text-gray-300"
         >
-            <iconify-icon icon="lucide:command" class="mr-1" width="16" height="16"></iconify-icon>
+            <template x-if="isMac">
+                <iconify-icon icon="lucide:command" class="mr-0.5" width="14" height="14"></iconify-icon>
+            </template>
+            <template x-if="!isMac">
+                <span class="mr-0.5 text-[11px]">Ctrl</span>
+            </template>
             <span>K</span>
         </span>
     </div>
@@ -47,7 +64,18 @@
         method="GET"
         class="flex items-center"
         name="search"
-        x-data="{ searchValue: '{{ request('search') }}' }"
+        x-data="{
+            searchValue: '{{ request('search') }}',
+            isMac: navigator.platform.toUpperCase().indexOf('MAC') >= 0
+        }"
+        x-init="
+            window.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    $refs.searchInput.focus();
+                }
+            });
+        "
     >
         @foreach(request()->except('search') as $key => $value)
             @if(is_array($value))
@@ -65,6 +93,7 @@
             </span>
             <input
                 id="search-input"
+                x-ref="searchInput"
                 name="search"
                 type="text"
                 x-model="searchValue"
@@ -93,7 +122,12 @@
                 type="submit"
                 title="{{ __('Search') }}"
             >
-                <span>⌘</span>
+                <template x-if="isMac">
+                    <iconify-icon icon="lucide:command" class="mr-0.5" width="14" height="14"></iconify-icon>
+                </template>
+                <template x-if="!isMac">
+                    <span class="mr-0.5 text-[11px]">Ctrl</span>
+                </template>
                 <span>K</span>
             </button>
         </div>
