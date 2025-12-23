@@ -3,7 +3,7 @@
 <x-layouts.backend-layout>
     <div class="mb-6">
         <h2 class="text-xl font-semibold text-gray-700 dark:text-white/90 flex items-center gap-2">
-            Hi {{ auth()->user()->full_name }}
+            {{ __('Hi :name', ['name' => auth()->user()->full_name]) }}
         </h2>
         <p class="text-sm text-gray-500 dark:text-gray-400">
             {{ __('Welcome back to the dashboard!') }}
