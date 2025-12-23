@@ -104,13 +104,16 @@ class AiCommandProcessor
         $commandLower = strtolower($command);
 
         // Simple pattern matching for common commands
-        // Pattern: "create a post about X" or "write a post about X" or "write article about X"
-        if (preg_match('/(?:create|write|generate)\s+(?:a\s+)?(?:beautiful\s+)?(?:blog\s+)?(?:post|article)\s+(?:about|on|for)\s+(.+)/i', $command, $matches)) {
+        // Pattern 1: "create a post about X" or "write a post about X" or "draft an article about X"
+        if (preg_match('/(?:create|write|generate|draft|make)\s+(?:a|an)?\s*(?:beautiful\s+)?(?:new\s+)?(?:blog\s+)?(?:post|article|page)\s+(?:about|on|for)\s+(.+)/i', $command, $matches)) {
             $topic = trim($matches[1]);
 
             // Clean topic - remove trailing image-related phrases for cleaner topic
             $topic = preg_replace('/[,.]?\s*(?:and\s+)?(?:generate|include|add|with)\s+(?:necessary\s+)?(?:some\s+)?images?.*$/i', '', $topic);
             $topic = trim($topic, ' .,');
+
+            // Determine post_type from command
+            $postType = $this->extractPostType($command);
 
             // Find create post action
             foreach ($actions as $action) {
@@ -125,8 +128,39 @@ class AiCommandProcessor
                             'length' => $this->extractLength($command),
                             'include_images' => $imageInfo['include'],
                             'image_count' => $imageInfo['count'],
+                            'post_type' => $postType,
                         ],
                     ];
+                }
+            }
+        }
+
+        // Pattern 2: "draft an about us page" or "create a contact page" (topic before content type)
+        if (preg_match('/(?:create|write|generate|draft|make)\s+(?:a|an)?\s*(?:beautiful\s+)?(?:new\s+)?(.+?)\s+(?:blog\s+)?(?:post|article|page)(?:\s|$)/i', $command, $matches)) {
+            $topic = trim($matches[1]);
+
+            // Skip if topic is empty or just adjectives
+            if (! empty($topic) && ! preg_match('/^(?:beautiful|new|blog|the|a|an)$/i', $topic)) {
+                // Determine post_type from command
+                $postType = $this->extractPostType($command);
+
+                // Find create post action
+                foreach ($actions as $action) {
+                    if (str_contains($action['name'], 'create') && str_contains($action['name'], 'post')) {
+                        $imageInfo = $this->extractImageRequest($command);
+
+                        return [
+                            'action' => $action['name'],
+                            'payload' => [
+                                'topic' => $topic,
+                                'tone' => $this->extractTone($command),
+                                'length' => $this->extractLength($command),
+                                'include_images' => $imageInfo['include'],
+                                'image_count' => $imageInfo['count'],
+                                'post_type' => $postType,
+                            ],
+                        ];
+                    }
                 }
             }
         }
@@ -253,6 +287,22 @@ PROMPT;
         }
 
         return 'medium';
+    }
+
+    /**
+     * Extract post type from command (post or page).
+     */
+    private function extractPostType(string $command): string
+    {
+        $commandLower = strtolower($command);
+
+        // Check for page-related keywords
+        if (str_contains($commandLower, ' page') || str_contains($commandLower, 'landing')) {
+            return 'page';
+        }
+
+        // Default to post
+        return 'post';
     }
 
     /**

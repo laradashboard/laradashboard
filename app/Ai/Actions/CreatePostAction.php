@@ -13,7 +13,7 @@ use Exception;
 use Illuminate\Support\Str;
 
 /**
- * AI Action to create a post with AI-generated content.
+ * AI Action to create a post or page with AI-generated content.
  * Supports optional AI-generated images.
  */
 class CreatePostAction implements AiActionInterface
@@ -31,7 +31,7 @@ class CreatePostAction implements AiActionInterface
 
     public static function description(): string
     {
-        return 'Create a new post with AI-generated content based on a topic or prompt, optionally with images';
+        return 'Create a new post or page with AI-generated content based on a topic or prompt, optionally with images';
     }
 
     public static function payloadSchema(): array
@@ -42,7 +42,13 @@ class CreatePostAction implements AiActionInterface
             'properties' => [
                 'topic' => [
                     'type' => 'string',
-                    'description' => 'The topic or subject for the post',
+                    'description' => 'The topic or subject for the post or page',
+                ],
+                'post_type' => [
+                    'type' => 'string',
+                    'enum' => ['post', 'page'],
+                    'description' => 'The type of content to create (post for blog posts, page for static pages)',
+                    'default' => 'post',
                 ],
                 'tone' => [
                     'type' => 'string',
@@ -105,9 +111,17 @@ class CreatePostAction implements AiActionInterface
             $tone = $payload['tone'] ?? 'professional';
             $length = $payload['length'] ?? 'medium';
             $imageCount = min(3, max(1, (int) ($payload['image_count'] ?? 1)));
+            $postType = $payload['post_type'] ?? 'post';
+
+            // Validate post_type
+            if (! in_array($postType, ['post', 'page'], true)) {
+                $postType = 'post';
+            }
+
+            $contentTypeLabel = $postType === 'page' ? __('page') : __('post');
 
             if (empty($topic)) {
-                return AiResult::failed(__('Topic is required to create a post.'));
+                return AiResult::failed(__('Topic is required to create a :type.', ['type' => $contentTypeLabel]));
             }
 
             $completedSteps = [];
@@ -121,17 +135,17 @@ class CreatePostAction implements AiActionInterface
             $progress(__('Content generated'), 'completed', ['phase' => 'content']);
             $completedSteps[] = __('Generated content for: :topic', ['topic' => $topic]);
 
-            // Step 2: Create post
-            $progress(__('Creating post...'), 'in_progress', ['phase' => 'post']);
+            // Step 2: Create post/page
+            $progress(__('Creating :type...', ['type' => $contentTypeLabel]), 'in_progress', ['phase' => 'post']);
 
             $blocks = $this->buildBlocks($content, []);
             $post = Post::create([
                 'title' => $content['title'],
-                'slug' => Str::slug($content['title']) . '-' . Str::random(5),
+                'slug' => Str::slug($content['title']).'-'.Str::random(5),
                 'excerpt' => $content['excerpt'] ?? '',
                 'status' => 'draft',
                 'user_id' => auth()->id(),
-                'post_type' => 'post',
+                'post_type' => $postType,
                 'design_json' => [
                     'blocks' => $blocks,
                     'version' => 1,
@@ -139,8 +153,8 @@ class CreatePostAction implements AiActionInterface
                 'content' => $this->blockService->parseBlocks($blocks),
             ]);
 
-            $progress(__('Post created'), 'completed', ['phase' => 'post', 'post_id' => $post->id]);
-            $completedSteps[] = __('Created draft post: :title', ['title' => $post->title]);
+            $progress(__(ucfirst($contentTypeLabel).' created'), 'completed', ['phase' => 'post', 'post_id' => $post->id]);
+            $completedSteps[] = __('Created draft :type: :title', ['type' => $contentTypeLabel, 'title' => $post->title]);
 
             // Step 3: Generate images (if requested)
             $generatedImages = [];
@@ -186,16 +200,17 @@ class CreatePostAction implements AiActionInterface
             }
 
             // Determine result status
-            $message = __('Post created successfully as draft.');
+            $contentTypeLabelUcfirst = ucfirst($contentTypeLabel);
+            $message = __(':type created successfully as draft.', ['type' => $contentTypeLabelUcfirst]);
             $status = 'success';
 
             if ($includeImages && empty($generatedImages)) {
                 if ($imageError) {
-                    $message = __('Post created, but image generation failed. You can add images manually.');
+                    $message = __(':type created, but image generation failed. You can add images manually.', ['type' => $contentTypeLabelUcfirst]);
                     $status = 'partial';
                     $completedSteps[] = __('Image generation skipped: :reason', ['reason' => Str::limit($imageError, 50)]);
                 } elseif (! $this->aiService->canGenerateImages()) {
-                    $message = __('Post created. Image generation requires OpenAI API key.');
+                    $message = __(':type created. Image generation requires OpenAI API key.', ['type' => $contentTypeLabelUcfirst]);
                     $status = 'partial';
                     $completedSteps[] = __('Image generation not available (OpenAI key not configured)');
                 }
@@ -203,24 +218,29 @@ class CreatePostAction implements AiActionInterface
 
             $progress(__('Completed!'), 'completed', ['phase' => 'done']);
 
+            // Determine action labels based on post type
+            $editLabel = $postType === 'page' ? __('Edit Page') : __('Edit Post');
+            $viewLabel = $postType === 'page' ? __('View Page') : __('View Post');
+
             return new AiResult(
                 status: $status,
                 message: $message,
                 data: [
                     'post_id' => $post->id,
+                    'post_type' => $postType,
                     'title' => $post->title,
                     'has_images' => count($generatedImages) > 0,
                 ],
                 actions: [
-                    __('Edit Post') => route('admin.posts.edit', ['postType' => 'post', 'post' => $post->id]),
-                    __('View Post') => route('admin.posts.show', ['postType' => 'post', 'post' => $post->id]),
+                    $editLabel => route('admin.posts.edit', ['postType' => $postType, 'post' => $post->id]),
+                    $viewLabel => route('admin.posts.show', ['postType' => $postType, 'post' => $post->id]),
                 ],
                 completedSteps: $completedSteps
             );
         } catch (Exception $e) {
             $progress(__('Failed'), 'failed', ['error' => $e->getMessage()]);
 
-            return AiResult::failed(__('Failed to create post: :error', ['error' => $e->getMessage()]));
+            return AiResult::failed(__('Failed to create :type: :error', ['type' => $contentTypeLabel ?? 'post', 'error' => $e->getMessage()]));
         }
     }
 

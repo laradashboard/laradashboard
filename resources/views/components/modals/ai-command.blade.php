@@ -63,7 +63,7 @@
                                 </p>
                                 <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">
                                     {{ __('Please configure your AI API key in') }}
-                                    <a href="{{ route('admin.settings.index') }}?tab=ai" class="underline font-medium">{{ __('Settings') }}</a>.
+                                    <a href="{{ route('admin.settings.index') }}?tab=integrations" class="underline font-medium">{{ __('Settings') }}</a>.
                                 </p>
                             </div>
                         </div>
