@@ -123,6 +123,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
 
     // Login as & Switch back.
     Route::resource('users', UserController::class);
+    Route::get('users/import/form', [UserController::class, 'importForm'])->name('users.import.form');
+    Route::get('users/import/sample', [UserController::class, 'downloadSample'])->name('users.import.sample');
     Route::delete('users/delete/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
     Route::get('users/{id}/login-as', [UserLoginAsController::class, 'loginAs'])->name('users.login-as');
     Route::post('users/switch-back', [UserLoginAsController::class, 'switchBack'])->name('users.switch-back');
@@ -135,6 +137,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::get('/posts/{postType}/{post}', [PostController::class, 'show'])->name('posts.show')->where('post', '[0-9]+');
     Route::delete('/posts/{postType}/{post}', [PostController::class, 'destroy'])->name('posts.destroy')->where('post', '[0-9]+');
     Route::delete('/posts/{postType}/delete/bulk-delete', [PostController::class, 'bulkDelete'])->name('posts.bulk-delete');
+
+    // Post Import/Export Routes.
+    Route::get('/posts/{postType}/import/form', [PostController::class, 'importForm'])->name('posts.import.form');
+    Route::get('/posts/{postType}/import/sample', [PostController::class, 'downloadSample'])->name('posts.import.sample');
 
     // Post Builder Routes (LaraBuilder-based editing - now default for create/edit).
     Route::get('/posts/{postType}/create', [PostController::class, 'builderCreate'])->name('posts.create');

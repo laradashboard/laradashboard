@@ -29,6 +29,29 @@ class User extends Authenticatable
     use QueryBuilderTrait;
 
     /**
+     * Get the required columns for import.
+     */
+    public static function requiredImportColumns(): array
+    {
+        return ['first_name', 'last_name', 'email', 'password'];
+    }
+
+    /**
+     * Get all valid columns for import.
+     */
+    public static function validImportColumns(): array
+    {
+        return [
+            'first_name',
+            'last_name',
+            'email',
+            'password',
+            'username',
+            'email_subscribed',
+        ];
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array

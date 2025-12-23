@@ -227,4 +227,57 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index');
     }
+
+    /**
+     * Show the import form
+     */
+    public function importForm(): Renderable
+    {
+        $this->authorize('create', User::class);
+
+        $this->setBreadcrumbTitle(__('Import Users'))
+            ->setBreadcrumbIcon('lucide:upload')
+            ->addBreadcrumbItem(__('Users'), route('admin.users.index'));
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.users.import');
+    }
+
+    /**
+     * Download sample CSV for import
+     */
+    public function downloadSample()
+    {
+        $this->authorize('create', User::class);
+
+        $headers = [
+            'first_name',
+            'last_name',
+            'email',
+            'password',
+            'username',
+            'email_subscribed',
+        ];
+
+        $sampleData = [
+            ['John', 'Doe', 'john.doe@example.com', 'password123', 'johndoe', '1'],
+            ['Jane', 'Smith', 'jane.smith@example.com', 'password123', 'janesmith', '1'],
+            ['Bob', 'Johnson', 'bob.johnson@example.com', 'password123', 'bobjohnson', '0'],
+        ];
+
+        $filename = 'users-import-sample-'.now()->format('YmdHis').'.csv';
+        $path = storage_path("app/exports/{$filename}");
+
+        if (! is_dir(dirname($path))) {
+            mkdir(dirname($path), 0777, true);
+        }
+
+        $csv = implode(',', $headers)."\n";
+        foreach ($sampleData as $row) {
+            $csv .= implode(',', $row)."\n";
+        }
+
+        file_put_contents($path, $csv);
+
+        return response()->download($path)->deleteFileAfterSend(true);
+    }
 }
