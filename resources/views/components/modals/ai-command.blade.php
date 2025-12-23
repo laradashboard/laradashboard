@@ -8,8 +8,8 @@
         x-show="aiModalOpen"
         x-transition.opacity.duration.200ms
         x-trap.inert.noscroll="aiModalOpen"
-        x-on:keydown.esc.window="aiModalOpen = false"
-        x-on:click.self="aiModalOpen = false"
+        x-on:keydown.esc.window="aiModalOpen = false; $dispatch('ai-modal-close')"
+        x-on:click.self="aiModalOpen = false; $dispatch('ai-modal-close')"
         class="fixed inset-0 z-50 flex items-start justify-center pt-16 bg-black/30 backdrop-blur-sm p-4 overflow-y-auto"
         role="dialog"
         aria-modal="true"
@@ -42,8 +42,8 @@
                     </div>
                 </div>
                 <button
-                    x-on:click="aiModalOpen = false"
-                    class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                    x-on:click="aiModalOpen = false; $dispatch('ai-modal-close')"
+                    class="flex p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:hover:bg-gray-700 dark:hover:text-gray-300"
                     aria-label="{{ __('Close') }}"
                 >
                     <iconify-icon icon="lucide:x" width="20" height="20"></iconify-icon>
@@ -80,22 +80,80 @@
                             @keydown.enter.ctrl.prevent="executeCommand"
                             :disabled="processing || !isConfigured"
                             rows="3"
-                            class="form-control-textarea"
+                            class="form-control-textarea pr-24"
+                            :class="{ 'border-red-400 dark:border-red-500 ring-2 ring-red-200 dark:ring-red-800': isRecording }"
                             :placeholder="isConfigured ? '{{ __('Describe what you want to create or do...') }}' : '{{ __('AI is not configured') }}'"
                         ></textarea>
-                        <button
-                            type="submit"
-                            :disabled="!command.trim() || processing || !isConfigured"
-                            class="absolute right-3 bottom-3 p-2 bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-lg hover:from-purple-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-                            :class="{ 'animate-pulse': processing }"
-                        >
-                            <iconify-icon x-show="!processing" icon="lucide:send" width="18" height="18"></iconify-icon>
-                            <iconify-icon x-show="processing" x-cloak icon="lucide:loader-2" width="18" height="18" class="animate-spin"></iconify-icon>
-                        </button>
+
+                        {{-- Action buttons --}}
+                        <div class="absolute right-3 bottom-3 flex items-center gap-2">
+                            {{-- Voice button with inline listening indicator --}}
+                            <template x-if="voiceSupported">
+                                <div class="flex items-center gap-2">
+                                    {{-- Listening text (shown when recording) --}}
+                                    <span
+                                        x-show="isRecording"
+                                        x-cloak
+                                        class="flex items-center gap-1.5 text-xs font-medium text-red-500 animate-pulse"
+                                    >
+                                        <span class="relative flex h-2 w-2">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                        </span>
+                                        {{ __('Listening...') }}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        @click="toggleVoiceRecording"
+                                        :disabled="processing || !isConfigured"
+                                        class="p-2 flex rounded-lg transition-all shadow-md"
+                                        :class="isRecording
+                                            ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'"
+                                        :title="isRecording ? '{{ __('Stop recording') }}' : '{{ __('Voice input') }}'"
+                                    >
+                                        <iconify-icon x-show="!isRecording" icon="lucide:mic" width="18" height="18"></iconify-icon>
+                                        <iconify-icon x-show="isRecording" x-cloak icon="lucide:mic-off" width="18" height="18"></iconify-icon>
+                                    </button>
+                                </div>
+                            </template>
+
+                            {{-- Send button --}}
+                            <button
+                                type="submit"
+                                :disabled="!command.trim() || processing || !isConfigured || isRecording"
+                                class="p-2 flex bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-lg hover:from-purple-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                                :class="{ 'animate-pulse': processing }"
+                            >
+                                <iconify-icon x-show="!processing" icon="lucide:send" width="18" height="18"></iconify-icon>
+                                <iconify-icon x-show="processing" x-cloak icon="lucide:loader-2" width="18" height="18" class="animate-spin"></iconify-icon>
+                            </button>
+                        </div>
                     </div>
-                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        {{ __('Press') }} <kbd class="px-1.5 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 rounded">{{ __('Cmd/Ctrl + Enter') }}</kbd> {{ __('to send') }}
-                    </p>
+
+                    {{-- Voice error message --}}
+                    <template x-if="voiceError && !isRecording">
+                        <div class="mt-2 flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+                            <iconify-icon icon="lucide:alert-circle" width="14" height="14"></iconify-icon>
+                            <span x-text="voiceError"></span>
+                            <button type="button" @click="voiceError = null" class="ml-auto text-red-500 hover:text-red-700">
+                                <iconify-icon icon="lucide:x" width="12" height="12"></iconify-icon>
+                            </button>
+                        </div>
+                    </template>
+
+                    <div class="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400" x-show="!isRecording">
+                        <p>
+                            <kbd class="px-1.5 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 rounded">{{ __('Cmd/Ctrl + Enter') }}</kbd> {{ __('to send') }}
+                        </p>
+                        <template x-if="voiceSupported">
+                            <p class="flex items-center gap-1">
+                                <iconify-icon icon="lucide:mic" width="12" height="12"></iconify-icon>
+                                <kbd class="px-1.5 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 rounded">⌘⇧V</kbd>
+                                {{ __('for voice') }}
+                            </p>
+                        </template>
+                    </div>
                 </form>
 
                 {{-- Progress Section (While Processing) --}}
@@ -252,7 +310,7 @@
                         </button>
                         <button
                             type="button"
-                            @click="aiModalOpen = false"
+                            @click="aiModalOpen = false; $dispatch('ai-modal-close')"
                             class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                         >
                             {{ __('Close') }}
@@ -353,6 +411,14 @@ function aiCommandModal() {
         progressSteps: [],
         currentStep: '',
 
+        // Voice input state
+        isRecording: false,
+        voiceSupported: false,
+        voiceError: null,
+        recognition: null,
+        interimTranscript: '',
+        pendingVoiceActivation: false, // Track if voice should start after config loads
+
         // User-friendly quick examples
         quickExamples: [
             '{{ __("Write about healthy lifestyle tips") }}',
@@ -362,6 +428,19 @@ function aiCommandModal() {
 
         init() {
             this.loadStatus();
+            this.initVoiceRecognition();
+
+            // Listen for voice activation event from keyboard shortcut
+            window.addEventListener('ai-voice-activate', () => {
+                this.pendingVoiceActivation = true;
+                this.$nextTick(() => this.tryStartPendingVoice());
+            });
+
+            // Listen for modal close event to stop voice recording
+            window.addEventListener('ai-modal-close', () => {
+                this.stopVoiceRecording();
+                this.pendingVoiceActivation = false;
+            });
 
             // Focus input when modal opens
             this.$watch('$root.aiModalOpen', (open) => {
@@ -370,10 +449,124 @@ function aiCommandModal() {
                     this.progressSteps = [];
                     this.currentStep = '';
                     this.$nextTick(() => {
-                        this.$refs.commandInput?.focus();
+                        if (!this.pendingVoiceActivation) {
+                            this.$refs.commandInput?.focus();
+                        }
                     });
+                } else {
+                    this.stopVoiceRecording();
+                    this.pendingVoiceActivation = false;
                 }
             });
+
+            // Watch for config to load, then start voice if pending
+            this.$watch('isConfigured', (configured) => {
+                if (configured && this.pendingVoiceActivation) {
+                    this.$nextTick(() => this.tryStartPendingVoice());
+                }
+            });
+        },
+
+        // Try to start voice recording if conditions are met
+        tryStartPendingVoice() {
+            if (this.pendingVoiceActivation && this.voiceSupported && this.isConfigured) {
+                this.pendingVoiceActivation = false;
+                this.startVoiceRecording();
+            }
+        },
+
+        // Initialize Web Speech API
+        initVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            if (!SpeechRecognition) {
+                this.voiceSupported = false;
+                return;
+            }
+
+            this.voiceSupported = true;
+            this.recognition = new SpeechRecognition();
+            this.recognition.continuous = true;
+            this.recognition.interimResults = true;
+            this.recognition.lang = document.documentElement.lang || 'en-US';
+
+            this.recognition.onstart = () => {
+                this.isRecording = true;
+                this.voiceError = null;
+                this.interimTranscript = '';
+            };
+
+            this.recognition.onresult = (event) => {
+                let finalTranscript = '';
+                let interim = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interim += transcript;
+                    }
+                }
+
+                // Append final transcript to command
+                if (finalTranscript) {
+                    this.command = (this.command + ' ' + finalTranscript).trim();
+                    this.interimTranscript = '';
+                } else {
+                    this.interimTranscript = interim;
+                }
+            };
+
+            this.recognition.onerror = (event) => {
+                this.isRecording = false;
+                if (event.error === 'not-allowed') {
+                    this.voiceError = '{{ __("Microphone access denied. Please allow microphone access.") }}';
+                } else if (event.error === 'no-speech') {
+                    this.voiceError = '{{ __("No speech detected. Please try again.") }}';
+                } else if (event.error !== 'aborted') {
+                    this.voiceError = '{{ __("Voice recognition error. Please try again.") }}';
+                }
+            };
+
+            this.recognition.onend = () => {
+                this.isRecording = false;
+                this.interimTranscript = '';
+            };
+        },
+
+        // Toggle voice recording
+        toggleVoiceRecording() {
+            if (!this.voiceSupported || !this.isConfigured || this.processing) return;
+
+            if (this.isRecording) {
+                this.stopVoiceRecording();
+            } else {
+                this.startVoiceRecording();
+            }
+        },
+
+        startVoiceRecording() {
+            if (!this.recognition) return;
+
+            this.voiceError = null;
+            try {
+                this.recognition.start();
+            } catch (e) {
+                // Already started, ignore
+            }
+        },
+
+        stopVoiceRecording() {
+            if (!this.recognition) return;
+
+            try {
+                this.recognition.stop();
+            } catch (e) {
+                // Already stopped, ignore
+            }
+            this.isRecording = false;
+            this.interimTranscript = '';
         },
 
         async loadStatus() {

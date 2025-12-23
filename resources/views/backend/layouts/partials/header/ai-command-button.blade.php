@@ -1,9 +1,23 @@
 {{--
     AI Command Button - Triggers the Agentic CMS Modal
     This button appears in the header navbar and opens the AI command interface.
+    Keyboard shortcut: Cmd/Ctrl + Shift + V to open with voice activation
 --}}
-<div x-data="{ aiModalOpen: false }">
-    <x-tooltip title="{{ __('AI Agent') }}" position="bottom">
+<div
+    x-data="{ aiModalOpen: false }"
+    x-init="
+        // Global keyboard shortcut: Cmd/Ctrl + Shift + V for voice command
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'v') {
+                e.preventDefault();
+                aiModalOpen = true;
+                $dispatch('ai-voice-activate');
+            }
+        });
+    "
+    @keydown.window.escape="aiModalOpen = false"
+>
+    <x-tooltip title="{{ __('AI Agent') }} (⌘⇧V)" position="bottom">
         <button
             @click="aiModalOpen = true"
             class="hover:text-dark-900 relative flex items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white p-2 group"
