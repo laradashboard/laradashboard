@@ -12,7 +12,7 @@
     @endif
 >
     <dt>
-        <div class="absolute rounded-md bg-primary h-12 w-12 flex items-center justify-center" style="{{ $icon_bg ? 'background-color: ' . $icon_bg . ';' : '' }}">
+        <div class="absolute rounded-md bg-primary h-12 w-12 flex items-center justify-center" style="{{ !empty($icon_bg) ? 'background-color: ' . $icon_bg . ';' : '' }}">
             @if(!empty($icon))
                 <iconify-icon icon="{{ $icon }}" class="size-6 text-white" height="24" width="24"></iconify-icon>
             @elseif(!empty($icon_svg))

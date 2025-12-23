@@ -29,9 +29,9 @@
     x-init="init()"
     class="sticky top-0 flex w-full border-gray-200 lg:border-b dark:border-gray-800 transition-all duration-300 z-9"
 >
-    <div class="flex grow items-center justify-between lg:flex-row lg:px-6">
+    <div class="flex w-full items-center justify-between lg:flex-row lg:px-6">
         <div
-            class="flex w-full items-center justify-between gap-2 border-b border-gray-200 px-3 py-2 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 dark:border-gray-800">
+            class="flex items-center justify-between gap-2 border-b border-gray-200 px-3 py-2 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 dark:border-gray-800">
             <button
                 :class="sidebarToggle ? 'lg:bg-transparent dark:lg:bg-transparent bg-gray-100 dark:bg-gray-800' : ''"
                 class="z-99999 flex h-10 w-10 items-center justify-center rounded-md border-gray-200 text-gray-700 lg:h-11 lg:w-11 dark:border-gray-800 dark:text-gray-300 transition-all duration-300"
@@ -44,6 +44,11 @@
                     :icon="sidebarToggle ? 'feather:menu' : 'feather:menu'"
                     width="26" height="26" class="md:hidden"></iconify-icon>
             </button>
+            @include('backend.layouts.partials.header.ai-command-button')
+        </div>
+
+        <div class="flex gap-2 justify-center items-center">
+            {!! Hook::applyFilters(AdminFilterHook::ADMIN_HEAD_MIDDLE, '') !!}
         </div>
 
         <div class="flex gap-2 lg:justify-end items-center">

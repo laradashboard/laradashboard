@@ -61,6 +61,7 @@
     57 => 'App\\Providers\\HookServiceProvider',
     58 => 'App\\Providers\\BuilderServiceProvider',
     59 => 'App\\Providers\\AuthSettingsServiceProvider',
+    60 => 'App\\Ai\\Providers\\AiServiceProvider',
   ),
   'eager' => 
   array (
@@ -110,6 +111,7 @@
     43 => 'App\\Providers\\HookServiceProvider',
     44 => 'App\\Providers\\BuilderServiceProvider',
     45 => 'App\\Providers\\AuthSettingsServiceProvider',
+    46 => 'App\\Ai\\Providers\\AiServiceProvider',
   ),
   'deferred' => 
   array (

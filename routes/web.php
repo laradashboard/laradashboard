@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Backend\ActionLogController;
+use App\Http\Controllers\Backend\AiCommandController;
 use App\Http\Controllers\Backend\AiContentController;
 use App\Http\Controllers\Backend\Auth\ScreenshotGeneratorLoginController;
 use App\Http\Controllers\Backend\DashboardController;
@@ -173,6 +174,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
         Route::get('/providers', [AiContentController::class, 'getProviders'])->name('providers');
         Route::post('/generate-content', [AiContentController::class, 'generateContent'])->name('generate-content');
         Route::post('/modify-text', [AiContentController::class, 'modifyText'])->name('modify-text');
+
+        // AI Command System (Agentic CMS).
+        Route::get('/command/status', [AiCommandController::class, 'status'])->name('command.status');
+        Route::get('/command/examples', [AiCommandController::class, 'examples'])->name('command.examples');
+        Route::post('/command/process', [AiCommandController::class, 'process'])->name('command.process');
+        Route::post('/command/process-stream', [AiCommandController::class, 'processStream'])->name('command.process-stream');
     });
 });
 

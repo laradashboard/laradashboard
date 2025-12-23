@@ -369,4 +369,111 @@ IMPORTANT RULES:
     {
         return (int) config('settings.ai_max_tokens', 4096);
     }
+
+    /**
+     * Generate an image using AI (OpenAI DALL-E)
+     *
+     * @param  string  $prompt  Description of the image to generate
+     * @param  string  $size  Image size (1024x1024, 1792x1024, 1024x1792)
+     * @return array{url: string, revised_prompt: string}|null
+     */
+    public function generateImage(string $prompt, string $size = '1024x1024'): ?array
+    {
+        // Image generation only works with OpenAI
+        $apiKey = config('settings.ai_openai_api_key');
+
+        if (empty($apiKey)) {
+            Log::warning('Image generation skipped: OpenAI API key not configured');
+
+            return null;
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ])->timeout(120)
+                ->post('https://api.openai.com/v1/images/generations', [
+                    'model' => 'dall-e-3',
+                    'prompt' => $prompt,
+                    'n' => 1,
+                    'size' => $size,
+                    'quality' => 'standard',
+                ]);
+
+            if (! $response->successful()) {
+                Log::error('Image generation failed', [
+                    'status' => $response->status(),
+                    'error' => $response->json(),
+                ]);
+
+                return null;
+            }
+
+            $data = $response->json();
+
+            return [
+                'url' => $data['data'][0]['url'] ?? null,
+                'revised_prompt' => $data['data'][0]['revised_prompt'] ?? $prompt,
+            ];
+        } catch (Exception $e) {
+            Log::error('Image generation error', [
+                'error' => $e->getMessage(),
+                'prompt' => substr($prompt, 0, 100),
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Download an image from URL and store it locally
+     *
+     * @param  string  $imageUrl  The temporary URL from DALL-E
+     * @param  string  $storagePath  Path relative to storage/app/public
+     * @return string|null  The public URL of the stored image
+     */
+    public function downloadAndStoreImage(string $imageUrl, string $storagePath = 'posts/images'): ?string
+    {
+        try {
+            $response = Http::timeout(60)->get($imageUrl);
+
+            if (! $response->successful()) {
+                Log::error('Failed to download generated image', ['url' => $imageUrl]);
+
+                return null;
+            }
+
+            $imageContent = $response->body();
+            $fileName = 'ai_' . uniqid() . '.png';
+            $fullPath = $storagePath . '/' . $fileName;
+
+            // Ensure directory exists
+            $directory = storage_path('app/public/' . $storagePath);
+            if (! file_exists($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            // Store the image
+            \Illuminate\Support\Facades\Storage::disk('public')->put($fullPath, $imageContent);
+
+            // Use asset() helper to get URL with correct host/port from current request
+            return asset('storage/' . $fullPath);
+        } catch (Exception $e) {
+            Log::error('Failed to store generated image', [
+                'error' => $e->getMessage(),
+                'url' => $imageUrl,
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Check if image generation is available
+     */
+    public function canGenerateImages(): bool
+    {
+        return ! empty(config('settings.ai_openai_api_key'));
+    }
 }

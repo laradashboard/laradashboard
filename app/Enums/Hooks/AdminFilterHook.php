@@ -7,6 +7,7 @@ namespace App\Enums\Hooks;
 enum AdminFilterHook: string
 {
     case ADMIN_HEAD = 'filter.admin_head';
+    case ADMIN_HEAD_MIDDLE = 'filter.admin_head_middle';
     case ADMIN_SITE_ONLY = 'filter.admin_site_only';
     case ADMIN_FOOTER_BEFORE = 'filter.admin_footer_before';
     case ADMIN_FOOTER_AFTER = 'filter.admin_footer_after';

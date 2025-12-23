@@ -232,6 +232,7 @@ return [
         App\Providers\HookServiceProvider::class,
         App\Providers\BuilderServiceProvider::class,
         App\Providers\AuthSettingsServiceProvider::class,
+        App\Ai\Providers\AiServiceProvider::class,
     ],
 
     /*
