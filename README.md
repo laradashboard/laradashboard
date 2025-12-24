@@ -26,6 +26,7 @@ password - 12345678
 -   Laravel Modules - https://laravelmodules.com/docs/12/getting-started/introduction
 -   Laravel Events (A WordPress like action/filter hooks) - https://github.com/tormjens/eventy
 -   PHP 8.3 or 8.4
+-   Node.js >= 20.19 - https://nodejs.org/en/download/
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -244,6 +245,8 @@ composer run dev
 ```
 
 So, You've got the project of Lara Dashboard on your local machine - http://localhost:8000
+
+[Note]: For hot reloading to work, you must need node js version >= 20.19
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
