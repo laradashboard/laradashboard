@@ -33,10 +33,10 @@ class Importer extends Component
     public function import()
     {
         $rows = $this->extractRows();
-        
+
         foreach ($rows as $index => $row) {
             $data = $this->mapRowData($row);
-            
+
             try {
                 $this->modelClass::create($data);
                 $this->imported++;
@@ -44,7 +44,7 @@ class Importer extends Component
                 $this->errors[$index] = $e->getMessage();
             }
         }
-        
+
         $this->reset(['file', 'fileHeaders', 'columnMappings']);
     }
 
@@ -63,26 +63,26 @@ class Importer extends Component
     protected function readFile(): array
     {
         $ext = $this->file->getClientOriginalExtension();
-        
+
         if (in_array($ext, ['xlsx', 'xls'])) {
             $spreadsheet = IOFactory::load($this->file->getPathname());
             return $spreadsheet->getActiveSheet()->toArray();
         }
-        
+
         $handle = fopen($this->file->getPathname(), 'r');
         $data = [];
         while (($row = fgetcsv($handle)) !== false) {
             $data[] = $row;
         }
         fclose($handle);
-        
+
         return $data;
     }
 
     protected function autoMapColumns()
     {
         $modelColumns = $this->getModelColumns();
-        
+
         foreach ($modelColumns as $column) {
             foreach ($this->fileHeaders as $header) {
                 if (strtolower($column) === strtolower($header)) {
@@ -96,14 +96,14 @@ class Importer extends Component
     protected function mapRowData(array $row): array
     {
         $data = [];
-        
+
         foreach ($this->columnMappings as $modelColumn => $fileHeader) {
             $index = array_search($fileHeader, $this->fileHeaders);
             if ($index !== false && isset($row[$index])) {
                 $data[$modelColumn] = $row[$index];
             }
         }
-        
+
         return $data;
     }
 
@@ -112,8 +112,8 @@ class Importer extends Component
         if (method_exists($this->modelClass, 'validImportColumns')) {
             return $this->modelClass::validImportColumns();
         }
-        
-        return (new $this->modelClass)->getFillable();
+
+        return (new $this->modelClass())->getFillable();
     }
 
     public function render()

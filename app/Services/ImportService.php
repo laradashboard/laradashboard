@@ -378,13 +378,13 @@ class ImportService
     protected function hashSensitiveFields(array $data): array
     {
         $sensitiveFields = ['password', 'password_confirmation'];
-        
+
         foreach ($sensitiveFields as $field) {
             if (isset($data[$field]) && $data[$field] !== null) {
                 $data[$field] = \Illuminate\Support\Facades\Hash::make($data[$field]);
             }
         }
-        
+
         return $data;
     }
 
