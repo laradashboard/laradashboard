@@ -34,7 +34,7 @@ class ExportService
      */
     public function getFilterOptions(): array
     {
-        if (!$this->modelClass) {
+        if (! $this->modelClass) {
             return [];
         }
 
@@ -75,7 +75,7 @@ class ExportService
         return $this->modelClass::distinct()
             ->whereNotNull($column)
             ->pluck($column)
-            ->map(fn($value) => ['value' => $value, 'label' => ucfirst($value)])
+            ->map(fn ($value) => ['value' => $value, 'label' => ucfirst($value)])
             ->toArray();
     }
 
@@ -87,9 +87,9 @@ class ExportService
         try {
             $relatedModel = (new $this->modelClass())->$relation()->getRelated();
             $table = $relatedModel->getTable();
-            
+
             // Check if the label field exists, fallback to common alternatives
-            if (!Schema::hasColumn($table, $labelField)) {
+            if (! Schema::hasColumn($table, $labelField)) {
                 $alternatives = ['title', 'label', 'value', 'id'];
                 foreach ($alternatives as $alt) {
                     if (Schema::hasColumn($table, $alt)) {
@@ -98,10 +98,10 @@ class ExportService
                     }
                 }
             }
-            
+
             return $relatedModel::select('id', $labelField)
                 ->get()
-                ->map(fn($item) => ['value' => $item->id, 'label' => $item->$labelField])
+                ->map(fn ($item) => ['value' => $item->id, 'label' => $item->$labelField])
                 ->toArray();
         } catch (\Exception $e) {
             return [];
@@ -158,13 +158,13 @@ class ExportService
 
         // Apply filters to the query - only when explicitly set
         $query = $this->modelClass::query()->select($exportColumns)->with($relations);
-        
+
         foreach ($filters as $key => $value) {
             if (in_array($key, $actualColumns) && $value !== '' && $value !== null) {
                 $query->where($key, $value);
             }
         }
-        
+
         $records = $query->get();
 
         $header = $exportColumns;

@@ -25,13 +25,13 @@ class Export extends Component
         $this->modelType = $modelType;
         $this->modelNamespace = $modelNamespace;
         $this->routePrefix = $routePrefix;
-        
+
         $exportService = new ExportService($modelType, $modelNamespace, $routePrefix);
         $this->availableColumns = $exportService->getAvailableColumns();
-        
+
         // Only use filters if explicitly passed
         $this->filtersItems = $filtersItems;
-        
+
         $this->selectedColumns = $this->availableColumns;
         $this->allSelected = count($this->selectedColumns) === count($this->availableColumns);
 
