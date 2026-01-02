@@ -1,7 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Contracts\Modules\ModuleAutoloaderInterface;
+use App\Contracts\Modules\ModuleComposerInterface;
+use App\Services\Modules\ModuleAutoloaderService;
+use App\Services\Modules\ModuleComposerService;
 use App\Support\Modules\CustomFileRepository;
 use Illuminate\Support\ServiceProvider;
 use Nwidart\Modules\Contracts\RepositoryInterface;
@@ -18,6 +24,20 @@ class ModuleServiceProvider extends ServiceProvider
             $path = $app['config']->get('modules.paths.modules');
 
             return new CustomFileRepository($app, $path);
+        });
+
+        // Register module composer service
+        $this->app->singleton(ModuleComposerInterface::class, function ($app) {
+            return new ModuleComposerService(
+                $app['config']->get('modules.paths.modules')
+            );
+        });
+
+        // Register module autoloader service
+        $this->app->singleton(ModuleAutoloaderInterface::class, function ($app) {
+            return new ModuleAutoloaderService(
+                $app['config']->get('modules.paths.modules')
+            );
         });
     }
 

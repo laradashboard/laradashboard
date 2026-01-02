@@ -32,16 +32,40 @@
                 if ($dir === '.' || $dir === '..' || ! is_dir($modulesPath . '/' . $dir)) {
                     continue;
                 }
-                $moduleJson = $modulesPath . '/' . $dir . '/module.json';
+
+                $moduleDir = $modulesPath . '/' . $dir;
+                $composerJson = $moduleDir . '/composer.json';
+                $moduleJson = $moduleDir . '/module.json';
+
+                // First, try to use the module's composer.json for PSR-4 mappings
+                if (file_exists($composerJson)) {
+                    $composerConfig = json_decode(file_get_contents($composerJson), true);
+                    if (is_array($composerConfig) && ! empty($composerConfig['autoload']['psr-4'])) {
+                        foreach ($composerConfig['autoload']['psr-4'] as $namespace => $paths) {
+                            // Handle both string and array paths
+                            $paths = is_array($paths) ? $paths : [$paths];
+                            foreach ($paths as $path) {
+                                $fullPath = $moduleDir . '/' . ltrim($path, '/');
+                                if (is_dir($fullPath) || $path === '' || $path === './') {
+                                    $loader->addPsr4($namespace, $path === '' || $path === './' ? $moduleDir . '/' : $fullPath);
+                                }
+                            }
+                        }
+
+                        continue;
+                    }
+                }
+
+                // Fallback: use module.json and guess paths
                 if (file_exists($moduleJson)) {
                     $config = json_decode(file_get_contents($moduleJson), true);
                     if (is_array($config) && ! empty($config['name'])) {
                         $namespace = 'Modules\\' . $config['name'] . '\\';
                         // Try common paths for PSR-4 root
                         $possibleRoots = [
-                            $modulesPath . '/' . $dir . '/app/',
-                            $modulesPath . '/' . $dir . '/src/',
-                            $modulesPath . '/' . $dir . '/',
+                            $moduleDir . '/app/',
+                            $moduleDir . '/src/',
+                            $moduleDir . '/',
                         ];
                         foreach ($possibleRoots as $root) {
                             if (is_dir($root)) {
@@ -50,6 +74,31 @@
                                 break;
                             }
                         }
+                    }
+                }
+            }
+
+            // Register module vendor autoloaders
+            // This enables modules to have their own independent dependencies
+            foreach (scandir($modulesPath) as $dir) {
+                if ($dir === '.' || $dir === '..' || ! is_dir($modulesPath . '/' . $dir)) {
+                    continue;
+                }
+
+                $moduleVendorPath = $modulesPath . '/' . $dir . '/vendor';
+                $moduleVendorAutoload = $moduleVendorPath . '/autoload.php';
+
+                // Check if vendor directory is complete (has installed.php or installed.json)
+                // Incomplete vendor directories can cause autoload failures
+                $hasInstalledPhp = file_exists($moduleVendorPath . '/composer/installed.php');
+                $hasInstalledJson = file_exists($moduleVendorPath . '/composer/installed.json');
+
+                if (file_exists($moduleVendorAutoload) && ($hasInstalledPhp || $hasInstalledJson)) {
+                    try {
+                        require $moduleVendorAutoload;
+                    } catch (\Throwable $e) {
+                        // Silently continue - module vendor autoload failed
+                        // This will be handled when the module provider is validated
                     }
                 }
             }

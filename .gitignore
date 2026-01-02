@@ -8,6 +8,7 @@
 /public/build-*
 /storage/*.key
 /vendor
+/bootstrap/cache/*.php
 .env
 .env.local
 .env.production
@@ -22,6 +23,11 @@ public/.DS_Store
 public/images/.DS_Store
 
 # Exclude anything from /modules folder.
+# Modules are independently developed and distributed.
+# Each module manages its own:
+# - vendor/ directory (module-specific dependencies)
+# - composer.lock (locked dependencies)
+# Use `php artisan module:install-deps` to install module dependencies.
 /modules/*
 # Keep the modules directory structure
 !/modules/.gitkeep

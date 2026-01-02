@@ -27,7 +27,7 @@ enum SettingFilterHook: string
     case SETTINGS_CONTENT_TAB_BEFORE_SECTION_END = 'filter.settings.content_tab_before_section_end';
     case SETTINGS_CONTENT_TAB_AFTER_SECTION_END = 'filter.settings.content_tab_after_section_end';
 
-    // UI Hooks - Performance & Security tab
+    // UI Hooks - Security tab
     case SETTINGS_PERFORMANCE_SECURITY_TAB_BEFORE_SECTION_START = 'filter.settings.performance_security_tab_before_section_start';
     case SETTINGS_PERFORMANCE_SECURITY_TAB_AFTER_SECTION_END = 'filter.settings.performance_security_tab_after_section_end';
 

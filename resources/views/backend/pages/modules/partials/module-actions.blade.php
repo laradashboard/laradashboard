@@ -1,4 +1,23 @@
-<div x-data="{ deleteModalOpen: false }">
+@php
+    $moduleConfig = [];
+    $modulePath = base_path('modules/' . $module->name . '/module.json');
+    if (file_exists($modulePath)) {
+        $moduleConfig = json_decode(file_get_contents($modulePath), true) ?? [];
+    }
+    $pricing = $moduleConfig['pricing'] ?? 'free';
+    $isPaidModule = in_array($pricing, ['paid', 'both']);
+
+    // Check if license is already activated
+    $licenseService = app(\App\Services\LicenseVerificationService::class);
+    $storedLicense = $licenseService->getStoredLicense($module->name);
+    $hasActiveLicense = !empty($storedLicense['license_key']);
+@endphp
+
+<div
+    x-data="{ deleteModalOpen: false, licenseModalOpen: false }"
+    x-on:open-license-modal-{{ $module->name }}.window="licenseModalOpen = true"
+    x-on:open-delete-modal-{{ $module->name }}.window="deleteModalOpen = true"
+>
     <x-buttons.action-buttons
         :label="__('Actions')"
         :show-label="false"
@@ -12,6 +31,33 @@
             icon="lucide:eye"
             :label="__('View')"
         />
+
+        {{-- License Action (only for paid/freemium modules) --}}
+        @if($isPaidModule)
+            @if($hasActiveLicense)
+                {{-- Deactivate License --}}
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-4 py-2 text-sm text-primary dark:text-primary hover:bg-gray-100 dark:hover:bg-gray-700"
+                    x-on:click="isOpen = false; openedWithKeyboard = false; $dispatch('open-license-modal-{{ $module->name }}')"
+                    role="menuitem"
+                >
+                    <iconify-icon icon="lucide:key-round" class="text-base"></iconify-icon>
+                    {{ __('Manage License') }}
+                </button>
+            @else
+                {{-- Activate License --}}
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    x-on:click="isOpen = false; openedWithKeyboard = false; $dispatch('open-license-modal-{{ $module->name }}')"
+                    role="menuitem"
+                >
+                    <iconify-icon icon="lucide:key" class="text-base"></iconify-icon>
+                    {{ __('Activate License') }}
+                </button>
+            @endif
+        @endif
 
         {{-- Toggle Status Action --}}
         <button
@@ -33,14 +79,26 @@
         </button>
 
         {{-- Delete Action --}}
-        <x-buttons.action-item
-            type="modal-trigger"
-            modal-target="deleteModalOpen"
-            icon="lucide:trash"
-            :label="__('Delete')"
-            class="text-red-600 dark:text-red-400"
-        />
+        <button
+            type="button"
+            class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+            x-on:click="isOpen = false; openedWithKeyboard = false; $dispatch('open-delete-modal-{{ $module->name }}')"
+            role="menuitem"
+        >
+            <iconify-icon icon="lucide:trash" class="text-base"></iconify-icon>
+            {{ __('Delete') }}
+        </button>
     </x-buttons.action-buttons>
+
+    {{-- License Activation Modal (only for paid/freemium modules) --}}
+    @if($isPaidModule)
+        <x-modals.license-activation
+            id="license-modal-{{ $module->name }}"
+            :module-slug="$module->name"
+            :module-name="$module->title"
+            modalTrigger="licenseModalOpen"
+        />
+    @endif
 
     {{-- Delete Confirmation Modal --}}
     <x-modals.confirm-delete

@@ -57,9 +57,9 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "wikimedia/composer-merge-plugin": true,
             "cweagans/composer-patches": true,
-            "pestphp/pest-plugin": true
+            "pestphp/pest-plugin": true,
+            "wikimedia/composer-merge-plugin": false
         },
         "platform-check": false
     },
@@ -69,11 +69,6 @@
                 "barryvdh/laravel-debugbar",
                 "beyondcode/laravel-dump-server"
             ]
-        },
-        "merge-plugin": {
-            "include": [
-                "modules/*/composer.json"
-            ]
         }
     },
     "autoload": {
@@ -81,11 +76,6 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
-            "Modules\\Crm\\": "modules/crm/",
-            "Modules\\LaraDashboard\\": "modules/laradashboard/",
-            "Modules\\CustomForm\\": "modules/CustomForm/",
-            "Modules\\Product\\": "modules/Product/",
-            "Modules\\TaskManager\\": "modules/task-manager/",
             "Modules\\": "modules/"
         },
         "files": [

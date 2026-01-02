@@ -277,7 +277,7 @@ git remote set-url origin git@github.com:laradashboard/laradashboard.git
 1. Monitoring - Logging of every action of your application
 1. Monitoring - Laravel Pulse
 1. Translation Management - Add/Edit/Delete Language, Add/Edit/Delete Translation
-1. Settings - General, Site Appearance, Content, Integration, Performance & Security settings
+1. Settings - General, Site Appearance, Content, Integration, Security settings
 1. Admin Menu - Add/Edit/Delete Menu, Submenu, Link
 1. Admin Impersonation - Login as another user and switch back to your original account
 1. Custom Error Pages - 404, 500, 503, 403
@@ -632,8 +632,8 @@ Visit the [Laravel Boost documentation](https://github.com/laravel/boost).
   </tr>
   <tr>
     <td width="50%">
-      <strong>Performance & Security Settings</strong><br/>
-      <img width="100%" alt="Performance & Security Settings" src="/demo-screenshots/44-Settings-Performance-Security.png"/>
+      <strong>Security Settings</strong><br/>
+      <img width="100%" alt="Security Settings" src="/demo-screenshots/44-Settings-Performance-Security.png"/>
     </td>
   </tr>
 </table>
@@ -765,7 +765,7 @@ Please be sure to read our [Contribution Guide](CONTRIBUTING.md) before submitti
 
 ## ➶ Coding Standards
 
-✨ Following a consistent coding standard ensures code quality, readability, and easier collaboration for everyone.  
+✨ Following a consistent coding standard ensures code quality, readability, and easier collaboration for everyone.
 📏 Please be sure to read our [Contribution Guide](Coding-Standard.md) before submitting your PR.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

@@ -9,6 +9,7 @@ This guide covers everything you need to know about developing, building, and di
 -   [Module Structure](#module-structure)
 -   [Creating a New Module](#creating-a-new-module)
 -   [Module Configuration](#module-configuration)
+-   [Module Dependencies](#module-dependencies)
 -   [Frontend Assets (CSS/JS)](#frontend-assets-cssjs)
 -   [Building for Distribution](#building-for-distribution)
 -   [Installing Modules](#installing-modules)
@@ -25,6 +26,7 @@ Lara Dashboard uses [nwidart/laravel-modules](https://laravelmodules.com/) for m
 **Key Features:**
 
 -   Self-contained modules with their own controllers, models, views, and assets
+-   **Independent dependencies** - Each module can have its own composer packages
 -   Pre-compiled CSS/JS support (no npm required on server)
 -   Easy installation via ZIP upload or CLI
 -   Automatic asset publishing on module upload
@@ -44,6 +46,9 @@ Lara Dashboard uses [nwidart/laravel-modules](https://laravelmodules.com/) for m
 ```bash
 # Create a new module
 php artisan module:make YourModule
+
+# Install module dependencies (if module has composer.json)
+php artisan module:install-deps YourModule
 
 # Enable the module
 php artisan module:enable YourModule
@@ -98,11 +103,15 @@ modules/YourModule/
 │   └── Feature/
 ├── dist/                         # Pre-compiled assets (for distribution)
 │   └── build-yourmodule/
-├── composer.json
+├── vendor/                       # Module-specific dependencies (git-ignored)
+├── composer.json                 # Module dependencies & autoload config
+├── composer.lock                 # Locked dependency versions (git-ignored)
 ├── module.json                   # Module metadata
 ├── vite.config.js               # Vite configuration
 └── README.md
 ```
+
+**Important:** Each module can have its own `vendor/` directory with independent dependencies. This keeps the core application clean and allows modules to be truly self-contained.
 
 ---
 
@@ -169,6 +178,7 @@ Every module requires a `module.json` file:
 | `author`            | Module author name                                                 | No       |
 | `author_url`        | Link to author's website or profile                                | No       |
 | `documentation_url` | Link to module documentation                                       | No       |
+| `pricing`           | Pricing type: `free`, `paid`, or `both` (default: `free`)          | No       |
 
 ### Module Images (Logo & Banner)
 
@@ -204,6 +214,46 @@ To include images in your distribution:
 2. Reference them in `module.json` as `images/filename.png`
 3. Images will be published to `public/build-yourmodule/images/` on module upload
 
+### Module Pricing
+
+You can define your module's pricing type in `module.json`. This determines whether users need to activate a license to use the module.
+
+**Pricing Values:**
+
+| Value    | Description                                                    |
+| -------- | -------------------------------------------------------------- |
+| `free`   | Module is completely free, no license required                 |
+| `paid`   | Module requires a license to use                               |
+| `both`   | Module has free and paid versions                              |
+
+**Examples:**
+```json
+{
+    "name": "blog",
+    "pricing": "free"
+}
+```
+
+```json
+{
+    "name": "advanced-crm",
+    "pricing": "paid"
+}
+```
+
+```json
+{
+    "name": "email-marketing",
+    "pricing": "both"
+}
+```
+
+**License Activation:**
+
+For `paid` and `both` modules, users will see an "Activate License" option in the module actions menu. This allows them to enter their license key purchased from the marketplace.
+
+**Note:** Detailed pricing plans (tiers, features, etc.) are managed on the LaraDashboard marketplace when uploading the module, not in the module.json file.
+
 **Important Notes:**
 
 -   `name` must be **lowercase** and match the folder name when possible
@@ -237,6 +287,98 @@ class BlogServiceProvider extends ServiceProvider
     }
 }
 ```
+
+---
+
+## Module Dependencies
+
+Modules can have their own Composer dependencies, completely independent from the core application. This ensures:
+
+- **Clean core** - The main `composer.lock` stays focused on core dependencies
+- **True modularity** - Modules are self-contained and portable
+- **No conflicts** - Different modules can use different package versions
+
+### composer.json Structure
+
+Every module should have a `composer.json` file that defines its namespace autoloading and dependencies:
+
+```json
+{
+    "name": "yourvendor/yourmodule",
+    "description": "Your module description",
+    "require": {
+        "stripe/stripe-php": "^13.0",
+        "some/package": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\YourModule\\": ["", "app/"],
+            "Modules\\YourModule\\Database\\Factories\\": "database/factories/",
+            "Modules\\YourModule\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\YourModule\\Tests\\": "tests/"
+        }
+    }
+}
+```
+
+### PSR-4 Autoloading
+
+The `autoload.psr-4` section tells Composer where to find your module's classes. You can map to multiple directories using an array:
+
+```json
+"Modules\\YourModule\\": ["", "app/"]
+```
+
+This allows classes in both the root directory and `app/` directory:
+- `modules/YourModule/Models/Post.php` → `Modules\YourModule\Models\Post`
+- `modules/YourModule/app/Http/Controllers/PostController.php` → `Modules\YourModule\Http\Controllers\PostController`
+
+### Managing Dependencies
+
+Use the built-in artisan commands to manage module dependencies:
+
+```bash
+# Install dependencies for a specific module
+php artisan module:install-deps Blog
+
+# Install dependencies for ALL modules
+php artisan module:install-deps
+
+# Update dependencies for a specific module
+php artisan module:update-deps Blog
+
+# Update dependencies for ALL modules
+php artisan module:update-deps
+
+# Run any composer command in a module directory
+php artisan module:composer Blog require stripe/stripe-php
+php artisan module:composer Blog remove some/package
+```
+
+### How It Works
+
+1. **Bootstrap autoloading** - Module vendor autoloaders are registered at boot time via `bootstrap/modules.php`
+2. **PSR-4 namespaces** - The module's `composer.json` defines how classes are autoloaded
+3. **Independent vendor** - Each module has its own `vendor/` directory (git-ignored)
+4. **Isolated lock files** - Each module has its own `composer.lock` (git-ignored)
+
+### Adding a New Dependency
+
+```bash
+# Add a package to your module
+php artisan module:composer Blog require laravel/cashier
+
+# Or manually edit composer.json and run install
+php artisan module:install-deps Blog
+```
+
+### Git Ignore
+
+Module `vendor/` and `composer.lock` are automatically git-ignored. When distributing your module, users will run `php artisan module:install-deps YourModule` to install dependencies.
 
 ---
 
@@ -431,6 +573,9 @@ Blog-v1.0.0.zip
 # Extract module to modules/ directory
 unzip Blog-v1.0.0.zip -d modules/
 
+# Install module dependencies (if module has composer.json with requirements)
+php artisan module:install-deps Blog
+
 # Publish pre-built assets (usually automatic)
 php artisan module:publish-assets Blog
 
@@ -463,6 +608,16 @@ When a module with pre-built assets is uploaded:
 | `php artisan module:migrate {name}` | Run module migrations |
 | `php artisan module:seed {name}`    | Run module seeders    |
 | `php artisan module:list`           | List all modules      |
+
+### Dependency Commands
+
+| Command                                              | Description                              |
+| ---------------------------------------------------- | ---------------------------------------- |
+| `php artisan module:install-deps {name?}`            | Install module composer dependencies     |
+| `php artisan module:update-deps {name?}`             | Update module composer dependencies      |
+| `php artisan module:composer {name} {command}`       | Run any composer command in module dir   |
+| `php artisan module:composer Blog require pkg/name`  | Add a package to a module                |
+| `php artisan module:composer Blog remove pkg/name`   | Remove a package from a module           |
 
 ### Asset Commands
 
@@ -605,13 +760,51 @@ php artisan module:publish-assets YourModule
 
 ### "Class not found" after upload
 
-**Cause:** Composer autoloader not updated.
+**Cause:** Module autoloader or dependencies not set up correctly.
 
 **Solution:**
 
 ```bash
+# First, install module dependencies
+php artisan module:install-deps YourModule
+
+# If still not working, regenerate core autoloader
 composer dump-autoload
 ```
+
+### Module dependency class not found
+
+**Cause:** Module's vendor dependencies not installed.
+
+**Solution:**
+
+```bash
+# Install the module's dependencies
+php artisan module:install-deps YourModule
+
+# Verify the vendor directory exists
+ls modules/YourModule/vendor/
+```
+
+### PSR-4 autoload not working
+
+**Cause:** Module's `composer.json` has incorrect namespace mapping.
+
+**Solution:**
+
+Ensure your module's `composer.json` maps all directories where classes exist:
+
+```json
+{
+    "autoload": {
+        "psr-4": {
+            "Modules\\YourModule\\": ["", "app/"]
+        }
+    }
+}
+```
+
+The array `["", "app/"]` allows classes in both the module root and `app/` subdirectory.
 
 ### CSS classes not working
 

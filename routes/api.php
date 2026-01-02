@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ActionLogController;
 use App\Http\Controllers\Api\AiContentController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\LocalLicenseController;
 use App\Http\Controllers\Api\ModuleController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\PostController;
@@ -129,4 +130,11 @@ Route::middleware(['auth', 'web'])->prefix('admin')->name('admin.api.')->group(f
     Route::post('/terms/{taxonomy}', [BackendTermController::class, 'store'])->name('terms.store');
     Route::put('/terms/{taxonomy}/{id}', [BackendTermController::class, 'update'])->name('terms.update');
     Route::delete('/terms/{taxonomy}/{id}', [BackendTermController::class, 'destroy'])->name('terms.destroy');
+
+    // Local license storage (called after successful marketplace API activation).
+    Route::prefix('licenses')->name('licenses.')->group(function () {
+        Route::post('/store', [LocalLicenseController::class, 'store'])->name('store');
+        Route::post('/remove', [LocalLicenseController::class, 'destroy'])->name('remove');
+        Route::get('/show', [LocalLicenseController::class, 'show'])->name('show');
+    });
 });

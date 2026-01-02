@@ -28,7 +28,7 @@
                         'view' => 'backend.pages.settings.integration-settings',
                     ],
                     'performance-security' => [
-                        'title' => __('Performance & Security'),
+                        'title' => __('Security'),
                         'icon' => 'lucide:shield',
                         'view' => 'backend.pages.settings.performance-security-tab',
                     ],
