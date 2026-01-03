@@ -4,6 +4,7 @@
     --font-*: initial;
     /*--font-outfit: Outfit, sans-serif;*/
     --font-sans: Outfit, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
     --breakpoint-*: initial;
     --breakpoint-2xsm: 375px;

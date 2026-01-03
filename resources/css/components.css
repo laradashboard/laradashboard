@@ -38,6 +38,28 @@
         @apply inline-flex gap-1 justify-center items-center text-white hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center bg-blue-500 focus:ring-blue-300 dark:focus:ring-blue-800;
     }
 
+    /* Small/mini buttons */
+    .btn-sm {
+        @apply px-3 py-1.5 text-xs;
+    }
+
+    .btn-lg {
+        @apply px-6 py-3 text-base;
+    }
+
+    /* Icon button */
+    .btn-icon {
+        @apply inline-flex items-center justify-center p-2 rounded-lg transition-colors;
+    }
+
+    .btn-icon-primary {
+        @apply inline-flex items-center justify-center p-2 rounded-lg transition-colors bg-primary text-white hover:opacity-90;
+    }
+
+    .btn-icon-secondary {
+        @apply inline-flex items-center justify-center p-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700;
+    }
+
     /* Outline buttons */
     .btn-outline-primary {
         @apply inline-flex gap-1 justify-center items-center text-primary hover:opacity-90 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center border border-primary bg-transparent focus:ring-primary/50;
@@ -227,5 +249,198 @@
 
     .table-td-checkbox {
         @apply p-2 px-5;
+    }
+
+    /* Alerts */
+    .alert {
+        @apply rounded-lg p-4 mb-4 flex items-start gap-3;
+    }
+
+    .alert-success {
+        @apply bg-green-50 border border-green-200 text-green-800;
+    }
+
+    .alert-danger {
+        @apply bg-red-50 border border-red-200 text-red-800;
+    }
+
+    .alert-warning {
+        @apply bg-amber-50 border border-amber-200 text-amber-800;
+    }
+
+    .alert-info {
+        @apply bg-blue-50 border border-blue-200 text-blue-800;
+    }
+
+    /* Cards */
+    .card {
+        @apply bg-white rounded-xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700;
+    }
+
+    .card-header {
+        @apply px-6 py-4 border-b border-gray-100 dark:border-gray-700;
+    }
+
+    .card-body {
+        @apply p-6;
+    }
+
+    .card-footer {
+        @apply px-6 py-4 border-t border-gray-100 dark:border-gray-700;
+    }
+
+    .card-title {
+        @apply font-semibold text-gray-900 dark:text-white;
+    }
+
+    .card-description {
+        @apply text-sm text-gray-500 mt-1 dark:text-gray-400;
+    }
+
+    /* Text links */
+    .link {
+        @apply text-primary hover:opacity-80 transition-colors;
+    }
+
+    .link-secondary {
+        @apply text-gray-600 hover:text-gray-900 transition-colors dark:text-gray-400 dark:hover:text-gray-200;
+    }
+
+    .link-danger {
+        @apply text-red-600 hover:text-red-800 transition-colors;
+    }
+
+    /* Page titles */
+    .page-title {
+        @apply text-2xl font-bold text-gray-900 dark:text-white;
+    }
+
+    .page-description {
+        @apply mt-1 text-gray-600 dark:text-gray-400;
+    }
+
+    /* Section titles */
+    .section-title {
+        @apply text-lg font-semibold text-gray-900 dark:text-white;
+    }
+
+    /* Prose - Typography styles for markdown content */
+    .prose {
+        @apply text-gray-700 dark:text-gray-300 leading-relaxed;
+    }
+
+    .prose h1 {
+        @apply text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-4 first:mt-0;
+    }
+
+    .prose h2 {
+        @apply text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3 pb-2 border-b border-gray-200 dark:border-gray-700 first:mt-0;
+    }
+
+    .prose h3 {
+        @apply text-lg font-semibold text-gray-900 dark:text-white mt-5 mb-2 first:mt-0;
+    }
+
+    .prose h4 {
+        @apply text-base font-semibold text-gray-900 dark:text-white mt-4 mb-2 first:mt-0;
+    }
+
+    .prose p {
+        @apply my-3 first:mt-0 last:mb-0;
+    }
+
+    .prose ul {
+        @apply my-4 pl-6 space-y-2 list-disc;
+    }
+
+    .prose ol {
+        @apply my-4 pl-6 space-y-2 list-decimal;
+    }
+
+    .prose li {
+        @apply pl-1;
+    }
+
+    .prose li::marker {
+        @apply text-gray-400 dark:text-gray-500;
+    }
+
+    .prose strong {
+        @apply font-semibold text-gray-900 dark:text-white;
+    }
+
+    .prose em {
+        @apply italic;
+    }
+
+    .prose a {
+        @apply text-primary underline hover:opacity-80;
+    }
+
+    .prose blockquote {
+        @apply pl-4 border-l-4 border-gray-200 dark:border-gray-600 italic text-gray-600 dark:text-gray-400 my-4;
+    }
+
+    .prose code {
+        @apply font-mono text-sm bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200;
+    }
+
+    .prose pre {
+        @apply my-4 p-4 bg-gray-900 dark:bg-gray-950 rounded-lg overflow-x-auto;
+    }
+
+    .prose pre code {
+        @apply bg-transparent p-0 text-gray-100;
+    }
+
+    .prose hr {
+        @apply my-6 border-gray-200 dark:border-gray-700;
+    }
+
+    .prose table {
+        @apply w-full my-4 text-sm;
+    }
+
+    .prose thead {
+        @apply bg-gray-50 dark:bg-gray-800;
+    }
+
+    .prose th {
+        @apply px-4 py-2 text-left font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700;
+    }
+
+    .prose td {
+        @apply px-4 py-2 border-b border-gray-100 dark:border-gray-700;
+    }
+
+    .prose img {
+        @apply rounded-lg my-4 max-w-full;
+    }
+
+    /* Prose size variants */
+    .prose-sm {
+        @apply text-sm;
+    }
+
+    .prose-sm h1 {
+        @apply text-xl;
+    }
+
+    .prose-sm h2 {
+        @apply text-lg;
+    }
+
+    .prose-sm h3 {
+        @apply text-base;
+    }
+
+    .prose-sm p,
+    .prose-sm ul,
+    .prose-sm ol {
+        @apply my-2;
+    }
+
+    .prose-sm pre {
+        @apply my-3 p-3;
     }
 }

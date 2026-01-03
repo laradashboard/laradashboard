@@ -106,6 +106,7 @@ modules/YourModule/
 ├── vendor/                       # Module-specific dependencies (git-ignored)
 ├── composer.json                 # Module dependencies & autoload config
 ├── composer.lock                 # Locked dependency versions (git-ignored)
+├── description.md                # Module description (required, supports Markdown)
 ├── module.json                   # Module metadata
 ├── vite.config.js               # Vite configuration
 └── README.md
@@ -146,7 +147,6 @@ Every module requires a `module.json` file:
 {
     "name": "blog",
     "title": "Blog",
-    "description": "Blog management module for creating and managing posts, categories, and comments.",
     "keywords": ["blog", "posts", "articles"],
     "category": "content",
     "priority": 10,
@@ -166,7 +166,6 @@ Every module requires a `module.json` file:
 | ------------------- | ------------------------------------------------------------------ | -------- |
 | `name`              | Module identifier (lowercase, slug format: `a-z`, `0-9`, `-`)      | Yes      |
 | `title`             | Display name shown in UI                                           | Yes      |
-| `description`       | Short description                                                  | No       |
 | `keywords`          | Search keywords for module discovery                               | No       |
 | `category`          | Module category                                                    | No       |
 | `priority`          | Load order (lower = earlier)                                       | No       |
@@ -179,6 +178,41 @@ Every module requires a `module.json` file:
 | `author_url`        | Link to author's website or profile                                | No       |
 | `documentation_url` | Link to module documentation                                       | No       |
 | `pricing`           | Pricing type: `free`, `paid`, or `both` (default: `free`)          | No       |
+
+### description.md (Required)
+
+Every module must include a `description.md` file in the module root. This file contains the module's description in Markdown format and is displayed on the marketplace.
+
+```markdown
+# Blog Module
+
+A comprehensive blog management module for creating and managing posts, categories, and comments.
+
+## Features
+
+- Create and edit blog posts with rich text editor
+- Organize posts with categories and tags
+- Comment system with moderation
+- SEO-friendly URLs
+- RSS feed support
+
+## Requirements
+
+- Lara Dashboard 1.0.0 or higher
+- PHP 8.2+
+
+## Installation
+
+1. Upload the module ZIP file
+2. Enable the module from the admin panel
+3. Run migrations: `php artisan module:migrate Blog`
+```
+
+**Important Notes:**
+- The `description.md` file is **required** for marketplace submission
+- Markdown formatting is supported and rendered as HTML
+- To update your module's description, upload a new version with the updated `description.md`
+- The description cannot be edited from the marketplace UI - it must be included in your module ZIP
 
 ### Module Images (Logo & Banner)
 
@@ -252,7 +286,7 @@ You can define your module's pricing type in `module.json`. This determines whet
 
 For `paid` and `both` modules, users will see an "Activate License" option in the module actions menu. This allows them to enter their license key purchased from the marketplace.
 
-**Note:** Detailed pricing plans (tiers, features, etc.) are managed on the LaraDashboard marketplace when uploading the module, not in the module.json file.
+**Note:** Detailed pricing plans (tiers, features, etc.) are managed on the Lara Dashboard marketplace when uploading the module, not in the module.json file.
 
 **Important Notes:**
 

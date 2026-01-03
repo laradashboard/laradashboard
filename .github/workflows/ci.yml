@@ -1,4 +1,4 @@
-name: LaraDashboard CI
+name: Lara Dashboard CI
 
 permissions:
   contents: read

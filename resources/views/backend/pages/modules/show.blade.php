@@ -79,7 +79,7 @@
                     <x-slot:header>{{ __('Module Details') }}</x-slot:header>
 
                     <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                        {{ $module->description }}
+                        {!! $module->description !!}
                     </p>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

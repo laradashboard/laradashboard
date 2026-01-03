@@ -127,11 +127,14 @@ class ModuleService
         // Use lowercase name from module.json for status lookup
         $jsonName = $this->normalizeModuleName($moduleData['name'] ?? $module->getName());
 
+        // Read description from description.md file if it exists
+        $description = $this->getModuleDescriptionFromFile($module->getPath());
+
         return new ModuleModel([
             'id' => $jsonName,
             'name' => $jsonName,
             'title' => $moduleData['title'] ?? $moduleData['name'] ?? $module->getName(),
-            'description' => $moduleData['description'] ?? '',
+            'description' => $description,
             'icon' => $moduleData['icon'] ?? 'lucide:box',
             'logo_image' => $moduleData['logo_image'] ?? null,
             'banner_image' => $moduleData['banner_image'] ?? null,
@@ -144,6 +147,22 @@ class ModuleService
             'category' => $moduleData['category'] ?? null,
             'priority' => $moduleData['priority'] ?? 0,
         ]);
+    }
+
+    /**
+     * Get module description from description.md file.
+     */
+    protected function getModuleDescriptionFromFile(string $modulePath): string
+    {
+        $descriptionFile = $modulePath . '/description.md';
+
+        if (! File::exists($descriptionFile)) {
+            return '';
+        }
+
+        $markdown = File::get($descriptionFile);
+
+        return \Illuminate\Support\Str::markdown($markdown);
     }
 
     /**
@@ -488,10 +507,13 @@ class ModuleService
 
         $moduleJson = json_decode(File::get($moduleJsonPath), true);
 
+        // Read description from description.md file
+        $description = $this->getModuleDescriptionFromFile($modulePath);
+
         return [
             'name' => $moduleJson['name'] ?? basename($modulePath),
             'version' => $moduleJson['version'] ?? '1.0.0',
-            'description' => $moduleJson['description'] ?? '',
+            'description' => $description,
             'author' => $this->extractAuthor($moduleJson),
             'keywords' => $moduleJson['keywords'] ?? [],
             'icon' => $moduleJson['icon'] ?? 'bi-box',
