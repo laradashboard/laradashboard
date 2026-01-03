@@ -66,7 +66,7 @@ class AuthSettingsServiceProvider extends ServiceProvider
         // Set default values for auth settings if not already set
         $defaults = [
             'auth_enable_public_login' => '1',
-            'auth_enable_public_registration' => '0',
+            'auth_enable_public_registration' => '',
             'auth_enable_password_reset' => '1',
             'auth_enable_email_verification' => '0',
             'auth_default_user_role' => 'Subscriber',

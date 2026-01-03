@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Concerns\AuthorizationChecker;
 use App\Concerns\QueryBuilderTrait;
 use App\Notifications\AdminResetPasswordNotification;
-use App\Concerns\AuthorizationChecker;
+use App\Notifications\CustomVerifyEmailNotification;
 use App\Observers\UserObserver;
 use Illuminate\Auth\Notifications\ResetPassword as DefaultResetPassword;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -105,6 +106,14 @@ class User extends Authenticatable implements MustVerifyEmail
         } else {
             $this->notify(new DefaultResetPassword($token));
         }
+    }
+
+    /**
+     * Send the email verification notification.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new CustomVerifyEmailNotification());
     }
 
     /**

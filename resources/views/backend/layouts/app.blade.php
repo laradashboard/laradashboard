@@ -64,6 +64,11 @@ x-init="
 
             @include('backend.layouts.partials.header.index')
 
+            <!-- Email Verification Banner -->
+            @auth
+                <livewire:components.email-verification-banner />
+            @endauth
+
             <!-- Main Content -->
             <main>
                 @hasSection('admin-content')

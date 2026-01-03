@@ -180,6 +180,7 @@ class PermissionService
     public function getDatabasePermissionGroups(): Collection
     {
         $groups = Permission::select('group_name as name')
+            ->whereNotNull('group_name')
             ->groupBy('group_name')
             ->get();
 

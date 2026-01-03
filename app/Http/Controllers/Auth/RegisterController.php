@@ -8,6 +8,7 @@ use App\Enums\Hooks\AuthActionHook;
 use App\Enums\Hooks\AuthFilterHook;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\RegistrationWelcomeNotification;
 use App\Support\Facades\Hook;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -15,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
@@ -153,6 +155,9 @@ class RegisterController extends Controller
         try {
             $user = $this->create($request->all());
 
+            // Send registration welcome email
+            $this->sendWelcomeEmail($user);
+
             // Only fire Registered event (which sends verification email) if:
             // 1. Email verification is enabled in settings
             // 2. Mail is properly configured
@@ -161,7 +166,7 @@ class RegisterController extends Controller
                     event(new Registered($user));
                 } catch (\Exception $e) {
                     // Log the error but don't fail registration
-                    \Illuminate\Support\Facades\Log::warning('Could not send verification email: '.$e->getMessage());
+                    Log::warning('Could not send verification email: '.$e->getMessage());
                 }
             }
 
@@ -178,6 +183,25 @@ class RegisterController extends Controller
             Hook::doAction(AuthActionHook::AFTER_REGISTRATION_FAILED, $request, $e);
 
             throw $e;
+        }
+    }
+
+    /**
+     * Send the welcome email to the newly registered user.
+     */
+    protected function sendWelcomeEmail(User $user): void
+    {
+        // Check if mail is properly configured
+        $mailFrom = config('mail.from.address');
+        if (empty($mailFrom)) {
+            return;
+        }
+
+        try {
+            $user->notify(new RegistrationWelcomeNotification());
+        } catch (\Exception $e) {
+            // Log the error but don't fail registration
+            Log::warning('Could not send welcome email: '.$e->getMessage());
         }
     }
 

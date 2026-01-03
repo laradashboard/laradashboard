@@ -64,6 +64,19 @@
             <span class="mt-0.5 block text-theme-sm text-gray-700 dark:text-gray-300">
                 {{ auth()->user()->email }}
             </span>
+            @if(filter_var(config('settings.auth_enable_email_verification', '0'), FILTER_VALIDATE_BOOLEAN))
+                @if(auth()->user()->hasVerifiedEmail())
+                    <span class="inline-flex items-center gap-1 mt-1 text-xs text-green-600 dark:text-green-400">
+                        <iconify-icon icon="lucide:badge-check" width="12" height="12"></iconify-icon>
+                        {{ __('Email Verified') }}
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1 mt-1 text-xs text-amber-600 dark:text-amber-400">
+                        <iconify-icon icon="lucide:alert-circle" width="12" height="12"></iconify-icon>
+                        {{ __('Email Not Verified') }}
+                    </span>
+                @endif
+            @endif
         </div>
 
         {!! Hook::applyFilters(AdminFilterHook::USER_DROPDOWN_AFTER_USER_INFO, '') !!}

@@ -1,6 +1,13 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
     {!! Hook::applyFilters(UserFilterHook::PROFILE_AFTER_BREADCRUMBS, '') !!}
 
+    {{-- Email Verification Section --}}
+    @if(filter_var(config('settings.auth_enable_email_verification', '0'), FILTER_VALIDATE_BOOLEAN))
+        @if(!auth()->user()->hasVerifiedEmail())
+            <livewire:components.profile-email-verification />
+        @endif
+    @endif
+
     <x-card>
         <form
             action="{{ route('profile.update') }}"

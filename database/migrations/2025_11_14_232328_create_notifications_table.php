@@ -55,39 +55,89 @@ return new class () extends Migration {
      */
     private function seedEssentialNotifications(): void
     {
-        $template = DB::table('email_templates')
-            ->where('name', 'Forgot Password')
-            ->first();
-
-        if (! $template) {
-            return; // Template doesn't exist, can't create notification
-        }
-
         // Temporarily disable foreign key checks for seeding (no users exist yet during migration)
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
-        DB::table('notifications')->insert([
-            'uuid' => (string) Str::uuid(),
-            'name' => 'Forgot Password Notification',
-            'description' => 'Automated notification sent when a user requests password reset',
-            'notification_type' => NotificationType::FORGOT_PASSWORD->value,
-            'email_template_id' => $template->id,
-            'receiver_type' => ReceiverType::USER->value,
-            'receiver_ids' => null,
-            'receiver_emails' => null,
-            'is_active' => true,
-            'is_deleteable' => false,
-            'track_opens' => true,
-            'track_clicks' => true,
-            'from_email' => null,
-            'from_name' => null,
-            'reply_to_email' => null,
-            'reply_to_name' => null,
-            'settings' => null,
-            'created_by' => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // Forgot Password Notification
+        $forgotPasswordTemplate = DB::table('email_templates')->where('name', 'Forgot Password')->first();
+        if ($forgotPasswordTemplate) {
+            DB::table('notifications')->insert([
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Forgot Password Notification',
+                'description' => 'Automated notification sent when a user requests password reset',
+                'notification_type' => NotificationType::FORGOT_PASSWORD->value,
+                'email_template_id' => $forgotPasswordTemplate->id,
+                'receiver_type' => ReceiverType::USER->value,
+                'receiver_ids' => null,
+                'receiver_emails' => null,
+                'is_active' => true,
+                'is_deleteable' => false,
+                'track_opens' => true,
+                'track_clicks' => true,
+                'from_email' => null,
+                'from_name' => null,
+                'reply_to_email' => null,
+                'reply_to_name' => null,
+                'settings' => null,
+                'created_by' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Registration Welcome Notification
+        $registrationTemplate = DB::table('email_templates')->where('name', 'Registration Welcome')->first();
+        if ($registrationTemplate) {
+            DB::table('notifications')->insert([
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Registration Welcome Notification',
+                'description' => 'Welcome email sent to new users after successful registration.',
+                'notification_type' => NotificationType::REGISTRATION_WELCOME->value,
+                'email_template_id' => $registrationTemplate->id,
+                'receiver_type' => ReceiverType::USER->value,
+                'receiver_ids' => json_encode([]),
+                'receiver_emails' => json_encode([]),
+                'is_active' => true,
+                'is_deleteable' => false,
+                'track_opens' => true,
+                'track_clicks' => true,
+                'from_email' => null,
+                'from_name' => null,
+                'reply_to_email' => null,
+                'reply_to_name' => null,
+                'settings' => json_encode([]),
+                'created_by' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Email Verification Notification
+        $verificationTemplate = DB::table('email_templates')->where('name', 'Email Verification')->first();
+        if ($verificationTemplate) {
+            DB::table('notifications')->insert([
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Email Verification Notification',
+                'description' => 'Email sent to users to verify their email address.',
+                'notification_type' => NotificationType::EMAIL_VERIFICATION->value,
+                'email_template_id' => $verificationTemplate->id,
+                'receiver_type' => ReceiverType::USER->value,
+                'receiver_ids' => json_encode([]),
+                'receiver_emails' => json_encode([]),
+                'is_active' => true,
+                'is_deleteable' => false,
+                'track_opens' => true,
+                'track_clicks' => true,
+                'from_email' => null,
+                'from_name' => null,
+                'reply_to_email' => null,
+                'reply_to_name' => null,
+                'settings' => json_encode([]),
+                'created_by' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
