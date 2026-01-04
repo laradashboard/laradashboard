@@ -49,6 +49,7 @@ abstract class Datatable extends Component
     public array $disabledRoutes = [];
     public bool $enableCheckbox = true;
     public bool $enablePagination = true;
+    public bool $enableBulkActions = true;
     public bool $showCreateButton = false;
     public string $noResultsMessage = '';
     public string $customNoResultsMessage = '';

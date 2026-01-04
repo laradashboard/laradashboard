@@ -11,12 +11,18 @@
     $licenseService = app(\App\Services\LicenseVerificationService::class);
     $storedLicense = $licenseService->getStoredLicense($module->name);
     $hasActiveLicense = !empty($storedLicense['license_key']);
+
+    // Check for available updates
+    $updateService = app(\App\Services\Modules\ModuleUpdateService::class);
+    $updateInfo = $updateService->getModuleUpdate($module->name);
+    $hasUpdate = $updateInfo && ($updateInfo['has_update'] ?? false);
 @endphp
 
 <div
-    x-data="{ deleteModalOpen: false, licenseModalOpen: false }"
+    x-data="{ deleteModalOpen: false, licenseModalOpen: false, updateModalOpen: false, updating: false }"
     x-on:open-license-modal-{{ $module->name }}.window="licenseModalOpen = true"
     x-on:open-delete-modal-{{ $module->name }}.window="deleteModalOpen = true"
+    x-on:open-update-modal-{{ $module->name }}.window="updateModalOpen = true"
 >
     <x-buttons.action-buttons
         :label="__('Actions')"
@@ -31,6 +37,19 @@
             icon="lucide:eye"
             :label="__('View')"
         />
+
+        {{-- Update Action (when update is available) --}}
+        @if($hasUpdate)
+            <button
+                type="button"
+                class="flex w-full items-center gap-2 px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                x-on:click="isOpen = false; openedWithKeyboard = false; $dispatch('open-update-modal-{{ $module->name }}')"
+                role="menuitem"
+            >
+                <iconify-icon icon="lucide:arrow-up-circle" class="text-base"></iconify-icon>
+                {{ __('Update to v:version', ['version' => $updateInfo['latest_version']]) }}
+            </button>
+        @endif
 
         {{-- License Action (only for paid/freemium modules) --}}
         @if($isPaidModule)
@@ -110,4 +129,14 @@
         :cancelButtonText="__('No, Cancel')"
         :confirmButtonText="__('Yes, Delete')"
     />
+
+    {{-- Update Confirmation Modal --}}
+    @if($hasUpdate)
+        <x-modals.module-update
+            id="update-modal-{{ $module->name }}"
+            :module="$module"
+            :updateInfo="$updateInfo"
+            modalTrigger="updateModalOpen"
+        />
+    @endif
 </div>

@@ -5,6 +5,7 @@
     :perPageOptions="$perPageOptions"
     :headers="$headers"
     :enableCheckbox="$enableCheckbox"
+    :enableBulkActions="$enableBulkActions"
     :enableNewResourceLink="$showCreateButton"
     :noResultsMessage="$noResultsMessage"
     :customNoResultsMessage="$customNoResultsMessage"

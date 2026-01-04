@@ -72,5 +72,6 @@ class Kernel extends HttpKernel
         'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
         'redirect.if.installed' => \App\Http\Middleware\RedirectIfInstalled::class,
         'public.auth' => \App\Http\Middleware\CheckPublicAuthEnabled::class,
+        'check.module.updates' => \App\Http\Middleware\CheckModuleUpdates::class,
     ];
 }

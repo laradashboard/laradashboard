@@ -15,6 +15,10 @@
 @endphp
 
 <div class="flex items-center gap-2 flex-wrap w-full" style="justify-content: end;">
+    @if(method_exists($this, 'renderBeforeFilters'))
+        {{ $this->renderBeforeFilters() }}
+    @endif
+
     <!-- Clear Filters Button -->
     @if($hasActiveFilters)
         <button

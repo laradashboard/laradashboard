@@ -337,7 +337,12 @@
 
                 <tbody>
                     @forelse ($data as $item)
-                        <tr class="{{ $loop->index + 1 != count($data) ?  'table-tr' : '' }}">
+                        @php
+                            $afterRowContent = ($enableLivewire && method_exists($this, 'renderAfterRow')) ? $this->renderAfterRow($item) : null;
+                            $hasAfterRow = $afterRowContent !== null;
+                            $showRowBorder = !$hasAfterRow && $loop->index + 1 != count($data);
+                        @endphp
+                        <tr class="{{ $showRowBorder ? 'table-tr' : '' }}">
                             @if($enableCheckbox ?? true && can('delete', $item))
                                 @php
                                     $itemId = $item->id;
@@ -389,6 +394,15 @@
                                 </td>
                             @endforeach
                         </tr>
+
+                        {{-- Hook for rendering additional content after row (e.g., update notices) --}}
+                        @if($hasAfterRow)
+                            <tr class="after-row-content {{ $loop->index + 1 != count($data) ? 'table-tr' : '' }}">
+                                <td colspan="{{ count($headers ?? []) + ($enableCheckbox ?? true ? 1 : 0) }}" class="p-0 border-0">
+                                    {{ $afterRowContent }}
+                                </td>
+                            </tr>
+                        @endif
                     @empty
                         <tr>
                             <td colspan="{{ count($headers ?? []) + ($enableCheckbox ?? true ? 1 : 0) }}" class="text-center py-4">

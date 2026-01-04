@@ -212,7 +212,7 @@
                 <button
                     x-on:click="{{ $modalTrigger }} = false"
                     aria-label="{{ __('Close modal') }}"
-                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md p-1 transition-colors"
+                    class="flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md p-1 transition-colors"
                 >
                     <iconify-icon icon="lucide:x" width="20"></iconify-icon>
                 </button>

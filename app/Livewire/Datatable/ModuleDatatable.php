@@ -7,6 +7,7 @@ namespace App\Livewire\Datatable;
 use App\Collections\ModuleCollection;
 use App\Models\Module;
 use App\Services\Modules\ModuleService;
+use App\Services\Modules\ModuleUpdateService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +31,11 @@ class ModuleDatatable extends Datatable
     public array $disabledRoutes = ['view', 'edit', 'create'];
 
     /**
+     * Disable default bulk actions - we use custom ones via renderAfterSearchbar().
+     */
+    public bool $enableBulkActions = false;
+
+    /**
      * Override sort default since modules don't have created_at.
      */
     public string $sort = 'title';
@@ -38,9 +44,17 @@ class ModuleDatatable extends Datatable
 
     protected ModuleService $moduleService;
 
+    protected ModuleUpdateService $updateService;
+
     public function boot(): void
     {
         $this->moduleService = app(ModuleService::class);
+        $this->updateService = app(ModuleUpdateService::class);
+
+        // Auto-check for updates if no cached data exists
+        if (config('laradashboard.updates.enabled', true) && ! $this->updateService->getCachedUpdates()) {
+            $this->updateService->checkForUpdates();
+        }
     }
 
     public function getSearchbarPlaceholder(): string
@@ -207,6 +221,11 @@ class ModuleDatatable extends Datatable
             'module' => $module,
             'permissions' => $this->getActionCellPermissions($module),
         ]);
+    }
+
+    public function renderBeforeFilters(): Renderable
+    {
+        return view('backend.pages.modules.partials.module-update-check-action');
     }
 
     /**
@@ -491,5 +510,104 @@ class ModuleDatatable extends Datatable
     public function refreshDatatable(): void
     {
         // This will re-render the component
+    }
+
+    /**
+     * Render update notice row after module row (WordPress-style).
+     */
+    public function renderAfterRow(Module $module): ?Renderable
+    {
+        $updateInfo = $this->updateService->getModuleUpdate($module->name);
+
+        if (! $updateInfo || ! $updateInfo['has_update']) {
+            return null;
+        }
+
+        return view('backend.pages.modules.partials.module-update-notice', [
+            'module' => $module,
+            'updateInfo' => $updateInfo,
+        ]);
+    }
+
+    /**
+     * Update a module to the latest version.
+     */
+    public function updateModule(string $moduleName): void
+    {
+        // Check demo mode
+        if (config('app.demo_mode', false)) {
+            $this->dispatch('notify', [
+                'variant' => 'error',
+                'title' => __('Demo Mode'),
+                'message' => __('Module updates are restricted in demo mode.'),
+            ]);
+
+            return;
+        }
+
+        try {
+            $result = $this->updateService->downloadAndInstallUpdate($moduleName);
+
+            if ($result['success']) {
+                // Flash message for after reload
+                session()->flash('success', $result['message']);
+
+                // Reload the page to reflect changes
+                $this->redirect(request()->header('Referer', route('admin.modules.index')), navigate: false);
+            } else {
+                $this->dispatch('notify', [
+                    'variant' => 'error',
+                    'title' => __('Update Failed'),
+                    'message' => $result['message'],
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to update module {$moduleName}: " . $e->getMessage());
+
+            $this->dispatch('notify', [
+                'variant' => 'error',
+                'title' => __('Update Failed'),
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Check for module updates manually.
+     */
+    public function checkForUpdates(): void
+    {
+        try {
+            $result = $this->updateService->checkForUpdates(forceRefresh: true);
+
+            if ($result['success']) {
+                $updateCount = count($result['updates'] ?? []);
+
+                $this->dispatch('notify', [
+                    'variant' => 'success',
+                    'title' => __('Update Check Complete'),
+                    'message' => $updateCount > 0
+                        ? __(':count update(s) available.', ['count' => $updateCount])
+                        : __('All modules are up to date.'),
+                ]);
+
+                // Refresh the datatable to show updates
+                $this->dispatch('$refresh');
+            } else {
+                $this->dispatch('notify', [
+                    'variant' => 'error',
+                    'title' => __('Update Check Failed'),
+                    'message' => $result['error'] ?? __('Failed to check for updates.'),
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to check for updates: ' . $e->getMessage());
+
+            $this->dispatch('notify', [
+                'variant' => 'error',
+                'title' => __('Update Check Failed'),
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 }
