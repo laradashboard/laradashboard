@@ -1,3 +1,4 @@
+@if(config('laradashboard.updates.enabled', true))
 <button
     wire:click="checkForUpdates"
     wire:loading.attr="disabled"
@@ -13,3 +14,4 @@
     </span>
     <span class="hidden sm:inline">{{ __('Check Updates') }}</span>
 </button>
+@endif

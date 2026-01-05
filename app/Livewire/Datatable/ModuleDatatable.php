@@ -517,6 +517,11 @@ class ModuleDatatable extends Datatable
      */
     public function renderAfterRow(Module $module): ?Renderable
     {
+        // Don't show update notices if update checking is disabled
+        if (! config('laradashboard.updates.enabled', true)) {
+            return null;
+        }
+
         $updateInfo = $this->updateService->getModuleUpdate($module->name);
 
         if (! $updateInfo || ! $updateInfo['has_update']) {
@@ -534,6 +539,17 @@ class ModuleDatatable extends Datatable
      */
     public function updateModule(string $moduleName): void
     {
+        // Check if update checking is enabled
+        if (! config('laradashboard.updates.enabled', true)) {
+            $this->dispatch('notify', [
+                'variant' => 'info',
+                'title' => __('Updates Disabled'),
+                'message' => __('Module updates are currently disabled.'),
+            ]);
+
+            return;
+        }
+
         // Check demo mode
         if (config('app.demo_mode', false)) {
             $this->dispatch('notify', [
@@ -577,6 +593,17 @@ class ModuleDatatable extends Datatable
      */
     public function checkForUpdates(): void
     {
+        // Check if update checking is enabled
+        if (! config('laradashboard.updates.enabled', true)) {
+            $this->dispatch('notify', [
+                'variant' => 'info',
+                'title' => __('Updates Disabled'),
+                'message' => __('Module update checking is currently disabled. Set MODULE_UPDATE_CHECK_ENABLED=true in your .env file to enable.'),
+            ]);
+
+            return;
+        }
+
         try {
             $result = $this->updateService->checkForUpdates(forceRefresh: true);
 
