@@ -133,24 +133,25 @@
             continue;
         }
 
-        // Check if providers can be loaded (without loading module vendor yet)
+        // Check if provider files exist (don't use class_exists as it triggers autoloading
+        // which can fail before Laravel's container is ready)
         if (! empty($moduleConfig['providers'])) {
             $providerValid = true;
             foreach ($moduleConfig['providers'] as $provider) {
-                try {
-                    // Check if class can be autoloaded from module's own code
-                    if (! class_exists($provider, true)) {
-                        $statuses[$moduleName] = false;
-                        $modified = true;
-                        $disabledModules[$moduleName] = "Provider class not found: {$provider}";
-                        $providerValid = false;
+                // Convert provider class to file path
+                // e.g. Modules\Crm\Providers\CrmServiceProvider -> Providers/CrmServiceProvider.php
+                $providerPath = null;
 
-                        break;
-                    }
-                } catch (\Throwable $e) {
+                // Extract the path after the module namespace
+                if (preg_match('/^Modules\\\\[^\\\\]+\\\\(.+)$/', $provider, $matches)) {
+                    $relativePath = str_replace('\\', '/', $matches[1]) . '.php';
+                    $providerPath = $moduleDir . '/app/' . $relativePath;
+                }
+
+                if (! $providerPath || ! file_exists($providerPath)) {
                     $statuses[$moduleName] = false;
                     $modified = true;
-                    $disabledModules[$moduleName] = "Error loading provider {$provider}: " . $e->getMessage();
+                    $disabledModules[$moduleName] = "Provider file not found: {$provider}";
                     $providerValid = false;
 
                     break;
@@ -166,26 +167,9 @@
         $validatedModules[$moduleName] = $moduleDir;
     }
 
-    // Only load vendor autoloaders for validated/enabled modules
-    foreach ($validatedModules as $moduleName => $moduleDir) {
-        $moduleVendorPath = $moduleDir . '/vendor';
-        $moduleVendorAutoload = $moduleVendorPath . '/autoload.php';
-
-        // Check if vendor directory is complete
-        $hasInstalledPhp = file_exists($moduleVendorPath . '/composer/installed.php');
-        $hasInstalledJson = file_exists($moduleVendorPath . '/composer/installed.json');
-
-        if (file_exists($moduleVendorAutoload) && ($hasInstalledPhp || $hasInstalledJson)) {
-            try {
-                require $moduleVendorAutoload;
-            } catch (\Throwable $e) {
-                // Disable module if its vendor autoload fails
-                $statuses[$moduleName] = false;
-                $modified = true;
-                $disabledModules[$moduleName] = 'Module vendor autoload failed: ' . $e->getMessage();
-            }
-        }
-    }
+    // Note: Module vendor autoloaders are NOT loaded here.
+    // They should be loaded by the module's service provider after Laravel boots.
+    // Loading them here can cause conflicts with the main app's dependencies.
 
     // Save updated statuses if any modules were disabled
     if ($modified) {
