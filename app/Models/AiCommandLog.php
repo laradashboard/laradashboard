@@ -55,7 +55,7 @@ class AiCommandLog extends Model
     /**
      * Get the user who executed the command.
      *
-     * @return BelongsTo<User, AiCommandLog>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
