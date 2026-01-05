@@ -67,6 +67,10 @@ class ModulePackageCommand extends Command
         }
 
         $modulePath = base_path("modules/{$moduleName}");
+
+        // Get the PascalCase name for the ZIP folder (matches PSR-4 namespace)
+        // This ensures compatibility with case-sensitive filesystems (Linux)
+        $moduleNameForZip = $this->getModuleNamespaceFolder($modulePath, $moduleName);
         $moduleSlug = Str::slug($moduleName);
 
         // Get module version from module.json
@@ -121,9 +125,10 @@ class ModulePackageCommand extends Command
 
         // Step 3: Create ZIP file
         $this->comment('Creating ZIP package...');
+        $this->info("Using folder name '{$moduleNameForZip}' in ZIP (matches PSR-4 namespace)");
 
         $outputPath = $this->option('output')
-            ?? base_path("modules/{$moduleName}-v{$version}.zip");
+            ?? base_path("modules/{$moduleSlug}-v{$version}.zip");
 
         // Remove existing ZIP if it exists
         if (file_exists($outputPath)) {
@@ -138,16 +143,17 @@ class ModulePackageCommand extends Command
         }
 
         // Add module files (including dist/ with pre-compiled assets)
+        // Use $moduleNameForZip (PascalCase) for the folder in the ZIP to match PSR-4 namespace
         $this->line("  Adding module files...");
-        $this->addDirectoryToZip($zip, $modulePath, $moduleName, $moduleName);
+        $this->addDirectoryToZip($zip, $modulePath, $moduleNameForZip, $moduleNameForZip);
 
         if ($hasPrecompiledAssets) {
-            $this->line("  Pre-compiled assets included in: {$moduleName}/dist/build-{$moduleSlug}/");
+            $this->line("  Pre-compiled assets included in: {$moduleNameForZip}/dist/build-{$moduleSlug}/");
         }
 
         // Add manifest file for the module
-        $manifest = $this->generateManifest($moduleName, $version, $hasPrecompiledAssets);
-        $zip->addFromString("{$moduleName}/.module-manifest.json", json_encode($manifest, JSON_PRETTY_PRINT));
+        $manifest = $this->generateManifest($moduleNameForZip, $version, $hasPrecompiledAssets);
+        $zip->addFromString("{$moduleNameForZip}/.module-manifest.json", json_encode($manifest, JSON_PRETTY_PRINT));
 
         $zip->close();
 
@@ -163,12 +169,12 @@ class ModulePackageCommand extends Command
         $this->comment('Installation instructions:');
         $this->line('  1. Upload ZIP via module manager or extract to modules/ directory');
         if ($hasPrecompiledAssets) {
-            $this->line("  2. Run: php artisan module:publish-assets {$moduleName}");
+            $this->line("  2. Run: php artisan module:publish-assets {$moduleNameForZip}");
             $this->line('     (This copies pre-built CSS/JS to public/ directory)');
         } else {
-            $this->line('  2. Run: php artisan module:compile-css ' . $moduleName);
+            $this->line('  2. Run: php artisan module:compile-css ' . $moduleNameForZip);
         }
-        $this->line("  3. Run: php artisan module:enable {$moduleName}");
+        $this->line("  3. Run: php artisan module:enable {$moduleNameForZip}");
 
         return self::SUCCESS;
     }
@@ -342,5 +348,32 @@ class ModulePackageCommand extends Command
         }
 
         return round($bytes, 2) . ' ' . $units[$i];
+    }
+
+    /**
+     * Get the module folder name for the ZIP that matches the PSR-4 namespace.
+     *
+     * This ensures the ZIP folder is PascalCase (e.g., "Crm" not "crm"),
+     * which is required for case-sensitive filesystems (Linux).
+     *
+     * The folder name is extracted from the service provider namespace in module.json.
+     */
+    private function getModuleNamespaceFolder(string $modulePath, string $fallbackName): string
+    {
+        $moduleInfo = $this->getModuleInfo($modulePath);
+
+        // Try to extract the module name from the providers array
+        // e.g., "Modules\\Crm\\Providers\\CrmServiceProvider" -> "Crm"
+        $providers = $moduleInfo['providers'] ?? [];
+
+        foreach ($providers as $provider) {
+            // Match pattern: Modules\{ModuleName}\...
+            if (preg_match('/^Modules\\\\([^\\\\]+)\\\\/', $provider, $matches)) {
+                return $matches[1]; // Returns "Crm" from "Modules\Crm\..."
+            }
+        }
+
+        // Fallback: convert to PascalCase (studly case)
+        return Str::studly($fallbackName);
     }
 }

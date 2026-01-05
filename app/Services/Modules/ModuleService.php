@@ -12,6 +12,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Nwidart\Modules\Facades\Module as ModuleFacade;
 use Nwidart\Modules\Module;
 use App\Models\Module as ModuleModel;
@@ -466,15 +467,18 @@ class ModuleService
 
         // Save this module to the modules_statuses.json file as DISABLED.
         // New modules are disabled by default for security - admin must explicitly enable them.
+        // Use $folderName (PascalCase) as the key since Laravel Modules identifies modules by folder name.
         $moduleStatuses = $this->getModuleStatuses();
-        $moduleStatuses[$moduleName] = false;
+        $moduleStatuses[$folderName] = false;
         File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
 
         // Publish pre-built assets if the module contains them.
         // Use path-based method since module isn't registered in Module facade yet.
-        if ($this->hasPrebuiltAssetsAtPath($targetPath, $moduleName)) {
-            $this->publishModuleAssetsFromPath($targetPath, $moduleName, force: true);
-            Log::info("Published pre-built assets for module {$moduleName}");
+        // Use slug for asset paths (lowercase) since that's what the build system uses.
+        $moduleSlug = Str::slug($folderName);
+        if ($this->hasPrebuiltAssetsAtPath($targetPath, $moduleSlug)) {
+            $this->publishModuleAssetsFromPath($targetPath, $moduleSlug, force: true);
+            Log::info("Published pre-built assets for module {$folderName}");
         }
 
         // Regenerate Composer autoloader so the new module classes can be found.
@@ -484,7 +488,8 @@ class ModuleService
         // Clear the cache.
         Artisan::call('cache:clear');
 
-        return $moduleName;
+        // Return the folder name (PascalCase) as the module identifier
+        return $folderName;
     }
 
     /**
