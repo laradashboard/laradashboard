@@ -599,25 +599,48 @@ class ModuleService
 
     public function toggleModule($moduleName, $enable = true): bool
     {
+        $action = $enable ? 'enable' : 'disable';
+        Log::info("Attempting to {$action} module: {$moduleName}");
+
         try {
             // Reload Composer autoloader to ensure newly uploaded module classes are available.
             // This is critical when activating a module that was just uploaded in a previous request.
             $this->reloadAutoloader();
+            Log::info("Autoloader reloaded for module {$moduleName}");
 
             // Clear the cache.
             Artisan::call('cache:clear');
 
             // Activate/Deactivate the module.
             $callbackName = $enable ? 'module:enable' : 'module:disable';
-            Artisan::call($callbackName, ['module' => $moduleName]);
+            Log::info("Calling artisan {$callbackName} for module {$moduleName}");
+
+            $exitCode = Artisan::call($callbackName, ['module' => $moduleName]);
+            $output = Artisan::output();
+
+            Log::info("Artisan {$callbackName} result for {$moduleName}: exit={$exitCode}, output={$output}");
+
+            if ($exitCode !== 0) {
+                throw new \RuntimeException("Artisan command failed with exit code {$exitCode}: {$output}");
+            }
 
             // Publish pre-built assets when enabling a module
             if ($enable) {
                 $this->publishModuleAssets($moduleName);
             }
+
+            Log::info("Successfully {$action}d module: {$moduleName}");
         } catch (\Throwable $th) {
-            Log::error("Failed to toggle module {$moduleName}: " . $th->getMessage());
-            throw new ModuleException(__('Failed to toggle module status. Please check the logs for more details.'));
+            Log::error("Failed to {$action} module {$moduleName}: " . $th->getMessage(), [
+                'exception' => $th::class,
+                'file' => $th->getFile(),
+                'line' => $th->getLine(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+            throw new ModuleException(__('Failed to :action module. Error: :error', [
+                'action' => $action,
+                'error' => $th->getMessage(),
+            ]));
         }
 
         return true;
@@ -625,22 +648,62 @@ class ModuleService
 
     /**
      * Reload Composer autoloader to pick up newly added module classes.
+     *
+     * This reads each module's composer.json to get the correct PSR-4 mappings,
+     * since modules may have their classes in subdirectories (e.g., app/).
      */
     protected function reloadAutoloader(): void
     {
         $autoloadFile = base_path('vendor/autoload.php');
-        if (File::exists($autoloadFile)) {
-            // Get the Composer ClassLoader instance and reload it
-            $loader = require $autoloadFile;
+        if (! File::exists($autoloadFile)) {
+            return;
+        }
 
-            // Re-register the PSR-4 autoload mappings for modules
-            $modulesPath = $this->modulesPath;
-            if (File::isDirectory($modulesPath)) {
-                foreach (File::directories($modulesPath) as $moduleDir) {
-                    $moduleName = basename($moduleDir);
-                    $namespace = "Modules\\{$moduleName}\\";
-                    $loader->addPsr4($namespace, $moduleDir . '/');
+        // Get the Composer ClassLoader instance
+        $loader = require $autoloadFile;
+
+        // Re-register the PSR-4 autoload mappings for each module
+        $modulesPath = $this->modulesPath;
+        if (! File::isDirectory($modulesPath)) {
+            return;
+        }
+
+        foreach (File::directories($modulesPath) as $moduleDir) {
+            $moduleName = basename($moduleDir);
+            $composerJsonPath = $moduleDir . '/composer.json';
+
+            // Read module's composer.json for PSR-4 mappings
+            if (File::exists($composerJsonPath)) {
+                try {
+                    $composerJson = json_decode(File::get($composerJsonPath), true);
+                    $psr4 = $composerJson['autoload']['psr-4'] ?? [];
+
+                    foreach ($psr4 as $namespace => $path) {
+                        // Handle both string and array paths
+                        $paths = is_array($path) ? $path : [$path];
+                        foreach ($paths as $p) {
+                            $fullPath = $moduleDir . '/' . trim($p, '/');
+                            if (File::isDirectory($fullPath)) {
+                                $loader->addPsr4($namespace, $fullPath . '/');
+                            }
+                        }
+                    }
+
+                    // Also register files autoload if present
+                    $files = $composerJson['autoload']['files'] ?? [];
+                    foreach ($files as $file) {
+                        $filePath = $moduleDir . '/' . $file;
+                        if (File::exists($filePath)) {
+                            require_once $filePath;
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("Failed to parse composer.json for module {$moduleName}: " . $e->getMessage());
                 }
+            } else {
+                // Fallback: register module root as PSR-4 path
+                $namespace = "Modules\\{$moduleName}\\";
+                $loader->addPsr4($namespace, $moduleDir . '/');
             }
         }
     }
