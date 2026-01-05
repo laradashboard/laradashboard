@@ -8,9 +8,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 pest()->use(RefreshDatabase::class);
 
 $guestRoutes = [
-    '/admin/login',
-    '/admin/password/reset',
-    '/admin/password/reset/token',
+    '/login',
+    '/password/reset',
+    '/password/reset/test-token',
 ];
 
 $authRoutes = [

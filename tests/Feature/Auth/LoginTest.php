@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 pest()->use(RefreshDatabase::class);
 
 test('user can view login form', function () {
-    $response = $this->get('/admin/login');
+    $response = $this->get('/login');
 
     $response->assertStatus(200);
     $response->assertViewIs('backend.auth.login');
@@ -20,34 +20,35 @@ test('user can login with correct credentials', function () {
         'password' => bcrypt('12345678'),
     ]);
 
-    $response = $this->post('/admin/login', [
+    $response = $this->post('/login', [
         'email' => 'superadmin@example.com',
         'password' => '12345678',
     ]);
 
-    $response->assertRedirect('/admin');
+    // Redirect path comes from config('settings.auth_redirect_after_login')
+    $response->assertRedirect();
     $this->assertAuthenticatedAs($user);
 });
 
 test('user cannot login with incorrect password', function () {
-    $response = $this->from('/admin/login')
-        ->post('/admin/login', [
+    $response = $this->from('/login')
+        ->post('/login', [
             'email' => 'superadmin@example.com',
             'password' => 'wrong-password',
         ]);
 
-    $response->assertRedirect('/admin/login');
+    $response->assertRedirect('/login');
     $response->assertSessionHasErrors('email');
     $this->assertGuest();
 });
 
 test('user cannot login with email that does not exist', function () {
-    $response = $this->from('/admin/login')->post('/admin/login', [
+    $response = $this->from('/login')->post('/login', [
         'email' => 'nobody@example.com',
         'password' => 'password',
     ]);
 
-    $response->assertRedirect('/admin/login');
+    $response->assertRedirect('/login');
     $response->assertSessionHasErrors('email');
     $this->assertGuest();
 });
@@ -58,13 +59,14 @@ test('remember me functionality works', function () {
         'password' => bcrypt('12345678'),
     ]);
 
-    $response = $this->post('/admin/login', [
+    $response = $this->post('/login', [
         'email' => 'superadmin@example.com',
         'password' => '12345678',
         'remember' => 'on',
     ]);
 
-    $response->assertRedirect('/admin');
+    // Redirect path comes from config('settings.auth_redirect_after_login')
+    $response->assertRedirect();
     $this->assertAuthenticatedAs($user);
 
     // Check for the remember cookie.

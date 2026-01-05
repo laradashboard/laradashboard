@@ -770,6 +770,14 @@ class ModuleService
 
             $process = new Process($command, base_path());
             $process->setTimeout(120);
+
+            // Set HOME/COMPOSER_HOME for shared hosting environments where these may not be set
+            $env = array_merge($_ENV, $_SERVER, [
+                'HOME' => getenv('HOME') ?: base_path(),
+                'COMPOSER_HOME' => getenv('COMPOSER_HOME') ?: base_path('.composer'),
+            ]);
+            $process->setEnv($env);
+
             $process->run();
 
             if (! $process->isSuccessful()) {

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Database\Concerns\TogglesForeignKeyConstraints;
 use App\Enums\NotificationType;
 use App\Enums\ReceiverType;
 use Illuminate\Database\Migrations\Migration;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 return new class () extends Migration {
+    use TogglesForeignKeyConstraints;
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
@@ -56,7 +58,7 @@ return new class () extends Migration {
     private function seedEssentialNotifications(): void
     {
         // Temporarily disable foreign key checks for seeding (no users exist yet during migration)
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        $this->disableForeignKeyChecks();
 
         // Forgot Password Notification
         $forgotPasswordTemplate = DB::table('email_templates')->where('name', 'Forgot Password')->first();
@@ -139,6 +141,6 @@ return new class () extends Migration {
             ]);
         }
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        $this->enableForeignKeyChecks();
     }
 };

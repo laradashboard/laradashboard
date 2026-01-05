@@ -351,7 +351,7 @@ test('authenticated user can get permission groups', function () {
     $response = $this->getJson('/api/v1/permissions/groups');
 
     if (class_exists(Permission::class)) {
-        $response->assertStatus(500);
+        $response->assertStatus(200);
     } else {
         $response->assertStatus(404);
     }

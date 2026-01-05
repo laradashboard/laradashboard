@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Database\Concerns\TogglesForeignKeyConstraints;
 use App\Enums\TemplateType;
 use App\Services\Builder\BlockService;
 use Illuminate\Database\Migrations\Migration;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 return new class () extends Migration {
+    use TogglesForeignKeyConstraints;
     public function up(): void
     {
         Schema::create('email_templates', function (Blueprint $table) {
@@ -50,7 +52,7 @@ return new class () extends Migration {
         $canvasSettings = $blockService->getDefaultCanvasSettings();
 
         // Temporarily disable foreign key checks for seeding (no users exist yet during migration)
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        $this->disableForeignKeyChecks();
 
         // Forgot Password Template
         $forgotPasswordBlocks = $this->getForgotPasswordBlocks($blockService);
@@ -118,7 +120,7 @@ return new class () extends Migration {
             'updated_at' => now(),
         ]);
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        $this->enableForeignKeyChecks();
     }
 
     /**

@@ -34,3 +34,4 @@ public/images/.DS_Store
 
 # Exclude release builds
 /releases
+.composer
