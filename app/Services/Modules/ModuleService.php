@@ -890,11 +890,18 @@ class ModuleService
     }
 
     /**
-     * Regenerate Composer autoloader to recognize new module classes.
+     * Regenerate Composer autoloader and Laravel bootstrap caches.
      * This is necessary after uploading a module via zip file.
      */
     protected function regenerateAutoloader(): void
     {
+        // Set HOME/COMPOSER_HOME for shared hosting environments
+        $env = array_merge($_ENV, $_SERVER, [
+            'HOME' => getenv('HOME') ?: base_path(),
+            'COMPOSER_HOME' => getenv('COMPOSER_HOME') ?: base_path('.composer'),
+        ]);
+
+        // Run composer dump-autoload
         try {
             $composerPath = base_path('composer.phar');
             $command = file_exists($composerPath)
@@ -903,21 +910,24 @@ class ModuleService
 
             $process = new Process($command, base_path());
             $process->setTimeout(120);
-
-            // Set HOME/COMPOSER_HOME for shared hosting environments where these may not be set
-            $env = array_merge($_ENV, $_SERVER, [
-                'HOME' => getenv('HOME') ?: base_path(),
-                'COMPOSER_HOME' => getenv('COMPOSER_HOME') ?: base_path('.composer'),
-            ]);
             $process->setEnv($env);
-
             $process->run();
 
             if (! $process->isSuccessful()) {
                 Log::warning('Failed to regenerate autoloader: ' . $process->getErrorOutput());
+            } else {
+                Log::info('Composer autoloader regenerated successfully');
             }
         } catch (\Throwable $e) {
             Log::warning('Failed to regenerate autoloader: ' . $e->getMessage());
+        }
+
+        // Regenerate Laravel bootstrap caches (packages.php, services.php)
+        try {
+            Artisan::call('package:discover', ['--ansi' => true]);
+            Log::info('Package discovery completed');
+        } catch (\Throwable $e) {
+            Log::warning('Failed to run package:discover: ' . $e->getMessage());
         }
     }
 

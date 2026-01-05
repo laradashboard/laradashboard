@@ -75,8 +75,7 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/",
-            "Modules\\": "modules/"
+            "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
             "app/Support/Helper/common.php",
