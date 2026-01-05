@@ -20,7 +20,7 @@
                     value="{{ config('settings.recaptcha_site_key') ?? '' }}"
                 />
                 <button type="button"
-                    onclick="copyToClipboard('recaptcha_site_key')"
+                    onclick="copyRecaptchaToClipboard('recaptcha_site_key')"
                     class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-300 flex items-center justify-center w-6 h-6 hover:text-gray-700 dark:hover:text-gray-100 transition-colors">
                     <iconify-icon icon="lucide:copy" width="18" height="18"></iconify-icon>
                 </button>
@@ -145,7 +145,7 @@
 
 @push('scripts')
 <script>
-function copyToClipboard(inputId) {
+function copyRecaptchaToClipboard(inputId) {
     const input = document.getElementById(inputId);
     if (!input || !input.value.trim()) {
         if (typeof window.showToast === 'function') {

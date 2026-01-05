@@ -1,3 +1,10 @@
+@php
+    $openaiEnvKey = config('ai.openai.api_key');
+    $openaiMaskedEnv = $openaiEnvKey ? substr($openaiEnvKey, 0, 7) . '...' . substr($openaiEnvKey, -4) : null;
+    $claudeEnvKey = config('ai.anthropic.api_key');
+    $claudeMaskedEnv = $claudeEnvKey ? substr($claudeEnvKey, 0, 7) . '...' . substr($claudeEnvKey, -4) : null;
+@endphp
+
 {!! Hook::applyFilters(SettingFilterHook::SETTINGS_AI_INTEGRATIONS_TAB_BEFORE_SECTION_START, '') !!}
 <x-card>
     <x-slot name="header">
@@ -31,7 +38,7 @@
                 </label>
                 <input type="number" name="ai_max_tokens"
                     id="ai_max_tokens"
-                    value="{{ config('settings.ai_max_tokens', 2000) }}"
+                    value="{{ config('settings.ai_max_tokens', 4096) }}"
                     placeholder="4096"
                     min="100"
                     class="form-control">
@@ -50,10 +57,11 @@
                 <input type="text" name="ai_openai_api_key"
                     id="ai_openai_api_key"
                     value="{{ config('settings.ai_openai_api_key') ?? '' }}"
-                    placeholder="{{ __('Enter your OpenAI API key') }}"
+                    placeholder="{{ $openaiMaskedEnv ? $openaiMaskedEnv . ' (' . __('from .env') . ')' : __('Enter your OpenAI API key') }}"
+                    data-env-fallback="{{ $openaiEnvKey ?? '' }}"
                     class="form-control pr-14">
                 <button type="button"
-                    onclick="copyToClipboard('ai_openai_api_key')"
+                    onclick="copyAiToClipboard('ai_openai_api_key')"
                     class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-300 flex items-center justify-center w-6 h-6 hover:text-gray-700 dark:hover:text-gray-100 transition-colors">
                     <iconify-icon icon="lucide:copy" width="18" height="18"></iconify-icon>
                 </button>
@@ -75,10 +83,11 @@
                 <input type="text" name="ai_claude_api_key"
                     id="ai_claude_api_key"
                     value="{{ config('settings.ai_claude_api_key') ?? '' }}"
-                    placeholder="{{ __('Enter your Claude API key') }}"
+                    placeholder="{{ $claudeMaskedEnv ? $claudeMaskedEnv . ' (' . __('from .env') . ')' : __('Enter your Claude API key') }}"
+                    data-env-fallback="{{ $claudeEnvKey ?? '' }}"
                     class="form-control pr-14">
                 <button type="button"
-                    onclick="copyToClipboard('ai_claude_api_key')"
+                    onclick="copyAiToClipboard('ai_claude_api_key')"
                     class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-300 flex items-center justify-center w-6 h-6 hover:text-gray-700 dark:hover:text-gray-100 transition-colors">
                     <iconify-icon icon="lucide:copy" width="18" height="18"></iconify-icon>
                 </button>
@@ -96,25 +105,30 @@
 {!! Hook::applyFilters(SettingFilterHook::SETTINGS_AI_INTEGRATIONS_TAB_AFTER_SECTION_END, '') !!}
 
 <script>
-function copyToClipboard(inputId) {
+function copyAiToClipboard(inputId) {
     const input = document.getElementById(inputId);
-    if (!input || !input.value.trim()) {
+    const inputValue = input?.value?.trim();
+    const fallbackValue = input?.dataset?.envFallback || '';
+    const valueToCopy = inputValue || fallbackValue;
+
+    if (!valueToCopy) {
         if (typeof window.showToast === 'function') {
             window.showToast('warning', 'Warning', 'No API key to copy');
         }
         return;
     }
-    
+
     // Create a temporary textarea element to copy the text
     const textarea = document.createElement('textarea');
-    textarea.value = input.value;
+    textarea.value = valueToCopy;
     document.body.appendChild(textarea);
     textarea.select();
-    
+
     try {
         document.execCommand('copy');
         if (typeof window.showToast === 'function') {
-            window.showToast('success', 'Copied!', 'API key copied to clipboard');
+            const source = inputValue ? 'API key' : 'API key from .env';
+            window.showToast('success', 'Copied!', source + ' copied to clipboard');
         }
     } catch (err) {
         if (typeof window.showToast === 'function') {

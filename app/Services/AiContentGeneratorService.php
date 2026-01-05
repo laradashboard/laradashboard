@@ -31,8 +31,8 @@ class AiContentGeneratorService
     private function setApiKey(): void
     {
         $this->apiKey = match ($this->provider) {
-            'openai' => config('settings.ai_openai_api_key'),
-            'claude' => config('settings.ai_claude_api_key'),
+            'openai' => config('settings.ai_openai_api_key') ?: config('ai.openai.api_key'),
+            'claude' => config('settings.ai_claude_api_key') ?: config('ai.anthropic.api_key'),
             default => throw new Exception("Unsupported AI provider: {$this->provider}")
         };
 
@@ -344,11 +344,11 @@ IMPORTANT RULES:
     {
         $providers = [];
 
-        if (config('settings.ai_openai_api_key')) {
+        if (config('settings.ai_openai_api_key') ?: config('ai.openai.api_key')) {
             $providers['openai'] = 'OpenAI';
         }
 
-        if (config('settings.ai_claude_api_key')) {
+        if (config('settings.ai_claude_api_key') ?: config('ai.anthropic.api_key')) {
             $providers['claude'] = 'Claude (Anthropic)';
         }
 
@@ -380,7 +380,7 @@ IMPORTANT RULES:
     public function generateImage(string $prompt, string $size = '1024x1024'): ?array
     {
         // Image generation only works with OpenAI
-        $apiKey = config('settings.ai_openai_api_key');
+        $apiKey = config('settings.ai_openai_api_key') ?: config('ai.openai.api_key');
 
         if (empty($apiKey)) {
             Log::warning('Image generation skipped: OpenAI API key not configured');
@@ -474,6 +474,6 @@ IMPORTANT RULES:
      */
     public function canGenerateImages(): bool
     {
-        return ! empty(config('settings.ai_openai_api_key'));
+        return ! empty(config('settings.ai_openai_api_key') ?: config('ai.openai.api_key'));
     }
 }

@@ -94,8 +94,8 @@ class GenerateSeoMetaAction implements AiActionInterface
     {
         $provider = config('settings.ai_default_provider', 'openai');
         $apiKey = match ($provider) {
-            'openai' => config('settings.ai_openai_api_key'),
-            'claude' => config('settings.ai_claude_api_key'),
+            'openai' => config('settings.ai_openai_api_key') ?: config('ai.openai.api_key'),
+            'claude' => config('settings.ai_claude_api_key') ?: config('ai.anthropic.api_key'),
             default => '',
         };
 
