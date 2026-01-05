@@ -377,7 +377,7 @@ class ModuleService
      * Replace an existing module with the uploaded one.
      *
      * @param string $tempPath The temporary path where the uploaded module was extracted
-     * @param string $existingModuleName The name of the existing module to replace
+     * @param string $existingModuleName The name of the existing module to replace (from module.json)
      */
     public function replaceModule(string $tempPath, string $existingModuleName): string
     {
@@ -396,20 +396,23 @@ class ModuleService
         $uploadedModuleJson = json_decode(File::get($moduleJsonPath), true);
         $moduleName = $uploadedModuleJson['name'] ?? $folderName;
 
-        // Check if module was enabled
+        // Check if module was enabled (use normalized name for status lookup)
+        $normalizedExisting = $this->normalizeModuleName($existingModuleName);
         $moduleStatuses = $this->getModuleStatuses();
-        $wasEnabled = $moduleStatuses[$existingModuleName] ?? false;
+        $wasEnabled = $moduleStatuses[$normalizedExisting] ?? false;
 
-        // Delete the existing module (but preserve the status for re-enabling)
-        $existingModulePath = $this->modulesPath . '/' . $existingModuleName;
-        if (File::exists($existingModulePath)) {
+        // Get the actual folder name (may be different case than status key)
+        $actualFolderName = $this->getActualModuleFolderName($existingModuleName);
+        if ($actualFolderName) {
+            $existingModulePath = $this->modulesPath . '/' . $actualFolderName;
+
             // Clean up old assets first
-            $this->cleanupModuleAssets($existingModuleName);
+            $this->cleanupModuleAssets($actualFolderName);
 
             // Disable the module before deletion
             if ($wasEnabled) {
                 try {
-                    Artisan::call('module:disable', ['module' => $existingModuleName]);
+                    Artisan::call('module:disable', ['module' => $normalizedExisting]);
                 } catch (\Throwable $e) {
                     Log::warning("Could not disable module before replacement: " . $e->getMessage());
                 }
@@ -420,8 +423,9 @@ class ModuleService
         }
 
         // Remove old status entry if module name changed
-        if ($existingModuleName !== $moduleName && isset($moduleStatuses[$existingModuleName])) {
-            unset($moduleStatuses[$existingModuleName]);
+        $normalizedNew = $this->normalizeModuleName($moduleName);
+        if ($normalizedExisting !== $normalizedNew && isset($moduleStatuses[$normalizedExisting])) {
+            unset($moduleStatuses[$normalizedExisting]);
             File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
         }
 
@@ -442,6 +446,10 @@ class ModuleService
 
     /**
      * Install a module from a temporary extraction path.
+     *
+     * @param string $tempPath The temporary extraction path
+     * @param string $folderName The PascalCase folder name for PSR-4 autoloading
+     * @param string $moduleName The lowercase name from module.json for status tracking
      */
     protected function installModuleFromTemp(string $tempPath, string $folderName, string $moduleName): string
     {
@@ -467,10 +475,13 @@ class ModuleService
 
         // Save this module to the modules_statuses.json file as DISABLED.
         // New modules are disabled by default for security - admin must explicitly enable them.
-        // Use $folderName (PascalCase) as the key since Laravel Modules identifies modules by folder name.
+        // Use lowercase $moduleName (from module.json) as the key since that's what nwidart/laravel-modules expects.
         $moduleStatuses = $this->getModuleStatuses();
-        $moduleStatuses[$folderName] = false;
+        $normalizedName = $this->normalizeModuleName($moduleName);
+        $moduleStatuses[$normalizedName] = false;
         File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
+
+        Log::info("Module installed: folder={$folderName}, status_key={$normalizedName}, target={$targetPath}");
 
         // Publish pre-built assets if the module contains them.
         // Use path-based method since module isn't registered in Module facade yet.
@@ -488,8 +499,9 @@ class ModuleService
         // Clear the cache.
         Artisan::call('cache:clear');
 
-        // Return the folder name (PascalCase) as the module identifier
-        return $folderName;
+        // Return the lowercase module name (from module.json) as the module identifier
+        // This is what the UI and other parts of the system use to identify the module
+        return $normalizedName;
     }
 
     /**
@@ -572,9 +584,9 @@ class ModuleService
     {
         // First, check if module.json is directly in temp path (zipped from inside module)
         if (File::exists($tempPath . '/module.json')) {
-            // Read the module name from module.json to determine folder name
-            $moduleJson = json_decode(File::get($tempPath . '/module.json'), true);
-            $folderName = $moduleJson['name'] ?? basename($tempPath);
+            // Extract the PascalCase folder name from providers or composer.json
+            // This is critical for case-sensitive filesystems (Linux)
+            $folderName = $this->extractNamespaceFolderFromPath($tempPath);
 
             return [
                 'path' => $tempPath,
@@ -595,6 +607,59 @@ class ModuleService
 
         // Not found
         return null;
+    }
+
+    /**
+     * Extract the PascalCase folder name from a module's providers or composer.json.
+     *
+     * This is critical for case-sensitive filesystems (Linux). The folder name must
+     * match the PSR-4 namespace (e.g., "Crm" not "crm") for autoloading to work.
+     *
+     * Priority:
+     * 1. Extract from module.json providers: "Modules\\Crm\\..." -> "Crm"
+     * 2. Extract from composer.json PSR-4: "Modules\\Crm\\": "app/" -> "Crm"
+     * 3. Fallback to module.json name converted to StudlyCase
+     */
+    protected function extractNamespaceFolderFromPath(string $modulePath): string
+    {
+        // Try to extract from module.json providers first
+        $moduleJsonPath = $modulePath . '/module.json';
+        if (File::exists($moduleJsonPath)) {
+            $moduleJson = json_decode(File::get($moduleJsonPath), true);
+
+            // Check providers array for namespace
+            $providers = $moduleJson['providers'] ?? [];
+            foreach ($providers as $provider) {
+                // Match pattern: Modules\{ModuleName}\...
+                if (preg_match('/^Modules\\\\([^\\\\]+)\\\\/', $provider, $matches)) {
+                    return $matches[1]; // Returns "Crm" from "Modules\Crm\..."
+                }
+            }
+        }
+
+        // Try to extract from composer.json PSR-4 namespaces
+        $composerJsonPath = $modulePath . '/composer.json';
+        if (File::exists($composerJsonPath)) {
+            $composerJson = json_decode(File::get($composerJsonPath), true);
+            $psr4 = $composerJson['autoload']['psr-4'] ?? [];
+
+            foreach (array_keys($psr4) as $namespace) {
+                // Match pattern: Modules\{ModuleName}\
+                if (preg_match('/^Modules\\\\([^\\\\]+)\\\\/', $namespace, $matches)) {
+                    return $matches[1]; // Returns "Crm" from "Modules\Crm\"
+                }
+            }
+        }
+
+        // Fallback: convert module.json name to StudlyCase
+        if (File::exists($moduleJsonPath)) {
+            $moduleJson = json_decode(File::get($moduleJsonPath), true);
+            $name = $moduleJson['name'] ?? basename($modulePath);
+
+            return Str::studly($name);
+        }
+
+        return Str::studly(basename($modulePath));
     }
 
     public function toggleModule($moduleName, $enable = true): bool
