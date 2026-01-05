@@ -23,104 +23,31 @@
     }
 
     // Load Composer autoloader for class_exists checks
-    if (file_exists($vendorAutoload)) {
-        $loader = require $vendorAutoload;
+    if (! file_exists($vendorAutoload)) {
+        return;
+    }
 
-        // Register PSR-4 namespaces for all module directories
-        if (is_dir($modulesPath)) {
-            foreach (scandir($modulesPath) as $dir) {
-                if ($dir === '.' || $dir === '..' || ! is_dir($modulesPath . '/' . $dir)) {
-                    continue;
-                }
+    $loader = require $vendorAutoload;
 
-                $moduleDir = $modulesPath . '/' . $dir;
-                $composerJson = $moduleDir . '/composer.json';
-                $moduleJson = $moduleDir . '/module.json';
+    if (! is_dir($modulesPath)) {
+        return;
+    }
 
-                // First, try to use the module's composer.json for PSR-4 mappings
-                if (file_exists($composerJson)) {
-                    $composerConfig = json_decode(file_get_contents($composerJson), true);
-                    if (is_array($composerConfig) && ! empty($composerConfig['autoload']['psr-4'])) {
-                        foreach ($composerConfig['autoload']['psr-4'] as $namespace => $paths) {
-                            // Handle both string and array paths
-                            $paths = is_array($paths) ? $paths : [$paths];
-                            foreach ($paths as $path) {
-                                $fullPath = $moduleDir . '/' . ltrim($path, '/');
-                                if (is_dir($fullPath) || $path === '' || $path === './') {
-                                    $loader->addPsr4($namespace, $path === '' || $path === './' ? $moduleDir . '/' : $fullPath);
-                                }
-                            }
-                        }
-
-                        continue;
-                    }
-                }
-
-                // Fallback: use module.json and guess paths
-                if (file_exists($moduleJson)) {
-                    $config = json_decode(file_get_contents($moduleJson), true);
-                    if (is_array($config) && ! empty($config['name'])) {
-                        $namespace = 'Modules\\' . $config['name'] . '\\';
-                        // Try common paths for PSR-4 root
-                        $possibleRoots = [
-                            $moduleDir . '/app/',
-                            $moduleDir . '/src/',
-                            $moduleDir . '/',
-                        ];
-                        foreach ($possibleRoots as $root) {
-                            if (is_dir($root)) {
-                                $loader->addPsr4($namespace, $root);
-
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Register module vendor autoloaders
-            // This enables modules to have their own independent dependencies
-            foreach (scandir($modulesPath) as $dir) {
-                if ($dir === '.' || $dir === '..' || ! is_dir($modulesPath . '/' . $dir)) {
-                    continue;
-                }
-
-                $moduleVendorPath = $modulesPath . '/' . $dir . '/vendor';
-                $moduleVendorAutoload = $moduleVendorPath . '/autoload.php';
-
-                // Check if vendor directory is complete (has installed.php or installed.json)
-                // Incomplete vendor directories can cause autoload failures
-                $hasInstalledPhp = file_exists($moduleVendorPath . '/composer/installed.php');
-                $hasInstalledJson = file_exists($moduleVendorPath . '/composer/installed.json');
-
-                if (file_exists($moduleVendorAutoload) && ($hasInstalledPhp || $hasInstalledJson)) {
-                    try {
-                        require $moduleVendorAutoload;
-                    } catch (\Throwable $e) {
-                        // Silently continue - module vendor autoload failed
-                        // This will be handled when the module provider is validated
-                    }
-                }
-            }
+    // Build a case-insensitive map of actual module directories
+    $actualDirs = [];
+    foreach (scandir($modulesPath) as $dir) {
+        if ($dir === '.' || $dir === '..') {
+            continue;
+        }
+        $fullPath = $modulesPath . '/' . $dir;
+        if (is_dir($fullPath) && file_exists($fullPath . '/module.json')) {
+            $actualDirs[strtolower($dir)] = $dir;
         }
     }
 
     $modified = false;
     $disabledModules = [];
-
-    // Build a case-insensitive map of actual module directories
-    $actualDirs = [];
-    if (is_dir($modulesPath)) {
-        foreach (scandir($modulesPath) as $dir) {
-            if ($dir === '.' || $dir === '..') {
-                continue;
-            }
-            $fullPath = $modulesPath . '/' . $dir;
-            if (is_dir($fullPath) && file_exists($fullPath . '/module.json')) {
-                $actualDirs[strtolower($dir)] = $dir;
-            }
-        }
-    }
+    $validatedModules = []; // Track which modules passed validation
 
     foreach ($statuses as $moduleName => $isEnabled) {
         if (! $isEnabled) {
@@ -141,8 +68,9 @@
 
         $moduleDir = $modulesPath . '/' . $actualDir;
         $moduleJsonPath = $moduleDir . '/module.json';
+        $composerJson = $moduleDir . '/composer.json';
 
-        // Parse module.json and validate providers
+        // Parse module.json and validate
         $moduleConfig = json_decode(file_get_contents($moduleJsonPath), true);
 
         if (! is_array($moduleConfig)) {
@@ -153,15 +81,69 @@
             continue;
         }
 
-        // Check if providers can be loaded
+        // Register PSR-4 namespaces for this module ONLY
+        try {
+            if (file_exists($composerJson)) {
+                $composerConfig = json_decode(file_get_contents($composerJson), true);
+                if (is_array($composerConfig) && ! empty($composerConfig['autoload']['psr-4'])) {
+                    foreach ($composerConfig['autoload']['psr-4'] as $namespace => $paths) {
+                        $paths = is_array($paths) ? $paths : [$paths];
+                        foreach ($paths as $path) {
+                            $fullPath = $moduleDir . '/' . ltrim($path, '/');
+                            if (is_dir($fullPath) || $path === '' || $path === './') {
+                                $loader->addPsr4($namespace, $path === '' || $path === './' ? $moduleDir . '/' : $fullPath);
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Fallback: use module.json name and guess paths
+                if (! empty($moduleConfig['name'])) {
+                    // Extract namespace from providers if available
+                    $namespace = null;
+                    if (! empty($moduleConfig['providers'])) {
+                        foreach ($moduleConfig['providers'] as $provider) {
+                            if (preg_match('/^(Modules\\\\[^\\\\]+)\\\\/', $provider, $matches)) {
+                                $namespace = $matches[1] . '\\';
+
+                                break;
+                            }
+                        }
+                    }
+                    if (! $namespace) {
+                        $namespace = 'Modules\\' . ucfirst($moduleConfig['name']) . '\\';
+                    }
+
+                    // Try common paths for PSR-4 root
+                    $possibleRoots = [$moduleDir . '/app/', $moduleDir . '/src/', $moduleDir . '/'];
+                    foreach ($possibleRoots as $root) {
+                        if (is_dir($root)) {
+                            $loader->addPsr4($namespace, $root);
+
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            $statuses[$moduleName] = false;
+            $modified = true;
+            $disabledModules[$moduleName] = 'Failed to register autoloader: ' . $e->getMessage();
+
+            continue;
+        }
+
+        // Check if providers can be loaded (without loading module vendor yet)
         if (! empty($moduleConfig['providers'])) {
+            $providerValid = true;
             foreach ($moduleConfig['providers'] as $provider) {
                 try {
-                    // Check if class can be autoloaded
+                    // Check if class can be autoloaded from module's own code
                     if (! class_exists($provider, true)) {
                         $statuses[$moduleName] = false;
                         $modified = true;
                         $disabledModules[$moduleName] = "Provider class not found: {$provider}";
+                        $providerValid = false;
 
                         break;
                     }
@@ -169,9 +151,38 @@
                     $statuses[$moduleName] = false;
                     $modified = true;
                     $disabledModules[$moduleName] = "Error loading provider {$provider}: " . $e->getMessage();
+                    $providerValid = false;
 
                     break;
                 }
+            }
+
+            if (! $providerValid) {
+                continue;
+            }
+        }
+
+        // Module passed validation - mark for vendor loading
+        $validatedModules[$moduleName] = $moduleDir;
+    }
+
+    // Only load vendor autoloaders for validated/enabled modules
+    foreach ($validatedModules as $moduleName => $moduleDir) {
+        $moduleVendorPath = $moduleDir . '/vendor';
+        $moduleVendorAutoload = $moduleVendorPath . '/autoload.php';
+
+        // Check if vendor directory is complete
+        $hasInstalledPhp = file_exists($moduleVendorPath . '/composer/installed.php');
+        $hasInstalledJson = file_exists($moduleVendorPath . '/composer/installed.json');
+
+        if (file_exists($moduleVendorAutoload) && ($hasInstalledPhp || $hasInstalledJson)) {
+            try {
+                require $moduleVendorAutoload;
+            } catch (\Throwable $e) {
+                // Disable module if its vendor autoload fails
+                $statuses[$moduleName] = false;
+                $modified = true;
+                $disabledModules[$moduleName] = 'Module vendor autoload failed: ' . $e->getMessage();
             }
         }
     }
@@ -182,6 +193,6 @@
 
         // Store disabled modules for later notification
         $disabledPath = dirname(__DIR__) . '/storage/framework/modules_auto_disabled.json';
-        file_put_contents($disabledPath, json_encode($disabledModules, JSON_PRETTY_PRINT));
+        @file_put_contents($disabledPath, json_encode($disabledModules, JSON_PRETTY_PRINT));
     }
 })();
