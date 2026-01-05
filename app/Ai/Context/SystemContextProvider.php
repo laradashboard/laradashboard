@@ -37,7 +37,7 @@ class SystemContextProvider implements AiContextProviderInterface
 
         return [
             'id' => $user->id,
-            'name' => $user->name ?? $user->full_name ?? '',
+            'name' => $user->full_name ?? '',
             'email' => $user->email,
         ];
     }
