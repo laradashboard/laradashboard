@@ -1,4 +1,6 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
+    {!! Hook::applyFilters(ModuleFilterHook::MODULE_SHOW_AFTER_BREADCRUMBS, '', $module) !!}
+
     <x-slot name="breadcrumbsData">
         <x-breadcrumbs :breadcrumbs="$breadcrumbs">
             <x-slot name="title_before">
@@ -130,10 +132,13 @@
                         @endif
                     </div>
                 </x-card.card>
+
+                {!! Hook::applyFilters(ModuleFilterHook::MODULE_SHOW_AFTER_MAIN_CONTENT, '', $module) !!}
             </div>
 
             {{-- Sidebar (Right - 1 column) --}}
             <div class="lg:col-span-1 space-y-6">
+                {!! Hook::applyFilters(ModuleFilterHook::MODULE_SHOW_SIDEBAR_BEFORE, '', $module) !!}
                 {{-- Status Card --}}
                 <x-card.card bodyClass="!p-4 !space-y-4">
                     <x-slot:header>{{ __('Status') }}</x-slot:header>
@@ -178,6 +183,8 @@
                         </div>
                     </x-card.card>
                 @endif
+
+                {!! Hook::applyFilters(ModuleFilterHook::MODULE_SHOW_SIDEBAR_AFTER, '', $module) !!}
             </div>
         </div>
 
@@ -217,4 +224,6 @@
             </x-card.card>
         @endcan
     </div>
+
+    {!! Hook::applyFilters(ModuleFilterHook::MODULE_SHOW_AFTER_CONTENT, '', $module) !!}
 </x-layouts.backend-layout>

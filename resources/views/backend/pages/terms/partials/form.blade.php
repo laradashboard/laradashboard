@@ -7,6 +7,8 @@
     @method($term ? 'PUT' : 'POST')
     @csrf
 
+    {!! Hook::applyFilters(TermFilterHook::TERM_FORM_START, '', $term ?? null, $taxonomy) !!}
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <x-card class="{{ $term ? 'md:col-span-2' : 'md:col-span-3' }}">
             <x-slot name="header">
@@ -20,6 +22,7 @@
                     </label>
                     <input type="text" name="name" id="name" required x-model="title" class="form-control">
                 </div>
+                {!! Hook::applyFilters(TermFilterHook::TERM_FORM_AFTER_NAME, '', $term ?? null, $taxonomy) !!}
 
                 <div class="mt-2 space-y-1">
                     <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -40,6 +43,7 @@
                         </button>
                     </div>
                 </div>
+                {!! Hook::applyFilters(TermFilterHook::TERM_FORM_AFTER_SLUG, '', $term ?? null, $taxonomy) !!}
 
                 <!-- Description -->
                 <div class="mt-2 space-y-1">
@@ -47,6 +51,7 @@
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Description') }}</label>
                     <textarea name="description" id="description" rows="3" class="form-control !h-16">{{ old('description', $term ? $term->description : '') }}</textarea>
                 </div>
+                {!! Hook::applyFilters(TermFilterHook::TERM_FORM_AFTER_DESCRIPTION, '', $term ?? null, $taxonomy) !!}
 
                 @if(empty($term))
                 @include('backend.pages.terms.partials.term-additional-settings')
@@ -62,6 +67,10 @@
             @include('backend.pages.terms.partials.term-additional-settings')
         </x-card>
         @endif
+
+        {!! Hook::applyFilters(TermFilterHook::TERM_FORM_AFTER_ADDITIONAL_SETTINGS, '', $term ?? null, $taxonomy) !!}
+
+        {!! Hook::applyFilters(TermFilterHook::TERM_FORM_END, '', $term ?? null, $taxonomy) !!}
 
         <x-buttons.submit-buttons cancelUrl="{{ $term ? route('admin.terms.index', $taxonomy) : '' }}" />
     </div>

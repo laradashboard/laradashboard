@@ -9,7 +9,7 @@
 
 <img width="100%" alt="Lara Dashboard" src="https://github.com/user-attachments/assets/c56009a4-718f-43dc-bd1e-caad5417b05b"  />
 
-**⚡ Lara Dashboard** CMS By Laravel (7.x - 12.x) - Manages Users, Roles, Permissions, Modules, Settings, Translations, Contents(Post, Page, Category, Tags), System logs, Monitoring, Rest API's and every actions of your Laravel application. A complete CMS solution for Laravel application with Tailwind CSS integrated with all starting features including modules, dark/lite mode, charts, tables, forms, lots of components and many more. By our preimium modules, you can get more features like CRM, HRM, Course Management and so on.
+**⚡ Lara Dashboard** CMS By Laravel (7.x - 12.x) - Manages Users, Roles, Permissions, Modules, Settings, Translations, Contents(Post, Page, Category, Tags), AI Agent, System logs, Monitoring, Rest API's and every actions of your Laravel application. A complete Agentic CMS solution for Laravel application with Tailwind CSS integrated with all starting features including modules, dark/lite mode, charts, tables, forms, lots of components and many more. This also includes beautiful architecture for module developers to make a complete Agent base solutions. By our preimium modules, you can get more features like CRM, HRM, Course Management and so on.
 
 **Demo:** https://laradashboard.com/try-demo/
 
@@ -49,6 +49,13 @@ password - 12345678
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 📝 Changelog
+
+**[v0.9.1] - 2025-01-04**
+-   **Feat:** AI Agent - Agentic CMS assistant to help you create, manage, and optimize content using AI.
+-   **Feat:** Beautiful onboarding experience for initial installation.
+-   **Enhancement:** Improved AI content generation and fine-tuning options in post/page editor.
+-   **Enhancement:** Module improvement stability, upgrade notices.
+
 **[v0.9.0] - 2025-12-19**
 -   **chore:** Revamping the versions to v0.9.x.
 

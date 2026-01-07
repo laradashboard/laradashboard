@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\Hooks\PermissionActionHook;
+use App\Enums\Hooks\PermissionFilterHook;
 use App\Models\Permission;
+use App\Support\Facades\Hook;
 use Spatie\Permission\Models\Permission as SpatiePermission;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -13,7 +16,18 @@ use Illuminate\Support\Str;
 class PermissionService
 {
     /**
-     * Get all permissions organized by groups
+     * Get all permissions organized by groups.
+     *
+     * Modules can add custom permission groups using the PERMISSION_GROUPS filter hook.
+     *
+     * @example Adding custom permissions from a module:
+     * Hook::addFilter(PermissionFilterHook::PERMISSION_GROUPS, function ($groups) {
+     *     $groups[] = [
+     *         'group_name' => 'crm',
+     *         'permissions' => ['crm.view', 'crm.create', 'crm.edit', 'crm.delete'],
+     *     ];
+     *     return $groups;
+     * });
      */
     public function getAllPermissions(): array
     {
@@ -53,6 +67,7 @@ class PermissionService
                     'role.edit',
                     'role.delete',
                     'role.approve',
+                    'permission.view',
                 ],
             ],
             [
@@ -124,7 +139,8 @@ class PermissionService
             ],
         ];
 
-        return $permissions;
+        // Allow modules to add custom permission groups
+        return Hook::applyFilters(PermissionFilterHook::PERMISSION_GROUPS, $permissions);
     }
 
     /**
@@ -202,6 +218,9 @@ class PermissionService
         $createdPermissions = [];
         $permissions = $this->getAllPermissions();
 
+        // Fire action before syncing permissions
+        Hook::doAction(PermissionActionHook::PERMISSIONS_SYNC_BEFORE, $permissions);
+
         foreach ($permissions as $permissionGroup) {
             $groupName = $permissionGroup['group_name'];
 
@@ -211,6 +230,9 @@ class PermissionService
             }
         }
 
+        // Fire action after syncing permissions
+        Hook::doAction(PermissionActionHook::PERMISSIONS_SYNC_AFTER, $createdPermissions);
+
         return $createdPermissions;
     }
 
@@ -219,14 +241,26 @@ class PermissionService
      */
     public function findOrCreatePermission(string $name, string $groupName): Permission
     {
-        return Permission::firstOrCreate(
-            ['name' => $name],
-            [
-                'name' => $name,
-                'group_name' => $groupName,
-                'guard_name' => 'web',
-            ]
-        );
+        $existingPermission = Permission::where('name', $name)->first();
+
+        if ($existingPermission) {
+            return $existingPermission;
+        }
+
+        // Fire action before permission creation
+        Hook::doAction(PermissionActionHook::PERMISSION_CREATED_BEFORE, ['name' => $name, 'group_name' => $groupName]);
+
+        /** @var Permission $permission */
+        $permission = Permission::query()->create([
+            'name' => $name,
+            'group_name' => $groupName,
+            'guard_name' => 'web',
+        ]);
+
+        // Fire action after permission creation
+        Hook::doAction(PermissionActionHook::PERMISSION_CREATED_AFTER, $permission);
+
+        return $permission;
     }
 
     /**

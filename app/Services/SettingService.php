@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\Hooks\CommonFilterHook;
+use App\Enums\Hooks\SettingActionHook;
 use App\Models\Setting;
 use App\Support\Facades\Hook;
 
@@ -25,10 +26,18 @@ class SettingService
             return null;
         }
 
-        return Setting::updateOrCreate(
+        // Fire action before setting creation
+        Hook::doAction(SettingActionHook::SETTING_CREATED_BEFORE, $optionName, $optionValue);
+
+        $setting = Setting::updateOrCreate(
             ['option_name' => $optionName],
             ['option_value' => $optionValue ?? '', 'autoload' => $autoload]
         );
+
+        // Fire action after setting creation
+        Hook::doAction(SettingActionHook::SETTING_CREATED_AFTER, $setting);
+
+        return $setting;
     }
 
     public function updateSetting(string $optionName, mixed $optionValue, ?bool $autoload = null): bool
@@ -40,10 +49,18 @@ class SettingService
         $setting = Setting::where('option_name', $optionName)->first();
 
         if ($setting) {
+            $oldValue = $setting->option_value;
+
+            // Fire action before setting update
+            Hook::doAction(SettingActionHook::SETTING_UPDATED_BEFORE, $setting, $optionValue);
+
             $setting->update([
                 'option_value' => $optionValue,
                 'autoload' => $autoload ?? $setting->autoload,
             ]);
+
+            // Fire action after setting update
+            Hook::doAction(SettingActionHook::SETTING_UPDATED_AFTER, $setting, $oldValue);
 
             return true;
         }
@@ -53,7 +70,21 @@ class SettingService
 
     public function deleteSetting(string $optionName): bool
     {
-        return Setting::where('option_name', $optionName)->delete() > 0;
+        $setting = Setting::where('option_name', $optionName)->first();
+
+        if (! $setting) {
+            return false;
+        }
+
+        // Fire action before setting deletion
+        Hook::doAction(SettingActionHook::SETTING_DELETED_BEFORE, $setting);
+
+        $deleted = $setting->delete();
+
+        // Fire action after setting deletion
+        Hook::doAction(SettingActionHook::SETTING_DELETED_AFTER, $optionName);
+
+        return (bool) $deleted;
     }
 
     public function getSetting(string $optionName): mixed

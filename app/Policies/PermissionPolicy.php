@@ -24,28 +24,4 @@ class PermissionPolicy extends BasePolicy
     {
         return $this->checkPermission($user, 'permission.view');
     }
-
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return $this->checkPermission($user, 'permission.create');
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Permission $permission): bool
-    {
-        return $this->checkPermission($user, 'permission.edit');
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Permission $permission): bool
-    {
-        return $this->checkPermission($user, 'permission.delete');
-    }
 }

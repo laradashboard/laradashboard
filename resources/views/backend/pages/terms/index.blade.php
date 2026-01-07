@@ -7,7 +7,11 @@
         </div>
 
         <div class="lg:col-span-2 space-y-6">
+            {!! Hook::applyFilters(TermFilterHook::TERM_BEFORE_TABLE, '', $taxonomyModel) !!}
+
             @livewire('datatable.term-datatable', ['taxonomy' => $taxonomy])
+
+            {!! Hook::applyFilters(TermFilterHook::TERM_AFTER_TABLE, '', $taxonomyModel) !!}
         </div>
     </div>
 </x-layouts.backend-layout>

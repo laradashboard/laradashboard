@@ -1,4 +1,6 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
+    {!! Hook::applyFilters(NotificationFilterHook::NOTIFICATION_SHOW_AFTER_BREADCRUMBS, '', $notification) !!}
+
     <x-slot name="breadcrumbsData">
         <x-breadcrumbs :breadcrumbs="array_merge($breadcrumbs, ['title' => $notification->name])">
             <x-slot name="title_after">
@@ -204,4 +206,6 @@
     </div>
 
     <x-modals.test-email />
+
+    {!! Hook::applyFilters(NotificationFilterHook::NOTIFICATION_SHOW_AFTER_CONTENT, '', $notification) !!}
 </x-layouts.backend-layout>

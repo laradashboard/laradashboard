@@ -1,5 +1,3 @@
-@use('App\Enums\Hooks\RoleFilterHook')
-
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
     {!! Hook::applyFilters(RoleFilterHook::ROLE_SHOW_AFTER_BREADCRUMBS, '', $role) !!}
 
@@ -44,7 +42,7 @@
                                             <div class="p-4">
                                                 <div class="flex flex-wrap gap-2">
                                                     @foreach($groupedPermissions[$group->name] as $permission)
-                                                        <a href="{{ route('admin.permissions.show', $permission->id) }}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors">
+                                                        <a href="{{ route('admin.permissions.show', $permission->id) }}" class="badge">
                                                             <iconify-icon icon="lucide:check" class="mr-1.5 text-xs"></iconify-icon>
                                                             {{ $permission->name }}
                                                         </a>
@@ -83,7 +81,7 @@
                                             </div>
                                         </div>
                                         @can('user.view')
-                                            <a href="{{ route('admin.users.show', $user->id) }}" class="text-primary hover:underline text-sm">
+                                            <a href="{{ route('admin.users.show', $user->id) }}" class="btn-link text-sm">
                                                 <iconify-icon icon="lucide:eye" class="mr-1"></iconify-icon>
                                                 {{ __('View') }}
                                             </a>

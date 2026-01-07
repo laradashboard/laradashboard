@@ -1,4 +1,6 @@
 <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
+    {!! Hook::applyFilters(EmailFilterHook::EMAIL_TEMPLATE_SHOW_AFTER_BREADCRUMBS, '', $emailTemplate) !!}
+
     <x-slot name="breadcrumbsData">
         <x-breadcrumbs :breadcrumbs="array_merge($breadcrumbs, ['title' => $emailTemplate->name])">
             <x-slot name="title_after">
@@ -80,4 +82,6 @@
 
     <x-modals.test-email />
     <x-modals.duplicate-email-template :duplicate-url="route('admin.email-templates.duplicate', $emailTemplate->id)" />
+
+    {!! Hook::applyFilters(EmailFilterHook::EMAIL_TEMPLATE_SHOW_AFTER_CONTENT, '', $emailTemplate) !!}
 </x-layouts.backend-layout>

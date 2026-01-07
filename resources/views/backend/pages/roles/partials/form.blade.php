@@ -30,6 +30,8 @@
         <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
             {{ __('Choose a clear, descriptive name that reflects the role\'s purpose.') }}
         </p>
+
+        {!! Hook::applyFilters(RoleFilterHook::ROLE_FORM_AFTER_NAME, '', $role ?? null) !!}
     </div>
 </x-card>
 
@@ -109,6 +111,7 @@
 
         {{-- Permission Groups --}}
         <div id="permissionGroups" class="space-y-3 mt-4">
+            {!! Hook::applyFilters(RoleFilterHook::ROLE_FORM_BEFORE_PERMISSION_GROUPS, '', $role ?? null) !!}
             @php $groupIndex = 0; @endphp
             @foreach ($permission_groups as $group)
                 @php
@@ -196,6 +199,7 @@
                     </div>
                 </div>
             @endforeach
+            {!! Hook::applyFilters(RoleFilterHook::ROLE_FORM_AFTER_PERMISSIONS, '', $role ?? null) !!}
         </div>
     </div>
 

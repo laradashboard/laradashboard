@@ -58,6 +58,13 @@ const userGrowthChart = () => {
     },
     yaxis: {
       title: false,
+      forceNiceScale: true,
+      decimalsInFloat: 0,
+      labels: {
+        formatter: function (val) {
+          return Math.round(val);
+        },
+      },
     },
     grid: {
       yaxis: {

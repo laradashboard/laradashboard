@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\Hooks\TermActionHook;
+use App\Enums\Hooks\TermFilterHook;
 use App\Models\Term;
 use App\Services\Content\ContentService;
+use App\Support\Facades\Hook;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
@@ -65,6 +68,12 @@ class TermService
 
     public function createTerm(array $data, string $taxonomy): Term
     {
+        // Fire action before term creation
+        Hook::doAction(TermActionHook::TERM_CREATED_BEFORE, $data, $taxonomy);
+
+        // Allow filtering of term data
+        $data = Hook::applyFilters(TermFilterHook::TERM_CREATED_BEFORE, $data);
+
         $term = new Term();
         $term->name = $data['name'];
         $term->slug = $term->generateSlugFromString($data['slug'] ?? $data['name'] ?? '');
@@ -76,20 +85,33 @@ class TermService
         if (isset($data['featured_image']) && ! empty($data['featured_image'])) {
             if ($data['featured_image'] instanceof UploadedFile) {
                 $term->addMedia($data['featured_image'])->toMediaCollection('featured');
+                Hook::doAction(TermActionHook::TERM_FEATURED_IMAGE_ADDED, $term, $data['featured_image']);
             } elseif (is_string($data['featured_image'])) {
                 $this->mediaLibraryService->associateExistingMedia(
                     $term,
                     $data['featured_image'],
                     'featured'
                 );
+                Hook::doAction(TermActionHook::TERM_FEATURED_IMAGE_ADDED, $term, $data['featured_image']);
             }
         }
 
-        return $term;
+        // Fire action after term creation
+        Hook::doAction(TermActionHook::TERM_CREATED_AFTER, $term);
+
+        return Hook::applyFilters(TermFilterHook::TERM_CREATED_AFTER, $term);
     }
 
     public function updateTerm(Term $term, array $data): Term
     {
+        // Fire action before term update
+        Hook::doAction(TermActionHook::TERM_UPDATED_BEFORE, $term, $data);
+
+        // Allow filtering of term data
+        $data = Hook::applyFilters(TermFilterHook::TERM_UPDATED_BEFORE, $data);
+
+        $oldParentId = $term->parent_id;
+
         $term->name = $data['name'];
 
         // Generate slug if needed
@@ -103,23 +125,34 @@ class TermService
         $term->parent_id = $data['parent_id'] ?? null;
         $term->save();
 
+        // Fire parent changed action if parent changed
+        if ($oldParentId !== $term->parent_id) {
+            Hook::doAction(TermActionHook::TERM_PARENT_CHANGED, $term, $oldParentId, $term->parent_id);
+        }
+
         if (isset($data['remove_featured_image']) && $data['remove_featured_image']) {
             $term->clearMediaCollection('featured');
+            Hook::doAction(TermActionHook::TERM_FEATURED_IMAGE_REMOVED, $term);
         } elseif (isset($data['featured_image']) && ! empty($data['featured_image'])) {
             $term->clearMediaCollection('featured');
 
             if ($data['featured_image'] instanceof UploadedFile) {
                 $term->addMedia($data['featured_image'])->toMediaCollection('featured');
+                Hook::doAction(TermActionHook::TERM_FEATURED_IMAGE_ADDED, $term, $data['featured_image']);
             } elseif (is_string($data['featured_image'])) {
                 $this->mediaLibraryService->associateExistingMedia(
                     $term,
                     $data['featured_image'],
                     'featured'
                 );
+                Hook::doAction(TermActionHook::TERM_FEATURED_IMAGE_ADDED, $term, $data['featured_image']);
             }
         }
 
-        return $term;
+        // Fire action after term update
+        Hook::doAction(TermActionHook::TERM_UPDATED_AFTER, $term);
+
+        return Hook::applyFilters(TermFilterHook::TERM_UPDATED_AFTER, $term);
     }
 
     public function deleteTerm(Term $term): bool
@@ -134,7 +167,20 @@ class TermService
             return false;
         }
 
-        return $term->delete();
+        $termId = $term->id;
+        $taxonomy = $term->taxonomy;
+
+        // Fire action before term deletion
+        Hook::doAction(TermActionHook::TERM_DELETED_BEFORE, $term);
+
+        $deleted = $term->delete();
+
+        // Fire action after term deletion
+        if ($deleted) {
+            Hook::doAction(TermActionHook::TERM_DELETED_AFTER, $termId, $taxonomy);
+        }
+
+        return $deleted;
     }
 
     public function canDeleteTerm(Term $term): array

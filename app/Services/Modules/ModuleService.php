@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Modules;
 
+use App\Enums\Hooks\ModuleActionHook;
 use App\Exceptions\ModuleConflictException;
 use App\Exceptions\ModuleException;
+use App\Support\Facades\Hook;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -163,7 +165,7 @@ class ModuleService
 
         $markdown = File::get($descriptionFile);
 
-        return \Illuminate\Support\Str::markdown($markdown);
+        return Str::markdown($markdown);
     }
 
     /**
@@ -453,6 +455,9 @@ class ModuleService
      */
     protected function installModuleFromTemp(string $tempPath, string $folderName, string $moduleName): string
     {
+        // Fire action before module installation
+        Hook::doAction(ModuleActionHook::MODULE_INSTALLING_BEFORE, $moduleName, ['folder' => $folderName, 'path' => $tempPath]);
+
         $targetPath = $this->modulesPath . '/' . $folderName;
 
         // Check if the module is in a subdirectory or at the root of temp path
@@ -498,6 +503,9 @@ class ModuleService
 
         // Clear the cache.
         Artisan::call('cache:clear');
+
+        // Fire action after module installation
+        Hook::doAction(ModuleActionHook::MODULE_INSTALLED_AFTER, $normalizedName, $targetPath);
 
         // Return the lowercase module name (from module.json) as the module identifier
         // This is what the UI and other parts of the system use to identify the module
@@ -667,6 +675,13 @@ class ModuleService
         $action = $enable ? 'enable' : 'disable';
         Log::info("Attempting to {$action} module: {$moduleName}");
 
+        // Fire action hooks before enabling/disabling
+        if ($enable) {
+            Hook::doAction(ModuleActionHook::MODULE_ENABLING_BEFORE, $moduleName);
+        } else {
+            Hook::doAction(ModuleActionHook::MODULE_DISABLING_BEFORE, $moduleName);
+        }
+
         try {
             // Reload Composer autoloader to ensure newly uploaded module classes are available.
             // This is critical when activating a module that was just uploaded in a previous request.
@@ -689,12 +704,25 @@ class ModuleService
                 throw new \RuntimeException("Artisan command failed with exit code {$exitCode}: {$output}");
             }
 
-            // Publish pre-built assets when enabling a module
+            // When enabling a module, run migrations and publish assets
             if ($enable) {
+                Hook::doAction(ModuleActionHook::MODULE_MIGRATING_BEFORE, $moduleName);
+                $this->runModuleMigrations($moduleName);
+                Hook::doAction(ModuleActionHook::MODULE_MIGRATED_AFTER, $moduleName);
+
+                Hook::doAction(ModuleActionHook::MODULE_ASSETS_PUBLISHING_BEFORE, $moduleName);
                 $this->publishModuleAssets($moduleName);
+                Hook::doAction(ModuleActionHook::MODULE_ASSETS_PUBLISHED_AFTER, $moduleName);
             }
 
             Log::info("Successfully {$action}d module: {$moduleName}");
+
+            // Fire action hooks after enabling/disabling
+            if ($enable) {
+                Hook::doAction(ModuleActionHook::MODULE_ENABLED_AFTER, $moduleName);
+            } else {
+                Hook::doAction(ModuleActionHook::MODULE_DISABLED_AFTER, $moduleName);
+            }
         } catch (\Throwable $th) {
             Log::error("Failed to {$action} module {$moduleName}: " . $th->getMessage(), [
                 'exception' => $th::class,
@@ -709,6 +737,33 @@ class ModuleService
         }
 
         return true;
+    }
+
+    /**
+     * Run database migrations for a specific module.
+     *
+     * This ensures that when a module is enabled or updated,
+     * its database schema is properly set up.
+     */
+    protected function runModuleMigrations(string $moduleName): void
+    {
+        Log::info("Running migrations for module: {$moduleName}");
+
+        try {
+            $exitCode = Artisan::call('migrate', [
+                '--force' => true,
+            ]);
+            $output = Artisan::output();
+
+            Log::info("Migration result for {$moduleName}: exit={$exitCode}, output={$output}");
+
+            if ($exitCode !== 0) {
+                Log::warning("Migration for module {$moduleName} returned non-zero exit code: {$exitCode}");
+            }
+        } catch (\Throwable $th) {
+            Log::error("Failed to run migrations for module {$moduleName}: " . $th->getMessage());
+            // Don't throw - migrations might fail if tables already exist, which is fine
+        }
     }
 
     /**
@@ -869,6 +924,9 @@ class ModuleService
             throw new ModuleException(__('Module not found.'), Response::HTTP_NOT_FOUND);
         }
 
+        // Fire action before module deletion
+        Hook::doAction(ModuleActionHook::MODULE_DELETING_BEFORE, $moduleName);
+
         // Disable the module before deletion.
         Artisan::call('module:disable', ['module' => $module->getName()]);
 
@@ -887,6 +945,9 @@ class ModuleService
 
         // Clear the cache.
         Artisan::call('cache:clear');
+
+        // Fire action after module deletion
+        Hook::doAction(ModuleActionHook::MODULE_DELETED_AFTER, $moduleName);
     }
 
     /**
@@ -971,7 +1032,7 @@ class ModuleService
             return false;
         }
 
-        $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
+        $moduleSlug = Str::slug($moduleName);
         // Use actual module path to handle case sensitivity (folder might be lowercase)
         $sourcePath = $module->getPath() . '/dist/build-' . $moduleSlug;
         $targetPath = public_path('build-' . $moduleSlug);
@@ -1016,7 +1077,7 @@ class ModuleService
             return false;
         }
 
-        $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
+        $moduleSlug = Str::slug($moduleName);
         // Use actual module path to handle case sensitivity
         $distPath = $module->getPath() . '/dist/build-' . $moduleSlug;
 
@@ -1031,7 +1092,7 @@ class ModuleService
      */
     public function cleanupModuleAssets(string $moduleName): bool
     {
-        $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
+        $moduleSlug = Str::slug($moduleName);
         $targetPath = public_path('build-' . $moduleSlug);
 
         if (! File::isDirectory($targetPath)) {
@@ -1058,7 +1119,7 @@ class ModuleService
      */
     public function hasPrebuiltAssetsAtPath(string $modulePath, string $moduleName): bool
     {
-        $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
+        $moduleSlug = Str::slug($moduleName);
         $distPath = $modulePath . '/dist/build-' . $moduleSlug;
 
         return File::isDirectory($distPath) && File::exists($distPath . '/manifest.json');
@@ -1075,7 +1136,7 @@ class ModuleService
      */
     public function publishModuleAssetsFromPath(string $modulePath, string $moduleName, bool $force = false): bool
     {
-        $moduleSlug = \Illuminate\Support\Str::slug($moduleName);
+        $moduleSlug = Str::slug($moduleName);
         $sourcePath = $modulePath . '/dist/build-' . $moduleSlug;
         $targetPath = public_path('build-' . $moduleSlug);
 

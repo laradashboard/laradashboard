@@ -18,8 +18,8 @@
             @isset($header)
                 <div class="px-6 py-4 border-b border-gray-200 font-semibold flex justify-between items-center {{ $headerClass ?? '' }}">
                     {{ $header }}
-                    <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" @click="open=false" title="{{ __('Close') }}">
-                        <iconify-icon icon="mdi:close" class="w-5 h-5" />
+                    <button type="button" class="btn-outline-secondary p-1 flex items-center justify-center w-6 h-6" @click="open=false" title="{{ __('Close') }}">
+                        <iconify-icon icon="mdi:close" class="flex w-5 h-5" />
                     </button>
                 </div>
             @endisset
