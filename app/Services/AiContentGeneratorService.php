@@ -12,42 +12,61 @@ use Illuminate\Support\Facades\Log;
 class AiContentGeneratorService
 {
     private ?string $provider;
+
     private ?string $apiKey;
+
+    private ?string $baseUrl;
 
     public function __construct()
     {
         $this->provider = config('settings.ai_default_provider', 'openai');
-        $this->setApiKey();
+        $this->setProviderConfig();
     }
 
     public function setProvider(?string $provider): self
     {
         $this->provider = $provider;
-        $this->setApiKey();
+        $this->setProviderConfig();
 
         return $this;
     }
 
-    private function setApiKey(): void
+    private function setProviderConfig(): void
     {
         $this->apiKey = match ($this->provider) {
             'openai' => config('settings.ai_openai_api_key') ?: config('ai.openai.api_key'),
             'claude' => config('settings.ai_claude_api_key') ?: config('ai.anthropic.api_key'),
+            'gemini' => config('settings.ai_gemini_api_key') ?: config('ai.gemini.api_key'),
+            'ollama' => null, // Ollama doesn't require an API key
             default => throw new Exception("Unsupported AI provider: {$this->provider}")
         };
 
-        if (empty($this->apiKey)) {
-            // throw new Exception("API key not configured for provider: {$this->provider}");
+        // Set base URL for Ollama
+        $this->baseUrl = match ($this->provider) {
+            'ollama' => config('settings.ai_ollama_base_url') ?: config('ai.ollama.base_url', 'http://localhost:11434'),
+            default => null,
+        };
+
+        // Validate configuration
+        if ($this->provider !== 'ollama' && empty($this->apiKey)) {
             Log::error('AI Content Generator: API key not configured', [
                 'provider' => $this->provider,
             ]);
+        }
+
+        if ($this->provider === 'ollama' && empty($this->baseUrl)) {
+            Log::error('AI Content Generator: Ollama base URL not configured');
         }
     }
 
     public function generateContent(string $prompt, string $type = 'general'): array
     {
-        // Check if API key is configured before making request
-        if (empty($this->apiKey)) {
+        // Check if provider is configured before making request
+        if ($this->provider === 'ollama') {
+            if (empty($this->baseUrl)) {
+                throw new Exception(__('Ollama is not configured. Please set the Ollama base URL in settings.'));
+            }
+        } elseif (empty($this->apiKey)) {
             throw new Exception(__('AI service is not configured. Please contact the administrator to set up the API key.'));
         }
 
@@ -99,12 +118,16 @@ Example format:
         return match ($this->provider) {
             'openai' => $this->sendOpenAiRequest($systemPrompt, $userPrompt),
             'claude' => $this->sendClaudeRequest($systemPrompt, $userPrompt),
+            'gemini' => $this->sendGeminiRequest($systemPrompt, $userPrompt),
+            'ollama' => $this->sendOllamaRequest($systemPrompt, $userPrompt),
             default => throw new Exception("Unsupported provider: {$this->provider}")
         };
     }
 
     private function sendOpenAiRequest(string $systemPrompt, string $userPrompt): Response
     {
+        $model = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-4o-mini');
+
         return Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->apiKey,
             'Content-Type' => 'application/json',
@@ -112,7 +135,7 @@ Example format:
             ->post(
                 'https://api.openai.com/v1/chat/completions',
                 [
-                    'model' => 'gpt-3.5-turbo',
+                    'model' => $model,
                     'messages' => [
                         ['role' => 'system', 'content' => $systemPrompt],
                         ['role' => 'user', 'content' => $userPrompt],
@@ -125,6 +148,8 @@ Example format:
 
     private function sendClaudeRequest(string $systemPrompt, string $userPrompt): Response
     {
+        $model = config('settings.ai_claude_model') ?: config('ai.anthropic.model', 'claude-3-haiku-20240307');
+
         return Http::withHeaders([
             'x-api-key' => $this->apiKey,
             'Content-Type' => 'application/json',
@@ -133,11 +158,62 @@ Example format:
             ->post(
                 'https://api.anthropic.com/v1/messages',
                 [
-                    'model' => 'claude-3-haiku-20240307',
+                    'model' => $model,
                     'max_tokens' => $this->getMaxTokens(),
                     'system' => $systemPrompt,
                     'messages' => [
                         ['role' => 'user', 'content' => $userPrompt],
+                    ],
+                ]
+            );
+    }
+
+    private function sendGeminiRequest(string $systemPrompt, string $userPrompt): Response
+    {
+        $model = config('settings.ai_gemini_model') ?: config('ai.gemini.model', 'gemini-2.0-flash');
+
+        return Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->timeout(60)
+            ->post(
+                "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$this->apiKey}",
+                [
+                    'contents' => [
+                        [
+                            'role' => 'user',
+                            'parts' => [
+                                ['text' => $systemPrompt . "\n\n" . $userPrompt],
+                            ],
+                        ],
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.7,
+                        'maxOutputTokens' => $this->getMaxTokens(),
+                        'responseMimeType' => 'application/json',
+                    ],
+                ]
+            );
+    }
+
+    private function sendOllamaRequest(string $systemPrompt, string $userPrompt): Response
+    {
+        $model = config('settings.ai_ollama_model') ?: config('ai.ollama.model', 'llama3.2');
+        $baseUrl = rtrim($this->baseUrl, '/');
+
+        return Http::timeout(120)
+            ->post(
+                "{$baseUrl}/api/chat",
+                [
+                    'model' => $model,
+                    'messages' => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user', 'content' => $userPrompt],
+                    ],
+                    'stream' => false,
+                    'format' => 'json',
+                    'options' => [
+                        'num_predict' => $this->getMaxTokens(),
+                        'temperature' => 0.7,
                     ],
                 ]
             );
@@ -154,6 +230,8 @@ Example format:
         $content = match ($this->provider) {
             'openai' => $data['choices'][0]['message']['content'] ?? '',
             'claude' => $data['content'][0]['text'] ?? '',
+            'gemini' => $this->extractGeminiContent($data),
+            'ollama' => $data['message']['content'] ?? '',
             default => throw new Exception("Unknown provider: {$this->provider}")
         };
 
@@ -164,6 +242,11 @@ Example format:
         $parsedContent = json_decode($cleanedContent, true);
 
         if (json_last_error() === JSON_ERROR_NONE && is_array($parsedContent)) {
+            // Handle nested structure if present
+            if (isset($parsedContent[0]) && is_array($parsedContent[0])) {
+                $parsedContent = $parsedContent[0];
+            }
+
             // Ensure we have the required keys
             return [
                 'title' => $parsedContent['title'] ?? 'Generated Title',
@@ -171,6 +254,13 @@ Example format:
                 'content' => $parsedContent['content'] ?? $content,
             ];
         }
+
+        // Log parsing failure for debugging
+        Log::warning('AI response JSON parsing failed', [
+            'provider' => $this->provider,
+            'json_error' => json_last_error_msg(),
+            'content_preview' => substr($cleanedContent, 0, 200),
+        ]);
 
         // If not valid JSON, try to structure the content better
         $lines = explode("\n", trim($content));
@@ -205,20 +295,71 @@ Example format:
     }
 
     /**
-     * Extract JSON from AI response, handling markdown code blocks and extra text
+     * Extract content from Gemini API response, handling various response formats
+     */
+    private function extractGeminiContent(array $data): string
+    {
+        // Standard response path
+        $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+
+        if ($text !== null) {
+            return $text;
+        }
+
+        // Try alternative paths Gemini might use
+        if (isset($data['candidates'][0]['content']['parts'])) {
+            $parts = $data['candidates'][0]['content']['parts'];
+            foreach ($parts as $part) {
+                if (isset($part['text'])) {
+                    return $part['text'];
+                }
+            }
+        }
+
+        // If response is directly in candidates
+        if (isset($data['candidates'][0]['text'])) {
+            return $data['candidates'][0]['text'];
+        }
+
+        // Log unexpected format.
+        Log::error('Unexpected Gemini response format', [
+            'data_keys' => array_keys($data),
+            'candidates' => $data['candidates'] ?? 'not set',
+        ]);
+
+        return '';
+    }
+
+    /**
+     * Extract JSON from AI response, handling markdown code blocks, arrays, and extra text
      */
     private function extractJsonFromResponse(string $content): string
     {
         $content = trim($content);
 
         // Remove markdown code blocks (```json ... ``` or ``` ... ```)
-        if (preg_match('/```(?:json)?\s*([\s\S]*?)\s*```/', $content, $matches)) {
+        if (preg_match('/```(?:json)?\s*([\s\S]*?)\s*```/s', $content, $matches)) {
             $content = trim($matches[1]);
         }
 
-        // Try to find JSON object in the response (starts with { and ends with })
-        if (preg_match('/\{[\s\S]*\}/', $content, $matches)) {
-            $content = $matches[0];
+        // Check if content starts with [ (array) - Gemini sometimes wraps response in array
+        if (str_starts_with($content, '[')) {
+            $decoded = json_decode($content, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded) && ! empty($decoded)) {
+                // If it's an array, get the first element
+                $firstElement = $decoded[0] ?? $decoded;
+                if (is_array($firstElement)) {
+                    return json_encode($firstElement);
+                }
+            }
+        }
+
+        // Find JSON object boundaries (first { to last })
+        $firstBrace = strpos($content, '{');
+        $lastBrace = strrpos($content, '}');
+
+        if ($firstBrace !== false && $lastBrace !== false && $lastBrace > $firstBrace) {
+            $content = substr($content, $firstBrace, $lastBrace - $firstBrace + 1);
         }
 
         return $content;
@@ -253,9 +394,34 @@ Example format:
             return __('AI service error: :message', ['message' => $this->truncateMessage($errorMessage)]);
         }
 
-        // Handle Claude/Anthropic errors
-        if (isset($body['error']['message'])) {
-            return __('AI service error: :message', ['message' => $this->truncateMessage($body['error']['message'])]);
+        // Handle Gemini errors
+        if (isset($body['error']['message']) && $this->provider === 'gemini') {
+            $errorMessage = $body['error']['message'];
+            if (str_contains($errorMessage, 'API key')) {
+                return __('Gemini API key is invalid. Please check your API key in settings.');
+            }
+
+            return __('Gemini error: :message', ['message' => $this->truncateMessage($errorMessage)]);
+        }
+
+        // Handle Ollama errors
+        if ($this->provider === 'ollama') {
+            if (isset($body['error'])) {
+                $errorMessage = is_string($body['error']) ? $body['error'] : ($body['error']['message'] ?? 'Unknown error');
+
+                if (str_contains($errorMessage, 'model') && str_contains($errorMessage, 'not found')) {
+                    return __('Ollama model not found. Please ensure the model is installed (run: ollama pull :model)', [
+                        'model' => config('settings.ai_ollama_model') ?: config('ai.ollama.model', 'llama3.2'),
+                    ]);
+                }
+
+                return __('Ollama error: :message', ['message' => $this->truncateMessage($errorMessage)]);
+            }
+
+            // Connection refused or timeout
+            if ($statusCode === 0) {
+                return __('Cannot connect to Ollama. Please ensure Ollama is running at :url', ['url' => $this->baseUrl]);
+            }
         }
 
         // Handle HTTP status codes
@@ -285,8 +451,12 @@ Example format:
      */
     public function modifyText(string $text, string $instruction): string
     {
-        // Check if API key is configured before making request
-        if (empty($this->apiKey)) {
+        // Check if provider is configured before making request
+        if ($this->provider === 'ollama') {
+            if (empty($this->baseUrl)) {
+                throw new Exception(__('Ollama is not configured. Please set the Ollama base URL in settings.'));
+            }
+        } elseif (empty($this->apiKey)) {
             throw new Exception(__('AI service is not configured. Please contact the administrator to set up the API key.'));
         }
 
@@ -330,6 +500,8 @@ IMPORTANT RULES:
         $content = match ($this->provider) {
             'openai' => $data['choices'][0]['message']['content'] ?? '',
             'claude' => $data['content'][0]['text'] ?? '',
+            'gemini' => $this->extractGeminiContent($data),
+            'ollama' => $data['message']['content'] ?? '',
             default => throw new Exception("Unknown provider: {$this->provider}")
         };
 
@@ -350,6 +522,14 @@ IMPORTANT RULES:
 
         if (config('settings.ai_claude_api_key') ?: config('ai.anthropic.api_key')) {
             $providers['claude'] = 'Claude (Anthropic)';
+        }
+
+        if (config('settings.ai_gemini_api_key') ?: config('ai.gemini.api_key')) {
+            $providers['gemini'] = 'Gemini (Google)';
+        }
+
+        if (config('settings.ai_ollama_base_url') ?: config('ai.ollama.base_url')) {
+            $providers['ollama'] = 'Ollama (Local)';
         }
 
         return $providers;
