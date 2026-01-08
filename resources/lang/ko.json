@@ -392,7 +392,7 @@
     "Translated": "번역됨",
     "Translation Management": "번역 관리",
     "Type": "유형",
-    "Type / to choose a block": "블록을 선택하려면 /를 입력하세요",
+    "Type \/ to choose a block": "블록을 선택하려면 \/를 입력하세요",
     "Update": "업데이트",
     "Update Role": "역할 업데이트",
     "Update User": "사용자 업데이트",
@@ -443,5 +443,6 @@
     "noreply@example.com": "noreply@example.com",
     "or click to browse": "또는 클릭하여 찾아보기",
     "permissions": "permissions",
-    "permission|permissions": "permission|permissions"
+    "permission|permissions": "permission|permissions",
+    "Username or Email": "사용자 이름 또는 이메일"
 }

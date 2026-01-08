@@ -11,19 +11,24 @@
     $iconClass = $iconClass ?? 'text-gray-700 transition-colors hover:text-gray-800 dark:text-gray-300 dark:hover:text-white';
 
     $iconSize = $iconSize ?? '24';
+
+    // When positioned at bottom of screen, dropdown should open upward
+    $openUpward = $openUpward ?? false;
+    $dropdownPositionClass = $openUpward ? 'bottom-full mb-2 origin-bottom-right' : 'mt-2 origin-top-right';
+    $translateStart = $openUpward ? '-translate-y-1' : 'translate-y-1';
 @endphp
 
-<div x-data="{ 
+<div x-data="{
     open: false,
     close() {
         this.open = false;
     }
-}" 
-@click.away="close()" 
-@keydown.escape.window="close()" 
+}"
+@click.away="close()"
+@keydown.escape.window="close()"
 class="relative">
-    
-    <button 
+
+    <button
         @click="open = !open"
         :aria-expanded="open"
         aria-haspopup="true"
@@ -32,19 +37,19 @@ class="relative">
         <iconify-icon icon="prime:language" width="{{ $iconSize }}" height="{{ $iconSize }}" class="{{ $iconClass }}"></iconify-icon>
     </button>
 
-    <div 
+    <div
         x-show="open"
         x-cloak
         x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 scale-95 translate-y-1"
+        x-transition:enter-start="opacity-0 scale-95 {{ $translateStart }}"
         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-        x-transition:leave-end="opacity-0 scale-95 translate-y-1"
+        x-transition:leave-end="opacity-0 scale-95 {{ $translateStart }}"
         x-trap.inert.noscroll="open"
-        class="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 max-h-[200px] overflow-y-auto"
-        role="menu" 
-        aria-orientation="vertical" 
+        class="absolute right-0 z-50 {{ $dropdownPositionClass }} w-56 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 max-h-[200px] overflow-y-auto"
+        role="menu"
+        aria-orientation="vertical"
         tabindex="-1">
         
         <div class="py-1" role="none">

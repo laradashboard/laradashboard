@@ -902,7 +902,7 @@
     "Trash": "回收站",
     "Twitter": "Twitter",
     "Type": "类型",
-    "Type / to choose a block": "输入 / 选择一个块",
+    "Type \/ to choose a block": "输入 \/ 选择一个块",
     "URL": "URL",
     "Unauthorized": "未授权",
     "Unauthorized Access": "未授权访问",
@@ -1050,5 +1050,6 @@
     "seconds": "秒",
     "to": "到",
     "weeks": "周",
-    "years": "年"
+    "years": "年",
+    "Username or Email": "用户名或邮箱"
 }

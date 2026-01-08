@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -15,7 +16,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
+        $superadmin = User::create([
             'first_name' => 'Super',
             'last_name' => 'Admin',
             'email' => 'superadmin@example.com',
@@ -24,7 +25,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        User::create([
+        $admin = User::create([
             'first_name' => 'Admin',
             'last_name' => '',
             'email' => 'admin@example.com',
@@ -33,7 +34,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        User::create([
+        $subscriber = User::create([
             'first_name' => 'Sub',
             'last_name' => 'Scriber',
             'email' => 'subscriber@example.com',
@@ -44,6 +45,32 @@ class UserSeeder extends Seeder
 
         // Run factory to create additional users with unique details.
         User::factory()->count(500)->create();
-        $this->command->info('Users table seeded with 502 users!');
+
+        // Assign roles to core users (roles created in permission migration)
+        $this->assignRolesToUsers($superadmin, $admin, $subscriber);
+
+        $this->command->info('Users table seeded with 503 users!');
+    }
+
+    /**
+     * Assign roles to core users.
+     */
+    private function assignRolesToUsers(User $superadmin, User $admin, User $subscriber): void
+    {
+        // Only assign if roles exist (created by migration)
+        if (Role::where('name', 'Superadmin')->exists()) {
+            $superadmin->assignRole('Superadmin');
+            $this->command->info('Assigned Superadmin role to superadmin user.');
+        }
+
+        if (Role::where('name', 'Admin')->exists()) {
+            $admin->assignRole('Admin');
+            $this->command->info('Assigned Admin role to admin user.');
+        }
+
+        if (Role::where('name', 'Subscriber')->exists()) {
+            $subscriber->assignRole('Subscriber');
+            $this->command->info('Assigned Subscriber role to subscriber user.');
+        }
     }
 }

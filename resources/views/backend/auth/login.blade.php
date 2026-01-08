@@ -26,14 +26,14 @@
           {!! Hook::applyFilters(AuthFilterHook::LOGIN_FORM_FIELDS_BEFORE_EMAIL, '') !!}
 
           <div>
-            <label class="form-label" for="email">{{ __('Email') }}</label>
+            <label class="form-label" for="email">{{ __('Username or Email') }}</label>
             <input
               autofocus
               type="text"
               id="email"
               name="email"
               autocomplete="username"
-              placeholder="{{ __('Enter your email') }}"
+              placeholder="{{ __('Enter your username or email') }}"
               class="form-control"
               value="{{ old('email', $email ?? '') }}"
               required

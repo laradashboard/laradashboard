@@ -653,7 +653,7 @@
     "Multiple": "Meerdere",
     "My Company": "Mijn bedrijf",
     "My Email Connection": "Mijn e-mailverbinding",
-    "N/A": "N.v.t.",
+    "N\/A": "N.v.t.",
     "Name": "Naam",
     "Name is required": "Naam is verplicht",
     "Navigation": "Navigatie",
@@ -1265,7 +1265,7 @@
     "Two Columns": "Twee Kolommen",
     "Two Factor Authentication": "Twee-Factor Authenticatie",
     "Type": "Type",
-    "Type / to choose a block": "Typ / om een blok te kiezen",
+    "Type \/ to choose a block": "Typ \/ om een blok te kiezen",
     "Types": "Types",
     "URL": "URL",
     "Unauthorized": "Ongeautoriseerd",
@@ -1443,5 +1443,6 @@
     "rows": "rijen",
     "selected": "geselecteerd",
     "showing": "toont",
-    "to": "naar"
+    "to": "naar",
+    "Username or Email": "Gebruikersnaam of e-mail"
 }

@@ -17,17 +17,6 @@ class PermissionService
 {
     /**
      * Get all permissions organized by groups.
-     *
-     * Modules can add custom permission groups using the PERMISSION_GROUPS filter hook.
-     *
-     * @example Adding custom permissions from a module:
-     * Hook::addFilter(PermissionFilterHook::PERMISSION_GROUPS, function ($groups) {
-     *     $groups[] = [
-     *         'group_name' => 'crm',
-     *         'permissions' => ['crm.view', 'crm.create', 'crm.edit', 'crm.delete'],
-     *     ];
-     *     return $groups;
-     * });
      */
     public function getAllPermissions(): array
     {
@@ -135,6 +124,15 @@ class PermissionService
                 'group_name' => 'ai_content',
                 'permissions' => [
                     'ai_content.generate',
+                ],
+            ],
+            [
+                'group_name' => 'email_template',
+                'permissions' => [
+                    'email_template.create',
+                    'email_template.view',
+                    'email_template.edit',
+                    'email_template.delete',
                 ],
             ],
         ];
@@ -423,5 +421,79 @@ class PermissionService
     public static function formatGroupName(string $groupName): string
     {
         return Str::title(str_replace('_', ' ', $groupName));
+    }
+
+    /**
+     * Create permissions and assign them to specified roles.
+     *
+     * This method is designed to be used by modules in their migrations to:
+     * 1. Create permissions if they don't exist
+     * 2. Assign them to the specified roles (default: Superadmin)
+     *
+     * @param array $permissionGroups Array of permission groups, each containing 'group_name' and 'permissions'
+     * @param array $roleNames Array of role names to assign permissions to (default: ['Superadmin'])
+     * @return array Array of created/updated permission names
+     *
+     * @example
+     * PermissionService::syncPermissionsForRoles([
+     *     ['group_name' => 'crm', 'permissions' => ['crm.view', 'crm.create']],
+     *     ['group_name' => 'contact', 'permissions' => ['contact.view', 'contact.edit']],
+     * ]);
+     */
+    public static function syncPermissionsForRoles(array $permissionGroups, array $roleNames = ['Superadmin']): array
+    {
+        // Clear permission cache before operations
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $allPermissionNames = [];
+
+        // Create all permissions
+        foreach ($permissionGroups as $permissionGroup) {
+            $groupName = $permissionGroup['group_name'];
+
+            foreach ($permissionGroup['permissions'] as $permissionName) {
+                Permission::firstOrCreate(
+                    ['name' => $permissionName, 'guard_name' => 'web'],
+                    ['group_name' => $groupName]
+                );
+                $allPermissionNames[] = $permissionName;
+            }
+        }
+
+        // Assign permissions to each specified role
+        foreach ($roleNames as $roleName) {
+            $role = \Spatie\Permission\Models\Role::where('name', $roleName)->first();
+
+            if ($role) {
+                $role->givePermissionTo($allPermissionNames);
+            }
+        }
+
+        // Clear permission cache after operations
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        return $allPermissionNames;
+    }
+
+    /**
+     * Remove permissions by names.
+     *
+     * This method is designed to be used by modules in their migration rollbacks.
+     * It removes the permissions and automatically detaches them from all roles.
+     *
+     * @param array $permissionNames Array of permission names to remove
+     * @return int Number of permissions deleted
+     */
+    public static function removePermissions(array $permissionNames): int
+    {
+        // Clear permission cache before operations
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $deleted = Permission::whereIn('name', $permissionNames)->delete();
+
+        // Clear permission cache after operations
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        return $deleted;
     }
 }

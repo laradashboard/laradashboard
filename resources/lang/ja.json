@@ -1160,7 +1160,7 @@
     "Tuesday": "火曜日",
     "Twitter": "Twitter",
     "Type": "タイプ",
-    "Type / to choose a block": "/ を入力してブロックを選択",
+    "Type \/ to choose a block": "\/ を入力してブロックを選択",
     "Type here": "ここに入力",
     "Type here...": "ここに入力...",
     "Type something...": "何か入力してください...",
@@ -1326,5 +1326,6 @@
     "permissions": "permissions",
     "permission|permissions": "permission|permissions",
     "to": "宛先",
-    "via": "経由"
+    "via": "経由",
+    "Username or Email": "ユーザー名またはメール"
 }

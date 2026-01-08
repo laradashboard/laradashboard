@@ -660,7 +660,7 @@
     "My Email Connection": "Min e-postanslutning",
     "My Profile": "Min profil",
     "My Templates": "Mina mallar",
-    "N/A": "N/A",
+    "N\/A": "N\/A",
     "Name": "Namn",
     "Name is required": "Namn krävs",
     "Navigation": "Navigering",
@@ -1256,7 +1256,7 @@
     "Twitter": "Twitter",
     "Two Factor Authentication": "Tvåfaktorsautentisering",
     "Type": "Typ",
-    "Type / to choose a block": "Skriv / för att välja ett block",
+    "Type \/ to choose a block": "Skriv \/ för att välja ett block",
     "Type here": "Skriv här",
     "Type here...": "Skriv här...",
     "Type something": "Skriv något",
@@ -1450,5 +1450,6 @@
     "permission|permissions": "permission|permissions",
     "results": "resultat",
     "rows": "rader",
-    "to": "till"
+    "to": "till",
+    "Username or Email": "Användarnamn eller e-post"
 }

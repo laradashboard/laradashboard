@@ -1135,7 +1135,7 @@
     "To": "A",
     "To Date": "Alla Data",
     "Today": "Oggi",
-    "Toggle": "Attiva/Disattiva",
+    "Toggle": "Attiva\/Disattiva",
     "Token": "Token",
     "Too Many Requests": "Troppe Richieste",
     "Toolbar": "Barra Strumenti",
@@ -1160,7 +1160,7 @@
     "Tuesday": "Martedì",
     "Twitter": "Twitter",
     "Type": "Tipo",
-    "Type / to choose a block": "Digita / per scegliere un blocco",
+    "Type \/ to choose a block": "Digita \/ per scegliere un blocco",
     "Type here": "Scrivi qui",
     "Type here...": "Scrivi qui...",
     "Type something...": "Scrivi qualcosa...",
@@ -1316,7 +1316,7 @@
     "is already in the queue.": "è già in coda.",
     "item": "elemento",
     "items": "elementi",
-    "module(s) installed successfully.": "modulo/i installato/i con successo.",
+    "module(s) installed successfully.": "modulo\/i installato\/i con successo.",
     "noreply@example.com": "noreply@example.com",
     "of": "di",
     "on": "il",
@@ -1326,5 +1326,6 @@
     "permissions": "permissions",
     "permission|permissions": "permission|permissions",
     "to": "a",
-    "via": "tramite"
+    "via": "tramite",
+    "Username or Email": "Nome utente o e-mail"
 }

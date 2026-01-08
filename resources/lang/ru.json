@@ -653,7 +653,7 @@
     "Multiple": "Множественный",
     "My Company": "Моя компания",
     "My Email Connection": "Моё email-подключение",
-    "N/A": "Н/Д",
+    "N\/A": "Н\/Д",
     "Name": "Имя",
     "Name is required": "Имя обязательно",
     "Navigation": "Навигация",
@@ -1265,7 +1265,7 @@
     "Two Columns": "Две колонки",
     "Two Factor Authentication": "Двухфакторная аутентификация",
     "Type": "Тип",
-    "Type / to choose a block": "Введите / чтобы выбрать блок",
+    "Type \/ to choose a block": "Введите \/ чтобы выбрать блок",
     "Types": "Типы",
     "URL": "URL",
     "Unauthorized": "Неавторизован",
@@ -1443,5 +1443,6 @@
     "rows": "строки",
     "selected": "выбрано",
     "showing": "показано",
-    "to": "до"
+    "to": "до",
+    "Username or Email": "Имя пользователя или электронная почта"
 }

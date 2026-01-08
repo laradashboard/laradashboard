@@ -1160,7 +1160,7 @@
     "Tuesday": "Selasa",
     "Twitter": "Twitter",
     "Type": "Tipe",
-    "Type / to choose a block": "Ketik / untuk memilih blok",
+    "Type \/ to choose a block": "Ketik \/ untuk memilih blok",
     "Type here": "Ketik di sini",
     "Type here...": "Ketik di sini...",
     "Type something...": "Ketik sesuatu...",
@@ -1326,5 +1326,6 @@
     "permissions": "permissions",
     "permission|permissions": "permission|permissions",
     "to": "ke",
-    "via": "melalui"
+    "via": "melalui",
+    "Username or Email": "Nama pengguna atau Email"
 }

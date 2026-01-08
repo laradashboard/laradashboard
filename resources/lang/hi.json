@@ -1160,7 +1160,7 @@
     "Tuesday": "मंगलवार",
     "Twitter": "ट्विटर",
     "Type": "प्रकार",
-    "Type / to choose a block": "ब्लॉक चुनने के लिए / टाइप करें",
+    "Type \/ to choose a block": "ब्लॉक चुनने के लिए \/ टाइप करें",
     "Type here": "यहां टाइप करें",
     "Type here...": "यहां टाइप करें...",
     "Type something...": "कुछ टाइप करें...",
@@ -1326,5 +1326,6 @@
     "permissions": "permissions",
     "permission|permissions": "permission|permissions",
     "to": "को",
-    "via": "के माध्यम से"
+    "via": "के माध्यम से",
+    "Username or Email": "उपयोगकर्ता नाम या ईमेल"
 }

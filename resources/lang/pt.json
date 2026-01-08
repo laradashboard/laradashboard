@@ -653,7 +653,7 @@
     "Multiple": "Múltiplo",
     "My Company": "Minha empresa",
     "My Email Connection": "Minha conexão de e-mail",
-    "N/A": "N/D",
+    "N\/A": "N\/D",
     "Name": "Nome",
     "Name is required": "Nome é obrigatório",
     "Navigation": "Navegação",
@@ -1265,7 +1265,7 @@
     "Two Columns": "Duas Colunas",
     "Two Factor Authentication": "Autenticação de Dois Fatores",
     "Type": "Tipo",
-    "Type / to choose a block": "Digite / para escolher um bloco",
+    "Type \/ to choose a block": "Digite \/ para escolher um bloco",
     "Types": "Tipos",
     "URL": "URL",
     "Unauthorized": "Não Autorizado",
@@ -1443,5 +1443,6 @@
     "rows": "linhas",
     "selected": "selecionado",
     "showing": "mostrando",
-    "to": "para"
+    "to": "para",
+    "Username or Email": "Nome de usuário ou e-mail"
 }

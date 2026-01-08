@@ -498,67 +498,8 @@ class InstallationService
         // Create all permissions
         $this->permissionService->createPermissions();
 
-        // Create predefined roles with their permissions (skip if already exist)
-        $this->createPredefinedRolesIfNotExist();
-    }
-
-    /**
-     * Create predefined roles if they don't already exist.
-     */
-    protected function createPredefinedRolesIfNotExist(): void
-    {
-        $predefinedRoles = [
-            'Superadmin' => $this->getAllPermissionNames(),
-            'Admin' => array_diff($this->getAllPermissionNames(), ['user.delete', 'user.login_as']),
-            'Editor' => [
-                'dashboard.view',
-                'blog.create',
-                'blog.view',
-                'blog.edit',
-                'profile.view',
-                'profile.edit',
-                'profile.update',
-                'translations.view',
-            ],
-            'Subscriber' => [
-                'dashboard.view',
-                'profile.view',
-                'profile.edit',
-                'profile.update',
-            ],
-            'Contact' => [
-                'dashboard.view',
-                'profile.view',
-                'profile.edit',
-                'profile.update',
-            ],
-        ];
-
-        foreach ($predefinedRoles as $roleName => $permissions) {
-            $role = \App\Models\Role::where('name', $roleName)->where('guard_name', 'web')->first();
-
-            if (! $role) {
-                $role = \App\Models\Role::create(['name' => $roleName, 'guard_name' => 'web']);
-            }
-
-            // Sync permissions
-            $role->syncPermissions($permissions);
-        }
-    }
-
-    /**
-     * Get all permission names from the permission service.
-     */
-    protected function getAllPermissionNames(): array
-    {
-        $allPermissionNames = [];
-        foreach ($this->permissionService->getAllPermissions() as $group) {
-            foreach ($group['permissions'] as $permission) {
-                $allPermissionNames[] = $permission;
-            }
-        }
-
-        return $allPermissionNames;
+        // Create predefined roles with their permissions (uses RolesService for consistency)
+        $this->rolesService->createPredefinedRoles();
     }
 
     /**

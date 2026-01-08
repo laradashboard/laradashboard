@@ -660,7 +660,7 @@
     "My Email Connection": "E-posta Bağlantım",
     "My Profile": "Profilim",
     "My Templates": "Şablonlarım",
-    "N/A": "Yok",
+    "N\/A": "Yok",
     "Name": "Ad",
     "Name is required": "Ad gereklidir",
     "Navigation": "Gezinme",
@@ -1256,7 +1256,7 @@
     "Twitter": "Twitter",
     "Two Factor Authentication": "İki Faktörlü Kimlik Doğrulama",
     "Type": "Tür",
-    "Type / to choose a block": "Bir blok seçmek için / yazın",
+    "Type \/ to choose a block": "Bir blok seçmek için \/ yazın",
     "Type here": "Buraya yazın",
     "Type here...": "Buraya yazın...",
     "Type something": "Bir şey yazın",
@@ -1443,12 +1443,13 @@
     "is already in the queue.": "zaten kuyrukta.",
     "module(s) installed successfully.": "modül(ler) başarıyla yüklendi.",
     "noreply@example.com": "noreply@example.com",
-    "of": "/",
+    "of": "\/",
     "or": "veya",
     "or click to browse": "veya göz atmak için tıklayın",
     "permissions": "permissions",
     "permission|permissions": "permission|permissions",
     "results": "sonuç",
     "rows": "satır",
-    "to": "-"
+    "to": "-",
+    "Username or Email": "Kullanıcı adı veya E-posta"
 }

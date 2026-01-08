@@ -660,7 +660,7 @@
     "My Email Connection": "การเชื่อมต่ออีเมลของฉัน",
     "My Profile": "โปรไฟล์ของฉัน",
     "My Templates": "เทมเพลตของฉัน",
-    "N/A": "ไม่มี",
+    "N\/A": "ไม่มี",
     "Name": "ชื่อ",
     "Name is required": "ต้องกรอกชื่อ",
     "Navigation": "การนำทาง",
@@ -1256,7 +1256,7 @@
     "Twitter": "Twitter",
     "Two Factor Authentication": "การยืนยันตัวตนสองปัจจัย",
     "Type": "ประเภท",
-    "Type / to choose a block": "พิมพ์ / เพื่อเลือกบล็อก",
+    "Type \/ to choose a block": "พิมพ์ \/ เพื่อเลือกบล็อก",
     "Type here": "พิมพ์ที่นี่",
     "Type here...": "พิมพ์ที่นี่...",
     "Type something": "พิมพ์บางอย่าง",
@@ -1450,5 +1450,6 @@
     "permission|permissions": "permission|permissions",
     "results": "ผลลัพธ์",
     "rows": "แถว",
-    "to": "ถึง"
+    "to": "ถึง",
+    "Username or Email": "ชื่อผู้ใช้หรืออีเมล"
 }

@@ -371,7 +371,7 @@
     "Translated:": "مترجم:",
     "Translation Management": "إدارة الترجمة",
     "Type": "النوع",
-    "Type / to choose a block": "खण्डं चयनाय / टङ्कयतु",
+    "Type \/ to choose a block": "खण्डं चयनाय \/ टङ्कयतु",
     "Update": "تحديث",
     "Update Role": "تحديث الدور",
     "Update User": "تحديث المستخدم",
@@ -419,5 +419,6 @@
     "noreply@example.com": "noreply@example.com",
     "or click to browse": "अथवा अन्वेषणाय क्लिक् करोतु",
     "permissions": "permissions",
-    "permission|permissions": "permission|permissions"
+    "permission|permissions": "permission|permissions",
+    "Username or Email": "उपयोक्तृनाम अथवा विद्युत्पत्रम्"
 }

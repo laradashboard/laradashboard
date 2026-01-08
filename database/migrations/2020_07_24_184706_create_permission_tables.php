@@ -1,8 +1,11 @@
 <?php
 
+use App\Services\PermissionService;
+use App\Services\RolesService;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\PermissionRegistrar;
 
 class CreatePermissionTables extends Migration
 {
@@ -89,6 +92,26 @@ class CreatePermissionTables extends Migration
         app('cache')
             ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
             ->forget(config('permission.cache.key'));
+
+        // Create core permissions and roles
+        $this->seedPermissionsAndRoles();
+    }
+
+    /**
+     * Seed the core permissions and predefined roles.
+     */
+    private function seedPermissionsAndRoles(): void
+    {
+        // Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Create all core permissions
+        $permissionService = app(PermissionService::class);
+        $permissionService->createPermissions();
+
+        // Create predefined roles with their permissions
+        $rolesService = app(RolesService::class);
+        $rolesService->createPredefinedRoles();
     }
 
     /**

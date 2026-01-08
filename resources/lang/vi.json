@@ -902,7 +902,7 @@
     "Trash": "Thùng rác",
     "Twitter": "Twitter",
     "Type": "Loại",
-    "Type / to choose a block": "Gõ / để chọn một khối",
+    "Type \/ to choose a block": "Gõ \/ để chọn một khối",
     "URL": "URL",
     "Unauthorized": "Không được Ủy quyền",
     "Unauthorized Access": "Truy cập Không được Ủy quyền",
@@ -1050,5 +1050,6 @@
     "seconds": "giây",
     "to": "đến",
     "weeks": "tuần",
-    "years": "năm"
+    "years": "năm",
+    "Username or Email": "Tên người dùng hoặc Email"
 }
