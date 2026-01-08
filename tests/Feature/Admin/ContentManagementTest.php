@@ -29,17 +29,17 @@ beforeEach(function () {
         'username' => 'admin_user',
     ]);
 
-    $adminRole = Role::create(['name' => 'admin']);
+    $adminRole = Role::firstOrCreate(['name' => 'content-admin', 'guard_name' => 'web']);
 
     // Create necessary permissions.
-    Permission::create(['name' => 'post.view']);
-    Permission::create(['name' => 'post.create']);
-    Permission::create(['name' => 'post.edit']);
-    Permission::create(['name' => 'post.delete']);
-    Permission::create(['name' => 'term.view']);
-    Permission::create(['name' => 'term.create']);
-    Permission::create(['name' => 'term.edit']);
-    Permission::create(['name' => 'term.delete']);
+    Permission::firstOrCreate(['name' => 'post.view', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'post.create', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'post.edit', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'post.delete', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'term.view', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'term.create', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'term.edit', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'term.delete', 'guard_name' => 'web']);
 
     $adminRole->syncPermissions([
         'post.view', 'post.create', 'post.edit', 'post.delete',

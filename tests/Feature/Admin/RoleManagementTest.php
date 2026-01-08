@@ -31,7 +31,7 @@ beforeEach(function () {
         'username' => 'admin',
     ]);
 
-    $adminRole = Role::create(['name' => 'Superadmin']);
+    $adminRole = Role::firstOrCreate(['name' => 'Superadmin', 'guard_name' => 'web']);
     $adminRole->syncPermissions([
         'role.view',
         'role.create',
@@ -121,17 +121,17 @@ test('admin can create role', function () {
 
     $response = $this->actingAs($this->admin)
         ->post('/admin/roles', [
-            'name' => 'Editor',
+            'name' => 'TestEditor',
             'permissions' => $permissions,
         ]);
 
     $response->assertRedirect('/admin/roles');
     $this->assertDatabaseHas('roles', [
-        'name' => 'Editor',
+        'name' => 'TestEditor',
     ]);
 
     // Check if permissions were assigned to the role
-    $role = Role::where('name', 'Editor')->first();
+    $role = Role::where('name', 'TestEditor')->first();
     foreach ($permissions as $permission) {
         expect($role->hasPermissionTo($permission))->toBeTrue();
     }

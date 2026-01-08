@@ -17,13 +17,13 @@ beforeEach(function () {
 
     // Create admin user with permissions
     $this->admin = User::factory()->create();
-    $adminRole = Role::create(['name' => 'Superadmin', 'guard_name' => 'web']);
+    $adminRole = Role::firstOrCreate(['name' => 'Superadmin', 'guard_name' => 'web']);
 
     // Create necessary permissions
-    Permission::create(['name' => 'user.view']);
-    Permission::create(['name' => 'user.create']);
-    Permission::create(['name' => 'user.edit']);
-    Permission::create(['name' => 'user.delete']);
+    Permission::firstOrCreate(['name' => 'user.view', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'user.create', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'user.edit', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'user.delete', 'guard_name' => 'web']);
 
     $adminRole->syncPermissions([
         'user.view',
@@ -42,7 +42,7 @@ test('admin can view users list', function () {
 });
 
 test('admin can create user', function () {
-    $role = Role::create(['name' => 'editor']);
+    $role = Role::firstOrCreate(['name' => 'editor', 'guard_name' => 'web']);
 
     $response = $this->actingAs($this->admin)->post('/admin/users', [
         'first_name' => 'John',
@@ -75,7 +75,7 @@ test('admin can update user', function () {
         'password' => Hash::make('password'),
     ]);
 
-    $role = Role::create(['name' => 'editor']);
+    $role = Role::firstOrCreate(['name' => 'editor', 'guard_name' => 'web']);
 
     $response = $this->actingAs($this->admin)->put("/admin/users/{$user->id}", [
         'first_name' => 'Updated',

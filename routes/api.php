@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\EmailTemplateController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\EmailSettingController;
+use App\Http\Controllers\Api\Builder\MarkdownController;
 use App\Http\Controllers\Backend\Api\TermController as BackendTermController;
 use Illuminate\Support\Facades\Route;
 
@@ -136,5 +137,11 @@ Route::middleware(['auth', 'web'])->prefix('admin')->name('admin.api.')->group(f
         Route::post('/store', [LocalLicenseController::class, 'store'])->name('store');
         Route::post('/remove', [LocalLicenseController::class, 'destroy'])->name('remove');
         Route::get('/show', [LocalLicenseController::class, 'show'])->name('show');
+    });
+
+    // Builder API routes.
+    Route::prefix('builder')->name('builder.')->group(function () {
+        Route::post('/markdown/fetch', [MarkdownController::class, 'fetch'])->name('markdown.fetch');
+        Route::post('/markdown/convert-url', [MarkdownController::class, 'convertUrl'])->name('markdown.convert-url');
     });
 });

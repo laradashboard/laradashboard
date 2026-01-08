@@ -1,0 +1,21 @@
+{
+    "type": "markdown",
+    "version": "1.0.0",
+    "label": "Markdown",
+    "category": "Advanced",
+    "icon": "mdi:language-markdown",
+    "description": "Display markdown content from an external URL (GitHub, GitLab, etc.)",
+    "keywords": ["markdown", "md", "github", "documentation", "external", "url", "content"],
+    "contexts": ["page"],
+    "supports": {
+        "layout": true,
+        "html": false,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "url": "",
+        "showSource": true,
+        "cacheEnabled": true
+    }
+}

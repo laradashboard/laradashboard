@@ -18,13 +18,13 @@ beforeEach(function () {
 
     // Create admin user with permissions
     $this->admin = User::factory()->create();
-    $adminRole = Role::create(['name' => 'Superadmin', 'guard_name' => 'web']);
+    $adminRole = Role::firstOrCreate(['name' => 'Superadmin', 'guard_name' => 'web']);
 
     // Create necessary permissions
-    Permission::create(['name' => 'user.view']);
-    Permission::create(['name' => 'user.create']);
-    Permission::create(['name' => 'user.edit']);
-    Permission::create(['name' => 'user.delete']);
+    Permission::firstOrCreate(['name' => 'user.view', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'user.create', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'user.edit', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'user.delete', 'guard_name' => 'web']);
 
     $adminRole->syncPermissions([
         'user.view',
@@ -55,10 +55,10 @@ it('searches users by name and email', function () {
 it('filters users by role', function () {
     $this->actingAs($this->admin);
     $user = User::factory()->create(['first_name' => 'RoleUser']);
-    $role = \Spatie\Permission\Models\Role::create(['name' => 'admin']);
-    $user->assignRole('admin');
+    $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'test-filter-role', 'guard_name' => 'web']);
+    $user->assignRole('test-filter-role');
     Livewire::test(UserDatatable::class)
-        ->set('role', 'admin')
+        ->set('role', 'test-filter-role')
         ->assertSee('RoleUser');
 });
 

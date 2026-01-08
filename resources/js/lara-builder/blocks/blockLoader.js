@@ -33,6 +33,7 @@ import preformattedBlock from './preformatted';
 import accordionBlock from './accordion';
 import tocBlock from './toc';
 import timeToReadBlock from './time-to-read';
+import markdownBlock from './markdown';
 
 /**
  * All modular blocks (new format with block.json)
@@ -59,6 +60,7 @@ const modularBlocks = [
     accordionBlock,
     tocBlock,
     timeToReadBlock,
+    markdownBlock,
 ];
 
 /**

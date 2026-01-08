@@ -4,8 +4,8 @@
     "label": "Code",
     "category": "Advanced",
     "icon": "mdi:code-braces",
-    "description": "Add a code snippet",
-    "keywords": ["code", "snippet", "programming", "syntax"],
+    "description": "Add a code snippet with syntax highlighting",
+    "keywords": ["code", "snippet", "programming", "syntax", "highlight"],
     "contexts": ["email", "page", "campaign"],
     "supports": {
         "colors": true,
@@ -15,7 +15,8 @@
         "remove": true
     },
     "defaultProps": {
-        "code": "<?php echo \"hello\"; ?>",
+        "code": "<?php\necho \"Hello World\";\n?>",
+        "language": "php",
         "fontSize": "14px",
         "backgroundColor": "#1e1e1e",
         "textColor": "#d4d4d4",

@@ -19,9 +19,9 @@ beforeEach(function () {
     $this->withoutMiddleware(VerifyCsrfToken::class);
 
     $this->admin = User::factory()->create();
-    $adminRole = Role::create(['name' => 'Superadmin', 'guard_name' => 'web']);
+    $adminRole = Role::firstOrCreate(['name' => 'Superadmin', 'guard_name' => 'web']);
 
-    Permission::firstOrCreate(['name' => 'settings.edit']);
+    Permission::firstOrCreate(['name' => 'settings.edit', 'guard_name' => 'web']);
     $adminRole->givePermissionTo('settings.edit');
     $this->admin->assignRole($adminRole);
 

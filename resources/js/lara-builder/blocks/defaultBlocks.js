@@ -355,6 +355,22 @@ export const defaultBlocks = [
         },
     },
     {
+        type: 'markdown',
+        label: 'Markdown',
+        category: 'Advanced',
+        icon: 'mdi:language-markdown',
+        contexts: ['page'],
+        defaultProps: {
+            url: '',
+            showSource: true,
+            cacheEnabled: true,
+            layoutStyles: { ...defaultLayoutStyles },
+        },
+        supports: {
+            layout: true,
+        },
+    },
+    {
         type: 'preformatted',
         label: 'Preformatted',
         category: 'Content',

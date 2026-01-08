@@ -33,17 +33,8 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     // Escape code content to prevent XSS
     $escapedCode = e($code);
 
-    // Build block styles
-    $blockStyles = [
-        "background-color: {$backgroundColor}",
-        "border-radius: {$borderRadius}",
-        'padding: 16px',
-        'overflow-x: auto',
-        'font-family: "Fira Code", "Monaco", "Menlo", "Ubuntu Mono", monospace',
-        "font-size: {$fontSize}",
-        'line-height: 1.5',
-        "color: {$textColor}",
-    ];
+    // Build block styles - minimal wrapper, let Prism handle most styling
+    $blockStyles = [];
 
     // Layout styles (margin, padding overrides)
     if (! empty($layoutStyles['margin'])) {
@@ -103,15 +94,30 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         $blockStyles[] = $customCSS;
     }
 
-    $styleAttr = implode('; ', $blockStyles);
+    $wrapperStyle = ! empty($blockStyles) ? implode('; ', $blockStyles) : '';
 
     // Sanitize language for class attribute
     $safeLanguage = preg_replace('/[^a-zA-Z0-9_-]/', '', $language);
 
+    // Pre styles - Prism will add its own background, we just set font sizing
+    $preStyles = [
+        'margin: 0',
+        'white-space: pre-wrap',
+        'word-wrap: break-word',
+        "font-size: {$fontSize}",
+        'line-height: 1.5',
+        "border-radius: {$borderRadius}",
+    ];
+    $preStyleAttr = implode('; ', $preStyles);
+
+    $wrapperStyleAttr = $wrapperStyle ? sprintf(' style="%s"', e($wrapperStyle)) : '';
+
     return sprintf(
-        '<div class="%s" style="%s"><pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;"><code class="language-%s">%s</code></pre></div>',
+        '<div class="%s"%s><pre class="language-%s" style="%s"><code class="language-%s">%s</code></pre></div>',
         e($blockClasses),
-        e($styleAttr),
+        $wrapperStyleAttr,
+        e($safeLanguage),
+        e($preStyleAttr),
         e($safeLanguage),
         $escapedCode
     );

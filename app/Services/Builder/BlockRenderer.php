@@ -87,6 +87,9 @@ class BlockRenderer
      */
     public function processContent(string $content, string $context = 'page'): string
     {
+        // First, handle legacy markdown blocks with data-block-type="markdown" format
+        $content = $this->processLegacyMarkdownBlocks($content, $context);
+
         // Find all block placeholders by locating opening tags with data-lara-block attribute
         // Pattern matches the opening tag: <div data-lara-block="type" [data-block-id="id"] data-props='...' [other-attrs]>
         // This allows for any additional attributes (like style) after data-props
@@ -157,6 +160,38 @@ class BlockRenderer
         }
 
         return $content;
+    }
+
+    /**
+     * Process legacy markdown blocks with data-block-type="markdown" format.
+     *
+     * This handles blocks saved before the save.js fix that used data-block-type
+     * instead of data-lara-block attribute.
+     */
+    protected function processLegacyMarkdownBlocks(string $content, string $context): string
+    {
+        // Pattern for legacy markdown blocks: data-block-type="markdown" data-url="..."
+        $legacyPattern = '/<div[^>]*data-block-type="markdown"[^>]*data-url="([^"]*)"[^>]*data-show-source="([^"]*)"[^>]*>.*?<\/div>/is';
+
+        return preg_replace_callback($legacyPattern, function ($match) use ($context) {
+            $url = urldecode($match[1]);
+            $showSource = $match[2] !== 'false';
+
+            if (empty($url)) {
+                return $match[0]; // Return original if no URL
+            }
+
+            $props = [
+                'url' => $url,
+                'showSource' => $showSource,
+                'cacheEnabled' => true,
+                'layoutStyles' => [],
+            ];
+
+            $rendered = $this->renderBlock('markdown', $props, $context);
+
+            return $rendered ?? $match[0];
+        }, $content) ?? $content;
     }
 
     /**

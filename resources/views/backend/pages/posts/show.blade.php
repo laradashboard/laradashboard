@@ -80,12 +80,114 @@
                             .lb-content-preview .lb-toc-list a { text-decoration: none; transition: opacity 0.2s; }
                             .lb-content-preview .lb-toc-list a:hover { opacity: 0.8; text-decoration: underline; }
 
+                            /* Markdown block */
+                            .lb-content-preview .lb-markdown { margin-bottom: 16px; }
+                            .lb-content-preview .markdown-source { margin-bottom: 12px; padding: 8px 12px; background: #f9fafb; border-radius: 6px; font-size: 12px; color: #6b7280; }
+                            .lb-content-preview .markdown-source a { color: #6366f1; text-decoration: underline; }
+                            .lb-content-preview .markdown-body { line-height: 1.6; }
+                            .lb-content-preview .markdown-body h1 { font-size: 2em; font-weight: 700; margin: 1em 0 0.5em; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.3em; }
+                            .lb-content-preview .markdown-body h2 { font-size: 1.5em; font-weight: 600; margin: 1em 0 0.5em; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.3em; }
+                            .lb-content-preview .markdown-body h3 { font-size: 1.25em; font-weight: 600; margin: 1em 0 0.5em; }
+                            .lb-content-preview .markdown-body h4 { font-size: 1em; font-weight: 600; margin: 1em 0 0.5em; }
+                            .lb-content-preview .markdown-body p { margin: 0 0 1em; }
+                            .lb-content-preview .markdown-body ul, .lb-content-preview .markdown-body ol { margin: 0 0 1em; padding-left: 2em; }
+                            .lb-content-preview .markdown-body li { margin: 0.25em 0; }
+                            .lb-content-preview .markdown-body code { background: #f3f4f6; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.875em; font-family: ui-monospace, monospace; }
+                            .lb-content-preview .markdown-body pre { background: #1f2937; color: #e5e7eb; padding: 1em; border-radius: 8px; overflow-x: auto; margin: 0 0 1em; }
+                            .lb-content-preview .markdown-body pre code { background: transparent; padding: 0; color: inherit; }
+                            .lb-content-preview .markdown-body blockquote { border-left: 4px solid #6366f1; padding-left: 1em; margin: 0 0 1em; color: #6b7280; font-style: italic; }
+                            .lb-content-preview .markdown-body a { color: #6366f1; text-decoration: underline; }
+                            .lb-content-preview .markdown-body a:hover { color: #4f46e5; }
+                            .lb-content-preview .markdown-body table { border-collapse: collapse; width: 100%; margin: 0 0 1em; }
+                            .lb-content-preview .markdown-body th, .lb-content-preview .markdown-body td { border: 1px solid #e5e7eb; padding: 0.5em 1em; text-align: left; }
+                            .lb-content-preview .markdown-body th { background: #f9fafb; font-weight: 600; }
+                            .lb-content-preview .markdown-body hr { border: none; border-top: 1px solid #e5e7eb; margin: 2em 0; }
+                            .lb-content-preview .markdown-body img { max-width: 100%; height: auto; border-radius: 8px; }
+                            .lb-content-preview .markdown-body input[type="checkbox"] { margin-right: 0.5em; }
+
+                            /* Markdown empty state */
+                            .lb-content-preview .markdown-empty { padding: 24px; text-align: center; color: #9ca3af; background: #f9fafb; border: 1px dashed #e5e7eb; border-radius: 8px; }
+                            .lb-content-preview .markdown-error { margin-bottom: 16px; }
+
+                            /* Syntax highlighting overrides for Prism */
+                            .lb-content-preview .markdown-body pre { background: #1e1e1e; padding: 0; }
+                            .lb-content-preview .markdown-body pre code { display: block; padding: 1em; background: transparent; font-size: 0.875em; line-height: 1.5; }
+                            .lb-content-preview .markdown-body code:not([class*="language-"]) { background: #f3f4f6; color: #e83e8c; }
+
                             /* Responsive */
                             @media (max-width: 768px) {
                                 .lb-content-preview .lb-columns { flex-direction: column; }
                                 .lb-content-preview .lb-column { flex: none !important; width: 100% !important; }
                             }
                         </style>
+
+                        {{-- Prism.js for syntax highlighting in markdown blocks --}}
+                        @if(str_contains($post->content ?? '', 'markdown'))
+                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css" />
+                            <style>
+                                /* Copy button styling */
+                                .code-toolbar .toolbar { opacity: 1; }
+                                .code-toolbar .toolbar-item button {
+                                    background: #3b3b3b !important;
+                                    color: #e5e7eb !important;
+                                    border-radius: 4px !important;
+                                    padding: 4px 10px !important;
+                                    font-size: 12px !important;
+                                    box-shadow: none !important;
+                                    border: 1px solid #4b4b4b !important;
+                                    transition: all 0.2s ease !important;
+                                }
+                                .code-toolbar .toolbar-item button:hover {
+                                    background: #4b4b4b !important;
+                                    color: #fff !important;
+                                }
+                                .code-toolbar .toolbar-item button:focus {
+                                    outline: none !important;
+                                }
+                            </style>
+                            <script>
+                                (function() {
+                                    // Load Prism core first, then languages sequentially
+                                    function loadScript(src) {
+                                        return new Promise(function(resolve, reject) {
+                                            var script = document.createElement('script');
+                                            script.src = src;
+                                            script.onload = resolve;
+                                            script.onerror = reject;
+                                            document.head.appendChild(script);
+                                        });
+                                    }
+
+                                    var baseUrl = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/';
+                                    // Order matters: markup -> markup-templating -> php (dependency chain)
+                                    var languages = ['markup', 'css', 'clike', 'javascript', 'markup-templating', 'php', 'typescript', 'jsx', 'tsx', 'scss', 'bash', 'json', 'yaml', 'sql', 'python'];
+
+                                    // Load core first
+                                    loadScript(baseUrl + 'prism.min.js').then(function() {
+                                        // Load languages sequentially to handle dependencies
+                                        return languages.reduce(function(promise, lang) {
+                                            return promise.then(function() {
+                                                return loadScript(baseUrl + 'components/prism-' + lang + '.min.js').catch(function() {
+                                                    console.warn('Failed to load Prism language: ' + lang);
+                                                });
+                                            });
+                                        }, Promise.resolve());
+                                    }).then(function() {
+                                        // Load toolbar plugin (required for copy button)
+                                        return loadScript(baseUrl + 'plugins/toolbar/prism-toolbar.min.js');
+                                    }).then(function() {
+                                        // Load copy-to-clipboard plugin
+                                        return loadScript(baseUrl + 'plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js');
+                                    }).then(function() {
+                                        // Highlight all code blocks
+                                        if (window.Prism) {
+                                            Prism.highlightAll();
+                                        }
+                                    });
+                                })();
+                            </script>
+                        @endif
                     @endif
                 @else
                     <p class="text-gray-400 dark:text-gray-500 italic">{{ __('No content available.') }}</p>
