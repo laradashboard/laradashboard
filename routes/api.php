@@ -142,6 +142,7 @@ Route::middleware(['auth', 'web'])->prefix('admin')->name('admin.api.')->group(f
     // Builder API routes.
     Route::prefix('builder')->name('builder.')->group(function () {
         Route::post('/markdown/fetch', [MarkdownController::class, 'fetch'])->name('markdown.fetch');
+        Route::post('/markdown/convert', [MarkdownController::class, 'convert'])->name('markdown.convert');
         Route::post('/markdown/convert-url', [MarkdownController::class, 'convertUrl'])->name('markdown.convert-url');
     });
 });

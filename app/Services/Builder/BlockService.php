@@ -687,7 +687,7 @@ HTML;
 
         // Static countdown display (actual countdown is JS-based)
         return <<<HTML
-            <div style="background-color: {$bgColor}; padding: 24px; border-radius: 8px; text-align: {$align}; margin: 10px 0;">
+            <div style="background-color: {$bgColor}; padding: 24px; padding-top: 10px; border-radius: 8px; text-align: {$align}; margin: 10px 0;">
                 <p style="color: {$textColor}; font-size: 16px; font-weight: 600; margin: 0 0 16px 0;">{$title}</p>
                 <div style="display: inline-flex; gap: 16px;">
                     <div style="text-align: center;">

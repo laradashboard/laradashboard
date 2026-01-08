@@ -1,11 +1,11 @@
 {
     "type": "markdown",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "label": "Markdown",
     "category": "Advanced",
     "icon": "mdi:language-markdown",
-    "description": "Display markdown content from an external URL (GitHub, GitLab, etc.)",
-    "keywords": ["markdown", "md", "github", "documentation", "external", "url", "content"],
+    "description": "Write markdown directly or fetch from external URLs (GitHub, GitLab, etc.)",
+    "keywords": ["markdown", "md", "github", "documentation", "external", "url", "content", "write"],
     "contexts": ["page"],
     "supports": {
         "layout": true,
@@ -14,6 +14,8 @@
         "remove": true
     },
     "defaultProps": {
+        "sourceType": "content",
+        "content": "",
         "url": "",
         "showSource": true,
         "cacheEnabled": true

@@ -46,8 +46,34 @@ class MarkdownController extends Controller
         return response()->json([
             'success' => true,
             'html' => $result['html'],
+            'markdown' => $result['markdown'] ?? '',
             'cached' => $result['cached'] ?? false,
             'source_url' => $result['source_url'] ?? $url,
+        ]);
+    }
+
+    /**
+     * Convert markdown content to HTML.
+     */
+    public function convert(Request $request): JsonResponse
+    {
+        $request->validate([
+            'content' => ['required', 'string', 'max:500000'],
+        ]);
+
+        $content = $request->input('content');
+        $result = $this->markdownService->convertMarkdown($content);
+
+        if (! $result['success']) {
+            return response()->json([
+                'success' => false,
+                'error' => $result['error'],
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'html' => $result['html'],
         ]);
     }
 

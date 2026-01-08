@@ -120,7 +120,7 @@ const HtmlBlock = ({ props, onUpdate }) => {
     const containerStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);
 
     const placeholderContent = `
-        <div style="padding: 24px; text-align: center; color: #9ca3af; background: #f9fafb; border: 2px dashed #e5e7eb; border-radius: 8px;">
+        <div style="padding: 24px; padding-top: 10px; text-align: center; color: #9ca3af; background: #f9fafb; border: 2px dashed #e5e7eb; border-radius: 8px;">
             <div style="font-size: 14px; font-weight: 500;">Custom HTML Block</div>
             <div style="font-size: 12px; margin-top: 4px;">Double-click to edit</div>
         </div>
