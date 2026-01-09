@@ -4,7 +4,9 @@
  * Markdown Block - Server-side Renderer
  *
  * This callback is invoked by the BlockRenderer when processing content.
- * It fetches markdown from external URLs, converts to HTML, and renders it.
+ * Supports two modes:
+ * - content: Converts direct markdown content to HTML
+ * - url: Fetches markdown from external URLs and converts to HTML
  *
  * Benefits of server-side rendering:
  * - Avoids CORS issues with external URLs
@@ -16,24 +18,37 @@
 use App\Services\Builder\MarkdownFetchService;
 
 return function (array $props, string $context = 'page', ?string $blockId = null): string {
+    $sourceType = $props['sourceType'] ?? 'content';
+    $content = $props['content'] ?? '';
     $url = $props['url'] ?? '';
     $showSource = $props['showSource'] ?? true;
     $cacheEnabled = $props['cacheEnabled'] ?? true;
     $layoutStyles = $props['layoutStyles'] ?? [];
 
-    // If no URL, return placeholder
-    if (empty($url)) {
-        return '<div class="lb-block lb-markdown markdown-empty" style="padding: 24px; text-align: center; color: #9ca3af; background: #f9fafb; border: 1px dashed #e5e7eb; border-radius: 8px;">
-            <p style="margin: 0; font-size: 14px;">No markdown URL configured</p>
-        </div>';
-    }
-
     // Get the markdown service
     /** @var MarkdownFetchService $markdownService */
     $markdownService = app(MarkdownFetchService::class);
 
-    // Fetch and convert markdown
-    $result = $markdownService->fetchAndConvert($url, $cacheEnabled);
+    // Handle based on source type
+    if ($sourceType === 'content') {
+        // Direct content mode
+        if (empty($content)) {
+            return '<div class="lb-block lb-markdown markdown-empty" style="padding: 24px; text-align: center; color: #9ca3af; background: #f9fafb; border: 1px dashed #e5e7eb; border-radius: 8px;">
+                <p style="margin: 0; font-size: 14px;">No markdown content configured</p>
+            </div>';
+        }
+
+        $result = $markdownService->convertMarkdown($content);
+    } else {
+        // URL mode
+        if (empty($url)) {
+            return '<div class="lb-block lb-markdown markdown-empty" style="padding: 24px; text-align: center; color: #9ca3af; background: #f9fafb; border: 1px dashed #e5e7eb; border-radius: 8px;">
+                <p style="margin: 0; font-size: 14px;">No markdown URL configured</p>
+            </div>';
+        }
+
+        $result = $markdownService->fetchAndConvert($url, $cacheEnabled);
+    }
 
     // Build wrapper styles
     $wrapperStyles = [];
@@ -123,8 +138,8 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     // Build the output
     $output = '<div class="lb-block lb-markdown markdown-content"' . $styleAttr . '>';
 
-    // Source URL indicator
-    if ($showSource) {
+    // Source URL indicator (only for URL mode)
+    if ($showSource && $sourceType === 'url' && ! empty($url)) {
         $output .= '<div class="markdown-source" style="margin-bottom: 12px; padding: 8px 12px; background: #f9fafb; border-radius: 6px; font-size: 12px; color: #6b7280;">
             <span style="margin-right: 8px;">Source:</span>
             <a href="' . $sourceUrl . '" target="_blank" rel="noopener noreferrer" style="color: #6366f1; text-decoration: underline;">' . $sourceUrl . '</a>

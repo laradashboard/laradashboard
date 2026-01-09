@@ -1327,5 +1327,22 @@
     "permission|permissions": "permission|permissions",
     "to": "को",
     "via": "के माध्यम से",
-    "Username or Email": "उपयोगकर्ता नाम या ईमेल"
+    "Username or Email": "उपयोगकर्ता नाम या ईमेल",
+    "New Media": "नई मीडिया",
+    "Quick Draft": "त्वरित मसौदा",
+    "Recent Posts": "हाल की पोस्ट",
+    "AI Agent": "एआई एजेंट",
+    "Enter post title...": "पोस्ट शीर्षक दर्ज करें...",
+    "Write your content here...": "अपनी सामग्री यहां लिखें...",
+    "capabilities": "क्षमताएं",
+    "Connected to": "से जुड़ा",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "किसी विषय या संकेत के आधार पर AI-जनित सामग्री के साथ एक नई पोस्ट या पेज बनाएं, वैकल्पिक रूप से छवियों के साथ।",
+    "Create Content": "सामग्री बनाएं",
+    "Describe what you want to create or do...": "बताएं कि आप क्या बनाना या करना चाहते हैं...",
+    "Generate SEO meta title and description for an existing post": "किसी मौजूदा पोस्ट के लिए SEO मेटा शीर्षक और विवरण बनाएं",
+    "I can help you with:": "मैं आपकी मदद कर सकता हूं:",
+    "Not connected": "कनेक्ट नहीं",
+    "Optimize for SEO": "SEO के लिए अनुकूलित करें",
+    "Quick Examples": "त्वरित उदाहरण",
+    "What would you like to create today?": "आज आप क्या बनाना चाहेंगे?"
 }

@@ -122,6 +122,32 @@ class MarkdownFetchService
     }
 
     /**
+     * Convert markdown content directly (without fetching from URL).
+     *
+     * @return array{success: bool, html?: string, error?: string}
+     */
+    public function convertMarkdown(string $markdown): array
+    {
+        if (empty(trim($markdown))) {
+            return ['success' => false, 'error' => 'Empty content'];
+        }
+
+        try {
+            $html = $this->convertToHtml($markdown);
+
+            return [
+                'success' => true,
+                'html' => $html,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => 'Failed to convert markdown: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
      * Convert various repository URLs to their raw content URLs.
      */
     public function toRawUrl(string $url): string

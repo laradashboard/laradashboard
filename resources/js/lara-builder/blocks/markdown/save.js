@@ -4,10 +4,9 @@
  * Page context: Returns placeholder for server-side rendering via render.php
  * Email context: Not supported (external URLs don't work in email clients)
  *
- * This approach ensures:
- * - Single source of truth (render.php) for page display
- * - Server-side fetching avoids CORS issues
- * - Markdown content is cached for performance
+ * Supports two modes:
+ * - content: Direct markdown content written in the editor
+ * - url: Fetch markdown from external URLs (GitHub, GitLab, etc.)
  */
 
 /**
@@ -15,6 +14,8 @@
  */
 export const page = (props, options = {}) => {
     const serverProps = {
+        sourceType: props.sourceType || 'content',
+        content: props.content || '',
         url: props.url || '',
         showSource: props.showSource !== false,
         cacheEnabled: props.cacheEnabled !== false,

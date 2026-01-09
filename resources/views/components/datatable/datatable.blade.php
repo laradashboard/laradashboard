@@ -133,7 +133,7 @@
             @endif
             {!! Hook::applyFilters(DatatableHook::AFTER_SEARCHBOX, '', $searchbarPlaceholder) !!}
 
-            <div class="flex items-start w-full md:items-end gap-3 flex-wrap md:w-auto md:justify-items-end">
+            <div class="flex items-center gap-3 flex-wrap md:flex-nowrap md:w-auto">
                 <div
                     class="flex items-center gap-2"
                     x-show="selectedItems.length > 0"
@@ -142,8 +142,8 @@
                         @if($customBulkActions)
                             {!! $customBulkActions !!}
                         @else
-                            <div class="relative flex items-center justify-center" x-data="{ open: false }">
-                                <button @click="open = !open" class="btn-secondary flex items-center justify-center gap-2 text-sm" type="button">
+                            <div class="relative flex items-center" x-data="{ open: false }">
+                                <button @click="open = !open" class="btn-secondary flex items-center gap-2 text-sm whitespace-nowrap" type="button">
                                     <iconify-icon icon="lucide:more-vertical"></iconify-icon>
                                     <span>{{ __('Bulk Actions') }} (<span x-text="selectedItems.length"></span>)</span>
                                     <iconify-icon icon="lucide:chevron-down"></iconify-icon>

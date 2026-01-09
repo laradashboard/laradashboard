@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Backend\ActionLogController;
 use App\Http\Controllers\Backend\AiCommandController;
 use App\Http\Controllers\Backend\AiContentController;
+use App\Http\Controllers\Backend\CoreUpgradeController;
 use App\Http\Controllers\Backend\Auth\ScreenshotGeneratorLoginController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\DuplicateEmailTemplateController;
@@ -118,6 +119,16 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
 
         // Notifications Management Routes.
         Route::resource('notifications', NotificationController::class);
+
+        // Core Upgrades Routes.
+        Route::prefix('core-upgrades')->as('core-upgrades.')->group(function () {
+            Route::get('/', [CoreUpgradeController::class, 'index'])->name('index');
+            Route::post('/check', [CoreUpgradeController::class, 'checkUpdates'])->name('check');
+            Route::post('/upgrade', [CoreUpgradeController::class, 'upgrade'])->name('upgrade');
+            Route::post('/restore', [CoreUpgradeController::class, 'restore'])->name('restore');
+            Route::post('/delete-backup', [CoreUpgradeController::class, 'deleteBackup'])->name('delete-backup');
+            Route::get('/update-status', [CoreUpgradeController::class, 'getUpdateStatus'])->name('update-status');
+        });
     });
 
     // Translation Routes.

@@ -106,7 +106,7 @@
                             .lb-content-preview .markdown-body input[type="checkbox"] { margin-right: 0.5em; }
 
                             /* Markdown empty state */
-                            .lb-content-preview .markdown-empty { padding: 24px; text-align: center; color: #9ca3af; background: #f9fafb; border: 1px dashed #e5e7eb; border-radius: 8px; }
+                            .lb-content-preview .markdown-empty { padding: 24px; padding-top: 10px; text-align: center; color: #9ca3af; background: #f9fafb; border: 1px dashed #e5e7eb; border-radius: 8px; }
                             .lb-content-preview .markdown-error { margin-bottom: 16px; }
 
                             /* Syntax highlighting overrides for Prism */

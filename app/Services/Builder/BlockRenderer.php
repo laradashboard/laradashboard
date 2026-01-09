@@ -93,7 +93,9 @@ class BlockRenderer
         // Find all block placeholders by locating opening tags with data-lara-block attribute
         // Pattern matches the opening tag: <div data-lara-block="type" [data-block-id="id"] data-props='...' [other-attrs]>
         // This allows for any additional attributes (like style) after data-props
-        $openingTagPattern = '/<div\s+data-lara-block="([^"]+)"(?:\s+data-block-id="([^"]*)")?\s+data-props=\'((?:[^\']|&#39;)*)\'[^>]*>/is';
+        // Note: Using optimized pattern to avoid JIT stack exhaustion with large props content
+        // The pattern [^\']*(?:&#39;[^\']*)* is more efficient than (?:[^\']|&#39;)* for large strings
+        $openingTagPattern = '/<div\s+data-lara-block="([^"]+)"(?:\s+data-block-id="([^"]*)")?\s+data-props=\'([^\']*(?:&#39;[^\']*)*)\'[^>]*>/is';
 
         if (! preg_match_all($openingTagPattern, $content, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
             return $content;

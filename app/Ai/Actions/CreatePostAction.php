@@ -31,7 +31,7 @@ class CreatePostAction implements AiActionInterface
 
     public static function description(): string
     {
-        return 'Create a new post or page with AI-generated content based on a topic or prompt, optionally with images';
+        return __('Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.');
     }
 
     public static function payloadSchema(): array

@@ -20,6 +20,22 @@ class TranslationService
     ];
 
     /**
+     * Get the core lang path.
+     */
+    protected function getCoreLangPath(): string
+    {
+        return resource_path('lang');
+    }
+
+    /**
+     * Get the user lang path.
+     */
+    protected function getUserLangPath(): string
+    {
+        return resource_path('user-lang');
+    }
+
+    /**
      * Get all available translation groups.
      */
     public function getGroups(): array
@@ -40,21 +56,29 @@ class TranslationService
     }
 
     /**
-     * Get JSON translations.
+     * Get JSON translations (merged: core + user overrides).
      */
     public function getJsonTranslations(string $lang): array
     {
-        $path = resource_path("lang/{$lang}.json");
+        // Get core translations
+        $coreTranslations = $this->getCoreJsonTranslations($lang);
+
+        // Get user translations (overrides)
+        $userTranslations = $this->getUserJsonTranslations($lang);
+
+        // Merge: user translations override core translations
+        return array_merge($coreTranslations, $userTranslations);
+    }
+
+    /**
+     * Get core JSON translations.
+     */
+    public function getCoreJsonTranslations(string $lang): array
+    {
+        $path = $this->getCoreLangPath()."/{$lang}.json";
 
         if (! File::exists($path)) {
-            if ($lang !== 'en') {
-                // Create file with empty translations if it doesn't exist
-                File::put($path, '{}');
-            } else {
-                // For English, create with default Laravel translations
-                $defaultTranslations = [];
-                File::put($path, json_encode($defaultTranslations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-            }
+            return [];
         }
 
         $content = File::get($path);
@@ -63,42 +87,88 @@ class TranslationService
     }
 
     /**
-     * Get group translations from PHP files.
+     * Get user JSON translations (overrides).
      */
-    public function getGroupTranslations(string $lang, string $group): array
+    public function getUserJsonTranslations(string $lang): array
     {
-        $path = resource_path("lang/{$lang}/{$group}.php");
+        $path = $this->getUserLangPath()."/{$lang}.json";
 
-        // If the directory doesn't exist, create it
-        if (! File::exists(resource_path("lang/{$lang}"))) {
-            File::makeDirectory(resource_path("lang/{$lang}"), 0755, true);
-        }
-
-        // If file doesn't exist but English version does, copy structure from English
-        if (! File::exists($path) && File::exists(resource_path("lang/en/{$group}.php"))) {
-            $enTranslations = include resource_path("lang/en/{$group}.php");
-
-            // Create file with empty translations or copy English structure
-            $this->createGroupTranslationFile($lang, $group, $enTranslations);
-
-            // Check again after creating the file.
-            if (File::exists($path)) {
-                return include $path;
-            }
-
+        if (! File::exists($path)) {
             return [];
         }
 
-        // If file exists, return its contents
+        $content = File::get($path);
+
+        return json_decode($content, true) ?: [];
+    }
+
+    /**
+     * Get group translations from PHP files (merged: core + user overrides).
+     */
+    public function getGroupTranslations(string $lang, string $group): array
+    {
+        // Get core translations
+        $coreTranslations = $this->getCoreGroupTranslations($lang, $group);
+
+        // Get user translations (overrides)
+        $userTranslations = $this->getUserGroupTranslations($lang, $group);
+
+        // Deep merge: user translations override core translations
+        return $this->arrayMergeRecursiveDistinct($coreTranslations, $userTranslations);
+    }
+
+    /**
+     * Get core group translations from PHP files.
+     */
+    public function getCoreGroupTranslations(string $lang, string $group): array
+    {
+        $path = $this->getCoreLangPath()."/{$lang}/{$group}.php";
+
         if (File::exists($path)) {
             return include $path;
         }
 
-        // If no file exists, create a default structure based on group
-        $defaultTranslations = $this->getDefaultTranslationsForGroup($group);
-        $this->createGroupTranslationFile($lang, $group, $defaultTranslations);
+        // If file doesn't exist but English version does, use English as reference
+        if ($lang !== 'en') {
+            $enPath = $this->getCoreLangPath()."/en/{$group}.php";
+            if (File::exists($enPath)) {
+                return include $enPath;
+            }
+        }
 
-        return $defaultTranslations;
+        return $this->getDefaultTranslationsForGroup($group);
+    }
+
+    /**
+     * Get user group translations from PHP files (overrides).
+     */
+    public function getUserGroupTranslations(string $lang, string $group): array
+    {
+        $path = $this->getUserLangPath()."/{$lang}/{$group}.php";
+
+        if (! File::exists($path)) {
+            return [];
+        }
+
+        return include $path;
+    }
+
+    /**
+     * Recursively merge arrays, with second array values taking priority.
+     */
+    protected function arrayMergeRecursiveDistinct(array $array1, array $array2): array
+    {
+        $merged = $array1;
+
+        foreach ($array2 as $key => $value) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+                $merged[$key] = $this->arrayMergeRecursiveDistinct($merged[$key], $value);
+            } else {
+                $merged[$key] = $value;
+            }
+        }
+
+        return $merged;
     }
 
     /**
@@ -248,31 +318,68 @@ class TranslationService
     }
 
     /**
-     * Save JSON translations.
+     * Save JSON translations to user-lang folder (only differences from core).
      */
     public function saveJsonTranslations(string $lang, array $translations): bool
     {
-        $path = resource_path("lang/{$lang}.json");
+        // Get core translations to compare
+        $coreTranslations = $this->getCoreJsonTranslations($lang);
+
+        // Find only the translations that differ from core
+        $userOverrides = $this->findDifferentTranslations($translations, $coreTranslations);
+
+        $userLangPath = $this->getUserLangPath();
+        $path = "{$userLangPath}/{$lang}.json";
+
+        // Create the user-lang directory if it doesn't exist
+        if (! File::exists($userLangPath)) {
+            File::makeDirectory($userLangPath, 0755, true);
+        }
+
+        // If no overrides, remove the user file if it exists
+        if (empty($userOverrides)) {
+            if (File::exists($path)) {
+                File::delete($path);
+            }
+
+            return true;
+        }
 
         // Sort translations alphabetically
-        ksort($translations);
+        ksort($userOverrides);
 
-        // Save with pretty print
+        // Save with pretty print to user-lang folder
         return (bool) File::put(
             $path,
-            json_encode($translations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+            json_encode($userOverrides, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
         );
     }
 
     /**
-     * Save group translations to PHP files.
+     * Save group translations to user-lang PHP files (only differences from core).
      */
     public function saveGroupTranslations(string $lang, string $group, array $translations): bool
     {
-        $path = resource_path("lang/{$lang}/{$group}.php");
+        // Get core translations to compare
+        $coreTranslations = $this->getCoreGroupTranslations($lang, $group);
+
+        // Find only the translations that differ from core
+        $userOverrides = $this->findDifferentTranslationsRecursive($translations, $coreTranslations);
+
+        $userLangPath = $this->getUserLangPath();
+        $path = "{$userLangPath}/{$lang}/{$group}.php";
+
+        // If no overrides, remove the user file if it exists
+        if (empty($userOverrides)) {
+            if (File::exists($path)) {
+                File::delete($path);
+            }
+
+            return true;
+        }
 
         // Prepare file content
-        $content = "<?php\n\nreturn ".$this->varExport($translations, true).";\n";
+        $content = "<?php\n\nreturn ".$this->varExport($userOverrides, true).";\n";
 
         // Create the directory if it doesn't exist
         $directory = dirname($path);
@@ -282,6 +389,49 @@ class TranslationService
 
         // Write the file
         return (bool) File::put($path, $content);
+    }
+
+    /**
+     * Find translations that differ from core (for flat arrays like JSON).
+     */
+    protected function findDifferentTranslations(array $submitted, array $core): array
+    {
+        $different = [];
+
+        foreach ($submitted as $key => $value) {
+            // Include if: key doesn't exist in core, or value is different from core
+            if (! array_key_exists($key, $core) || $core[$key] !== $value) {
+                $different[$key] = $value;
+            }
+        }
+
+        return $different;
+    }
+
+    /**
+     * Find translations that differ from core (for nested arrays like PHP files).
+     */
+    protected function findDifferentTranslationsRecursive(array $submitted, array $core): array
+    {
+        $different = [];
+
+        foreach ($submitted as $key => $value) {
+            if (! array_key_exists($key, $core)) {
+                // Key doesn't exist in core - include it
+                $different[$key] = $value;
+            } elseif (is_array($value) && is_array($core[$key])) {
+                // Both are arrays - recurse
+                $nestedDiff = $this->findDifferentTranslationsRecursive($value, $core[$key]);
+                if (! empty($nestedDiff)) {
+                    $different[$key] = $nestedDiff;
+                }
+            } elseif ($value !== $core[$key]) {
+                // Value is different - include it
+                $different[$key] = $value;
+            }
+        }
+
+        return $different;
     }
 
     /**

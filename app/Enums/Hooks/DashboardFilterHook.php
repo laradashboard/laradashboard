@@ -29,6 +29,24 @@ enum DashboardFilterHook: string
     // ==========================================================================
 
     /**
+     * Filter which dashboard sections are visible.
+     * Return an array of section keys to show. Remove keys to hide sections.
+     *
+     * Available sections: quick_actions, stat_cards, user_growth, quick_draft,
+     *                     post_chart, recent_posts
+     *
+     * @example
+     * // Hide quick actions and recent posts
+     * Hook::addFilter(DashboardFilterHook::DASHBOARD_SECTIONS, function ($sections) {
+     *     return array_diff($sections, ['quick_actions', 'recent_posts']);
+     * });
+     *
+     * @param array $sections The visible sections
+     * @return array Modified sections
+     */
+    case DASHBOARD_SECTIONS = 'filter.dashboard.sections';
+
+    /**
      * Hook after the dashboard breadcrumbs.
      */
     case DASHBOARD_AFTER_BREADCRUMBS = 'filter.dashboard.after_breadcrumbs';

@@ -364,21 +364,38 @@ PROMPT;
     private function sendAiRequest(string $systemPrompt, string $userPrompt): ?array
     {
         $provider = config('settings.ai_default_provider', 'openai');
+
+        // Get API key or base URL based on provider
         $apiKey = match ($provider) {
             'openai' => config('settings.ai_openai_api_key') ?: config('ai.openai.api_key'),
             'claude' => config('settings.ai_claude_api_key') ?: config('ai.anthropic.api_key'),
+            'gemini' => config('settings.ai_gemini_api_key') ?: config('ai.gemini.api_key'),
+            'ollama' => null, // Ollama doesn't need API key
             default => null,
         };
 
-        if (empty($apiKey)) {
+        $ollamaBaseUrl = config('settings.ai_ollama_base_url') ?: config('ai.ollama.base_url', 'http://localhost:11434');
+
+        // Validate configuration
+        if ($provider === 'ollama') {
+            if (empty($ollamaBaseUrl)) {
+                return null;
+            }
+        } elseif (empty($apiKey)) {
             return null;
         }
 
+        // Get model for each provider
+        $openaiModel = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-4o-mini');
+        $claudeModel = config('settings.ai_claude_model') ?: config('ai.anthropic.model', 'claude-3-haiku-20240307');
+        $geminiModel = config('settings.ai_gemini_model') ?: config('ai.gemini.model', 'gemini-2.0-flash');
+        $ollamaModel = config('settings.ai_ollama_model') ?: config('ai.ollama.model', 'llama3.2');
+
         $response = match ($provider) {
             'openai' => \Illuminate\Support\Facades\Http::withHeaders([
-                'Authorization' => 'Bearer '.$apiKey,
+                'Authorization' => 'Bearer ' . $apiKey,
             ])->timeout(30)->post('https://api.openai.com/v1/chat/completions', [
-                'model' => 'gpt-4o-mini',
+                'model' => $openaiModel,
                 'messages' => [
                     ['role' => 'system', 'content' => $systemPrompt],
                     ['role' => 'user', 'content' => $userPrompt],
@@ -391,11 +408,45 @@ PROMPT;
                 'x-api-key' => $apiKey,
                 'anthropic-version' => '2023-06-01',
             ])->timeout(30)->post('https://api.anthropic.com/v1/messages', [
-                'model' => 'claude-3-haiku-20240307',
+                'model' => $claudeModel,
                 'max_tokens' => 500,
-                'system' => $systemPrompt,
+                'system' => $systemPrompt . "\n\nIMPORTANT: Return valid JSON only, no additional text.",
                 'messages' => [['role' => 'user', 'content' => $userPrompt]],
             ]),
+            'gemini' => \Illuminate\Support\Facades\Http::timeout(30)->post(
+                "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$apiKey}",
+                [
+                    'contents' => [
+                        [
+                            'role' => 'user',
+                            'parts' => [
+                                ['text' => $systemPrompt . "\n\n" . $userPrompt],
+                            ],
+                        ],
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.3,
+                        'maxOutputTokens' => 500,
+                        'responseMimeType' => 'application/json',
+                    ],
+                ]
+            ),
+            'ollama' => \Illuminate\Support\Facades\Http::timeout(60)->post(
+                rtrim($ollamaBaseUrl, '/') . '/api/chat',
+                [
+                    'model' => $ollamaModel,
+                    'messages' => [
+                        ['role' => 'system', 'content' => $systemPrompt . "\n\nIMPORTANT: Return valid JSON only, no additional text or markdown."],
+                        ['role' => 'user', 'content' => $userPrompt],
+                    ],
+                    'stream' => false,
+                    'format' => 'json',
+                    'options' => [
+                        'temperature' => 0.3,
+                        'num_predict' => 500,
+                    ],
+                ]
+            ),
             default => null,
         };
 
@@ -406,6 +457,8 @@ PROMPT;
         $content = match ($provider) {
             'openai' => $response->json('choices.0.message.content'),
             'claude' => $response->json('content.0.text'),
+            'gemini' => $response->json('candidates.0.content.parts.0.text'),
+            'ollama' => $response->json('message.content'),
             default => null,
         };
 

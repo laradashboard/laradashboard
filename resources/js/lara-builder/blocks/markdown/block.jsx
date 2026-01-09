@@ -1,8 +1,9 @@
 /**
  * Markdown Block - Canvas Component
  *
- * Fetches and displays markdown content from external URLs (GitHub, GitLab, etc.)
- * The content is fetched server-side to avoid CORS issues and enable caching.
+ * Supports two modes:
+ * 1. Direct content: Write markdown directly in the editor (inline editing)
+ * 2. URL: Fetch markdown from external URLs (GitHub, GitLab, etc.)
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -39,10 +40,8 @@ const loadPrism = () => {
     }
 
     const baseUrl = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/';
-    // Order matters: markup -> markup-templating -> php (dependency chain)
     const languages = ['markup', 'css', 'clike', 'javascript', 'markup-templating', 'php', 'typescript', 'jsx', 'tsx', 'scss', 'bash', 'json', 'yaml', 'sql', 'python'];
 
-    // Load core first, then languages sequentially, then plugins
     return loadScript(baseUrl + 'prism.min.js').then(() => {
         return languages.reduce((promise, lang) => {
             return promise.then(() => {
@@ -52,36 +51,96 @@ const loadPrism = () => {
             });
         }, Promise.resolve());
     }).then(() => {
-        // Load toolbar plugin (required for copy button)
         return loadScript(baseUrl + 'plugins/toolbar/prism-toolbar.min.js');
     }).then(() => {
-        // Load copy-to-clipboard plugin
         return loadScript(baseUrl + 'plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js');
     });
 };
 
-const MarkdownBlock = ({ props, onUpdate }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [urlInput, setUrlInput] = useState(props.url || '');
+const MarkdownBlock = ({ props, onUpdate, isSelected }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [htmlContent, setHtmlContent] = useState('');
     const [cached, setCached] = useState(false);
+    const [copySuccess, setCopySuccess] = useState(false);
+    const [rawMarkdown, setRawMarkdown] = useState('');
     const fetchedUrlRef = useRef('');
+    const convertedContentRef = useRef('');
     const contentRef = useRef(null);
+    const editorRef = useRef(null);
+    const lastContentRef = useRef(props.content);
+
+    const sourceType = props.sourceType || 'content';
+
+    // Copy markdown to clipboard
+    const handleCopyMarkdown = useCallback(async () => {
+        const markdownToCopy = sourceType === 'content' ? props.content : rawMarkdown;
+        if (!markdownToCopy) return;
+
+        try {
+            await navigator.clipboard.writeText(markdownToCopy);
+            setCopySuccess(true);
+            setTimeout(() => setCopySuccess(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+    }, [sourceType, props.content, rawMarkdown]);
 
     // Highlight code blocks when content changes
+    // For URL mode: always highlight (not editable)
+    // For content mode: only highlight when not selected (preview mode)
     useEffect(() => {
-        if (htmlContent && contentRef.current) {
+        const shouldHighlight = htmlContent && contentRef.current && (sourceType === 'url' || !isSelected);
+        if (shouldHighlight) {
             loadPrism().then(() => {
-                if (window.Prism && contentRef.current) {
-                    window.Prism.highlightAllUnder(contentRef.current);
-                }
+                setTimeout(() => {
+                    if (window.Prism && contentRef.current) {
+                        window.Prism.highlightAllUnder(contentRef.current);
+                    }
+                }, 0);
             });
         }
-    }, [htmlContent]);
+    }, [htmlContent, isSelected, sourceType]);
 
-    // Fetch markdown content from the server
+    // Convert markdown content to HTML (for direct content mode)
+    const convertMarkdown = useCallback(async (markdown) => {
+        if (!markdown) {
+            setHtmlContent('');
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch('/api/admin/builder/markdown/convert', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ content: markdown }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Failed to convert markdown');
+            }
+
+            setHtmlContent(data.html);
+            convertedContentRef.current = markdown;
+        } catch (err) {
+            setError(err.message);
+            setHtmlContent('');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // Fetch markdown content from URL
     const fetchMarkdown = useCallback(async (url, refresh = false) => {
         if (!url) {
             setHtmlContent('');
@@ -100,10 +159,8 @@ const MarkdownBlock = ({ props, onUpdate }) => {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
                 },
-                body: JSON.stringify({
-                    url,
-                    refresh,
-                }),
+                credentials: 'same-origin',
+                body: JSON.stringify({ url, refresh }),
             });
 
             const data = await response.json();
@@ -114,6 +171,7 @@ const MarkdownBlock = ({ props, onUpdate }) => {
 
             setHtmlContent(data.html);
             setCached(data.cached || false);
+            setRawMarkdown(data.markdown || '');
             fetchedUrlRef.current = url;
         } catch (err) {
             setError(err.message);
@@ -123,66 +181,50 @@ const MarkdownBlock = ({ props, onUpdate }) => {
         }
     }, []);
 
-    // Fetch content when URL changes
+    // Handle content changes based on source type
     useEffect(() => {
-        if (props.url && props.url !== fetchedUrlRef.current) {
+        if (sourceType === 'url' && props.url && props.url !== fetchedUrlRef.current) {
             fetchMarkdown(props.url, false);
+        } else if (sourceType === 'content' && props.content && props.content !== convertedContentRef.current) {
+            convertMarkdown(props.content);
         }
-    }, [props.url, fetchMarkdown]);
+    }, [sourceType, props.url, props.content, fetchMarkdown, convertMarkdown]);
 
-    const handleDoubleClick = () => {
-        setIsEditing(true);
-        setUrlInput(props.url || '');
-    };
-
-    const handleClose = () => {
-        setIsEditing(false);
-    };
-
-    const handleSave = () => {
-        onUpdate({ ...props, url: urlInput });
-        setIsEditing(false);
-
-        // Fetch if URL changed
-        if (urlInput !== props.url) {
-            fetchMarkdown(urlInput, false);
+    // Convert when switching back to preview mode (deselected)
+    useEffect(() => {
+        if (!isSelected && sourceType === 'content' && props.content) {
+            if (props.content !== convertedContentRef.current) {
+                convertMarkdown(props.content);
+            }
         }
-    };
+    }, [isSelected, sourceType, props.content, convertMarkdown]);
+
+    // Handle textarea changes
+    const handleContentChange = useCallback((e) => {
+        const newContent = e.target.value;
+        onUpdate({ ...props, content: newContent });
+    }, [props, onUpdate]);
+
+    // Focus editor when selected
+    useEffect(() => {
+        if (isSelected && sourceType === 'content' && editorRef.current) {
+            editorRef.current.focus();
+        }
+    }, [isSelected, sourceType]);
 
     const handleRefresh = () => {
-        if (props.url) {
+        if (sourceType === 'url' && props.url) {
             fetchMarkdown(props.url, true);
         }
     };
 
-    // Convert GitHub URL to preview (show expected raw URL)
-    const getDisplayUrl = (url) => {
-        if (!url) return '';
-
-        // GitHub blob -> raw
-        if (url.includes('github.com') && url.includes('/blob/')) {
-            return url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
-        }
-
-        return url;
-    };
-
-    // Base styles for the container
+    // Base styles
     const defaultStyle = {
         borderRadius: '4px',
         minHeight: '100px',
     };
 
-    // Apply layout styles if provided
     const containerStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);
-
-    const placeholderContent = (
-        <div className="p-6 text-center text-gray-400 bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
-            <iconify-icon icon="mdi:language-markdown" width="48" height="48" class="mb-2 opacity-50"></iconify-icon>
-            <div className="text-sm font-medium">Markdown Block</div>
-            <div className="text-xs mt-1">Double-click to add a markdown URL</div>
-        </div>
-    );
 
     // Markdown content styles
     const markdownStyles = `
@@ -196,12 +238,12 @@ const MarkdownBlock = ({ props, onUpdate }) => {
         .markdown-content h3 { font-size: 1.25em; font-weight: 600; margin: 1em 0 0.5em; }
         .markdown-content h4 { font-size: 1em; font-weight: 600; margin: 1em 0 0.5em; }
         .markdown-content p { margin: 0 0 1em; }
-        .markdown-content ul, .markdown-content ol { margin: 0 0 1em; padding-left: 2em; }
-        .markdown-content li { margin: 0.25em 0; }
+        .markdown-content ul { margin: 0 0 1em; padding-left: 2em; list-style-type: disc; }
+        .markdown-content ol { margin: 0 0 1em; padding-left: 2em; list-style-type: decimal; }
+        .markdown-content li { margin: 0.25em 0; display: list-item; }
         .markdown-content code { background: #f3f4f6; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.875em; font-family: ui-monospace, monospace; color: #e83e8c; }
-        .markdown-content pre { background: #1e1e1e !important; padding: 0 !important; border-radius: 8px; overflow-x: auto; margin: 0 0 1em; }
-        .markdown-content pre code { display: block; padding: 1em !important; background: transparent !important; color: #d4d4d4; font-size: 0.875em; line-height: 1.5; }
-        .markdown-content pre code[class*="language-"] { color: inherit; }
+        .markdown-content pre[class*="language-"] { background: #1e1e1e; padding: 1em !important; border-radius: 8px; overflow-x: auto; margin: 0 0 1em; }
+        .markdown-content pre code { display: block; background: transparent !important; font-size: 0.875em; line-height: 1.5; }
         .markdown-content blockquote { border-left: 4px solid #6366f1; padding-left: 1em; margin: 0 0 1em; color: #6b7280; font-style: italic; }
         .markdown-content a { color: #6366f1; text-decoration: underline; }
         .markdown-content a:hover { color: #4f46e5; }
@@ -231,8 +273,38 @@ const MarkdownBlock = ({ props, onUpdate }) => {
         }
     `;
 
+    // Editing mode for content type - show textarea
+    if (isSelected && sourceType === 'content') {
+        return (
+            <div style={containerStyle} data-text-editing="true">
+                <textarea
+                    ref={editorRef}
+                    value={props.content || ''}
+                    onChange={handleContentChange}
+                    placeholder="# Hello World
+
+Write your **markdown** content here...
+
+- Item 1
+- Item 2
+
+```php
+echo 'Hello';
+```"
+                    className="w-full px-4 py-3 border-0 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    style={{
+                        minHeight: '200px',
+                        resize: 'vertical',
+                        lineHeight: '1.6',
+                    }}
+                />
+            </div>
+        );
+    }
+
+    // Preview mode (deselected or URL mode)
     return (
-        <div style={containerStyle} onDoubleClick={handleDoubleClick}>
+        <div style={containerStyle}>
             <style>{markdownStyles}</style>
 
             {/* Loading state */}
@@ -243,7 +315,7 @@ const MarkdownBlock = ({ props, onUpdate }) => {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        <span>Fetching markdown...</span>
+                        <span>{sourceType === 'url' ? 'Fetching markdown...' : 'Converting markdown...'}</span>
                     </div>
                 </div>
             )}
@@ -256,21 +328,46 @@ const MarkdownBlock = ({ props, onUpdate }) => {
                         <span className="text-sm font-medium">Error loading markdown</span>
                     </div>
                     <p className="text-xs text-red-500 mt-1">{error}</p>
-                    <button
-                        type="button"
-                        onClick={handleRefresh}
-                        className="mt-2 text-xs text-red-600 underline hover:text-red-700"
-                    >
-                        Try again
-                    </button>
+                    {sourceType === 'url' && (
+                        <button
+                            type="button"
+                            onClick={handleRefresh}
+                            className="mt-2 text-xs text-red-600 underline hover:text-red-700"
+                        >
+                            Try again
+                        </button>
+                    )}
                 </div>
             )}
 
             {/* Content display */}
             {!loading && !error && htmlContent && (
                 <div className="relative">
-                    {/* Source indicator */}
-                    {props.showSource && props.url && (
+                    {/* Copy Markdown button - shown when selected */}
+                    {isSelected && (props.content || rawMarkdown) && (
+                        <div className="absolute top-2 right-2 z-10">
+                            <button
+                                type="button"
+                                onClick={handleCopyMarkdown}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                    copySuccess
+                                        ? 'bg-green-100 text-green-700 border border-green-200'
+                                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm'
+                                }`}
+                                title="Copy raw markdown"
+                            >
+                                <iconify-icon
+                                    icon={copySuccess ? 'mdi:check' : 'mdi:content-copy'}
+                                    width="14"
+                                    height="14"
+                                ></iconify-icon>
+                                {copySuccess ? 'Copied!' : 'Copy Markdown'}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Source indicator (URL mode only) */}
+                    {props.showSource && sourceType === 'url' && props.url && (
                         <div className="mb-3 flex items-center justify-between text-xs text-gray-500 bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-md">
                             <div className="flex items-center gap-2 truncate">
                                 <iconify-icon icon="mdi:link-variant" width="14" height="14"></iconify-icon>
@@ -297,6 +394,7 @@ const MarkdownBlock = ({ props, onUpdate }) => {
 
                     {/* Rendered markdown */}
                     <div
+                        key={isSelected ? 'selected' : 'preview'}
                         ref={contentRef}
                         className="markdown-content"
                         dangerouslySetInnerHTML={{ __html: htmlContent }}
@@ -304,103 +402,16 @@ const MarkdownBlock = ({ props, onUpdate }) => {
                 </div>
             )}
 
-            {/* Placeholder when no URL */}
-            {!loading && !error && !htmlContent && placeholderContent}
-
-            {/* Editor Modal */}
-            {isEditing && (
-                <div
-                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]"
-                    onClick={handleClose}
-                >
-                    <div
-                        className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl w-full max-w-2xl flex flex-col mx-4"
-                        onClick={e => e.stopPropagation()}
-                    >
-                        {/* Modal Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                            <div className="flex items-center gap-3">
-                                <iconify-icon icon="mdi:language-markdown" width="24" height="24" class="text-gray-600 dark:text-gray-400"></iconify-icon>
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Markdown URL</h3>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={handleClose}
-                                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
-                            >
-                                <iconify-icon icon="mdi:close" width="20" height="20"></iconify-icon>
-                            </button>
-                        </div>
-
-                        {/* Modal Content */}
-                        <div className="p-6">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Markdown URL
-                            </label>
-                            <input
-                                type="url"
-                                value={urlInput}
-                                onChange={(e) => setUrlInput(e.target.value)}
-                                placeholder="https://github.com/user/repo/blob/main/README.md"
-                                className="form-input w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-white"
-                            />
-                            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                Supports GitHub, GitLab, Bitbucket, and any direct markdown file URL.
-                            </p>
-
-                            {/* URL Preview */}
-                            {urlInput && getDisplayUrl(urlInput) !== urlInput && (
-                                <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Will be fetched from:</p>
-                                    <p className="text-xs text-gray-700 dark:text-gray-300 break-all font-mono">
-                                        {getDisplayUrl(urlInput)}
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Supported sources */}
-                            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Supported sources:</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {['GitHub', 'GitLab', 'Bitbucket', 'Any .md URL'].map((source) => (
-                                        <span key={source} className="inline-flex items-center px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
-                                            {source}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Options */}
-                            <div className="mt-4 space-y-3">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={props.showSource !== false}
-                                        onChange={(e) => onUpdate({ ...props, showSource: e.target.checked })}
-                                        className="form-checkbox h-4 w-4 text-indigo-600 rounded"
-                                    />
-                                    <span className="text-sm text-gray-700 dark:text-gray-300">Show source URL indicator</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        {/* Modal Footer */}
-                        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-b-lg">
-                            <button
-                                type="button"
-                                onClick={handleClose}
-                                className="btn-default"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleSave}
-                                className="btn-primary"
-                            >
-                                Save
-                            </button>
-                        </div>
+            {/* Placeholder when no content */}
+            {!loading && !error && !htmlContent && (
+                <div className="p-6 text-center text-gray-400 bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                    <iconify-icon icon="mdi:language-markdown" width="48" height="48" class="mb-2 opacity-50"></iconify-icon>
+                    <div className="text-sm font-medium">Markdown Block</div>
+                    <div className="text-xs mt-1">
+                        {sourceType === 'content'
+                            ? 'Click to start writing markdown'
+                            : 'Enter a markdown URL in the sidebar'
+                        }
                     </div>
                 </div>
             )}

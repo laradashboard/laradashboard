@@ -1444,5 +1444,22 @@
     "selected": "выбрано",
     "showing": "показано",
     "to": "до",
-    "Username or Email": "Имя пользователя или электронная почта"
+    "Username or Email": "Имя пользователя или электронная почта",
+    "New Media": "Новые Медиа",
+    "Quick Draft": "Быстрый Черновик",
+    "Recent Posts": "Последние Публикации",
+    "AI Agent": "AI Агент",
+    "Enter post title...": "Введите заголовок поста...",
+    "Write your content here...": "Напишите ваш контент здесь...",
+    "capabilities": "возможности",
+    "Connected to": "Подключено к",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Создайте новый пост или страницу с контентом, сгенерированным ИИ, на основе темы или запроса, опционально с изображениями.",
+    "Create Content": "Создать Контент",
+    "Describe what you want to create or do...": "Опишите, что вы хотите создать или сделать...",
+    "Generate SEO meta title and description for an existing post": "Сгенерировать SEO мета-заголовок и описание для существующего поста",
+    "I can help you with:": "Я могу помочь вам с:",
+    "Not connected": "Не подключено",
+    "Optimize for SEO": "Оптимизировать для SEO",
+    "Quick Examples": "Быстрые Примеры",
+    "What would you like to create today?": "Что бы вы хотели создать сегодня?"
 }

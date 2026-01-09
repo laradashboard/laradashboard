@@ -1327,5 +1327,22 @@
     "permission|permissions": "permission|permissions",
     "to": "ke",
     "via": "melalui",
-    "Username or Email": "Nama pengguna atau Email"
+    "Username or Email": "Nama pengguna atau Email",
+    "New Media": "Media Baru",
+    "Quick Draft": "Draf Cepat",
+    "Recent Posts": "Postingan Terbaru",
+    "AI Agent": "Agen AI",
+    "Enter post title...": "Masukkan judul postingan...",
+    "Write your content here...": "Tulis konten Anda di sini...",
+    "capabilities": "kemampuan",
+    "Connected to": "Terhubung ke",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Buat postingan atau halaman baru dengan konten yang dihasilkan AI berdasarkan topik atau prompt, opsional dengan gambar.",
+    "Create Content": "Buat Konten",
+    "Describe what you want to create or do...": "Jelaskan apa yang ingin Anda buat atau lakukan...",
+    "Generate SEO meta title and description for an existing post": "Hasilkan judul dan deskripsi meta SEO untuk postingan yang ada",
+    "I can help you with:": "Saya dapat membantu Anda dengan:",
+    "Not connected": "Tidak terhubung",
+    "Optimize for SEO": "Optimalkan untuk SEO",
+    "Quick Examples": "Contoh Cepat",
+    "What would you like to create today?": "Apa yang ingin Anda buat hari ini?"
 }

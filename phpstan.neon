@@ -26,5 +26,4 @@ parameters:
         - '#Parameter .* of method .* expects .*, .* given#'
         - '#PHPDoc type .* of property .* is not covariant with PHPDoc type .* of overridden property#'
         - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder.*::items\(\)#'
-        - '#If condition is always false#'
         - '#Offset .* in empty\(\) always exists and is (not falsy|always falsy)#'

@@ -1327,5 +1327,22 @@
     "permission|permissions": "permission|permissions",
     "to": "宛先",
     "via": "経由",
-    "Username or Email": "ユーザー名またはメール"
+    "Username or Email": "ユーザー名またはメール",
+    "New Media": "新しいメディア",
+    "Quick Draft": "クイック下書き",
+    "Recent Posts": "最近の投稿",
+    "AI Agent": "AIエージェント",
+    "Enter post title...": "投稿タイトルを入力...",
+    "Write your content here...": "ここにコンテンツを書いてください...",
+    "capabilities": "機能",
+    "Connected to": "接続先",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "トピックまたはプロンプトに基づいてAI生成コンテンツを含む新しい投稿またはページを作成します。オプションで画像も含めます。",
+    "Create Content": "コンテンツを作成",
+    "Describe what you want to create or do...": "作成または実行したいことを説明してください...",
+    "Generate SEO meta title and description for an existing post": "既存の投稿のSEOメタタイトルと説明を生成",
+    "I can help you with:": "お手伝いできること:",
+    "Not connected": "未接続",
+    "Optimize for SEO": "SEO最適化",
+    "Quick Examples": "クイック例",
+    "What would you like to create today?": "今日は何を作成しますか？"
 }
