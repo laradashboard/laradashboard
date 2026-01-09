@@ -1332,6 +1332,8 @@
     "Quick Draft": "クイック下書き",
     "Recent Posts": "最近の投稿",
     "AI Agent": "AIエージェント",
+    "Enter post title...": "投稿タイトルを入力...",
+    "Write your content here...": "ここにコンテンツを書いてください...",
     "capabilities": "機能",
     "Connected to": "接続先",
     "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "トピックまたはプロンプトに基づいてAI生成コンテンツを含む新しい投稿またはページを作成します。オプションで画像も含めます。",

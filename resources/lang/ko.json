@@ -450,6 +450,8 @@
     "Save Draft": "초안 저장",
     "Recent Posts": "최근 게시물",
     "AI Agent": "AI 에이전트",
+    "Enter post title...": "게시물 제목 입력...",
+    "Write your content here...": "여기에 콘텐츠를 작성하세요...",
     "capabilities": "기능",
     "Connected to": "연결됨",
     "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "주제나 프롬프트를 기반으로 AI 생성 콘텐츠가 포함된 새 게시물 또는 페이지를 만듭니다. 선택적으로 이미지 포함.",
