@@ -5,6 +5,9 @@
         @include('backend.layouts.partials.demo-mode-notice')
     </div>
 
+    {{-- Core Upgrade Notification --}}
+    <livewire:components.core-upgrade-notification />
+
     {!! Hook::applyFilters(AdminFilterHook::HEADER_BEFORE_LOCALE_SWITCHER, '') !!}
     <x-tooltip title="{{ __('Change locale') }}" position="bottom">
         @include('backend.layouts.partials.locale-switcher')

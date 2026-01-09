@@ -219,6 +219,13 @@ class AdminMenuService
                     'priority' => 10,
                     'permissions' => ['translations.view', 'translations.edit'],
                 ],
+                [
+                    'label' => __('Core Upgrades'),
+                    'route' => route('admin.core-upgrades.index'),
+                    'active' => Route::is('admin.core-upgrades.*'),
+                    'priority' => 25,
+                    'permissions' => 'settings.view',
+                ],
             ],
         ], __('More'));
 

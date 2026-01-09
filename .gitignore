@@ -32,6 +32,10 @@ public/images/.DS_Store
 # Keep the modules directory structure
 !/modules/.gitkeep
 
+# User translations.
+/resources/user-lang/*
+!/resources/user-lang/.gitkeep
+
 # Exclude release builds
 /releases
 .composer

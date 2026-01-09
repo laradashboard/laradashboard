@@ -233,6 +233,7 @@ return [
         App\Providers\BuilderServiceProvider::class,
         App\Providers\AuthSettingsServiceProvider::class,
         App\Ai\Providers\AiServiceProvider::class,
+        App\Providers\CustomTranslationServiceProvider::class,
     ],
 
     /*
