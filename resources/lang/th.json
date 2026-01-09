@@ -1451,5 +1451,21 @@
     "results": "ผลลัพธ์",
     "rows": "แถว",
     "to": "ถึง",
-    "Username or Email": "ชื่อผู้ใช้หรืออีเมล"
+    "Username or Email": "ชื่อผู้ใช้หรืออีเมล",
+    "New Media": "สื่อใหม่",
+    "Quick Draft": "ร่างด่วน",
+    "Save Draft": "บันทึกร่าง",
+    "Recent Posts": "โพสต์ล่าสุด",
+    "AI Agent": "ตัวแทน AI",
+    "capabilities": "ความสามารถ",
+    "Connected to": "เชื่อมต่อกับ",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "สร้างโพสต์หรือหน้าใหม่ด้วยเนื้อหาที่สร้างโดย AI ตามหัวข้อหรือคำสั่ง โดยเลือกใส่รูปภาพได้",
+    "Create Content": "สร้างเนื้อหา",
+    "Describe what you want to create or do...": "อธิบายสิ่งที่คุณต้องการสร้างหรือทำ...",
+    "Generate SEO meta title and description for an existing post": "สร้างชื่อและคำอธิบาย meta SEO สำหรับโพสต์ที่มีอยู่",
+    "I can help you with:": "ฉันสามารถช่วยคุณได้:",
+    "Not connected": "ไม่ได้เชื่อมต่อ",
+    "Optimize for SEO": "ปรับให้เหมาะสมสำหรับ SEO",
+    "Quick Examples": "ตัวอย่างด่วน",
+    "What would you like to create today?": "วันนี้คุณอยากสร้างอะไร?"
 }

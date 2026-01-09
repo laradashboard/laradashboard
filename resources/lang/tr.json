@@ -1451,5 +1451,21 @@
     "results": "sonuç",
     "rows": "satır",
     "to": "-",
-    "Username or Email": "Kullanıcı adı veya E-posta"
+    "Username or Email": "Kullanıcı adı veya E-posta",
+    "New Media": "Yeni Medya",
+    "Quick Draft": "Hızlı Taslak",
+    "Save Draft": "Taslağı Kaydet",
+    "Recent Posts": "Son Gönderiler",
+    "AI Agent": "AI Asistanı",
+    "capabilities": "yetenekler",
+    "Connected to": "Bağlı",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Bir konu veya isteme dayalı AI tarafından oluşturulan içerikle yeni bir gönderi veya sayfa oluşturun, isteğe bağlı olarak resimlerle.",
+    "Create Content": "İçerik Oluştur",
+    "Describe what you want to create or do...": "Ne oluşturmak veya yapmak istediğinizi açıklayın...",
+    "Generate SEO meta title and description for an existing post": "Mevcut bir gönderi için SEO meta başlığı ve açıklaması oluşturun",
+    "I can help you with:": "Size yardımcı olabilirim:",
+    "Not connected": "Bağlı değil",
+    "Optimize for SEO": "SEO için Optimize Et",
+    "Quick Examples": "Hızlı Örnekler",
+    "What would you like to create today?": "Bugün ne oluşturmak istersiniz?"
 }

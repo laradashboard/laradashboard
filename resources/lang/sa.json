@@ -420,5 +420,21 @@
     "or click to browse": "अथवा अन्वेषणाय क्लिक् करोतु",
     "permissions": "permissions",
     "permission|permissions": "permission|permissions",
-    "Username or Email": "उपयोक्तृनाम अथवा विद्युत्पत्रम्"
+    "Username or Email": "उपयोक्तृनाम अथवा विद्युत्पत्रम्",
+    "New Media": "नूतनमाध्यमम्",
+    "Quick Draft": "शीघ्रप्रारूपम्",
+    "Save Draft": "प्रारूपं रक्षतु",
+    "Recent Posts": "नवीनप्रकाशनानि",
+    "AI Agent": "एआई प्रतिनिधिः",
+    "capabilities": "क्षमताः",
+    "Connected to": "संयुक्तम्",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "विषयस्य आधारेण एआई-जनितसामग्र्या सह नूतनं पत्रं वा पृष्ठं निर्माणं कुर्वन्तु, वैकल्पिकरूपेण चित्रैः सह।",
+    "Create Content": "सामग्रीं निर्मातु",
+    "Describe what you want to create or do...": "किं निर्माणं कर्तुं वा किं कर्तुं इच्छन्ति तत् वर्णयन्तु...",
+    "Generate SEO meta title and description for an existing post": "वर्तमानस्य पत्रस्य कृते SEO मेटा शीर्षकं विवरणं च जनयन्तु",
+    "I can help you with:": "अहं भवन्तं साहाय्यं कर्तुं शक्नोमि:",
+    "Not connected": "न संयुक्तम्",
+    "Optimize for SEO": "SEO कृते अनुकूलयन्तु",
+    "Quick Examples": "शीघ्रोदाहरणानि",
+    "What would you like to create today?": "अद्य भवान् किं निर्मातुम् इच्छति?"
 }

@@ -668,24 +668,87 @@ Hook::addFilter(MediaFilterHook::MEDIA_ALLOWED_EXTENSIONS, function ($extensions
 
 **Location:** `App\Enums\Hooks\DashboardFilterHook`
 
+#### Section Visibility
+
+| Hook | Description | Parameters | Return |
+|------|-------------|------------|--------|
+| `DASHBOARD_SECTIONS` | Control which dashboard sections are visible | `array $sections` | `array` |
+
+**Available Sections:**
+
+| Section Key | Description |
+|-------------|-------------|
+| `quick_actions` | Quick Actions panel at the top |
+| `stat_cards` | Statistics cards (Posts, Users, Roles, Permissions, Translations) |
+| `user_growth` | User Growth chart |
+| `quick_draft` | Quick Draft form |
+| `post_chart` | Post Activity chart |
+| `recent_posts` | Recent Posts list |
+
+**Example - Hiding Dashboard Sections:**
+
+```php
+// Hide specific sections
+Hook::addFilter(DashboardFilterHook::DASHBOARD_SECTIONS, function (array $sections) {
+    return array_diff($sections, ['quick_actions', 'recent_posts']);
+});
+
+// Show only specific sections
+Hook::addFilter(DashboardFilterHook::DASHBOARD_SECTIONS, function (array $sections) {
+    return ['stat_cards', 'user_growth'];
+});
+
+// Conditionally hide sections based on user role
+Hook::addFilter(DashboardFilterHook::DASHBOARD_SECTIONS, function (array $sections) {
+    if (auth()->user()->hasRole('editor')) {
+        return array_diff($sections, ['user_growth', 'stat_cards']);
+    }
+    return $sections;
+});
+```
+
+#### Layout Hooks
+
 | Hook | Description |
 |------|-------------|
 | `DASHBOARD_AFTER_BREADCRUMBS` | After breadcrumbs |
 | `DASHBOARD_BEFORE_CONTENT` | Before main content |
 | `DASHBOARD_AFTER` | After all content |
+
+#### Stat Cards Hooks
+
+| Hook | Description |
+|------|-------------|
 | `DASHBOARD_CARDS_BEFORE_USERS` | Before users stat card |
 | `DASHBOARD_CARDS_AFTER_USERS` | After users stat card |
 | `DASHBOARD_CARDS_AFTER_ROLES` | After roles stat card |
+| `DASHBOARD_CARDS_AFTER_PERMISSIONS` | After permissions stat card |
+| `DASHBOARD_CARDS_AFTER_TRANSLATIONS` | After translations stat card |
 | `DASHBOARD_CARDS_AFTER` | After all stat cards |
+
+#### Widget Hooks
+
+| Hook | Description |
+|------|-------------|
 | `DASHBOARD_WIDGETS` | Filter dashboard widgets |
 | `DASHBOARD_WIDGET_ORDER` | Filter widget order |
 | `DASHBOARD_WIDGETS_BEFORE` | Before widgets section |
 | `DASHBOARD_WIDGETS_AFTER` | After widgets section |
+
+#### Chart Hooks
+
+| Hook | Description |
+|------|-------------|
 | `DASHBOARD_CHARTS` | Filter available charts |
 | `DASHBOARD_CHART_USER_GROWTH` | Filter user growth data |
 | `DASHBOARD_CHART_POST_GROWTH` | Filter post growth data |
+
+#### Other Dashboard Hooks
+
+| Hook | Description |
+|------|-------------|
 | `DASHBOARD_STATS` | Filter statistics |
-| `DASHBOARD_QUICK_ACTIONS` | Filter quick actions |
+| `DASHBOARD_QUICK_ACTIONS` | Filter quick action buttons |
 | `DASHBOARD_RECENT_ACTIVITY` | Filter recent activity |
 
 **Example - Adding Dashboard Widget:**
@@ -709,6 +772,27 @@ Hook::addFilter(DashboardFilterHook::DASHBOARD_STATS, function ($stats) {
         'color' => 'blue',
     ];
     return $stats;
+});
+```
+
+**Example - Modifying Quick Actions:**
+
+```php
+// Add a custom quick action
+Hook::addFilter(DashboardFilterHook::DASHBOARD_QUICK_ACTIONS, function (array $actions) {
+    $actions[] = [
+        'permission' => 'crm.create',
+        'route' => route('crm.contacts.create'),
+        'icon' => 'heroicons:user-plus',
+        'label' => __('New Contact'),
+        'color' => '#3B82F6',
+    ];
+    return $actions;
+});
+
+// Remove a quick action
+Hook::addFilter(DashboardFilterHook::DASHBOARD_QUICK_ACTIONS, function (array $actions) {
+    return array_filter($actions, fn($action) => $action['permission'] !== 'user.create');
 });
 ```
 

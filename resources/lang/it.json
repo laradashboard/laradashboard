@@ -1327,5 +1327,20 @@
     "permission|permissions": "permission|permissions",
     "to": "a",
     "via": "tramite",
-    "Username or Email": "Nome utente o e-mail"
+    "Username or Email": "Nome utente o e-mail",
+    "New Media": "Nuovi Media",
+    "Quick Draft": "Bozza Rapida",
+    "Recent Posts": "Post Recenti",
+    "AI Agent": "Agente AI",
+    "capabilities": "capacità",
+    "Connected to": "Connesso a",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Crea un nuovo post o pagina con contenuto generato dall'IA basato su un argomento o prompt, opzionalmente con immagini.",
+    "Create Content": "Crea Contenuto",
+    "Describe what you want to create or do...": "Descrivi cosa vuoi creare o fare...",
+    "Generate SEO meta title and description for an existing post": "Genera titolo e descrizione meta SEO per un post esistente",
+    "I can help you with:": "Posso aiutarti con:",
+    "Not connected": "Non connesso",
+    "Optimize for SEO": "Ottimizza per SEO",
+    "Quick Examples": "Esempi Rapidi",
+    "What would you like to create today?": "Cosa vorresti creare oggi?"
 }

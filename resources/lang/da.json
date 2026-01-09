@@ -981,5 +981,21 @@
     "to select a file.": "for at vælge en fil.",
     "unsubscribe here": "afmeld her",
     "users": "brugere",
-    "Username or Email": "Brugernavn eller e-mail"
+    "Username or Email": "Brugernavn eller e-mail",
+    "New Media": "Nye Medier",
+    "Quick Draft": "Hurtig Kladde",
+    "Save Draft": "Gem Kladde",
+    "Recent Posts": "Seneste Indlæg",
+    "AI Agent": "AI Agent",
+    "capabilities": "funktioner",
+    "Connected to": "Forbundet til",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Opret et nyt indlæg eller en side med AI-genereret indhold baseret på et emne eller prompt, eventuelt med billeder.",
+    "Create Content": "Opret Indhold",
+    "Describe what you want to create or do...": "Beskriv hvad du vil oprette eller gøre...",
+    "Generate SEO meta title and description for an existing post": "Generer SEO meta titel og beskrivelse for et eksisterende indlæg",
+    "I can help you with:": "Jeg kan hjælpe dig med:",
+    "Not connected": "Ikke forbundet",
+    "Optimize for SEO": "Optimer til SEO",
+    "Quick Examples": "Hurtige Eksempler",
+    "What would you like to create today?": "Hvad vil du gerne oprette i dag?"
 }

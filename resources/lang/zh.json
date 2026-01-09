@@ -1051,5 +1051,20 @@
     "to": "到",
     "weeks": "周",
     "years": "年",
-    "Username or Email": "用户名或邮箱"
+    "Username or Email": "用户名或邮箱",
+    "New Media": "新媒体",
+    "Quick Draft": "快速草稿",
+    "Recent Posts": "最近的帖子",
+    "AI Agent": "AI 代理",
+    "capabilities": "功能",
+    "Connected to": "已连接到",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "根据主题或提示创建包含AI生成内容的新帖子或页面，可选择添加图像。",
+    "Create Content": "创建内容",
+    "Describe what you want to create or do...": "描述您想创建或做什么...",
+    "Generate SEO meta title and description for an existing post": "为现有帖子生成SEO元标题和描述",
+    "I can help you with:": "我可以帮助您：",
+    "Not connected": "未连接",
+    "Optimize for SEO": "SEO优化",
+    "Quick Examples": "快速示例",
+    "What would you like to create today?": "今天您想创建什么？"
 }

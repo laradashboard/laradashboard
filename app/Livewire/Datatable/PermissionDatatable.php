@@ -82,7 +82,7 @@ class PermissionDatatable extends Datatable
 
     public function renderGroupNameColumn(Permission $permission): string
     {
-        return "<span class='badge'>" . ucfirst($permission->group_name) . "</span>";
+        return (isset($permission->group_name) ? "<span class='badge'>" . ucfirst($permission->group_name) . "</span>" : '-');
     }
 
     public function renderRolesColumn(Permission $permission): string

@@ -1028,5 +1028,21 @@
     "to select a file.": "একটি ফাইল নির্বাচন করতে।",
     "unsubscribe here": "এখানে আনসাবস্ক্রাইব করতে পারেন",
     "users": "ব্যবহারকারী",
-    "Username or Email": "ব্যবহারকারীর নাম বা ইমেইল"
+    "Username or Email": "ব্যবহারকারীর নাম বা ইমেইল",
+    "New Media": "নতুন মিডিয়া",
+    "Quick Draft": "দ্রুত খসড়া",
+    "Save Draft": "খসড়া সংরক্ষণ করুন",
+    "Recent Posts": "সাম্প্রতিক পোস্ট",
+    "AI Agent": "এআই এজেন্ট",
+    "capabilities": "সক্ষমতা",
+    "Connected to": "সংযুক্ত",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "একটি বিষয় বা প্রম্পটের উপর ভিত্তি করে AI-উৎপন্ন সামগ্রী সহ একটি নতুন পোস্ট বা পৃষ্ঠা তৈরি করুন, ঐচ্ছিকভাবে ছবি সহ।",
+    "Create Content": "কন্টেন্ট তৈরি করুন",
+    "Describe what you want to create or do...": "আপনি কী তৈরি বা করতে চান তা বর্ণনা করুন...",
+    "Generate SEO meta title and description for an existing post": "একটি বিদ্যমান পোস্টের জন্য SEO মেটা শিরোনাম এবং বিবরণ তৈরি করুন",
+    "I can help you with:": "আমি আপনাকে সাহায্য করতে পারি:",
+    "Not connected": "সংযুক্ত নয়",
+    "Optimize for SEO": "SEO এর জন্য অপ্টিমাইজ করুন",
+    "Quick Examples": "দ্রুত উদাহরণ",
+    "What would you like to create today?": "আজ আপনি কী তৈরি করতে চান?"
 }

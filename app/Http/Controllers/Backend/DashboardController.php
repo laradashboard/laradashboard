@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Post;
 use App\Models\User;
 use App\Services\Charts\PostChartService;
 use App\Services\Charts\UserChartService;
@@ -29,6 +30,7 @@ class DashboardController extends Controller
             'backend.pages.dashboard.index',
             [
                 'total_users' => number_format(User::count()),
+                'total_posts' => number_format(Post::count()),
                 'total_roles' => number_format(Role::count()),
                 'total_permissions' => number_format(Permission::count()),
                 'languages' => [

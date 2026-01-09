@@ -16,6 +16,7 @@
         });
     "
     @keydown.window.escape="aiModalOpen = false"
+    @open-ai-modal.window="aiModalOpen = true"
 >
     <x-tooltip title="{{ __('AI Agent') }} (⌘⇧V)" position="bottom">
         <button

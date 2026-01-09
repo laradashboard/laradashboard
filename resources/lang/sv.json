@@ -1451,5 +1451,21 @@
     "results": "resultat",
     "rows": "rader",
     "to": "till",
-    "Username or Email": "Användarnamn eller e-post"
+    "Username or Email": "Användarnamn eller e-post",
+    "New Media": "Ny Media",
+    "Quick Draft": "Snabbt Utkast",
+    "Save Draft": "Spara Utkast",
+    "Recent Posts": "Senaste Inlägg",
+    "AI Agent": "AI-Agent",
+    "capabilities": "möjligheter",
+    "Connected to": "Ansluten till",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Skapa ett nytt inlägg eller sida med AI-genererat innehåll baserat på ett ämne eller prompt, valfritt med bilder.",
+    "Create Content": "Skapa Innehåll",
+    "Describe what you want to create or do...": "Beskriv vad du vill skapa eller göra...",
+    "Generate SEO meta title and description for an existing post": "Generera SEO meta titel och beskrivning för ett befintligt inlägg",
+    "I can help you with:": "Jag kan hjälpa dig med:",
+    "Not connected": "Inte ansluten",
+    "Optimize for SEO": "Optimera för SEO",
+    "Quick Examples": "Snabba Exempel",
+    "What would you like to create today?": "Vad skulle du vilja skapa idag?"
 }

@@ -1444,5 +1444,20 @@
     "selected": "geselecteerd",
     "showing": "toont",
     "to": "naar",
-    "Username or Email": "Gebruikersnaam of e-mail"
+    "Username or Email": "Gebruikersnaam of e-mail",
+    "New Media": "Nieuwe Media",
+    "Quick Draft": "Snel Concept",
+    "Recent Posts": "Recente Berichten",
+    "AI Agent": "AI Agent",
+    "capabilities": "mogelijkheden",
+    "Connected to": "Verbonden met",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Maak een nieuw bericht of pagina met AI-gegenereerde inhoud op basis van een onderwerp of prompt, optioneel met afbeeldingen.",
+    "Create Content": "Inhoud Maken",
+    "Describe what you want to create or do...": "Beschrijf wat je wilt maken of doen...",
+    "Generate SEO meta title and description for an existing post": "Genereer SEO meta titel en beschrijving voor een bestaand bericht",
+    "I can help you with:": "Ik kan je helpen met:",
+    "Not connected": "Niet verbonden",
+    "Optimize for SEO": "Optimaliseren voor SEO",
+    "Quick Examples": "Snelle Voorbeelden",
+    "What would you like to create today?": "Wat wil je vandaag maken?"
 }

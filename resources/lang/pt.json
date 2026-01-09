@@ -1444,5 +1444,20 @@
     "selected": "selecionado",
     "showing": "mostrando",
     "to": "para",
-    "Username or Email": "Nome de usuário ou e-mail"
+    "Username or Email": "Nome de usuário ou e-mail",
+    "New Media": "Nova Mídia",
+    "Quick Draft": "Rascunho Rápido",
+    "Recent Posts": "Posts Recentes",
+    "AI Agent": "Agente de IA",
+    "capabilities": "capacidades",
+    "Connected to": "Conectado a",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Crie uma nova postagem ou página com conteúdo gerado por IA com base em um tópico ou prompt, opcionalmente com imagens.",
+    "Create Content": "Criar Conteúdo",
+    "Describe what you want to create or do...": "Descreva o que você quer criar ou fazer...",
+    "Generate SEO meta title and description for an existing post": "Gerar título e descrição meta SEO para uma postagem existente",
+    "I can help you with:": "Posso ajudá-lo com:",
+    "Not connected": "Não conectado",
+    "Optimize for SEO": "Otimizar para SEO",
+    "Quick Examples": "Exemplos Rápidos",
+    "What would you like to create today?": "O que você gostaria de criar hoje?"
 }

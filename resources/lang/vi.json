@@ -1051,5 +1051,20 @@
     "to": "đến",
     "weeks": "tuần",
     "years": "năm",
-    "Username or Email": "Tên người dùng hoặc Email"
+    "Username or Email": "Tên người dùng hoặc Email",
+    "New Media": "Phương Tiện Mới",
+    "Quick Draft": "Bản Nháp Nhanh",
+    "Recent Posts": "Bài Viết Gần Đây",
+    "AI Agent": "Đại Lý AI",
+    "capabilities": "khả năng",
+    "Connected to": "Đã kết nối",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Tạo bài đăng hoặc trang mới với nội dung do AI tạo dựa trên chủ đề hoặc gợi ý, tùy chọn với hình ảnh.",
+    "Create Content": "Tạo Nội Dung",
+    "Describe what you want to create or do...": "Mô tả những gì bạn muốn tạo hoặc làm...",
+    "Generate SEO meta title and description for an existing post": "Tạo tiêu đề và mô tả meta SEO cho bài đăng hiện có",
+    "I can help you with:": "Tôi có thể giúp bạn với:",
+    "Not connected": "Chưa kết nối",
+    "Optimize for SEO": "Tối ưu hóa cho SEO",
+    "Quick Examples": "Ví Dụ Nhanh",
+    "What would you like to create today?": "Hôm nay bạn muốn tạo gì?"
 }

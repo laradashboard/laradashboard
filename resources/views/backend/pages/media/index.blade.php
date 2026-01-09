@@ -9,6 +9,29 @@
         viewMode: localStorage.getItem('mediaViewMode') || 'grid',
         uploadModalOpen: false,
 
+        init() {
+            // Auto-open upload modal if ?new is in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('new')) {
+                this.uploadModalOpen = true;
+            }
+
+            // Watch for modal close and remove ?new from URL
+            this.$watch('uploadModalOpen', (value) => {
+                if (!value) {
+                    this.removeNewParam();
+                }
+            });
+        },
+
+        removeNewParam() {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('new')) {
+                url.searchParams.delete('new');
+                window.history.replaceState({}, '', url.toString());
+            }
+        },
+
         toggleViewMode() {
             this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
             localStorage.setItem('mediaViewMode', this.viewMode);

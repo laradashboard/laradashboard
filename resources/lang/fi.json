@@ -980,5 +980,21 @@
     "to select a file.": "valitaksesi tiedoston.",
     "unsubscribe here": "poista tilaus tästä",
     "users": "käyttäjät",
-    "Username or Email": "Käyttäjänimi tai sähköposti"
+    "Username or Email": "Käyttäjänimi tai sähköposti",
+    "New Media": "Uusi Media",
+    "Quick Draft": "Pikaluonnos",
+    "Save Draft": "Tallenna Luonnos",
+    "Recent Posts": "Viimeisimmät Viestit",
+    "AI Agent": "AI-Agentti",
+    "capabilities": "ominaisuudet",
+    "Connected to": "Yhdistetty",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Luo uusi viesti tai sivu tekoälyn luomalla sisällöllä aiheeseen tai kehotukseen perustuen, valinnaisesti kuvilla.",
+    "Create Content": "Luo Sisältöä",
+    "Describe what you want to create or do...": "Kuvaile mitä haluat luoda tai tehdä...",
+    "Generate SEO meta title and description for an existing post": "Luo SEO-meta-otsikko ja kuvaus olemassa olevalle viestille",
+    "I can help you with:": "Voin auttaa sinua:",
+    "Not connected": "Ei yhteyttä",
+    "Optimize for SEO": "Optimoi SEO:lle",
+    "Quick Examples": "Pikaesimerkit",
+    "What would you like to create today?": "Mitä haluaisit luoda tänään?"
 }

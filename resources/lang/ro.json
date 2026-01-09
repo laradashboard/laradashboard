@@ -980,5 +980,21 @@
     "to select a file.": "pentru a selecta un fișier.",
     "unsubscribe here": "dezabonați-vă aici",
     "users": "utilizatori",
-    "Username or Email": "Nume de utilizator sau e-mail"
+    "Username or Email": "Nume de utilizator sau e-mail",
+    "New Media": "Media Nouă",
+    "Quick Draft": "Schiță Rapidă",
+    "Save Draft": "Salvează Schița",
+    "Recent Posts": "Postări Recente",
+    "AI Agent": "Agent AI",
+    "capabilities": "capacități",
+    "Connected to": "Conectat la",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Creați o postare sau pagină nouă cu conținut generat de AI pe baza unui subiect sau prompt, opțional cu imagini.",
+    "Create Content": "Creează Conținut",
+    "Describe what you want to create or do...": "Descrieți ce doriți să creați sau să faceți...",
+    "Generate SEO meta title and description for an existing post": "Generează titlu și descriere meta SEO pentru o postare existentă",
+    "I can help you with:": "Te pot ajuta cu:",
+    "Not connected": "Neconectat",
+    "Optimize for SEO": "Optimizează pentru SEO",
+    "Quick Examples": "Exemple Rapide",
+    "What would you like to create today?": "Ce ai vrea să creezi astăzi?"
 }

@@ -985,5 +985,21 @@
     "to select a file.": "um eine Datei auszuwählen.",
     "unsubscribe here": "hier abmelden",
     "users": "Benutzer",
-    "Username or Email": "Benutzername oder E-Mail"
+    "Username or Email": "Benutzername oder E-Mail",
+    "New Media": "Neue Medien",
+    "Quick Draft": "Schneller Entwurf",
+    "Save Draft": "Entwurf Speichern",
+    "Recent Posts": "Letzte Beiträge",
+    "AI Agent": "KI-Agent",
+    "capabilities": "Fähigkeiten",
+    "Connected to": "Verbunden mit",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Erstellen Sie einen neuen Beitrag oder eine Seite mit KI-generiertem Inhalt basierend auf einem Thema oder einer Aufforderung, optional mit Bildern.",
+    "Create Content": "Inhalt Erstellen",
+    "Describe what you want to create or do...": "Beschreiben Sie, was Sie erstellen oder tun möchten...",
+    "Generate SEO meta title and description for an existing post": "SEO-Meta-Titel und -Beschreibung für einen vorhandenen Beitrag generieren",
+    "I can help you with:": "Ich kann Ihnen helfen mit:",
+    "Not connected": "Nicht verbunden",
+    "Optimize for SEO": "Für SEO Optimieren",
+    "Quick Examples": "Schnelle Beispiele",
+    "What would you like to create today?": "Was möchten Sie heute erstellen?"
 }

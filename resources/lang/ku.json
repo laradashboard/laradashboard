@@ -980,5 +980,21 @@
     "to select a file.": "ji bo hilbijartina dosyeyekê.",
     "unsubscribe here": "li vir ji aboneyê derkeve",
     "users": "bikarhêner",
-    "Username or Email": "ناوی بەکارهێنەر یان ئیمەیڵ"
+    "Username or Email": "ناوی بەکارهێنەر یان ئیمەیڵ",
+    "New Media": "میدیای نوێ",
+    "Quick Draft": "ڕەشنووسی خێرا",
+    "Save Draft": "ڕەشنووس پاشەکەوت بکە",
+    "Recent Posts": "بابەتە تازەکان",
+    "AI Agent": "بریکاری AI",
+    "capabilities": "تواناکان",
+    "Connected to": "پەیوەست بە",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "بابەتێک یان پەڕەیەکی نوێ دروست بکە بە ناوەڕۆکی دروستکراوی AI لەسەر بنەمای بابەتێک یان ڕاسپاردەیەک، بە دڵخوازی بە وێنە.",
+    "Create Content": "ناوەڕۆک دروست بکە",
+    "Describe what you want to create or do...": "باسی ئەوە بکە کە دەتەوێت دروستی بکەیت یان بیکەیت...",
+    "Generate SEO meta title and description for an existing post": "ناونیشان و وەسفی میتای SEO بۆ بابەتێکی بوونی دروست بکە",
+    "I can help you with:": "دەتوانم یارمەتیت بدەم لە:",
+    "Not connected": "پەیوەست نییە",
+    "Optimize for SEO": "باشترکردن بۆ SEO",
+    "Quick Examples": "نموونە خێراکان",
+    "What would you like to create today?": "ئەمڕۆ چی دەتەوێت دروست بکەیت؟"
 }

@@ -980,5 +980,21 @@
     "to select a file.": "për të zgjedhur një skedar.",
     "unsubscribe here": "çabonohu këtu",
     "users": "përdoruesit",
-    "Username or Email": "Emri i përdoruesit ose Email"
+    "Username or Email": "Emri i përdoruesit ose Email",
+    "New Media": "Media e Re",
+    "Quick Draft": "Draft i Shpejtë",
+    "Save Draft": "Ruaj Draft",
+    "Recent Posts": "Postimet e Fundit",
+    "AI Agent": "Agjenti AI",
+    "capabilities": "aftësitë",
+    "Connected to": "I lidhur me",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Krijoni një postim ose faqe të re me përmbajtje të gjeneruar nga AI bazuar në një temë ose kërkesë, në mënyrë opsionale me imazhe.",
+    "Create Content": "Krijo Përmbajtje",
+    "Describe what you want to create or do...": "Përshkruani atë që dëshironi të krijoni ose bëni...",
+    "Generate SEO meta title and description for an existing post": "Gjeneroni titull dhe përshkrim meta SEO për një postim ekzistues",
+    "I can help you with:": "Unë mund t'ju ndihmoj me:",
+    "Not connected": "Nuk është i lidhur",
+    "Optimize for SEO": "Optimizoni për SEO",
+    "Quick Examples": "Shembuj të Shpejtë",
+    "What would you like to create today?": "Çfarë do të dëshironit të krijonit sot?"
 }

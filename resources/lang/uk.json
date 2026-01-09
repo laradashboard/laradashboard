@@ -980,5 +980,21 @@
     "to select a file.": "щоб вибрати файл.",
     "unsubscribe here": "відписатися тут",
     "users": "користувачі",
-    "Username or Email": "Ім'я користувача або електронна пошта"
+    "Username or Email": "Ім'я користувача або електронна пошта",
+    "New Media": "Нові Медіа",
+    "Quick Draft": "Швидкий Чернетка",
+    "Save Draft": "Зберегти Чернетку",
+    "Recent Posts": "Останні Публікації",
+    "AI Agent": "AI Агент",
+    "capabilities": "можливості",
+    "Connected to": "Підключено до",
+    "Create a new post or page with AI-generated content based on a topic or prompt, optionally with images.": "Створіть новий пост або сторінку з контентом, згенерованим AI, на основі теми або запиту, опціонально з зображеннями.",
+    "Create Content": "Створити Контент",
+    "Describe what you want to create or do...": "Опишіть, що ви хочете створити або зробити...",
+    "Generate SEO meta title and description for an existing post": "Згенерувати SEO мета-заголовок та опис для існуючого посту",
+    "I can help you with:": "Я можу допомогти вам з:",
+    "Not connected": "Не підключено",
+    "Optimize for SEO": "Оптимізувати для SEO",
+    "Quick Examples": "Швидкі Приклади",
+    "What would you like to create today?": "Що б ви хотіли створити сьогодні?"
 }
