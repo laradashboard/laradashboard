@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Requests\Setting;
 
 use App\Enums\Hooks\SettingFilterHook;
-use App\Http\Requests\FormRequest;
+use App\Models\Setting;
 use App\Support\Facades\Hook;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSettingsRequest extends FormRequest
 {
@@ -16,7 +16,7 @@ class UpdateSettingsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->checkAuthorization(Auth::user(), ['settings.edit']);
+        return $this->user()?->can('manage', Setting::class) ?? false;
     }
 
     /**

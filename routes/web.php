@@ -125,6 +125,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
             Route::get('/', [CoreUpgradeController::class, 'index'])->name('index');
             Route::post('/check', [CoreUpgradeController::class, 'checkUpdates'])->name('check');
             Route::post('/upgrade', [CoreUpgradeController::class, 'upgrade'])->name('upgrade');
+            Route::post('/upload', [CoreUpgradeController::class, 'uploadUpgrade'])->name('upload');
+            Route::post('/backup', [CoreUpgradeController::class, 'createBackup'])->name('backup');
+            Route::get('/download/{filename}', [CoreUpgradeController::class, 'downloadBackup'])->name('download');
             Route::post('/restore', [CoreUpgradeController::class, 'restore'])->name('restore');
             Route::post('/delete-backup', [CoreUpgradeController::class, 'deleteBackup'])->name('delete-backup');
             Route::get('/update-status', [CoreUpgradeController::class, 'getUpdateStatus'])->name('update-status');

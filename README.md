@@ -257,6 +257,20 @@ So, You've got the project of Lara Dashboard on your local machine - http://loca
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## 🔨 Build Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run build` | Build core only |
+| `npm run build:all` | Build core + all enabled modules |
+| `npm run build:modules` | Build all enabled modules |
+| `npm run build:modules -- --modules=crm` | Build specific module |
+| `npm run build:modules -- --modules=crm,customform` | Build multiple modules |
+| `npm run dev` | Dev server (core + modules) |
+| `npm run dev:core` | Dev server (core only) |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## 🔄 Previously From laravel-role
 
 We were previously at https://github.com/ManiruzzamanAkash/laravel-role, so you need to change the URL if you moved from there

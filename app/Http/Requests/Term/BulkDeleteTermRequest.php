@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Term;
 
-use App\Http\Requests\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Term;
+use Illuminate\Foundation\Http\FormRequest;
 
 class BulkDeleteTermRequest extends FormRequest
 {
@@ -14,7 +14,7 @@ class BulkDeleteTermRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->checkAuthorization(Auth::user(), ['term.delete']);
+        return $this->user()?->can('bulkDelete', Term::class) ?? false;
     }
 
     /**
