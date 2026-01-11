@@ -37,11 +37,12 @@ class BackupService
     }
 
     /**
-     * Create a simple backup (core only, no database).
+     * Create a default backup (core with modules, no database).
+     * Used during upgrades to ensure modules are also backed up.
      */
     public function createBackup(): ?string
     {
-        return $this->createBackupWithOptions('core', false);
+        return $this->createBackupWithOptions('core_with_modules', false);
     }
 
     /**

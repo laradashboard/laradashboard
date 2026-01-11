@@ -361,13 +361,13 @@
     </div>
 
     {{-- Upgrade Modal --}}
-    <div id="upgrade-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeUpgradeModal()"></div>
-            <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl sm:max-w-lg sm:w-full p-6">
+    <div id="upgrade-modal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black/20 backdrop-blur-md transition-opacity"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="relative bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-xl sm:max-w-lg w-full p-6">
                 <div class="text-center">
                     <div id="upgrade-icon" class="w-16 h-16 mx-auto rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
-                        <iconify-icon icon="lucide:download" class="text-3xl text-indigo-600 dark:text-indigo-400"></iconify-icon>
+                        <iconify-icon icon="lucide:loader-2" class="text-3xl text-indigo-600 dark:text-indigo-400 animate-spin"></iconify-icon>
                     </div>
                     <h3 id="upgrade-title" class="text-lg font-medium text-gray-900 dark:text-white mb-2">
                         {{ __('Upgrading...') }}
@@ -376,10 +376,10 @@
                         {{ __('Please wait while the upgrade is in progress. Do not close this page.') }}
                     </p>
                     <div id="upgrade-progress" class="mt-4">
-                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                            <div id="upgrade-progress-bar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
+                            <div id="upgrade-progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                         </div>
-                        <p id="upgrade-status" class="text-xs text-gray-500 mt-2">{{ __('Initializing...') }}</p>
+                        <p id="upgrade-status" class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ __('Initializing...') }}</p>
                     </div>
                 </div>
                 <div id="upgrade-actions" class="mt-6 hidden">
@@ -532,52 +532,89 @@
             btn.innerHTML = '<iconify-icon icon="lucide:loader-2" class="text-lg animate-spin"></iconify-icon> {{ __("Uploading...") }}';
 
             document.getElementById('upgrade-modal').classList.remove('hidden');
-            updateProgress(5, '{{ __("Uploading file...") }}');
+            updateProgress(0, '{{ __("Preparing upload...") }}');
 
             const formData = new FormData();
             formData.append('upgrade_file', file);
             formData.append('create_backup', document.getElementById('create_backup_upload').checked ? '1' : '0');
 
-            fetch('{{ route("admin.core-upgrades.upload") }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
+            // Use XMLHttpRequest for real upload progress tracking
+            const xhr = new XMLHttpRequest();
+
+            // Track upload progress
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 70); // Upload is 70% of total progress
+                    const loadedMB = (e.loaded / (1024 * 1024)).toFixed(2);
+                    const totalMB = (e.total / (1024 * 1024)).toFixed(2);
+                    updateProgress(percentComplete, '{{ __("Uploading:") }} ' + loadedMB + ' MB / ' + totalMB + ' MB (' + percentComplete + '%)');
+                }
+            });
+
+            // Upload complete, now processing
+            xhr.upload.addEventListener('load', function() {
+                updateProgress(75, '{{ __("Upload complete. Processing upgrade...") }}');
+            });
+
+            // Handle response
+            xhr.addEventListener('load', function() {
                 btn.disabled = false;
                 btn.innerHTML = '<iconify-icon icon="lucide:upload" class="text-lg"></iconify-icon> {{ __("Upload & Upgrade") }}';
 
-                if (data.success) {
-                    updateProgress(100, '{{ __("Upgrade completed successfully!") }}');
-                    document.getElementById('upgrade-icon').innerHTML = '<iconify-icon icon="lucide:check" class="text-3xl text-green-600 dark:text-green-400"></iconify-icon>';
-                    document.getElementById('upgrade-icon').className = 'w-16 h-16 mx-auto rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4';
-                    document.getElementById('upgrade-title').textContent = '{{ __("Upgrade Complete") }}';
-                    document.getElementById('upgrade-message').textContent = data.message;
-                } else {
-                    updateProgress(0, data.message);
+                try {
+                    const data = JSON.parse(xhr.responseText);
+
+                    if (xhr.status >= 200 && xhr.status < 300 && data.success) {
+                        updateProgress(100, '{{ __("Upgrade completed successfully!") }}');
+                        document.getElementById('upgrade-icon').innerHTML = '<iconify-icon icon="lucide:check" class="text-3xl text-green-600 dark:text-green-400"></iconify-icon>';
+                        document.getElementById('upgrade-icon').className = 'w-16 h-16 mx-auto rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4';
+                        document.getElementById('upgrade-title').textContent = '{{ __("Upgrade Complete") }}';
+                        document.getElementById('upgrade-message').textContent = data.message;
+                    } else {
+                        updateProgress(0, data.message || '{{ __("Upgrade failed") }}');
+                        document.getElementById('upgrade-icon').innerHTML = '<iconify-icon icon="lucide:x" class="text-3xl text-red-600 dark:text-red-400"></iconify-icon>';
+                        document.getElementById('upgrade-icon').className = 'w-16 h-16 mx-auto rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4';
+                        document.getElementById('upgrade-title').textContent = '{{ __("Upgrade Failed") }}';
+                        document.getElementById('upgrade-message').textContent = data.message || '{{ __("An error occurred during upgrade") }}';
+                    }
+                } catch (e) {
+                    updateProgress(0, '{{ __("Invalid server response") }}');
                     document.getElementById('upgrade-icon').innerHTML = '<iconify-icon icon="lucide:x" class="text-3xl text-red-600 dark:text-red-400"></iconify-icon>';
                     document.getElementById('upgrade-icon').className = 'w-16 h-16 mx-auto rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4';
                     document.getElementById('upgrade-title').textContent = '{{ __("Upgrade Failed") }}';
-                    document.getElementById('upgrade-message').textContent = data.message;
+                    document.getElementById('upgrade-message').textContent = '{{ __("Could not parse server response") }}';
                 }
-                document.getElementById('upgrade-progress').classList.add('hidden');
-                document.getElementById('upgrade-actions').classList.remove('hidden');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                btn.disabled = false;
-                btn.innerHTML = '<iconify-icon icon="lucide:upload" class="text-lg"></iconify-icon> {{ __("Upload & Upgrade") }}';
 
-                updateProgress(0, '{{ __("An error occurred during upload") }}');
-                document.getElementById('upgrade-icon').innerHTML = '<iconify-icon icon="lucide:x" class="text-3xl text-red-600 dark:text-red-400"></iconify-icon>';
-                document.getElementById('upgrade-icon').className = 'w-16 h-16 mx-auto rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4';
-                document.getElementById('upgrade-title').textContent = '{{ __("Upgrade Failed") }}';
                 document.getElementById('upgrade-progress').classList.add('hidden');
                 document.getElementById('upgrade-actions').classList.remove('hidden');
             });
+
+            // Handle errors
+            xhr.addEventListener('error', function() {
+                console.error('Upload error');
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="lucide:upload" class="text-lg"></iconify-icon> {{ __("Upload & Upgrade") }}';
+
+                updateProgress(0, '{{ __("Network error during upload") }}');
+                document.getElementById('upgrade-icon').innerHTML = '<iconify-icon icon="lucide:x" class="text-3xl text-red-600 dark:text-red-400"></iconify-icon>';
+                document.getElementById('upgrade-icon').className = 'w-16 h-16 mx-auto rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4';
+                document.getElementById('upgrade-title').textContent = '{{ __("Upgrade Failed") }}';
+                document.getElementById('upgrade-message').textContent = '{{ __("A network error occurred. Please check your connection and try again.") }}';
+                document.getElementById('upgrade-progress').classList.add('hidden');
+                document.getElementById('upgrade-actions').classList.remove('hidden');
+            });
+
+            // Handle abort
+            xhr.addEventListener('abort', function() {
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="lucide:upload" class="text-lg"></iconify-icon> {{ __("Upload & Upgrade") }}';
+                closeUpgradeModal();
+            });
+
+            // Send request
+            xhr.open('POST', '{{ route("admin.core-upgrades.upload") }}');
+            xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+            xhr.send(formData);
         }
     </script>
     @endpush
