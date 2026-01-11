@@ -31,10 +31,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
           cache: "npm"
 
-      - name: Install Composer dependencies
+      - name: Install Composer dependencies (production only)
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
       - name: Install npm dependencies
@@ -45,29 +45,31 @@ jobs:
       - name: Build assets
         run: npm run build
 
-      - name: Create .env file
+      - name: Create storage directories with .gitignore files
         run: |
-          cp .env.example .env
-          php artisan key:generate --no-interaction
-
-      - name: Optimize Laravel for production
-        run: |
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-
-      - name: Create storage directories
-        run: |
-          mkdir -p storage/logs
-          mkdir -p storage/framework/cache
+          mkdir -p storage/app/public
+          mkdir -p storage/framework/cache/data
           mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/testing
           mkdir -p storage/framework/views
+          mkdir -p storage/logs
           mkdir -p bootstrap/cache
+          echo -e "*\n!.gitignore" > storage/app/.gitignore
+          echo -e "*\n!.gitignore" > storage/app/public/.gitignore
+          echo -e "*\n!.gitignore" > storage/framework/cache/.gitignore
+          echo -e "*\n!.gitignore" > storage/framework/sessions/.gitignore
+          echo -e "*\n!.gitignore" > storage/framework/testing/.gitignore
+          echo -e "*\n!.gitignore" > storage/framework/views/.gitignore
+          echo -e "*\n!.gitignore" > storage/logs/.gitignore
 
       - name: Set proper permissions
         run: |
           chmod -R 755 storage
           chmod -R 755 bootstrap/cache
+
+      - name: Get version from version.json
+        id: version
+        run: echo "VERSION=$(cat version.json | grep -o '"version": "[^"]*' | cut -d'"' -f4)" >> $GITHUB_OUTPUT
 
       - name: Clean up development files
         run: |
@@ -75,32 +77,29 @@ jobs:
           rm -rf .git
           rm -rf .github
           rm -rf demo-screenshots
+          rm -rf tests
+          rm -rf storage/debugbar
+          rm -rf storage/logs/*
           rm -f CONTRIBUTING.md
-      #     rm -rf tests
-      #     rm -f .env.example
-      #     rm -f .gitignore
-      #     rm -f .gitattributes
-      #     rm -f phpunit.xml
-      #     rm -f package.json
-      #     rm -f package-lock.json
-      #     rm -f vite.config.js
-      #     rm -f tailwind.config.js
-      #     rm -f eslint.config.js
-      #     rm -f pint.json
-      #     rm -f rector.php
-      #     rm -f phpstan.neon
-      #     rm -f composer.lock
-      #     rm -f README.md
-      #     rm -rf scripts
+          rm -f Coding-Standard.md
+          rm -f phpunit.xml
+          rm -f pint.json
+          rm -f rector.php
+          rm -f phpstan.neon
+          rm -f eslint.config.js
 
-      - name: Generate application zip
+      - name: Generate distribution zip
         run: |
           cd ..
-          zip -r laradashboard.zip laradashboard/ -x "laradashboard/.env"
-          mv laradashboard.zip laradashboard/
+          zip -r laradashboard-v${{ steps.version.outputs.VERSION }}.zip laradashboard/ \
+            -x "laradashboard/.env" \
+            -x "laradashboard/public/images/uploads/*" \
+            -x "laradashboard/public/uploads/*" \
+            -x "*.DS_Store"
+          mv laradashboard-v${{ steps.version.outputs.VERSION }}.zip laradashboard/
 
       - name: Upload Zip
         uses: actions/upload-artifact@v4
         with:
-          name: laradashboard
-          path: laradashboard.zip
+          name: laradashboard-v${{ steps.version.outputs.VERSION }}
+          path: laradashboard-v${{ steps.version.outputs.VERSION }}.zip

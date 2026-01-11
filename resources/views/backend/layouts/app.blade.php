@@ -70,7 +70,7 @@ x-init="
             @endauth
 
             <!-- Main Content -->
-            <main>
+            <main class="flex-1">
                 @hasSection('admin-content')
                     @yield('admin-content')
                 @else
@@ -78,6 +78,9 @@ x-init="
                 @endif
             </main>
             <!-- End Main Content -->
+
+            <!-- Footer -->
+            @include('backend.layouts.partials.footer')
         </div>
     </div>
 

@@ -50,6 +50,12 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v0.9.2] - 2025-01-11**
+-   **Feat:** Manual core upgrade system with backup/restore functionality.
+-   **Feat:** Production-ready zip distribution with vendor folder support.
+-   **Feat:** cPanel/shared hosting support without document root changes.
+-   **Enhancement:** Storage directory structure auto-creation during upgrades.
+
 **[v0.9.1] - 2025-01-04**
 -   **Feat:** AI Agent - Agentic CMS assistant to help you create, manage, and optimize content using AI.
 -   **Feat:** Beautiful onboarding experience for initial installation.
@@ -161,7 +167,7 @@ password - 12345678
 
 ## 🔄 Versions:
 
-Latest version `v0.9.0` - https://github.com/laradashboard/laradashboard/releases/tag/v0.9.0
+Latest version `v0.9.2` - https://github.com/laradashboard/laradashboard/releases/tag/v0.9.2
 
 <details>
 <summary>View Old versions</summary>
@@ -268,6 +274,99 @@ So, You've got the project of Lara Dashboard on your local machine - http://loca
 | `npm run build:modules -- --modules=crm,customform` | Build multiple modules |
 | `npm run dev` | Dev server (core + modules) |
 | `npm run dev:core` | Dev server (core only) |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## 📦 Distribution Package (Zip Build)
+
+Create a production-ready zip package for distribution or manual upgrades. This package includes the vendor folder so users don't need Composer installed.
+
+**Using the Admin Panel:**
+1. For production distribution, first run: `composer install --no-dev --optimize-autoloader`
+2. Go to **Settings → Core Upgrades**
+3. Click **Create Backup**
+4. Select backup type (Core + Modules recommended)
+5. Check **Include vendor folder** for production deployment
+6. Download the generated zip file
+7. Restore dev dependencies: `composer install`
+
+**Manual Zip Creation:**
+
+```bash
+# Build all assets first
+npm run build:all
+
+# Install production-only dependencies (removes dev packages like Pest, PHPUnit, etc.)
+composer install --no-dev --optimize-autoloader
+
+# Create distribution zip (excludes node_modules, .git, tests, uploads, etc.)
+zip -r laradashboard-v$(cat version.json | grep -o '"version": "[^"]*' | cut -d'"' -f4).zip \
+    app bootstrap config database resources routes vendor Modules \
+    public/.htaccess public/index.php public/favicon.ico public/robots.txt \
+    public/asset public/backend public/build public/build-* public/css public/js public/images/logo \
+    storage/app/.gitignore storage/app/public/.gitignore \
+    storage/framework/.gitignore storage/framework/cache/.gitignore \
+    storage/framework/sessions/.gitignore storage/framework/views/.gitignore \
+    storage/logs/.gitignore \
+    artisan composer.json composer.lock package.json version.json index.php \
+    .env.example .htaccess vite.config.js tailwind.config.js postcss.config.js \
+    -x "*.git*" -x "node_modules/*" -x "tests/*" -x "storage/logs/*" -x "public/images/uploads/*" -x "public/uploads/*"
+
+# Restore dev dependencies for local development
+composer install
+```
+
+> **Note:** Running `composer install --no-dev` before creating the zip ensures the vendor folder only contains production dependencies, significantly reducing the package size.
+
+**What's included in the distribution package:**
+- `app/` - Application code
+- `bootstrap/` - Bootstrap files
+- `config/` - Configuration files
+- `database/` - Migrations, seeders, factories
+- `public/` - Public assets (build, css, js, images)
+- `resources/` - Views, JS, CSS, lang files
+- `routes/` - Route definitions
+- `vendor/` - Composer dependencies (optional, for production)
+- `index.php` - Root entry point for shared hosting (cPanel)
+- `.htaccess` - Apache rewrite rules
+- `.env.example` - Environment template
+- Core config files (composer.json, package.json, etc.)
+
+**Shared Hosting (cPanel) Deployment:**
+
+The package includes `index.php` and `.htaccess` in the root directory, so it works out-of-the-box on shared hosting without changing document root:
+
+```bash
+# Upload all files to public_html/
+# No need to change document root - just upload and configure .env
+```
+
+If you prefer the standard Laravel setup (recommended for VPS/dedicated servers):
+1. Point your domain's document root to the `public/` directory
+2. Or create a symlink: `ln -s /path/to/laradashboard/public /home/user/public_html`
+
+**Fresh Installation from Zip:**
+```bash
+# Extract the zip
+unzip laradashboard-vX.X.X.zip -d laradashboard
+cd laradashboard
+
+# Configure environment
+cp .env.example .env
+php artisan key:generate
+
+# Update .env with your database credentials
+# DB_DATABASE=your_database
+# DB_USERNAME=your_user
+# DB_PASSWORD=your_password
+
+# Run migrations
+php artisan migrate --seed
+php artisan storage:link
+
+# If vendor was not included, run:
+composer install --no-dev --optimize-autoloader
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

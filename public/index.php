@@ -5,6 +5,65 @@
  *
  * @author   Taylor Otwell <taylor@laravel.com>
  */
+
+$basePath = __DIR__.'/..';
+
+/*
+|--------------------------------------------------------------------------
+| Auto-Create Environment File
+|--------------------------------------------------------------------------
+|
+| If .env doesn't exist but .env.example does, automatically create .env
+| with a generated APP_KEY. This allows fresh uploads to work without
+| manual configuration for the initial setup.
+|
+*/
+
+$envFile = $basePath.'/.env';
+$envExampleFile = $basePath.'/.env.example';
+
+if (! file_exists($envFile) && file_exists($envExampleFile)) {
+    // Copy .env.example to .env
+    $envContent = file_get_contents($envExampleFile);
+
+    // Generate a random APP_KEY
+    $key = 'base64:'.base64_encode(random_bytes(32));
+    $envContent = preg_replace('/^APP_KEY=.*$/m', 'APP_KEY='.$key, $envContent);
+
+    // Set APP_ENV to production for fresh installs
+    $envContent = preg_replace('/^APP_ENV=.*$/m', 'APP_ENV=production', $envContent);
+
+    // Disable debug mode for security
+    $envContent = preg_replace('/^APP_DEBUG=.*$/m', 'APP_DEBUG=false', $envContent);
+
+    // Write the new .env file
+    file_put_contents($envFile, $envContent);
+
+    // Create storage directories if they don't exist
+    $storageDirs = [
+        $basePath.'/storage/app',
+        $basePath.'/storage/app/public',
+        $basePath.'/storage/framework',
+        $basePath.'/storage/framework/cache',
+        $basePath.'/storage/framework/cache/data',
+        $basePath.'/storage/framework/sessions',
+        $basePath.'/storage/framework/views',
+        $basePath.'/storage/logs',
+    ];
+
+    foreach ($storageDirs as $dir) {
+        if (! is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+    }
+
+    // Create bootstrap/cache if it doesn't exist
+    $bootstrapCache = $basePath.'/bootstrap/cache';
+    if (! is_dir($bootstrapCache)) {
+        mkdir($bootstrapCache, 0755, true);
+    }
+}
+
 define('LARAVEL_START', microtime(true));
 
 /*

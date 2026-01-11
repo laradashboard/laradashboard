@@ -91,8 +91,28 @@
                     </label>
                 </div>
 
-                {{-- Include Database Option --}}
-                <div class="pt-2">
+                {{-- Additional Options --}}
+                <div class="pt-2 space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" x-model="includeVendor"
+                               class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">
+                        <div>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ __('Include vendor folder') }}</span>
+                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{ __('For production-ready deployment without Composer. Increases size significantly.') }}</span>
+                        </div>
+                    </label>
+
+                    {{-- Warning for vendor folder --}}
+                    <div x-show="includeVendor" x-cloak
+                         class="flex items-start gap-2 p-3 text-xs bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                        <iconify-icon icon="lucide:alert-triangle" class="text-amber-600 dark:text-amber-400 text-base mt-0.5 shrink-0"></iconify-icon>
+                        <div class="text-amber-700 dark:text-amber-300">
+                            <strong>{{ __('For production distribution:') }}</strong>
+                            {{ __('Run') }} <code class="px-1 py-0.5 bg-amber-100 dark:bg-amber-900/50 rounded">composer install --no-dev</code>
+                            {{ __('first to exclude dev dependencies (Pest, PHPUnit, etc.) and reduce package size.') }}
+                        </div>
+                    </div>
+
                     <label class="flex items-center gap-3 cursor-pointer">
                         <input type="checkbox" x-model="includeDatabase"
                                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">

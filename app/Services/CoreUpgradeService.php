@@ -195,9 +195,9 @@ class CoreUpgradeService
      * Create a backup with specific options.
      * Delegates to BackupService.
      */
-    public function createBackupWithOptions(string $backupType, bool $includeDatabase = false): ?string
+    public function createBackupWithOptions(string $backupType, bool $includeDatabase = false, bool $includeVendor = false): ?string
     {
-        return $this->backupService->createBackupWithOptions($backupType, $includeDatabase);
+        return $this->backupService->createBackupWithOptions($backupType, $includeDatabase, $includeVendor);
     }
 
     /**
@@ -270,6 +270,9 @@ class CoreUpgradeService
 
                 return $result;
             }
+
+            // Ensure storage directory structure exists
+            $this->ensureStorageDirectoriesExist();
 
             // Run migrations
             Artisan::call('migrate', ['--force' => true]);
@@ -360,6 +363,9 @@ class CoreUpgradeService
                 return $result;
             }
 
+            // Ensure storage directory structure exists
+            $this->ensureStorageDirectoriesExist();
+
             // Run migrations
             Artisan::call('migrate', ['--force' => true]);
 
@@ -434,22 +440,41 @@ class CoreUpgradeService
                 $sourcePath = $directories[0];
             }
 
-            // Directories to update
+            // Directories to update (including vendor for production deploys)
             $directoriesToUpdate = [
                 'app',
+                'bootstrap',
                 'config',
+                'database/factories',
                 'database/migrations',
+                'database/seeders',
+                'public/asset',
+                'public/backend',
+                'public/build',
                 'public/css',
                 'public/js',
+                'public/images/logo',
+                'resources/css',
+                'resources/js',
+                'resources/lang',
                 'resources/views',
                 'routes',
+                'vendor',
             ];
+
+            // Also copy module build directories if they exist
+            $moduleBuildDirs = $this->getModuleBuildDirectories($sourcePath);
+            $directoriesToUpdate = array_merge($directoriesToUpdate, $moduleBuildDirs);
 
             foreach ($directoriesToUpdate as $dir) {
                 $source = $sourcePath.'/'.$dir;
                 $dest = base_path($dir);
 
                 if (File::isDirectory($source)) {
+                    // For vendor folder, delete existing first to avoid conflicts
+                    if ($dir === 'vendor' && File::isDirectory($dest)) {
+                        File::deleteDirectory($dest);
+                    }
                     File::copyDirectory($source, $dest);
                 }
             }
@@ -458,6 +483,21 @@ class CoreUpgradeService
             $filesToUpdate = [
                 'version.json',
                 'composer.json',
+                'composer.lock',
+                'package.json',
+                'package-lock.json',
+                'vite.config.js',
+                'tailwind.config.js',
+                'postcss.config.js',
+                'artisan',
+                '.htaccess',
+                'index.php',
+                // Public directory files
+                'public/.htaccess',
+                'public/index.php',
+                'public/favicon.ico',
+                'public/robots.txt',
+                'public/mix-manifest.json',
             ];
 
             foreach ($filesToUpdate as $file) {
@@ -469,6 +509,13 @@ class CoreUpgradeService
                 }
             }
 
+            // Copy .env.example if it exists (for fresh setups)
+            $envExampleSource = $sourcePath.'/.env.example';
+            $envExampleDest = base_path('.env.example');
+            if (File::exists($envExampleSource)) {
+                File::copy($envExampleSource, $envExampleDest);
+            }
+
             return true;
         } catch (\Exception $e) {
             Log::error('Failed to copy upgrade files', [
@@ -477,5 +524,71 @@ class CoreUpgradeService
 
             return false;
         }
+    }
+
+    /**
+     * Ensure the storage directory structure exists.
+     */
+    protected function ensureStorageDirectoriesExist(): void
+    {
+        $directories = [
+            storage_path('app'),
+            storage_path('app/public'),
+            storage_path('framework'),
+            storage_path('framework/cache'),
+            storage_path('framework/cache/data'),
+            storage_path('framework/sessions'),
+            storage_path('framework/testing'),
+            storage_path('framework/views'),
+            storage_path('logs'),
+        ];
+
+        foreach ($directories as $directory) {
+            if (! File::isDirectory($directory)) {
+                File::makeDirectory($directory, 0755, true);
+            }
+        }
+
+        // Create .gitignore files if they don't exist
+        $gitignoreContent = "*\n!.gitignore\n";
+        $gitignoreFiles = [
+            storage_path('app/.gitignore'),
+            storage_path('app/public/.gitignore'),
+            storage_path('framework/cache/.gitignore'),
+            storage_path('framework/sessions/.gitignore'),
+            storage_path('framework/testing/.gitignore'),
+            storage_path('framework/views/.gitignore'),
+            storage_path('logs/.gitignore'),
+        ];
+
+        foreach ($gitignoreFiles as $gitignoreFile) {
+            if (! File::exists($gitignoreFile)) {
+                File::put($gitignoreFile, $gitignoreContent);
+            }
+        }
+    }
+
+    /**
+     * Get module build directories from source path.
+     *
+     * @return array<int, string>
+     */
+    protected function getModuleBuildDirectories(string $sourcePath): array
+    {
+        $buildDirs = [];
+        $publicPath = $sourcePath.'/public';
+
+        if (File::isDirectory($publicPath)) {
+            $directories = File::directories($publicPath);
+            foreach ($directories as $dir) {
+                $dirName = basename($dir);
+                // Match build-* directories
+                if (str_starts_with($dirName, 'build-')) {
+                    $buildDirs[] = 'public/'.$dirName;
+                }
+            }
+        }
+
+        return $buildDirs;
     }
 }

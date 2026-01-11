@@ -4,6 +4,7 @@
             showBackupModal: false,
             backupType: 'core_with_modules',
             includeDatabase: false,
+            includeVendor: false,
             isCreatingBackup: false,
             startBackup() {
                 this.isCreatingBackup = true;
@@ -16,7 +17,8 @@
                     },
                     body: JSON.stringify({
                         backup_type: this.backupType,
-                        include_database: this.includeDatabase
+                        include_database: this.includeDatabase,
+                        include_vendor: this.includeVendor
                     })
                 })
                 .then(response => response.json())

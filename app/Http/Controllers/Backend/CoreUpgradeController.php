@@ -202,8 +202,9 @@ class CoreUpgradeController extends Controller
         try {
             $backupType = $request->validated('backup_type');
             $includeDatabase = $request->boolean('include_database', false);
+            $includeVendor = $request->boolean('include_vendor', false);
 
-            $backupFile = $this->backupService->createBackupWithOptions($backupType, $includeDatabase);
+            $backupFile = $this->backupService->createBackupWithOptions($backupType, $includeDatabase, $includeVendor);
 
             if (! $backupFile) {
                 return response()->json([

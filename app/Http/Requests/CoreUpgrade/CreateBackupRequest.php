@@ -28,6 +28,7 @@ class CreateBackupRequest extends FormRequest
         return [
             'backup_type' => ['required', 'string', Rule::in(['core', 'core_with_modules', 'core_with_uploads', 'full'])],
             'include_database' => ['boolean'],
+            'include_vendor' => ['boolean'],
         ];
     }
 
