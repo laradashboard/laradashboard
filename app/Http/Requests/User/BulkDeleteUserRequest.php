@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\User;
 
-use App\Http\Requests\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Foundation\Http\FormRequest;
 
 class BulkDeleteUserRequest extends FormRequest
 {
@@ -14,7 +14,7 @@ class BulkDeleteUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->checkAuthorization(Auth::user(), ['user.delete']);
+        return $this->user()?->can('bulkDelete', User::class) ?? false;
     }
 
     /**

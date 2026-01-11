@@ -4,8 +4,6 @@
 /public/uploads
 /public/modules
 /public/storage
-/public/build
-/public/build-*
 /storage/*.key
 /vendor
 /bootstrap/cache/*.php

@@ -6,12 +6,14 @@
     storage-key="dashboard_recent_posts"
 >
     <x-slot:headerActions>
-        @can('post.view')
-        <a href="{{ route('admin.posts.index', 'post') }}"
-           class="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
-            {{ __('View all') }}
-        </a>
-        @endcan
+        @if($posts->isNotEmpty())
+            @can('post.view')
+            <a href="{{ route('admin.posts.index', 'post') }}"
+               class="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+                {{ __('View all') }}
+            </a>
+            @endcan
+        @endif
     </x-slot:headerActions>
 
     <div wire:poll.60s>

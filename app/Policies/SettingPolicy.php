@@ -32,4 +32,20 @@ class SettingPolicy extends BasePolicy
     {
         return $this->checkPermission($user, 'settings.edit');
     }
+
+    /**
+     * Determine whether the user can view core upgrades.
+     */
+    public function viewCoreUpgrades(User $user): bool
+    {
+        return $this->checkPermission($user, 'settings.view');
+    }
+
+    /**
+     * Determine whether the user can perform core upgrades.
+     */
+    public function manageCoreUpgrades(User $user): bool
+    {
+        return $this->checkPermission($user, 'settings.edit');
+    }
 }

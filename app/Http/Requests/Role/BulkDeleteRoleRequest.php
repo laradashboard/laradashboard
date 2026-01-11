@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Role;
 
-use App\Http\Requests\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Http\FormRequest;
+use Spatie\Permission\Models\Role;
 
 class BulkDeleteRoleRequest extends FormRequest
 {
@@ -14,7 +14,7 @@ class BulkDeleteRoleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->checkAuthorization(Auth::user(), ['role.delete']);
+        return $this->user()?->can('bulkDelete', Role::class) ?? false;
     }
 
     /**

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Post;
 
-use App\Http\Requests\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Post;
+use Illuminate\Foundation\Http\FormRequest;
 
 class BulkDeletePostRequest extends FormRequest
 {
@@ -14,7 +14,7 @@ class BulkDeletePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->checkAuthorization(Auth::user(), ['post.delete']);
+        return $this->user()?->can('bulkDelete', Post::class) ?? false;
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Setting;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -15,14 +16,12 @@ class CoreUpgradeService
 {
     protected string $versionFile;
 
-    protected string $backupPath;
-
     protected string $tempPath;
 
-    public function __construct()
-    {
+    public function __construct(
+        protected BackupService $backupService
+    ) {
         $this->versionFile = base_path('version.json');
-        $this->backupPath = storage_path('app/core-backups');
         $this->tempPath = storage_path('app/core-upgrades-temp');
     }
 
@@ -185,74 +184,47 @@ class CoreUpgradeService
 
     /**
      * Create a backup of the current installation.
+     * Delegates to BackupService.
      */
     public function createBackup(): ?string
     {
-        try {
-            // Create backup directory
-            if (! File::exists($this->backupPath)) {
-                File::makeDirectory($this->backupPath, 0755, true);
-            }
-
-            $currentVersion = $this->getCurrentVersion()['version'];
-            $timestamp = now()->format('Y-m-d_His');
-            $backupFile = $this->backupPath."/backup-{$currentVersion}-{$timestamp}.zip";
-
-            $zip = new ZipArchive();
-            if ($zip->open($backupFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-                Log::error('Could not create backup zip file');
-
-                return null;
-            }
-
-            // List of directories and files to backup
-            $itemsToBackup = [
-                'app',
-                'config',
-                'database/migrations',
-                'public/css',
-                'public/js',
-                'resources/views',
-                'routes',
-                'version.json',
-                'composer.json',
-            ];
-
-            foreach ($itemsToBackup as $item) {
-                $path = base_path($item);
-                if (File::isDirectory($path)) {
-                    $this->addDirectoryToZip($zip, $path, $item);
-                } elseif (File::exists($path)) {
-                    $zip->addFile($path, $item);
-                }
-            }
-
-            $zip->close();
-
-            Log::info('Backup created successfully', ['path' => $backupFile]);
-
-            return $backupFile;
-        } catch (\Exception $e) {
-            Log::error('Backup creation error', [
-                'message' => $e->getMessage(),
-            ]);
-
-            return null;
-        }
+        return $this->backupService->createBackup();
     }
 
     /**
-     * Add a directory to zip recursively.
+     * Create a backup with specific options.
+     * Delegates to BackupService.
      */
-    protected function addDirectoryToZip(ZipArchive $zip, string $path, string $relativePath): void
+    public function createBackupWithOptions(string $backupType, bool $includeDatabase = false, bool $includeVendor = false): ?string
     {
-        $files = File::allFiles($path);
+        return $this->backupService->createBackupWithOptions($backupType, $includeDatabase, $includeVendor);
+    }
 
-        foreach ($files as $file) {
-            $filePath = $file->getRealPath();
-            $zipPath = $relativePath.'/'.str_replace($path.'/', '', $filePath);
-            $zip->addFile($filePath, $zipPath);
-        }
+    /**
+     * Get list of available backups.
+     * Delegates to BackupService.
+     */
+    public function getBackups(): array
+    {
+        return $this->backupService->getBackups();
+    }
+
+    /**
+     * Delete a backup file.
+     * Delegates to BackupService.
+     */
+    public function deleteBackup(string $filename): bool
+    {
+        return $this->backupService->deleteBackup($filename);
+    }
+
+    /**
+     * Restore from backup.
+     * Delegates to BackupService.
+     */
+    public function restoreFromBackup(?string $backupFile): bool
+    {
+        return $this->backupService->restoreFromBackup($backupFile);
     }
 
     /**
@@ -299,6 +271,9 @@ class CoreUpgradeService
                 return $result;
             }
 
+            // Ensure storage directory structure exists
+            $this->ensureStorageDirectoriesExist();
+
             // Run migrations
             Artisan::call('migrate', ['--force' => true]);
 
@@ -339,6 +314,100 @@ class CoreUpgradeService
     }
 
     /**
+     * Perform upgrade from an uploaded zip file.
+     */
+    public function performUpgradeFromUpload(UploadedFile $file, ?string $backupFile = null): array
+    {
+        $result = [
+            'success' => false,
+            'message' => '',
+            'backup_file' => $backupFile,
+        ];
+
+        try {
+            // Create temp directory
+            if (! File::exists($this->tempPath)) {
+                File::makeDirectory($this->tempPath, 0755, true);
+            }
+
+            // Store the uploaded file
+            $zipPath = $this->tempPath.'/'.time().'_'.$file->getClientOriginalName();
+            $file->move($this->tempPath, basename($zipPath));
+
+            // Verify the file exists
+            if (! File::exists($zipPath) || File::size($zipPath) === 0) {
+                $result['message'] = __('Uploaded file is empty or invalid.');
+
+                return $result;
+            }
+
+            // Put application in maintenance mode
+            Artisan::call('down', ['--secret' => 'upgrade-in-progress']);
+
+            // Extract the upgrade package
+            $extractPath = $this->tempPath.'/extracted';
+            if (! $this->extractZip($zipPath, $extractPath)) {
+                $result['message'] = __('Failed to extract upgrade package.');
+                $this->restoreFromBackup($backupFile);
+                Artisan::call('up');
+
+                return $result;
+            }
+
+            // Copy files to the application
+            if (! $this->copyUpgradeFiles($extractPath)) {
+                $result['message'] = __('Failed to copy upgrade files.');
+                $this->restoreFromBackup($backupFile);
+                Artisan::call('up');
+
+                return $result;
+            }
+
+            // Ensure storage directory structure exists
+            $this->ensureStorageDirectoriesExist();
+
+            // Run migrations
+            Artisan::call('migrate', ['--force' => true]);
+
+            // Clear caches
+            Artisan::call('optimize:clear');
+
+            // Clean up temp files
+            File::deleteDirectory($this->tempPath);
+
+            // Clear update info from settings
+            $this->clearUpdateInfo();
+
+            // Get the new version
+            $newVersion = $this->getCurrentVersion();
+
+            // Bring application back online
+            Artisan::call('up');
+
+            $result['success'] = true;
+            $result['message'] = __('Successfully upgraded to version :version', ['version' => $newVersion['version']]);
+
+            Log::info('Core upgrade from upload completed successfully', ['version' => $newVersion['version']]);
+
+            return $result;
+        } catch (\Exception $e) {
+            Log::error('Core upgrade from upload error', [
+                'message' => $e->getMessage(),
+            ]);
+
+            // Try to restore from backup
+            $this->restoreFromBackup($backupFile);
+
+            // Bring application back online
+            Artisan::call('up');
+
+            $result['message'] = __('Upgrade failed: :error', ['error' => $e->getMessage()]);
+
+            return $result;
+        }
+    }
+
+    /**
      * Extract a zip file.
      */
     protected function extractZip(string $zipPath, string $extractPath): bool
@@ -371,22 +440,41 @@ class CoreUpgradeService
                 $sourcePath = $directories[0];
             }
 
-            // Directories to update
+            // Directories to update (including vendor for production deploys)
             $directoriesToUpdate = [
                 'app',
+                'bootstrap',
                 'config',
+                'database/factories',
                 'database/migrations',
+                'database/seeders',
+                'public/asset',
+                'public/backend',
+                'public/build',
                 'public/css',
                 'public/js',
+                'public/images/logo',
+                'resources/css',
+                'resources/js',
+                'resources/lang',
                 'resources/views',
                 'routes',
+                'vendor',
             ];
+
+            // Also copy module build directories if they exist
+            $moduleBuildDirs = $this->getModuleBuildDirectories($sourcePath);
+            $directoriesToUpdate = array_merge($directoriesToUpdate, $moduleBuildDirs);
 
             foreach ($directoriesToUpdate as $dir) {
                 $source = $sourcePath.'/'.$dir;
                 $dest = base_path($dir);
 
                 if (File::isDirectory($source)) {
+                    // For vendor folder, delete existing first to avoid conflicts
+                    if ($dir === 'vendor' && File::isDirectory($dest)) {
+                        File::deleteDirectory($dest);
+                    }
                     File::copyDirectory($source, $dest);
                 }
             }
@@ -395,6 +483,21 @@ class CoreUpgradeService
             $filesToUpdate = [
                 'version.json',
                 'composer.json',
+                'composer.lock',
+                'package.json',
+                'package-lock.json',
+                'vite.config.js',
+                'tailwind.config.js',
+                'postcss.config.js',
+                'artisan',
+                '.htaccess',
+                'index.php',
+                // Public directory files
+                'public/.htaccess',
+                'public/index.php',
+                'public/favicon.ico',
+                'public/robots.txt',
+                'public/mix-manifest.json',
             ];
 
             foreach ($filesToUpdate as $file) {
@@ -404,6 +507,13 @@ class CoreUpgradeService
                 if (File::exists($source)) {
                     File::copy($source, $dest);
                 }
+            }
+
+            // Copy .env.example if it exists (for fresh setups)
+            $envExampleSource = $sourcePath.'/.env.example';
+            $envExampleDest = base_path('.env.example');
+            if (File::exists($envExampleSource)) {
+                File::copy($envExampleSource, $envExampleDest);
             }
 
             return true;
@@ -417,96 +527,68 @@ class CoreUpgradeService
     }
 
     /**
-     * Restore from backup.
+     * Ensure the storage directory structure exists.
      */
-    public function restoreFromBackup(?string $backupFile): bool
+    protected function ensureStorageDirectoriesExist(): void
     {
-        if (! $backupFile || ! File::exists($backupFile)) {
-            Log::warning('No backup file to restore from');
+        $directories = [
+            storage_path('app'),
+            storage_path('app/public'),
+            storage_path('framework'),
+            storage_path('framework/cache'),
+            storage_path('framework/cache/data'),
+            storage_path('framework/sessions'),
+            storage_path('framework/testing'),
+            storage_path('framework/views'),
+            storage_path('logs'),
+        ];
 
-            return false;
-        }
-
-        try {
-            $extractPath = $this->tempPath.'/restore';
-            if (! $this->extractZip($backupFile, $extractPath)) {
-                return false;
-            }
-
-            // Restore files
-            $this->copyUpgradeFiles($extractPath);
-
-            // Clean up
-            File::deleteDirectory($extractPath);
-
-            Log::info('Restored from backup successfully');
-
-            return true;
-        } catch (\Exception $e) {
-            Log::error('Failed to restore from backup', [
-                'message' => $e->getMessage(),
-            ]);
-
-            return false;
-        }
-    }
-
-    /**
-     * Get list of available backups.
-     */
-    public function getBackups(): array
-    {
-        if (! File::exists($this->backupPath)) {
-            return [];
-        }
-
-        $files = File::files($this->backupPath);
-        $backups = [];
-
-        foreach ($files as $file) {
-            if ($file->getExtension() === 'zip') {
-                $backups[] = [
-                    'name' => $file->getFilename(),
-                    'path' => $file->getRealPath(),
-                    'size' => $this->formatFileSize($file->getSize()),
-                    'created_at' => date('Y-m-d H:i:s', $file->getMTime()),
-                ];
+        foreach ($directories as $directory) {
+            if (! File::isDirectory($directory)) {
+                File::makeDirectory($directory, 0755, true);
             }
         }
 
-        // Sort by date descending
-        usort($backups, fn ($a, $b) => strtotime($b['created_at']) - strtotime($a['created_at']));
+        // Create .gitignore files if they don't exist
+        $gitignoreContent = "*\n!.gitignore\n";
+        $gitignoreFiles = [
+            storage_path('app/.gitignore'),
+            storage_path('app/public/.gitignore'),
+            storage_path('framework/cache/.gitignore'),
+            storage_path('framework/sessions/.gitignore'),
+            storage_path('framework/testing/.gitignore'),
+            storage_path('framework/views/.gitignore'),
+            storage_path('logs/.gitignore'),
+        ];
 
-        return $backups;
+        foreach ($gitignoreFiles as $gitignoreFile) {
+            if (! File::exists($gitignoreFile)) {
+                File::put($gitignoreFile, $gitignoreContent);
+            }
+        }
     }
 
     /**
-     * Format file size.
+     * Get module build directories from source path.
+     *
+     * @return array<int, string>
      */
-    protected function formatFileSize(int $size): string
+    protected function getModuleBuildDirectories(string $sourcePath): array
     {
-        $units = ['B', 'KB', 'MB', 'GB'];
-        $unitIndex = 0;
+        $buildDirs = [];
+        $publicPath = $sourcePath.'/public';
 
-        while ($size >= 1024 && $unitIndex < count($units) - 1) {
-            $size /= 1024;
-            $unitIndex++;
+        if (File::isDirectory($publicPath)) {
+            $directories = File::directories($publicPath);
+            foreach ($directories as $dir) {
+                $dirName = basename($dir);
+                // Match build-* directories
+                if (str_starts_with($dirName, 'build-')) {
+                    $buildDirs[] = 'public/'.$dirName;
+                }
+            }
         }
 
-        return round($size, 2).' '.$units[$unitIndex];
-    }
-
-    /**
-     * Delete a backup file.
-     */
-    public function deleteBackup(string $filename): bool
-    {
-        $path = $this->backupPath.'/'.$filename;
-
-        if (File::exists($path)) {
-            return File::delete($path);
-        }
-
-        return false;
+        return $buildDirs;
     }
 }

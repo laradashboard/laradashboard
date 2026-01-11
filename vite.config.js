@@ -8,18 +8,27 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const paths = [
+// Core application paths (always included)
+const corePaths = [
     "resources/css/app.css",
     "resources/js/app.js",
     "resources/js/lara-builder/entry.jsx",
     "resources/js/lara-builder/post-entry.jsx",
 ];
 
-// Use top-level await to properly load module assets.
-let allPaths = await collectModuleAssetsPaths(paths, "modules");
+// Check if we should include modules in the main build
+// By default, modules are NOT included (they have their own builds)
+// Use VITE_INCLUDE_MODULES=true to include module paths in main build
+const includeModules = process.env.VITE_INCLUDE_MODULES === "true";
 
-if (allPaths.length === 0) {
-    allPaths = paths;
+let allPaths = corePaths;
+
+if (includeModules) {
+    // Include module assets in main build (legacy behavior for dev mode)
+    allPaths = await collectModuleAssetsPaths([...corePaths], "modules");
+    if (allPaths.length === 0) {
+        allPaths = corePaths;
+    }
 }
 
 export default defineConfig({
