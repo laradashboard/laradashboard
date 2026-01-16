@@ -1,0 +1,27 @@
+{
+    "type": "icon",
+    "version": "1.0.0",
+    "label": "Icon",
+    "category": "Content",
+    "icon": "mdi:emoticon-outline",
+    "description": "Display icons from the Iconify library",
+    "keywords": ["icon", "iconify", "symbol", "emoji", "graphic"],
+    "contexts": ["page", "email"],
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "icon": "lucide:star",
+        "size": "48px",
+        "color": "#3b82f6",
+        "align": "center",
+        "backgroundColor": "",
+        "backgroundShape": "none",
+        "backgroundPadding": "16px"
+    }
+}

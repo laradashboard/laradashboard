@@ -25,13 +25,19 @@ export function useBlocks() {
     const selectedBlock = useMemo(() => {
         if (!selectedBlockId) return null;
 
-        const findBlock = (blockList) => {
-            for (const block of blockList) {
-                if (block.id === selectedBlockId) return block;
+        const findBlock = (items) => {
+            if (!Array.isArray(items)) return null;
 
-                if (block.props?.children) {
-                    for (const column of block.props.children) {
-                        const found = findBlock(column);
+            for (const item of items) {
+                if (Array.isArray(item)) {
+                    // Item is a column (array of blocks)
+                    const found = findBlock(item);
+                    if (found) return found;
+                } else if (item && typeof item === 'object' && item.type) {
+                    // Item is a block
+                    if (item.id === selectedBlockId) return item;
+                    if (Array.isArray(item.props?.children)) {
+                        const found = findBlock(item.props.children);
                         if (found) return found;
                     }
                 }
@@ -149,12 +155,18 @@ export function useBlocks() {
     const totalBlockCount = useMemo(() => {
         let count = 0;
 
-        const countBlocks = (blockList) => {
-            for (const block of blockList) {
-                count++;
-                if (block.props?.children) {
-                    for (const column of block.props.children) {
-                        countBlocks(column);
+        const countBlocks = (items) => {
+            if (!Array.isArray(items)) return;
+
+            for (const item of items) {
+                if (Array.isArray(item)) {
+                    // Item is a column (array of blocks)
+                    countBlocks(item);
+                } else if (item && typeof item === 'object' && item.type) {
+                    // Item is a block
+                    count++;
+                    if (Array.isArray(item.props?.children)) {
+                        countBlocks(item.props.children);
                     }
                 }
             }

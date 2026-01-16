@@ -1,0 +1,33 @@
+{
+    "type": "feature-box",
+    "version": "1.0.0",
+    "label": "Feature Box",
+    "category": "Content",
+    "icon": "mdi:card-text-outline",
+    "description": "Icon with title and description - perfect for features, values, and services",
+    "keywords": ["feature", "box", "card", "icon", "service", "value", "benefit"],
+    "contexts": ["page", "email"],
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "icon": "lucide:star",
+        "iconSize": "32px",
+        "iconColor": "#3b82f6",
+        "iconBackgroundColor": "#dbeafe",
+        "iconBackgroundShape": "circle",
+        "title": "Feature Title",
+        "titleColor": "#111827",
+        "titleSize": "18px",
+        "description": "A brief description of this feature or benefit.",
+        "descriptionColor": "#6b7280",
+        "descriptionSize": "14px",
+        "align": "center",
+        "gap": "16px"
+    }
+}
