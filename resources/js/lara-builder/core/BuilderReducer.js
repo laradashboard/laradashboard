@@ -100,15 +100,21 @@ function createDefaultTextBlock() {
 
 /**
  * Helper: Find block by ID in a nested structure
+ * Handles both column-based children (arrays of arrays) and direct children (array of blocks)
  */
-function findBlockById(blocks, id) {
-    for (const block of blocks) {
-        if (block.id === id) return block;
+function findBlockById(items, id) {
+    if (!Array.isArray(items)) return null;
 
-        // Check nested blocks (columns)
-        if (block.props?.children) {
-            for (const column of block.props.children) {
-                const found = findBlockById(column, id);
+    for (const item of items) {
+        if (Array.isArray(item)) {
+            // Item is a column (array of blocks)
+            const found = findBlockById(item, id);
+            if (found) return found;
+        } else if (item && typeof item === 'object' && item.type) {
+            // Item is a block
+            if (item.id === id) return item;
+            if (Array.isArray(item.props?.children)) {
+                const found = findBlockById(item.props.children, id);
                 if (found) return found;
             }
         }
@@ -118,51 +124,77 @@ function findBlockById(blocks, id) {
 
 /**
  * Helper: Update block in tree by ID
+ * Handles both column-based children (arrays of arrays) and direct children (array of blocks)
  */
-function updateBlockInTree(blocks, id, updates) {
-    return blocks.map((block) => {
-        if (block.id === id) {
-            return {
-                ...block,
-                props: {
-                    ...block.props,
-                    ...updates,
-                },
-            };
+function updateBlockInTree(items, id, updates) {
+    if (!Array.isArray(items)) return items;
+
+    return items.map((item) => {
+        if (Array.isArray(item)) {
+            // Item is a column (array of blocks)
+            return updateBlockInTree(item, id, updates);
+        } else if (item && typeof item === 'object' && item.type) {
+            // Item is a block
+            if (item.id === id) {
+                return {
+                    ...item,
+                    props: {
+                        ...item.props,
+                        ...updates,
+                    },
+                };
+            }
+
+            // Check nested blocks
+            if (Array.isArray(item.props?.children)) {
+                return {
+                    ...item,
+                    props: {
+                        ...item.props,
+                        children: updateBlockInTree(item.props.children, id, updates),
+                    },
+                };
+            }
         }
 
-        // Check nested blocks
-        if (block.props?.children) {
-            return {
-                ...block,
-                props: {
-                    ...block.props,
-                    children: block.props.children.map((column) => updateBlockInTree(column, id, updates)),
-                },
-            };
-        }
-
-        return block;
+        return item;
     });
 }
 
 /**
  * Helper: Delete block from tree by ID
+ * Handles both column-based children (arrays of arrays) and direct children (array of blocks)
  */
-function deleteBlockFromTree(blocks, id) {
-    return blocks
-        .filter((block) => block.id !== id)
-        .map((block) => {
-            if (block.props?.children) {
-                return {
-                    ...block,
-                    props: {
-                        ...block.props,
-                        children: block.props.children.map((column) => deleteBlockFromTree(column, id)),
-                    },
-                };
+function deleteBlockFromTree(items, id) {
+    if (!Array.isArray(items)) return items;
+
+    return items
+        .filter((item) => {
+            // Keep arrays (columns) - they can't be deleted by id
+            if (Array.isArray(item)) return true;
+            // Filter out the block with matching id
+            if (item && typeof item === 'object' && item.type) {
+                return item.id !== id;
             }
-            return block;
+            return true;
+        })
+        .map((item) => {
+            if (Array.isArray(item)) {
+                // Item is a column (array of blocks)
+                return deleteBlockFromTree(item, id);
+            } else if (item && typeof item === 'object' && item.type) {
+                // Item is a block - recursively check children
+                if (Array.isArray(item.props?.children)) {
+                    return {
+                        ...item,
+                        props: {
+                            ...item.props,
+                            children: deleteBlockFromTree(item.props.children, id),
+                        },
+                    };
+                }
+            }
+            return item;
         });
 }
 
@@ -356,14 +388,32 @@ export function builderReducer(state, action) {
                 const duplicatedBlock = deepClone(originalBlock);
                 duplicatedBlock.id = generateId();
 
-                // Also regenerate IDs for nested blocks
+                // Helper to regenerate IDs for nested children
+                const regenerateChildIds = (children) => {
+                    if (!Array.isArray(children)) return children;
+
+                    return children.map((item) => {
+                        if (Array.isArray(item)) {
+                            // Item is a column (array of blocks)
+                            return regenerateChildIds(item);
+                        } else if (item && typeof item === 'object' && item.type) {
+                            // Item is a block
+                            const newItem = { ...item, id: generateId() };
+                            if (Array.isArray(item.props?.children)) {
+                                newItem.props = {
+                                    ...item.props,
+                                    children: regenerateChildIds(item.props.children),
+                                };
+                            }
+                            return newItem;
+                        }
+                        return item;
+                    });
+                };
+
+                // Regenerate IDs for nested blocks
                 if (duplicatedBlock.props?.children) {
-                    duplicatedBlock.props.children = duplicatedBlock.props.children.map((column) =>
-                        column.map((nestedBlock) => ({
-                            ...nestedBlock,
-                            id: generateId(),
-                        }))
-                    );
+                    duplicatedBlock.props.children = regenerateChildIds(duplicatedBlock.props.children);
                 }
 
                 const originalIndex = state.blocks.findIndex((b) => b.id === id);

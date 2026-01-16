@@ -421,6 +421,176 @@ HTML;
         ];
     }
 
+    // ========================================
+    // Page-specific blocks (for page builder)
+    // ========================================
+
+    /**
+     * Default canvas settings for page builder.
+     */
+    public function getDefaultPageCanvasSettings(): array
+    {
+        return [
+            'width' => '100%',
+            'maxWidth' => '1280px',
+            'backgroundColor' => '#ffffff',
+            'contentPadding' => '0',
+        ];
+    }
+
+    /**
+     * Generate complete HTML page content from blocks and canvas settings.
+     */
+    public function generatePageHtml(array $blocks, ?array $canvasSettings = null): string
+    {
+        return app(DesignJsonRenderer::class)->render($blocks, 'page');
+    }
+
+    /**
+     * Helper: Create section block (full-width container with background)
+     */
+    public function section(
+        array $children = [],
+        string $backgroundType = 'solid',
+        string $backgroundColor = '#ffffff',
+        string $gradientFrom = '#f9fafb',
+        string $gradientTo = '#f3f4f6',
+        string $gradientDirection = 'to-br',
+        string $containerMaxWidth = '1280px',
+        string $contentAlign = 'center',
+        array $padding = ['top' => '64px', 'bottom' => '64px', 'left' => '16px', 'right' => '16px']
+    ): array {
+        return [
+            'id' => $this->blockId(),
+            'type' => 'section',
+            'props' => [
+                'fullWidth' => true,
+                'containerMaxWidth' => $containerMaxWidth,
+                'contentAlign' => $contentAlign,
+                'backgroundType' => $backgroundType,
+                'backgroundColor' => $backgroundColor,
+                'gradientFrom' => $gradientFrom,
+                'gradientTo' => $gradientTo,
+                'gradientDirection' => $gradientDirection,
+                'layoutStyles' => [
+                    'padding' => $padding,
+                ],
+                // Wrap children in array to match columns structure for dnd-kit compatibility
+                'children' => [$children],
+            ],
+        ];
+    }
+
+    /**
+     * Helper: Create columns block (multi-column layout)
+     */
+    public function columns(array $children = [], int $columns = 2, string $gap = '32px', string $verticalAlign = 'start'): array
+    {
+        return [
+            'id' => $this->blockId(),
+            'type' => 'columns',
+            'props' => [
+                'columns' => $columns,
+                'gap' => $gap,
+                'verticalAlign' => $verticalAlign,
+                'children' => $children,
+            ],
+        ];
+    }
+
+    /**
+     * Helper: Create icon block (Iconify icon)
+     */
+    public function icon(
+        string $icon = 'lucide:star',
+        string $size = '32px',
+        string $color = '#3b82f6',
+        string $align = 'center',
+        string $backgroundColor = '',
+        string $backgroundShape = 'none',
+        string $backgroundPadding = '16px'
+    ): array {
+        return [
+            'id' => $this->blockId(),
+            'type' => 'icon',
+            'props' => [
+                'icon' => $icon,
+                'size' => $size,
+                'color' => $color,
+                'align' => $align,
+                'backgroundColor' => $backgroundColor,
+                'backgroundShape' => $backgroundShape,
+                'backgroundPadding' => $backgroundPadding,
+            ],
+        ];
+    }
+
+    /**
+     * Helper: Create feature-box block (icon + title + description)
+     */
+    public function featureBox(
+        string $title,
+        string $description = '',
+        string $icon = 'lucide:star',
+        string $iconSize = '32px',
+        string $iconColor = '#3b82f6',
+        string $iconBackgroundColor = '#dbeafe',
+        string $iconBackgroundShape = 'circle',
+        string $titleColor = '#111827',
+        string $titleSize = '18px',
+        string $descriptionColor = '#6b7280',
+        string $align = 'center',
+        array $layoutStyles = []
+    ): array {
+        return [
+            'id' => $this->blockId(),
+            'type' => 'feature-box',
+            'props' => [
+                'icon' => $icon,
+                'iconSize' => $iconSize,
+                'iconColor' => $iconColor,
+                'iconBackgroundColor' => $iconBackgroundColor,
+                'iconBackgroundShape' => $iconBackgroundShape,
+                'title' => $title,
+                'titleColor' => $titleColor,
+                'titleSize' => $titleSize,
+                'description' => $description,
+                'descriptionColor' => $descriptionColor,
+                'align' => $align,
+                'layoutStyles' => $layoutStyles,
+            ],
+        ];
+    }
+
+    /**
+     * Helper: Create stats-item block (statistic display)
+     */
+    public function statsItem(
+        string $value,
+        string $label,
+        string $suffix = '',
+        string $prefix = '',
+        string $valueColor = '#3b82f6',
+        string $valueSize = '48px',
+        string $labelColor = '#6b7280',
+        string $align = 'center'
+    ): array {
+        return [
+            'id' => $this->blockId(),
+            'type' => 'stats-item',
+            'props' => [
+                'value' => $value,
+                'suffix' => $suffix,
+                'prefix' => $prefix,
+                'label' => $label,
+                'valueColor' => $valueColor,
+                'valueSize' => $valueSize,
+                'labelColor' => $labelColor,
+                'align' => $align,
+            ],
+        ];
+    }
+
     /**
      * Render a single block to HTML
      */

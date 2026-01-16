@@ -1,0 +1,29 @@
+{
+    "type": "stats-item",
+    "version": "1.0.0",
+    "label": "Stats Item",
+    "category": "Content",
+    "icon": "mdi:chart-bar",
+    "description": "Display a statistic with a large value and label",
+    "keywords": ["stats", "counter", "number", "metric", "statistic", "count"],
+    "contexts": ["page", "email"],
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "value": "100+",
+        "valueColor": "#3b82f6",
+        "valueSize": "48px",
+        "label": "Happy Customers",
+        "labelColor": "#6b7280",
+        "labelSize": "14px",
+        "align": "center",
+        "prefix": "",
+        "suffix": ""
+    }
+}

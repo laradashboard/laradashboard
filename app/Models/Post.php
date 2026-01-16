@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Services\Builder\BlockRenderer;
+use App\Services\Builder\DesignJsonRenderer;
 use App\Services\Content\ContentService;
 use App\Services\Content\PostType;
 use App\Concerns\QueryBuilderTrait;
@@ -354,16 +355,25 @@ class Post extends Model implements SpatieHasMedia
      * rendering via BlockRenderer. Use this method instead of accessing
      * $post->content directly when displaying content.
      *
+     * If content is empty but design_json exists, it will render directly
+     * from the design_json blocks (useful for pages created via migration).
+     *
      * @param  string  $context  The rendering context ('page', 'email', 'campaign')
      * @return string The processed HTML content
      */
     public function renderContent(string $context = 'page'): string
     {
-        if (empty($this->content)) {
-            return '';
+        // If content exists, process it through BlockRenderer
+        if (! empty($this->content)) {
+            return app(BlockRenderer::class)->processContent($this->content, $context);
         }
 
-        return app(BlockRenderer::class)->processContent($this->content, $context);
+        // If design_json exists, render directly from it
+        if (! empty($this->design_json) && is_array($this->design_json)) {
+            return app(DesignJsonRenderer::class)->render($this->design_json, $context);
+        }
+
+        return '';
     }
 
     /**

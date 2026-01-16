@@ -1,0 +1,30 @@
+{
+    "type": "section",
+    "version": "1.0.0",
+    "label": "Section",
+    "category": "Layout",
+    "icon": "mdi:card-outline",
+    "description": "Full-width section container with gradient background support",
+    "keywords": ["section", "container", "wrapper", "hero", "banner", "full-width"],
+    "contexts": ["page"],
+    "supports": {
+        "align": false,
+        "spacing": true,
+        "nesting": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "fullWidth": true,
+        "containerMaxWidth": "1280px",
+        "contentAlign": "center",
+        "backgroundType": "solid",
+        "backgroundColor": "#ffffff",
+        "gradientFrom": "#f9fafb",
+        "gradientTo": "#f3f4f6",
+        "gradientDirection": "to-br",
+        "children": [[]]
+    }
+}
