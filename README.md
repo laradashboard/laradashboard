@@ -222,13 +222,6 @@ git clone git@github.com:laradashboard/laradashboard.git
 cd laradashboard
 ```
 
-**Install Composer & Node Dependencies**
-
-```console
-composer install
-npm install
-```
-
 **Database & env creation**
 
 -   Create database called - `laradashboard`
@@ -238,17 +231,28 @@ npm install
 cp .env.example .env
 ```
 
-**Generate Artisan Key or necessary linkings**
+**Install Composer & Node Dependencies**
+
+```console
+composer install
+npm install
+```
+
+**Generate Artisan key**
 
 ```console
 php artisan key:generate
+```
+
+**Link storage for file upload processing**
+```console
 php artisan storage:link
 ```
 
 **Migrate Database with seeder**
 
 ```console
-php artisan migrate:fresh --seed && php artisan module:seed
+php artisan migrate:fresh --seed
 ```
 
 **Run Project**
@@ -476,6 +480,31 @@ composer run pint
 composer run phpstan
 composer run pest
 ```
+
+## 🛠️ Troubleshooting
+
+<details>
+<summary><strong>Laragon/Windows: ext-sockets missing</strong></summary>
+
+If you get this error during `composer install`:
+```
+pestphp/pest-plugin-browser requires ext-sockets * -> it is missing from your system
+```
+
+**Fix:** Enable the sockets extension in `php.ini`:
+```ini
+extension=sockets
+```
+
+Or via Laragon UI: Right-click tray → **PHP** → **Extensions** → check **sockets**
+
+**Quick workaround:**
+```bash
+composer install --ignore-platform-req=ext-sockets
+```
+</details>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 🚀 Laravel Boost
 

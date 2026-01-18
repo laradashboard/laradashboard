@@ -28,12 +28,16 @@ const SlugGenerator = {
      * @returns {object} - Alpine.js component data
      */
     alpineComponent(initialTitle = '', initialSlug = '') {
+        // If there's an existing slug (edit mode), don't auto-generate
+        const isEditMode = initialSlug !== '';
+
         return {
             title: initialTitle,
             slug: initialSlug,
-            isSlugManuallyChanged: false,
+            isSlugManuallyChanged: isEditMode, // In edit mode, treat slug as manually set
             showSlugEdit: false,
             originalSlug: initialSlug,
+            isEditMode: isEditMode,
 
             /**
              * Generate a slug from the current title
@@ -73,6 +77,12 @@ const SlugGenerator = {
 
                 // Set up a watcher for the slug to detect manual changes
                 this.$watch('slug', (value) => {
+                    // In edit mode, always keep isSlugManuallyChanged as true
+                    // unless user explicitly clicks "Generate" button
+                    if (this.isEditMode) {
+                        return;
+                    }
+
                     // Compare with what would be auto-generated
                     const autoSlug = SlugGenerator.slugify(this.title);
                     // If they differ and it's not empty, mark as manually changed

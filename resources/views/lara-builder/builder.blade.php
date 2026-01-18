@@ -15,6 +15,8 @@
 
     {{-- Inject PHP-registered blocks --}}
     {!! app(\App\Services\Builder\BuilderService::class)->injectToFrontend($context ?? 'email') !!}
+
+    @livewireStyles
 </head>
 <body class="font-sans antialiased">
     <x-builder.lara-builder
@@ -26,5 +28,6 @@
         :upload-url="$uploadUrl ?? null"
         :video-upload-url="$videoUploadUrl ?? null"
     />
+    @livewireScriptConfig
 </body>
 </html>
