@@ -16,6 +16,9 @@ enum AdminFilterHook: string
     case DARK_MODE_TOGGLER_BEFORE_BUTTON = 'filter.dark_mode_toggler_before_button';
     case DARK_MODE_TOGGLER_AFTER_BUTTON = 'filter.dark_mode_toggler_after_button';
 
+    // Quick links dropdown (beside AI Agent button).
+    case QUICK_LINKS_DROPDOWN = 'filter.quick_links_dropdown';
+
     // Header right menu.
     case HEADER_RIGHT_MENU_BEFORE = 'filter.header_right_menu_before';
     case HEADER_RIGHT_MENU_AFTER = 'filter.header_right_menu_after';

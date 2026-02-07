@@ -1,0 +1,52 @@
+## Overview
+
+Brief description of what this module does.
+
+## Features
+
+- Feature 1
+- Feature 2
+- Feature 3
+
+## Installation
+
+This module is part of the LaraDashboard ecosystem.
+
+```bash
+php artisan module:enable $STUDLY_NAME$
+php artisan module:migrate $STUDLY_NAME$
+php artisan module:seed $STUDLY_NAME$
+```
+
+## Configuration
+
+Configuration options can be found in `config/config.php`.
+
+## Usage
+
+Describe how to use this module.
+
+## Permissions
+
+List the permissions this module provides:
+
+- `$LOWER_NAME$.view` - View $LOWER_NAME$ resources
+- `$LOWER_NAME$.create` - Create $LOWER_NAME$ resources
+- `$LOWER_NAME$.edit` - Edit $LOWER_NAME$ resources
+- `$LOWER_NAME$.delete` - Delete $LOWER_NAME$ resources
+
+## Routes
+
+| Method | URI | Name | Description |
+|--------|-----|------|-------------|
+| GET | `/$KEBAB_NAME$` | `$LOWER_NAME$.index` | List all resources |
+| GET | `/$KEBAB_NAME$/create` | `$LOWER_NAME$.create` | Show create form |
+| POST | `/$KEBAB_NAME$` | `$LOWER_NAME$.store` | Store new resource |
+| GET | `/$KEBAB_NAME$/{id}` | `$LOWER_NAME$.show` | Show single resource |
+| GET | `/$KEBAB_NAME$/{id}/edit` | `$LOWER_NAME$.edit` | Show edit form |
+| PUT | `/$KEBAB_NAME$/{id}` | `$LOWER_NAME$.update` | Update resource |
+| DELETE | `/$KEBAB_NAME$/{id}` | `$LOWER_NAME$.destroy` | Delete resource |
+
+## License
+
+This module is proprietary software. See LICENSE file for details.

@@ -44,6 +44,8 @@
                     :icon="sidebarToggle ? 'feather:menu' : 'feather:menu'"
                     width="26" height="26" class="md:hidden"></iconify-icon>
             </button>
+            @include('backend.layouts.partials.header.quick-links-dropdown')
+
             @can('ai_content.generate')
                 @include('backend.layouts.partials.header.ai-command-button')
             @endcan

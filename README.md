@@ -50,6 +50,12 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v0.9.3] - 2025-02-08**
+-   **Feat:** Inbound/Outbound email connection managent.
+-   **Enhancement:** Fallback queue handling management.
+-   **Enhancement:** Quick links dropdown at navbar.
+-   **Enhancement:** Updated stubs.
+
 **[v0.9.2] - 2025-01-11**
 -   **Feat:** Manual core upgrade system with backup/restore functionality.
 -   **Feat:** Production-ready zip distribution with vendor folder support.
@@ -167,7 +173,7 @@ password - 12345678
 
 ## 🔄 Versions:
 
-Latest version `v0.9.2` - https://github.com/laradashboard/laradashboard/releases/tag/v0.9.2
+Latest version `v0.9.3` - https://github.com/laradashboard/laradashboard/releases/tag/v0.9.3
 
 <details>
 <summary>View Old versions</summary>

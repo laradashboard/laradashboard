@@ -24,8 +24,8 @@ return [
     |
     */
     'stubs' => [
-        'enabled' => false,
-        'path' => base_path('vendor/nwidart/laravel-modules/src/Commands/stubs'),
+        'enabled' => true,
+        'path' => base_path('stubs/nwidart-stubs'),
         'files' => [
             'routes/web' => 'routes/web.php',
             'routes/api' => 'routes/api.php',
@@ -37,6 +37,7 @@ return [
             'assets/sass/app' => 'resources/assets/sass/app.scss',
             'vite' => 'vite.config.js',
             'package' => 'package.json',
+            'description' => 'description.md',
         ],
         'replacements' => [
             /**
@@ -62,6 +63,7 @@ return [
             'views/index' => ['LOWER_NAME'],
             'views/master' => ['LOWER_NAME', 'STUDLY_NAME', 'KEBAB_NAME'],
             'scaffold/config' => ['STUDLY_NAME'],
+            'description' => ['STUDLY_NAME', 'LOWER_NAME', 'KEBAB_NAME'],
             'composer' => [
                 'LOWER_NAME',
                 'STUDLY_NAME',
