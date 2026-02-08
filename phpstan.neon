@@ -27,3 +27,5 @@ parameters:
         - '#PHPDoc type .* of property .* is not covariant with PHPDoc type .* of overridden property#'
         - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder.*::items\(\)#'
         - '#Offset .* in empty\(\) always exists and is (not falsy|always falsy)#'
+        # Trait reserved for queue fallback functionality
+        - '#Trait App\\Concerns\\HasQueueFallback is used zero times#'

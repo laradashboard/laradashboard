@@ -26,6 +26,8 @@ class ModuleMakeCrudCommand extends Command
 
     protected string $moduleLowerName;
 
+    protected string $modulePath;
+
     protected string $modelName;
 
     protected string $modelStudlyName;
@@ -95,15 +97,38 @@ class ModuleMakeCrudCommand extends Command
         return $content;
     }
 
+    /**
+     * Resolve the module path, trying both PascalCase and kebab-case formats.
+     */
+    protected function resolveModulePath(): ?string
+    {
+        // Try different naming conventions for the module directory
+        $possiblePaths = [
+            base_path("modules/{$this->moduleStudlyName}"),          // PascalCase: TestCrud
+            base_path('modules/'.Str::kebab($this->moduleName)),     // kebab-case: test-crud
+            base_path("modules/{$this->moduleLowerName}"),           // lowercase: testcrud
+        ];
+
+        foreach ($possiblePaths as $path) {
+            if (is_dir($path)) {
+                $this->modulePath = $path;
+
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
     public function handle(): int
     {
         $this->moduleName = $this->argument('module');
         $this->moduleStudlyName = Str::studly($this->moduleName);
         $this->moduleLowerName = Str::lower($this->moduleName);
 
-        // Validate module exists
-        $modulePath = base_path("modules/{$this->moduleStudlyName}");
-        if (! is_dir($modulePath)) {
+        // Validate module exists - try both PascalCase and kebab-case paths
+        $modulePath = $this->resolveModulePath();
+        if (! $modulePath) {
             $this->error("Module '{$this->moduleStudlyName}' not found in modules/ directory.");
             $this->listAvailableModules();
 
@@ -191,7 +216,7 @@ class ModuleMakeCrudCommand extends Command
     protected function parseMigration(string $migrationName): void
     {
         // Find migration file in module
-        $migrationsPath = base_path("modules/{$this->moduleStudlyName}/database/migrations");
+        $migrationsPath = "{$this->modulePath}/database/migrations";
         $files = glob("{$migrationsPath}/*{$migrationName}*.php");
 
         if (empty($files)) {
@@ -241,7 +266,7 @@ class ModuleMakeCrudCommand extends Command
             "create_{$snakePlural}_table",
         ];
 
-        $migrationsPath = base_path("modules/{$this->moduleStudlyName}/database/migrations");
+        $migrationsPath = "{$this->modulePath}/database/migrations";
         $migrationFile = null;
 
         foreach ($patterns as $pattern) {
@@ -426,7 +451,7 @@ class ModuleMakeCrudCommand extends Command
         $timestamp = date('Y_m_d_His');
         $filename = "{$timestamp}_{$migrationName}.php";
 
-        $migrationsPath = base_path("modules/{$this->moduleStudlyName}/database/migrations");
+        $migrationsPath = "{$this->modulePath}/database/migrations";
         $this->ensureDirectoryExists($migrationsPath);
 
         $path = "{$migrationsPath}/{$filename}";
@@ -554,7 +579,7 @@ class ModuleMakeCrudCommand extends Command
 
     protected function generateModel(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/app/Models/{$this->modelStudlyName}.php");
+        $path = "{$this->modulePath}/app/Models/{$this->modelStudlyName}.php";
 
         // Skip if model already exists
         if (File::exists($path)) {
@@ -642,7 +667,7 @@ PHP;
 
     protected function generateDatatable(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/app/Livewire/Components/{$this->modelStudlyName}Datatable.php");
+        $path = "{$this->modulePath}/app/Livewire/Components/{$this->modelStudlyName}Datatable.php";
 
         // Skip if datatable already exists
         if (File::exists($path)) {
@@ -748,7 +773,7 @@ PHP;
 
     protected function generateIndexComponent(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/app/Livewire/Admin/{$this->modelPluralName}/Index.php");
+        $path = "{$this->modulePath}/app/Livewire/Admin/{$this->modelPluralName}/Index.php";
 
         // Skip if component already exists
         if (File::exists($path)) {
@@ -768,7 +793,7 @@ PHP;
 
     protected function generateShowComponent(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/app/Livewire/Admin/{$this->modelPluralName}/Show.php");
+        $path = "{$this->modulePath}/app/Livewire/Admin/{$this->modelPluralName}/Show.php";
 
         // Skip if component already exists
         if (File::exists($path)) {
@@ -788,7 +813,7 @@ PHP;
 
     protected function generateCreateComponent(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/app/Livewire/Admin/{$this->modelPluralName}/Create.php");
+        $path = "{$this->modulePath}/app/Livewire/Admin/{$this->modelPluralName}/Create.php";
 
         // Skip if component already exists
         if (File::exists($path)) {
@@ -821,7 +846,7 @@ PHP;
 
     protected function generateEditComponent(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/app/Livewire/Admin/{$this->modelPluralName}/Edit.php");
+        $path = "{$this->modulePath}/app/Livewire/Admin/{$this->modelPluralName}/Edit.php";
 
         // Skip if component already exists
         if (File::exists($path)) {
@@ -863,7 +888,7 @@ PHP;
 
     protected function generateCrudLayout(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/resources/views/layouts/crud.blade.php");
+        $path = "{$this->modulePath}/resources/views/layouts/crud.blade.php";
 
         // Skip if layout already exists
         if (File::exists($path)) {
@@ -883,7 +908,7 @@ PHP;
 
     protected function generateIndexView(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/resources/views/livewire/admin/{$this->modelPluralLower}/index.blade.php");
+        $path = "{$this->modulePath}/resources/views/livewire/admin/{$this->modelPluralLower}/index.blade.php";
 
         // Skip if view already exists
         if (File::exists($path)) {
@@ -903,7 +928,7 @@ PHP;
 
     protected function generateShowView(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/resources/views/livewire/admin/{$this->modelPluralLower}/show.blade.php");
+        $path = "{$this->modulePath}/resources/views/livewire/admin/{$this->modelPluralLower}/show.blade.php";
 
         // Skip if view already exists
         if (File::exists($path)) {
@@ -925,7 +950,7 @@ PHP;
 
     protected function generateCreateView(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/resources/views/livewire/admin/{$this->modelPluralLower}/create.blade.php");
+        $path = "{$this->modulePath}/resources/views/livewire/admin/{$this->modelPluralLower}/create.blade.php";
 
         // Skip if view already exists
         if (File::exists($path)) {
@@ -948,7 +973,7 @@ PHP;
 
     protected function generateEditView(): void
     {
-        $path = base_path("modules/{$this->moduleStudlyName}/resources/views/livewire/admin/{$this->modelPluralLower}/edit.blade.php");
+        $path = "{$this->modulePath}/resources/views/livewire/admin/{$this->modelPluralLower}/edit.blade.php";
 
         // Skip if view already exists
         if (File::exists($path)) {
@@ -971,7 +996,7 @@ PHP;
 
     protected function updateRoutes(): void
     {
-        $routesPath = base_path("modules/{$this->moduleStudlyName}/routes/web.php");
+        $routesPath = "{$this->modulePath}/routes/web.php";
 
         if (! File::exists($routesPath)) {
             $this->warn("  Routes file not found: {$routesPath}");
@@ -1018,11 +1043,11 @@ PHP;
     protected function updateMenuService(): void
     {
         // Try to find the MenuService file
-        $menuServicePath = base_path("modules/{$this->moduleStudlyName}/app/Services/MenuService.php");
+        $menuServicePath = "{$this->modulePath}/app/Services/MenuService.php";
 
         // Also check for module-specific naming
         if (! File::exists($menuServicePath)) {
-            $menuServicePath = base_path("modules/{$this->moduleStudlyName}/app/Services/{$this->moduleStudlyName}MenuService.php");
+            $menuServicePath = "{$this->modulePath}/app/Services/{$this->moduleStudlyName}MenuService.php";
         }
 
         if (! File::exists($menuServicePath)) {

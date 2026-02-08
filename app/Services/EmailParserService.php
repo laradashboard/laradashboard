@@ -150,9 +150,8 @@ class EmailParserService
                 break;
             }
 
-            if (! $inQuote) {
-                $result[] = $line;
-            }
+            // Add non-quoted lines to result
+            $result[] = $line;
         }
 
         return implode("\n", $result);
@@ -259,7 +258,7 @@ class EmailParserService
     {
         preg_match_all('/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/', $text, $matches);
 
-        return array_unique($matches[0] ?? []);
+        return array_unique($matches[0]);
     }
 
     /**

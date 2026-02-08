@@ -160,10 +160,10 @@ class DesignJsonRenderer
         $padding = $this->buildPadding($layoutStyles['padding'] ?? []);
 
         // Build section styles
-        $sectionStyles = array_filter([
+        $sectionStyles = [
             $backgroundStyle,
             $padding ?: 'padding: 48px 16px',
-        ]);
+        ];
 
         // Container styles
         $containerStyles = $fullWidth
