@@ -14,7 +14,7 @@ class ModuleMakeCrudCommand extends Command
                             {module : The name of the module}
                             {--migration= : The migration file name to parse columns from}
                             {--model= : The model name (if not parsing from migration)}
-                            {--fields= : Field definitions (e.g., "title:string,content:text,is_active:boolean")}';
+                            {--fields= : Field definitions (e.g., "title:string,content:text,featured_image:media,status:select:Active|Inactive,is_active:toggle")}';
 
     protected $description = 'Generate CRUD components (Model, Datatable, Create, Edit, Index) for a module';
 
@@ -258,25 +258,49 @@ class ModuleMakeCrudCommand extends Command
             $parts = explode(':', $field);
             $name = trim($parts[0]);
             $type = isset($parts[1]) ? trim($parts[1]) : 'string';
+            $options = isset($parts[2]) ? trim($parts[2]) : null;
 
             // Skip id and timestamps
-            if (in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
+            if (\in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
                 continue;
             }
 
-            $this->columns[] = [
+            $column = [
                 'name' => $name,
                 'type' => $this->mapColumnType($type),
-                'dbType' => $type,
+                'dbType' => $this->mapDbType($type),
             ];
+
+            // Handle select options (e.g., select:Active|Inactive|Pending)
+            if ($type === 'select' && $options) {
+                $column['options'] = explode('|', $options);
+            }
+
+            $this->columns[] = $column;
         }
+    }
+
+    /**
+     * Map user-friendly types to database column types.
+     */
+    protected function mapDbType(string $type): string
+    {
+        return match ($type) {
+            'toggle' => 'boolean',
+            'editor' => 'text',
+            'media' => 'foreignId',
+            'file' => 'string',
+            'select' => 'string',
+            default => $type,
+        };
     }
 
     protected function promptForFields(): void
     {
         $this->columns = [];
         $this->info('Define your fields (press Enter with empty name to finish):');
-        $this->line('  Supported types: string, text, integer, boolean, date, datetime, decimal, json');
+        $this->line('  Basic types: string, text, integer, boolean, date, datetime, decimal, json');
+        $this->line('  UI types: toggle (switch), select (dropdown), editor (rich text), media (media library)');
         $this->newLine();
 
         $fieldNumber = 1;
@@ -290,7 +314,7 @@ class ModuleMakeCrudCommand extends Command
             // Validate field name
             $name = Str::snake(trim($name));
 
-            if (in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
+            if (\in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
                 $this->warn("  '{$name}' is auto-generated, skipping...");
 
                 continue;
@@ -298,15 +322,25 @@ class ModuleMakeCrudCommand extends Command
 
             $type = $this->choice(
                 "Field {$fieldNumber} type for '{$name}'",
-                ['string', 'text', 'integer', 'boolean', 'date', 'datetime', 'decimal', 'json'],
+                ['string', 'text', 'integer', 'boolean', 'toggle', 'select', 'editor', 'media', 'date', 'datetime', 'decimal', 'json'],
                 0
             );
 
-            $this->columns[] = [
+            $column = [
                 'name' => $name,
                 'type' => $this->mapColumnType($type),
-                'dbType' => $type,
+                'dbType' => $this->mapDbType($type),
             ];
+
+            // If select, ask for options
+            if ($type === 'select') {
+                $optionsInput = $this->ask("  Enter options separated by | (e.g., Active|Inactive|Pending)", '');
+                if ($optionsInput) {
+                    $column['options'] = explode('|', $optionsInput);
+                }
+            }
+
+            $this->columns[] = $column;
 
             $this->info("  Added: {$name} ({$type})");
             $fieldNumber++;
@@ -372,6 +406,14 @@ PHP;
         $lines = [];
 
         foreach ($this->columns as $column) {
+            // Media fields use foreign key to media table
+            if ($column['type'] === 'media') {
+                $columnName = $this->getMediaColumnName($column['name']);
+                $lines[] = "            \$table->foreignId('{$columnName}')->nullable()->constrained('media')->nullOnDelete();";
+
+                continue;
+            }
+
             $method = match ($column['dbType']) {
                 'string' => 'string',
                 'text' => 'text',
@@ -384,13 +426,24 @@ PHP;
                 default => 'string',
             };
 
-            $nullable = in_array($column['dbType'], ['text', 'json', 'date', 'datetime']) ? '->nullable()' : '';
+            // File columns should be nullable (stored as string paths)
+            $isNullable = in_array($column['dbType'], ['text', 'json', 'date', 'datetime']) || $column['type'] === 'file';
+            $nullable = $isNullable ? '->nullable()' : '';
             $default = $column['dbType'] === 'boolean' ? '->default(false)' : '';
 
             $lines[] = "            \$table->{$method}('{$column['name']}'){$nullable}{$default};";
         }
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * Get the database column name for a media field.
+     * Adds '_id' suffix if not already present.
+     */
+    protected function getMediaColumnName(string $fieldName): string
+    {
+        return str_ends_with($fieldName, '_id') ? $fieldName : $fieldName.'_id';
     }
 
     protected function parseColumns(string $content): void
@@ -445,6 +498,11 @@ PHP;
             'integer', 'unsignedInteger', 'bigInteger', 'unsignedBigInteger', 'tinyInteger', 'smallInteger' => 'number',
             'decimal', 'float', 'double' => 'number',
             'boolean' => 'checkbox',
+            'toggle' => 'toggle',
+            'select' => 'select',
+            'editor' => 'editor',
+            'media' => 'media',
+            'file' => 'file',
             'date' => 'date',
             'datetime', 'timestamp' => 'datetime',
             'time' => 'time',
@@ -464,27 +522,104 @@ PHP;
             return;
         }
 
-        $stubPath = base_path('stubs/nwidart-stubs/crud/model.stub');
-
-        if (! File::exists($stubPath)) {
-            $this->createModelStub();
-        }
-
-        $content = File::get($stubPath);
-        $content = $this->replaceTokens($content);
-
         // Generate fillable array
         $fillable = $this->generateFillableArray();
-        $content = str_replace('$FILLABLE$', $fillable, $content);
 
         // Generate casts array
         $casts = $this->generateCastsArray();
-        $content = str_replace('$CASTS$', $casts, $content);
+
+        // Generate media relationships
+        $hasMedia = $this->hasMediaFields();
+        $mediaUse = $hasMedia ? "use App\\Models\\Media;\nuse Illuminate\\Database\\Eloquent\\Relations\\BelongsTo;\n" : '';
+        $mediaRelationships = $this->generateMediaRelationships();
+
+        $content = <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\\{$this->moduleStudlyName}\\Models;
+
+use Illuminate\\Database\\Eloquent\\Factories\\HasFactory;
+use Illuminate\\Database\\Eloquent\\Model;
+{$mediaUse}
+class {$this->modelStudlyName} extends Model
+{
+    use HasFactory;
+
+    protected \$table = '{$this->tableName}';
+
+    protected \$fillable = [
+        {$fillable}
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            {$casts}
+        ];
+    }
+{$mediaRelationships}}
+PHP;
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
 
         $this->info("  Created: Models/{$this->modelStudlyName}.php");
+    }
+
+    /**
+     * Check if any fields are media type.
+     */
+    protected function hasMediaFields(): bool
+    {
+        foreach ($this->columns as $column) {
+            if ($column['type'] === 'media') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Generate media relationship methods for the model.
+     */
+    protected function generateMediaRelationships(): string
+    {
+        $relationships = [];
+
+        foreach ($this->columns as $column) {
+            if ($column['type'] !== 'media') {
+                continue;
+            }
+
+            $methodName = Str::camel($column['name']);
+            $columnName = $this->getMediaColumnName($column['name']);
+
+            $relationships[] = <<<PHP
+
+    /**
+     * Get the {$column['name']} media.
+     */
+    public function {$methodName}(): BelongsTo
+    {
+        return \$this->belongsTo(Media::class, '{$columnName}');
+    }
+
+    /**
+     * Get the {$column['name']} URL.
+     */
+    public function get{$methodName}UrlAttribute(): ?string
+    {
+        return \$this->{$columnName} && \$this->{$methodName}
+            ? asset('storage/media/' . \$this->{$methodName}->file_name)
+            : null;
+    }
+PHP;
+        }
+
+        return implode("\n", $relationships);
     }
 
     protected function generateDatatable(): void
@@ -498,27 +633,145 @@ PHP;
             return;
         }
 
-        $stubPath = base_path('stubs/nwidart-stubs/crud/datatable.stub');
-
-        if (! File::exists($stubPath)) {
-            $this->createDatatableStub();
-        }
-
-        $content = File::get($stubPath);
-        $content = $this->replaceTokens($content);
-
-        // Generate headers array
+        // Generate content directly for custom render methods
         $headers = $this->generateDatatableHeaders();
-        $content = str_replace('$HEADERS$', $headers, $content);
-
-        // Generate search query
         $searchQuery = $this->generateSearchQuery();
-        $content = str_replace('$SEARCH_QUERY$', $searchQuery, $content);
+        $renderMethods = $this->generateDatatableRenderMethods();
+
+        $content = <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\\{$this->moduleStudlyName}\\Livewire\\Components;
+
+use App\\Livewire\\Datatable\\Datatable;
+use Illuminate\\Contracts\\Support\\Renderable;
+use Illuminate\\Database\\Eloquent\\Model;
+use Modules\\{$this->moduleStudlyName}\\Models\\{$this->modelStudlyName};
+use Spatie\\QueryBuilder\\QueryBuilder;
+
+class {$this->modelStudlyName}Datatable extends Datatable
+{
+    public string \$model = {$this->modelStudlyName}::class;
+
+    public function getSearchbarPlaceholder(): string
+    {
+        return __('Search {$this->modelPluralLower}...');
+    }
+
+    protected function getHeaders(): array
+    {
+        return [
+            {$headers}
+        ];
+    }
+
+    public function getRoutes(): array
+    {
+        return [
+            'create' => 'admin.{$this->moduleLowerName}.{$this->modelPluralLower}.create',
+            'view' => 'admin.{$this->moduleLowerName}.{$this->modelPluralLower}.show',
+            'edit' => 'admin.{$this->moduleLowerName}.{$this->modelPluralLower}.edit',
+            'delete' => 'livewire',
+        ];
+    }
+
+    public function getDeleteRouteUrl(\$item): string
+    {
+        return '';
+    }
+
+    public function getActionCellPermissions(\$item): array
+    {
+        return [
+            'view' => true,
+            'edit' => true,
+            'delete' => true,
+        ];
+    }
+
+    protected function buildQuery(): QueryBuilder
+    {
+        return QueryBuilder::for({$this->modelStudlyName}::query())
+            ->when(\$this->search, function (\$query) {
+                \$query->where(function (\$q) {
+                    {$searchQuery}
+                });
+            })
+            ->orderBy(\$this->sort, \$this->direction);
+    }
+
+    public function handleRowDelete(Model|{$this->modelStudlyName} \$item): bool
+    {
+        return \$item->delete();
+    }
+{$renderMethods}
+}
+PHP;
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
 
         $this->info("  Created: Livewire/Components/{$this->modelStudlyName}Datatable.php");
+    }
+
+    protected function generateDatatableRenderMethods(): string
+    {
+        $methods = [];
+
+        foreach ($this->columns as $column) {
+            $methodName = 'render'.Str::studly($column['name']).'Column';
+
+            if ($column['type'] === 'file') {
+                $methods[] = <<<PHP
+
+    public function {$methodName}({$this->modelStudlyName} \$item): Renderable
+    {
+        \$path = \$item->{$column['name']};
+
+        if (! \$path) {
+            return view('components.datatable.empty-cell');
+        }
+
+        \$url = asset('storage/' . \$path);
+        \$isImage = preg_match('/\\.(jpg|jpeg|png|gif|webp|svg)\$/i', \$path);
+
+        if (\$isImage) {
+            return view('components.datatable.image-cell', ['url' => \$url, 'alt' => \$item->title ?? '']);
+        }
+
+        return view('components.datatable.file-cell', ['url' => \$url, 'filename' => basename(\$path)]);
+    }
+PHP;
+            } elseif ($column['type'] === 'media') {
+                $columnName = $this->getMediaColumnName($column['name']);
+                $relationName = Str::camel($column['name']);
+                $methods[] = <<<PHP
+
+    public function {$methodName}({$this->modelStudlyName} \$item): Renderable
+    {
+        if (! \$item->{$columnName} || ! \$item->{$relationName}) {
+            return view('components.datatable.empty-cell');
+        }
+
+        \$url = \$item->{$relationName}Url;
+
+        return view('components.datatable.image-cell', ['url' => \$url, 'alt' => \$item->title ?? '']);
+    }
+PHP;
+            } elseif ($column['type'] === 'checkbox' || $column['type'] === 'toggle') {
+                $methods[] = <<<PHP
+
+    public function {$methodName}({$this->modelStudlyName} \$item): Renderable
+    {
+        return view('components.datatable.boolean-cell', ['value' => \$item->{$column['name']}]);
+    }
+PHP;
+            }
+        }
+
+        return implode("\n", $methods);
     }
 
     protected function generateIndexComponent(): void
@@ -584,26 +837,69 @@ PHP;
             return;
         }
 
-        $stubPath = base_path('stubs/nwidart-stubs/crud/create.stub');
+        // Generate content directly to handle file uploads dynamically
+        $hasFiles = $this->hasFileFields();
+        $useFileUploads = $hasFiles ? "use Livewire\\WithFileUploads;\n" : '';
+        $traitUse = $hasFiles ? "use WithFileUploads;\n\n    " : '';
 
-        if (! File::exists($stubPath)) {
-            $this->createCreateStub();
-        }
-
-        $content = File::get($stubPath);
-        $content = $this->replaceTokens($content);
-
-        // Generate properties
         $properties = $this->generateFormProperties();
-        $content = str_replace('$PROPERTIES$', $properties, $content);
-
-        // Generate rules
         $rules = $this->generateValidationRules();
-        $content = str_replace('$RULES$', $rules, $content);
-
-        // Generate create data
         $createData = $this->generateCreateData();
-        $content = str_replace('$CREATE_DATA$', $createData, $content);
+
+        $content = <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\\{$this->moduleStudlyName}\\Livewire\\Admin\\{$this->modelPluralName};
+
+use Illuminate\\Contracts\\View\\View;
+use Livewire\\Attributes\\Layout;
+use Livewire\\Component;
+{$useFileUploads}use Modules\\{$this->moduleStudlyName}\\Models\\{$this->modelStudlyName};
+
+#[Layout('{$this->moduleLowerName}::layouts.crud')]
+class Create extends Component
+{
+    {$traitUse}{$properties}
+
+    public array \$breadcrumbs = [];
+
+    public function mount(): void
+    {
+        \$this->breadcrumbs = [
+            'title' => __('Create {$this->modelStudlyName}'),
+            'icon' => 'lucide:list',
+            'back_url' => route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.index'),
+        ];
+    }
+
+    protected function rules(): array
+    {
+        return [
+            {$rules}
+        ];
+    }
+
+    public function save(): void
+    {
+        \$validated = \$this->validate();
+
+        \$item = {$this->modelStudlyName}::create([
+            {$createData}
+        ]);
+
+        session()->flash('success', __('{$this->modelStudlyName} created successfully.'));
+
+        \$this->redirect(route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.edit', \$item), navigate: true);
+    }
+
+    public function render(): View
+    {
+        return view('{$this->moduleLowerName}::livewire.admin.{$this->modelPluralLower}.create');
+    }
+}
+PHP;
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -622,30 +918,89 @@ PHP;
             return;
         }
 
-        $stubPath = base_path('stubs/nwidart-stubs/crud/edit.stub');
+        // Generate content directly to handle file uploads dynamically
+        $hasFiles = $this->hasFileFields();
+        $useFileUploads = $hasFiles ? "use Livewire\\WithFileUploads;\n" : '';
+        $useStorage = $hasFiles ? "use Illuminate\\Support\\Facades\\Storage;\n" : '';
+        $traitUse = $hasFiles ? "use WithFileUploads;\n\n    " : '';
 
-        if (! File::exists($stubPath)) {
-            $this->createEditStub();
-        }
-
-        $content = File::get($stubPath);
-        $content = $this->replaceTokens($content);
-
-        // Generate properties
         $properties = $this->generateFormProperties();
-        $content = str_replace('$PROPERTIES$', $properties, $content);
-
-        // Generate rules
         $rules = $this->generateValidationRules();
-        $content = str_replace('$RULES$', $rules, $content);
-
-        // Generate mount assignments
         $mountAssignments = $this->generateMountAssignments();
-        $content = str_replace('$MOUNT_ASSIGNMENTS$', $mountAssignments, $content);
-
-        // Generate update data
         $updateData = $this->generateUpdateData();
-        $content = str_replace('$UPDATE_DATA$', $updateData, $content);
+        $fileDeleteMethods = $this->generateFileDeleteMethods();
+
+        $content = <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\\{$this->moduleStudlyName}\\Livewire\\Admin\\{$this->modelPluralName};
+
+use Illuminate\\Contracts\\View\\View;
+use Livewire\\Attributes\\Layout;
+use Livewire\\Component;
+{$useFileUploads}{$useStorage}use Modules\\{$this->moduleStudlyName}\\Models\\{$this->modelStudlyName};
+
+#[Layout('{$this->moduleLowerName}::layouts.crud')]
+class Edit extends Component
+{
+    {$traitUse}public {$this->modelStudlyName} \${$this->modelLowerName};
+
+    {$properties}
+
+    public array \$breadcrumbs = [];
+
+    protected function rules(): array
+    {
+        return [
+            {$rules}
+        ];
+    }
+
+    public function mount({$this->modelStudlyName} \${$this->modelLowerName}): void
+    {
+        \$this->{$this->modelLowerName} = \${$this->modelLowerName};
+        {$mountAssignments}
+
+        \$this->breadcrumbs = [
+            'title' => __('Edit {$this->modelStudlyName}'),
+            'icon' => 'lucide:list',
+            'back_url' => route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.index'),
+            'action' => [
+                'url' => route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.show', \$this->{$this->modelLowerName}),
+                'label' => __('View'),
+                'icon' => 'lucide:eye',
+            ],
+        ];
+    }
+
+    public function save(): void
+    {
+        \$validated = \$this->validate();
+
+        \$this->{$this->modelLowerName}->update([
+            {$updateData}
+        ]);
+
+        session()->flash('success', __('{$this->modelStudlyName} updated successfully.'));
+    }
+{$fileDeleteMethods}
+    public function delete(): void
+    {
+        \$this->{$this->modelLowerName}->delete();
+
+        session()->flash('success', __('{$this->modelStudlyName} deleted successfully.'));
+
+        \$this->redirect(route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.index'), navigate: true);
+    }
+
+    public function render(): View
+    {
+        return view('{$this->moduleLowerName}::livewire.admin.{$this->modelPluralLower}.edit');
+    }
+}
+PHP;
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -772,6 +1127,10 @@ BLADE;
         $formFields = $this->generateFormFields();
         $content = str_replace('$FORM_FIELDS$', $formFields, $content);
 
+        // Generate editor assets if there are editor fields
+        $editorAssets = $this->generateEditorAssets();
+        $content = str_replace('$EDITOR_ASSETS$', $editorAssets, $content);
+
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
 
@@ -801,6 +1160,10 @@ BLADE;
         // Generate form fields
         $formFields = $this->generateFormFields();
         $content = str_replace('$FORM_FIELDS$', $formFields, $content);
+
+        // Generate editor assets if there are editor fields
+        $editorAssets = $this->generateEditorAssets();
+        $content = str_replace('$EDITOR_ASSETS$', $editorAssets, $content);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -949,7 +1312,11 @@ PHP;
 
         $fillable = [];
         foreach ($this->columns as $column) {
-            $fillable[] = "'{$column['name']}'";
+            // Media fields use _id suffix in database
+            $columnName = $column['type'] === 'media'
+                ? $this->getMediaColumnName($column['name'])
+                : $column['name'];
+            $fillable[] = "'{$columnName}'";
         }
 
         return implode(",\n        ", $fillable).',';
@@ -1007,12 +1374,19 @@ PHP;
                     $widthStr = "\n                'width' => '120px',";
                 }
 
+                // Media fields use the original name for the header ID (render method naming)
+                // but the sortBy should use the _id column
+                $headerId = $column['name'];
+                $sortBy = $column['type'] === 'media'
+                    ? $this->getMediaColumnName($column['name'])
+                    : $column['name'];
+
                 $headers[] = <<<PHP
 [
-                'id' => '{$column['name']}',
+                'id' => '{$headerId}',
                 'title' => __('{$label}'),
                 'sortable' => true,
-                'sortBy' => '{$column['name']}',{$searchableStr}{$widthStr}
+                'sortBy' => '{$sortBy}',{$searchableStr}{$widthStr}
             ]
 PHP;
             }
@@ -1085,17 +1459,39 @@ PHP;
         foreach ($this->columns as $column) {
             $type = $this->getPhpPropertyType($column);
             $default = $this->getPropertyDefault($column);
-            $properties[] = "public {$type} \${$column['name']} = {$default};";
+
+            // File types need untyped nullable declaration for Livewire
+            if ($column['type'] === 'file') {
+                $properties[] = "public \${$column['name']} = null;";
+            } elseif ($column['type'] === 'media') {
+                // Media fields store the media ID (nullable integer)
+                $propertyName = $this->getMediaColumnName($column['name']);
+                $properties[] = "public ?int \${$propertyName} = null;";
+            } else {
+                $properties[] = "public {$type} \${$column['name']} = {$default};";
+            }
         }
 
         return implode("\n\n    ", $properties);
+    }
+
+    protected function hasFileFields(): bool
+    {
+        foreach ($this->columns as $column) {
+            if ($column['type'] === 'file') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function getPhpPropertyType(array $column): string
     {
         return match ($column['type']) {
             'number' => 'int',
-            'checkbox' => 'bool',
+            'checkbox', 'toggle' => 'bool',
+            'file' => 'mixed', // Can be UploadedFile or null
             default => 'string',
         };
     }
@@ -1104,7 +1500,8 @@ PHP;
     {
         return match ($column['type']) {
             'number' => '0',
-            'checkbox' => 'false',
+            'checkbox', 'toggle' => 'false',
+            'file' => 'null',
             default => "''",
         };
     }
@@ -1118,7 +1515,16 @@ PHP;
         $rules = [];
         foreach ($this->columns as $column) {
             $rule = $this->getValidationRule($column);
-            $rules[] = "'{$column['name']}' => '{$rule}'";
+            // File fields use array format for better Livewire compatibility
+            if ($column['type'] === 'file') {
+                $rules[] = "'{$column['name']}' => ['nullable', 'file', 'max:10240']";
+            } elseif ($column['type'] === 'media') {
+                // Media fields store the media ID (nullable integer, must exist in media table)
+                $propertyName = $this->getMediaColumnName($column['name']);
+                $rules[] = "'{$propertyName}' => 'nullable|integer|exists:media,id'";
+            } else {
+                $rules[] = "'{$column['name']}' => '{$rule}'";
+            }
         }
 
         return implode(",\n            ", $rules).',';
@@ -1128,25 +1534,29 @@ PHP;
     {
         $rules = [];
 
-        // String/text columns are typically required unless they have nullable in the migration
-        // Foreign keys are also required
-        if (in_array($column['dbType'], ['string', 'char', 'text', 'mediumText', 'longText'])
+        // Determine if required based on column type
+        $isRequired = \in_array($column['dbType'], ['string', 'char', 'text', 'mediumText', 'longText'])
             || str_ends_with($column['name'], '_id')
-            || in_array($column['dbType'], ['integer', 'unsignedInteger', 'bigInteger', 'unsignedBigInteger', 'tinyInteger', 'smallInteger'])) {
-            $rules[] = 'required';
-        } else {
-            $rules[] = 'nullable';
+            || \in_array($column['dbType'], ['integer', 'unsignedInteger', 'bigInteger', 'unsignedBigInteger', 'tinyInteger', 'smallInteger']);
+
+        // File fields are typically nullable
+        if ($column['type'] === 'file') {
+            $isRequired = false;
         }
+
+        $rules[] = $isRequired ? 'required' : 'nullable';
 
         // Add type-specific rules
         match ($column['type']) {
             'text' => $rules[] = 'string|max:255',
             'textarea' => $rules[] = 'string|max:1000',
+            'editor' => $rules[] = 'string|max:65535',
             'number' => $rules[] = 'integer|min:0',
-            'checkbox' => $rules[] = 'boolean',
+            'checkbox', 'toggle' => $rules[] = 'boolean',
             'date' => $rules[] = 'date',
             'datetime' => $rules[] = 'date',
-            'select' => null,
+            'select' => $rules[] = 'string|max:255',
+            'file' => $rules[] = 'file|max:10240', // 10MB max
             default => $rules[] = 'string',
         };
 
@@ -1160,8 +1570,18 @@ PHP;
         }
 
         $data = [];
+
         foreach ($this->columns as $column) {
-            $data[] = "'{$column['name']}' => \$validated['{$column['name']}']";
+            if ($column['type'] === 'file') {
+                // File fields: store and save path
+                $data[] = "'{$column['name']}' => \$this->{$column['name']} ? \$this->{$column['name']}->store('{$this->modelPluralLower}', 'public') : null";
+            } elseif ($column['type'] === 'media') {
+                // Media fields: store the media ID
+                $propertyName = $this->getMediaColumnName($column['name']);
+                $data[] = "'{$propertyName}' => \$validated['{$propertyName}']";
+            } else {
+                $data[] = "'{$column['name']}' => \$validated['{$column['name']}']";
+            }
         }
 
         return implode(",\n            ", $data).',';
@@ -1169,7 +1589,54 @@ PHP;
 
     protected function generateUpdateData(): string
     {
-        return $this->generateCreateData();
+        if (empty($this->columns)) {
+            return "'name' => \$validated['name'],";
+        }
+
+        $data = [];
+
+        foreach ($this->columns as $column) {
+            if ($column['type'] === 'file') {
+                // File fields: only update if new file uploaded
+                $data[] = "'{$column['name']}' => \$this->{$column['name']} ? \$this->{$column['name']}->store('{$this->modelPluralLower}', 'public') : \$this->{$this->modelLowerName}->{$column['name']}";
+            } elseif ($column['type'] === 'media') {
+                // Media fields: store the media ID
+                $propertyName = $this->getMediaColumnName($column['name']);
+                $data[] = "'{$propertyName}' => \$validated['{$propertyName}']";
+            } else {
+                $data[] = "'{$column['name']}' => \$validated['{$column['name']}']";
+            }
+        }
+
+        return implode(",\n            ", $data).',';
+    }
+
+    protected function generateFileDeleteMethods(): string
+    {
+        $methods = [];
+
+        foreach ($this->columns as $column) {
+            if ($column['type'] !== 'file') {
+                continue;
+            }
+
+            $methodName = 'delete'.Str::studly($column['name']);
+            $label = Str::title(str_replace('_', ' ', $column['name']));
+
+            $methods[] = <<<PHP
+
+    public function {$methodName}(): void
+    {
+        if (\$this->{$this->modelLowerName}->{$column['name']}) {
+            Storage::disk('public')->delete(\$this->{$this->modelLowerName}->{$column['name']});
+            \$this->{$this->modelLowerName}->update(['{$column['name']}' => null]);
+            session()->flash('success', __('{$label} deleted successfully.'));
+        }
+    }
+PHP;
+        }
+
+        return implode("\n", $methods);
     }
 
     protected function generateMountAssignments(): string
@@ -1180,10 +1647,19 @@ PHP;
 
         $assignments = [];
         foreach ($this->columns as $column) {
-            if ($column['type'] === 'checkbox') {
+            // Skip file fields - they don't get populated from existing model
+            if ($column['type'] === 'file') {
+                continue;
+            }
+
+            if ($column['type'] === 'media') {
+                // Media fields use _id suffix
+                $propertyName = $this->getMediaColumnName($column['name']);
+                $assignments[] = "\$this->{$propertyName} = \$this->{$this->modelLowerName}->{$propertyName};";
+            } elseif ($column['type'] === 'checkbox' || $column['type'] === 'toggle') {
                 // Boolean fields need explicit cast to avoid int-to-bool type error
                 $assignments[] = "\$this->{$column['name']} = (bool) \$this->{$this->modelLowerName}->{$column['name']};";
-            } elseif ($column['type'] === 'text' || $column['type'] === 'textarea') {
+            } elseif (\in_array($column['type'], ['text', 'textarea', 'editor', 'select'])) {
                 $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']} ?? '';";
             } else {
                 $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']};";
@@ -1235,12 +1711,64 @@ BLADE;
     {
         $label = Str::title(str_replace('_', ' ', $column['name']));
 
-        return <<<BLADE
+        return match ($column['type']) {
+            'checkbox', 'toggle' => <<<BLADE
+<div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
+                    <dd class="mt-1">
+                        @if(\$this->{$this->modelLowerName}->{$column['name']})
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">{{ __('Yes') }}</span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{ __('No') }}</span>
+                        @endif
+                    </dd>
+                </div>
+BLADE,
+            'editor' => <<<BLADE
+<div class="sm:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white prose dark:prose-invert max-w-none">{!! \$this->{$this->modelLowerName}->{$column['name']} !!}</dd>
+                </div>
+BLADE,
+            'textarea' => <<<BLADE
+<div class="sm:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white whitespace-pre-wrap">{{ \$this->{$this->modelLowerName}->{$column['name']} }}</dd>
+                </div>
+BLADE,
+            'file' => <<<BLADE
+<div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
+                    <dd class="mt-2">
+                        @if(\$this->{$this->modelLowerName}->{$column['name']})
+                            @php
+                                \$fileUrl = asset('storage/' . \$this->{$this->modelLowerName}->{$column['name']});
+                                \$isImage = preg_match('/\\.(jpg|jpeg|png|gif|webp|svg)\$/i', \$this->{$this->modelLowerName}->{$column['name']});
+                            @endphp
+                            @if(\$isImage)
+                                <a href="{{ \$fileUrl }}" target="_blank" class="block">
+                                    <img src="{{ \$fileUrl }}" alt="{$label}" class="max-h-48 rounded-lg ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-primary-500 transition-all">
+                                </a>
+                            @else
+                                <a href="{{ \$fileUrl }}" target="_blank" download class="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400">
+                                    <iconify-icon icon="lucide:download" class="text-base"></iconify-icon>
+                                    <span>{{ basename(\$this->{$this->modelLowerName}->{$column['name']}) }}</span>
+                                </a>
+                            @endif
+                        @else
+                            <span class="text-gray-400">{{ __('No file') }}</span>
+                        @endif
+                    </dd>
+                </div>
+BLADE,
+            'media' => $this->generateMediaDisplayFieldBlade($column, $label),
+            default => <<<BLADE
 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
                     <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ \$this->{$this->modelLowerName}->{$column['name']} }}</dd>
                 </div>
-BLADE;
+BLADE,
+        };
     }
 
     protected function generateDefaultFormField(): string
@@ -1261,9 +1789,15 @@ BLADE;
         $label = Str::title(str_replace('_', ' ', $column['name']));
 
         // Determine if field should be required (same logic as validation)
-        $isRequired = in_array($column['dbType'], ['string', 'char', 'text', 'mediumText', 'longText'])
+        $isRequired = \in_array($column['dbType'], ['string', 'char', 'text', 'mediumText', 'longText'])
             || str_ends_with($column['name'], '_id')
-            || in_array($column['dbType'], ['integer', 'unsignedInteger', 'bigInteger', 'unsignedBigInteger', 'tinyInteger', 'smallInteger']);
+            || \in_array($column['dbType'], ['integer', 'unsignedInteger', 'bigInteger', 'unsignedBigInteger', 'tinyInteger', 'smallInteger']);
+
+        // File fields are typically not required
+        if ($column['type'] === 'file') {
+            $isRequired = false;
+        }
+
         $required = $isRequired ? ':required="true"' : '';
 
         return match ($column['type']) {
@@ -1278,6 +1812,15 @@ BLADE;
                     @enderror
                 </div>
 BLADE,
+            'editor' => <<<BLADE
+<div>
+                    <label for="{$column['name']}" class="form-label">{{ __('{$label}') }}</label>
+                    <textarea wire:model="{$column['name']}" id="{$column['name']}" name="{$column['name']}" rows="8" class="form-control-textarea"></textarea>
+                    @error('{$column['name']}')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ \$message }}</p>
+                    @enderror
+                </div>
+BLADE,
             'checkbox' => <<<BLADE
 <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" wire:model="{$column['name']}" class="form-checkbox">
@@ -1286,6 +1829,15 @@ BLADE,
                     </div>
                 </label>
 BLADE,
+            'toggle' => <<<BLADE
+<x-inputs.toggle
+                    wire:model="{$column['name']}"
+                    name="{$column['name']}"
+                    label="{{ __('{$label}') }}"
+                />
+BLADE,
+            'select' => $this->generateSelectField($column, $label),
+            'file' => $this->generateFileFieldBlade($column, $label),
             'number' => <<<BLADE
 <x-inputs.input
                     type="number"
@@ -1296,6 +1848,25 @@ BLADE,
                     {$required}
                 />
 BLADE,
+            'date' => <<<BLADE
+<x-inputs.input
+                    type="date"
+                    wire:model="{$column['name']}"
+                    name="{$column['name']}"
+                    label="{{ __('{$label}') }}"
+                    {$required}
+                />
+BLADE,
+            'datetime' => <<<BLADE
+<x-inputs.input
+                    type="datetime-local"
+                    wire:model="{$column['name']}"
+                    name="{$column['name']}"
+                    label="{{ __('{$label}') }}"
+                    {$required}
+                />
+BLADE,
+            'media' => $this->generateMediaFieldBlade($column, $label),
             default => <<<BLADE
 <x-inputs.input
                     wire:model="{$column['name']}"
@@ -1306,6 +1877,245 @@ BLADE,
                 />
 BLADE,
         };
+    }
+
+    protected function generateFileFieldBlade(array $column, string $label): string
+    {
+        $columnName = $column['name'];
+        $deleteMethod = 'delete'.Str::studly($columnName);
+
+        return <<<BLADE
+<div class="space-y-2">
+                    @if(isset(\$this->{$this->modelLowerName}) && \$this->{$this->modelLowerName}->{$columnName})
+                        <div class="relative inline-block">
+                            @php
+                                \$existingUrl = asset('storage/' . \$this->{$this->modelLowerName}->{$columnName});
+                                \$isImage = preg_match('/\\.(jpg|jpeg|png|gif|webp|svg)\$/i', \$this->{$this->modelLowerName}->{$columnName});
+                            @endphp
+                            @if(\$isImage)
+                                <a href="{{ \$existingUrl }}" target="_blank">
+                                    <img src="{{ \$existingUrl }}" alt="Current {$label}" class="h-20 w-20 rounded-lg object-cover ring-1 ring-gray-200 dark:ring-gray-700">
+                                </a>
+                            @else
+                                <a href="{{ \$existingUrl }}" target="_blank" download class="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 pr-8">
+                                    <iconify-icon icon="lucide:file" class="text-lg"></iconify-icon>
+                                    <span>{{ basename(\$this->{$this->modelLowerName}->{$columnName}) }}</span>
+                                </a>
+                            @endif
+                            <button
+                                type="button"
+                                wire:click="{$deleteMethod}"
+                                wire:confirm="{{ __('Are you sure you want to delete this file?') }}"
+                                class="absolute -top-2 -right-2 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-sm transition-colors"
+                                title="{{ __('Delete file') }}"
+                            >
+                                <iconify-icon icon="lucide:x" class="text-sm"></iconify-icon>
+                            </button>
+                        </div>
+                    @endif
+                    <x-inputs.file-input
+                        wire:model="{$columnName}"
+                        name="{$columnName}"
+                        label="{{ __('{$label}') }}"
+                        hint="{{ isset(\$this->{$this->modelLowerName}) && \$this->{$this->modelLowerName}->{$columnName} ? __('Upload a new file to replace the existing one') : '' }}"
+                    />
+                </div>
+BLADE;
+    }
+
+    protected function generateMediaDisplayFieldBlade(array $column, string $label): string
+    {
+        $columnName = $this->getMediaColumnName($column['name']);
+        $relationName = Str::camel($column['name']);
+
+        return <<<BLADE
+<div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
+                    <dd class="mt-2">
+                        @if(\$this->{$this->modelLowerName}->{$columnName} && \$this->{$this->modelLowerName}->{$relationName})
+                            <a href="{{ \$this->{$this->modelLowerName}->{$relationName}Url }}" target="_blank" class="block">
+                                <img src="{{ \$this->{$this->modelLowerName}->{$relationName}Url }}" alt="{$label}" class="max-h-48 rounded-lg ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-primary-500 transition-all">
+                            </a>
+                        @else
+                            <span class="text-gray-400">{{ __('No image') }}</span>
+                        @endif
+                    </dd>
+                </div>
+BLADE;
+    }
+
+    protected function generateMediaFieldBlade(array $column, string $label): string
+    {
+        $columnName = $this->getMediaColumnName($column['name']);
+        $relationName = Str::camel($column['name']);
+
+        return <<<BLADE
+<div>
+                    <label class="form-label">{{ __('{$label}') }}</label>
+                    <div class="inline-block" x-data="{
+                        selectedMediaId: @entangle('{$columnName}').live,
+                        handleSelection(files) {
+                            this.selectedMediaId = (files && files.length > 0) ? files[0].id : null;
+                        }
+                    }" x-init="window.handleMediaSelection_{$columnName}Modal = (files) => handleSelection(files)">
+                        <x-media-selector
+                            name="{$columnName}"
+                            label=""
+                            :multiple="false"
+                            allowedTypes="images"
+                            :existingMedia="isset(\$this->{$this->modelLowerName}) && \$this->{$this->modelLowerName}->{$columnName}
+                                ? [['id' => \$this->{$this->modelLowerName}->{$columnName}, 'url' => \$this->{$this->modelLowerName}->{$relationName}Url, 'name' => \$this->{$this->modelLowerName}->{$relationName}?->name]]
+                                : []"
+                            :showPreview="true"
+                            class="max-w-xs"
+                        />
+                    </div>
+                    @error('{$columnName}')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ \$message }}</p>
+                    @enderror
+                </div>
+BLADE;
+    }
+
+    protected function generateSelectField(array $column, string $label): string
+    {
+        // If options are defined, create static select
+        if (! empty($column['options'])) {
+            $optionsPhp = "[\n";
+            foreach ($column['options'] as $option) {
+                $key = Str::slug($option, '_');
+                $optionsPhp .= "                        '{$key}' => __('{$option}'),\n";
+            }
+            $optionsPhp .= '                    ]';
+
+            return <<<BLADE
+<x-inputs.select
+                    wire:model="{$column['name']}"
+                    name="{$column['name']}"
+                    label="{{ __('{$label}') }}"
+                    placeholder="{{ __('Select {$label}') }}"
+                    :options="{$optionsPhp}"
+                />
+BLADE;
+        }
+
+        // Default select with placeholder for manual options
+        return <<<BLADE
+<x-inputs.select
+                    wire:model="{$column['name']}"
+                    name="{$column['name']}"
+                    label="{{ __('{$label}') }}"
+                    placeholder="{{ __('Select {$label}') }}"
+                    :options="[]"
+                />
+                {{-- TODO: Add options array to the component --}}
+BLADE;
+    }
+
+    protected function hasEditorFields(): bool
+    {
+        foreach ($this->columns as $column) {
+            if ($column['type'] === 'editor') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function getEditorFields(): array
+    {
+        return array_filter($this->columns, fn ($column) => $column['type'] === 'editor');
+    }
+
+    protected function generateEditorAssets(): string
+    {
+        if (! $this->hasEditorFields()) {
+            return '';
+        }
+
+        $editorFields = $this->getEditorFields();
+        $editorIds = array_values(array_map(fn ($col) => $col['name'], $editorFields));
+        $editorIdsJson = json_encode($editorIds);
+
+        return <<<BLADE
+
+@assets
+<style>
+    .tox-tinymce { border-radius: 10px !important; border: 1px solid var(--color-gray-200, #e5e7eb) !important; }
+    .dark .tox-tinymce { border-color: rgb(55 65 81) !important; }
+    .tox .tox-toolbar { background: transparent !important; }
+    .tox .tox-edit-area, .tox .tox-edit-area__iframe { border: none !important; }
+    .tox.tox-tinymce:focus-within { --tw-ring-color: rgb(var(--color-primary) / 1); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
+    .tox .tox-statusbar { border-top: 1px solid var(--color-gray-200, #e5e7eb) !important; }
+    .dark .tox .tox-statusbar { border-top-color: rgb(55 65 81) !important; }
+    .tox-promotion, .tox-promotion-link, .tox .tox-statusbar__path, .tox-statusbar__upgrade, button[title*="Upgrade"], a[title*="Upgrade"], .tox-promotion-container { display: none !important; }
+</style>
+<script src="{{ asset('vendor/tinymce/tinymce.min.js') }}" defer></script>
+@endassets
+
+@script
+<script>
+    // Wait for next tick to ensure DOM is ready
+    queueMicrotask(() => {
+        const editorIds = {$editorIdsJson};
+
+        editorIds.forEach(editorId => {
+            const textareaElement = document.getElementById(editorId);
+            if (!textareaElement) {
+                console.error(`Textarea with ID "\${editorId}" not found`);
+                return;
+            }
+
+            // Wait for TinyMCE to be loaded
+            const initEditor = () => {
+                if (typeof tinymce === 'undefined') {
+                    setTimeout(initEditor, 100);
+                    return;
+                }
+
+                // Remove existing editor if any
+                if (tinymce.get(editorId)) {
+                    tinymce.get(editorId).remove();
+                }
+
+                tinymce.init({
+                    target: textareaElement,
+                    height: 300,
+                    menubar: false,
+                    plugins: 'autolink link image lists wordcount code',
+                    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | removeformat code',
+                    content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; }',
+                    skin: document.documentElement.classList.contains('dark') ? 'oxide-dark' : 'oxide',
+                    content_css: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
+                    valid_elements: '*[*]',
+                    extended_valid_elements: '*[*]',
+                    branding: false,
+                    promotion: false,
+                    statusbar: false,
+                    setup: function(editor) {
+                        editor.on('change keyup paste', function() {
+                            textareaElement.value = editor.getContent();
+                            const event = new Event('input', { bubbles: true });
+                            textareaElement.dispatchEvent(event);
+                        });
+                    },
+                    init_instance_callback: function(editor) {
+                        const initialContent = textareaElement.value;
+                        if (initialContent && initialContent.trim() !== '') {
+                            editor.setContent(initialContent);
+                        }
+                        textareaElement.style.display = 'none';
+                    }
+                });
+            };
+
+            initEditor();
+        });
+    });
+</script>
+@endscript
+BLADE;
     }
 
     protected function listAvailableModules(): void
@@ -1567,57 +2377,61 @@ STUB;
 
     protected function createCreateStub(): void
     {
-        $stub = <<<'STUB'
+        $hasFiles = $this->hasFileFields();
+        $useStatement = $hasFiles ? "\nuse Livewire\WithFileUploads;" : '';
+        $traitUse = $hasFiles ? "\n    use WithFileUploads;\n" : '';
+
+        $stub = <<<STUB
 <?php
 
 declare(strict_types=1);
 
-namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Livewire\Admin\$MODEL_PLURAL$;
+namespace \$MODULE_NAMESPACE\$\\\$STUDLY_NAME\$\\Livewire\\Admin\\\$MODEL_PLURAL\$;
 
-use Illuminate\Contracts\View\View;
-use Livewire\Attributes\Layout;
-use Livewire\Component;
-use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
+use Illuminate\\Contracts\\View\\View;
+use Livewire\\Attributes\\Layout;
+use Livewire\\Component;{$useStatement}
+use \$MODULE_NAMESPACE\$\\\$STUDLY_NAME\$\\Models\\\$MODEL_NAME\$;
 
-#[Layout('$LOWER_NAME$::layouts.crud')]
+#[Layout('\$LOWER_NAME\$::layouts.crud')]
 class Create extends Component
-{
-    $PROPERTIES$
+{{$traitUse}
+    \$PROPERTIES\$
 
-    public array $breadcrumbs = [];
+    public array \$breadcrumbs = [];
 
     public function mount(): void
     {
-        $this->breadcrumbs = [
-            'title' => __('Create $MODEL_NAME$'),
+        \$this->breadcrumbs = [
+            'title' => __('Create \$MODEL_NAME\$'),
             'icon' => 'lucide:list',
-            'back_url' => route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index'),
+            'back_url' => route('admin.\$LOWER_NAME\$.\$MODEL_PLURAL_LOWER\$.index'),
         ];
     }
 
     protected function rules(): array
     {
         return [
-            $RULES$
+            \$RULES\$
         ];
     }
 
     public function save(): void
     {
-        $validated = $this->validate();
+        \$validated = \$this->validate();
 
-        $item = $MODEL_NAME$::create([
-            $CREATE_DATA$
+        \$item = \$MODEL_NAME\$::create([
+            \$CREATE_DATA\$
         ]);
 
-        session()->flash('success', __('$MODEL_NAME$ created successfully.'));
+        session()->flash('success', __('\$MODEL_NAME\$ created successfully.'));
 
-        $this->redirect(route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.edit', $item), navigate: true);
+        \$this->redirect(route('admin.\$LOWER_NAME\$.\$MODEL_PLURAL_LOWER\$.edit', \$item), navigate: true);
     }
 
     public function render(): View
     {
-        return view('$LOWER_NAME$::livewire.admin.$MODEL_PLURAL_LOWER$.create');
+        return view('\$LOWER_NAME\$::livewire.admin.\$MODEL_PLURAL_LOWER\$.create');
     }
 }
 STUB;
@@ -1628,69 +2442,73 @@ STUB;
 
     protected function createEditStub(): void
     {
-        $stub = <<<'STUB'
+        $hasFiles = $this->hasFileFields();
+        $useStatement = $hasFiles ? "\nuse Livewire\WithFileUploads;" : '';
+        $traitUse = $hasFiles ? "\n    use WithFileUploads;\n" : '';
+
+        $stub = <<<STUB
 <?php
 
 declare(strict_types=1);
 
-namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Livewire\Admin\$MODEL_PLURAL$;
+namespace \$MODULE_NAMESPACE\$\\\$STUDLY_NAME\$\\Livewire\\Admin\\\$MODEL_PLURAL\$;
 
-use Illuminate\Contracts\View\View;
-use Livewire\Attributes\Layout;
-use Livewire\Component;
-use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
+use Illuminate\\Contracts\\View\\View;
+use Livewire\\Attributes\\Layout;
+use Livewire\\Component;{$useStatement}
+use \$MODULE_NAMESPACE\$\\\$STUDLY_NAME\$\\Models\\\$MODEL_NAME\$;
 
-#[Layout('$LOWER_NAME$::layouts.crud')]
+#[Layout('\$LOWER_NAME\$::layouts.crud')]
 class Edit extends Component
-{
-    public $MODEL_NAME$ $$MODEL_LOWER$;
+{{$traitUse}
+    public \$MODEL_NAME\$ \$\$MODEL_LOWER\$;
 
-    $PROPERTIES$
+    \$PROPERTIES\$
 
-    public array $breadcrumbs = [];
+    public array \$breadcrumbs = [];
 
     protected function rules(): array
     {
         return [
-            $RULES$
+            \$RULES\$
         ];
     }
 
-    public function mount($MODEL_NAME$ $$MODEL_LOWER$): void
+    public function mount(\$MODEL_NAME\$ \$\$MODEL_LOWER\$): void
     {
-        $this->$MODEL_LOWER$ = $$MODEL_LOWER$;
-        $MOUNT_ASSIGNMENTS$
+        \$this->\$MODEL_LOWER\$ = \$\$MODEL_LOWER\$;
+        \$MOUNT_ASSIGNMENTS\$
 
-        $this->breadcrumbs = [
-            'title' => __('Edit $MODEL_NAME$'),
+        \$this->breadcrumbs = [
+            'title' => __('Edit \$MODEL_NAME\$'),
             'icon' => 'lucide:list',
-            'back_url' => route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index'),
+            'back_url' => route('admin.\$LOWER_NAME\$.\$MODEL_PLURAL_LOWER\$.index'),
         ];
     }
 
     public function save(): void
     {
-        $validated = $this->validate();
+        \$validated = \$this->validate();
 
-        $this->$MODEL_LOWER$->update([
-            $UPDATE_DATA$
+        \$this->\$MODEL_LOWER\$->update([
+            \$UPDATE_DATA\$
         ]);
 
-        session()->flash('success', __('$MODEL_NAME$ updated successfully.'));
+        session()->flash('success', __('\$MODEL_NAME\$ updated successfully.'));
     }
 
     public function delete(): void
     {
-        $this->$MODEL_LOWER$->delete();
+        \$this->\$MODEL_LOWER\$->delete();
 
-        session()->flash('success', __('$MODEL_NAME$ deleted successfully.'));
+        session()->flash('success', __('\$MODEL_NAME\$ deleted successfully.'));
 
-        $this->redirect(route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index'), navigate: true);
+        \$this->redirect(route('admin.\$LOWER_NAME\$.\$MODEL_PLURAL_LOWER\$.index'), navigate: true);
     }
 
     public function render(): View
     {
-        return view('$LOWER_NAME$::livewire.admin.$MODEL_PLURAL_LOWER$.edit');
+        return view('\$LOWER_NAME\$::livewire.admin.\$MODEL_PLURAL_LOWER\$.edit');
     }
 }
 STUB;
@@ -1765,6 +2583,7 @@ STUB;
         </div>
     </form>
 </div>
+$EDITOR_ASSETS$
 STUB;
 
         $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud/views'));
@@ -1774,7 +2593,7 @@ STUB;
     protected function createEditViewStub(): void
     {
         $stub = <<<'STUB'
-<div>
+<div x-data="{ deleteModalOpen: false }">
     {{-- Breadcrumbs Header --}}
     <x-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
@@ -1803,15 +2622,22 @@ STUB;
                 type="button"
                 variant="danger"
                 icon="lucide:trash-2"
-                wire:click="delete"
-                wire:confirm="{{ __('Are you sure you want to delete this $MODEL_LOWER$?') }}"
-                loadingTarget="delete"
+                x-on:click="deleteModalOpen = true"
             >
                 {{ __('Delete') }}
             </x-buttons.button>
         </div>
     </form>
+
+    {{-- Delete Confirmation Modal --}}
+    <x-modals.confirm-delete
+        id="delete-$MODEL_LOWER$-modal"
+        title="{{ __('Delete $MODEL_NAME$') }}"
+        content="{{ __('Are you sure you want to delete this $MODEL_LOWER$?') }}"
+        wireClick="delete"
+    />
 </div>
+$EDITOR_ASSETS$
 STUB;
 
         $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud/views'));

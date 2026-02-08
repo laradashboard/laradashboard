@@ -1,4 +1,4 @@
-<div>
+<div x-data="{ deleteModalOpen: false }">
     {{-- Breadcrumbs Header --}}
     <x-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
@@ -27,12 +27,19 @@
                 type="button"
                 variant="danger"
                 icon="lucide:trash-2"
-                wire:click="delete"
-                wire:confirm="{{ __('Are you sure you want to delete this $MODEL_LOWER$?') }}"
-                loadingTarget="delete"
+                x-on:click="deleteModalOpen = true"
             >
                 {{ __('Delete') }}
             </x-buttons.button>
         </div>
     </form>
+
+    {{-- Delete Confirmation Modal --}}
+    <x-modals.confirm-delete
+        id="delete-$MODEL_LOWER$-modal"
+        title="{{ __('Delete $MODEL_NAME$') }}"
+        content="{{ __('Are you sure you want to delete this $MODEL_LOWER$?') }}"
+        wireClick="delete"
+    />
 </div>
+$EDITOR_ASSETS$
