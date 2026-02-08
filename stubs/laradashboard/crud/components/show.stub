@@ -1,0 +1,39 @@
+<?php
+
+declare(strict_types=1);
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Livewire\Admin\$MODEL_PLURAL$;
+
+use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
+
+#[Layout('$LOWER_NAME$::layouts.crud')]
+class Show extends Component
+{
+    public $MODEL_NAME$ $$MODEL_LOWER$;
+
+    public array $breadcrumbs = [];
+
+    public function mount($MODEL_NAME$ $$MODEL_LOWER$): void
+    {
+        $this->$MODEL_LOWER$ = $$MODEL_LOWER$;
+
+        $this->breadcrumbs = [
+            'title' => __('View $MODEL_NAME$'),
+            'icon' => 'lucide:list',
+            'back_url' => route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index'),
+            'action' => [
+                'url' => route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.edit', $this->$MODEL_LOWER$),
+                'label' => __('Edit'),
+                'icon' => 'lucide:pencil',
+            ],
+        ];
+    }
+
+    public function render(): View
+    {
+        return view('$LOWER_NAME$::livewire.admin.$MODEL_PLURAL_LOWER$.show');
+    }
+}

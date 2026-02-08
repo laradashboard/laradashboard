@@ -40,6 +40,61 @@ class ModuleMakeCrudCommand extends Command
 
     protected array $columns = [];
 
+    protected string $stubPath = 'stubs/laradashboard/crud';
+
+    /**
+     * Get the path to a stub file.
+     */
+    protected function getStubPath(string $stub): string
+    {
+        return base_path("{$this->stubPath}/{$stub}.stub");
+    }
+
+    /**
+     * Get stub content with token replacements.
+     */
+    protected function getStub(string $stub): string
+    {
+        $path = $this->getStubPath($stub);
+
+        if (! File::exists($path)) {
+            throw new \RuntimeException("Stub file not found: {$path}");
+        }
+
+        return File::get($path);
+    }
+
+    /**
+     * Get common token replacements.
+     */
+    protected function getTokenReplacements(): array
+    {
+        return [
+            '$MODULE_NAMESPACE$' => 'Modules',
+            '$STUDLY_NAME$' => $this->moduleStudlyName,
+            '$LOWER_NAME$' => $this->moduleLowerName,
+            '$MODEL_NAME$' => $this->modelStudlyName,
+            '$MODEL_LOWER$' => $this->modelLowerName,
+            '$MODEL_PLURAL$' => $this->modelPluralName,
+            '$MODEL_PLURAL_LOWER$' => $this->modelPluralLower,
+            '$TABLE_NAME$' => $this->tableName,
+        ];
+    }
+
+    /**
+     * Replace tokens in content.
+     */
+    protected function replaceStubTokens(string $content, array $additionalTokens = []): string
+    {
+        $tokens = array_merge($this->getTokenReplacements(), $additionalTokens);
+
+        foreach ($tokens as $token => $value) {
+            $content = str_replace($token, $value, $content);
+        }
+
+        return $content;
+    }
+
     public function handle(): int
     {
         $this->moduleName = $this->argument('module');
@@ -209,7 +264,25 @@ class ModuleMakeCrudCommand extends Command
             }
         }
 
-        if ($migrationFile) {
+        $fieldsOption = $this->option('fields');
+
+        // If --fields option is provided, always use it (takes precedence over migration parsing)
+        if ($fieldsOption) {
+            $this->parseFieldsOption($fieldsOption);
+
+            if ($migrationFile) {
+                $this->info('Auto-detected migration: '.basename($migrationFile));
+                $content = file_get_contents($migrationFile);
+
+                // Extract table name from Schema::create
+                if (preg_match("/Schema::create\s*\(\s*['\"]([^'\"]+)['\"]/", $content, $matches)) {
+                    $this->tableName = $matches[1];
+                }
+            } else {
+                // No migration found, create one
+                $this->generateMigration();
+            }
+        } elseif ($migrationFile) {
             $this->info('Auto-detected migration: '.basename($migrationFile));
             $content = file_get_contents($migrationFile);
 
@@ -221,25 +294,16 @@ class ModuleMakeCrudCommand extends Command
             // Parse columns from migration
             $this->parseColumns($content);
         } else {
-            // No migration found - check for --fields option or prompt
-            $fieldsOption = $this->option('fields');
+            // No migration found and no --fields option - prompt for fields
+            $this->info("No migration found for {$this->modelStudlyName}.");
+            $this->newLine();
 
-            if ($fieldsOption) {
-                // Parse fields from option and create migration
-                $this->parseFieldsOption($fieldsOption);
+            if ($this->confirm('Would you like to define fields and create a migration?', true)) {
+                $this->promptForFields();
                 $this->generateMigration();
             } else {
-                // Prompt for fields interactively
-                $this->info("No migration found for {$this->modelStudlyName}.");
-                $this->newLine();
-
-                if ($this->confirm('Would you like to define fields and create a migration?', true)) {
-                    $this->promptForFields();
-                    $this->generateMigration();
-                } else {
-                    $this->warn("Using default 'name' field.");
-                    $this->warn("Tip: Use --fields option (e.g., --fields=\"title:string,content:text\")");
-                }
+                $this->warn("Using default 'name' field.");
+                $this->warn("Tip: Use --fields option (e.g., --fields=\"title:string,content:text\")");
             }
         }
     }
@@ -358,7 +422,6 @@ class ModuleMakeCrudCommand extends Command
 
     protected function generateMigration(): void
     {
-        $snakePlural = Str::snake($this->modelPluralName);
         $migrationName = "create_{$this->tableName}_table";
         $timestamp = date('Y_m_d_His');
         $filename = "{$timestamp}_{$migrationName}.php";
@@ -368,33 +431,11 @@ class ModuleMakeCrudCommand extends Command
 
         $path = "{$migrationsPath}/{$filename}";
 
-        // Generate column definitions
-        $columnDefinitions = $this->generateMigrationColumns();
-
-        $content = <<<PHP
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('{$this->tableName}', function (Blueprint \$table) {
-            \$table->id();
-{$columnDefinitions}
-            \$table->timestamps();
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('{$this->tableName}');
-    }
-};
-PHP;
+        // Get stub and replace tokens
+        $content = $this->getStub('migration');
+        $content = $this->replaceStubTokens($content, [
+            '$MIGRATION_COLUMNS$' => $this->generateMigrationColumns(),
+        ]);
 
         File::put($path, $content);
         $this->migrationCreated = true;
@@ -522,45 +563,21 @@ PHP;
             return;
         }
 
-        // Generate fillable array
+        // Generate dynamic content
         $fillable = $this->generateFillableArray();
-
-        // Generate casts array
         $casts = $this->generateCastsArray();
-
-        // Generate media relationships
         $hasMedia = $this->hasMediaFields();
-        $mediaUse = $hasMedia ? "use App\\Models\\Media;\nuse Illuminate\\Database\\Eloquent\\Relations\\BelongsTo;\n" : '';
+        $mediaImports = $hasMedia ? "use App\\Models\\Media;\nuse Illuminate\\Database\\Eloquent\\Relations\\BelongsTo;\n" : '';
         $mediaRelationships = $this->generateMediaRelationships();
 
-        $content = <<<PHP
-<?php
-
-declare(strict_types=1);
-
-namespace Modules\\{$this->moduleStudlyName}\\Models;
-
-use Illuminate\\Database\\Eloquent\\Factories\\HasFactory;
-use Illuminate\\Database\\Eloquent\\Model;
-{$mediaUse}
-class {$this->modelStudlyName} extends Model
-{
-    use HasFactory;
-
-    protected \$table = '{$this->tableName}';
-
-    protected \$fillable = [
-        {$fillable}
-    ];
-
-    protected function casts(): array
-    {
-        return [
-            {$casts}
-        ];
-    }
-{$mediaRelationships}}
-PHP;
+        // Get stub and replace tokens
+        $content = $this->getStub('model');
+        $content = $this->replaceStubTokens($content, [
+            '$FILLABLE$' => $fillable,
+            '$CASTS$' => $casts,
+            '$MODEL_IMPORTS$' => $mediaImports,
+            '$MODEL_RELATIONSHIPS$' => $mediaRelationships,
+        ]);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -595,6 +612,7 @@ PHP;
             }
 
             $methodName = Str::camel($column['name']);
+            $studlyMethodName = Str::studly($column['name']);
             $columnName = $this->getMediaColumnName($column['name']);
 
             $relationships[] = <<<PHP
@@ -610,7 +628,7 @@ PHP;
     /**
      * Get the {$column['name']} URL.
      */
-    public function get{$methodName}UrlAttribute(): ?string
+    public function get{$studlyMethodName}UrlAttribute(): ?string
     {
         return \$this->{$columnName} && \$this->{$methodName}
             ? asset('storage/media/' . \$this->{$methodName}->file_name)
@@ -633,82 +651,14 @@ PHP;
             return;
         }
 
-        // Generate content directly for custom render methods
-        $headers = $this->generateDatatableHeaders();
-        $searchQuery = $this->generateSearchQuery();
-        $renderMethods = $this->generateDatatableRenderMethods();
-
-        $content = <<<PHP
-<?php
-
-declare(strict_types=1);
-
-namespace Modules\\{$this->moduleStudlyName}\\Livewire\\Components;
-
-use App\\Livewire\\Datatable\\Datatable;
-use Illuminate\\Contracts\\Support\\Renderable;
-use Illuminate\\Database\\Eloquent\\Model;
-use Modules\\{$this->moduleStudlyName}\\Models\\{$this->modelStudlyName};
-use Spatie\\QueryBuilder\\QueryBuilder;
-
-class {$this->modelStudlyName}Datatable extends Datatable
-{
-    public string \$model = {$this->modelStudlyName}::class;
-
-    public function getSearchbarPlaceholder(): string
-    {
-        return __('Search {$this->modelPluralLower}...');
-    }
-
-    protected function getHeaders(): array
-    {
-        return [
-            {$headers}
-        ];
-    }
-
-    public function getRoutes(): array
-    {
-        return [
-            'create' => 'admin.{$this->moduleLowerName}.{$this->modelPluralLower}.create',
-            'view' => 'admin.{$this->moduleLowerName}.{$this->modelPluralLower}.show',
-            'edit' => 'admin.{$this->moduleLowerName}.{$this->modelPluralLower}.edit',
-            'delete' => 'livewire',
-        ];
-    }
-
-    public function getDeleteRouteUrl(\$item): string
-    {
-        return '';
-    }
-
-    public function getActionCellPermissions(\$item): array
-    {
-        return [
-            'view' => true,
-            'edit' => true,
-            'delete' => true,
-        ];
-    }
-
-    protected function buildQuery(): QueryBuilder
-    {
-        return QueryBuilder::for({$this->modelStudlyName}::query())
-            ->when(\$this->search, function (\$query) {
-                \$query->where(function (\$q) {
-                    {$searchQuery}
-                });
-            })
-            ->orderBy(\$this->sort, \$this->direction);
-    }
-
-    public function handleRowDelete(Model|{$this->modelStudlyName} \$item): bool
-    {
-        return \$item->delete();
-    }
-{$renderMethods}
-}
-PHP;
+        // Get stub and replace tokens
+        $content = $this->getStub('datatable');
+        $content = $this->replaceStubTokens($content, [
+            '$HEADERS$' => $this->generateDatatableHeaders(),
+            '$SEARCH_QUERY$' => $this->generateSearchQuery(),
+            '$RENDER_METHODS$' => $this->generateDatatableRenderMethods(),
+            '$ADDITIONAL_IMPORTS$' => $this->generateDatatableAdditionalImports(),
+        ]);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -774,6 +724,28 @@ PHP;
         return implode("\n", $methods);
     }
 
+    /**
+     * Generate additional imports for the datatable.
+     * Adds Renderable import if any columns need render methods.
+     */
+    protected function generateDatatableAdditionalImports(): string
+    {
+        $needsRenderable = false;
+
+        foreach ($this->columns as $column) {
+            if (in_array($column['type'], ['file', 'media', 'checkbox', 'toggle'])) {
+                $needsRenderable = true;
+                break;
+            }
+        }
+
+        if ($needsRenderable) {
+            return "use Illuminate\\Contracts\\Support\\Renderable;\n";
+        }
+
+        return '';
+    }
+
     protected function generateIndexComponent(): void
     {
         $path = base_path("modules/{$this->moduleStudlyName}/app/Livewire/Admin/{$this->modelPluralName}/Index.php");
@@ -785,14 +757,8 @@ PHP;
             return;
         }
 
-        $stubPath = base_path('stubs/nwidart-stubs/crud/index.stub');
-
-        if (! File::exists($stubPath)) {
-            $this->createIndexStub();
-        }
-
-        $content = File::get($stubPath);
-        $content = $this->replaceTokens($content);
+        $content = $this->getStub('components/index');
+        $content = $this->replaceStubTokens($content);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -811,14 +777,8 @@ PHP;
             return;
         }
 
-        $stubPath = base_path('stubs/nwidart-stubs/crud/show.stub');
-
-        if (! File::exists($stubPath)) {
-            $this->createShowStub();
-        }
-
-        $content = File::get($stubPath);
-        $content = $this->replaceTokens($content);
+        $content = $this->getStub('components/show');
+        $content = $this->replaceStubTokens($content);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -837,69 +797,21 @@ PHP;
             return;
         }
 
-        // Generate content directly to handle file uploads dynamically
+        // Generate dynamic content for file uploads
         $hasFiles = $this->hasFileFields();
-        $useFileUploads = $hasFiles ? "use Livewire\\WithFileUploads;\n" : '';
-        $traitUse = $hasFiles ? "use WithFileUploads;\n\n    " : '';
+        $useStatements = $hasFiles ? "use Livewire\\WithFileUploads;\n" : '';
+        $traitUse = $hasFiles ? "    use WithFileUploads;\n\n" : '';
+        $fileDeleteMethods = $hasFiles ? $this->generateFileDeleteMethods() : '';
 
-        $properties = $this->generateFormProperties();
-        $rules = $this->generateValidationRules();
-        $createData = $this->generateCreateData();
-
-        $content = <<<PHP
-<?php
-
-declare(strict_types=1);
-
-namespace Modules\\{$this->moduleStudlyName}\\Livewire\\Admin\\{$this->modelPluralName};
-
-use Illuminate\\Contracts\\View\\View;
-use Livewire\\Attributes\\Layout;
-use Livewire\\Component;
-{$useFileUploads}use Modules\\{$this->moduleStudlyName}\\Models\\{$this->modelStudlyName};
-
-#[Layout('{$this->moduleLowerName}::layouts.crud')]
-class Create extends Component
-{
-    {$traitUse}{$properties}
-
-    public array \$breadcrumbs = [];
-
-    public function mount(): void
-    {
-        \$this->breadcrumbs = [
-            'title' => __('Create {$this->modelStudlyName}'),
-            'icon' => 'lucide:list',
-            'back_url' => route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.index'),
-        ];
-    }
-
-    protected function rules(): array
-    {
-        return [
-            {$rules}
-        ];
-    }
-
-    public function save(): void
-    {
-        \$validated = \$this->validate();
-
-        \$item = {$this->modelStudlyName}::create([
-            {$createData}
+        $content = $this->getStub('components/create');
+        $content = $this->replaceStubTokens($content, [
+            '$USE_STATEMENTS$' => $useStatements,
+            '$TRAIT_USE$' => $traitUse,
+            '$PROPERTIES$' => $this->generateFormProperties(),
+            '$RULES$' => $this->generateValidationRules(),
+            '$CREATE_DATA$' => $this->generateCreateData(),
+            '$FILE_DELETE_METHODS$' => $fileDeleteMethods,
         ]);
-
-        session()->flash('success', __('{$this->modelStudlyName} created successfully.'));
-
-        \$this->redirect(route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.edit', \$item), navigate: true);
-    }
-
-    public function render(): View
-    {
-        return view('{$this->moduleLowerName}::livewire.admin.{$this->modelPluralLower}.create');
-    }
-}
-PHP;
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -918,89 +830,21 @@ PHP;
             return;
         }
 
-        // Generate content directly to handle file uploads dynamically
+        // Generate dynamic content for file uploads
         $hasFiles = $this->hasFileFields();
-        $useFileUploads = $hasFiles ? "use Livewire\\WithFileUploads;\n" : '';
-        $useStorage = $hasFiles ? "use Illuminate\\Support\\Facades\\Storage;\n" : '';
-        $traitUse = $hasFiles ? "use WithFileUploads;\n\n    " : '';
+        $useStatements = $hasFiles ? "use Livewire\\WithFileUploads;\n" : '';
+        $traitUse = $hasFiles ? "    use WithFileUploads;\n\n" : '';
 
-        $properties = $this->generateFormProperties();
-        $rules = $this->generateValidationRules();
-        $mountAssignments = $this->generateMountAssignments();
-        $updateData = $this->generateUpdateData();
-        $fileDeleteMethods = $this->generateFileDeleteMethods();
-
-        $content = <<<PHP
-<?php
-
-declare(strict_types=1);
-
-namespace Modules\\{$this->moduleStudlyName}\\Livewire\\Admin\\{$this->modelPluralName};
-
-use Illuminate\\Contracts\\View\\View;
-use Livewire\\Attributes\\Layout;
-use Livewire\\Component;
-{$useFileUploads}{$useStorage}use Modules\\{$this->moduleStudlyName}\\Models\\{$this->modelStudlyName};
-
-#[Layout('{$this->moduleLowerName}::layouts.crud')]
-class Edit extends Component
-{
-    {$traitUse}public {$this->modelStudlyName} \${$this->modelLowerName};
-
-    {$properties}
-
-    public array \$breadcrumbs = [];
-
-    protected function rules(): array
-    {
-        return [
-            {$rules}
-        ];
-    }
-
-    public function mount({$this->modelStudlyName} \${$this->modelLowerName}): void
-    {
-        \$this->{$this->modelLowerName} = \${$this->modelLowerName};
-        {$mountAssignments}
-
-        \$this->breadcrumbs = [
-            'title' => __('Edit {$this->modelStudlyName}'),
-            'icon' => 'lucide:list',
-            'back_url' => route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.index'),
-            'action' => [
-                'url' => route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.show', \$this->{$this->modelLowerName}),
-                'label' => __('View'),
-                'icon' => 'lucide:eye',
-            ],
-        ];
-    }
-
-    public function save(): void
-    {
-        \$validated = \$this->validate();
-
-        \$this->{$this->modelLowerName}->update([
-            {$updateData}
+        $content = $this->getStub('components/edit');
+        $content = $this->replaceStubTokens($content, [
+            '$USE_STATEMENTS$' => $useStatements,
+            '$TRAIT_USE$' => $traitUse,
+            '$PROPERTIES$' => $this->generateFormProperties(),
+            '$RULES$' => $this->generateValidationRules(),
+            '$MOUNT_ASSIGNMENTS$' => $this->generateMountAssignments(),
+            '$UPDATE_DATA$' => $this->generateUpdateData(),
+            '$FILE_DELETE_METHODS$' => $this->generateFileDeleteMethods(),
         ]);
-
-        session()->flash('success', __('{$this->modelStudlyName} updated successfully.'));
-    }
-{$fileDeleteMethods}
-    public function delete(): void
-    {
-        \$this->{$this->modelLowerName}->delete();
-
-        session()->flash('success', __('{$this->modelStudlyName} deleted successfully.'));
-
-        \$this->redirect(route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.index'), navigate: true);
-    }
-
-    public function render(): View
-    {
-        return view('{$this->moduleLowerName}::livewire.admin.{$this->modelPluralLower}.edit');
-    }
-}
-PHP;
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -1028,18 +872,8 @@ PHP;
             return;
         }
 
-        $content = <<<'BLADE'
-@extends('$LOWER_NAME$::layouts.master')
-
-@section('$LOWER_NAME$-admin-content')
-    <div>
-        {{-- Breadcrumbs are rendered by the page component --}}
-        {{ $slot }}
-    </div>
-@endsection
-BLADE;
-
-        $content = $this->replaceTokens($content);
+        $content = $this->getStub('layout');
+        $content = $this->replaceStubTokens($content);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -1058,14 +892,8 @@ BLADE;
             return;
         }
 
-        $stubPath = base_path('stubs/nwidart-stubs/crud/views/index.stub');
-
-        if (! File::exists($stubPath)) {
-            $this->createIndexViewStub();
-        }
-
-        $content = File::get($stubPath);
-        $content = $this->replaceTokens($content);
+        $content = $this->getStub('views/index');
+        $content = $this->replaceStubTokens($content);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -1084,18 +912,10 @@ BLADE;
             return;
         }
 
-        $stubPath = base_path('stubs/nwidart-stubs/crud/views/show.stub');
-
-        if (! File::exists($stubPath)) {
-            $this->createShowViewStub();
-        }
-
-        $content = File::get($stubPath);
-        $content = $this->replaceTokens($content);
-
-        // Generate display fields
-        $displayFields = $this->generateDisplayFields();
-        $content = str_replace('$DISPLAY_FIELDS$', $displayFields, $content);
+        $content = $this->getStub('views/show');
+        $content = $this->replaceStubTokens($content, [
+            '$DISPLAY_FIELDS$' => $this->generateDisplayFields(),
+        ]);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -1114,22 +934,11 @@ BLADE;
             return;
         }
 
-        $stubPath = base_path('stubs/nwidart-stubs/crud/views/create.stub');
-
-        if (! File::exists($stubPath)) {
-            $this->createCreateViewStub();
-        }
-
-        $content = File::get($stubPath);
-        $content = $this->replaceTokens($content);
-
-        // Generate form fields
-        $formFields = $this->generateFormFields();
-        $content = str_replace('$FORM_FIELDS$', $formFields, $content);
-
-        // Generate editor assets if there are editor fields
-        $editorAssets = $this->generateEditorAssets();
-        $content = str_replace('$EDITOR_ASSETS$', $editorAssets, $content);
+        $content = $this->getStub('views/create');
+        $content = $this->replaceStubTokens($content, [
+            '$FORM_FIELDS$' => $this->generateFormFields(),
+            '$EDITOR_ASSETS$' => $this->generateEditorAssets(),
+        ]);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -1148,22 +957,11 @@ BLADE;
             return;
         }
 
-        $stubPath = base_path('stubs/nwidart-stubs/crud/views/edit.stub');
-
-        if (! File::exists($stubPath)) {
-            $this->createEditViewStub();
-        }
-
-        $content = File::get($stubPath);
-        $content = $this->replaceTokens($content);
-
-        // Generate form fields
-        $formFields = $this->generateFormFields();
-        $content = str_replace('$FORM_FIELDS$', $formFields, $content);
-
-        // Generate editor assets if there are editor fields
-        $editorAssets = $this->generateEditorAssets();
-        $content = str_replace('$EDITOR_ASSETS$', $editorAssets, $content);
+        $content = $this->getStub('views/edit');
+        $content = $this->replaceStubTokens($content, [
+            '$FORM_FIELDS$' => $this->generateFormFields(),
+            '$EDITOR_ASSETS$' => $this->generateEditorAssets(),
+        ]);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
@@ -1488,6 +1286,12 @@ PHP;
 
     protected function getPhpPropertyType(array $column): string
     {
+        // Check dbType for decimals which need float, not int
+        $dbType = $column['dbType'] ?? '';
+        if (in_array($dbType, ['decimal', 'float', 'double'])) {
+            return 'float';
+        }
+
         return match ($column['type']) {
             'number' => 'int',
             'checkbox', 'toggle' => 'bool',
@@ -1498,6 +1302,12 @@ PHP;
 
     protected function getPropertyDefault(array $column): string
     {
+        // Check dbType for decimals
+        $dbType = $column['dbType'] ?? '';
+        if (in_array($dbType, ['decimal', 'float', 'double'])) {
+            return '0.0';
+        }
+
         return match ($column['type']) {
             'number' => '0',
             'checkbox', 'toggle' => 'false',
@@ -1652,6 +1462,8 @@ PHP;
                 continue;
             }
 
+            $dbType = $column['dbType'] ?? '';
+
             if ($column['type'] === 'media') {
                 // Media fields use _id suffix
                 $propertyName = $this->getMediaColumnName($column['name']);
@@ -1661,6 +1473,21 @@ PHP;
                 $assignments[] = "\$this->{$column['name']} = (bool) \$this->{$this->modelLowerName}->{$column['name']};";
             } elseif (\in_array($column['type'], ['text', 'textarea', 'editor', 'select'])) {
                 $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']} ?? '';";
+            } elseif (in_array($dbType, ['decimal', 'float', 'double'])) {
+                // Decimal/float fields need cast and null fallback
+                $assignments[] = "\$this->{$column['name']} = (float) (\$this->{$this->modelLowerName}->{$column['name']} ?? 0);";
+            } elseif ($column['type'] === 'number') {
+                // Integer fields need null fallback
+                $assignments[] = "\$this->{$column['name']} = (int) (\$this->{$this->modelLowerName}->{$column['name']} ?? 0);";
+            } elseif ($column['type'] === 'date') {
+                // Date fields - format as Y-m-d for date input
+                $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']}?->format('Y-m-d') ?? '';";
+            } elseif ($column['type'] === 'datetime') {
+                // Datetime fields - format as Y-m-d\TH:i for datetime-local input
+                $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']}?->format('Y-m-d\\TH:i') ?? '';";
+            } elseif ($column['type'] === 'time') {
+                // Time fields - format as H:i for time input
+                $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']}?->format('H:i') ?? '';";
             } else {
                 $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']};";
             }
@@ -1957,7 +1784,7 @@ BLADE;
                         handleSelection(files) {
                             this.selectedMediaId = (files && files.length > 0) ? files[0].id : null;
                         }
-                    }" x-init="window.handleMediaSelection_{$columnName}Modal = (files) => handleSelection(files)">
+                    }" x-init="window.handleMediaSelection_mediaSelector_{$columnName} = (files) => handleSelection(files)">
                         <x-media-selector
                             name="{$columnName}"
                             label=""
@@ -2038,84 +1865,9 @@ BLADE;
         $editorIds = array_values(array_map(fn ($col) => $col['name'], $editorFields));
         $editorIdsJson = json_encode($editorIds);
 
-        return <<<BLADE
+        $content = $this->getStub('editor-assets');
 
-@assets
-<style>
-    .tox-tinymce { border-radius: 10px !important; border: 1px solid var(--color-gray-200, #e5e7eb) !important; }
-    .dark .tox-tinymce { border-color: rgb(55 65 81) !important; }
-    .tox .tox-toolbar { background: transparent !important; }
-    .tox .tox-edit-area, .tox .tox-edit-area__iframe { border: none !important; }
-    .tox.tox-tinymce:focus-within { --tw-ring-color: rgb(var(--color-primary) / 1); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
-    .tox .tox-statusbar { border-top: 1px solid var(--color-gray-200, #e5e7eb) !important; }
-    .dark .tox .tox-statusbar { border-top-color: rgb(55 65 81) !important; }
-    .tox-promotion, .tox-promotion-link, .tox .tox-statusbar__path, .tox-statusbar__upgrade, button[title*="Upgrade"], a[title*="Upgrade"], .tox-promotion-container { display: none !important; }
-</style>
-<script src="{{ asset('vendor/tinymce/tinymce.min.js') }}" defer></script>
-@endassets
-
-@script
-<script>
-    // Wait for next tick to ensure DOM is ready
-    queueMicrotask(() => {
-        const editorIds = {$editorIdsJson};
-
-        editorIds.forEach(editorId => {
-            const textareaElement = document.getElementById(editorId);
-            if (!textareaElement) {
-                console.error(`Textarea with ID "\${editorId}" not found`);
-                return;
-            }
-
-            // Wait for TinyMCE to be loaded
-            const initEditor = () => {
-                if (typeof tinymce === 'undefined') {
-                    setTimeout(initEditor, 100);
-                    return;
-                }
-
-                // Remove existing editor if any
-                if (tinymce.get(editorId)) {
-                    tinymce.get(editorId).remove();
-                }
-
-                tinymce.init({
-                    target: textareaElement,
-                    height: 300,
-                    menubar: false,
-                    plugins: 'autolink link image lists wordcount code',
-                    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | removeformat code',
-                    content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; }',
-                    skin: document.documentElement.classList.contains('dark') ? 'oxide-dark' : 'oxide',
-                    content_css: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
-                    valid_elements: '*[*]',
-                    extended_valid_elements: '*[*]',
-                    branding: false,
-                    promotion: false,
-                    statusbar: false,
-                    setup: function(editor) {
-                        editor.on('change keyup paste', function() {
-                            textareaElement.value = editor.getContent();
-                            const event = new Event('input', { bubbles: true });
-                            textareaElement.dispatchEvent(event);
-                        });
-                    },
-                    init_instance_callback: function(editor) {
-                        const initialContent = textareaElement.value;
-                        if (initialContent && initialContent.trim() !== '') {
-                            editor.setContent(initialContent);
-                        }
-                        textareaElement.style.display = 'none';
-                    }
-                });
-            };
-
-            initEditor();
-        });
-    });
-</script>
-@endscript
-BLADE;
+        return str_replace('$EDITOR_IDS$', $editorIdsJson, $content);
     }
 
     protected function listAvailableModules(): void
@@ -2160,487 +1912,5 @@ BLADE;
         if (! is_dir($path)) {
             mkdir($path, 0755, true);
         }
-    }
-
-    // Stub creation methods
-
-    protected function createModelStub(): void
-    {
-        $stub = <<<'STUB'
-<?php
-
-declare(strict_types=1);
-
-namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class $MODEL_NAME$ extends Model
-{
-    use HasFactory;
-
-    protected $table = '$TABLE_NAME$';
-
-    protected $fillable = [
-        $FILLABLE$
-    ];
-
-    protected function casts(): array
-    {
-        return [
-            $CASTS$
-        ];
-    }
-}
-STUB;
-
-        $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud'));
-        File::put(base_path('stubs/nwidart-stubs/crud/model.stub'), $stub);
-    }
-
-    protected function createDatatableStub(): void
-    {
-        $stub = <<<'STUB'
-<?php
-
-declare(strict_types=1);
-
-namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Livewire\Components;
-
-use App\Livewire\Datatable\Datatable;
-use Illuminate\Database\Eloquent\Model;
-use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
-use Spatie\QueryBuilder\QueryBuilder;
-
-class $MODEL_NAME$Datatable extends Datatable
-{
-    public string $model = $MODEL_NAME$::class;
-
-    public function getSearchbarPlaceholder(): string
-    {
-        return __('Search $MODEL_PLURAL_LOWER$...');
-    }
-
-    protected function getHeaders(): array
-    {
-        return [
-            $HEADERS$
-        ];
-    }
-
-    public function getRoutes(): array
-    {
-        return [
-            'create' => 'admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.create',
-            'view' => 'admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.show',
-            'edit' => 'admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.edit',
-            'delete' => 'livewire', // Marker for Livewire-based delete (handled by handleRowDelete)
-        ];
-    }
-
-    /**
-     * Return empty string for delete URL since deletion is handled by Livewire.
-     */
-    public function getDeleteRouteUrl($item): string
-    {
-        return '';
-    }
-
-    /**
-     * Define permissions for action buttons.
-     * Set to true to allow all users, or use permission checks like:
-     *   'view' => auth()->user()->can('$MODEL_LOWER$.view', $item),
-     *   'edit' => auth()->user()->can('$MODEL_LOWER$.edit', $item),
-     *   'delete' => auth()->user()->can('$MODEL_LOWER$.delete', $item),
-     */
-    public function getActionCellPermissions($item): array
-    {
-        return [
-            'view' => true,   // TODO: Add permission check, e.g., auth()->user()->can('$MODEL_LOWER$.view', $item)
-            'edit' => true,   // TODO: Add permission check, e.g., auth()->user()->can('$MODEL_LOWER$.edit', $item)
-            'delete' => true, // TODO: Add permission check, e.g., auth()->user()->can('$MODEL_LOWER$.delete', $item)
-        ];
-    }
-
-    protected function buildQuery(): QueryBuilder
-    {
-        return QueryBuilder::for($MODEL_NAME$::query())
-            ->when($this->search, function ($query) {
-                $query->where(function ($q) {
-                    $SEARCH_QUERY$
-                });
-            })
-            ->orderBy($this->sort, $this->direction);
-    }
-
-    public function handleRowDelete(Model|$MODEL_NAME$ $item): bool
-    {
-        return $item->delete();
-    }
-}
-STUB;
-
-        $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud'));
-        File::put(base_path('stubs/nwidart-stubs/crud/datatable.stub'), $stub);
-    }
-
-    protected function createIndexStub(): void
-    {
-        $stub = <<<'STUB'
-<?php
-
-declare(strict_types=1);
-
-namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Livewire\Admin\$MODEL_PLURAL$;
-
-use Illuminate\Contracts\View\View;
-use Livewire\Attributes\Layout;
-use Livewire\Component;
-
-#[Layout('$LOWER_NAME$::layouts.crud')]
-class Index extends Component
-{
-    public array $breadcrumbs = [];
-
-    public function mount(): void
-    {
-        $this->breadcrumbs = [
-            'title' => __('$MODEL_PLURAL$'),
-            'icon' => 'lucide:list',
-            'action' => [
-                'url' => route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.create'),
-                'label' => __('New $MODEL_NAME$'),
-                'icon' => 'lucide:plus',
-            ],
-        ];
-    }
-
-    public function render(): View
-    {
-        return view('$LOWER_NAME$::livewire.admin.$MODEL_PLURAL_LOWER$.index');
-    }
-}
-STUB;
-
-        $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud'));
-        File::put(base_path('stubs/nwidart-stubs/crud/index.stub'), $stub);
-    }
-
-    protected function createShowStub(): void
-    {
-        $stub = <<<'STUB'
-<?php
-
-declare(strict_types=1);
-
-namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Livewire\Admin\$MODEL_PLURAL$;
-
-use Illuminate\Contracts\View\View;
-use Livewire\Attributes\Layout;
-use Livewire\Component;
-use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
-
-#[Layout('$LOWER_NAME$::layouts.crud')]
-class Show extends Component
-{
-    public $MODEL_NAME$ $$MODEL_LOWER$;
-
-    public array $breadcrumbs = [];
-
-    public function mount($MODEL_NAME$ $$MODEL_LOWER$): void
-    {
-        $this->$MODEL_LOWER$ = $$MODEL_LOWER$;
-
-        $this->breadcrumbs = [
-            'title' => __('View $MODEL_NAME$'),
-            'icon' => 'lucide:list',
-            'back_url' => route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index'),
-            'action' => [
-                'url' => route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.edit', $this->$MODEL_LOWER$),
-                'label' => __('Edit'),
-                'icon' => 'lucide:pencil',
-            ],
-        ];
-    }
-
-    public function render(): View
-    {
-        return view('$LOWER_NAME$::livewire.admin.$MODEL_PLURAL_LOWER$.show');
-    }
-}
-STUB;
-
-        $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud'));
-        File::put(base_path('stubs/nwidart-stubs/crud/show.stub'), $stub);
-    }
-
-    protected function createCreateStub(): void
-    {
-        $hasFiles = $this->hasFileFields();
-        $useStatement = $hasFiles ? "\nuse Livewire\WithFileUploads;" : '';
-        $traitUse = $hasFiles ? "\n    use WithFileUploads;\n" : '';
-
-        $stub = <<<STUB
-<?php
-
-declare(strict_types=1);
-
-namespace \$MODULE_NAMESPACE\$\\\$STUDLY_NAME\$\\Livewire\\Admin\\\$MODEL_PLURAL\$;
-
-use Illuminate\\Contracts\\View\\View;
-use Livewire\\Attributes\\Layout;
-use Livewire\\Component;{$useStatement}
-use \$MODULE_NAMESPACE\$\\\$STUDLY_NAME\$\\Models\\\$MODEL_NAME\$;
-
-#[Layout('\$LOWER_NAME\$::layouts.crud')]
-class Create extends Component
-{{$traitUse}
-    \$PROPERTIES\$
-
-    public array \$breadcrumbs = [];
-
-    public function mount(): void
-    {
-        \$this->breadcrumbs = [
-            'title' => __('Create \$MODEL_NAME\$'),
-            'icon' => 'lucide:list',
-            'back_url' => route('admin.\$LOWER_NAME\$.\$MODEL_PLURAL_LOWER\$.index'),
-        ];
-    }
-
-    protected function rules(): array
-    {
-        return [
-            \$RULES\$
-        ];
-    }
-
-    public function save(): void
-    {
-        \$validated = \$this->validate();
-
-        \$item = \$MODEL_NAME\$::create([
-            \$CREATE_DATA\$
-        ]);
-
-        session()->flash('success', __('\$MODEL_NAME\$ created successfully.'));
-
-        \$this->redirect(route('admin.\$LOWER_NAME\$.\$MODEL_PLURAL_LOWER\$.edit', \$item), navigate: true);
-    }
-
-    public function render(): View
-    {
-        return view('\$LOWER_NAME\$::livewire.admin.\$MODEL_PLURAL_LOWER\$.create');
-    }
-}
-STUB;
-
-        $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud'));
-        File::put(base_path('stubs/nwidart-stubs/crud/create.stub'), $stub);
-    }
-
-    protected function createEditStub(): void
-    {
-        $hasFiles = $this->hasFileFields();
-        $useStatement = $hasFiles ? "\nuse Livewire\WithFileUploads;" : '';
-        $traitUse = $hasFiles ? "\n    use WithFileUploads;\n" : '';
-
-        $stub = <<<STUB
-<?php
-
-declare(strict_types=1);
-
-namespace \$MODULE_NAMESPACE\$\\\$STUDLY_NAME\$\\Livewire\\Admin\\\$MODEL_PLURAL\$;
-
-use Illuminate\\Contracts\\View\\View;
-use Livewire\\Attributes\\Layout;
-use Livewire\\Component;{$useStatement}
-use \$MODULE_NAMESPACE\$\\\$STUDLY_NAME\$\\Models\\\$MODEL_NAME\$;
-
-#[Layout('\$LOWER_NAME\$::layouts.crud')]
-class Edit extends Component
-{{$traitUse}
-    public \$MODEL_NAME\$ \$\$MODEL_LOWER\$;
-
-    \$PROPERTIES\$
-
-    public array \$breadcrumbs = [];
-
-    protected function rules(): array
-    {
-        return [
-            \$RULES\$
-        ];
-    }
-
-    public function mount(\$MODEL_NAME\$ \$\$MODEL_LOWER\$): void
-    {
-        \$this->\$MODEL_LOWER\$ = \$\$MODEL_LOWER\$;
-        \$MOUNT_ASSIGNMENTS\$
-
-        \$this->breadcrumbs = [
-            'title' => __('Edit \$MODEL_NAME\$'),
-            'icon' => 'lucide:list',
-            'back_url' => route('admin.\$LOWER_NAME\$.\$MODEL_PLURAL_LOWER\$.index'),
-        ];
-    }
-
-    public function save(): void
-    {
-        \$validated = \$this->validate();
-
-        \$this->\$MODEL_LOWER\$->update([
-            \$UPDATE_DATA\$
-        ]);
-
-        session()->flash('success', __('\$MODEL_NAME\$ updated successfully.'));
-    }
-
-    public function delete(): void
-    {
-        \$this->\$MODEL_LOWER\$->delete();
-
-        session()->flash('success', __('\$MODEL_NAME\$ deleted successfully.'));
-
-        \$this->redirect(route('admin.\$LOWER_NAME\$.\$MODEL_PLURAL_LOWER\$.index'), navigate: true);
-    }
-
-    public function render(): View
-    {
-        return view('\$LOWER_NAME\$::livewire.admin.\$MODEL_PLURAL_LOWER\$.edit');
-    }
-}
-STUB;
-
-        $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud'));
-        File::put(base_path('stubs/nwidart-stubs/crud/edit.stub'), $stub);
-    }
-
-    protected function createIndexViewStub(): void
-    {
-        $stub = <<<'STUB'
-<div>
-    {{-- Breadcrumbs Header --}}
-    <x-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
-
-    {{-- Datatable --}}
-    <livewire:$LOWER_NAME$::components.$MODEL_LOWER$-datatable />
-</div>
-STUB;
-
-        $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud/views'));
-        File::put(base_path('stubs/nwidart-stubs/crud/views/index.stub'), $stub);
-    }
-
-    protected function createShowViewStub(): void
-    {
-        $stub = <<<'STUB'
-<div>
-    {{-- Breadcrumbs Header --}}
-    <x-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
-
-    {{-- Details --}}
-    <x-card.card>
-        <x-slot name="header">{{ __('$MODEL_NAME$ Information') }}</x-slot>
-
-        <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            $DISPLAY_FIELDS$
-        </dl>
-    </x-card.card>
-</div>
-STUB;
-
-        $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud/views'));
-        File::put(base_path('stubs/nwidart-stubs/crud/views/show.stub'), $stub);
-    }
-
-    protected function createCreateViewStub(): void
-    {
-        $stub = <<<'STUB'
-<div>
-    {{-- Breadcrumbs Header --}}
-    <x-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
-
-    {{-- Form --}}
-    <form wire:submit="save" class="space-y-6">
-        <x-card.card>
-            <x-slot name="header">{{ __('$MODEL_NAME$ Information') }}</x-slot>
-
-            <div class="space-y-6">
-                $FORM_FIELDS$
-            </div>
-        </x-card.card>
-
-        {{-- Submit --}}
-        <div class="flex items-center gap-4">
-            <a wire:navigate href="{{ route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index') }}" class="btn-default">
-                {{ __('Cancel') }}
-            </a>
-            <x-buttons.button type="submit" variant="primary" icon="lucide:save" loadingTarget="save">
-                {{ __('Create $MODEL_NAME$') }}
-            </x-buttons.button>
-        </div>
-    </form>
-</div>
-$EDITOR_ASSETS$
-STUB;
-
-        $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud/views'));
-        File::put(base_path('stubs/nwidart-stubs/crud/views/create.stub'), $stub);
-    }
-
-    protected function createEditViewStub(): void
-    {
-        $stub = <<<'STUB'
-<div x-data="{ deleteModalOpen: false }">
-    {{-- Breadcrumbs Header --}}
-    <x-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
-
-    {{-- Form --}}
-    <form wire:submit="save" class="space-y-6">
-        <x-card.card>
-            <x-slot name="header">{{ __('$MODEL_NAME$ Information') }}</x-slot>
-
-            <div class="space-y-6">
-                $FORM_FIELDS$
-            </div>
-        </x-card.card>
-
-        {{-- Submit --}}
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <a wire:navigate href="{{ route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index') }}" class="btn-default">
-                    {{ __('Cancel') }}
-                </a>
-                <x-buttons.button type="submit" variant="primary" icon="lucide:save" loadingTarget="save">
-                    {{ __('Save Changes') }}
-                </x-buttons.button>
-            </div>
-
-            <x-buttons.button
-                type="button"
-                variant="danger"
-                icon="lucide:trash-2"
-                x-on:click="deleteModalOpen = true"
-            >
-                {{ __('Delete') }}
-            </x-buttons.button>
-        </div>
-    </form>
-
-    {{-- Delete Confirmation Modal --}}
-    <x-modals.confirm-delete
-        id="delete-$MODEL_LOWER$-modal"
-        title="{{ __('Delete $MODEL_NAME$') }}"
-        content="{{ __('Are you sure you want to delete this $MODEL_LOWER$?') }}"
-        wireClick="delete"
-    />
-</div>
-$EDITOR_ASSETS$
-STUB;
-
-        $this->ensureDirectoryExists(base_path('stubs/nwidart-stubs/crud/views'));
-        File::put(base_path('stubs/nwidart-stubs/crud/views/edit.stub'), $stub);
     }
 }

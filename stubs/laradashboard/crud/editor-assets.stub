@@ -1,0 +1,76 @@
+
+@assets
+<style>
+    .tox-tinymce { border-radius: 10px !important; border: 1px solid var(--color-gray-200, #e5e7eb) !important; }
+    .dark .tox-tinymce { border-color: rgb(55 65 81) !important; }
+    .tox .tox-toolbar { background: transparent !important; }
+    .tox .tox-edit-area, .tox .tox-edit-area__iframe { border: none !important; }
+    .tox.tox-tinymce:focus-within { --tw-ring-color: rgb(var(--color-primary) / 1); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
+    .tox .tox-statusbar { border-top: 1px solid var(--color-gray-200, #e5e7eb) !important; }
+    .dark .tox .tox-statusbar { border-top-color: rgb(55 65 81) !important; }
+    .tox-promotion, .tox-promotion-link, .tox .tox-statusbar__path, .tox-statusbar__upgrade, button[title*="Upgrade"], a[title*="Upgrade"], .tox-promotion-container { display: none !important; }
+</style>
+<script src="{{ asset('vendor/tinymce/tinymce.min.js') }}" defer></script>
+@endassets
+
+@script
+<script>
+    // Wait for next tick to ensure DOM is ready
+    queueMicrotask(() => {
+        const editorIds = $EDITOR_IDS$;
+
+        editorIds.forEach(editorId => {
+            const textareaElement = document.getElementById(editorId);
+            if (!textareaElement) {
+                console.error(`Textarea with ID "${editorId}" not found`);
+                return;
+            }
+
+            // Wait for TinyMCE to be loaded
+            const initEditor = () => {
+                if (typeof tinymce === 'undefined') {
+                    setTimeout(initEditor, 100);
+                    return;
+                }
+
+                // Remove existing editor if any
+                if (tinymce.get(editorId)) {
+                    tinymce.get(editorId).remove();
+                }
+
+                tinymce.init({
+                    target: textareaElement,
+                    height: 300,
+                    menubar: false,
+                    plugins: 'autolink link image lists wordcount code',
+                    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | removeformat code',
+                    content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; }',
+                    skin: document.documentElement.classList.contains('dark') ? 'oxide-dark' : 'oxide',
+                    content_css: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
+                    valid_elements: '*[*]',
+                    extended_valid_elements: '*[*]',
+                    branding: false,
+                    promotion: false,
+                    statusbar: false,
+                    setup: function(editor) {
+                        editor.on('change keyup paste', function() {
+                            textareaElement.value = editor.getContent();
+                            const event = new Event('input', { bubbles: true });
+                            textareaElement.dispatchEvent(event);
+                        });
+                    },
+                    init_instance_callback: function(editor) {
+                        const initialContent = textareaElement.value;
+                        if (initialContent && initialContent.trim() !== '') {
+                            editor.setContent(initialContent);
+                        }
+                        textareaElement.style.display = 'none';
+                    }
+                });
+            };
+
+            initEditor();
+        });
+    });
+</script>
+@endscript

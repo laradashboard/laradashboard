@@ -1,0 +1,13 @@
+<div>
+    {{-- Breadcrumbs Header --}}
+    <x-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
+
+    {{-- Details --}}
+    <x-card.card>
+        <x-slot name="header">{{ __('$MODEL_NAME$ Information') }}</x-slot>
+
+        <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            $DISPLAY_FIELDS$
+        </dl>
+    </x-card.card>
+</div>

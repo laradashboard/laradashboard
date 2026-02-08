@@ -1,0 +1,26 @@
+<div>
+    {{-- Breadcrumbs Header --}}
+    <x-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
+
+    {{-- Form --}}
+    <form wire:submit="save" class="space-y-6">
+        <x-card.card>
+            <x-slot name="header">{{ __('$MODEL_NAME$ Information') }}</x-slot>
+
+            <div class="space-y-6">
+                $FORM_FIELDS$
+            </div>
+        </x-card.card>
+
+        {{-- Submit --}}
+        <div class="flex items-center gap-4">
+            <a wire:navigate href="{{ route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index') }}" class="btn-default">
+                {{ __('Cancel') }}
+            </a>
+            <x-buttons.button type="submit" variant="primary" icon="lucide:save" loadingTarget="save">
+                {{ __('Create $MODEL_NAME$') }}
+            </x-buttons.button>
+        </div>
+    </form>
+</div>
+$EDITOR_ASSETS$
