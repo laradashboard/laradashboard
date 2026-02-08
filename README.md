@@ -54,7 +54,7 @@ password - 12345678
 -   **Feat:** Inbound/Outbound email connection managent.
 -   **Enhancement:** Fallback queue handling management.
 -   **Enhancement:** Quick links dropdown at navbar.
--   **Enhancement:** Updated stubs.
+-   **Enhancement:** Updated some stubs for easy module generation following laradashboard.
 
 **[v0.9.2] - 2025-01-11**
 -   **Feat:** Manual core upgrade system with backup/restore functionality.

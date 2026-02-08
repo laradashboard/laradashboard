@@ -4,6 +4,7 @@ namespace $NAMESPACE$;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use $MODULE_NAMESPACE$\$MODULE$\Services\ModuleService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -27,6 +28,11 @@ class $CLASS$ extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, '$MIGRATIONS_PATH$'));
+
+        // Bootstrap module services (menu, permissions, etc.)
+        $this->app->booted(function () {
+            $this->app->make(ModuleService::class)->bootstrap();
+        });
     }
 
     /**
@@ -36,6 +42,7 @@ class $CLASS$ extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        $this->app->register(LivewireServiceProvider::class);
     }
 
     /**

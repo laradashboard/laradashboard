@@ -1,11 +1,19 @@
 {
     "name": "$STUDLY_NAME$",
     "alias": "$LOWER_NAME$",
+    "title": "$STUDLY_NAME$",
     "description": "",
     "keywords": [],
-    "priority": 0,
+    "category": "addon",
+    "priority": 50,
     "providers": [
         "$MODULE_NAMESPACE$\\$STUDLY_NAME$\\$PROVIDER_NAMESPACE$\\$STUDLY_NAME$ServiceProvider"
     ],
-    "files": []
+    "files": [],
+    "icon": "lucide:box",
+    "logo_image": null,
+    "banner_image": null,
+    "version": "1.0.0",
+    "author": "$AUTHOR_NAME$",
+    "pricing": "free"
 }

@@ -1,5 +1,12 @@
-<x-$LOWER_NAME$::layouts.master>
-    <h1>Hello World</h1>
+@extends('$LOWER_NAME$::layouts.master')
 
-    <p>Module: {!! config('$LOWER_NAME$.name') !!}</p>
-</x-$LOWER_NAME$::layouts.master>
+@section('$LOWER_NAME$-admin-content')
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-8">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            {{ __('Welcome to') }} {{ config('$LOWER_NAME$.name') }}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+            {{ __('Your module is ready. Start building!') }}
+        </p>
+    </div>
+@endsection

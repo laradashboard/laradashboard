@@ -3,13 +3,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "build:dist": "MODULE_DIST_BUILD=true vite build"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
     "axios": "^1.1.2",
-    "laravel-vite-plugin": "^0.7.5",
-    "sass": "^1.69.5",
+    "laravel-vite-plugin": "^1.0.0",
     "postcss": "^8.3.7",
-    "vite": "^4.0.0"
+    "tailwindcss": "^4.0.0",
+    "vite": "^6.0.0"
   }
 }
