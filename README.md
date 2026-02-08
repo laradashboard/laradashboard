@@ -52,6 +52,7 @@ password - 12345678
 
 **[v0.9.3] - 2025-02-08**
 -   **Feat:** Inbound/Outbound email connection managent.
+-   **Feat:** CRUD Generator (`module:make-crud`) - Rapid scaffolding for modules with Model, Datatable, Views, Routes, Menu.
 -   **Enhancement:** Fallback queue handling management.
 -   **Enhancement:** Quick links dropdown at navbar.
 -   **Enhancement:** Updated some stubs for easy module generation following laradashboard.
@@ -895,6 +896,37 @@ php artisan module:compile-css Blog --dist
 php artisan module:package Blog --no-vendor
 # Output: Blog-v1.0.0.zip
 ```
+
+### CRUD Generator
+
+Rapidly scaffold complete CRUD operations with a single command:
+
+```bash
+# 1. Create migration first
+php artisan module:make-migration create_blog_posts_table Blog
+
+# 2. Run migration
+php artisan migrate
+
+# 3. Generate complete CRUD (Model, Datatable, Views, Routes, Menu)
+php artisan module:make-crud Blog --migration=create_blog_posts_table
+
+# Or use model name (auto-detects migration)
+php artisan module:make-crud Blog --model=Post
+
+# 4. Clear cache and visit /admin/blog/posts
+php artisan optimize:clear
+```
+
+**What gets generated:**
+- ✅ Model with fillable fields and casts
+- ✅ Datatable with sorting, searching, pagination
+- ✅ Index, Show, Create, Edit Livewire components
+- ✅ Blade views with breadcrumb navigation
+- ✅ Routes (index, create, show, edit)
+- ✅ Sidebar menu item
+
+**[📖 Full CRUD Generator Guide](docs/LaraDocs/developer-guide/crud-generator.md)** - Covers customization, filters, permissions, and best practices.
 
 ### Installing Modules
 

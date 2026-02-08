@@ -1,0 +1,7 @@
+<div>
+    {{-- Breadcrumbs Header --}}
+    <x-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
+
+    {{-- Datatable --}}
+    <livewire:$LOWER_NAME$::components.$MODEL_LOWER$-datatable />
+</div>
