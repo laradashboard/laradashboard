@@ -27,6 +27,7 @@ public/images/.DS_Store
 # - composer.lock (locked dependencies)
 # Use `php artisan module:install-deps` to install module dependencies.
 /modules/*
+/modules/*/vendor/
 # Keep the modules directory structure
 !/modules/.gitkeep
 

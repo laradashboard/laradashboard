@@ -28,8 +28,10 @@ afterEach(function () {
 });
 
 test('crud command requires module argument', function () {
-    $this->artisan('module:make-crud')
-        ->assertFailed();
+    $this->expectException(\Symfony\Component\Console\Exception\RuntimeException::class);
+    $this->expectExceptionMessage('Not enough arguments (missing: "module")');
+
+    $this->artisan('module:make-crud');
 });
 
 test('crud command fails without migration or model', function () {
