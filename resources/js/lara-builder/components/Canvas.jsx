@@ -112,6 +112,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     const hasTextFormatting = supports.bold || supports.italic || supports.underline;
     const hasAlignOnly = supports.align && !hasTextFormatting;
     const hasColumnCount = supports.columnCount === true;
+    const hasNesting = supports.nesting === true || hasColumnCount;
 
     // Blocks with their own toolbar (like text-editor) - always show toolbar at bottom
     const SELF_EDITING_BLOCKS = ['text-editor'];
@@ -227,7 +228,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     onReplaceBlock: onReplaceBlock ? (blockType) => onReplaceBlock(block.id, blockType) : undefined,
                     context: context,
                 } : {})}
-                {...(hasColumnCount ? {
+                {...(hasNesting ? {
                     blockId: block.id,
                     onSelect: onSelect,
                     selectedBlockId: selectedBlockId,

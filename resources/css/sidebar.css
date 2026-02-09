@@ -80,7 +80,7 @@
 }
 
 .submenu-expanded {
-    @apply opacity-100 mt-1 pointer-events-auto;
+    @apply opacity-100 mt-1 pointer-events-auto overflow-y-auto;
     max-height: 500px;
     transform: scaleY(1) translateY(0);
 }

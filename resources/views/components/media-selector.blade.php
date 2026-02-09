@@ -218,6 +218,9 @@
             showExistingMedia: hasExistingMedia,
 
             init() {
+                // Preserve any existing callback set by parent (for Livewire entangle sync)
+                const existingCallback = window[`handleMediaSelection_${modalId}`];
+
                 window[`handleMediaSelection_${modalId}`] = (files) => {
                     if (multiple) {
                         this.selectedMedia = [...files];
@@ -225,6 +228,12 @@
                         this.selectedMedia = files.slice(0, 1);
                     }
                     this.showExistingMedia = false;
+
+                    // Call the parent's callback to sync with Livewire
+                    if (existingCallback && typeof existingCallback === 'function') {
+                        existingCallback(files);
+                    }
+
                     window.dispatchEvent(new CustomEvent('avatar-selected', { detail: this.selectedMedia.length > 0 }));
                 };
 

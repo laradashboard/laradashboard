@@ -50,3 +50,7 @@ export { default as TableBlock } from '../table/block';
 export { default as CodeBlock } from '../code/block';
 export { default as PreformattedBlock } from '../preformatted/block';
 export { default as AccordionBlock } from '../accordion/block';
+export { default as SectionBlock } from '../section/block';
+export { default as IconBlock } from '../icon/block';
+export { default as FeatureBoxBlock } from '../feature-box/block';
+export { default as StatsItemBlock } from '../stats-item/block';

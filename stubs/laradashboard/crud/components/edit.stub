@@ -1,0 +1,72 @@
+<?php
+
+declare(strict_types=1);
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Livewire\Admin\$MODEL_PLURAL$;
+
+use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+$USE_STATEMENTS$
+use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
+
+#[Layout('$LOWER_NAME$::layouts.crud')]
+class Edit extends Component
+{
+$TRAIT_USE$
+    public $MODEL_NAME$ $$MODEL_LOWER$;
+
+    $PROPERTIES$
+
+    public array $breadcrumbs = [];
+
+    protected function rules(): array
+    {
+        return [
+            $RULES$
+        ];
+    }
+
+    public function mount($MODEL_NAME$ $$MODEL_LOWER$): void
+    {
+        $this->$MODEL_LOWER$ = $$MODEL_LOWER$;
+        $MOUNT_ASSIGNMENTS$
+
+        $this->breadcrumbs = [
+            'title' => __('Edit $MODEL_NAME$'),
+            'icon' => 'lucide:list',
+            'back_url' => route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index'),
+            'action' => [
+                'url' => route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.show', $this->$MODEL_LOWER$),
+                'label' => __('View'),
+                'icon' => 'lucide:eye',
+            ],
+        ];
+    }
+
+    public function save(): void
+    {
+        $validated = $this->validate();
+
+        $this->$MODEL_LOWER$->update([
+            $UPDATE_DATA$
+        ]);
+
+        session()->flash('success', __('$MODEL_NAME$ updated successfully.'));
+    }
+
+    public function delete(): void
+    {
+        $this->$MODEL_LOWER$->delete();
+
+        session()->flash('success', __('$MODEL_NAME$ deleted successfully.'));
+
+        $this->redirect(route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index'), navigate: true);
+    }
+$FILE_DELETE_METHODS$
+
+    public function render(): View
+    {
+        return view('$LOWER_NAME$::livewire.admin.$MODEL_PLURAL_LOWER$.edit');
+    }
+}

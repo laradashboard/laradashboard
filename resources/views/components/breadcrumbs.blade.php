@@ -12,6 +12,7 @@
     'back_url' => $breadcrumbs['back_url'] ?? null,
     'icon' => $breadcrumbs['icon'] ?? null,
     'action' => $breadcrumbs['action'] ?? null,
+    'actions_before_data' => $breadcrumbs['actions_before'] ?? null,
 ])
 
 @php
@@ -67,11 +68,16 @@
     </div>
 
     {{-- Action button area (replaces the old breadcrumb navigation) --}}
-    @if($action || isset($actions_before) || isset($actions_after))
+    @if($action || isset($actions_before) || isset($actions_after) || $actions_before_data)
         <div class="flex items-center gap-2 shrink-0">
             {{-- Actions before slot - for additional buttons/dropdowns before main action --}}
             @if(isset($actions_before))
                 {!! $actions_before !!}
+            @endif
+
+            {{-- Actions before from controller data --}}
+            @if($actions_before_data)
+                {!! $actions_before_data !!}
             @endif
 
             {{-- Main action button --}}

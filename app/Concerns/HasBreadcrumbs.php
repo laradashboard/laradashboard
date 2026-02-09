@@ -16,6 +16,7 @@ trait HasBreadcrumbs
         'back_url' => null,
         'icon' => null,
         'action' => null,
+        'actions_before' => null,
     ];
 
     public function setBreadcrumbTitle(string $title): self
@@ -114,6 +115,16 @@ trait HasBreadcrumbs
             'icon' => $icon,
             'permission' => $permission,
         ];
+
+        return $this;
+    }
+
+    /**
+     * Set HTML content to display before the main action button.
+     */
+    public function setBreadcrumbActionsBefore(string $html): self
+    {
+        $this->breadcrumbs['actions_before'] = $html;
 
         return $this;
     }

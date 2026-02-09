@@ -50,6 +50,13 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v0.9.3] - 2025-02-08**
+-   **Feat:** Inbound/Outbound email connection managent.
+-   **Feat:** CRUD Generator (`module:make-crud`) - Rapid scaffolding for modules with Model, Datatable, Views, Routes, Menu.
+-   **Enhancement:** Fallback queue handling management.
+-   **Enhancement:** Quick links dropdown at navbar.
+-   **Enhancement:** Updated some stubs for easy module generation following laradashboard.
+
 **[v0.9.2] - 2025-01-11**
 -   **Feat:** Manual core upgrade system with backup/restore functionality.
 -   **Feat:** Production-ready zip distribution with vendor folder support.
@@ -167,7 +174,7 @@ password - 12345678
 
 ## 🔄 Versions:
 
-Latest version `v0.9.2` - https://github.com/laradashboard/laradashboard/releases/tag/v0.9.2
+Latest version `v0.9.3` - https://github.com/laradashboard/laradashboard/releases/tag/v0.9.3
 
 <details>
 <summary>View Old versions</summary>
@@ -222,13 +229,6 @@ git clone git@github.com:laradashboard/laradashboard.git
 cd laradashboard
 ```
 
-**Install Composer & Node Dependencies**
-
-```console
-composer install
-npm install
-```
-
 **Database & env creation**
 
 -   Create database called - `laradashboard`
@@ -238,17 +238,28 @@ npm install
 cp .env.example .env
 ```
 
-**Generate Artisan Key or necessary linkings**
+**Install Composer & Node Dependencies**
+
+```console
+composer install
+npm install
+```
+
+**Generate Artisan key**
 
 ```console
 php artisan key:generate
+```
+
+**Link storage for file upload processing**
+```console
 php artisan storage:link
 ```
 
 **Migrate Database with seeder**
 
 ```console
-php artisan migrate:fresh --seed && php artisan module:seed
+php artisan migrate:fresh --seed
 ```
 
 **Run Project**
@@ -476,6 +487,31 @@ composer run pint
 composer run phpstan
 composer run pest
 ```
+
+## 🛠️ Troubleshooting
+
+<details>
+<summary><strong>Laragon/Windows: ext-sockets missing</strong></summary>
+
+If you get this error during `composer install`:
+```
+pestphp/pest-plugin-browser requires ext-sockets * -> it is missing from your system
+```
+
+**Fix:** Enable the sockets extension in `php.ini`:
+```ini
+extension=sockets
+```
+
+Or via Laragon UI: Right-click tray → **PHP** → **Extensions** → check **sockets**
+
+**Quick workaround:**
+```bash
+composer install --ignore-platform-req=ext-sockets
+```
+</details>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 🚀 Laravel Boost
 
@@ -860,6 +896,37 @@ php artisan module:compile-css Blog --dist
 php artisan module:package Blog --no-vendor
 # Output: Blog-v1.0.0.zip
 ```
+
+### CRUD Generator
+
+Rapidly scaffold complete CRUD operations with a single command:
+
+```bash
+# 1. Create migration first
+php artisan module:make-migration create_blog_posts_table Blog
+
+# 2. Run migration
+php artisan migrate
+
+# 3. Generate complete CRUD (Model, Datatable, Views, Routes, Menu)
+php artisan module:make-crud Blog --migration=create_blog_posts_table
+
+# Or use model name (auto-detects migration)
+php artisan module:make-crud Blog --model=Post
+
+# 4. Clear cache and visit /admin/blog/posts
+php artisan optimize:clear
+```
+
+**What gets generated:**
+- ✅ Model with fillable fields and casts
+- ✅ Datatable with sorting, searching, pagination
+- ✅ Index, Show, Create, Edit Livewire components
+- ✅ Blade views with breadcrumb navigation
+- ✅ Routes (index, create, show, edit)
+- ✅ Sidebar menu item
+
+**[📖 Full CRUD Generator Guide](docs/LaraDocs/developer-guide/crud-generator.md)** - Covers customization, filters, permissions, and best practices.
 
 ### Installing Modules
 

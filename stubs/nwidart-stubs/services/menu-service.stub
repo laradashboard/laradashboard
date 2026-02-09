@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Services;
+
+use App\Services\MenuService\AdminMenuItem;
+use Illuminate\Support\Facades\Route;
+
+class MenuService
+{
+    /**
+     * Add the module menu to the admin sidebar.
+     */
+    public function addMenu(array $groups): array
+    {
+        $groups[__('Main')][] = $this->getMenu();
+
+        return $groups;
+    }
+
+    /**
+     * Get the module menu item.
+     */
+    public function getMenu(): AdminMenuItem
+    {
+        return (new AdminMenuItem())->setAttributes([
+            'label' => __('$STUDLY_NAME$'),
+            'icon' => 'lucide:box',
+            'route' => route('admin.$LOWER_NAME$.dashboard'),
+            'active' => Route::is('admin.$LOWER_NAME$.*'),
+            'id' => '$LOWER_NAME$',
+            'priority' => 50,
+            'permissions' => [],
+        ]);
+    }
+}

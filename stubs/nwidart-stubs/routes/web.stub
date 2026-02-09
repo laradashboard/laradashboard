@@ -1,8 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use $MODULE_NAMESPACE$\$STUDLY_NAME$\$CONTROLLER_NAMESPACE$\$STUDLY_NAME$Controller;
+use $MODULE_NAMESPACE$\$STUDLY_NAME$\Livewire\Admin\Dashboard;
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::resource('$LOWER_NAME$', $STUDLY_NAME$Controller::class)->names('$LOWER_NAME$');
-});
+Route::middleware(['auth', 'verified'])
+    ->prefix('admin/$LOWER_NAME$')
+    ->as('admin.$LOWER_NAME$.')
+    ->group(function () {
+        Route::get('/', fn () => redirect()->route('admin.$LOWER_NAME$.dashboard'));
+        Route::get('dashboard', Dashboard::class)->name('dashboard');
+    });

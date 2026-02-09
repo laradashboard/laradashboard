@@ -1,12 +1,16 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import { readdirSync, statSync } from 'fs';
-import { join,relative,dirname } from 'path';
-import { fileURLToPath } from 'url';
+import tailwindcss from '@tailwindcss/vite';
+import path from 'path';
+
+// Dual build mode: development builds to public/, distribution builds to dist/
+const isDistBuild = process.env.MODULE_DIST_BUILD === 'true';
+const distOutDir = path.resolve(__dirname, 'dist/build-$LOWER_NAME$');
+const devOutDir = path.resolve(__dirname, '../../public/build-$LOWER_NAME$');
 
 export default defineConfig({
     build: {
-        outDir: '../../public/build-$LOWER_NAME$',
+        outDir: isDistBuild ? distOutDir : devOutDir,
         emptyOutDir: true,
         manifest: true,
     },
@@ -15,43 +19,16 @@ export default defineConfig({
             publicDirectory: '../../public',
             buildDirectory: 'build-$LOWER_NAME$',
             input: [
-                __dirname + '/resources/assets/sass/app.scss',
-                __dirname + '/resources/assets/js/app.js'
+                __dirname + '/resources/assets/css/app.css',
+                __dirname + '/resources/assets/js/app.js',
             ],
             refresh: true,
         }),
+        tailwindcss(),
     ],
+    resolve: {
+        alias: [
+            { find: '~', replacement: path.resolve(__dirname, 'node_modules') },
+        ],
+    },
 });
-// Scen all resources for assets file. Return array
-//function getFilePaths(dir) {
-//    const filePaths = [];
-//
-//    function walkDirectory(currentPath) {
-//        const files = readdirSync(currentPath);
-//        for (const file of files) {
-//            const filePath = join(currentPath, file);
-//            const stats = statSync(filePath);
-//            if (stats.isFile() && !file.startsWith('.')) {
-//                const relativePath = 'Modules/$STUDLY_NAME$/'+relative(__dirname, filePath);
-//                filePaths.push(relativePath);
-//            } else if (stats.isDirectory()) {
-//                walkDirectory(filePath);
-//            }
-//        }
-//    }
-//
-//    walkDirectory(dir);
-//    return filePaths;
-//}
-
-//const __filename = fileURLToPath(import.meta.url);
-//const __dirname = dirname(__filename);
-
-//const assetsDir = join(__dirname, 'resources/assets');
-//export const paths = getFilePaths(assetsDir);
-
-
-//export const paths = [
-//    'Modules/$STUDLY_NAME$/resources/assets/sass/app.scss',
-//    'Modules/$STUDLY_NAME$/resources/assets/js/app.js',
-//];

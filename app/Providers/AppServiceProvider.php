@@ -10,8 +10,11 @@ use App\Observers\EmailObserver;
 use App\Services\EmailConnectionService;
 use App\Services\EmailProviderRegistry;
 use App\Services\Emails\Mailer;
+use App\Services\EmailParserService;
 use App\Services\EmailProviders\PhpMailProvider;
 use App\Services\EmailProviders\SmtpProvider;
+use App\Services\ImapService;
+use App\Services\InboundEmailProcessor;
 use App\Support\Facades\Hook;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
@@ -37,6 +40,16 @@ class AppServiceProvider extends ServiceProvider
         // Register Mailer service as singleton for unified email sending
         $this->app->singleton(Mailer::class, function ($app) {
             return new Mailer($app->make(EmailConnectionService::class));
+        });
+
+        // Register Inbound Email services for IMAP email processing
+        $this->app->singleton(ImapService::class);
+        $this->app->singleton(EmailParserService::class);
+        $this->app->singleton(InboundEmailProcessor::class, function ($app) {
+            return new InboundEmailProcessor(
+                $app->make(ImapService::class),
+                $app->make(EmailParserService::class),
+            );
         });
 
         // Register Debugbar only in local environment

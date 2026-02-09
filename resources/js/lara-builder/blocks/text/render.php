@@ -13,7 +13,8 @@
  */
 
 return function (array $props, string $context = 'page', ?string $blockId = null): string {
-    $content = $props['content'] ?? '';
+    // Support both 'content' (from HTML save) and 'text' (from design_json)
+    $content = $props['content'] ?? $props['text'] ?? '';
     $align = $props['align'] ?? 'left';
     $color = $props['color'] ?? '#666666';
     $fontSize = $props['fontSize'] ?? '16px';

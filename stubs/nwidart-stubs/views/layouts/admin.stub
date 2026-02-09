@@ -1,0 +1,28 @@
+@extends('$LOWER_NAME$::layouts.master')
+
+@section('$LOWER_NAME$-admin-content')
+    <div class="space-y-6">
+        {{-- Top Navigation Bar --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            {{-- Header with Logo --}}
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-6 py-4">
+                {{-- Logo --}}
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                        <iconify-icon icon="lucide:box" class="text-white text-xl"></iconify-icon>
+                    </div>
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-white">{{ __('$STUDLY_NAME$') }}</h2>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('Module Dashboard') }}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {{-- Main Content --}}
+        <div>
+            {{ $slot }}
+        </div>
+    </div>
+@endsection

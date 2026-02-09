@@ -1,4 +1,4 @@
-<div x-data="testEmailModal()" x-init="init()">
+<div x-data="testEmailModal('{{ $sendTestUrl ?? '' }}')" x-init="init()">
     <div
         x-cloak
         x-show="open"
@@ -107,13 +107,14 @@
     }
 
     document.addEventListener('alpine:init', () => {
-        Alpine.data('testEmailModal', () => ({
+        Alpine.data('testEmailModal', (sendTestUrl = '') => ({
             open: false,
             loading: false,
             errorMessage: '',
             successMessage: '',
             id: null,
             type: 'email-template',
+            customUrl: sendTestUrl,
 
             init() {
                 this.$watch('open', value => {
@@ -140,10 +141,10 @@
                     this.$refs.emailInput.value = '';
                 }
             },
-            
+
             sendTestEmail() {
                 const email = this.$refs.emailInput.value;
-                
+
                 if (!email) {
                     this.errorMessage = '{{ __('Please enter an email address') }}';
                     return;
@@ -153,7 +154,8 @@
                 this.errorMessage = '';
                 this.successMessage = '';
 
-                const url = `/admin/settings/emails/send-test?type=${this.type}&id=${this.id}`;
+                // Use custom URL if provided, otherwise fallback to default
+                const url = this.customUrl || `/admin/settings/emails/send-test?type=${this.type}&id=${this.id}`;
 
                 fetch(url, {
                     method: 'POST',
@@ -171,7 +173,7 @@
                             this.closeModal();
                         }, 2000);
                     } else {
-                        this.errorMessage = '{{ __('Failed to send test email') }}';
+                        this.errorMessage = data?.error || '{{ __('Failed to send test email') }}';
                     }
                 })
                 .catch(error => {

@@ -1,0 +1,77 @@
+<?php
+
+declare(strict_types=1);
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Livewire\Components;
+
+use App\Livewire\Datatable\Datatable;
+use Illuminate\Database\Eloquent\Model;
+use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
+use Spatie\QueryBuilder\QueryBuilder;
+
+class $MODEL_NAME$Datatable extends Datatable
+{
+    public string $model = $MODEL_NAME$::class;
+
+    public function getSearchbarPlaceholder(): string
+    {
+        return __('Search $MODEL_PLURAL_LOWER$...');
+    }
+
+    protected function getHeaders(): array
+    {
+        return [
+            $HEADERS$
+        ];
+    }
+
+    public function getRoutes(): array
+    {
+        return [
+            'create' => 'admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.create',
+            'view' => 'admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.show',
+            'edit' => 'admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.edit',
+            'delete' => 'livewire', // Marker for Livewire-based delete (handled by handleRowDelete)
+        ];
+    }
+
+    /**
+     * Return empty string for delete URL since deletion is handled by Livewire.
+     */
+    public function getDeleteRouteUrl($item): string
+    {
+        return '';
+    }
+
+    /**
+     * Define permissions for action buttons.
+     * Set to true to allow all users, or use permission checks like:
+     *   'view' => auth()->user()->can('$MODEL_LOWER$.view', $item),
+     *   'edit' => auth()->user()->can('$MODEL_LOWER$.edit', $item),
+     *   'delete' => auth()->user()->can('$MODEL_LOWER$.delete', $item),
+     */
+    public function getActionCellPermissions($item): array
+    {
+        return [
+            'view' => true,   // TODO: Add permission check, e.g., auth()->user()->can('$MODEL_LOWER$.view', $item)
+            'edit' => true,   // TODO: Add permission check, e.g., auth()->user()->can('$MODEL_LOWER$.edit', $item)
+            'delete' => true, // TODO: Add permission check, e.g., auth()->user()->can('$MODEL_LOWER$.delete', $item)
+        ];
+    }
+
+    protected function buildQuery(): QueryBuilder
+    {
+        return QueryBuilder::for($MODEL_NAME$::query())
+            ->when($this->search, function ($query) {
+                $query->where(function ($q) {
+                    $SEARCH_QUERY$
+                });
+            })
+            ->orderBy($this->sort, $this->direction);
+    }
+
+    public function handleRowDelete(Model|$MODEL_NAME$ $item): bool
+    {
+        return $item->delete();
+    }
+}

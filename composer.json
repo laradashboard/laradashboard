@@ -119,13 +119,16 @@
             "./vendor/bin/rector process"
         ],
         "pint": [
+            "./vendor/bin/pint --test --config pint-no-modules.json"
+        ],
+        "pint:all": [
             "./vendor/bin/pint --test --config pint.json"
         ],
         "phpstan": [
             "./vendor/bin/phpstan analyse --memory-limit=5G"
         ],
         "pest": [
-            "./vendor/bin/pest --parallel --testsuite=Unit,Feature,Smoke,Browser"
+            "./vendor/bin/pest --parallel --testsuite=Unit,Feature,Smoke,Browser && ./vendor/bin/pest --testsuite=Sequential"
         ],
         "pest:modules": [
             "./vendor/bin/pest --parallel --testsuite=Modules"
@@ -143,13 +146,13 @@
             "@pest"
         ],
         "test:modules": [
-            "@pint",
+            "@pint:all",
             "@phpstan",
             "@pest:modules",
             "@type-check"
         ],
-        "test:all": [
-            "@pint",
+        "test-all": [
+            "@pint:all",
             "@phpstan",
             "@pest:all",
             "@type-check"

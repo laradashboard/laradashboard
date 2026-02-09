@@ -34,6 +34,10 @@ import accordionBlock from './accordion';
 import tocBlock from './toc';
 import timeToReadBlock from './time-to-read';
 import markdownBlock from './markdown';
+import sectionBlock from './section';
+import iconBlock from './icon';
+import featureBoxBlock from './feature-box';
+import statsItemBlock from './stats-item';
 
 /**
  * All modular blocks (new format with block.json)
@@ -61,6 +65,10 @@ const modularBlocks = [
     tocBlock,
     timeToReadBlock,
     markdownBlock,
+    sectionBlock,
+    iconBlock,
+    featureBoxBlock,
+    statsItemBlock,
 ];
 
 /**

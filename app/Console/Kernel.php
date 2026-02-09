@@ -33,6 +33,15 @@ class Kernel extends ConsoleKernel
             ->hourly()
             ->withoutOverlapping()
             ->runInBackground();
+
+        // Process inbound emails every 5 minutes.
+        // This checks all active IMAP connections that are due for polling.
+        // Each connection has its own polling_interval setting.
+        $schedule->command('email:process-inbound')
+            ->everyFiveMinutes()
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->appendOutputTo(storage_path('logs/inbound-email.log'));
     }
 
     /**

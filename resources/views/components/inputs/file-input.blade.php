@@ -8,13 +8,15 @@
     'removeCheckboxName' => 'remove_featured_image',
     'removeCheckboxLabel' => null,
     'selectedImageClass' => null,
+    'accept' => null,
+    'hint' => null,
 ])
 
 @php
     $id = $id ?? $name;
 @endphp
 
-<div {{ $attributes->merge(['class' => 'mb-4 space-y-1']) }}>
+<div class="space-y-1">
     <label for="{{ $id }}" class="form-label">{{ $label }}</label>
     @if ($existingAttachment)
         <div class="mb-4 {{ $selectedImageClass ?? '' }}">
@@ -32,7 +34,20 @@
             @endif
         </div>
     @endif
-    <input type="file" name="{{ $name }}" id="{{ $id }}" {{ $multiple ? 'multiple' : '' }}
-        class="form-control-file">
+    <input
+        type="file"
+        name="{{ $name }}"
+        id="{{ $id }}"
+        {{ $multiple ? 'multiple' : '' }}
+        @if($accept) accept="{{ $accept }}" @endif
+        {{ $attributes->whereStartsWith('wire:') }}
+        class="form-control-file"
+    >
+    @if($hint)
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $hint }}</p>
+    @endif
+    @error($name)
+        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+    @enderror
     {{ $slot }}
 </div>

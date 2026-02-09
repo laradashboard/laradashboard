@@ -13,6 +13,7 @@ use App\Http\Controllers\Backend\EditorController;
 use App\Http\Controllers\Backend\EmailConnectionController;
 use App\Http\Controllers\Backend\EmailSettingController;
 use App\Http\Controllers\Backend\EmailTemplateController;
+use App\Http\Controllers\Backend\InboundEmailConnectionController;
 use App\Http\Controllers\Backend\LocaleController;
 use App\Http\Controllers\Backend\MediaController;
 use App\Http\Controllers\Backend\ModuleController;
@@ -91,6 +92,18 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
             Route::post('{email_connection}/test', [EmailConnectionController::class, 'testConnection'])->name('test');
             Route::post('{email_connection}/default', [EmailConnectionController::class, 'setDefault'])->name('default');
             Route::post('reorder', [EmailConnectionController::class, 'reorder'])->name('reorder');
+        });
+
+        // Inbound Email Connections Management Routes (IMAP).
+        Route::group(['prefix' => 'inbound-email-connections', 'as' => 'inbound-email-connections.'], function () {
+            Route::get('/', [InboundEmailConnectionController::class, 'index'])->name('index');
+            Route::post('/', [InboundEmailConnectionController::class, 'store'])->name('store');
+            Route::get('{inbound_email_connection}', [InboundEmailConnectionController::class, 'show'])->name('show');
+            Route::put('{inbound_email_connection}', [InboundEmailConnectionController::class, 'update'])->name('update');
+            Route::delete('{inbound_email_connection}', [InboundEmailConnectionController::class, 'destroy'])->name('destroy');
+            Route::post('{inbound_email_connection}/test', [InboundEmailConnectionController::class, 'testConnection'])->name('test');
+            Route::post('{inbound_email_connection}/toggle-active', [InboundEmailConnectionController::class, 'toggleActive'])->name('toggle-active');
+            Route::post('{inbound_email_connection}/process-now', [InboundEmailConnectionController::class, 'processNow'])->name('process-now');
         });
 
         // Email Templates Management Routes.
