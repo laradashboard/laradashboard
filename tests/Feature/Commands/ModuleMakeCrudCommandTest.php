@@ -16,6 +16,14 @@ beforeEach(function () {
             File::deleteDirectory($path);
         }
     }
+
+    // Remove TestCrud from modules_statuses.json if it exists
+    $statusFile = base_path('modules_statuses.json');
+    if (File::exists($statusFile)) {
+        $statuses = json_decode(File::get($statusFile), true) ?: [];
+        unset($statuses['TestCrud'], $statuses['test-crud']);
+        File::put($statusFile, json_encode($statuses, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    }
 });
 
 afterEach(function () {
@@ -24,6 +32,14 @@ afterEach(function () {
         if (File::isDirectory($path)) {
             File::deleteDirectory($path);
         }
+    }
+
+    // Remove TestCrud from modules_statuses.json
+    $statusFile = base_path('modules_statuses.json');
+    if (File::exists($statusFile)) {
+        $statuses = json_decode(File::get($statusFile), true) ?: [];
+        unset($statuses['TestCrud'], $statuses['test-crud']);
+        File::put($statusFile, json_encode($statuses, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 });
 

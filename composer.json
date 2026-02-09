@@ -128,7 +128,7 @@
             "./vendor/bin/phpstan analyse --memory-limit=5G"
         ],
         "pest": [
-            "./vendor/bin/pest --parallel --testsuite=Unit,Feature,Smoke,Browser"
+            "./vendor/bin/pest --parallel --testsuite=Unit,Feature,Smoke,Browser && ./vendor/bin/pest --testsuite=Sequential"
         ],
         "pest:modules": [
             "./vendor/bin/pest --parallel --testsuite=Modules"
