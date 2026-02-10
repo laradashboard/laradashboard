@@ -92,6 +92,7 @@
     </div>
 </div>
 
+@once
 <script>
 function searchableSelect(config) {
     return {
@@ -104,11 +105,15 @@ function searchableSelect(config) {
         searchPlaceholder: config.searchPlaceholder || 'Search...',
 
         init() {
-            // Convert options object to array format.
-            this.options = Object.entries(config.options).map(([key, value]) => ({
-                key: key,
-                value: value
-            }));
+            // Convert options object to array format
+            if (config.options && typeof config.options === 'object') {
+                this.options = Object.entries(config.options).map(([key, value]) => ({
+                    key: String(key),
+                    value: String(value)
+                }));
+            } else {
+                this.options = [];
+            }
 
             this.filteredOptions = this.options;
             this.updateSelectedText();
@@ -159,3 +164,4 @@ function searchableSelect(config) {
     }
 }
 </script>
+@endonce

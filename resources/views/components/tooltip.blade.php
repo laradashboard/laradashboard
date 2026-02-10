@@ -4,6 +4,7 @@
     'description' => '',
     'position' => 'top', // top, bottom, left, right
     'width' => '',
+    'maxWidth' => '280px',
     'arrowAlign' => 'center', // left, center, right,
 ])
 
@@ -42,7 +43,7 @@ $tooltipBg = 'bg-gray-900 text-white dark:bg-gray-700 dark:text-gray-100';
         show() { this.open = true },
         hide() { this.open = false }
     }"
-    class="relative {{ !$width ? 'w-fit' : '' }}"
+    class="relative inline-flex items-center {{ !$width ? 'w-fit' : '' }}"
     style="{{ $width ? "width: {$width};" : '' }}"
 >
     <!-- Trigger -->
@@ -53,7 +54,7 @@ $tooltipBg = 'bg-gray-900 text-white dark:bg-gray-700 dark:text-gray-100';
         @blur="hide()"
         tabindex="0"
         aria-describedby="{{ $id }}"
-        class="outline-none"
+        class="outline-none inline-flex items-center"
     >
         {{ $slot }}
     </div>
@@ -63,24 +64,24 @@ $tooltipBg = 'bg-gray-900 text-white dark:bg-gray-700 dark:text-gray-100';
         id="{{ $id }}"
         x-show="open"
         x-transition.opacity.duration.250ms
-        class="absolute z-20 px-3 py-2 text-sm rounded-md shadow-md opacity-0 invisible transition-all duration-250 {{ $tooltipBg }} {{ $positionClass }} text-center"
+        class="absolute z-50 px-3 py-2 text-sm rounded-md shadow-lg opacity-0 invisible transition-all duration-250 {{ $tooltipBg }} {{ $positionClass }}"
         :class="{ 'opacity-100 visible': open, 'opacity-0 invisible': !open }"
         role="tooltip"
-        style="min-width: 160px;"
+        style="min-width: 200px; max-width: {{ $maxWidth }}; width: max-content;"
     >
         @if($title)
-            <span class="block text-sm">{{ $title }}</span>
+            <span class="block text-sm font-medium text-center">{{ $title }}</span>
         @endif
 
         @if($description)
-            <p class="text-xs opacity-90">{{ $description }}</p>
+            <p class="text-xs opacity-90 mt-1 text-left leading-relaxed">{{ $description }}</p>
         @endif
 
         <!-- Arrow -->
         <div
             x-show="open"
             x-transition.opacity.duration.150ms
-            class="absolute w-2.5 h-2.5 rotate-45 {{ $tooltipBg }} {{ $arrowPositionClass }} {{ $arrowAlignClass }}"
+            class="absolute w-2.5 h-2.5 rotate-45 z-[-1] {{ $tooltipBg }} {{ $arrowPositionClass }} {{ $arrowAlignClass }}"
         >
         </div>
     </div>
