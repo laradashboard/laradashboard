@@ -4,7 +4,7 @@
     <x-slot name="breadcrumbsData">
         <x-breadcrumbs :breadcrumbs="$breadcrumbs">
             <x-slot name="title_before">
-                <iconify-icon icon="{{ $module->icon }}" class="text-2xl text-gray-500 dark:text-gray-300"></iconify-icon>
+                <x-module-logo :module="$module" size="sm" />
             </x-slot>
             <x-slot name="title_after">
                 <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">v{{ $module->version }}</span>
@@ -159,6 +159,15 @@
                             @endif
                         </div>
                     </div>
+
+                    @if($module->hasLogoImage())
+                        <div>
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Logo') }}</label>
+                            <div class="mt-1">
+                                <x-module-logo :module="$module" size="lg" />
+                            </div>
+                        </div>
+                    @endif
 
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Icon') }}</label>

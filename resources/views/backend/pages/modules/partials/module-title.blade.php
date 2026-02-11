@@ -1,16 +1,6 @@
 <div class="flex items-center gap-3">
     <a href="{{ route('admin.modules.show', $module->name) }}">
-        @if($module->hasLogoImage())
-            <img
-                src="{{ $module->getLogoUrl() }}"
-                alt="{{ $module->title }}"
-                class="w-10 h-10 rounded-lg object-cover"
-            />
-        @else
-            <div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                <iconify-icon icon="{{ $module->icon ?? 'lucide:box' }}" class="text-xl text-gray-500 dark:text-gray-300"></iconify-icon>
-            </div>
-        @endif
+        <x-module-logo :module="$module" size="md" />
     </a>
 
     <div>
