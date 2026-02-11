@@ -411,6 +411,9 @@ class ModuleService
             // Clean up old assets first
             $this->cleanupModuleAssets($actualFolderName);
 
+            // Clean up old images
+            $this->cleanupModuleImages($normalizedExisting);
+
             // Disable the module before deletion
             if ($wasEnabled) {
                 try {
@@ -496,6 +499,9 @@ class ModuleService
             $this->publishModuleAssetsFromPath($targetPath, $moduleSlug, force: true);
             Log::info("Published pre-built assets for module {$folderName}");
         }
+
+        // Publish module images (logo, banner) to public directory
+        $this->publishModuleImagesFromPath($targetPath, $normalizedName);
 
         // Regenerate Composer autoloader so the new module classes can be found.
         // Without this, activating the module will fail with "Class not found" error.
@@ -940,6 +946,12 @@ class ModuleService
         // Clean up published assets from public directory.
         $this->cleanupModuleAssets($module->getName());
 
+        // Clean up published images from public directory.
+        $jsonName = $this->getModuleJsonName($moduleName);
+        if ($jsonName) {
+            $this->cleanupModuleImages($jsonName);
+        }
+
         // Delete the module from the database.
         ModuleFacade::delete($module->getName());
 
@@ -1123,6 +1135,131 @@ class ModuleService
         $distPath = $modulePath . '/dist/build-' . $moduleSlug;
 
         return File::isDirectory($distPath) && File::exists($distPath . '/manifest.json');
+    }
+
+    /**
+     * Publish module images (logo, banner) from module's marketplace-assets directory to public.
+     *
+     * Looks for logo_image and banner_image in module.json, then copies
+     * the corresponding files from the module's marketplace-assets/ folder
+     * to public/images/modules/{module}/
+     *
+     * Expected module structure:
+     * - modules/YourModule/marketplace-assets/logo.png
+     * - modules/YourModule/marketplace-assets/banner.png
+     * - modules/YourModule/marketplace-assets/screenshots/...
+     *
+     * @param string $modulePath The absolute path to the module directory
+     * @param string $moduleName The module name (lowercase)
+     * @return bool Whether any images were published
+     */
+    public function publishModuleImagesFromPath(string $modulePath, string $moduleName): bool
+    {
+        $moduleJsonPath = $modulePath . '/module.json';
+        if (! File::exists($moduleJsonPath)) {
+            return false;
+        }
+
+        $moduleJson = json_decode(File::get($moduleJsonPath), true);
+        $published = false;
+
+        // Target directory for module images
+        $targetDir = public_path("images/modules/{$moduleName}");
+
+        // Base path for marketplace assets
+        $marketplaceAssetsPath = $modulePath . '/marketplace-assets';
+
+        // Process logo_image
+        $logoImage = $moduleJson['logo_image'] ?? null;
+        if ($logoImage && ! str_starts_with($logoImage, '/') && ! str_starts_with($logoImage, 'http')) {
+            // First check in marketplace-assets folder
+            $sourcePath = $marketplaceAssetsPath . '/' . $logoImage;
+
+            // Fallback to module root for backwards compatibility
+            if (! File::exists($sourcePath)) {
+                $sourcePath = $modulePath . '/' . $logoImage;
+            }
+
+            if (File::exists($sourcePath)) {
+                File::ensureDirectoryExists($targetDir);
+                File::copy($sourcePath, $targetDir . '/' . basename($logoImage));
+                Log::info("Published logo for module {$moduleName}: {$logoImage}");
+                $published = true;
+            }
+        }
+
+        // Process banner_image
+        $bannerImage = $moduleJson['banner_image'] ?? null;
+        if ($bannerImage && ! str_starts_with($bannerImage, '/') && ! str_starts_with($bannerImage, 'http')) {
+            // First check in marketplace-assets folder
+            $sourcePath = $marketplaceAssetsPath . '/' . $bannerImage;
+
+            // Fallback to module root for backwards compatibility
+            if (! File::exists($sourcePath)) {
+                $sourcePath = $modulePath . '/' . $bannerImage;
+            }
+
+            if (File::exists($sourcePath)) {
+                File::ensureDirectoryExists($targetDir);
+                File::copy($sourcePath, $targetDir . '/' . basename($bannerImage));
+                Log::info("Published banner for module {$moduleName}: {$bannerImage}");
+                $published = true;
+            }
+        }
+
+        // Copy all files from marketplace-assets if the directory exists
+        if (File::isDirectory($marketplaceAssetsPath)) {
+            File::ensureDirectoryExists($targetDir);
+
+            // Copy all files from marketplace-assets (logo, banner, screenshots, etc.)
+            foreach (File::files($marketplaceAssetsPath) as $file) {
+                $targetFile = $targetDir . '/' . $file->getFilename();
+                if (! File::exists($targetFile)) {
+                    File::copy($file->getPathname(), $targetFile);
+                    $published = true;
+                }
+            }
+
+            // Also copy subdirectories like screenshots/
+            foreach (File::directories($marketplaceAssetsPath) as $subDir) {
+                $subDirName = basename($subDir);
+                $targetSubDir = $targetDir . '/' . $subDirName;
+                if (! File::isDirectory($targetSubDir)) {
+                    File::copyDirectory($subDir, $targetSubDir);
+                    $published = true;
+                }
+            }
+
+            if ($published) {
+                Log::info("Published marketplace assets for module {$moduleName}");
+            }
+        }
+
+        return $published;
+    }
+
+    /**
+     * Clean up published module images from public directory.
+     *
+     * @param string $moduleName The module name
+     * @return bool Whether cleanup was successful
+     */
+    public function cleanupModuleImages(string $moduleName): bool
+    {
+        $targetPath = public_path("images/modules/{$moduleName}");
+
+        if (! File::isDirectory($targetPath)) {
+            return true; // Nothing to clean up
+        }
+
+        try {
+            File::deleteDirectory($targetPath);
+            Log::info("Cleaned up images for module {$moduleName} from {$targetPath}");
+            return true;
+        } catch (\Throwable $e) {
+            Log::error("Failed to clean up images for module {$moduleName}: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**

@@ -90,7 +90,15 @@ class Module implements Arrayable, ArrayAccess
     }
 
     /**
-     * Get the logo URL (handles both relative and absolute paths).
+     * Get the logo URL (handles various path formats).
+     *
+     * Supported formats:
+     * - Full URL: "https://example.com/logo.png" -> used as-is
+     * - Absolute path: "/images/custom/logo.png" -> asset('/images/custom/logo.png')
+     * - Simple filename: "logo.png" -> asset('/images/modules/{module}/logo.png')
+     *
+     * For simple filenames, the logo should be placed in the module root directory
+     * and will be copied to public/images/modules/{module}/ during installation.
      */
     public function getLogoUrl(): ?string
     {
@@ -103,12 +111,25 @@ class Module implements Arrayable, ArrayAccess
             return $this->logo_image;
         }
 
-        // Otherwise, treat as a path relative to module's assets
-        return asset("build-{$this->name}/{$this->logo_image}");
+        // If it starts with /, treat as absolute path from public directory
+        if (str_starts_with($this->logo_image, '/')) {
+            return asset($this->logo_image);
+        }
+
+        // Simple filename - use the module images directory
+        return asset("images/modules/{$this->name}/{$this->logo_image}");
     }
 
     /**
-     * Get the banner URL (handles both relative and absolute paths).
+     * Get the banner URL (handles various path formats).
+     *
+     * Supported formats:
+     * - Full URL: "https://example.com/banner.png" -> used as-is
+     * - Absolute path: "/images/custom/banner.png" -> asset('/images/custom/banner.png')
+     * - Simple filename: "banner.png" -> asset('/images/modules/{module}/banner.png')
+     *
+     * For simple filenames, the banner should be placed in the module root directory
+     * and will be copied to public/images/modules/{module}/ during installation.
      */
     public function getBannerUrl(): ?string
     {
@@ -121,8 +142,13 @@ class Module implements Arrayable, ArrayAccess
             return $this->banner_image;
         }
 
-        // Otherwise, treat as a path relative to module's assets
-        return asset("build-{$this->name}/{$this->banner_image}");
+        // If it starts with /, treat as absolute path from public directory
+        if (str_starts_with($this->banner_image, '/')) {
+            return asset($this->banner_image);
+        }
+
+        // Simple filename - use the module images directory
+        return asset("images/modules/{$this->name}/{$this->banner_image}");
     }
 
     public function toArray(): array
