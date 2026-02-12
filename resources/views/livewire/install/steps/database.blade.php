@@ -98,7 +98,7 @@
             </svg>
             <div class="text-sm text-blue-700 dark:text-blue-300">
                 <p class="font-medium mb-1">{{ __('Important') }}</p>
-                <p>{{ __('After verifying the connection, clicking "Next" will run database migrations to create all necessary tables.') }}</p>
+                <p>{{ __('After verifying the connection, clicking "Next" will run database migrations to create all necessary tables. This may take 1-2 minutes. Please wait and do not refresh the page.') }}</p>
             </div>
         </div>
     </div>

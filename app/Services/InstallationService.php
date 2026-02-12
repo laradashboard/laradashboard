@@ -385,6 +385,10 @@ class InstallationService
      */
     public function runMigrations(): array
     {
+        // Increase execution time for migrations (they can take a while)
+        $originalTimeout = (int) ini_get('max_execution_time');
+        set_time_limit(300); // 5 minutes for migrations
+
         try {
             // Reconnect to database with new configuration
             $this->reconnectDatabase();
@@ -422,6 +426,9 @@ class InstallationService
                 'success' => false,
                 'message' => $e->getMessage(),
             ];
+        } finally {
+            // Restore original timeout
+            set_time_limit($originalTimeout);
         }
     }
 

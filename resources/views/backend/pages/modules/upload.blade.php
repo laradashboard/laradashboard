@@ -342,20 +342,64 @@
             },
 
             async activateModule(fileItem) {
-                if (!fileItem.moduleName) return;
+                if (!fileItem.moduleName || fileItem.activating) return;
+
+                fileItem.activating = true;
+                fileItem.activationStatus = '{{ __('Enabling module...') }}';
 
                 try {
-                    const response = await fetch('/admin/modules/toggle-status/' + fileItem.moduleName, {
+                    // Step 1: Enable module (skip migrations - we'll run them separately)
+                    const enableResponse = await fetch('/admin/modules/toggle-status/' + fileItem.moduleName, {
                         method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ skip_migrations: true })
                     });
-                    const data = await response.json();
-                    if (data.success) {
-                        fileItem.activated = true;
-                        this.showToast('success', '{{ __('Success') }}', '{{ __('Module activated successfully!') }}');
+
+                    const enableData = await enableResponse.json();
+                    if (!enableData.success) {
+                        throw new Error(enableData.message || '{{ __('Failed to enable module') }}');
                     }
+
+                    // Step 2: Run migrations (this can take a while)
+                    fileItem.activationStatus = '{{ __('Running migrations...') }}';
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes for migrations
+
+                    const migrateResponse = await fetch('/admin/modules/run-migrations/' + fileItem.moduleName, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        },
+                        signal: controller.signal,
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    const migrateData = await migrateResponse.json();
+                    if (!migrateData.success) {
+                        // Module is enabled but migrations failed - show warning but mark as activated
+                        this.showToast('warning', '{{ __('Warning') }}', '{{ __('Module enabled but migrations may have issues: ') }}' + (migrateData.message || ''));
+                    }
+
+                    fileItem.activated = true;
+                    fileItem.activationStatus = '';
+                    this.showToast('success', '{{ __('Success') }}', '{{ __('Module activated successfully! Please refresh the page to see module changes.') }}');
+
                 } catch (error) {
-                    this.showToast('error', '{{ __('Error') }}', '{{ __('Failed to activate module') }}');
+                    fileItem.activationStatus = '';
+                    if (error.name === 'AbortError') {
+                        this.showToast('warning', '{{ __('Timeout') }}', '{{ __('Migrations are taking longer than expected. The module is enabled - please check the modules page.') }}');
+                        fileItem.activated = true; // Module was enabled, just migrations taking long
+                    } else {
+                        this.showToast('error', '{{ __('Error') }}', error.message || '{{ __('Failed to activate module. Please try again.') }}');
+                    }
+                } finally {
+                    fileItem.activating = false;
                 }
             },
 
@@ -535,16 +579,31 @@
                                         </div>
 
                                         <!-- Success Message -->
-                                        <div x-show="fileItem.status === 'success'" class="mt-2 flex items-center justify-between">
-                                            <p class="text-sm text-green-600 dark:text-green-400" x-text="fileItem.message"></p>
-                                            <button x-show="fileItem.moduleName && !fileItem.activated"
-                                                    @click="activateModule(fileItem)"
-                                                    class="text-xs px-3 py-1 bg-primary text-white rounded-md hover:bg-primary/90">
-                                                {{ __('Activate') }}
-                                            </button>
-                                            <span x-show="fileItem.activated" class="text-xs px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-md">
-                                                {{ __('Activated') }}
-                                            </span>
+                                        <div x-show="fileItem.status === 'success'" class="mt-2">
+                                            <!-- Activation Status (shown above buttons while activating) -->
+                                            <p x-show="fileItem.activating && fileItem.activationStatus"
+                                               class="text-xs text-blue-600 dark:text-blue-400 mb-2 flex items-center gap-1.5">
+                                                <iconify-icon icon="lucide:loader-2" class="animate-spin"></iconify-icon>
+                                                <span x-text="fileItem.activationStatus"></span>
+                                            </p>
+                                            <div class="flex items-center justify-between">
+                                                <p class="text-sm text-green-600 dark:text-green-400" x-text="fileItem.message"></p>
+                                                <button x-show="fileItem.moduleName && !fileItem.activated && !fileItem.activating"
+                                                        @click="activateModule(fileItem)"
+                                                        class="text-xs px-3 py-1 bg-primary text-white rounded-md hover:bg-primary/90">
+                                                    {{ __('Activate') }}
+                                                </button>
+                                                <button x-show="fileItem.activating"
+                                                        disabled
+                                                        class="text-xs px-3 py-1 bg-primary/70 text-white rounded-md cursor-wait flex items-center gap-1.5">
+                                                    <iconify-icon icon="lucide:loader-2" class="animate-spin"></iconify-icon>
+                                                    {{ __('Activating...') }}
+                                                </button>
+                                                <span x-show="fileItem.activated && !fileItem.activating" class="text-xs px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-md flex items-center gap-1.5">
+                                                    <iconify-icon icon="lucide:check"></iconify-icon>
+                                                    {{ __('Activated') }}
+                                                </span>
+                                            </div>
                                         </div>
 
                                         <!-- Conflict Message -->

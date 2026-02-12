@@ -225,7 +225,11 @@ class ModuleDatatable extends Datatable
 
     public function renderBeforeFilters(): Renderable
     {
-        return view('backend.pages.modules.partials.module-update-check-action');
+        $hasModules = ModuleCollection::query()->count() > 0;
+
+        return view('backend.pages.modules.partials.module-update-check-action', [
+            'hasModules' => $hasModules,
+        ]);
     }
 
     /**

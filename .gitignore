@@ -41,3 +41,7 @@ public/images/.DS_Store
 # Exclude module-specific builds (e.g., build-crm, build-hrm)
 /public/build-*
 .composer
+
+# Eclude zip/tar.gz release packages
+*.zip
+*.tar.gz
