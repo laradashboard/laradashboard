@@ -586,7 +586,7 @@ class ModuleUpdateService
             } elseif (str_starts_with($path, '/storage/')) {
                 // Free module - direct storage URL
                 $relativePath = substr($path, 9); // Remove '/storage/'
-                $storagePath = storage_path('app/public/' . $relativePath);
+                $storagePath = storage_path('app/' . $relativePath);
             } else {
                 return [
                     'success' => false,
@@ -710,7 +710,7 @@ class ModuleUpdateService
                 return null;
             }
 
-            return storage_path('app/public/' . $moduleVersion->zip_file);
+            return storage_path('app/' . $moduleVersion->zip_file);
         } catch (\Throwable $e) {
             Log::error('Failed to get module version ZIP path: ' . $e->getMessage());
 
