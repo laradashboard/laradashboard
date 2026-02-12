@@ -92,7 +92,7 @@ class ModuleController extends Controller
         return redirect()->route('admin.modules.index');
     }
 
-    public function toggleStatus(string $moduleName): JsonResponse
+    public function toggleStatus(string $moduleName, Request $request): JsonResponse
     {
         if (config('app.demo_mode', false)) {
             return response()->json(['success' => false, 'message' => __('Module enabling/disabling is restricted in demo mode. Please try on your local/live environment.')], 403);
@@ -105,12 +105,40 @@ class ModuleController extends Controller
 
         $this->authorize('update', $module);
 
+        // Check if migrations should be skipped (frontend will call runMigrations separately)
+        $skipMigrations = $request->boolean('skip_migrations', false);
+
         try {
-            $newStatus = $this->moduleService->toggleModuleStatus($moduleName);
+            $newStatus = $this->moduleService->toggleModuleStatus($moduleName, $skipMigrations);
 
             return response()->json(['success' => true, 'status' => $newStatus]);
         } catch (\Throwable $th) {
             return response()->json(['success' => false, 'message' => $th->getMessage()], 404);
+        }
+    }
+
+    public function runMigrations(string $moduleName): JsonResponse
+    {
+        // Increase execution time for migrations (they can take a while)
+        set_time_limit(300);
+
+        if (config('app.demo_mode', false)) {
+            return response()->json(['success' => false, 'message' => __('Running migrations is restricted in demo mode.')], 403);
+        }
+
+        $module = $this->moduleService->getModuleByName($moduleName);
+        if (! $module) {
+            return response()->json(['success' => false, 'message' => __('Module not found.')], 404);
+        }
+
+        $this->authorize('update', $module);
+
+        try {
+            $this->moduleService->runModuleMigrations($moduleName);
+
+            return response()->json(['success' => true, 'message' => __('Migrations completed successfully.')]);
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => $th->getMessage()], 500);
         }
     }
 

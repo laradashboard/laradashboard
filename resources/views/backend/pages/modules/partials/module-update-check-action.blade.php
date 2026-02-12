@@ -1,4 +1,4 @@
-@if(config('laradashboard.updates.enabled', true))
+@if(config('laradashboard.updates.enabled', true) && ($hasModules ?? false))
 <button
     wire:click="checkForUpdates"
     wire:loading.attr="disabled"

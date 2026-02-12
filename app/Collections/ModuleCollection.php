@@ -114,6 +114,7 @@ class ModuleCollection
 
     /**
      * Get module statuses from the modules_statuses.json file.
+     * Keys are normalized to lowercase for consistent lookups.
      *
      * @return array<string, bool>
      */
@@ -123,7 +124,15 @@ class ModuleCollection
             return [];
         }
 
-        return json_decode(File::get($this->modulesStatusesPath), true) ?? [];
+        $statuses = json_decode(File::get($this->modulesStatusesPath), true) ?? [];
+
+        // Normalize keys to lowercase for consistent lookups
+        $normalized = [];
+        foreach ($statuses as $key => $value) {
+            $normalized[strtolower($key)] = $value;
+        }
+
+        return $normalized;
     }
 
     /**

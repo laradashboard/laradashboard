@@ -62,6 +62,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
     Route::get('/modules/upload', [ModuleController::class, 'upload'])->name('modules.upload');
     Route::get('/modules/{module}', [ModuleController::class, 'show'])->name('modules.show');
     Route::post('/modules/toggle-status/{module}', [ModuleController::class, 'toggleStatus'])->name('modules.toggle-status');
+    Route::post('/modules/run-migrations/{module}', [ModuleController::class, 'runMigrations'])->name('modules.run-migrations');
     Route::post('/modules/bulk-activate', [ModuleController::class, 'bulkActivate'])->name('modules.bulk-activate');
     Route::post('/modules/bulk-deactivate', [ModuleController::class, 'bulkDeactivate'])->name('modules.bulk-deactivate');
     Route::post('/modules/store', [ModuleController::class, 'store'])->name('modules.store');

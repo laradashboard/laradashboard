@@ -66,7 +66,7 @@ class ModuleService
 
     /**
      * Get the module name as defined in module.json.
-     * This is the canonical lowercase name used for status tracking.
+     * Returns the raw name as nwidart/laravel-modules uses it for status keys.
      */
     public function getModuleJsonName(string $moduleName): ?string
     {
@@ -77,13 +77,13 @@ class ModuleService
 
         $moduleJsonPath = $this->modulesPath . '/' . $folderName . '/module.json';
         if (! File::exists($moduleJsonPath)) {
-            return $this->normalizeModuleName($folderName); // Fallback to lowercase folder name
+            return $folderName; // Fallback to folder name
         }
 
         $moduleData = json_decode(File::get($moduleJsonPath), true);
 
-        // name should be lowercase, but normalize just in case
-        return $this->normalizeModuleName($moduleData['name'] ?? $folderName);
+        // Return raw name as-is (nwidart uses this exact value as the status key)
+        return $moduleData['name'] ?? $folderName;
     }
 
     /**
@@ -170,7 +170,7 @@ class ModuleService
 
     /**
      * Get the module statuses from the modules_statuses.json file.
-     * Keys are mapped to module.json names (what nwidart uses).
+     * Returns statuses with lowercase keys for consistent lookups.
      */
     public function getModuleStatuses(): array
     {
@@ -180,17 +180,15 @@ class ModuleService
 
         $statuses = json_decode(File::get($this->modulesStatusesPath), true) ?? [];
 
-        // Map to module.json names and merge duplicates
+        // Normalize to lowercase keys for consistent lookups, merge duplicates preferring enabled
         $normalized = [];
         foreach ($statuses as $name => $status) {
-            $jsonName = $this->getModuleJsonName($name);
-            if ($jsonName) {
-                // If duplicate exists, prefer the enabled status
-                if (isset($normalized[$jsonName])) {
-                    $normalized[$jsonName] = $normalized[$jsonName] || $status;
-                } else {
-                    $normalized[$jsonName] = $status;
-                }
+            $lowerName = $this->normalizeModuleName($name);
+            // If duplicate exists (case difference), prefer the enabled status
+            if (isset($normalized[$lowerName])) {
+                $normalized[$lowerName] = $normalized[$lowerName] || $status;
+            } else {
+                $normalized[$lowerName] = $status;
             }
         }
 
@@ -198,27 +196,75 @@ class ModuleService
     }
 
     /**
-     * Save module statuses to the modules_statuses.json file.
-     * Uses module.json names (what nwidart/laravel-modules uses).
+     * Get raw module statuses from the modules_statuses.json file.
+     * Returns statuses with original keys (as nwidart writes them).
      */
-    protected function saveModuleStatuses(array $statuses): void
+    public function getRawModuleStatuses(): array
     {
-        // Ensure all keys are module.json names
-        $normalized = [];
-        foreach ($statuses as $name => $status) {
-            $jsonName = $this->getModuleJsonName($name);
-            if ($jsonName) {
-                $normalized[$jsonName] = $status;
-            }
+        if (! File::exists($this->modulesStatusesPath)) {
+            return [];
         }
 
-        File::put($this->modulesStatusesPath, json_encode($normalized, JSON_PRETTY_PRINT));
+        return json_decode(File::get($this->modulesStatusesPath), true) ?? [];
     }
 
     /**
-     * Clean up orphaned entries from module_statuses.json.
-     * Removes entries for modules whose folders have been manually deleted.
-     * Normalizes module names to match module.json names (what nwidart uses).
+     * Set a module's status in the modules_statuses.json file.
+     * Uses module.json name as key to match nwidart/laravel-modules convention.
+     * Removes any duplicate entries with different case.
+     */
+    public function setModuleStatus(string $moduleName, bool $status): void
+    {
+        $rawStatuses = $this->getRawModuleStatuses();
+
+        // Get the module.json name for this module (the key nwidart uses)
+        $jsonName = $this->getModuleJsonName($moduleName);
+        $keyToUse = $jsonName ?? $moduleName;
+
+        // Remove any duplicate entries with different case
+        $normalizedSearch = $this->normalizeModuleName($keyToUse);
+        $cleanedStatuses = [];
+        foreach ($rawStatuses as $name => $existingStatus) {
+            if ($this->normalizeModuleName($name) !== $normalizedSearch) {
+                $cleanedStatuses[$name] = $existingStatus;
+            }
+        }
+
+        // Add the status with the correct key (module.json name)
+        $cleanedStatuses[$keyToUse] = $status;
+
+        File::put($this->modulesStatusesPath, json_encode($cleanedStatuses, JSON_PRETTY_PRINT));
+
+        Log::info("Module status set: {$keyToUse} = " . ($status ? 'enabled' : 'disabled'));
+    }
+
+    /**
+     * Save module statuses to the modules_statuses.json file.
+     * Preserves keys as-is, only cleaning up duplicates.
+     *
+     * @deprecated Use setModuleStatus() for individual module updates
+     */
+    protected function saveModuleStatuses(array $statuses): void
+    {
+        // Clean up duplicates by keeping only one entry per module (case-insensitive)
+        $seen = [];
+        $cleaned = [];
+        foreach ($statuses as $name => $status) {
+            $lowerName = $this->normalizeModuleName($name);
+            if (! isset($seen[$lowerName])) {
+                $seen[$lowerName] = true;
+                $cleaned[$name] = $status;
+            }
+        }
+
+        File::put($this->modulesStatusesPath, json_encode($cleaned, JSON_PRETTY_PRINT));
+    }
+
+    /**
+     * Clean up orphaned entries and duplicates from module_statuses.json.
+     * - Removes entries for modules whose folders have been manually deleted.
+     * - Merges duplicate entries (case-insensitive) preferring enabled status.
+     * - Uses module.json name as key to match nwidart/laravel-modules convention.
      */
     public function cleanupOrphanedModuleStatuses(): void
     {
@@ -226,36 +272,50 @@ class ModuleService
             return;
         }
 
-        // Read raw file to detect if cleanup is needed
         $rawStatuses = json_decode(File::get($this->modulesStatusesPath), true) ?? [];
         $cleanedStatuses = [];
+        $seenModules = []; // Track seen modules (lowercase) to detect duplicates
         $needsSave = false;
 
         foreach ($rawStatuses as $moduleName => $status) {
+            // Get the module.json name (what nwidart uses as the key)
             $jsonName = $this->getModuleJsonName($moduleName);
 
-            if ($jsonName) {
-                // Check if key needs to be updated to module.json name
-                if ($moduleName !== $jsonName) {
-                    $needsSave = true;
-                    Log::info("Normalizing module name: {$moduleName} -> {$jsonName}");
-                }
-
-                // If duplicate exists, prefer enabled status
-                if (isset($cleanedStatuses[$jsonName])) {
-                    $cleanedStatuses[$jsonName] = $cleanedStatuses[$jsonName] || $status;
-                } else {
-                    $cleanedStatuses[$jsonName] = $status;
-                }
-            } else {
+            if (! $jsonName) {
+                // Module folder doesn't exist - orphaned entry
                 $needsSave = true;
                 Log::info("Cleaned up orphaned module status entry: {$moduleName}");
+
+                continue;
             }
+
+            $lowerName = $this->normalizeModuleName($jsonName);
+
+            // Check for duplicates (case-insensitive)
+            if (isset($seenModules[$lowerName])) {
+                // Duplicate found - merge status (prefer enabled)
+                $needsSave = true;
+                $existingKey = $seenModules[$lowerName];
+                $cleanedStatuses[$existingKey] = $cleanedStatuses[$existingKey] || $status;
+                Log::info("Merged duplicate module status: {$moduleName} -> {$existingKey}");
+
+                continue;
+            }
+
+            // Use module.json name as key to match nwidart convention
+            if ($moduleName !== $jsonName) {
+                $needsSave = true;
+                Log::info("Normalizing module key to module.json name: {$moduleName} -> {$jsonName}");
+            }
+
+            $seenModules[$lowerName] = $jsonName;
+            $cleanedStatuses[$jsonName] = $status;
         }
 
         // Save if any changes were made
-        if ($needsSave || \count($rawStatuses) !== \count($cleanedStatuses)) {
-            $this->saveModuleStatuses($cleanedStatuses);
+        if ($needsSave) {
+            File::put($this->modulesStatusesPath, json_encode($cleanedStatuses, JSON_PRETTY_PRINT));
+            Log::info("Module statuses cleaned up and saved");
         }
     }
 
@@ -428,11 +488,7 @@ class ModuleService
         }
 
         // Remove old status entry if module name changed
-        $normalizedNew = $this->normalizeModuleName($moduleName);
-        if ($normalizedExisting !== $normalizedNew && isset($moduleStatuses[$normalizedExisting])) {
-            unset($moduleStatuses[$normalizedExisting]);
-            File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
-        }
+        // This is handled automatically by setModuleStatus() which cleans up duplicates
 
         // Install the new module
         $installedModuleName = $this->installModuleFromTemp($tempPath, $folderName, $moduleName);
@@ -483,13 +539,14 @@ class ModuleService
 
         // Save this module to the modules_statuses.json file as DISABLED.
         // New modules are disabled by default for security - admin must explicitly enable them.
-        // Use lowercase $moduleName (from module.json) as the key since that's what nwidart/laravel-modules expects.
-        $moduleStatuses = $this->getModuleStatuses();
-        $normalizedName = $this->normalizeModuleName($moduleName);
-        $moduleStatuses[$normalizedName] = false;
-        File::put($this->modulesStatusesPath, json_encode($moduleStatuses, JSON_PRETTY_PRINT));
+        // Use module.json name as key to match nwidart/laravel-modules convention.
+        // $moduleName comes from module.json, so use it directly (nwidart uses exact same value)
+        $this->setModuleStatus($moduleName, false);
 
-        Log::info("Module installed: folder={$folderName}, status_key={$normalizedName}, target={$targetPath}");
+        // Normalized name (lowercase) is used for images directory
+        $normalizedName = $this->normalizeModuleName($moduleName);
+
+        Log::info("Module installed: folder={$folderName}, status_key={$moduleName}, target={$targetPath}");
 
         // Publish pre-built assets if the module contains them.
         // Use path-based method since module isn't registered in Module facade yet.
@@ -676,10 +733,10 @@ class ModuleService
         return Str::studly(basename($modulePath));
     }
 
-    public function toggleModule($moduleName, $enable = true): bool
+    public function toggleModule($moduleName, $enable = true, bool $skipMigrations = false): bool
     {
         $action = $enable ? 'enable' : 'disable';
-        Log::info("Attempting to {$action} module: {$moduleName}");
+        Log::info("Attempting to {$action} module: {$moduleName}" . ($skipMigrations ? ' (skipping migrations)' : ''));
 
         // Fire action hooks before enabling/disabling
         if ($enable) {
@@ -712,13 +769,36 @@ class ModuleService
 
             // When enabling a module, run migrations and publish assets
             if ($enable) {
-                Hook::doAction(ModuleActionHook::MODULE_MIGRATING_BEFORE, $moduleName);
-                $this->runModuleMigrations($moduleName);
-                Hook::doAction(ModuleActionHook::MODULE_MIGRATED_AFTER, $moduleName);
+                // Regenerate composer autoloader to ensure module classes are available
+                // This is critical for migrations that reference module classes
+                $this->regenerateAutoloader();
+                Log::info("Autoloader regenerated for module {$moduleName}");
+
+                // Discover packages to register module's service provider
+                Artisan::call('package:discover', ['--ansi' => true]);
+                Log::info("Package discovery completed for module {$moduleName}");
+
+                // Run migrations unless skipped (frontend may call separately for better UX)
+                if (! $skipMigrations) {
+                    Hook::doAction(ModuleActionHook::MODULE_MIGRATING_BEFORE, $moduleName);
+                    $this->runModuleMigrations($moduleName);
+                    Hook::doAction(ModuleActionHook::MODULE_MIGRATED_AFTER, $moduleName);
+                } else {
+                    Log::info("Skipping migrations for module {$moduleName} (will be run separately)");
+                }
 
                 Hook::doAction(ModuleActionHook::MODULE_ASSETS_PUBLISHING_BEFORE, $moduleName);
                 $this->publishModuleAssets($moduleName);
                 Hook::doAction(ModuleActionHook::MODULE_ASSETS_PUBLISHED_AFTER, $moduleName);
+
+                // Clear route and config caches so module routes/config are loaded
+                try {
+                    Artisan::call('route:clear');
+                    Artisan::call('config:clear');
+                    Artisan::call('view:clear');
+                } catch (\Throwable $e) {
+                    Log::warning("Cache clear warning: " . $e->getMessage());
+                }
             }
 
             Log::info("Successfully {$action}d module: {$moduleName}");
@@ -751,12 +831,36 @@ class ModuleService
      * This ensures that when a module is enabled or updated,
      * its database schema is properly set up.
      */
-    protected function runModuleMigrations(string $moduleName): void
+    public function runModuleMigrations(string $moduleName): void
     {
         Log::info("Running migrations for module: {$moduleName}");
 
+        // Get the actual folder name for the module (handles case sensitivity)
+        $folderName = $this->getActualModuleFolderName($moduleName);
+        $moduleFolder = $folderName ?? $moduleName;
+
+        Log::info("Module folder name resolved: {$moduleFolder}");
+
+        // Build the migration path relative to base_path (required by migrate --path)
+        $migrationPath = "modules/{$moduleFolder}/database/migrations";
+        $fullMigrationPath = base_path($migrationPath);
+
+        // Check if migration directory exists
+        if (! File::isDirectory($fullMigrationPath)) {
+            Log::info("No migrations directory found for module {$moduleName} at {$fullMigrationPath}");
+
+            return;
+        }
+
+        // Count migration files
+        $migrationFiles = File::glob($fullMigrationPath . '/*.php');
+        Log::info("Found " . count($migrationFiles) . " migration files for module {$moduleName}");
+
         try {
+            // Use migrate with explicit --path to ensure migrations are found
+            // This bypasses the need for the module's service provider to be loaded
             $exitCode = Artisan::call('migrate', [
+                '--path' => $migrationPath,
                 '--force' => true,
             ]);
             $output = Artisan::output();
@@ -767,7 +871,10 @@ class ModuleService
                 Log::warning("Migration for module {$moduleName} returned non-zero exit code: {$exitCode}");
             }
         } catch (\Throwable $th) {
-            Log::error("Failed to run migrations for module {$moduleName}: " . $th->getMessage());
+            Log::error("Failed to run migrations for module {$moduleName}: " . $th->getMessage(), [
+                'exception' => $th::class,
+                'trace' => $th->getTraceAsString(),
+            ]);
             // Don't throw - migrations might fail if tables already exist, which is fine
         }
     }
@@ -834,7 +941,7 @@ class ModuleService
         }
     }
 
-    public function toggleModuleStatus(string $moduleName): bool
+    public function toggleModuleStatus(string $moduleName, bool $skipMigrations = false): bool
     {
         $jsonName = $this->getModuleJsonName($moduleName);
 
@@ -855,7 +962,7 @@ class ModuleService
         $newStatus = $moduleStatuses[$jsonName];
 
         // Run the module enable/disable artisan command (uses module.json name)
-        $this->toggleModule($jsonName, $newStatus);
+        $this->toggleModule($jsonName, $newStatus, $skipMigrations);
 
         return $newStatus;
     }
