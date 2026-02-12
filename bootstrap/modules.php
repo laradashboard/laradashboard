@@ -167,14 +167,10 @@
         $validatedModules[$moduleName] = $moduleDir;
     }
 
-    // Load module vendor autoloaders for validated modules
-    // This is necessary for traits/interfaces used by module classes
-    foreach ($validatedModules as $moduleName => $moduleDir) {
-        $moduleVendorAutoload = $moduleDir . '/vendor/autoload.php';
-        if (file_exists($moduleVendorAutoload)) {
-            require_once $moduleVendorAutoload;
-        }
-    }
+    // NOTE: Module vendor autoloaders are now loaded by each module's service provider
+    // after Laravel boots. Loading them here (before Laravel boots) can break
+    // Laravel's core services like 'config'. See CrmServiceProvider::registerHelpers()
+    // for the pattern to load module vendor autoload in the service provider.
 
     // Save updated statuses if any modules were disabled
     if ($modified) {
