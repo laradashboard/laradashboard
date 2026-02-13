@@ -25,7 +25,7 @@
             x-transition:enter-start="opacity-0 scale-50"
             x-transition:enter-end="opacity-100 scale-100"
             @click.away="{{ $onCancel }}"
-            class="flex max-w-2xl w-full flex-col overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl"
+            class="flex max-w-2xl w-full max-h-[90vh] flex-col overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl"
         >
             <!-- Header -->
             <div class="flex items-center gap-3 px-6 py-4 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-700">
@@ -51,7 +51,7 @@
             </div>
 
             <!-- Comparison Table -->
-            <div class="px-6 py-4" x-show="{{ $conflictDataVar }}">
+            <div class="px-6 py-4 overflow-y-auto" x-show="{{ $conflictDataVar }}">
                 <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                     <table class="w-full text-sm">
                         <thead>
@@ -76,11 +76,6 @@
                                 <td class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400">{{ __('Author') }}</td>
                                 <td class="px-4 py-3 text-gray-900 dark:text-white" x-text="{{ $conflictDataVar }}?.current?.author || '-'"></td>
                                 <td class="px-4 py-3 text-gray-900 dark:text-white" x-text="{{ $conflictDataVar }}?.uploaded?.author || '-'"></td>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400">{{ __('Description') }}</td>
-                                <td class="px-4 py-3 text-gray-600 dark:text-gray-300 text-xs" x-text="{{ $conflictDataVar }}?.current?.description || '-'"></td>
-                                <td class="px-4 py-3 text-gray-600 dark:text-gray-300 text-xs" x-text="{{ $conflictDataVar }}?.uploaded?.description || '-'"></td>
                             </tr>
                         </tbody>
                     </table>

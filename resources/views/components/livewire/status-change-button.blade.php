@@ -7,12 +7,13 @@
     <button
         @click="open = !open"
         type="button"
-        class="px-3 py-1 inline-flex text-xs leading-5 font-medium rounded-full cursor-pointer
+        class="px-3 py-1 inline-flex text-xs leading-5 font-medium rounded-full cursor-pointer whitespace-nowrap
             @if ($fieldValueString == 'open') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
             @elseif($fieldValueString == 'in_progress') bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
-            @elseif($fieldValueString == 'waiting') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+            @elseif($fieldValueString == 'waiting' || $fieldValueString == 'pending') bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200
             @elseif($fieldValueString == 'resolved') bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200
             @elseif($fieldValueString == 'closed') bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+            @elseif($fieldValueString == 'cancelled') bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
             @elseif($fieldValueString == 'low') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
             @elseif($fieldValueString == 'medium') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
             @elseif($fieldValueString == 'high') bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
@@ -54,9 +55,10 @@
                     {{ $fieldValueString == $key ? 'font-bold bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }}
                     @if ($key == 'open') text-green-700 dark:text-green-400
                     @elseif($key == 'in_progress') text-blue-700 dark:text-blue-400
-                    @elseif($key == 'waiting') text-yellow-700 dark:text-yellow-400
+                    @elseif($key == 'waiting' || $key == 'pending') text-gray-700 dark:text-gray-400
                     @elseif($key == 'resolved') text-purple-700 dark:text-purple-400
                     @elseif($key == 'closed') text-gray-700 dark:text-gray-400
+                    @elseif($key == 'cancelled') text-red-700 dark:text-red-400
                     @elseif($key == 'low') text-green-700 dark:text-green-400
                     @elseif($key == 'medium') text-yellow-700 dark:text-yellow-400
                     @elseif($key == 'high') text-red-700 dark:text-red-400

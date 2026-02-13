@@ -50,7 +50,13 @@ password - 12345678
 
 ## 📝 Changelog
 
-**[v0.9.3] - 2025-02-08**
+**[v0.9.6] - 2026-02-13**
+-   **Feat:** Compact attachment component.
+-   **Fix:** Fixed module replace modal scroll issue.
+-   **Fix:** Demo app refresh issue.
+**[v0.9.5] - 2026-02-12**
+-   **Fix:** Fixed module installation issue on some servers.
+**[v0.9.3] - 2026-02-08**
 -   **Feat:** Inbound/Outbound email connection managent.
 -   **Feat:** CRUD Generator (`module:make-crud`) - Rapid scaffolding for modules with Model, Datatable, Views, Routes, Menu.
 -   **Enhancement:** Fallback queue handling management.

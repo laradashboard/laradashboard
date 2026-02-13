@@ -42,6 +42,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Skip Installation Check
+    |--------------------------------------------------------------------------
+    |
+    | When set to true, the installation wizard will be completely disabled,
+    | always redirecting to the dashboard. Use this on demo/production sites
+    | where you want to ensure the install page is never accessible, even if
+    | the database gets reset.
+    |
+    */
+
+    'skip_installation' => (bool) env('SKIP_INSTALLATION', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |
