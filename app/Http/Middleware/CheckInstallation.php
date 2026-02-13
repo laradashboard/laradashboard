@@ -52,6 +52,12 @@ class CheckInstallation
             return $next($request);
         }
 
+        // Skip installation check entirely for demo/production sites
+        // Set SKIP_INSTALLATION=true in .env to prevent install page from ever showing
+        if (config('app.skip_installation', false)) {
+            return $next($request);
+        }
+
         // Skip if this is an asset request
         if ($this->isAssetRequest($request)) {
             return $next($request);

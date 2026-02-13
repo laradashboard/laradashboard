@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\DemoAppService;
 use Illuminate\Console\Command;
+use Spatie\Permission\PermissionRegistrar;
 
 class RefreshDemoDatabaseCommand extends Command
 {
@@ -46,6 +47,9 @@ class RefreshDemoDatabaseCommand extends Command
 
         $this->info('Demo mode is enabled. Refreshing database...');
 
+        // Clear permission cache before refresh to avoid stale data
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
         // Run migrations with --force to suppress confirmation prompts.
         $this->call('migrate:fresh', ['--seed' => true, '--force' => true]);
 
@@ -54,6 +58,10 @@ class RefreshDemoDatabaseCommand extends Command
             '--all' => true,
             '--force' => true,
         ]);
+
+        // Clear all caches after refresh to ensure fresh state
+        $this->call('cache:clear');
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $this->info('Database refreshed successfully!');
 
