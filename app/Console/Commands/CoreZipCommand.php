@@ -44,7 +44,6 @@ class CoreZipCommand extends Command
         'vendor/phpstan/phpstan',
         'vendor/phpstan/extension-installer',
         'vendor/rector',
-        'vendor/fakerphp',
         'vendor/phpunit',
         'vendor/pestphp',
         'vendor/mockery',
