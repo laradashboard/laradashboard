@@ -19,11 +19,11 @@
 </button>
 
 <!-- Media Modal -->
-<div id="{{ $id }}" class="fixed inset-0 z-50 hidden bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-lg shadow-2xl border border-white/20 dark:border-gray-700/50 max-w-7xl w-full h-[90vh] flex flex-col">
+<div id="{{ $id }}" class="fixed inset-0 z-50 hidden bg-black/20 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-lg shadow-2xl border border-white/20 dark:border-gray-700/50 max-w-7xl w-full h-[95vh] sm:h-[90vh] flex flex-col">
         <!-- Modal Header -->
-        <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $title }}</h3>
+        <div class="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 shrink-0">
+            <h3 class="text-base lg:text-lg font-semibold text-gray-900 dark:text-white">{{ $title }}</h3>
             <button
                 type="button"
                 onclick="closeMediaModal('{{ $id }}')"
@@ -34,68 +34,72 @@
         </div>
 
         <!-- Modal Content -->
-        <div class="flex-1 flex overflow-hidden">
+        <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
             <!-- Left Sidebar - Filters -->
-            <div class="w-64 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 p-4">
-                <!-- Upload Section -->
-                <div class="mb-6">
-                    <button
-                        type="button"
-                        onclick="triggerFileUpload('{{ $id }}')"
-                        class="w-full btn-primary flex items-center justify-center gap-2"
-                    >
-                        <iconify-icon icon="lucide:upload"></iconify-icon>
-                        Upload Files
-                    </button>
-                    <input
-                        type="file"
-                        id="{{ $id }}_fileInput"
-                        class="hidden"
-                        {{ $multiple ? 'multiple' : '' }}
-                        accept="{{ $allowedTypes === 'images' ? 'image/*' : ($allowedTypes === 'videos' ? 'video/*' : ($allowedTypes === 'audio' ? 'audio/*' : ($allowedTypes === 'documents' ? '.pdf,.doc,.docx,.txt' : '*'))) }}"
-                        onchange="handleFileUpload(event, '{{ $id }}')"
-                    >
-                </div>
-
-                <!-- Filter Section -->
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filter by Type</label>
-                        <select
-                            id="{{ $id }}_typeFilter"
-                            class="form-control w-full"
-                            onchange="filterMediaByType('{{ $id }}', this.value)"
+            <div class="w-full lg:w-64 bg-gray-50 dark:bg-gray-900 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700 p-4 shrink-0">
+                <!-- Mobile/Desktop Layout -->
+                <div class="flex flex-col sm:flex-row lg:flex-col gap-3 lg:gap-0">
+                    <!-- Upload Section -->
+                    <div class="lg:mb-6 sm:w-auto lg:w-full">
+                        <button
+                            type="button"
+                            onclick="triggerFileUpload('{{ $id }}')"
+                            class="w-full btn-primary flex items-center justify-center gap-2"
                         >
-                            <option value="all">All Files</option>
-                            <option value="images">Images</option>
-                            <option value="videos">Videos</option>
-                            <option value="audio">Audio</option>
-                            <option value="documents">Documents</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search</label>
+                            <iconify-icon icon="lucide:upload"></iconify-icon>
+                            <span class="hidden sm:inline lg:inline">Upload Files</span>
+                            <span class="sm:hidden lg:hidden">Upload</span>
+                        </button>
                         <input
-                            type="text"
-                            id="{{ $id }}_searchInput"
-                            class="form-control w-full"
-                            placeholder="Search files..."
-                            oninput="searchMedia('{{ $id }}', this.value)"
+                            type="file"
+                            id="{{ $id }}_fileInput"
+                            class="hidden"
+                            {{ $multiple ? 'multiple' : '' }}
+                            accept="{{ $allowedTypes === 'images' ? 'image/*' : ($allowedTypes === 'videos' ? 'video/*' : ($allowedTypes === 'audio' ? 'audio/*' : ($allowedTypes === 'documents' ? '.pdf,.doc,.docx,.txt' : '*'))) }}"
+                            onchange="handleFileUpload(event, '{{ $id }}')"
                         >
                     </div>
-                </div>
 
-                <!-- Selected Files Count -->
-                <div id="{{ $id }}_selectedInfo" class="mt-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hidden">
-                    <p class="text-sm text-blue-700 dark:text-blue-300">
-                        <span id="{{ $id }}_selectedCount">0</span> file(s) selected
-                    </p>
+                    <!-- Filter Section -->
+                    <div class="flex flex-row sm:flex-row lg:flex-col gap-3 lg:gap-4 flex-1 lg:flex-initial">
+                        <div class="flex-1 lg:flex-initial">
+                            <label class="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filter by Type</label>
+                            <select
+                                id="{{ $id }}_typeFilter"
+                                class="form-control w-full"
+                                onchange="filterMediaByType('{{ $id }}', this.value)"
+                            >
+                                <option value="all">All Files</option>
+                                <option value="images">Images</option>
+                                <option value="videos">Videos</option>
+                                <option value="audio">Audio</option>
+                                <option value="documents">Documents</option>
+                            </select>
+                        </div>
+
+                        <div class="flex-1 lg:flex-initial">
+                            <label class="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search</label>
+                            <input
+                                type="text"
+                                id="{{ $id }}_searchInput"
+                                class="form-control w-full"
+                                placeholder="Search files..."
+                                oninput="searchMedia('{{ $id }}', this.value)"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Selected Files Count -->
+                    <div id="{{ $id }}_selectedInfo" class="lg:mt-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hidden">
+                        <p class="text-sm text-blue-700 dark:text-blue-300">
+                            <span id="{{ $id }}_selectedCount">0</span> file(s) selected
+                        </p>
+                    </div>
                 </div>
             </div>
 
             <!-- Main Content Area -->
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-h-0 lg:min-h-full">
                 <!-- Loading State -->
                 <div id="{{ $id }}_loading" class="flex-1 flex items-center justify-center">
                     <div class="text-center">
@@ -105,8 +109,8 @@
                 </div>
 
                 <!-- Media Grid -->
-                <div id="{{ $id }}_mediaGrid" class="flex-1 p-6 overflow-y-auto hidden">
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="{{ $id }}_mediaContainer">
+                <div id="{{ $id }}_mediaGrid" class="flex-1 p-4 lg:p-6 overflow-y-auto hidden">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-4" id="{{ $id }}_mediaContainer">
                         <!-- Media items will be loaded here -->
                     </div>
 
@@ -141,7 +145,7 @@
             </div>
 
             <!-- Right Sidebar - Media Details -->
-            <div class="w-64 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col">
+            <div class="hidden lg:flex w-64 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex-col shrink-0">
                 <!-- No Selection State -->
                 <div id="{{ $id }}_noSelection" class="flex-1 flex items-center justify-center p-6">
                     <div class="text-center">
@@ -226,17 +230,17 @@
         </div>
 
         <!-- Modal Footer -->
-        <div class="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-700">
-            <div class="text-sm text-gray-500 dark:text-gray-400">
+        <div class="flex flex-col sm:flex-row items-center justify-between p-4 lg:p-6 border-t border-gray-200 dark:border-gray-700 gap-3 shrink-0">
+            <div class="text-sm text-gray-500 dark:text-gray-400 order-2 sm:order-1">
                 <span id="{{ $id }}_totalFiles">0</span> files
-                <span id="{{ $id }}_filterInfo" class="ml-1"></span>
-                <span id="{{ $id }}_paginationInfo" class="ml-2 text-xs"></span>
+                <span id="{{ $id }}_filterInfo" class="ml-1 hidden sm:inline"></span>
+                <span id="{{ $id }}_paginationInfo" class="ml-2 text-xs hidden sm:inline"></span>
             </div>
-            <div class="flex gap-3">
+            <div class="flex gap-3 w-full sm:w-auto order-1 sm:order-2">
                 <button
                     type="button"
                     onclick="closeMediaModal('{{ $id }}')"
-                    class="btn-default"
+                    class="btn-default flex-1 sm:flex-initial"
                 >
                     Cancel
                 </button>
@@ -244,7 +248,7 @@
                     type="button"
                     id="{{ $id }}_selectButton"
                     onclick="confirmMediaSelection('{{ $id }}')"
-                    class="btn-primary"
+                    class="btn-primary flex-1 sm:flex-initial"
                     disabled
                 >
                     {{ $multiple ? __('Select Files') : __('Select') }}
