@@ -1067,31 +1067,64 @@ PHP;
             return;
         }
 
-        // Build the submenu code block
-        $submenuCode = <<<PHP
-
-        // {$this->modelPluralName} submenu
-        \$menu->setChildren(array_merge(\$menu->children, [
-            (new AdminMenuItem())->setAttributes([
+        // Build the submenu item code
+        $submenuItem = <<<PHP
+(new AdminMenuItem())->setAttributes([
                 'label' => __('{$this->modelPluralName}'),
                 'icon' => 'lucide:list',
                 'route' => route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.index'),
                 'active' => Route::is('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.*'),
                 'id' => '{$this->moduleLowerName}-{$this->modelPluralLower}',
                 'permissions' => [],
-            ]),
-        ]));
+            ])
 PHP;
 
-        // Insert before "return $menu;" in the getMenu method
+        $updated = false;
+
+        // Pattern 1: Check if using "$menu->setChildren" pattern already
         if (preg_match('/return\s+\$menu\s*;/', $content)) {
+            $submenuCode = <<<PHP
+
+        // {$this->modelPluralName} submenu
+        \$menu->setChildren(array_merge(\$menu->children, [
+            {$submenuItem},
+        ]));
+PHP;
             $content = preg_replace(
                 '/(return\s+\$menu\s*;)/',
                 $submenuCode."\n\n        $1",
                 $content,
                 1
             );
+            $updated = true;
+        }
+        // Pattern 2: Direct return with setAttributes - need to convert to variable pattern with children
+        elseif (preg_match('/return\s+\(new\s+AdminMenuItem\(\)\)->setAttributes\s*\(\s*\[/', $content)) {
+            // Find the getMenu method and transform it
+            $pattern = '/(public\s+function\s+getMenu\s*\(\s*\)\s*:\s*AdminMenuItem\s*\{\s*)(return\s+\(new\s+AdminMenuItem\(\)\)->setAttributes\s*\(\s*\[)(.*?)(\]\s*\)\s*;)(\s*\})/s';
 
+            if (preg_match($pattern, $content, $matches)) {
+                $methodStart = $matches[1];
+                $attributesContent = $matches[3];
+                $methodEnd = $matches[5];
+
+                $newMethod = <<<PHP
+{$methodStart}\$menu = (new AdminMenuItem())->setAttributes([{$attributesContent}]);
+
+        // {$this->modelPluralName} submenu
+        \$menu->setChildren([
+            {$submenuItem},
+        ]);
+
+        return \$menu;{$methodEnd}
+PHP;
+
+                $content = preg_replace($pattern, $newMethod, $content, 1);
+                $updated = true;
+            }
+        }
+
+        if ($updated) {
             File::put($menuServicePath, $content);
             $this->info('  Updated: MenuService with submenu item');
         } else {
