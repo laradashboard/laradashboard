@@ -75,6 +75,13 @@ class ActionLogDatatable extends Datatable
                 'sortBy' => 'action_by',
             ],
             [
+                'id' => 'created_at',
+                'title' => __('Created At'),
+                'width' => null,
+                'sortable' => true,
+                'sortBy' => 'created_at',
+            ],
+            [
                 'id' => 'data',
                 'title' => __('Data'),
                 'width' => null,
