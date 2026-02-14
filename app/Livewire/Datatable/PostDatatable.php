@@ -171,10 +171,18 @@ class PostDatatable extends Datatable
 
         $headers[] = [
             'id' => 'created_at',
-            'title' => __('Created At'),
+            'title' => __('Created'),
             'width' => null,
             'sortable' => true,
             'sortBy' => 'created_at',
+        ];
+
+        $headers[] = [
+            'id' => 'updated_at',
+            'title' => __('Updated'),
+            'width' => null,
+            'sortable' => true,
+            'sortBy' => 'updated_at',
         ];
 
         $headers[] = [

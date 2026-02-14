@@ -50,12 +50,22 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v0.9.7] - 2026-02-14**
+-   **Fix:** Demo was not loading the faker.
+-   **Enhancement:** Post list updated with Updated column.
+-   **Enhancement:** Created date in activity log list page.
+-   **Enhancement:** Media library modal responsive improvement.
+-   **Fix:** Fixed Module:make-crud command to generate menus properly.
+-   **Feat:** Added clean all logs button in activity log list page.
+
 **[v0.9.6] - 2026-02-13**
 -   **Feat:** Compact attachment component.
 -   **Fix:** Fixed module replace modal scroll issue.
 -   **Fix:** Demo app refresh issue.
+
 **[v0.9.5] - 2026-02-12**
 -   **Fix:** Fixed module installation issue on some servers.
+
 **[v0.9.3] - 2026-02-08**
 -   **Feat:** Inbound/Outbound email connection managent.
 -   **Feat:** CRUD Generator (`module:make-crud`) - Rapid scaffolding for modules with Model, Datatable, Views, Routes, Menu.

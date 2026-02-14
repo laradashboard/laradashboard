@@ -33,13 +33,13 @@
         "spatie/laravel-medialibrary": "^11.13",
         "spatie/laravel-permission": "^6.4",
         "spatie/laravel-query-builder": "^6.3",
-        "tormjens/eventy": "^0.8.0"
+        "tormjens/eventy": "^0.8.0",
+        "fakerphp/faker": "^1.24"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.16",
         "beyondcode/laravel-dump-server": "^2.1",
         "brianium/paratest": "*",
-        "fakerphp/faker": "^1.24",
         "larastan/larastan": "^3.0",
         "laravel/boost": "^1.0",
         "laravel/pint": "^1.22",
