@@ -47,8 +47,8 @@
                             class="w-full btn-primary flex items-center justify-center gap-2"
                         >
                             <iconify-icon icon="lucide:upload"></iconify-icon>
-                            <span class="hidden sm:inline lg:inline">Upload Files</span>
-                            <span class="sm:hidden lg:hidden">Upload</span>
+                            <span class="hidden sm:inline lg:inline">{{ __('Upload Files') }}</span>
+                            <span class="sm:hidden lg:hidden">{{ __('Upload') }}</span>
                         </button>
                         <input
                             type="file"
@@ -63,27 +63,27 @@
                     <!-- Filter Section -->
                     <div class="flex flex-row sm:flex-row lg:flex-col gap-3 lg:gap-4 flex-1 lg:flex-initial">
                         <div class="flex-1 lg:flex-initial">
-                            <label class="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filter by Type</label>
+                            <label class="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Filter by Type') }}</label>
                             <select
                                 id="{{ $id }}_typeFilter"
                                 class="form-control w-full"
                                 onchange="filterMediaByType('{{ $id }}', this.value)"
                             >
-                                <option value="all">All Files</option>
-                                <option value="images">Images</option>
-                                <option value="videos">Videos</option>
-                                <option value="audio">Audio</option>
-                                <option value="documents">Documents</option>
+                                <option value="all">{{ __('All Files') }}</option>
+                                <option value="images">{{ __('Images') }}</option>
+                                <option value="videos">{{ __('Videos') }}</option>
+                                <option value="audio">{{ __('Audio') }}</option>
+                                <option value="documents">{{ __('Documents') }}</option>
                             </select>
                         </div>
 
                         <div class="flex-1 lg:flex-initial">
-                            <label class="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search</label>
+                            <label class="hidden lg:block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Search') }}</label>
                             <input
                                 type="text"
                                 id="{{ $id }}_searchInput"
                                 class="form-control w-full"
-                                placeholder="Search files..."
+                                placeholder="{{ __('Search files...') }}"
                                 oninput="searchMedia('{{ $id }}', this.value)"
                             >
                         </div>
@@ -92,7 +92,7 @@
                     <!-- Selected Files Count -->
                     <div id="{{ $id }}_selectedInfo" class="lg:mt-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hidden">
                         <p class="text-sm text-blue-700 dark:text-blue-300">
-                            <span id="{{ $id }}_selectedCount">0</span> file(s) selected
+                            <span id="{{ $id }}_selectedCount">0</span> {{ __('file(s) selected') }}
                         </p>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                 <div id="{{ $id }}_loading" class="flex-1 flex items-center justify-center">
                     <div class="text-center">
                         <iconify-icon icon="lucide:loader-2" class="text-4xl text-gray-400 animate-spin mb-4"></iconify-icon>
-                        <p class="text-gray-500 dark:text-gray-400">Loading media files...</p>
+                        <p class="text-gray-500 dark:text-gray-400">{{ __('Loading media files...') }}</p>
                     </div>
                 </div>
 
@@ -123,7 +123,7 @@
                             class="btn-default px-6 py-2 flex items-center gap-2"
                         >
                             <iconify-icon icon="lucide:chevron-down" class="text-lg"></iconify-icon>
-                            Load More (100 items)
+                            {{ __('Load More') }} (100 {{ __('items') }})
                         </button>
                     </div>
                 </div>
@@ -132,13 +132,13 @@
                 <div id="{{ $id }}_emptyState" class="flex-1 flex items-center justify-center hidden">
                     <div class="text-center">
                         <iconify-icon icon="lucide:image" class="text-6xl text-gray-300 dark:text-gray-600 mb-4"></iconify-icon>
-                        <p class="text-gray-500 dark:text-gray-400 mb-4">No media files found</p>
+                        <p class="text-gray-500 dark:text-gray-400 mb-4">{{ __('No media files found') }}</p>
                         <button
                             type="button"
                             onclick="triggerFileUpload('{{ $id }}')"
                             class="btn-primary"
                         >
-                            Upload Your First File
+                            {{ __('Upload Your First File') }}
                         </button>
                     </div>
                 </div>
@@ -150,7 +150,7 @@
                 <div id="{{ $id }}_noSelection" class="flex-1 flex items-center justify-center p-6">
                     <div class="text-center">
                         <iconify-icon icon="lucide:mouse-pointer-click" class="text-4xl text-gray-300 dark:text-gray-600 mb-3"></iconify-icon>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm">Select a file to view details</p>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">{{ __('Select a file to view details') }}</p>
                     </div>
                 </div>
 
@@ -167,32 +167,32 @@
                     <div class="flex-1 p-4 overflow-y-auto">
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">File Name</label>
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('File Name') }}</label>
                                 <p id="{{ $id }}_fileName" class="text-sm text-gray-900 dark:text-white break-all"></p>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">File Type</label>
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('File Type') }}</label>
                                 <p id="{{ $id }}_fileType" class="text-sm text-gray-900 dark:text-white"></p>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">File Size</label>
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('File Size') }}</label>
                                 <p id="{{ $id }}_fileSize" class="text-sm text-gray-900 dark:text-white"></p>
                             </div>
 
                             <div id="{{ $id }}_imageDimensions" class="hidden">
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Dimensions</label>
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('Dimensions') }}</label>
                                 <p id="{{ $id }}_dimensions" class="text-sm text-gray-900 dark:text-white"></p>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Uploaded</label>
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('Uploaded') }}</label>
                                 <p id="{{ $id }}_uploadDate" class="text-sm text-gray-900 dark:text-white"></p>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">URL</label>
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('URL') }}</label>
                                 <div class="flex items-center gap-2">
                                     <input id="{{ $id }}_fileUrl" type="text" readonly class="form-control text-xs flex-1" />
                                     <button type="button" onclick="copyToClipboard('{{ $id }}_fileUrl')" class="btn-default p-2" title="{{ __('Copy URL') }}">
@@ -232,7 +232,7 @@
         <!-- Modal Footer -->
         <div class="flex flex-col sm:flex-row items-center justify-between p-4 lg:p-6 border-t border-gray-200 dark:border-gray-700 gap-3 shrink-0">
             <div class="text-sm text-gray-500 dark:text-gray-400 order-2 sm:order-1">
-                <span id="{{ $id }}_totalFiles">0</span> files
+                <span id="{{ $id }}_totalFiles">0</span> {{ __('files') }}
                 <span id="{{ $id }}_filterInfo" class="ml-1 hidden sm:inline"></span>
                 <span id="{{ $id }}_paginationInfo" class="ml-2 text-xs hidden sm:inline"></span>
             </div>
@@ -242,7 +242,7 @@
                     onclick="closeMediaModal('{{ $id }}')"
                     class="btn-default flex-1 sm:flex-initial"
                 >
-                    Cancel
+                    {{ __('Cancel') }}
                 </button>
                 <button
                     type="button"
@@ -296,7 +296,7 @@
             <div class="mb-6">
                 <iconify-icon icon="lucide:music" class="text-8xl text-green-600 dark:text-green-300 mb-4"></iconify-icon>
                 <h3 id="modalAudioTitle" class="text-xl font-semibold text-green-800 dark:text-green-200 mb-2"></h3>
-                <p class="text-green-600 dark:text-green-400 text-sm">Audio Player</p>
+                <p class="text-green-600 dark:text-green-400 text-sm">{{ __('Audio Player') }}</p>
             </div>
 
             <!-- Audio Player -->
@@ -326,6 +326,32 @@
 @push('scripts')
 
 <script>
+// Translations for media modal
+window.mediaModalTranslations = {
+    copied: '{{ __('Copied') }}',
+    urlCopied: '{{ __('URL copied to clipboard') }}',
+    matching: '{{ __('matching') }}',
+    available: '{{ __('available') }}',
+    loaded: '{{ __('loaded') }}',
+    of: '{{ __('of') }}',
+    total: '{{ __('total') }}',
+    allLoaded: '{{ __('all loaded') }}',
+    loadMore: '{{ __('Load More') }}',
+    items: '{{ __('items') }}',
+    success: '{{ __('Success') }}',
+    filesUploaded: '{{ __('Files uploaded successfully') }}',
+    uploadFailed: '{{ __('Upload Failed') }}',
+    uploadError: '{{ __('Upload Error') }}',
+    failedToUpload: '{{ __('Failed to upload files') }}',
+    loadingMore: '{{ __('Loading more files...') }}',
+    size: '{{ __('Size') }}',
+    duration: '{{ __('Duration') }}',
+    format: '{{ __('Format') }}',
+    unknown: '{{ __('Unknown') }}',
+    pixels: '{{ __('pixels') }}',
+    resolution: '{{ __('resolution') }}'
+};
+
 // Global media modal functionality
 window.mediaModalData = {};
 
@@ -625,15 +651,16 @@ function showMediaDetails(modalId, file) {
     const isVideo = file.mime_type.startsWith('video/');
     const isAudio = file.mime_type.startsWith('audio/');
 
+    const t = window.mediaModalTranslations;
     if (isImage && (file.width || file.height)) {
-        document.getElementById(`${modalId}_dimensions`).textContent = `${file.width || 0} × ${file.height || 0} pixels`;
+        document.getElementById(`${modalId}_dimensions`).textContent = `${file.width || 0} × ${file.height || 0} ${t.pixels}`;
         dimensionsEl.classList.remove('hidden');
     } else if (isVideo && (file.width || file.height)) {
-        document.getElementById(`${modalId}_dimensions`).textContent = `${file.width || 0} × ${file.height || 0} resolution`;
+        document.getElementById(`${modalId}_dimensions`).textContent = `${file.width || 0} × ${file.height || 0} ${t.resolution}`;
         dimensionsEl.classList.remove('hidden');
     } else if (isAudio && file.duration) {
         const duration = formatAudioDuration(file.duration);
-        document.getElementById(`${modalId}_dimensions`).textContent = `Duration: ${duration}`;
+        document.getElementById(`${modalId}_dimensions`).textContent = `${t.duration}: ${duration}`;
         dimensionsEl.classList.remove('hidden');
     } else {
         dimensionsEl.classList.add('hidden');
@@ -811,7 +838,8 @@ function copyToClipboard(inputId) {
 
         // Show feedback
         if (window.showToast) {
-            window.showToast('success', 'Copied', 'URL copied to clipboard');
+            const t = window.mediaModalTranslations;
+            window.showToast('success', t.copied, t.urlCopied);
         }
     }
 }
@@ -845,11 +873,12 @@ function updateTotalFilesCount(modalId, count) {
     }
 
     if (filterInfoEl && modalData) {
+        const t = window.mediaModalTranslations;
         const hasSearch = modalData.currentFilters.search.length > 0;
         const hasTypeFilter = modalData.currentFilters.type !== 'all';
 
         if (hasSearch || hasTypeFilter) {
-            let filterText = 'matching';
+            let filterText = t.matching;
             if (hasSearch && hasTypeFilter) {
                 filterText += ` "${modalData.currentFilters.search}" in ${modalData.currentFilters.type}`;
             } else if (hasSearch) {
@@ -859,16 +888,17 @@ function updateTotalFilesCount(modalId, count) {
             }
             filterInfoEl.textContent = filterText;
         } else {
-            filterInfoEl.textContent = 'available';
+            filterInfoEl.textContent = t.available;
         }
     }
 
     if (paginationInfoEl && modalData) {
+        const t = window.mediaModalTranslations;
         const loadedCount = modalData.allFiles.length;
         if (modalData.hasMorePages && loadedCount < count) {
-            paginationInfoEl.textContent = `• ${loadedCount} loaded of ${count} total`;
+            paginationInfoEl.textContent = `• ${loadedCount} ${t.loaded} ${t.of} ${count} ${t.total}`;
         } else if (loadedCount >= count && count > 100) {
-            paginationInfoEl.textContent = '• all loaded';
+            paginationInfoEl.textContent = `• ${t.allLoaded}`;
         } else {
             paginationInfoEl.textContent = '';
         }
@@ -920,11 +950,12 @@ function updateLoadMoreButton(modalId) {
         loadMoreButton.disabled = false;
 
         // Update button text to show remaining items
+        const t = window.mediaModalTranslations;
         const remainingItems = modalData.totalCount - modalData.allFiles.length;
         const itemsToLoad = Math.min(100, remainingItems);
         loadMoreButton.innerHTML = `
             <iconify-icon icon="lucide:chevron-down" class="text-lg"></iconify-icon>
-            Load More (${itemsToLoad} items)
+            ${t.loadMore} (${itemsToLoad} ${t.items})
         `;
     } else {
         loadMoreSection.classList.add('hidden');
@@ -968,21 +999,23 @@ async function handleFileUpload(event, modalId) {
 
             // Show success message
             if (window.showToast) {
-                window.showToast('success', 'Success', 'Files uploaded successfully');
+                const t = window.mediaModalTranslations;
+                window.showToast('success', t.success, t.filesUploaded);
             }
         } else {
             // Handle different types of errors
             let errorMessage = data.message || 'Upload failed';
-            
+
             // Check for validation errors
             if (data.errors) {
                 const validationErrors = Object.values(data.errors).flat();
                 errorMessage = validationErrors.join(', ');
             }
-            
+
             // Show the specific error message from the API
             if (window.showToast) {
-                window.showToast('error', 'Upload Failed', errorMessage);
+                const t = window.mediaModalTranslations;
+                window.showToast('error', t.uploadFailed, errorMessage);
             } else {
                 alert(errorMessage);
             }
@@ -990,15 +1023,16 @@ async function handleFileUpload(event, modalId) {
         }
     } catch (error) {
         console.error('Upload error:', error);
-        
+
         // Try to extract error message from response if it's a fetch error
-        let errorMessage = 'Failed to upload files';
+        const t = window.mediaModalTranslations;
+        let errorMessage = t.failedToUpload;
         if (error.message && error.message !== 'Failed to fetch') {
             errorMessage = error.message;
         }
-        
+
         if (window.showToast) {
-            window.showToast('error', 'Upload Error', errorMessage);
+            window.showToast('error', t.uploadError, errorMessage);
         } else {
             alert(errorMessage);
         }
@@ -1044,11 +1078,12 @@ function showLoadingIndicator(modalId) {
     if (!loadingIndicator) {
         loadingIndicator = document.createElement('div');
         loadingIndicator.id = `${modalId}_loadingMore`;
+        const t = window.mediaModalTranslations;
         loadingIndicator.className = 'col-span-full flex items-center justify-center py-8';
         loadingIndicator.innerHTML = `
             <div class="text-center">
                 <iconify-icon icon="lucide:loader-2" class="text-2xl text-gray-400 animate-spin mb-2"></iconify-icon>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Loading more files...</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">${t.loadingMore}</p>
             </div>
         `;
         container.appendChild(loadingIndicator);
@@ -1191,15 +1226,16 @@ function openAudioModal(src, name, file) {
     audio.appendChild(source);
 
     // Set audio info
+    const t = window.mediaModalTranslations;
     let infoHtml = '';
     if (file.human_readable_size) {
-        infoHtml += `<div>Size: ${file.human_readable_size}</div>`;
+        infoHtml += `<div>${t.size}: ${file.human_readable_size}</div>`;
     }
     if (file.duration) {
-        infoHtml += `<div>Duration: ${formatAudioDuration(file.duration)}</div>`;
+        infoHtml += `<div>${t.duration}: ${formatAudioDuration(file.duration)}</div>`;
     }
     if (file.extension) {
-        infoHtml += `<div>Format: ${file.extension.toUpperCase()}</div>`;
+        infoHtml += `<div>${t.format}: ${file.extension.toUpperCase()}</div>`;
     }
     info.innerHTML = infoHtml;
 
@@ -1238,7 +1274,7 @@ function getAudioMimeType(url) {
 }
 
 function formatAudioDuration(seconds) {
-    if (!seconds || isNaN(seconds)) return 'Unknown';
+    if (!seconds || isNaN(seconds)) return window.mediaModalTranslations.unknown;
 
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
