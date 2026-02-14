@@ -82,6 +82,7 @@ class PermissionService
                 'permissions' => [
                     'pulse.view',
                     'actionlog.view',
+                    'actionlog.clean',
                 ],
             ],
             [
