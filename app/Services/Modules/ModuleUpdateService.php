@@ -578,9 +578,14 @@ class ModuleUpdateService
                 // Get ZIP file path from module version
                 $storagePath = $this->getModuleVersionZipPath($slug, $version);
                 if (! $storagePath) {
+                    Log::warning('Module version ZIP file path not found in database', [
+                        'slug' => $slug,
+                        'version' => $version,
+                    ]);
+
                     return [
                         'success' => false,
-                        'message' => 'Module version ZIP file not found.',
+                        'message' => 'Module version ZIP file not found for ' . $slug . ' v' . $version,
                     ];
                 }
             } elseif (str_starts_with($path, '/storage/')) {
@@ -595,9 +600,15 @@ class ModuleUpdateService
             }
 
             if (! File::exists($storagePath)) {
+                Log::warning('Module ZIP file not found', [
+                    'expected_path' => $storagePath,
+                    'download_url' => $downloadUrl,
+                    'relative_path' => $relativePath ?? null,
+                ]);
+
                 return [
                     'success' => false,
-                    'message' => 'Module ZIP file not found in storage.',
+                    'message' => 'Module ZIP file not found in storage. Expected path: ' . $storagePath,
                 ];
             }
 

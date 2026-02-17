@@ -148,6 +148,39 @@ class Setting extends Model
 
     public const AUTH_SHOW_SOCIAL_LOGIN = 'auth_show_social_login';
 
+    // =========================================================================
+    // Social Authentication Settings
+    // =========================================================================
+    public const AUTH_SOCIAL_ENABLE_GOOGLE = 'auth_social_enable_google';
+
+    public const AUTH_SOCIAL_GOOGLE_CLIENT_ID = 'auth_social_google_client_id';
+
+    public const AUTH_SOCIAL_GOOGLE_CLIENT_SECRET = 'auth_social_google_client_secret';
+
+    public const AUTH_SOCIAL_ENABLE_GITHUB = 'auth_social_enable_github';
+
+    public const AUTH_SOCIAL_GITHUB_CLIENT_ID = 'auth_social_github_client_id';
+
+    public const AUTH_SOCIAL_GITHUB_CLIENT_SECRET = 'auth_social_github_client_secret';
+
+    public const AUTH_SOCIAL_ENABLE_FACEBOOK = 'auth_social_enable_facebook';
+
+    public const AUTH_SOCIAL_FACEBOOK_CLIENT_ID = 'auth_social_facebook_client_id';
+
+    public const AUTH_SOCIAL_FACEBOOK_CLIENT_SECRET = 'auth_social_facebook_client_secret';
+
+    public const AUTH_SOCIAL_ENABLE_TWITTER = 'auth_social_enable_twitter';
+
+    public const AUTH_SOCIAL_TWITTER_CLIENT_ID = 'auth_social_twitter_client_id';
+
+    public const AUTH_SOCIAL_TWITTER_CLIENT_SECRET = 'auth_social_twitter_client_secret';
+
+    public const AUTH_SOCIAL_ENABLE_LINKEDIN = 'auth_social_enable_linkedin';
+
+    public const AUTH_SOCIAL_LINKEDIN_CLIENT_ID = 'auth_social_linkedin_client_id';
+
+    public const AUTH_SOCIAL_LINKEDIN_CLIENT_SECRET = 'auth_social_linkedin_client_secret';
+
     protected $fillable = [
         'option_name',
         'option_value',

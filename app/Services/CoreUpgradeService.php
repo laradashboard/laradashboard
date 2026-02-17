@@ -52,7 +52,7 @@ class CoreUpgradeService
      */
     protected function getMarketplaceUrl(): string
     {
-        return rtrim(config('laradashboard.marketplace_url', 'http://localhost:8000'), '/');
+        return rtrim(config('laradashboard.marketplace.url', 'https://laradashboard.com'), '/');
     }
 
     /**
@@ -62,7 +62,16 @@ class CoreUpgradeService
     {
         try {
             $currentVersion = $this->getCurrentVersion();
-            $response = Http::timeout(30)->post($this->getMarketplaceUrl().'/api/core/check-updates', [
+            $marketplaceUrl = $this->getMarketplaceUrl();
+            $endpoint = $marketplaceUrl.'/api/core/check-updates';
+
+            Log::info('Checking for core updates', [
+                'current_version' => $currentVersion['version'],
+                'marketplace_url' => $marketplaceUrl,
+                'endpoint' => $endpoint,
+            ]);
+
+            $response = Http::timeout(30)->post($endpoint, [
                 'current_version' => $currentVersion['version'],
             ]);
 
@@ -70,12 +79,20 @@ class CoreUpgradeService
                 Log::warning('Core upgrade check failed', [
                     'status' => $response->status(),
                     'body' => $response->body(),
+                    'endpoint' => $endpoint,
                 ]);
 
                 return null;
             }
 
             $data = $response->json();
+
+            Log::info('Core upgrade check response', [
+                'success' => $data['success'] ?? false,
+                'has_update' => $data['has_update'] ?? false,
+                'latest_version' => $data['latest_version'] ?? null,
+                'current_version' => $currentVersion['version'],
+            ]);
 
             if ($data['success'] && $data['has_update']) {
                 // Store the update info in settings
@@ -91,6 +108,7 @@ class CoreUpgradeService
         } catch (\Exception $e) {
             Log::error('Core upgrade check error', [
                 'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return null;
@@ -147,8 +165,21 @@ class CoreUpgradeService
                 File::makeDirectory($this->tempPath, 0755, true);
             }
 
-            $downloadUrl = $this->getMarketplaceUrl()."/api/core/download/{$version}";
             $zipPath = $this->tempPath."/laradashboard-{$version}.zip";
+
+            // Check if we're on the marketplace itself (laradashboard module is installed)
+            // In that case, try to get the file directly from local storage
+            if ($this->tryLocalDownload($version, $zipPath)) {
+                return $zipPath;
+            }
+
+            // Fall back to HTTP download
+            $downloadUrl = $this->getMarketplaceUrl()."/api/core/download/{$version}";
+
+            Log::info('Downloading core upgrade via HTTP', [
+                'version' => $version,
+                'url' => $downloadUrl,
+            ]);
 
             // Download the file
             $response = Http::timeout(600)->withOptions([
@@ -179,6 +210,57 @@ class CoreUpgradeService
             ]);
 
             return null;
+        }
+    }
+
+    /**
+     * Try to get the upgrade file from local storage (when on the marketplace itself).
+     */
+    protected function tryLocalDownload(string $version, string $destinationPath): bool
+    {
+        try {
+            // Check if the LaraDashboard module is installed (we're on the marketplace)
+            if (! class_exists(\Modules\LaraDashboard\Models\CoreUpgrade::class)) {
+                return false;
+            }
+
+            // Try to find the upgrade in the local database
+            $upgrade = \Modules\LaraDashboard\Models\CoreUpgrade::where('version', $version)
+                ->where('status', 'published')
+                ->first();
+
+            if (! $upgrade || ! $upgrade->zip_file) {
+                return false;
+            }
+
+            // Check if the file exists in public storage
+            if (! \Illuminate\Support\Facades\Storage::disk('public')->exists($upgrade->zip_file)) {
+                Log::warning('Local core upgrade file not found in storage', [
+                    'version' => $version,
+                    'zip_file' => $upgrade->zip_file,
+                ]);
+
+                return false;
+            }
+
+            // Copy the file to the destination
+            $sourcePath = \Illuminate\Support\Facades\Storage::disk('public')->path($upgrade->zip_file);
+            File::copy($sourcePath, $destinationPath);
+
+            Log::info('Core upgrade file copied from local storage', [
+                'version' => $version,
+                'source' => $sourcePath,
+                'destination' => $destinationPath,
+            ]);
+
+            return File::exists($destinationPath) && File::size($destinationPath) > 0;
+        } catch (\Exception $e) {
+            Log::warning('Failed to get local core upgrade file', [
+                'version' => $version,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
         }
     }
 
@@ -274,8 +356,12 @@ class CoreUpgradeService
             // Ensure storage directory structure exists
             $this->ensureStorageDirectoriesExist();
 
-            // Run migrations
-            Artisan::call('migrate', ['--force' => true]);
+            // Run ONLY core migrations (not module migrations)
+            // Module migrations should be handled by module installation/upgrade
+            Artisan::call('migrate', [
+                '--force' => true,
+                '--path' => 'database/migrations',
+            ]);
 
             // Clear caches
             Artisan::call('optimize:clear');
@@ -366,8 +452,12 @@ class CoreUpgradeService
             // Ensure storage directory structure exists
             $this->ensureStorageDirectoriesExist();
 
-            // Run migrations
-            Artisan::call('migrate', ['--force' => true]);
+            // Run ONLY core migrations (not module migrations)
+            // Module migrations should be handled by module installation/upgrade
+            Artisan::call('migrate', [
+                '--force' => true,
+                '--path' => 'database/migrations',
+            ]);
 
             // Clear caches
             Artisan::call('optimize:clear');

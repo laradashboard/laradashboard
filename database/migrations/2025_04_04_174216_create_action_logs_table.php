@@ -10,6 +10,10 @@ return new class () extends Migration {
      */
     public function up(): void
     {
+        if (Schema::hasTable('action_logs')) {
+            return;
+        }
+
         Schema::create('action_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('action_by')->constrained('users')->onDelete('cascade');

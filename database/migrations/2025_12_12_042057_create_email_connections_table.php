@@ -12,6 +12,10 @@ return new class () extends Migration {
      */
     public function up(): void
     {
+        if (Schema::hasTable('email_connections')) {
+            return;
+        }
+
         Schema::create('email_connections', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();

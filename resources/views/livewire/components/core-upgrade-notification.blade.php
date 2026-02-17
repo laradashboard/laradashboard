@@ -1,7 +1,10 @@
 <div>
     @if ($hasUpdate)
         @can('settings.view')
-            <x-tooltip title="{{ __('Update available') }}: v{{ $latestVersion }}" position="bottom">
+            @php
+                $versionDisplay = str_starts_with($latestVersion, 'v') ? $latestVersion : 'v' . $latestVersion;
+            @endphp
+            <x-tooltip title="{{ __('Update available') }}: {{ $versionDisplay }}" position="bottom">
                 <a href="{{ route('admin.core-upgrades.index') }}"
                     class="relative flex p-2 items-center justify-center rounded-full transition-colors
                         {{ $isCritical

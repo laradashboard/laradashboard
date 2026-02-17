@@ -138,6 +138,8 @@
       </form>
     </div>
 
+    <x-auth.social-login-buttons />
+
     {!! Hook::applyFilters(AuthFilterHook::LOGIN_FORM_AFTER, '') !!}
 </div>
 

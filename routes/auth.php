@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\SocialLoginController;
 use App\Http\Controllers\Auth\VerificationController;
 
 /*
@@ -62,3 +63,14 @@ Route::middleware('auth')->group(function () {
 
 // Logout Route (requires auth)
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+
+// Social Login Routes
+Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function () {
+    Route::get('{provider}/redirect', [SocialLoginController::class, 'redirect'])
+        ->name('social.redirect')
+        ->whereIn('provider', ['google', 'github', 'facebook', 'twitter', 'linkedin']);
+
+    Route::get('{provider}/callback', [SocialLoginController::class, 'callback'])
+        ->name('social.callback')
+        ->whereIn('provider', ['google', 'github', 'facebook', 'twitter', 'linkedin']);
+});

@@ -136,6 +136,8 @@
         </div>
     </form>
 
+    <x-auth.social-login-buttons :divider-text="__('Or sign up with')" />
+
     {!! Hook::applyFilters(AuthFilterHook::REGISTER_FORM_AFTER, '') !!}
 </div>
 

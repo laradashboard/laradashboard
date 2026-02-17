@@ -15,6 +15,10 @@ return new class () extends Migration {
     use TogglesForeignKeyConstraints;
     public function up(): void
     {
+        if (Schema::hasTable('notifications')) {
+            return;
+        }
+
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();

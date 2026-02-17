@@ -14,6 +14,11 @@ return new class () extends PulseMigration {
             return;
         }
 
+        // Skip if tables already exist
+        if (Schema::hasTable('pulse_values')) {
+            return;
+        }
+
         Schema::create('pulse_values', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('timestamp');
