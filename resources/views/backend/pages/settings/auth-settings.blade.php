@@ -372,4 +372,215 @@
     </div>
 </x-card>
 
+@inject('socialAuthService', 'App\Services\SocialAuthService')
+
+<x-card class="mt-6">
+    <x-slot name="header">
+        {{ __('Social Authentication') }}
+    </x-slot>
+    <x-slot name="headerDescription">
+        {{ __('Allow users to sign in using their social media accounts. Configure OAuth credentials from each provider.') }}
+    </x-slot>
+
+    <div class="space-y-6">
+        {{-- Enable Social Login --}}
+        <div class="relative">
+            <label class="flex items-center gap-3">
+                <input
+                    type="checkbox"
+                    name="auth_show_social_login"
+                    value="1"
+                    @if(filter_var(config('settings.auth_show_social_login', '0'), FILTER_VALIDATE_BOOLEAN)) checked @endif
+                    class="form-checkbox rounded border-gray-300 text-brand-600 shadow-sm focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700"
+                    x-data
+                    @change="$dispatch('social-login-toggled', { enabled: $el.checked })"
+                >
+                <div>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ __('Enable Social Login') }}
+                    </span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ __('Allow users to sign in or register using social media accounts.') }}
+                    </p>
+                </div>
+            </label>
+        </div>
+
+        {{-- Social Providers Configuration --}}
+        <div
+            x-data="{ socialLoginEnabled: {{ filter_var(config('settings.auth_show_social_login', '0'), FILTER_VALIDATE_BOOLEAN) ? 'true' : 'false' }} }"
+            @social-login-toggled.window="socialLoginEnabled = $event.detail.enabled"
+            x-show="socialLoginEnabled"
+            x-transition
+            class="space-y-6 pt-4 border-t border-gray-200 dark:border-gray-700"
+        >
+            @foreach($socialAuthService::PROVIDERS as $provider => $config)
+                @php
+                    $isEnabled = filter_var(config('settings.' . $config['setting_enable'], '0'), FILTER_VALIDATE_BOOLEAN);
+                    $hasEnvClientId = !empty(env($config['env_client_id']));
+                    $hasEnvClientSecret = !empty(env($config['env_client_secret']));
+                    $hasEnvCredentials = $hasEnvClientId && $hasEnvClientSecret;
+                @endphp
+
+                <div
+                    x-data="{ providerEnabled: {{ $isEnabled ? 'true' : 'false' }}, showCredentials: {{ $isEnabled ? 'true' : 'false' }} }"
+                    class="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
+                >
+                    {{-- Provider Header --}}
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="{{ $config['setting_enable'] }}"
+                                value="1"
+                                @if($isEnabled) checked @endif
+                                class="form-checkbox rounded border-gray-300 text-brand-600 shadow-sm focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700"
+                                @change="providerEnabled = $el.checked; showCredentials = $el.checked"
+                            >
+                            <div class="flex items-center gap-2">
+                                <iconify-icon
+                                    icon="{{ $config['icon'] }}"
+                                    class="text-xl"
+                                    @if($provider === 'github') style="color: currentColor;" @endif
+                                ></iconify-icon>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {{ $config['name'] }}
+                                </span>
+                            </div>
+                        </label>
+
+                        <div class="flex items-center gap-2">
+                            @if($hasEnvCredentials)
+                                <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
+                                    {{ __('.env configured') }}
+                                </span>
+                            @endif
+                            <a
+                                href="{{ $config['console_url'] }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex items-center gap-1 text-xs px-2 py-1 bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400 rounded hover:bg-brand-200 dark:hover:bg-brand-900/50 transition-colors"
+                                title="{{ __('Open :provider Developer Console', ['provider' => $config['name']]) }}"
+                            >
+                                <iconify-icon icon="lucide:external-link" class="text-xs"></iconify-icon>
+                                {{ __('Get Credentials') }}
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Provider Credentials --}}
+                    <div
+                        x-show="showCredentials"
+                        x-transition
+                        class="mt-4 space-y-4"
+                    >
+                        {{-- Client ID --}}
+                        <div>
+                            <label class="form-label" for="{{ $config['setting_client_id'] }}">
+                                {{ __('Client ID') }}
+                            </label>
+                            <input
+                                type="text"
+                                name="{{ $config['setting_client_id'] }}"
+                                id="{{ $config['setting_client_id'] }}"
+                                class="form-control"
+                                value="{{ config('settings.' . $config['setting_client_id'], '') }}"
+                                placeholder="{{ $hasEnvClientId ? '********** (' . __('from .env') . ')' : __('Enter :provider Client ID', ['provider' => $config['name']]) }}"
+                            >
+                            @if($hasEnvClientId)
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    {{ __('Leave empty to use value from .env (:key)', ['key' => $config['env_client_id']]) }}
+                                </p>
+                            @endif
+                        </div>
+
+                        {{-- Client Secret --}}
+                        <div>
+                            <label class="form-label" for="{{ $config['setting_client_secret'] }}">
+                                {{ __('Client Secret') }}
+                            </label>
+                            <input
+                                type="password"
+                                name="{{ $config['setting_client_secret'] }}"
+                                id="{{ $config['setting_client_secret'] }}"
+                                class="form-control"
+                                value="{{ config('settings.' . $config['setting_client_secret'], '') }}"
+                                placeholder="{{ $hasEnvClientSecret ? '********** (' . __('from .env') . ')' : __('Enter :provider Client Secret', ['provider' => $config['name']]) }}"
+                                autocomplete="off"
+                            >
+                            @if($hasEnvClientSecret)
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    {{ __('Leave empty to use value from .env (:key)', ['key' => $config['env_client_secret']]) }}
+                                </p>
+                            @endif
+                        </div>
+
+                        {{-- Callback URL & Links --}}
+                        <div class="p-3 bg-gray-100 dark:bg-gray-700/50 rounded-md space-y-3">
+                            <div>
+                                <p class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                                    {{ __('Callback URL (add this to :provider)', ['provider' => $config['name']]) }}
+                                </p>
+                                <div class="flex items-center gap-2">
+                                    <code class="flex-1 text-xs text-gray-800 dark:text-gray-200 break-all select-all bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-600">
+                                        {{ url('/auth/' . $provider . '/callback') }}
+                                    </code>
+                                    <button
+                                        type="button"
+                                        onclick="navigator.clipboard.writeText('{{ url('/auth/' . $provider . '/callback') }}'); this.innerHTML='<iconify-icon icon=\'lucide:check\' class=\'text-green-500\'></iconify-icon>'; setTimeout(() => this.innerHTML='<iconify-icon icon=\'lucide:copy\'></iconify-icon>', 2000)"
+                                        class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+                                        title="{{ __('Copy to clipboard') }}"
+                                    >
+                                        <iconify-icon icon="lucide:copy"></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Quick Links --}}
+                            <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ __('Quick Links:') }}</span>
+                                <a
+                                    href="{{ $config['console_url'] }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="inline-flex items-center gap-1 text-xs text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 hover:underline"
+                                >
+                                    <iconify-icon icon="lucide:settings"></iconify-icon>
+                                    {{ __(':provider Console', ['provider' => $config['name']]) }}
+                                </a>
+                                <span class="text-gray-300 dark:text-gray-600">|</span>
+                                <a
+                                    href="{{ $config['docs_url'] }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="inline-flex items-center gap-1 text-xs text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 hover:underline"
+                                >
+                                    <iconify-icon icon="lucide:book-open"></iconify-icon>
+                                    {{ __('Documentation') }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- Help Text --}}
+        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+            <div class="flex gap-2">
+                <iconify-icon icon="lucide:info" class="text-blue-500 mt-0.5"></iconify-icon>
+                <div class="text-sm text-blue-800 dark:text-blue-300">
+                    <p class="font-medium mb-1">{{ __('How to configure social login:') }}</p>
+                    <ol class="list-decimal list-inside space-y-1 text-xs">
+                        <li>{{ __('Create an OAuth application on the provider\'s developer console') }}</li>
+                        <li>{{ __('Copy the Client ID and Client Secret from the provider') }}</li>
+                        <li>{{ __('Add the Callback URL shown above to your OAuth app settings') }}</li>
+                        <li>{{ __('Enter the credentials here or in your .env file') }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-card>
+
 {!! Hook::applyFilters(AuthFilterHook::SETTINGS_AUTH_TAB_AFTER_SECTION_END, '') !!}

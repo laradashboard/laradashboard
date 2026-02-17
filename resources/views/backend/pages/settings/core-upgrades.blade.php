@@ -74,8 +74,11 @@
                     </div>
                 </div>
                 @if($updateInfo && $updateInfo['has_update'])
+                    @php
+                        $latestVersionDisplay = str_starts_with($updateInfo['latest_version'], 'v') ? $updateInfo['latest_version'] : 'v' . $updateInfo['latest_version'];
+                    @endphp
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        {{ __('Latest: v:version', ['version' => $updateInfo['latest_version']]) }}
+                        {{ __('Latest: :version', ['version' => $latestVersionDisplay]) }}
                     </p>
                 @endif
             </x-card>
@@ -124,18 +127,21 @@
                     </div>
                 </x-slot>
 
+                @php
+                    $versionDisplay = str_starts_with($updateInfo['latest_version'], 'v') ? $updateInfo['latest_version'] : 'v' . $updateInfo['latest_version'];
+                @endphp
                 <div class="space-y-4">
                     <div class="flex items-start justify-between">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                {{ $updateInfo['latest_update']['title'] ?? 'v'.$updateInfo['latest_version'] }}
+                                {{ $updateInfo['latest_update']['title'] ?? $versionDisplay }}
                             </h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 {{ $updateInfo['latest_update']['description'] ?? '' }}
                             </p>
                         </div>
                         <span class="text-lg font-bold text-indigo-600 dark:text-indigo-400">
-                            v{{ $updateInfo['latest_version'] }}
+                            {{ $versionDisplay }}
                         </span>
                     </div>
 
@@ -167,7 +173,7 @@
                                     onclick="startUpgrade('{{ $updateInfo['latest_version'] }}')"
                                     class="btn btn-primary flex items-center justify-center gap-2">
                                 <iconify-icon icon="lucide:download" class="text-lg"></iconify-icon>
-                                {{ __('Upgrade to v:version', ['version' => $updateInfo['latest_version']]) }}
+                                {{ __('Upgrade to :version', ['version' => $versionDisplay]) }}
                             </button>
                             <button type="button"
                                     id="check-updates-btn"
@@ -408,6 +414,16 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Show feedback based on whether an update was found
+                    if (data.data && data.data.has_update) {
+                        let version = data.data.latest_version;
+                        if (!version.startsWith('v')) {
+                            version = 'v' + version;
+                        }
+                        alert('{{ __("Update available! Version :version is ready to install.") }}'.replace(':version', version));
+                    } else {
+                        alert(data.data?.message || '{{ __("You are running the latest version.") }}');
+                    }
                     location.reload();
                 } else {
                     alert(data.message || '{{ __("Failed to check for updates") }}');
@@ -417,6 +433,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
+                alert('{{ __("Network error while checking for updates. Please try again.") }}');
                 btn.disabled = false;
                 btn.innerHTML = '<iconify-icon icon="lucide:refresh-cw" class="text-lg"></iconify-icon> {{ __("Check for Updates") }}';
             });

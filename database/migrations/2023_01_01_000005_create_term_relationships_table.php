@@ -10,6 +10,10 @@ return new class () extends Migration {
      */
     public function up(): void
     {
+        if (Schema::hasTable('term_relationships')) {
+            return;
+        }
+
         Schema::create('term_relationships', function (Blueprint $table) {
             $table->foreignId('post_id')->constrained()->onDelete('cascade');
             $table->foreignId('term_id')->constrained()->onDelete('cascade');

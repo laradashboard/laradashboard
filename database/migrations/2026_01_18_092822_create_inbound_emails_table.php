@@ -12,6 +12,10 @@ return new class () extends Migration {
      */
     public function up(): void
     {
+        if (Schema::hasTable('inbound_emails')) {
+            return;
+        }
+
         Schema::create('inbound_emails', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();

@@ -129,6 +129,84 @@ export default function TextBlock({
         // Shift+Enter allows default behavior (line break)
     }, [showSlashMenu, isContentEmpty]);
 
+    /**
+     * Sanitize pasted HTML content to remove LaraBuilder wrapper elements
+     * and browser-specific paste artifacts
+     * This prevents issues when users copy content from rendered frontend pages
+     */
+    const sanitizePastedContent = useCallback((html) => {
+        // Create a temporary container to parse the HTML
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+
+        // Remove meta tags (browsers add these when copying)
+        const metaTags = temp.querySelectorAll('meta');
+        metaTags.forEach(el => el.remove());
+
+        // Remove Apple-interchange-newline (Safari/macOS artifact)
+        const appleBreaks = temp.querySelectorAll('.Apple-interchange-newline, br.Apple-interchange-newline');
+        appleBreaks.forEach(el => el.remove());
+
+        // Remove lb-block wrapper elements but keep their content
+        const lbBlocks = temp.querySelectorAll('.lb-block, [class*="lb-block"]');
+        lbBlocks.forEach(el => {
+            // Replace the wrapper with its inner content
+            const parent = el.parentNode;
+            while (el.firstChild) {
+                parent.insertBefore(el.firstChild, el);
+            }
+            parent.removeChild(el);
+        });
+
+        // Also strip data-lara-block attributes if present
+        const laraBlocks = temp.querySelectorAll('[data-lara-block]');
+        laraBlocks.forEach(el => {
+            el.removeAttribute('data-lara-block');
+            el.removeAttribute('data-props');
+            el.removeAttribute('data-block-id');
+        });
+
+        return temp.innerHTML;
+    }, []);
+
+    // Handle paste to sanitize content from rendered pages
+    const handlePaste = useCallback((e) => {
+        const html = e.clipboardData?.getData('text/html');
+
+        // Sanitize if pasting HTML that contains lb-block elements or browser artifacts
+        const needsSanitization = html && (
+            html.includes('lb-block') ||
+            html.includes('data-lara-block') ||
+            html.includes('<meta') ||
+            html.includes('Apple-interchange-newline')
+        );
+
+        if (needsSanitization) {
+            e.preventDefault();
+
+            const sanitized = sanitizePastedContent(html);
+
+            // Insert sanitized content at cursor position
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+
+                const fragment = range.createContextualFragment(sanitized);
+                range.insertNode(fragment);
+
+                // Move cursor to end of inserted content
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+
+            // Trigger content change
+            handleContentChange();
+        }
+        // If no problematic content, let default paste behavior happen
+    }, [sanitizePastedContent, handleContentChange]);
+
     const handleInput = useCallback(() => {
         // Handle content change (only updates if actually changed)
         handleContentChange();
@@ -296,6 +374,7 @@ export default function TextBlock({
                     onInput={handleInput}
                     onBlur={handleInput}
                     onKeyDown={handleKeyDown}
+                    onPaste={handlePaste}
                     style={{
                         ...baseStyle,
                         width: "100%",

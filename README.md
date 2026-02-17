@@ -50,6 +50,11 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v0.9.8] - 2026-02-17**
+-   **Feat:** Social authentication with Laravel Socialite.
+-   **Feat:** Cache / performance management section in settings page with cache clear, config cache, route cache, view cache and so on.
+-   **Enhancement:** Imoprove core download and update system with better UI/UX.
+
 **[v0.9.7] - 2026-02-14**
 -   **Fix:** Demo was not loading the faker.
 -   **Enhancement:** Post list updated with Updated column.
