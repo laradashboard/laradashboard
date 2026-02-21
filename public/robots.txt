@@ -1,2 +1,8 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /checkout/
+Disallow: /_debugbar/
+
+# Update this Sitemap URL to match your APP_URL before deploying to production
+Sitemap: http://localhost:8000/sitemap.xml

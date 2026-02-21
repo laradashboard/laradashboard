@@ -45,6 +45,11 @@ enum SettingFilterHook: string
     case SETTINGS_RECAPTCHA_INTEGRATIONS_TAB_BEFORE_SECTION_START = 'filter.settings.recaptcha_integrations_tab_before_section_start';
     case SETTINGS_RECAPTCHA_INTEGRATIONS_TAB_BEFORE_SECTION_END = 'filter.settings.recaptcha_integrations_tab_before_section_end';
 
+    // UI Hooks - Site Identity tab
+    case SETTINGS_SITE_IDENTITY_TAB_BEFORE_SECTION_START = 'filter.settings.site_identity_tab_before_section_start';
+    case SETTINGS_SITE_IDENTITY_TAB_BEFORE_SECTION_END = 'filter.settings.site_identity_tab_before_section_end';
+    case SETTINGS_SITE_IDENTITY_TAB_AFTER_SECTION_END = 'filter.settings.site_identity_tab_after_section_end';
+
     // UI Hooks - Tab menu and content
     case SETTINGS_TAB_MENU_BEFORE = 'filter.settings.tab_menu_before_';
     case SETTINGS_TAB_MENU_AFTER = 'filter.settings.tab_menu_after_';

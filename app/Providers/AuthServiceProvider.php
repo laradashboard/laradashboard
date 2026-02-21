@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\ActionLog;
 use App\Models\Media;
+use App\Models\Menu;
 use App\Models\Module;
 use App\Models\Post;
 use App\Models\Setting;
@@ -11,6 +12,7 @@ use App\Models\Term;
 use App\Models\User;
 use App\Policies\ActionLogPolicy;
 use App\Policies\MediaPolicy;
+use App\Policies\MenuPolicy;
 use App\Policies\ModulePolicy;
 use App\Policies\PermissionPolicy;
 use App\Policies\PostPolicy;
@@ -36,6 +38,7 @@ class AuthServiceProvider extends ServiceProvider
         Permission::class => PermissionPolicy::class,
         Term::class => TermPolicy::class,
         Media::class => MediaPolicy::class,
+        Menu::class => MenuPolicy::class,
         Setting::class => SettingPolicy::class,
         Module::class => ModulePolicy::class,
         ActionLog::class => ActionLogPolicy::class,

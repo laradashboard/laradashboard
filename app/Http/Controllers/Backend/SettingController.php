@@ -92,6 +92,9 @@ class SettingController extends Controller
                 $this->imageService->deleteImageFromPublic((string) config($fieldName));
                 $fileUrl = $this->imageService->storeImageAndGetUrl($request, $fieldName, $uploadPath);
                 $this->settingService->addSetting($fieldName, $fileUrl);
+            } elseif ($fieldName === 'social_links') {
+                // Social links are submitted as JSON string from Alpine.js
+                $this->settingService->addSetting($fieldName, $fieldValue);
             } elseif ($fieldName === 'recaptcha_enabled_pages') {
                 // Validate enabled pages against allowed list.
                 $enabledPages = $request->input('recaptcha_enabled_pages', []);

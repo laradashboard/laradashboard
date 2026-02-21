@@ -181,6 +181,28 @@ class Setting extends Model
 
     public const AUTH_SOCIAL_LINKEDIN_CLIENT_SECRET = 'auth_social_linkedin_client_secret';
 
+    // =========================================================================
+    // CMS Site Identity Settings
+    // =========================================================================
+    public const SITE_TAGLINE = 'site_tagline';
+
+    public const SOCIAL_LINKS = 'social_links';
+
+    public const CONTACT_EMAIL = 'contact_email';
+
+    public const CONTACT_PHONE = 'contact_phone';
+
+    public const CONTACT_ADDRESS = 'contact_address';
+
+    public const COPYRIGHT_TEXT = 'copyright_text';
+
+    // =========================================================================
+    // CMS Template Settings
+    // =========================================================================
+    public const DEFAULT_HEADER_TEMPLATE = 'default_header_template';
+
+    public const DEFAULT_FOOTER_TEMPLATE = 'default_footer_template';
+
     protected $fillable = [
         'option_name',
         'option_value',

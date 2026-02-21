@@ -12,6 +12,11 @@
                         'icon' => 'lucide:settings',
                         'view' => 'backend.pages.settings.general-tab',
                     ],
+                    'site-identity' => [
+                        'title' => __('Site Identity'),
+                        'icon' => 'lucide:globe',
+                        'view' => 'backend.pages.settings.site-identity-tab',
+                    ],
                     'appearance' => [
                         'title' => __('Site Appearance'),
                         'icon' => 'lucide:palette',
