@@ -1,0 +1,39 @@
+<?php
+
+declare(strict_types=1);
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Policies;
+
+use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
+use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
+
+class $MODEL_NAME$Policy
+{
+    use HandlesAuthorization;
+
+    public function viewAny(User $user): bool
+    {
+        return $user->hasPermissionTo('$MODEL_SNAKE$.view');
+    }
+
+    public function view(User $user, $MODEL_NAME$ $$MODEL_LOWER$): bool
+    {
+        return $user->hasPermissionTo('$MODEL_SNAKE$.view');
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->hasPermissionTo('$MODEL_SNAKE$.create');
+    }
+
+    public function update(User $user, $MODEL_NAME$ $$MODEL_LOWER$): bool
+    {
+        return $user->hasPermissionTo('$MODEL_SNAKE$.edit');
+    }
+
+    public function delete(User $user, $MODEL_NAME$ $$MODEL_LOWER$): bool
+    {
+        return $user->hasPermissionTo('$MODEL_SNAKE$.delete');
+    }
+}

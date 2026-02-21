@@ -39,6 +39,8 @@ class ModuleMakeCrudCommand extends Command
 
     protected string $modelPluralLower;
 
+    protected string $modelSnake;
+
     protected string $tableName;
 
     protected array $columns = [];
@@ -82,6 +84,7 @@ class ModuleMakeCrudCommand extends Command
             '$MODEL_LOWER$' => $this->modelLowerName,
             '$MODEL_PLURAL$' => $this->modelPluralName,
             '$MODEL_PLURAL_LOWER$' => $this->modelPluralLower,
+            '$MODEL_SNAKE$' => $this->modelSnake,
             '$TABLE_NAME$' => $this->tableName,
         ];
     }
@@ -157,6 +160,7 @@ class ModuleMakeCrudCommand extends Command
             $this->modelLowerName = Str::lower($this->modelName);
             $this->modelPluralName = Str::plural($this->modelStudlyName);
             $this->modelPluralLower = Str::lower($this->modelPluralName);
+            $this->modelSnake = Str::snake($this->modelStudlyName);
             $this->tableName = $this->moduleLowerName.'_'.Str::snake($this->modelPluralName);
 
             $this->tryAutoDetectMigration();
@@ -176,6 +180,9 @@ class ModuleMakeCrudCommand extends Command
         $this->generateService();
         $this->generateFormRequest();
         $this->generateViews();
+        $this->generatePermissionMigration();
+        $this->generatePolicy();
+        $this->registerPolicyInServiceProvider();
         $this->updateRoutes();
         $this->updateMenuService();
 
@@ -245,6 +252,7 @@ class ModuleMakeCrudCommand extends Command
         $this->modelLowerName = Str::lower($this->modelStudlyName);
         $this->modelPluralName = Str::plural($this->modelStudlyName);
         $this->modelPluralLower = Str::lower($this->modelPluralName);
+        $this->modelSnake = Str::snake($this->modelStudlyName);
 
         $this->parseColumns($content);
     }
@@ -1719,6 +1727,115 @@ BLADE;
         return str_replace('$EDITOR_IDS$', $editorIdsJson, $content);
     }
 
+    /**
+     * Generate a permission migration for this model's CRUD permissions.
+     */
+    protected function generatePermissionMigration(): void
+    {
+        $migrationName = "add_{$this->modelSnake}_permissions";
+        $timestamp = date('Y_m_d_His');
+        $filename = "{$timestamp}_{$migrationName}.php";
+
+        $migrationsPath = "{$this->modulePath}/database/migrations";
+        $this->ensureDirectoryExists($migrationsPath);
+
+        // Skip if a matching migration already exists
+        if (! empty(glob("{$migrationsPath}/*{$migrationName}*.php"))) {
+            $this->line("  Skipped: permission migration (already exists)");
+
+            return;
+        }
+
+        $path = "{$migrationsPath}/{$filename}";
+        $content = $this->getStub('permission-migration');
+        $content = $this->replaceStubTokens($content);
+
+        File::put($path, $content);
+        $this->info("  Created: database/migrations/{$filename}");
+    }
+
+    /**
+     * Generate a Policy class for this model.
+     */
+    protected function generatePolicy(): void
+    {
+        $path = "{$this->modulePath}/app/Policies/{$this->modelStudlyName}Policy.php";
+
+        if (File::exists($path)) {
+            $this->line("  Skipped: Policies/{$this->modelStudlyName}Policy.php (already exists)");
+
+            return;
+        }
+
+        $content = $this->getStub('policy');
+        $content = $this->replaceStubTokens($content);
+
+        $this->ensureDirectoryExists(dirname($path));
+        File::put($path, $content);
+
+        $this->info("  Created: Policies/{$this->modelStudlyName}Policy.php");
+    }
+
+    /**
+     * Register the generated Policy in the module's ServiceProvider.
+     */
+    protected function registerPolicyInServiceProvider(): void
+    {
+        $providerPath = "{$this->modulePath}/app/Providers/{$this->moduleStudlyName}ServiceProvider.php";
+
+        if (! File::exists($providerPath)) {
+            $this->line("  ServiceProvider not found — register policy manually:");
+            $this->line("    Gate::policy({$this->modelStudlyName}::class, {$this->modelStudlyName}Policy::class);");
+
+            return;
+        }
+
+        $content = File::get($providerPath);
+
+        // Skip if already registered
+        if (str_contains($content, "{$this->modelStudlyName}Policy::class")) {
+            $this->line('  Policy already registered in ServiceProvider, skipping...');
+
+            return;
+        }
+
+        $modelFqn = "Modules\\{$this->moduleStudlyName}\\Models\\{$this->modelStudlyName}";
+        $policyFqn = "Modules\\{$this->moduleStudlyName}\\Policies\\{$this->modelStudlyName}Policy";
+
+        // Add Gate facade import if missing
+        if (! str_contains($content, 'use Illuminate\Support\Facades\Gate;')) {
+            $content = str_replace(
+                'use Illuminate\Support\ServiceProvider;',
+                "use Illuminate\Support\Facades\Gate;\nuse Illuminate\Support\ServiceProvider;",
+                $content
+            );
+        }
+
+        // Add model + policy imports before the class declaration
+        $importBlock = "use {$modelFqn};\nuse {$policyFqn};";
+        if (! str_contains($content, "use {$modelFqn};")) {
+            // Insert right after the Gate import line
+            $content = preg_replace(
+                '/(use Illuminate\\\\Support\\\\Facades\\\\Gate;)/',
+                "$1\n{$importBlock}",
+                $content,
+                1
+            );
+        }
+
+        // Add Gate::policy() at the top of boot()
+        $policyCall = "        Gate::policy({$this->modelStudlyName}::class, {$this->modelStudlyName}Policy::class);";
+        $content = preg_replace(
+            '/(public function boot\(\): void\s*\{)/',
+            "$1\n{$policyCall}",
+            $content,
+            1
+        );
+
+        File::put($providerPath, $content);
+        $this->info("  Updated: Providers/{$this->moduleStudlyName}ServiceProvider.php (policy registered)");
+    }
+
     protected function listAvailableModules(): void
     {
         $modulesPath = base_path('modules');
@@ -1747,8 +1864,10 @@ BLADE;
         $this->line("  - modules/{$this->moduleStudlyName}/app/Livewire/Components/{$this->modelStudlyName}Datatable.php");
         $this->line("  - modules/{$this->moduleStudlyName}/app/Http/Controllers/{$this->moduleStudlyName}Controller.php (base, if new)");
         $this->line("  - modules/{$this->moduleStudlyName}/app/Http/Controllers/{$this->modelStudlyName}Controller.php");
+        $this->line("  - modules/{$this->moduleStudlyName}/app/Policies/{$this->modelStudlyName}Policy.php");
         $this->line("  - modules/{$this->moduleStudlyName}/app/Services/{$this->modelStudlyName}Service.php");
         $this->line("  - modules/{$this->moduleStudlyName}/app/Http/Requests/{$this->modelStudlyName}Request.php");
+        $this->line("  - modules/{$this->moduleStudlyName}/database/migrations/*_add_{$this->modelSnake}_permissions.php");
         $this->line("  - modules/{$this->moduleStudlyName}/resources/views/pages/{$this->modelPluralLower}/index.blade.php");
         $this->line("  - modules/{$this->moduleStudlyName}/resources/views/pages/{$this->modelPluralLower}/create.blade.php");
         $this->line("  - modules/{$this->moduleStudlyName}/resources/views/pages/{$this->modelPluralLower}/edit.blade.php");
