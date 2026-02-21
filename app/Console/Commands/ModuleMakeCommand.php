@@ -23,9 +23,10 @@ class ModuleMakeCommand extends NwidartModuleMakeCommand
 
         $exitCode = parent::handle();
 
-        // Generate CLAUDE.md for each successfully created module
+        // Generate CLAUDE.md and .gitignore for each successfully created module
         foreach ($names as $name) {
             $this->generateClaudeMd($name);
+            $this->generateGitignore($name);
         }
 
         return $exitCode;
@@ -70,6 +71,35 @@ class ModuleMakeCommand extends NwidartModuleMakeCommand
         File::put($claudePath, $content);
 
         $this->components->info("CLAUDE.md generated for module [{$studlyName}]");
+    }
+
+    protected function generateGitignore(string $moduleName): void
+    {
+        $studlyName = Str::studly($moduleName);
+        $lowerName = Str::lower($moduleName);
+
+        $modulePath = $this->resolveModulePath($studlyName, $lowerName);
+
+        if (! $modulePath) {
+            return;
+        }
+
+        $gitignorePath = "{$modulePath}/.gitignore";
+
+        if (File::exists($gitignorePath)) {
+            // Ensure /vendor is present even if .gitignore already exists
+            $existing = File::get($gitignorePath);
+            if (! str_contains($existing, '/vendor')) {
+                File::append($gitignorePath, "\n/vendor\n");
+                $this->components->info(".gitignore updated with /vendor for module [{$studlyName}]");
+            }
+
+            return;
+        }
+
+        File::put($gitignorePath, "/vendor\n");
+
+        $this->components->info(".gitignore generated for module [{$studlyName}]");
     }
 
     protected function resolveModulePath(string $studlyName, string $lowerName): ?string

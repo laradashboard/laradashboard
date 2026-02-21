@@ -7,9 +7,28 @@ use Illuminate\Support\ServiceProvider;
 class $CLASS$ extends ServiceProvider
 {
     /**
+     * Boot the application events.
+     */
+    public function boot(): void
+    {
+        $this->registerModuleVendor();
+    }
+
+    /**
      * Register the service provider.
      */
     public function register(): void {}
+
+    /**
+     * Load the module's own vendor autoloader (self-contained module packages).
+     */
+    protected function registerModuleVendor(): void
+    {
+        $vendorAutoload = __DIR__ . '/../../vendor/autoload.php';
+        if (file_exists($vendorAutoload)) {
+            require_once $vendorAutoload;
+        }
+    }
 
     /**
      * Get the services provided by the provider.

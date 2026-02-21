@@ -5,8 +5,7 @@
 @endsection
 
 @push('styles')
-    {{-- Module specific styles (uncomment after running npm install && npm run build in the module directory) --}}
-    {{-- {{ module_vite('build-$LOWER_NAME$', 'resources/assets/css/app.css', '$STUDLY_NAME$') }} --}}
+    @vite(['modules/$STUDLY_NAME$/resources/assets/css/app.css'], 'build-$LOWER_NAME$')
 @endpush
 
 @section('admin-content')
