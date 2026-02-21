@@ -1,0 +1,18 @@
+<form
+    action="{{ isset($$MODEL_LOWER$) ? route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.update', $$MODEL_LOWER$->id) : route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.store') }}"
+    method="POST"
+    class="$FORM_CONTAINER_CLASS$"
+    data-prevent-unsaved-changes
+    enctype="multipart/form-data"
+>
+    @csrf
+    @if (isset($$MODEL_LOWER$))
+        @method('PUT')
+    @endif
+
+    $FORM_FIELDS$
+
+    <div class="flex items-center gap-3 pt-2$SUBMIT_COL_SPAN$">
+        <x-buttons.submit-buttons cancelUrl="{{ route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index') }}" />
+    </div>
+</form>

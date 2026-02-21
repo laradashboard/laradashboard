@@ -1,26 +1,25 @@
-<div>
-    {{-- Breadcrumbs Header --}}
-    <x-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
+@extends('$LOWER_NAME$::layouts.master')
 
-    {{-- Form --}}
-    <form wire:submit="save" class="space-y-6">
-        <x-card.card>
-            <x-slot name="header">{{ __('$MODEL_NAME$ Information') }}</x-slot>
+@section('title')
+    {{ $breadcrumbs['title'] . ' | ' . config('app.name') }}
+@endsection
 
-            <div class="space-y-6">
-                $FORM_FIELDS$
+@section('$LOWER_NAME$-admin-content')
+    <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+        <x-breadcrumbs :breadcrumbs="$breadcrumbs" />
+
+        <div class="mt-6">
+            <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+                    <h3 class="text-base font-medium text-gray-800 dark:text-white/90">
+                        {{ __('Create $MODEL_NAME$') }}
+                    </h3>
+                </div>
+                <div class="p-5 sm:p-6">
+                    @include('$LOWER_NAME$::pages.$MODEL_PLURAL_LOWER$.partials.form')
+                </div>
             </div>
-        </x-card.card>
-
-        {{-- Submit --}}
-        <div class="flex items-center gap-4">
-            <a wire:navigate href="{{ route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index') }}" class="btn-default">
-                {{ __('Cancel') }}
-            </a>
-            <x-buttons.button type="submit" variant="primary" icon="lucide:save" loadingTarget="save">
-                {{ __('Create $MODEL_NAME$') }}
-            </x-buttons.button>
         </div>
-    </form>
-</div>
+    </div>
+@endsection
 $EDITOR_ASSETS$

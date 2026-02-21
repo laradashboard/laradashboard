@@ -1,0 +1,12 @@
+<?php
+
+declare(strict_types=1);
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+
+class $STUDLY_NAME$Controller extends Controller
+{
+    //
+}

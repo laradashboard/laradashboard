@@ -14,9 +14,10 @@ class ModuleMakeCrudCommand extends Command
                             {module : The name of the module}
                             {--migration= : The migration file name to parse columns from}
                             {--model= : The model name (if not parsing from migration)}
-                            {--fields= : Field definitions (e.g., "title:string,content:text,featured_image:media,status:select:Active|Inactive,is_active:toggle")}';
+                            {--fields= : Field definitions (e.g., "title:string,content:text,featured_image:media,status:select:Active|Inactive,is_active:toggle")}
+                            {--columns=2 : Number of form columns (1 or 2, default: 2)}';
 
-    protected $description = 'Generate CRUD components (Model, Datatable, Create, Edit, Index) for a module';
+    protected $description = 'Generate CRUD components (Model, Controller, Service, FormRequest, Datatable, Views) for a module';
 
     protected bool $migrationCreated = false;
 
@@ -41,6 +42,8 @@ class ModuleMakeCrudCommand extends Command
     protected string $tableName;
 
     protected array $columns = [];
+
+    protected int $formColumns = 2;
 
     protected string $stubPath = 'stubs/laradashboard/crud';
 
@@ -102,11 +105,10 @@ class ModuleMakeCrudCommand extends Command
      */
     protected function resolveModulePath(): ?string
     {
-        // Try different naming conventions for the module directory
         $possiblePaths = [
-            base_path("modules/{$this->moduleStudlyName}"),          // PascalCase: TestCrud
-            base_path('modules/'.Str::kebab($this->moduleName)),     // kebab-case: test-crud
-            base_path("modules/{$this->moduleLowerName}"),           // lowercase: testcrud
+            base_path("modules/{$this->moduleStudlyName}"),
+            base_path('modules/'.Str::kebab($this->moduleName)),
+            base_path("modules/{$this->moduleLowerName}"),
         ];
 
         foreach ($possiblePaths as $path) {
@@ -126,7 +128,6 @@ class ModuleMakeCrudCommand extends Command
         $this->moduleStudlyName = Str::studly($this->moduleName);
         $this->moduleLowerName = Str::lower($this->moduleName);
 
-        // Validate module exists - try both PascalCase and kebab-case paths
         $modulePath = $this->resolveModulePath();
         if (! $modulePath) {
             $this->error("Module '{$this->moduleStudlyName}' not found in modules/ directory.");
@@ -135,7 +136,6 @@ class ModuleMakeCrudCommand extends Command
             return self::FAILURE;
         }
 
-        // Get model name from option or migration
         $migrationOption = $this->option('migration');
         $modelOption = $this->option('model');
 
@@ -148,11 +148,9 @@ class ModuleMakeCrudCommand extends Command
         if ($migrationOption) {
             $this->parseMigration($migrationOption);
         } else {
-            // Extract just the class name if a file path was provided
             $this->modelName = $modelOption;
             if (str_contains($this->modelName, '/') || str_contains($this->modelName, '\\')) {
                 $this->modelName = pathinfo($this->modelName, PATHINFO_FILENAME);
-                // Remove .php extension if present
                 $this->modelName = preg_replace('/\.php$/i', '', $this->modelName);
             }
             $this->modelStudlyName = Str::studly($this->modelName);
@@ -161,9 +159,11 @@ class ModuleMakeCrudCommand extends Command
             $this->modelPluralLower = Str::lower($this->modelPluralName);
             $this->tableName = $this->moduleLowerName.'_'.Str::snake($this->modelPluralName);
 
-            // Try to auto-detect and parse migration for this model
             $this->tryAutoDetectMigration();
         }
+
+        $columnsOption = (int) ($this->option('columns') ?? 2);
+        $this->formColumns = in_array($columnsOption, [1, 2]) ? $columnsOption : 2;
 
         $this->info("Generating CRUD for {$this->modelStudlyName} in {$this->moduleStudlyName} module...");
         $this->newLine();
@@ -171,10 +171,10 @@ class ModuleMakeCrudCommand extends Command
         // Generate files
         $this->generateModel();
         $this->generateDatatable();
-        $this->generateIndexComponent();
-        $this->generateShowComponent();
-        $this->generateCreateComponent();
-        $this->generateEditComponent();
+        $this->generateModuleController();
+        $this->generateController();
+        $this->generateService();
+        $this->generateFormRequest();
         $this->generateViews();
         $this->updateRoutes();
         $this->updateMenuService();
@@ -195,10 +195,9 @@ class ModuleMakeCrudCommand extends Command
         }
         $this->line('  2. Review and customize the generated Model fillable fields and casts');
         $this->line('  3. Update the Datatable headers and columns as needed');
-        $this->line('  4. Customize the Create/Edit forms with appropriate input fields');
+        $this->line('  4. Customize the form partial with appropriate input fields');
         $this->line('  5. Clear route cache: php artisan optimize:clear');
 
-        // Show the URL where the page can be accessed
         $this->newLine();
         $this->comment('Access your new CRUD:');
         $routeName = "admin.{$this->moduleLowerName}.{$this->modelPluralLower}.index";
@@ -215,12 +214,10 @@ class ModuleMakeCrudCommand extends Command
 
     protected function parseMigration(string $migrationName): void
     {
-        // Find migration file in module
         $migrationsPath = "{$this->modulePath}/database/migrations";
         $files = glob("{$migrationsPath}/*{$migrationName}*.php");
 
         if (empty($files)) {
-            // Try in main migrations folder
             $migrationsPath = database_path('migrations');
             $files = glob("{$migrationsPath}/*{$migrationName}*.php");
         }
@@ -235,7 +232,6 @@ class ModuleMakeCrudCommand extends Command
 
         $content = file_get_contents($migrationFile);
 
-        // Extract table name from Schema::create
         if (preg_match("/Schema::create\s*\(\s*['\"]([^'\"]+)['\"]/", $content, $matches)) {
             $this->tableName = $matches[1];
         } else {
@@ -243,8 +239,6 @@ class ModuleMakeCrudCommand extends Command
             exit(self::FAILURE);
         }
 
-        // Extract model name from table name
-        // Remove module prefix if exists (e.g., docforge_categories -> categories -> Category)
         $tableWithoutPrefix = preg_replace("/^{$this->moduleLowerName}_/", '', $this->tableName);
         $this->modelStudlyName = Str::studly(Str::singular($tableWithoutPrefix));
         $this->modelName = $this->modelStudlyName;
@@ -252,14 +246,11 @@ class ModuleMakeCrudCommand extends Command
         $this->modelPluralName = Str::plural($this->modelStudlyName);
         $this->modelPluralLower = Str::lower($this->modelPluralName);
 
-        // Parse columns from migration
         $this->parseColumns($content);
     }
 
     protected function tryAutoDetectMigration(): void
     {
-        // Try to find migration for this model
-        // Look for patterns like: create_books_table, create_sample_books_table
         $snakePlural = Str::snake($this->modelPluralName);
         $patterns = [
             "create_{$this->moduleLowerName}_{$snakePlural}_table",
@@ -277,7 +268,6 @@ class ModuleMakeCrudCommand extends Command
             }
         }
 
-        // Also try main migrations folder
         if (! $migrationFile) {
             $migrationsPath = database_path('migrations');
             foreach ($patterns as $pattern) {
@@ -291,7 +281,6 @@ class ModuleMakeCrudCommand extends Command
 
         $fieldsOption = $this->option('fields');
 
-        // If --fields option is provided, always use it (takes precedence over migration parsing)
         if ($fieldsOption) {
             $this->parseFieldsOption($fieldsOption);
 
@@ -299,27 +288,22 @@ class ModuleMakeCrudCommand extends Command
                 $this->info('Auto-detected migration: '.basename($migrationFile));
                 $content = file_get_contents($migrationFile);
 
-                // Extract table name from Schema::create
                 if (preg_match("/Schema::create\s*\(\s*['\"]([^'\"]+)['\"]/", $content, $matches)) {
                     $this->tableName = $matches[1];
                 }
             } else {
-                // No migration found, create one
                 $this->generateMigration();
             }
         } elseif ($migrationFile) {
             $this->info('Auto-detected migration: '.basename($migrationFile));
             $content = file_get_contents($migrationFile);
 
-            // Extract table name from Schema::create
             if (preg_match("/Schema::create\s*\(\s*['\"]([^'\"]+)['\"]/", $content, $matches)) {
                 $this->tableName = $matches[1];
             }
 
-            // Parse columns from migration
             $this->parseColumns($content);
         } else {
-            // No migration found and no --fields option - prompt for fields
             $this->info("No migration found for {$this->modelStudlyName}.");
             $this->newLine();
 
@@ -349,7 +333,6 @@ class ModuleMakeCrudCommand extends Command
             $type = isset($parts[1]) ? trim($parts[1]) : 'string';
             $options = isset($parts[2]) ? trim($parts[2]) : null;
 
-            // Skip id and timestamps
             if (\in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
                 continue;
             }
@@ -360,7 +343,6 @@ class ModuleMakeCrudCommand extends Command
                 'dbType' => $this->mapDbType($type),
             ];
 
-            // Handle select options (e.g., select:Active|Inactive|Pending)
             if ($type === 'select' && $options) {
                 $column['options'] = explode('|', $options);
             }
@@ -400,7 +382,6 @@ class ModuleMakeCrudCommand extends Command
                 break;
             }
 
-            // Validate field name
             $name = Str::snake(trim($name));
 
             if (\in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
@@ -421,7 +402,6 @@ class ModuleMakeCrudCommand extends Command
                 'dbType' => $this->mapDbType($type),
             ];
 
-            // If select, ask for options
             if ($type === 'select') {
                 $optionsInput = $this->ask("  Enter options separated by | (e.g., Active|Inactive|Pending)", '');
                 if ($optionsInput) {
@@ -456,7 +436,6 @@ class ModuleMakeCrudCommand extends Command
 
         $path = "{$migrationsPath}/{$filename}";
 
-        // Get stub and replace tokens
         $content = $this->getStub('migration');
         $content = $this->replaceStubTokens($content, [
             '$MIGRATION_COLUMNS$' => $this->generateMigrationColumns(),
@@ -472,7 +451,6 @@ class ModuleMakeCrudCommand extends Command
         $lines = [];
 
         foreach ($this->columns as $column) {
-            // Media fields use foreign key to media table
             if ($column['type'] === 'media') {
                 $columnName = $this->getMediaColumnName($column['name']);
                 $lines[] = "            \$table->foreignId('{$columnName}')->nullable()->constrained('media')->nullOnDelete();";
@@ -492,7 +470,6 @@ class ModuleMakeCrudCommand extends Command
                 default => 'string',
             };
 
-            // File columns should be nullable (stored as string paths)
             $isNullable = in_array($column['dbType'], ['text', 'json', 'date', 'datetime']) || $column['type'] === 'file';
             $nullable = $isNullable ? '->nullable()' : '';
             $default = $column['dbType'] === 'boolean' ? '->default(false)' : '';
@@ -505,7 +482,6 @@ class ModuleMakeCrudCommand extends Command
 
     /**
      * Get the database column name for a media field.
-     * Adds '_id' suffix if not already present.
      */
     protected function getMediaColumnName(string $fieldName): string
     {
@@ -516,7 +492,6 @@ class ModuleMakeCrudCommand extends Command
     {
         $this->columns = [];
 
-        // Match column definitions like $table->string('name'), $table->text('description'), etc.
         $pattern = '/\$table->(\w+)\s*\(\s*[\'"](\w+)[\'"]/';
 
         if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
@@ -524,12 +499,10 @@ class ModuleMakeCrudCommand extends Command
                 $type = $match[1];
                 $name = $match[2];
 
-                // Skip certain columns
                 if (in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
                     continue;
                 }
 
-                // Skip relation columns (we'll handle them separately)
                 if (str_ends_with($name, '_id') && $type === 'foreignId') {
                     continue;
                 }
@@ -542,7 +515,6 @@ class ModuleMakeCrudCommand extends Command
             }
         }
 
-        // Also extract foreign keys
         $foreignPattern = '/\$table->foreignId\s*\(\s*[\'"](\w+)[\'"]/';
         if (preg_match_all($foreignPattern, $content, $matches)) {
             foreach ($matches[1] as $foreignKey) {
@@ -581,21 +553,18 @@ class ModuleMakeCrudCommand extends Command
     {
         $path = "{$this->modulePath}/app/Models/{$this->modelStudlyName}.php";
 
-        // Skip if model already exists
         if (File::exists($path)) {
             $this->line("  Skipped: Models/{$this->modelStudlyName}.php (already exists)");
 
             return;
         }
 
-        // Generate dynamic content
         $fillable = $this->generateFillableArray();
         $casts = $this->generateCastsArray();
         $hasMedia = $this->hasMediaFields();
         $mediaImports = $hasMedia ? "use App\\Models\\Media;\nuse Illuminate\\Database\\Eloquent\\Relations\\BelongsTo;\n" : '';
         $mediaRelationships = $this->generateMediaRelationships();
 
-        // Get stub and replace tokens
         $content = $this->getStub('model');
         $content = $this->replaceStubTokens($content, [
             '$FILLABLE$' => $fillable,
@@ -617,6 +586,20 @@ class ModuleMakeCrudCommand extends Command
     {
         foreach ($this->columns as $column) {
             if ($column['type'] === 'media') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if any fields are file type.
+     */
+    protected function hasFileFields(): bool
+    {
+        foreach ($this->columns as $column) {
+            if ($column['type'] === 'file') {
                 return true;
             }
         }
@@ -669,14 +652,12 @@ PHP;
     {
         $path = "{$this->modulePath}/app/Livewire/Components/{$this->modelStudlyName}Datatable.php";
 
-        // Skip if datatable already exists
         if (File::exists($path)) {
             $this->line("  Skipped: Livewire/Components/{$this->modelStudlyName}Datatable.php (already exists)");
 
             return;
         }
 
-        // Get stub and replace tokens
         $content = $this->getStub('datatable');
         $content = $this->replaceStubTokens($content, [
             '$HEADERS$' => $this->generateDatatableHeaders(),
@@ -751,7 +732,6 @@ PHP;
 
     /**
      * Generate additional imports for the datatable.
-     * Adds Renderable import if any columns need render methods.
      */
     protected function generateDatatableAdditionalImports(): string
     {
@@ -771,148 +751,114 @@ PHP;
         return '';
     }
 
-    protected function generateIndexComponent(): void
+    /**
+     * Generate the base module controller (if it doesn't exist).
+     */
+    protected function generateModuleController(): void
     {
-        $path = "{$this->modulePath}/app/Livewire/Admin/{$this->modelPluralName}/Index.php";
+        $path = "{$this->modulePath}/app/Http/Controllers/{$this->moduleStudlyName}Controller.php";
 
-        // Skip if component already exists
         if (File::exists($path)) {
-            $this->line("  Skipped: Livewire/Admin/{$this->modelPluralName}/Index.php (already exists)");
-
             return;
         }
 
-        $content = $this->getStub('components/index');
+        $content = $this->getStub('module-controller');
         $content = $this->replaceStubTokens($content);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
 
-        $this->info("  Created: Livewire/Admin/{$this->modelPluralName}/Index.php");
+        $this->info("  Created: Http/Controllers/{$this->moduleStudlyName}Controller.php");
     }
 
-    protected function generateShowComponent(): void
+    /**
+     * Generate the CRUD controller.
+     */
+    protected function generateController(): void
     {
-        $path = "{$this->modulePath}/app/Livewire/Admin/{$this->modelPluralName}/Show.php";
+        $path = "{$this->modulePath}/app/Http/Controllers/{$this->modelStudlyName}Controller.php";
 
-        // Skip if component already exists
         if (File::exists($path)) {
-            $this->line("  Skipped: Livewire/Admin/{$this->modelPluralName}/Show.php (already exists)");
+            $this->line("  Skipped: Http/Controllers/{$this->modelStudlyName}Controller.php (already exists)");
 
             return;
         }
 
-        $content = $this->getStub('components/show');
-        $content = $this->replaceStubTokens($content);
-
-        $this->ensureDirectoryExists(dirname($path));
-        File::put($path, $content);
-
-        $this->info("  Created: Livewire/Admin/{$this->modelPluralName}/Show.php");
-    }
-
-    protected function generateCreateComponent(): void
-    {
-        $path = "{$this->modulePath}/app/Livewire/Admin/{$this->modelPluralName}/Create.php";
-
-        // Skip if component already exists
-        if (File::exists($path)) {
-            $this->line("  Skipped: Livewire/Admin/{$this->modelPluralName}/Create.php (already exists)");
-
-            return;
-        }
-
-        // Generate dynamic content for file uploads
-        $hasFiles = $this->hasFileFields();
-        $useStatements = $hasFiles ? "use Livewire\\WithFileUploads;\n" : '';
-        $traitUse = $hasFiles ? "    use WithFileUploads;\n\n" : '';
-        $fileDeleteMethods = $hasFiles ? $this->generateFileDeleteMethods() : '';
-
-        $content = $this->getStub('components/create');
+        $content = $this->getStub('controller');
         $content = $this->replaceStubTokens($content, [
-            '$USE_STATEMENTS$' => $useStatements,
-            '$TRAIT_USE$' => $traitUse,
-            '$PROPERTIES$' => $this->generateFormProperties(),
-            '$RULES$' => $this->generateValidationRules(),
-            '$CREATE_DATA$' => $this->generateCreateData(),
-            '$FILE_DELETE_METHODS$' => $fileDeleteMethods,
+            '$FILE_UPLOAD_STORE$' => $this->generateFileUploadStoreCode(),
+            '$FILE_UPLOAD_UPDATE$' => $this->generateFileUploadUpdateCode(),
         ]);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
 
-        $this->info("  Created: Livewire/Admin/{$this->modelPluralName}/Create.php");
+        $this->info("  Created: Http/Controllers/{$this->modelStudlyName}Controller.php");
     }
 
-    protected function generateEditComponent(): void
+    /**
+     * Generate the service class.
+     */
+    protected function generateService(): void
     {
-        $path = "{$this->modulePath}/app/Livewire/Admin/{$this->modelPluralName}/Edit.php";
+        $path = "{$this->modulePath}/app/Services/{$this->modelStudlyName}Service.php";
 
-        // Skip if component already exists
         if (File::exists($path)) {
-            $this->line("  Skipped: Livewire/Admin/{$this->modelPluralName}/Edit.php (already exists)");
+            $this->line("  Skipped: Services/{$this->modelStudlyName}Service.php (already exists)");
 
             return;
         }
 
-        // Generate dynamic content for file uploads
-        $hasFiles = $this->hasFileFields();
-        $useStatements = $hasFiles ? "use Livewire\\WithFileUploads;\n" : '';
-        $traitUse = $hasFiles ? "    use WithFileUploads;\n\n" : '';
-
-        $content = $this->getStub('components/edit');
+        $content = $this->getStub('service');
         $content = $this->replaceStubTokens($content, [
-            '$USE_STATEMENTS$' => $useStatements,
-            '$TRAIT_USE$' => $traitUse,
-            '$PROPERTIES$' => $this->generateFormProperties(),
-            '$RULES$' => $this->generateValidationRules(),
-            '$MOUNT_ASSIGNMENTS$' => $this->generateMountAssignments(),
-            '$UPDATE_DATA$' => $this->generateUpdateData(),
-            '$FILE_DELETE_METHODS$' => $this->generateFileDeleteMethods(),
+            '$SEARCH_CONDITIONS$' => $this->generateServiceSearchConditions(),
         ]);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
 
-        $this->info("  Created: Livewire/Admin/{$this->modelPluralName}/Edit.php");
+        $this->info("  Created: Services/{$this->modelStudlyName}Service.php");
+    }
+
+    /**
+     * Generate the FormRequest class.
+     */
+    protected function generateFormRequest(): void
+    {
+        $path = "{$this->modulePath}/app/Http/Requests/{$this->modelStudlyName}Request.php";
+
+        if (File::exists($path)) {
+            $this->line("  Skipped: Http/Requests/{$this->modelStudlyName}Request.php (already exists)");
+
+            return;
+        }
+
+        $content = $this->getStub('form-request');
+        $content = $this->replaceStubTokens($content, [
+            '$RULES$' => $this->generateValidationRules(),
+        ]);
+
+        $this->ensureDirectoryExists(dirname($path));
+        File::put($path, $content);
+
+        $this->info("  Created: Http/Requests/{$this->modelStudlyName}Request.php");
     }
 
     protected function generateViews(): void
     {
-        $this->generateCrudLayout();
         $this->generateIndexView();
-        $this->generateShowView();
         $this->generateCreateView();
         $this->generateEditView();
-    }
-
-    protected function generateCrudLayout(): void
-    {
-        $path = "{$this->modulePath}/resources/views/layouts/crud.blade.php";
-
-        // Skip if layout already exists
-        if (File::exists($path)) {
-            $this->line('  Skipped: views/layouts/crud.blade.php (already exists)');
-
-            return;
-        }
-
-        $content = $this->getStub('layout');
-        $content = $this->replaceStubTokens($content);
-
-        $this->ensureDirectoryExists(dirname($path));
-        File::put($path, $content);
-
-        $this->info('  Created: views/layouts/crud.blade.php');
+        $this->generateShowView();
+        $this->generateFormPartial();
     }
 
     protected function generateIndexView(): void
     {
-        $path = "{$this->modulePath}/resources/views/livewire/admin/{$this->modelPluralLower}/index.blade.php";
+        $path = "{$this->modulePath}/resources/views/pages/{$this->modelPluralLower}/index.blade.php";
 
-        // Skip if view already exists
         if (File::exists($path)) {
-            $this->line("  Skipped: views/livewire/admin/{$this->modelPluralLower}/index.blade.php (already exists)");
+            $this->line("  Skipped: views/pages/{$this->modelPluralLower}/index.blade.php (already exists)");
 
             return;
         }
@@ -923,16 +869,57 @@ PHP;
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
 
-        $this->info("  Created: views/livewire/admin/{$this->modelPluralLower}/index.blade.php");
+        $this->info("  Created: views/pages/{$this->modelPluralLower}/index.blade.php");
+    }
+
+    protected function generateCreateView(): void
+    {
+        $path = "{$this->modulePath}/resources/views/pages/{$this->modelPluralLower}/create.blade.php";
+
+        if (File::exists($path)) {
+            $this->line("  Skipped: views/pages/{$this->modelPluralLower}/create.blade.php (already exists)");
+
+            return;
+        }
+
+        $content = $this->getStub('views/create');
+        $content = $this->replaceStubTokens($content, [
+            '$EDITOR_ASSETS$' => $this->generateBladeEditorAssets(),
+        ]);
+
+        $this->ensureDirectoryExists(dirname($path));
+        File::put($path, $content);
+
+        $this->info("  Created: views/pages/{$this->modelPluralLower}/create.blade.php");
+    }
+
+    protected function generateEditView(): void
+    {
+        $path = "{$this->modulePath}/resources/views/pages/{$this->modelPluralLower}/edit.blade.php";
+
+        if (File::exists($path)) {
+            $this->line("  Skipped: views/pages/{$this->modelPluralLower}/edit.blade.php (already exists)");
+
+            return;
+        }
+
+        $content = $this->getStub('views/edit');
+        $content = $this->replaceStubTokens($content, [
+            '$EDITOR_ASSETS$' => $this->generateBladeEditorAssets(),
+        ]);
+
+        $this->ensureDirectoryExists(dirname($path));
+        File::put($path, $content);
+
+        $this->info("  Created: views/pages/{$this->modelPluralLower}/edit.blade.php");
     }
 
     protected function generateShowView(): void
     {
-        $path = "{$this->modulePath}/resources/views/livewire/admin/{$this->modelPluralLower}/show.blade.php";
+        $path = "{$this->modulePath}/resources/views/pages/{$this->modelPluralLower}/show.blade.php";
 
-        // Skip if view already exists
         if (File::exists($path)) {
-            $this->line("  Skipped: views/livewire/admin/{$this->modelPluralLower}/show.blade.php (already exists)");
+            $this->line("  Skipped: views/pages/{$this->modelPluralLower}/show.blade.php (already exists)");
 
             return;
         }
@@ -945,53 +932,35 @@ PHP;
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
 
-        $this->info("  Created: views/livewire/admin/{$this->modelPluralLower}/show.blade.php");
+        $this->info("  Created: views/pages/{$this->modelPluralLower}/show.blade.php");
     }
 
-    protected function generateCreateView(): void
+    protected function generateFormPartial(): void
     {
-        $path = "{$this->modulePath}/resources/views/livewire/admin/{$this->modelPluralLower}/create.blade.php";
+        $path = "{$this->modulePath}/resources/views/pages/{$this->modelPluralLower}/partials/form.blade.php";
 
-        // Skip if view already exists
         if (File::exists($path)) {
-            $this->line("  Skipped: views/livewire/admin/{$this->modelPluralLower}/create.blade.php (already exists)");
+            $this->line("  Skipped: views/pages/{$this->modelPluralLower}/partials/form.blade.php (already exists)");
 
             return;
         }
 
-        $content = $this->getStub('views/create');
+        $containerClass = $this->formColumns === 2
+            ? 'grid grid-cols-1 sm:grid-cols-2 gap-5'
+            : 'space-y-5';
+        $submitColSpan = $this->formColumns === 2 ? ' sm:col-span-2' : '';
+
+        $content = $this->getStub('views/form');
         $content = $this->replaceStubTokens($content, [
             '$FORM_FIELDS$' => $this->generateFormFields(),
-            '$EDITOR_ASSETS$' => $this->generateEditorAssets(),
+            '$FORM_CONTAINER_CLASS$' => $containerClass,
+            '$SUBMIT_COL_SPAN$' => $submitColSpan,
         ]);
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
 
-        $this->info("  Created: views/livewire/admin/{$this->modelPluralLower}/create.blade.php");
-    }
-
-    protected function generateEditView(): void
-    {
-        $path = "{$this->modulePath}/resources/views/livewire/admin/{$this->modelPluralLower}/edit.blade.php";
-
-        // Skip if view already exists
-        if (File::exists($path)) {
-            $this->line("  Skipped: views/livewire/admin/{$this->modelPluralLower}/edit.blade.php (already exists)");
-
-            return;
-        }
-
-        $content = $this->getStub('views/edit');
-        $content = $this->replaceStubTokens($content, [
-            '$FORM_FIELDS$' => $this->generateFormFields(),
-            '$EDITOR_ASSETS$' => $this->generateEditorAssets(),
-        ]);
-
-        $this->ensureDirectoryExists(dirname($path));
-        File::put($path, $content);
-
-        $this->info("  Created: views/livewire/admin/{$this->modelPluralLower}/edit.blade.php");
+        $this->info("  Created: views/pages/{$this->modelPluralLower}/partials/form.blade.php");
     }
 
     protected function updateRoutes(): void
@@ -1008,44 +977,36 @@ PHP;
 
         // Check if routes already exist
         if (str_contains($content, "admin.{$this->moduleLowerName}.{$this->modelPluralLower}")) {
-            $this->line("  Routes already exist, skipping...");
+            $this->line('  Routes already exist, skipping...');
 
             return;
         }
 
-        // Add use statements
-        $useStatements = "use Modules\\{$this->moduleStudlyName}\\Livewire\\Admin\\{$this->modelPluralName}\\Create as {$this->modelStudlyName}Create;\n"
-            ."use Modules\\{$this->moduleStudlyName}\\Livewire\\Admin\\{$this->modelPluralName}\\Edit as {$this->modelStudlyName}Edit;\n"
-            ."use Modules\\{$this->moduleStudlyName}\\Livewire\\Admin\\{$this->modelPluralName}\\Index as {$this->modelStudlyName}Index;\n"
-            ."use Modules\\{$this->moduleStudlyName}\\Livewire\\Admin\\{$this->modelPluralName}\\Show as {$this->modelStudlyName}Show;";
+        // Add controller use statement
+        $useStatement = "use Modules\\{$this->moduleStudlyName}\\Http\\Controllers\\{$this->modelStudlyName}Controller;";
 
         // Find the last use statement and add after it
         if (preg_match_all('/^use [^;]+;$/m', $content, $matches)) {
             $lastUseStatement = end($matches[0]);
             $lastPos = strrpos($content, $lastUseStatement);
             $insertPos = $lastPos + strlen($lastUseStatement);
-            $content = substr_replace($content, "\n".$useStatements, $insertPos, 0);
+            $content = substr_replace($content, "\n".$useStatement, $insertPos, 0);
         }
 
-        // Add routes before closing of the group
-        $newRoutes = "\n\n        Route::get('{$this->modelPluralLower}', {$this->modelStudlyName}Index::class)->name('{$this->modelPluralLower}.index');\n"
-            ."        Route::get('{$this->modelPluralLower}/create', {$this->modelStudlyName}Create::class)->name('{$this->modelPluralLower}.create');\n"
-            ."        Route::get('{$this->modelPluralLower}/{{$this->modelLowerName}}', {$this->modelStudlyName}Show::class)->name('{$this->modelPluralLower}.show');\n"
-            ."        Route::get('{$this->modelPluralLower}/{{$this->modelLowerName}}/edit', {$this->modelStudlyName}Edit::class)->name('{$this->modelPluralLower}.edit');";
+        // Add resource route before closing of the group
+        $newRoute = "\n\n        Route::resource('{$this->modelPluralLower}', {$this->modelStudlyName}Controller::class);";
 
         // Find the first }); that closes the route group and insert before it
-        $content = preg_replace('/(\n\s*}\s*\)\s*;)/', $newRoutes.'$1', $content, 1);
+        $content = preg_replace('/(\n\s*}\s*\)\s*;)/', $newRoute.'$1', $content, 1);
 
         File::put($routesPath, $content);
-        $this->info("  Updated: routes/web.php");
+        $this->info('  Updated: routes/web.php');
     }
 
     protected function updateMenuService(): void
     {
-        // Try to find the MenuService file
         $menuServicePath = "{$this->modulePath}/app/Services/MenuService.php";
 
-        // Also check for module-specific naming
         if (! File::exists($menuServicePath)) {
             $menuServicePath = "{$this->modulePath}/app/Services/{$this->moduleStudlyName}MenuService.php";
         }
@@ -1059,7 +1020,6 @@ PHP;
 
         $content = File::get($menuServicePath);
 
-        // Check if menu item already exists
         if (str_contains($content, "'{$this->moduleLowerName}-{$this->modelPluralLower}'") ||
             str_contains($content, "admin.{$this->moduleLowerName}.{$this->modelPluralLower}.index")) {
             $this->line('  Menu item already exists, skipping...');
@@ -1067,11 +1027,10 @@ PHP;
             return;
         }
 
-        // Build the submenu item code
         $submenuItem = <<<PHP
 (new AdminMenuItem())->setAttributes([
                 'label' => __('{$this->modelPluralName}'),
-                'icon' => 'lucide:list',
+                'icon' => '',
                 'route' => route('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.index'),
                 'active' => Route::is('admin.{$this->moduleLowerName}.{$this->modelPluralLower}.*'),
                 'id' => '{$this->moduleLowerName}-{$this->modelPluralLower}',
@@ -1081,7 +1040,6 @@ PHP;
 
         $updated = false;
 
-        // Pattern 1: Check if using "$menu->setChildren" pattern already
         if (preg_match('/return\s+\$menu\s*;/', $content)) {
             $submenuCode = <<<PHP
 
@@ -1097,10 +1055,7 @@ PHP;
                 1
             );
             $updated = true;
-        }
-        // Pattern 2: Direct return with setAttributes - need to convert to variable pattern with children
-        elseif (preg_match('/return\s+\(new\s+AdminMenuItem\(\)\)->setAttributes\s*\(\s*\[/', $content)) {
-            // Find the getMenu method and transform it
+        } elseif (preg_match('/return\s+\(new\s+AdminMenuItem\(\)\)->setAttributes\s*\(\s*\[/', $content)) {
             $pattern = '/(public\s+function\s+getMenu\s*\(\s*\)\s*:\s*AdminMenuItem\s*\{\s*)(return\s+\(new\s+AdminMenuItem\(\)\)->setAttributes\s*\(\s*\[)(.*?)(\]\s*\)\s*;)(\s*\})/s';
 
             if (preg_match($pattern, $content, $matches)) {
@@ -1133,33 +1088,6 @@ PHP;
         }
     }
 
-    protected function replaceTokens(string $content): string
-    {
-        return str_replace(
-            [
-                '$MODULE_NAMESPACE$',
-                '$STUDLY_NAME$',
-                '$LOWER_NAME$',
-                '$MODEL_NAME$',
-                '$MODEL_LOWER$',
-                '$MODEL_PLURAL$',
-                '$MODEL_PLURAL_LOWER$',
-                '$TABLE_NAME$',
-            ],
-            [
-                'Modules',
-                $this->moduleStudlyName,
-                $this->moduleLowerName,
-                $this->modelStudlyName,
-                $this->modelLowerName,
-                $this->modelPluralName,
-                $this->modelPluralLower,
-                $this->tableName,
-            ],
-            $content
-        );
-    }
-
     protected function generateFillableArray(): string
     {
         if (empty($this->columns)) {
@@ -1168,7 +1096,6 @@ PHP;
 
         $fillable = [];
         foreach ($this->columns as $column) {
-            // Media fields use _id suffix in database
             $columnName = $column['type'] === 'media'
                 ? $this->getMediaColumnName($column['name'])
                 : $column['name'];
@@ -1207,7 +1134,6 @@ PHP;
         $headers = [];
 
         if (empty($this->columns)) {
-            // Default to name column
             $headers[] = <<<'PHP'
 [
                 'id' => 'name',
@@ -1218,20 +1144,16 @@ PHP;
             ]
 PHP;
         } else {
-            // Generate headers from parsed columns
             foreach ($this->columns as $column) {
                 $label = Str::title(str_replace('_', ' ', $column['name']));
                 $isSearchable = in_array($column['dbType'], ['string', 'char', 'text', 'mediumText', 'longText']);
                 $searchableStr = $isSearchable ? "\n                'searchable' => true," : '';
                 $widthStr = '';
 
-                // Add width for specific column types
                 if (in_array($column['dbType'], ['integer', 'unsignedInteger', 'bigInteger', 'tinyInteger', 'smallInteger', 'boolean', 'date'])) {
                     $widthStr = "\n                'width' => '120px',";
                 }
 
-                // Media fields use the original name for the header ID (render method naming)
-                // but the sortBy should use the _id column
                 $headerId = $column['name'];
                 $sortBy = $column['type'] === 'media'
                     ? $this->getMediaColumnName($column['name'])
@@ -1248,7 +1170,6 @@ PHP;
             }
         }
 
-        // Add created_at
         $headers[] = <<<'PHP'
 [
                 'id' => 'created_at',
@@ -1259,7 +1180,6 @@ PHP;
             ]
 PHP;
 
-        // Add actions
         $headers[] = <<<'PHP'
 [
                 'id' => 'actions',
@@ -1281,7 +1201,6 @@ PHP;
             $searchableColumns[] = 'name';
         } else {
             foreach ($this->columns as $column) {
-                // Only text-based columns should be searchable
                 if (in_array($column['dbType'], ['string', 'char', 'text', 'mediumText', 'longText'])) {
                     $searchableColumns[] = $column['name'];
                 }
@@ -1289,7 +1208,6 @@ PHP;
         }
 
         if (empty($searchableColumns)) {
-            // If no searchable columns, use the first column
             $searchableColumns[] = $this->columns[0]['name'] ?? 'id';
         }
 
@@ -1305,73 +1223,84 @@ PHP;
         return implode("\n", $conditions).';';
     }
 
-    protected function generateFormProperties(): string
+    /**
+     * Generate search conditions for the service class.
+     */
+    protected function generateServiceSearchConditions(): string
     {
+        $searchableColumns = [];
+
         if (empty($this->columns)) {
-            return "public string \$name = '';";
+            $searchableColumns[] = 'name';
+        } else {
+            foreach ($this->columns as $column) {
+                if (in_array($column['dbType'], ['string', 'char', 'text', 'mediumText', 'longText'])) {
+                    $searchableColumns[] = $column['name'];
+                }
+            }
         }
 
-        $properties = [];
-        foreach ($this->columns as $column) {
-            $type = $this->getPhpPropertyType($column);
-            $default = $this->getPropertyDefault($column);
+        if (empty($searchableColumns)) {
+            $searchableColumns[] = $this->columns[0]['name'] ?? 'id';
+        }
 
-            // File types need untyped nullable declaration for Livewire
-            if ($column['type'] === 'file') {
-                $properties[] = "public \${$column['name']} = null;";
-            } elseif ($column['type'] === 'media') {
-                // Media fields store the media ID (nullable integer)
-                $propertyName = $this->getMediaColumnName($column['name']);
-                $properties[] = "public ?int \${$propertyName} = null;";
+        $conditions = [];
+        foreach ($searchableColumns as $index => $columnName) {
+            if ($index === 0) {
+                $conditions[] = "\$q->where('{$columnName}', 'like', \"%{\$search}%\")";
             } else {
-                $properties[] = "public {$type} \${$column['name']} = {$default};";
+                $conditions[] = "                        ->orWhere('{$columnName}', 'like', \"%{\$search}%\")";
             }
         }
 
-        return implode("\n\n    ", $properties);
+        return implode("\n", $conditions).';';
     }
 
-    protected function hasFileFields(): bool
+    /**
+     * Generate file upload handling code for the store method.
+     */
+    protected function generateFileUploadStoreCode(): string
     {
+        $lines = [];
+
         foreach ($this->columns as $column) {
-            if ($column['type'] === 'file') {
-                return true;
+            if ($column['type'] !== 'file') {
+                continue;
             }
+
+            $fieldName = $column['name'];
+            $storePath = $this->modelPluralLower;
+            $lines[] = "        if (\$request->hasFile('{$fieldName}')) {";
+            $lines[] = "            \$validated['{$fieldName}'] = \$request->file('{$fieldName}')->store('{$storePath}', 'public');";
+            $lines[] = "        }";
         }
 
-        return false;
+        return empty($lines) ? '' : "\n".implode("\n", $lines);
     }
 
-    protected function getPhpPropertyType(array $column): string
+    /**
+     * Generate file upload handling code for the update method.
+     */
+    protected function generateFileUploadUpdateCode(): string
     {
-        // Check dbType for decimals which need float, not int
-        $dbType = $column['dbType'] ?? '';
-        if (in_array($dbType, ['decimal', 'float', 'double'])) {
-            return 'float';
+        $lines = [];
+
+        foreach ($this->columns as $column) {
+            if ($column['type'] !== 'file') {
+                continue;
+            }
+
+            $fieldName = $column['name'];
+            $storePath = $this->modelPluralLower;
+            $modelVar = '$'.$this->modelLowerName;
+            $lines[] = "        if (\$request->hasFile('{$fieldName}')) {";
+            $lines[] = "            \$validated['{$fieldName}'] = \$request->file('{$fieldName}')->store('{$storePath}', 'public');";
+            $lines[] = "        } else {";
+            $lines[] = "            unset(\$validated['{$fieldName}']); // Keep existing value";
+            $lines[] = "        }";
         }
 
-        return match ($column['type']) {
-            'number' => 'int',
-            'checkbox', 'toggle' => 'bool',
-            'file' => 'mixed', // Can be UploadedFile or null
-            default => 'string',
-        };
-    }
-
-    protected function getPropertyDefault(array $column): string
-    {
-        // Check dbType for decimals
-        $dbType = $column['dbType'] ?? '';
-        if (in_array($dbType, ['decimal', 'float', 'double'])) {
-            return '0.0';
-        }
-
-        return match ($column['type']) {
-            'number' => '0',
-            'checkbox', 'toggle' => 'false',
-            'file' => 'null',
-            default => "''",
-        };
+        return empty($lines) ? '' : "\n".implode("\n", $lines);
     }
 
     protected function generateValidationRules(): string
@@ -1383,11 +1312,9 @@ PHP;
         $rules = [];
         foreach ($this->columns as $column) {
             $rule = $this->getValidationRule($column);
-            // File fields use array format for better Livewire compatibility
             if ($column['type'] === 'file') {
                 $rules[] = "'{$column['name']}' => ['nullable', 'file', 'max:10240']";
             } elseif ($column['type'] === 'media') {
-                // Media fields store the media ID (nullable integer, must exist in media table)
                 $propertyName = $this->getMediaColumnName($column['name']);
                 $rules[] = "'{$propertyName}' => 'nullable|integer|exists:media,id'";
             } else {
@@ -1402,19 +1329,16 @@ PHP;
     {
         $rules = [];
 
-        // Determine if required based on column type
         $isRequired = \in_array($column['dbType'], ['string', 'char', 'text', 'mediumText', 'longText'])
             || str_ends_with($column['name'], '_id')
             || \in_array($column['dbType'], ['integer', 'unsignedInteger', 'bigInteger', 'unsignedBigInteger', 'tinyInteger', 'smallInteger']);
 
-        // File fields are typically nullable
         if ($column['type'] === 'file') {
             $isRequired = false;
         }
 
         $rules[] = $isRequired ? 'required' : 'nullable';
 
-        // Add type-specific rules
         match ($column['type']) {
             'text' => $rules[] = 'string|max:255',
             'textarea' => $rules[] = 'string|max:1000',
@@ -1424,134 +1348,11 @@ PHP;
             'date' => $rules[] = 'date',
             'datetime' => $rules[] = 'date',
             'select' => $rules[] = 'string|max:255',
-            'file' => $rules[] = 'file|max:10240', // 10MB max
+            'file' => $rules[] = 'file|max:10240',
             default => $rules[] = 'string',
         };
 
         return implode('|', $rules);
-    }
-
-    protected function generateCreateData(): string
-    {
-        if (empty($this->columns)) {
-            return "'name' => \$validated['name'],";
-        }
-
-        $data = [];
-
-        foreach ($this->columns as $column) {
-            if ($column['type'] === 'file') {
-                // File fields: store and save path
-                $data[] = "'{$column['name']}' => \$this->{$column['name']} ? \$this->{$column['name']}->store('{$this->modelPluralLower}', 'public') : null";
-            } elseif ($column['type'] === 'media') {
-                // Media fields: store the media ID
-                $propertyName = $this->getMediaColumnName($column['name']);
-                $data[] = "'{$propertyName}' => \$validated['{$propertyName}']";
-            } else {
-                $data[] = "'{$column['name']}' => \$validated['{$column['name']}']";
-            }
-        }
-
-        return implode(",\n            ", $data).',';
-    }
-
-    protected function generateUpdateData(): string
-    {
-        if (empty($this->columns)) {
-            return "'name' => \$validated['name'],";
-        }
-
-        $data = [];
-
-        foreach ($this->columns as $column) {
-            if ($column['type'] === 'file') {
-                // File fields: only update if new file uploaded
-                $data[] = "'{$column['name']}' => \$this->{$column['name']} ? \$this->{$column['name']}->store('{$this->modelPluralLower}', 'public') : \$this->{$this->modelLowerName}->{$column['name']}";
-            } elseif ($column['type'] === 'media') {
-                // Media fields: store the media ID
-                $propertyName = $this->getMediaColumnName($column['name']);
-                $data[] = "'{$propertyName}' => \$validated['{$propertyName}']";
-            } else {
-                $data[] = "'{$column['name']}' => \$validated['{$column['name']}']";
-            }
-        }
-
-        return implode(",\n            ", $data).',';
-    }
-
-    protected function generateFileDeleteMethods(): string
-    {
-        $methods = [];
-
-        foreach ($this->columns as $column) {
-            if ($column['type'] !== 'file') {
-                continue;
-            }
-
-            $methodName = 'delete'.Str::studly($column['name']);
-            $label = Str::title(str_replace('_', ' ', $column['name']));
-
-            $methods[] = <<<PHP
-
-    public function {$methodName}(): void
-    {
-        if (\$this->{$this->modelLowerName}->{$column['name']}) {
-            Storage::disk('public')->delete(\$this->{$this->modelLowerName}->{$column['name']});
-            \$this->{$this->modelLowerName}->update(['{$column['name']}' => null]);
-            session()->flash('success', __('{$label} deleted successfully.'));
-        }
-    }
-PHP;
-        }
-
-        return implode("\n", $methods);
-    }
-
-    protected function generateMountAssignments(): string
-    {
-        if (empty($this->columns)) {
-            return "\$this->name = \$this->{$this->modelLowerName}->name;";
-        }
-
-        $assignments = [];
-        foreach ($this->columns as $column) {
-            // Skip file fields - they don't get populated from existing model
-            if ($column['type'] === 'file') {
-                continue;
-            }
-
-            $dbType = $column['dbType'] ?? '';
-
-            if ($column['type'] === 'media') {
-                // Media fields use _id suffix
-                $propertyName = $this->getMediaColumnName($column['name']);
-                $assignments[] = "\$this->{$propertyName} = \$this->{$this->modelLowerName}->{$propertyName};";
-            } elseif ($column['type'] === 'checkbox' || $column['type'] === 'toggle') {
-                // Boolean fields need explicit cast to avoid int-to-bool type error
-                $assignments[] = "\$this->{$column['name']} = (bool) \$this->{$this->modelLowerName}->{$column['name']};";
-            } elseif (\in_array($column['type'], ['text', 'textarea', 'editor', 'select'])) {
-                $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']} ?? '';";
-            } elseif (in_array($dbType, ['decimal', 'float', 'double'])) {
-                // Decimal/float fields need cast and null fallback
-                $assignments[] = "\$this->{$column['name']} = (float) (\$this->{$this->modelLowerName}->{$column['name']} ?? 0);";
-            } elseif ($column['type'] === 'number') {
-                // Integer fields need null fallback
-                $assignments[] = "\$this->{$column['name']} = (int) (\$this->{$this->modelLowerName}->{$column['name']} ?? 0);";
-            } elseif ($column['type'] === 'date') {
-                // Date fields - format as Y-m-d for date input
-                $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']}?->format('Y-m-d') ?? '';";
-            } elseif ($column['type'] === 'datetime') {
-                // Datetime fields - format as Y-m-d\TH:i for datetime-local input
-                $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']}?->format('Y-m-d\\TH:i') ?? '';";
-            } elseif ($column['type'] === 'time') {
-                // Time fields - format as H:i for time input
-                $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']}?->format('H:i') ?? '';";
-            } else {
-                $assignments[] = "\$this->{$column['name']} = \$this->{$this->modelLowerName}->{$column['name']};";
-            }
-        }
-
-        return implode("\n        ", $assignments);
     }
 
     protected function generateFormFields(): string
@@ -1565,7 +1366,7 @@ PHP;
             $fields[] = $this->generateFormFieldForColumn($column);
         }
 
-        return implode("\n\n                ", $fields);
+        return implode("\n\n    ", $fields);
     }
 
     protected function generateDisplayFields(): string
@@ -1584,10 +1385,12 @@ PHP;
 
     protected function generateDefaultDisplayField(): string
     {
-        return <<<'BLADE'
+        $modelVar = '$'.$this->modelLowerName;
+
+        return <<<BLADE
 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Name') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $this->MODEL_LOWER$->name }}</dd>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ {$modelVar}->name }}</dd>
                 </div>
 BLADE;
     }
@@ -1595,13 +1398,14 @@ BLADE;
     protected function generateDisplayFieldForColumn(array $column): string
     {
         $label = Str::title(str_replace('_', ' ', $column['name']));
+        $modelVar = '$'.$this->modelLowerName;
 
         return match ($column['type']) {
             'checkbox', 'toggle' => <<<BLADE
 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
                     <dd class="mt-1">
-                        @if(\$this->{$this->modelLowerName}->{$column['name']})
+                        @if({$modelVar}->{$column['name']})
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">{{ __('Yes') }}</span>
                         @else
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{ __('No') }}</span>
@@ -1612,23 +1416,23 @@ BLADE,
             'editor' => <<<BLADE
 <div class="sm:col-span-2">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white prose dark:prose-invert max-w-none">{!! \$this->{$this->modelLowerName}->{$column['name']} !!}</dd>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white prose dark:prose-invert max-w-none">{!! {$modelVar}->{$column['name']} !!}</dd>
                 </div>
 BLADE,
             'textarea' => <<<BLADE
 <div class="sm:col-span-2">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white whitespace-pre-wrap">{{ \$this->{$this->modelLowerName}->{$column['name']} }}</dd>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white whitespace-pre-wrap">{{ {$modelVar}->{$column['name']} }}</dd>
                 </div>
 BLADE,
             'file' => <<<BLADE
 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
                     <dd class="mt-2">
-                        @if(\$this->{$this->modelLowerName}->{$column['name']})
+                        @if({$modelVar}->{$column['name']})
                             @php
-                                \$fileUrl = asset('storage/' . \$this->{$this->modelLowerName}->{$column['name']});
-                                \$isImage = preg_match('/\\.(jpg|jpeg|png|gif|webp|svg)\$/i', \$this->{$this->modelLowerName}->{$column['name']});
+                                \$fileUrl = asset('storage/' . {$modelVar}->{$column['name']});
+                                \$isImage = preg_match('/\\.(jpg|jpeg|png|gif|webp|svg)\$/i', {$modelVar}->{$column['name']});
                             @endphp
                             @if(\$isImage)
                                 <a href="{{ \$fileUrl }}" target="_blank" class="block">
@@ -1637,7 +1441,7 @@ BLADE,
                             @else
                                 <a href="{{ \$fileUrl }}" target="_blank" download class="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400">
                                     <iconify-icon icon="lucide:download" class="text-base"></iconify-icon>
-                                    <span>{{ basename(\$this->{$this->modelLowerName}->{$column['name']}) }}</span>
+                                    <span>{{ basename({$modelVar}->{$column['name']}) }}</span>
                                 </a>
                             @endif
                         @else
@@ -1650,7 +1454,7 @@ BLADE,
             default => <<<BLADE
 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ \$this->{$this->modelLowerName}->{$column['name']} }}</dd>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ {$modelVar}->{$column['name']} }}</dd>
                 </div>
 BLADE,
         };
@@ -1660,151 +1464,143 @@ BLADE,
     {
         return <<<'BLADE'
 <x-inputs.input
-                    wire:model="name"
-                    name="name"
-                    label="{{ __('Name') }}"
-                    placeholder="{{ __('Enter name') }}"
-                    :required="true"
-                />
+        name="name"
+        label="{{ __('Name') }}"
+        placeholder="{{ __('Enter name') }}"
+        :value="isset($MODEL_LOWER$) ? $MODEL_LOWER$->name : ''"
+        :required="true"
+    />
 BLADE;
     }
 
     protected function generateFormFieldForColumn(array $column): string
     {
         $label = Str::title(str_replace('_', ' ', $column['name']));
+        $modelVar = '$'.$this->modelLowerName;
 
-        // Determine if field should be required (same logic as validation)
         $isRequired = \in_array($column['dbType'], ['string', 'char', 'text', 'mediumText', 'longText'])
             || str_ends_with($column['name'], '_id')
             || \in_array($column['dbType'], ['integer', 'unsignedInteger', 'bigInteger', 'unsignedBigInteger', 'tinyInteger', 'smallInteger']);
 
-        // File fields are typically not required
         if ($column['type'] === 'file') {
             $isRequired = false;
         }
 
         $required = $isRequired ? ':required="true"' : '';
+        $valueExpr = "isset({$modelVar}) ? {$modelVar}->{$column['name']} : ''";
+        $nullableValueExpr = "isset({$modelVar}) ? {$modelVar}->{$column['name']} : null";
+        $fullWidthAttr = $this->formColumns === 2 ? ' class="sm:col-span-2"' : '';
 
         return match ($column['type']) {
             'textarea' => <<<BLADE
-<div>
-                    <label for="{$column['name']}" class="form-label">{{ __('{$label}') }}</label>
-                    <textarea wire:model="{$column['name']}" id="{$column['name']}" name="{$column['name']}" rows="3"
-                              placeholder="{{ __('Enter {$label}...') }}"
-                              class="form-control-textarea"></textarea>
-                    @error('{$column['name']}')
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ \$message }}</p>
-                    @enderror
-                </div>
+<div{$fullWidthAttr}>
+        <label for="{$column['name']}" class="form-label">{{ __('{$label}') }}</label>
+        <textarea name="{$column['name']}" id="{$column['name']}" rows="3"
+                  placeholder="{{ __('Enter {$label}...') }}"
+                  class="form-control-textarea">{{ old('{$column['name']}', {$valueExpr}) }}</textarea>
+        @error('{$column['name']}')
+            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ \$message }}</p>
+        @enderror
+    </div>
 BLADE,
             'editor' => <<<BLADE
-<div>
-                    <label for="{$column['name']}" class="form-label">{{ __('{$label}') }}</label>
-                    <textarea wire:model="{$column['name']}" id="{$column['name']}" name="{$column['name']}" rows="8" class="form-control-textarea"></textarea>
-                    @error('{$column['name']}')
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ \$message }}</p>
-                    @enderror
-                </div>
+<div{$fullWidthAttr}>
+        <label for="{$column['name']}" class="form-label">{{ __('{$label}') }}</label>
+        <textarea name="{$column['name']}" id="{$column['name']}" rows="8"
+                  class="form-control-textarea">{{ old('{$column['name']}', {$valueExpr}) }}</textarea>
+        @error('{$column['name']}')
+            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ \$message }}</p>
+        @enderror
+    </div>
 BLADE,
             'checkbox' => <<<BLADE
 <label class="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" wire:model="{$column['name']}" class="form-checkbox">
-                    <div>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('{$label}') }}</span>
-                    </div>
-                </label>
+        <input type="checkbox" name="{$column['name']}" value="1" class="form-checkbox"
+               @if(old('{$column['name']}', {$nullableValueExpr})) checked @endif>
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('{$label}') }}</span>
+    </label>
 BLADE,
             'toggle' => <<<BLADE
 <x-inputs.toggle
-                    wire:model="{$column['name']}"
-                    name="{$column['name']}"
-                    label="{{ __('{$label}') }}"
-                />
+        name="{$column['name']}"
+        label="{{ __('{$label}') }}"
+        :checked="old('{$column['name']}', {$nullableValueExpr}) ? true : false"
+    />
 BLADE,
-            'select' => $this->generateSelectField($column, $label),
-            'file' => $this->generateFileFieldBlade($column, $label),
+            'select' => $this->generateSelectField($column, $label, $modelVar),
+            'file' => $this->generateFileFieldBlade($column, $label, $modelVar, $fullWidthAttr),
             'number' => <<<BLADE
 <x-inputs.input
-                    type="number"
-                    wire:model="{$column['name']}"
-                    name="{$column['name']}"
-                    label="{{ __('{$label}') }}"
-                    min="0"
-                    {$required}
-                />
+        type="number"
+        name="{$column['name']}"
+        label="{{ __('{$label}') }}"
+        :value="{$valueExpr}"
+        min="0"
+        {$required}
+    />
 BLADE,
             'date' => <<<BLADE
 <x-inputs.input
-                    type="date"
-                    wire:model="{$column['name']}"
-                    name="{$column['name']}"
-                    label="{{ __('{$label}') }}"
-                    {$required}
-                />
+        type="date"
+        name="{$column['name']}"
+        label="{{ __('{$label}') }}"
+        :value="{$valueExpr}"
+        {$required}
+    />
 BLADE,
             'datetime' => <<<BLADE
 <x-inputs.input
-                    type="datetime-local"
-                    wire:model="{$column['name']}"
-                    name="{$column['name']}"
-                    label="{{ __('{$label}') }}"
-                    {$required}
-                />
+        type="datetime-local"
+        name="{$column['name']}"
+        label="{{ __('{$label}') }}"
+        :value="isset({$modelVar}) ? ({$modelVar}->{$column['name']}?->format('Y-m-d\TH:i') ?? '') : ''"
+        {$required}
+    />
 BLADE,
-            'media' => $this->generateMediaFieldBlade($column, $label),
+            'media' => $this->generateMediaFieldBlade($column, $label, $modelVar),
             default => <<<BLADE
 <x-inputs.input
-                    wire:model="{$column['name']}"
-                    name="{$column['name']}"
-                    label="{{ __('{$label}') }}"
-                    placeholder="{{ __('Enter {$label}') }}"
-                    {$required}
-                />
+        name="{$column['name']}"
+        label="{{ __('{$label}') }}"
+        placeholder="{{ __('Enter {$label}') }}"
+        :value="{$valueExpr}"
+        {$required}
+    />
 BLADE,
         };
     }
 
-    protected function generateFileFieldBlade(array $column, string $label): string
+    protected function generateFileFieldBlade(array $column, string $label, string $modelVar, string $fullWidthAttr = ''): string
     {
         $columnName = $column['name'];
-        $deleteMethod = 'delete'.Str::studly($columnName);
+        $fileClass = $fullWidthAttr ? 'space-y-2 sm:col-span-2' : 'space-y-2';
 
         return <<<BLADE
-<div class="space-y-2">
-                    @if(isset(\$this->{$this->modelLowerName}) && \$this->{$this->modelLowerName}->{$columnName})
-                        <div class="relative inline-block">
-                            @php
-                                \$existingUrl = asset('storage/' . \$this->{$this->modelLowerName}->{$columnName});
-                                \$isImage = preg_match('/\\.(jpg|jpeg|png|gif|webp|svg)\$/i', \$this->{$this->modelLowerName}->{$columnName});
-                            @endphp
-                            @if(\$isImage)
-                                <a href="{{ \$existingUrl }}" target="_blank">
-                                    <img src="{{ \$existingUrl }}" alt="Current {$label}" class="h-20 w-20 rounded-lg object-cover ring-1 ring-gray-200 dark:ring-gray-700">
-                                </a>
-                            @else
-                                <a href="{{ \$existingUrl }}" target="_blank" download class="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 pr-8">
-                                    <iconify-icon icon="lucide:file" class="text-lg"></iconify-icon>
-                                    <span>{{ basename(\$this->{$this->modelLowerName}->{$columnName}) }}</span>
-                                </a>
-                            @endif
-                            <button
-                                type="button"
-                                wire:click="{$deleteMethod}"
-                                wire:confirm="{{ __('Are you sure you want to delete this file?') }}"
-                                class="absolute -top-2 -right-2 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-sm transition-colors"
-                                title="{{ __('Delete file') }}"
-                            >
-                                <iconify-icon icon="lucide:x" class="text-sm"></iconify-icon>
-                            </button>
-                        </div>
-                    @endif
-                    <x-inputs.file-input
-                        wire:model="{$columnName}"
-                        name="{$columnName}"
-                        label="{{ __('{$label}') }}"
-                        hint="{{ isset(\$this->{$this->modelLowerName}) && \$this->{$this->modelLowerName}->{$columnName} ? __('Upload a new file to replace the existing one') : '' }}"
-                    />
-                </div>
+<div class="{$fileClass}">
+        @if(isset({$modelVar}) && {$modelVar}->{$columnName})
+            <div class="relative inline-block">
+                @php
+                    \$existingUrl = asset('storage/' . {$modelVar}->{$columnName});
+                    \$isImage = preg_match('/\\.(jpg|jpeg|png|gif|webp|svg)\$/i', {$modelVar}->{$columnName});
+                @endphp
+                @if(\$isImage)
+                    <a href="{{ \$existingUrl }}" target="_blank">
+                        <img src="{{ \$existingUrl }}" alt="Current {$label}" class="h-20 w-20 rounded-lg object-cover ring-1 ring-gray-200 dark:ring-gray-700">
+                    </a>
+                @else
+                    <a href="{{ \$existingUrl }}" target="_blank" download class="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400">
+                        <iconify-icon icon="lucide:file" class="text-lg"></iconify-icon>
+                        <span>{{ basename({$modelVar}->{$columnName}) }}</span>
+                    </a>
+                @endif
+            </div>
+        @endif
+        <x-inputs.file-input
+            name="{$columnName}"
+            label="{{ __('{$label}') }}"
+            hint="{{ isset({$modelVar}) && {$modelVar}->{$columnName} ? __('Upload a new file to replace the existing one') : '' }}"
+        />
+    </div>
 BLADE;
     }
 
@@ -1812,14 +1608,15 @@ BLADE;
     {
         $columnName = $this->getMediaColumnName($column['name']);
         $relationName = Str::camel($column['name']);
+        $modelVar = '$'.$this->modelLowerName;
 
         return <<<BLADE
 <div>
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('{$label}') }}</dt>
                     <dd class="mt-2">
-                        @if(\$this->{$this->modelLowerName}->{$columnName} && \$this->{$this->modelLowerName}->{$relationName})
-                            <a href="{{ \$this->{$this->modelLowerName}->{$relationName}Url }}" target="_blank" class="block">
-                                <img src="{{ \$this->{$this->modelLowerName}->{$relationName}Url }}" alt="{$label}" class="max-h-48 rounded-lg ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-primary-500 transition-all">
+                        @if({$modelVar}->{$columnName} && {$modelVar}->{$relationName})
+                            <a href="{{ {$modelVar}->{$relationName}Url }}" target="_blank" class="block">
+                                <img src="{{ {$modelVar}->{$relationName}Url }}" alt="{$label}" class="max-h-48 rounded-lg ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-primary-500 transition-all">
                             </a>
                         @else
                             <span class="text-gray-400">{{ __('No image') }}</span>
@@ -1829,71 +1626,62 @@ BLADE;
 BLADE;
     }
 
-    protected function generateMediaFieldBlade(array $column, string $label): string
+    protected function generateMediaFieldBlade(array $column, string $label, string $modelVar, string $fullWidthAttr = ''): string
     {
         $columnName = $this->getMediaColumnName($column['name']);
         $relationName = Str::camel($column['name']);
 
         return <<<BLADE
-<div>
-                    <label class="form-label">{{ __('{$label}') }}</label>
-                    <div class="inline-block" x-data="{
-                        selectedMediaId: @entangle('{$columnName}').live,
-                        handleSelection(files) {
-                            this.selectedMediaId = (files && files.length > 0) ? files[0].id : null;
-                        }
-                    }" x-init="window.handleMediaSelection_mediaSelector_{$columnName} = (files) => handleSelection(files)">
-                        <x-media-selector
-                            name="{$columnName}"
-                            label=""
-                            :multiple="false"
-                            allowedTypes="images"
-                            :existingMedia="isset(\$this->{$this->modelLowerName}) && \$this->{$this->modelLowerName}->{$columnName}
-                                ? [['id' => \$this->{$this->modelLowerName}->{$columnName}, 'url' => \$this->{$this->modelLowerName}->{$relationName}Url, 'name' => \$this->{$this->modelLowerName}->{$relationName}?->name]]
-                                : []"
-                            :showPreview="true"
-                            class="max-w-xs"
-                        />
-                    </div>
-                    @error('{$columnName}')
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ \$message }}</p>
-                    @enderror
-                </div>
+<div{$fullWidthAttr}>
+        <label class="form-label">{{ __('{$label}') }}</label>
+        <x-media-selector
+            name="{$columnName}"
+            label=""
+            :multiple="false"
+            allowedTypes="images"
+            :existingMedia="isset({$modelVar}) && {$modelVar}->{$columnName} && {$modelVar}->{$relationName}
+                ? [['id' => {$modelVar}->{$columnName}, 'url' => {$modelVar}->{$relationName}Url, 'name' => {$modelVar}->{$relationName}?->name]]
+                : []"
+            :showPreview="true"
+            class="max-w-xs"
+        />
+        @error('{$columnName}')
+            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ \$message }}</p>
+        @enderror
+    </div>
 BLADE;
     }
 
-    protected function generateSelectField(array $column, string $label): string
+    protected function generateSelectField(array $column, string $label, string $modelVar): string
     {
-        // If options are defined, create static select
         if (! empty($column['options'])) {
             $optionsPhp = "[\n";
             foreach ($column['options'] as $option) {
                 $key = Str::slug($option, '_');
-                $optionsPhp .= "                        '{$key}' => __('{$option}'),\n";
+                $optionsPhp .= "                    '{$key}' => __('{$option}'),\n";
             }
-            $optionsPhp .= '                    ]';
+            $optionsPhp .= "                ]";
 
             return <<<BLADE
 <x-inputs.select
-                    wire:model="{$column['name']}"
-                    name="{$column['name']}"
-                    label="{{ __('{$label}') }}"
-                    placeholder="{{ __('Select {$label}') }}"
-                    :options="{$optionsPhp}"
-                />
+        name="{$column['name']}"
+        label="{{ __('{$label}') }}"
+        placeholder="{{ __('Select {$label}') }}"
+        :value="isset({$modelVar}) ? {$modelVar}->{$column['name']} : ''"
+        :options="{$optionsPhp}"
+    />
 BLADE;
         }
 
-        // Default select with placeholder for manual options
         return <<<BLADE
 <x-inputs.select
-                    wire:model="{$column['name']}"
-                    name="{$column['name']}"
-                    label="{{ __('{$label}') }}"
-                    placeholder="{{ __('Select {$label}') }}"
-                    :options="[]"
-                />
-                {{-- TODO: Add options array to the component --}}
+        name="{$column['name']}"
+        label="{{ __('{$label}') }}"
+        placeholder="{{ __('Select {$label}') }}"
+        :value="isset({$modelVar}) ? {$modelVar}->{$column['name']} : ''"
+        :options="[]"
+    />
+    {{-- TODO: Add options array to the component --}}
 BLADE;
     }
 
@@ -1913,7 +1701,10 @@ BLADE;
         return array_filter($this->columns, fn ($column) => $column['type'] === 'editor');
     }
 
-    protected function generateEditorAssets(): string
+    /**
+     * Generate editor assets for Blade views (uses @push instead of @assets/@script).
+     */
+    protected function generateBladeEditorAssets(): string
     {
         if (! $this->hasEditorFields()) {
             return '';
@@ -1923,7 +1714,7 @@ BLADE;
         $editorIds = array_values(array_map(fn ($col) => $col['name'], $editorFields));
         $editorIdsJson = json_encode($editorIds);
 
-        $content = $this->getStub('editor-assets');
+        $content = $this->getStub('blade-editor-assets');
 
         return str_replace('$EDITOR_IDS$', $editorIdsJson, $content);
     }
@@ -1954,15 +1745,15 @@ BLADE;
         }
         $this->line("  - modules/{$this->moduleStudlyName}/app/Models/{$this->modelStudlyName}.php");
         $this->line("  - modules/{$this->moduleStudlyName}/app/Livewire/Components/{$this->modelStudlyName}Datatable.php");
-        $this->line("  - modules/{$this->moduleStudlyName}/app/Livewire/Admin/{$this->modelPluralName}/Index.php");
-        $this->line("  - modules/{$this->moduleStudlyName}/app/Livewire/Admin/{$this->modelPluralName}/Show.php");
-        $this->line("  - modules/{$this->moduleStudlyName}/app/Livewire/Admin/{$this->modelPluralName}/Create.php");
-        $this->line("  - modules/{$this->moduleStudlyName}/app/Livewire/Admin/{$this->modelPluralName}/Edit.php");
-        $this->line("  - modules/{$this->moduleStudlyName}/resources/views/layouts/crud.blade.php");
-        $this->line("  - modules/{$this->moduleStudlyName}/resources/views/livewire/admin/{$this->modelPluralLower}/index.blade.php");
-        $this->line("  - modules/{$this->moduleStudlyName}/resources/views/livewire/admin/{$this->modelPluralLower}/show.blade.php");
-        $this->line("  - modules/{$this->moduleStudlyName}/resources/views/livewire/admin/{$this->modelPluralLower}/create.blade.php");
-        $this->line("  - modules/{$this->moduleStudlyName}/resources/views/livewire/admin/{$this->modelPluralLower}/edit.blade.php");
+        $this->line("  - modules/{$this->moduleStudlyName}/app/Http/Controllers/{$this->moduleStudlyName}Controller.php (base, if new)");
+        $this->line("  - modules/{$this->moduleStudlyName}/app/Http/Controllers/{$this->modelStudlyName}Controller.php");
+        $this->line("  - modules/{$this->moduleStudlyName}/app/Services/{$this->modelStudlyName}Service.php");
+        $this->line("  - modules/{$this->moduleStudlyName}/app/Http/Requests/{$this->modelStudlyName}Request.php");
+        $this->line("  - modules/{$this->moduleStudlyName}/resources/views/pages/{$this->modelPluralLower}/index.blade.php");
+        $this->line("  - modules/{$this->moduleStudlyName}/resources/views/pages/{$this->modelPluralLower}/create.blade.php");
+        $this->line("  - modules/{$this->moduleStudlyName}/resources/views/pages/{$this->modelPluralLower}/edit.blade.php");
+        $this->line("  - modules/{$this->moduleStudlyName}/resources/views/pages/{$this->modelPluralLower}/show.blade.php");
+        $this->line("  - modules/{$this->moduleStudlyName}/resources/views/pages/{$this->modelPluralLower}/partials/form.blade.php");
     }
 
     protected function ensureDirectoryExists(string $path): void

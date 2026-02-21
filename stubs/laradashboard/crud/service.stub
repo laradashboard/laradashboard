@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Services;
+
+use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+class $MODEL_NAME$Service
+{
+    public function getPaginated$MODEL_PLURAL$(
+        ?string $search = null,
+        int $perPage = 15
+    ): LengthAwarePaginator {
+        return $MODEL_NAME$::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $SEARCH_CONDITIONS$
+                });
+            })
+            ->latest()
+            ->paginate($perPage);
+    }
+
+    public function get$MODEL_NAME$ById(int $id): ?$MODEL_NAME$
+    {
+        return $MODEL_NAME$::find($id);
+    }
+
+    public function create$MODEL_NAME$(array $data): ?$MODEL_NAME$
+    {
+        return $MODEL_NAME$::create($data);
+    }
+
+    public function update$MODEL_NAME$($MODEL_NAME$ $$MODEL_LOWER$, array $data): bool
+    {
+        return $$MODEL_LOWER$->update($data);
+    }
+
+    public function delete$MODEL_NAME$($MODEL_NAME$ $$MODEL_LOWER$): bool
+    {
+        return (bool) $$MODEL_LOWER$->delete();
+    }
+}
