@@ -15,7 +15,8 @@ module.exports = {
         'chore',    // maintain, dependencies, etc
         'ci',       // CI/CD changes
         'build',    // build system changes
-        'revert'    // revert previous commit
+        'revert',    // revert previous commit,
+        'release'    // release commit
       ]
     ],
     'subject-max-length': [2, 'always', 200],
