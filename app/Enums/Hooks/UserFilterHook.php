@@ -40,6 +40,10 @@ enum UserFilterHook: string
     // Datatable Hooks.
     case USER_DATATABLE_AFTER_ACTION_ITEMS = 'filter.users.datatable.after_action_items';
 
+    // Model Extension Hooks — allow modules to add fields without touching core User.php.
+    case USER_FILLABLE = 'filter.user.fillable';
+    case USER_CASTS = 'filter.user.casts';
+
     // User Form Field Hooks.
     case USER_FORM_AFTER_AVATAR = 'filter.user.form.after_avatar';
     case USER_FORM_AFTER_SOCIAL_LINKS = 'filter.user.form.after_social_links';
