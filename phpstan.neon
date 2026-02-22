@@ -17,8 +17,6 @@ parameters:
     treatPhpDocTypesAsCertain: false
     
     ignoreErrors:
-        # ForeignKeyDefinition::onDelete() is valid but not recognized by Larastan
-        - '#Call to an undefined method Illuminate\\Database\\Schema\\ForeignKeyDefinition::onDelete\(\)#'
         # Access to undefined properties on Eloquent models
         - '#Access to an undefined property#'
         - '#Called ''env'' outside of the config directory#'
