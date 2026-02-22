@@ -104,7 +104,7 @@ class ModuleMakeCrudCommand extends Command
     }
 
     /**
-     * Resolve the module path, trying both PascalCase and kebab-case formats.
+     * Resolve the module path, trying PascalCase, kebab-case, and lowercase formats.
      */
     protected function resolveModulePath(): ?string
     {
