@@ -51,6 +51,7 @@ password - 12345678
 ## 📝 Changelog
 **[v0.9.9] - 2026-02-22**
 -   **Feat:** Menu management for frontend.
+-   **Enhancement:** Module command, module crud command improvements.
 -   **Enhancement:** Several pages more filter hook supported.
 -   **Fix:** Improved several test cases.
 
