@@ -47,6 +47,19 @@ enum AuthFilterHook: string
     case PASSWORD_RESET_FORM_AFTER = 'filter.auth.password_reset.form_after';
 
     // ==========================================================================
+    // Post-Authentication Response Filter
+    // ==========================================================================
+
+    /**
+     * Allows modules to intercept the post-login response.
+     *
+     * Signature: fn(false|Response $response, User $user, Request $request): false|Response
+     *
+     * Return a Response to override the default redirect, or false to continue normally.
+     */
+    case AUTH_AUTHENTICATED_RESPONSE = 'filter.auth.authenticated_response';
+
+    // ==========================================================================
     // Logout Filters
     // ==========================================================================
     case LOGOUT_REDIRECT_PATH = 'filter.auth.logout.redirect_path';

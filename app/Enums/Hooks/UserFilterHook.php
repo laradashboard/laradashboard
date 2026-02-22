@@ -37,6 +37,9 @@ enum UserFilterHook: string
     case USER_SHOW_AFTER_SIDEBAR = 'filter.user.show.after_sidebar';
     case USER_SHOW_AFTER_CONTENT = 'filter.user.show.after_content';
 
+    // Datatable Hooks.
+    case USER_DATATABLE_AFTER_ACTION_ITEMS = 'filter.users.datatable.after_action_items';
+
     // User Form Field Hooks.
     case USER_FORM_AFTER_AVATAR = 'filter.user.form.after_avatar';
     case USER_FORM_AFTER_SOCIAL_LINKS = 'filter.user.form.after_social_links';

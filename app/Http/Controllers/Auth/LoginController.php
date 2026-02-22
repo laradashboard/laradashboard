@@ -167,6 +167,14 @@ class LoginController extends Controller
 
         Hook::doAction(AuthActionHook::AFTER_LOGIN_SUCCESS, $user, $request);
 
+        // Allow modules to intercept the post-login response (e.g. 2FA challenge/setup).
+        // Note: pass `false` as initial value — Eventy converts `null` to '' internally.
+        $response = Hook::applyFilters(AuthFilterHook::AUTH_AUTHENTICATED_RESPONSE, false, $user, $request);
+
+        if ($response) {
+            return $response;
+        }
+
         session()->flash('success', __('Successfully Logged in!'));
 
         return null;
