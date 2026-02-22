@@ -49,6 +49,11 @@ password - 12345678
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 📝 Changelog
+**[v0.9.9] - 2026-02-22**
+-   **Feat:** Menu management for frontend.
+-   **Enhancement:** Module command, module crud command improvements.
+-   **Enhancement:** Several pages more filter hook supported.
+-   **Fix:** Improved several test cases.
 
 **[v0.9.8] - 2026-02-17**
 -   **Feat:** Social authentication with Laravel Socialite.

@@ -7,6 +7,7 @@ namespace App\Livewire\Datatable;
 use App\Enums\Hooks\UserActionHook;
 use App\Enums\Hooks\UserFilterHook;
 use App\Models\Role;
+use App\Support\Facades\Hook;
 use App\Services\RolesService;
 use App\Models\User;
 use Illuminate\Contracts\Support\Renderable;
@@ -131,6 +132,11 @@ class UserDatatable extends Datatable
         return (! Auth::user()->can('user.login_as') || $user->id === Auth::id())
             ? '' :
             view('backend.pages.users.partials.action-button-login-as', compact('user'));
+    }
+
+    public function renderAfterActionDelete($user): string|Renderable
+    {
+        return Hook::applyFilters(UserFilterHook::USER_DATATABLE_AFTER_ACTION_ITEMS, '', $user);
     }
 
     protected function handleBulkDelete(array $ids): int

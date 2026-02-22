@@ -13,7 +13,7 @@ pest()->use(RefreshDatabase::class);
 
 it('has fillable attributes', function () {
     $user = new User();
-    expect($user->getFillable())->toEqual([
+    expect($user->getFillable())->toContain(
         'first_name',
         'last_name',
         'email',
@@ -21,7 +21,7 @@ it('has fillable attributes', function () {
         'username',
         'avatar_id',
         'email_subscribed',
-    ]);
+    );
 });
 
 it('has hidden attributes', function () {

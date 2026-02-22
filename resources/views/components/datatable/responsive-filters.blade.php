@@ -159,12 +159,16 @@
         @endif
     </div>
 
-    <!-- Mobile: All Filters in Single Dropdown -->
-    <div class="md:hidden relative w-full" x-data="{ mobileFiltersOpen: false }">
+    <!-- Mobile: Full-Screen Filter Panel -->
+    <div class="md:hidden w-full" x-data="{ mobileFiltersOpen: false }">
+
+        <!-- Trigger button -->
         <button
-            @click="mobileFiltersOpen = !mobileFiltersOpen"
-            class="btn-default flex items-center justify-center gap-2 w-full md:w-auto"
+            @click="mobileFiltersOpen = true"
+            class="btn-default flex items-center justify-center gap-2 w-full"
             type="button"
+            :aria-expanded="mobileFiltersOpen"
+            aria-controls="mobile-filter-panel"
         >
             <iconify-icon icon="lucide:filter"></iconify-icon>
             <span>{{ __('Filters') }}</span>
@@ -173,70 +177,126 @@
                     {{ $activeFilterCount }}
                 </span>
             @endif
-            <iconify-icon icon="lucide:chevron-down" class="transition-transform duration-200" :class="{'rotate-180': mobileFiltersOpen}"></iconify-icon>
         </button>
 
+        <!-- Backdrop -->
         <div
             x-show="mobileFiltersOpen"
-            @click.outside="mobileFiltersOpen = false"
-            x-transition
-            class="absolute top-10 right-0 mt-2 w-80 rounded-md shadow-lg bg-white dark:bg-gray-700 z-30 p-4 max-h-[70vh] overflow-y-auto"
+            x-transition.opacity
+            x-cloak
+            @click="mobileFiltersOpen = false"
+            class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            aria-hidden="true"
+        ></div>
+
+        <!-- Full-screen panel (slides up from bottom) -->
+        <div
+            id="mobile-filter-panel"
+            x-show="mobileFiltersOpen"
+            x-cloak
+            x-transition:enter="transition ease-out duration-250"
+            x-transition:enter-start="opacity-0 translate-y-full"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-full"
+            class="fixed inset-x-0 bottom-0 z-50 flex flex-col bg-white dark:bg-gray-800 rounded-t-2xl shadow-2xl max-h-[85vh]"
+            role="dialog"
+            aria-modal="true"
+            aria-label="{{ __('Filters') }}"
         >
-            <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-200 dark:border-gray-600">
-                <h3 class="text-sm font-medium text-gray-700 dark:text-white">{{ __('Filters') }}</h3>
-                @if($hasActiveFilters)
-                    <button
-                        type="button"
-                        wire:click="clearFilters"
-                        @click="mobileFiltersOpen = false"
-                        class="text-xs text-red-600 hover:text-red-700 dark:text-red-400 flex items-center gap-1"
-                    >
-                        <iconify-icon icon="lucide:x-circle" class="text-sm"></iconify-icon>
-                        {{ __('Clear all') }}
-                    </button>
-                @endif
+            <!-- Drag handle -->
+            <div class="flex justify-center pt-3 pb-1 shrink-0">
+                <div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></div>
             </div>
 
-            <div class="space-y-4">
-                @foreach($filters as $filter)
-                    @php
-                        $mobileFilterIcon = $filter['icon'] ?? null;
-                    @endphp
-                    <div>
-                        <label class="form-label flex items-center gap-1.5 mb-1.5">
-                            @if($mobileFilterIcon)
-                                <iconify-icon icon="{{ $mobileFilterIcon }}" class="text-sm"></iconify-icon>
-                            @endif
-                            {{ $filter['filterLabel'] }}
-                            @if(!empty($filter['selected']))
-                                <span class="inline-flex items-center justify-center w-2 h-2 rounded-full bg-primary"></span>
-                            @endif
-                        </label>
-                        <select
-                            class="form-control w-full"
-                            @if($enableLivewire)
-                                wire:model.live="{{ $filter['id'] }}"
-                            @else
-                                onchange="window.location.href = '{{ $filter['route'] ?? '' }}?{{ $filter['id'] }}=' + this.value;"
-                            @endif
+            <!-- Panel header -->
+            <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-gray-700 shrink-0">
+                <h3 class="text-base font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+                    <iconify-icon icon="lucide:filter" class="text-primary"></iconify-icon>
+                    {{ __('Filters') }}
+                    @if($activeFilterCount > 0)
+                        <span class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-medium rounded-full bg-primary text-white">
+                            {{ $activeFilterCount }}
+                        </span>
+                    @endif
+                </h3>
+                <div class="flex items-center gap-3">
+                    @if($hasActiveFilters)
+                        <button
+                            type="button"
+                            wire:click="clearFilters"
+                            @click="mobileFiltersOpen = false"
+                            class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 flex items-center gap-1 transition-colors"
                         >
-                            <option value="">{{ $filter['allLabel'] ?? __('All') }}</option>
-                            @foreach ($filter['options'] as $key => $value)
-                                @php
-                                    $isLabelValuePair = is_array($value) && isset($value['label']);
-                                    $optionValue = $isLabelValuePair ? $value['value'] : $key;
-                                    $optionLabel = $isLabelValuePair ? $value['label'] : $value;
-                                @endphp
-                                <option
-                                    value="{{ $optionValue }}"
-                                    {{ $filter['selected'] == $optionValue ? 'selected' : '' }}
-                                >
-                                    {!! ucfirst($optionLabel) !!}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                @endforeach
+                            <iconify-icon icon="lucide:x-circle"></iconify-icon>
+                            {{ __('Clear all') }}
+                        </button>
+                    @endif
+                    <button
+                        @click="mobileFiltersOpen = false"
+                        type="button"
+                        class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200 transition-colors"
+                        aria-label="{{ __('Close filters') }}"
+                    >
+                        <iconify-icon icon="lucide:x" width="20" height="20"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable filter list -->
+            <div class="flex-1 overflow-y-auto px-5 py-4">
+                <div class="space-y-5">
+                    @foreach($filters as $filter)
+                        @php $mobileFilterIcon = $filter['icon'] ?? null; @endphp
+                        <div>
+                            <label class="form-label flex items-center gap-1.5 mb-1.5">
+                                @if($mobileFilterIcon)
+                                    <iconify-icon icon="{{ $mobileFilterIcon }}" class="text-sm"></iconify-icon>
+                                @endif
+                                {{ $filter['filterLabel'] }}
+                                @if(!empty($filter['selected']))
+                                    <span class="inline-flex items-center justify-center w-2 h-2 rounded-full bg-primary"></span>
+                                @endif
+                            </label>
+                            <select
+                                class="form-control w-full"
+                                @if($enableLivewire)
+                                    wire:model.live="{{ $filter['id'] }}"
+                                @else
+                                    onchange="window.location.href = '{{ $filter['route'] ?? '' }}?{{ $filter['id'] }}=' + this.value;"
+                                @endif
+                            >
+                                <option value="">{{ $filter['allLabel'] ?? __('All') }}</option>
+                                @foreach ($filter['options'] as $key => $value)
+                                    @php
+                                        $isLabelValuePair = is_array($value) && isset($value['label']);
+                                        $optionValue = $isLabelValuePair ? $value['value'] : $key;
+                                        $optionLabel = $isLabelValuePair ? $value['label'] : $value;
+                                    @endphp
+                                    <option
+                                        value="{{ $optionValue }}"
+                                        {{ $filter['selected'] == $optionValue ? 'selected' : '' }}
+                                    >
+                                        {!! ucfirst($optionLabel) !!}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Sticky footer: Done button -->
+            <div class="px-5 py-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
+                <button
+                    @click="mobileFiltersOpen = false"
+                    type="button"
+                    class="btn-primary w-full flex items-center justify-center gap-2"
+                >
+                    <iconify-icon icon="lucide:check" width="16" height="16"></iconify-icon>
+                    {{ __('Done') }}
+                </button>
             </div>
         </div>
     </div>

@@ -15,10 +15,11 @@ parameters:
     
     # Turn off strict checking for PHPDoc types
     treatPhpDocTypesAsCertain: false
+
+    # Don't error when an ignore pattern isn't matched (environment-specific errors)
+    reportUnmatchedIgnoredErrors: false
     
     ignoreErrors:
-        # ForeignKeyDefinition::onDelete() is valid but not recognized by Larastan
-        - '#Call to an undefined method Illuminate\\Database\\Schema\\ForeignKeyDefinition::onDelete\(\)#'
         # Access to undefined properties on Eloquent models
         - '#Access to an undefined property#'
         - '#Called ''env'' outside of the config directory#'
@@ -28,6 +29,7 @@ parameters:
         - '#Parameter .* of method .* expects .*, .* given#'
         - '#PHPDoc type .* of property .* is not covariant with PHPDoc type .* of overridden property#'
         - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder.*::items\(\)#'
+        - '#Call to an undefined method Illuminate\\Database\\Schema\\ForeignKeyDefinition::onDelete\(\)#'
         - '#Offset .* in empty\(\) always exists and is (not falsy|always falsy)#'
         # Trait reserved for queue fallback functionality
         - '#Trait App\\Concerns\\HasQueueFallback is used zero times#'

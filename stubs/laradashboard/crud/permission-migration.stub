@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Services\PermissionService;
+use Illuminate\Database\Migrations\Migration;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        PermissionService::syncPermissionsForRoles([
+            [
+                'group_name' => '$MODEL_SNAKE$',
+                'permissions' => [
+                    '$MODEL_SNAKE$.view',
+                    '$MODEL_SNAKE$.create',
+                    '$MODEL_SNAKE$.edit',
+                    '$MODEL_SNAKE$.delete',
+                ],
+            ],
+        ]);
+    }
+
+    public function down(): void
+    {
+        PermissionService::removePermissions([
+            '$MODEL_SNAKE$.view',
+            '$MODEL_SNAKE$.create',
+            '$MODEL_SNAKE$.edit',
+            '$MODEL_SNAKE$.delete',
+        ]);
+    }
+};

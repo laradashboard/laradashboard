@@ -22,6 +22,7 @@ use App\Http\Controllers\Backend\SendTestEmailController;
 use App\Http\Controllers\Backend\PermissionController;
 use App\Http\Controllers\Backend\PostController;
 use App\Http\Controllers\Backend\ProfileController;
+use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\TermController;
@@ -56,6 +57,22 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
     // Permissions Routes.
     Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
     Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('permissions.show');
+
+    // Menu Management Routes.
+    Route::group(['prefix' => 'menus', 'as' => 'menus.'], function () {
+        Route::get('/', [MenuController::class, 'index'])->name('index');
+        Route::get('/create', [MenuController::class, 'create'])->name('create');
+        Route::post('/', [MenuController::class, 'store'])->name('store');
+        Route::get('/{menu}/builder', [MenuController::class, 'builder'])->name('builder');
+        Route::put('/{menu}', [MenuController::class, 'update'])->name('update');
+        Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('destroy');
+        Route::post('/{menu}/duplicate', [MenuController::class, 'duplicate'])->name('duplicate');
+        // Menu Items AJAX Routes
+        Route::post('/{menu}/items', [MenuController::class, 'addItem'])->name('items.store');
+        Route::put('/{menu}/items/{item}', [MenuController::class, 'updateItem'])->name('items.update');
+        Route::delete('/{menu}/items/{item}', [MenuController::class, 'deleteItem'])->name('items.destroy');
+        Route::post('/{menu}/items/reorder', [MenuController::class, 'reorderItems'])->name('items.reorder');
+    });
 
     // Modules Routes.
     Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');

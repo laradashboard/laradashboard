@@ -263,3 +263,59 @@ document.addEventListener('livewire:init', function () {
 - Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
 - Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test` with a specific filename or filter.
 </laravel-boost-guidelines>
+
+# Project Coding Conventions
+
+## Architecture: No Logic in Route Closures
+
+**Never put business logic inside `web.php` or `api.php` route closures.** All logic belongs in dedicated controllers.
+
+```php
+// Bad — logic in web.php closure
+Route::get('/sitemap.xml', function () {
+    $pages = [...];
+    return response()->view('sitemap', compact('pages'));
+});
+
+// Good — controller handles it
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+```
+
+## DRY (Don't Repeat Yourself)
+
+- Extract repeated Blade markup into partials (`@include`) or components (`<x-component />`).
+- Extract repeated PHP logic into Service classes or Eloquent model scopes.
+- Use named routes everywhere — never hardcode URLs in Blade templates.
+- Shared meta/SEO defaults belong in the layout; child views override with `@section`.
+
+## Accessibility (WCAG 2.1 AA)
+
+- Every `<nav>` must have `aria-label` or `aria-labelledby`.
+- Toggle buttons (hamburger, accordion, modal) must have `aria-expanded` and a meaningful `aria-label`.
+- Decorative SVG icons must have `aria-hidden="true"`.
+- Non-text content that conveys meaning (star ratings, icons) must have `role="img"` and `aria-label`.
+- Interactive elements must be keyboard-reachable and visually focusable (`:focus-visible` ring).
+- Images must have descriptive `alt` text; use `alt=""` only for purely decorative images.
+
+## SEO Best Practices
+
+- Every page must have a unique `<title>`, `<meta name="description">`, and `<link rel="canonical">`.
+- The frontend layout (`frontend-app.blade.php`) provides sensible defaults; child views override with `@section`.
+- Open Graph (`og:title`, `og:description`, `og:image`, `og:url`) and Twitter Card tags are required on all public pages.
+- JSON-LD structured data for `Organization` and `WebSite` is emitted globally from the layout.
+- The `@` character in JSON-LD keys (`@context`, `@type`) must be built inside a `@php` block using `json_encode()` to avoid Blade directive conflicts.
+- Sitemap and robots.txt must be kept up to date when new public routes are added.
+
+## Blade Templates
+
+- Use `@yield` / `@section` for per-page overrides; use `@stack` / `@push` for scripts and styles.
+- Avoid raw PHP (`<?php ?>`) in Blade views — use `@php` blocks only when necessary.
+- Prefer Blade components (`<x-alert />`) over repeated inline markup.
+- Use `{!! $var !!}` only for trusted, pre-escaped HTML (e.g., JSON-LD output via `json_encode()`). Use `{{ $var }}` everywhere else.
+
+## Naming Conventions
+
+- Controllers: `NounController` (singular), e.g. `SitemapController`, `HomePageController`.
+- Named routes: `module.resource.action` format, e.g. `laradashboard.sitemap`, `laradashboard.modules.index`.
+- Blade views: `snake_case.blade.php` files inside `kebab-case/` directories.
+- Models: singular PascalCase, e.g. `Module`, `MenuItem`.

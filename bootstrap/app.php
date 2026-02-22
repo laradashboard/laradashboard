@@ -50,6 +50,24 @@ require __DIR__ . '/modules.php';
 
 /*
 |--------------------------------------------------------------------------
+| Pre-load Core Middleware Classes
+|--------------------------------------------------------------------------
+|
+| Some modules bundle their own vendor directories with older illuminate/*
+| packages and register their autoloaders with prepend:true, which can
+| shadow root-vendor classes with outdated copies. We eagerly load the
+| classes that the Laravel test lifecycle requires (e.g. flushState())
+| so that PHP's class cache is populated from the correct source before
+| any module autoloader can override resolution.
+|
+*/
+
+class_exists(\Illuminate\Http\Middleware\HandleCors::class);
+class_exists(\Illuminate\Http\Client\Response::class);
+class_exists(\Illuminate\Http\Resources\Json\JsonResource::class);
+
+/*
+|--------------------------------------------------------------------------
 | Create The Application
 |--------------------------------------------------------------------------
 |

@@ -282,7 +282,7 @@ class SocialAuthService
             'email_verified_at' => $email ? now() : null,
         ]);
 
-        $user = User::create($userData);
+        $user = User::forceCreate($userData);
 
         // Assign default role
         $defaultRole = Hook::applyFilters(

@@ -1,0 +1,151 @@
+<?php
+
+declare(strict_types=1);
+
+namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Http\Controllers;
+
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Http\RedirectResponse;
+use $MODULE_NAMESPACE$\$STUDLY_NAME$\Http\Requests\$MODEL_NAME$Request;
+use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
+use $MODULE_NAMESPACE$\$STUDLY_NAME$\Services\$MODEL_NAME$Service;
+
+class $MODEL_NAME$Controller extends $STUDLY_NAME$Controller
+{
+    public function __construct(private readonly $MODEL_NAME$Service $$MODEL_LOWER$Service) {}
+
+    public function index(): Renderable
+    {
+        $this->authorize('viewAny', $MODEL_NAME$::class);
+
+        $this->setBreadcrumbTitle(__('$MODEL_PLURAL$'))
+            ->setBreadcrumbIcon('lucide:list')
+            ->setBreadcrumbActionButton(
+                route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.create'),
+                __('New $MODEL_NAME$'),
+                'lucide:plus'
+            );
+
+        return $this->renderViewWithBreadcrumbs('$LOWER_NAME$::pages.$MODEL_PLURAL_LOWER$.index');
+    }
+
+    public function create(): Renderable
+    {
+        $this->authorize('create', $MODEL_NAME$::class);
+
+        $this->setBreadcrumbTitle(__('Create $MODEL_NAME$'))
+            ->setBreadcrumbIcon('lucide:list')
+            ->addBreadcrumbItem(__('$MODEL_PLURAL$'), route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index'));
+
+        return $this->renderViewWithBreadcrumbs('$LOWER_NAME$::pages.$MODEL_PLURAL_LOWER$.create');
+    }
+
+    public function store($MODEL_NAME$Request $request): RedirectResponse
+    {
+        $this->authorize('create', $MODEL_NAME$::class);
+
+        $validated = $request->validated();
+$FILE_UPLOAD_STORE$
+        $item = $this->$MODEL_LOWER$Service->create$MODEL_NAME$($validated);
+
+        if (! $item) {
+            return redirect()->back()->with('error', __('$MODEL_NAME$ creation failed.'))->withInput();
+        }
+
+        return redirect()->route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index')
+            ->with('success', __('$MODEL_NAME$ created successfully.'));
+    }
+
+    public function show(int $id): Renderable|RedirectResponse
+    {
+        $$MODEL_LOWER$ = $this->$MODEL_LOWER$Service->get$MODEL_NAME$ById($id);
+
+        if (! $$MODEL_LOWER$) {
+            return redirect()->route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index')
+                ->with('error', __('$MODEL_NAME$ not found.'));
+        }
+
+        $this->authorize('view', $$MODEL_LOWER$);
+
+        $this->setBreadcrumbTitle(__('View $MODEL_NAME$'))
+            ->setBreadcrumbIcon('lucide:list')
+            ->addBreadcrumbItem(__('$MODEL_PLURAL$'), route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index'))
+            ->setBreadcrumbActionButton(
+                route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.edit', $id),
+                __('Edit $MODEL_NAME$'),
+                'lucide:pencil'
+            );
+
+        return $this->renderViewWithBreadcrumbs('$LOWER_NAME$::pages.$MODEL_PLURAL_LOWER$.show', [
+            '$MODEL_LOWER$' => $$MODEL_LOWER$,
+        ]);
+    }
+
+    public function edit(int $id): Renderable|RedirectResponse
+    {
+        $$MODEL_LOWER$ = $this->$MODEL_LOWER$Service->get$MODEL_NAME$ById($id);
+
+        if (! $$MODEL_LOWER$) {
+            return redirect()->route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index')
+                ->with('error', __('$MODEL_NAME$ not found.'));
+        }
+
+        $this->authorize('update', $$MODEL_LOWER$);
+
+        $this->setBreadcrumbTitle(__('Edit $MODEL_NAME$'))
+            ->setBreadcrumbIcon('lucide:list')
+            ->addBreadcrumbItem(__('$MODEL_PLURAL$'), route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index'))
+            ->setBreadcrumbActionButton(
+                route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.show', $id),
+                __('View $MODEL_NAME$'),
+                'lucide:eye',
+                null,
+                true
+            );
+
+        return $this->renderViewWithBreadcrumbs('$LOWER_NAME$::pages.$MODEL_PLURAL_LOWER$.edit', [
+            '$MODEL_LOWER$' => $$MODEL_LOWER$,
+        ]);
+    }
+
+    public function update($MODEL_NAME$Request $request, int $id): RedirectResponse
+    {
+        $$MODEL_LOWER$ = $this->$MODEL_LOWER$Service->get$MODEL_NAME$ById($id);
+
+        if (! $$MODEL_LOWER$) {
+            return redirect()->route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index')
+                ->with('error', __('$MODEL_NAME$ not found.'));
+        }
+
+        $this->authorize('update', $$MODEL_LOWER$);
+
+        $validated = $request->validated();
+$FILE_UPLOAD_UPDATE$
+        $updated = $this->$MODEL_LOWER$Service->update$MODEL_NAME$($$MODEL_LOWER$, $validated);
+
+        if (! $updated) {
+            return redirect()->back()->with('error', __('$MODEL_NAME$ update failed.'))->withInput();
+        }
+
+        return redirect()->route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index')
+            ->with('success', __('$MODEL_NAME$ updated successfully.'));
+    }
+
+    public function destroy(int $id): RedirectResponse
+    {
+        $$MODEL_LOWER$ = $this->$MODEL_LOWER$Service->get$MODEL_NAME$ById($id);
+
+        if (! $$MODEL_LOWER$) {
+            return redirect()->back()->with('error', __('$MODEL_NAME$ not found.'));
+        }
+
+        $this->authorize('delete', $$MODEL_LOWER$);
+
+        if (! $this->$MODEL_LOWER$Service->delete$MODEL_NAME$($$MODEL_LOWER$)) {
+            return redirect()->back()->with('error', __('$MODEL_NAME$ deletion failed.'));
+        }
+
+        return redirect()->route('admin.$LOWER_NAME$.$MODEL_PLURAL_LOWER$.index')
+            ->with('success', __('$MODEL_NAME$ deleted successfully.'));
+    }
+}

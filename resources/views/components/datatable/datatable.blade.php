@@ -133,7 +133,7 @@
             @endif
             {!! Hook::applyFilters(DatatableHook::AFTER_SEARCHBOX, '', $searchbarPlaceholder) !!}
 
-            <div class="flex items-center gap-3 flex-wrap md:flex-nowrap md:w-auto">
+            <div class="flex items-center gap-3 flex-wrap md:flex-nowrap w-full md:w-auto">
                 <div
                     class="flex items-center gap-2"
                     x-show="selectedItems.length > 0"

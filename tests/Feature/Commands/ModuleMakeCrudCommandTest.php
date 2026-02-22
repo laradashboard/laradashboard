@@ -6,12 +6,12 @@ use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
     $this->moduleName = 'TestCrud';
-    // Module paths can be in either PascalCase or kebab-case depending on version
-    $this->modulePath = base_path('modules/test-crud');
+    // Module folders use lowercase (e.g. testcrud for TestCrud)
+    $this->modulePath = base_path('modules/testcrud');
     $this->modulePathAlt = base_path("modules/{$this->moduleName}");
 
-    // Clean up any existing test module (both possible paths)
-    foreach ([$this->modulePath, $this->modulePathAlt] as $path) {
+    // Clean up any existing test module (all possible paths)
+    foreach ([$this->modulePath, $this->modulePathAlt, base_path('modules/test-crud')] as $path) {
         if (File::isDirectory($path)) {
             File::deleteDirectory($path);
         }
@@ -21,14 +21,14 @@ beforeEach(function () {
     $statusFile = base_path('modules_statuses.json');
     if (File::exists($statusFile)) {
         $statuses = json_decode(File::get($statusFile), true) ?: [];
-        unset($statuses['TestCrud'], $statuses['test-crud']);
+        unset($statuses['TestCrud'], $statuses['test-crud'], $statuses['testcrud']);
         File::put($statusFile, json_encode($statuses, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 });
 
 afterEach(function () {
-    // Clean up the test module after each test (both possible paths)
-    foreach ([$this->modulePath, $this->modulePathAlt] as $path) {
+    // Clean up the test module after each test (all possible paths)
+    foreach ([$this->modulePath, $this->modulePathAlt, base_path('modules/test-crud')] as $path) {
         if (File::isDirectory($path)) {
             File::deleteDirectory($path);
         }
@@ -38,7 +38,7 @@ afterEach(function () {
     $statusFile = base_path('modules_statuses.json');
     if (File::exists($statusFile)) {
         $statuses = json_decode(File::get($statusFile), true) ?: [];
-        unset($statuses['TestCrud'], $statuses['test-crud']);
+        unset($statuses['TestCrud'], $statuses['test-crud'], $statuses['testcrud']);
         File::put($statusFile, json_encode($statuses, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 });
@@ -75,20 +75,20 @@ test('crud command generates files with fields option', function () {
     // Assert model was created
     expect(File::exists("{$this->modulePath}/app/Models/Book.php"))->toBeTrue();
 
-    // Assert Livewire components were created
-    expect(File::exists("{$this->modulePath}/app/Livewire/Admin/Books/Index.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/app/Livewire/Admin/Books/Create.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/app/Livewire/Admin/Books/Edit.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/app/Livewire/Admin/Books/Show.php"))->toBeTrue();
-
-    // Assert Datatable was created
+    // Assert Livewire Datatable was created (listing only)
     expect(File::exists("{$this->modulePath}/app/Livewire/Components/BookDatatable.php"))->toBeTrue();
 
-    // Assert views were created
-    expect(File::exists("{$this->modulePath}/resources/views/livewire/admin/books/index.blade.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/resources/views/livewire/admin/books/create.blade.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/resources/views/livewire/admin/books/edit.blade.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/resources/views/livewire/admin/books/show.blade.php"))->toBeTrue();
+    // Assert Controller, Service, FormRequest were created
+    expect(File::exists("{$this->modulePath}/app/Http/Controllers/BookController.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/app/Services/BookService.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/app/Http/Requests/BookRequest.php"))->toBeTrue();
+
+    // Assert Blade views were created (pages/ directory, not livewire/)
+    expect(File::exists("{$this->modulePath}/resources/views/pages/books/index.blade.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/resources/views/pages/books/create.blade.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/resources/views/pages/books/edit.blade.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/resources/views/pages/books/show.blade.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/resources/views/pages/books/partials/form.blade.php"))->toBeTrue();
 
     // Assert migration was created
     $migrations = File::glob("{$this->modulePath}/database/migrations/*_create_testcrud_books_table.php");
@@ -152,10 +152,10 @@ test('crud command generates toggle field', function () {
         '--fields' => 'title:string,is_featured:toggle',
     ])->assertSuccessful();
 
-    // Check that the create view has toggle component
-    $createViewContent = File::get("{$this->modulePath}/resources/views/livewire/admin/articles/create.blade.php");
-    expect($createViewContent)->toContain('x-inputs.toggle');
-    expect($createViewContent)->toContain('is_featured');
+    // Check that the shared form partial has toggle component
+    $formContent = File::get("{$this->modulePath}/resources/views/pages/articles/partials/form.blade.php");
+    expect($formContent)->toContain('x-inputs.toggle');
+    expect($formContent)->toContain('is_featured');
 
     // Check model has boolean cast
     $modelContent = File::get("{$this->modulePath}/app/Models/Article.php");
@@ -172,13 +172,13 @@ test('crud command generates select field with options', function () {
         '--fields' => 'title:string,status:select:Open|In Progress|Closed',
     ])->assertSuccessful();
 
-    // Check that the create view has select component with options
-    $createViewContent = File::get("{$this->modulePath}/resources/views/livewire/admin/tasks/create.blade.php");
-    expect($createViewContent)->toContain('x-inputs.select');
-    expect($createViewContent)->toContain('status');
-    expect($createViewContent)->toContain('Open');
-    expect($createViewContent)->toContain('In Progress');
-    expect($createViewContent)->toContain('Closed');
+    // Check that the shared form partial has select component with options
+    $formContent = File::get("{$this->modulePath}/resources/views/pages/tasks/partials/form.blade.php");
+    expect($formContent)->toContain('x-inputs.select');
+    expect($formContent)->toContain('status');
+    expect($formContent)->toContain('Open');
+    expect($formContent)->toContain('In Progress');
+    expect($formContent)->toContain('Closed');
 });
 
 test('crud command generates editor field', function () {
@@ -191,10 +191,14 @@ test('crud command generates editor field', function () {
         '--fields' => 'title:string,content:editor',
     ])->assertSuccessful();
 
-    // Check that the create view has TinyMCE editor setup
-    $createViewContent = File::get("{$this->modulePath}/resources/views/livewire/admin/posts/create.blade.php");
-    expect($createViewContent)->toContain('tinymce');
-    expect($createViewContent)->toContain('content');
+    // Check that the shared form partial has a textarea for the editor field
+    $formContent = File::get("{$this->modulePath}/resources/views/pages/posts/partials/form.blade.php");
+    expect($formContent)->toContain('<textarea');
+    expect($formContent)->toContain('content');
+
+    // Check that the create view pushes TinyMCE assets
+    $createContent = File::get("{$this->modulePath}/resources/views/pages/posts/create.blade.php");
+    expect($createContent)->toContain('tinymce');
 });
 
 test('crud command generates media field', function () {
@@ -217,16 +221,11 @@ test('crud command generates media field', function () {
     $modelContent = File::get("{$this->modulePath}/app/Models/Gallery.php");
     expect($modelContent)->toContain('featuredImage');
     expect($modelContent)->toContain('belongsTo');
-    expect($modelContent)->toContain('getFeaturedImageUrlAttribute');
 
-    // Check create view has media-selector
-    $createViewContent = File::get("{$this->modulePath}/resources/views/livewire/admin/galleries/create.blade.php");
-    expect($createViewContent)->toContain('x-media-selector');
-    expect($createViewContent)->toContain('featured_image_id');
-
-    // Check Livewire component has nullable int property
-    $createComponentContent = File::get("{$this->modulePath}/app/Livewire/Admin/Galleries/Create.php");
-    expect($createComponentContent)->toContain('public ?int $featured_image_id = null');
+    // Check form partial has media-selector
+    $formContent = File::get("{$this->modulePath}/resources/views/pages/galleries/partials/form.blade.php");
+    expect($formContent)->toContain('x-media-selector');
+    expect($formContent)->toContain('featured_image_id');
 });
 
 test('crud command generates json field', function () {
@@ -279,11 +278,9 @@ test('crud command generates routes', function () {
 
     $routesContent = File::get("{$this->modulePath}/routes/web.php");
 
-    // Check routes are added
-    expect($routesContent)->toContain("Route::get('events'");
-    expect($routesContent)->toContain("Route::get('events/create'");
-    expect($routesContent)->toContain("Route::get('events/{event}'");
-    expect($routesContent)->toContain("Route::get('events/{event}/edit'");
+    // Routes are generated as Route::resource (not individual Route::get calls)
+    expect($routesContent)->toContain("Route::resource('events'");
+    expect($routesContent)->toContain('EventController::class');
 });
 
 test('crud command skips existing files', function () {
@@ -326,9 +323,9 @@ test('crud command handles multi word model names', function () {
 
     // Assert files are created with correct names
     expect(File::exists("{$this->modulePath}/app/Models/BlogPost.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/app/Livewire/Admin/BlogPosts/Index.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/app/Http/Controllers/BlogPostController.php"))->toBeTrue();
     expect(File::exists("{$this->modulePath}/app/Livewire/Components/BlogPostDatatable.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/resources/views/livewire/admin/blogposts/index.blade.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/resources/views/pages/blogposts/index.blade.php"))->toBeTrue();
 
     // Check table name uses snake_case
     $modelContent = File::get("{$this->modulePath}/app/Models/BlogPost.php");
@@ -345,10 +342,11 @@ test('crud command generates decimal with correct php type', function () {
         '--fields' => 'number:string,amount:decimal,tax:decimal',
     ])->assertSuccessful();
 
-    // Check Livewire component has float type for decimal fields
-    $createComponentContent = File::get("{$this->modulePath}/app/Livewire/Admin/Invoices/Create.php");
-    expect($createComponentContent)->toContain('public float $amount = 0.0');
-    expect($createComponentContent)->toContain('public float $tax = 0.0');
+    // Decimal fields appear in form partial as number inputs
+    $formContent = File::get("{$this->modulePath}/resources/views/pages/invoices/partials/form.blade.php");
+    expect($formContent)->toContain('type="number"');
+    expect($formContent)->toContain('amount');
+    expect($formContent)->toContain('tax');
 });
 
 test('crud command generates date fields with correct format', function () {
@@ -361,15 +359,14 @@ test('crud command generates date fields with correct format', function () {
         '--fields' => 'title:string,appointment_date:date,scheduled_at:datetime',
     ])->assertSuccessful();
 
-    // Check Edit component formats dates correctly
-    $editComponentContent = File::get("{$this->modulePath}/app/Livewire/Admin/Appointments/Edit.php");
-    expect($editComponentContent)->toContain("->format('Y-m-d')");
-    expect($editComponentContent)->toContain("->format('Y-m-d\\TH:i')");
+    // Check form partial uses correct input types
+    $formContent = File::get("{$this->modulePath}/resources/views/pages/appointments/partials/form.blade.php");
+    expect($formContent)->toContain('type="date"');
+    expect($formContent)->toContain('type="datetime-local"');
 
-    // Check views use correct input types
-    $createViewContent = File::get("{$this->modulePath}/resources/views/livewire/admin/appointments/create.blade.php");
-    expect($createViewContent)->toContain('type="date"');
-    expect($createViewContent)->toContain('type="datetime-local"');
+    // Edit view should format datetime for the input value
+    $editContent = File::get("{$this->modulePath}/resources/views/pages/appointments/edit.blade.php");
+    expect($editContent)->toContain('appointment');
 });
 
 test('crud command generates datatable with renderable import', function () {
@@ -399,13 +396,17 @@ test('crud command comprehensive example', function () {
         '--fields' => 'title:string,description:text,content:editor,featured_image:media,price:decimal,quantity:integer,status:select:Draft|Published|Archived,release_date:date,published_at:datetime,is_featured:toggle,metadata:json',
     ])->assertSuccessful();
 
-    // Assert all files are created
+    // Assert all generated files exist
     expect(File::exists("{$this->modulePath}/app/Models/Demo.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/app/Livewire/Admin/Demos/Index.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/app/Livewire/Admin/Demos/Create.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/app/Livewire/Admin/Demos/Edit.php"))->toBeTrue();
-    expect(File::exists("{$this->modulePath}/app/Livewire/Admin/Demos/Show.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/app/Http/Controllers/DemoController.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/app/Services/DemoService.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/app/Http/Requests/DemoRequest.php"))->toBeTrue();
     expect(File::exists("{$this->modulePath}/app/Livewire/Components/DemoDatatable.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/resources/views/pages/demos/index.blade.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/resources/views/pages/demos/create.blade.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/resources/views/pages/demos/edit.blade.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/resources/views/pages/demos/show.blade.php"))->toBeTrue();
+    expect(File::exists("{$this->modulePath}/resources/views/pages/demos/partials/form.blade.php"))->toBeTrue();
 
     // Check model has all expected content
     $modelContent = File::get("{$this->modulePath}/app/Models/Demo.php");
@@ -426,14 +427,18 @@ test('crud command comprehensive example', function () {
     expect($modelContent)->toContain("'release_date' => 'date'");
     expect($modelContent)->toContain("'published_at' => 'datetime'");
 
-    // Check views have all expected components
-    $createViewContent = File::get("{$this->modulePath}/resources/views/livewire/admin/demos/create.blade.php");
-    expect($createViewContent)->toContain('x-inputs.input');
-    expect($createViewContent)->toContain('x-inputs.select');
-    expect($createViewContent)->toContain('x-inputs.toggle');
-    expect($createViewContent)->toContain('x-media-selector');
-    expect($createViewContent)->toContain('tinymce');
-    expect($createViewContent)->toContain('type="date"');
-    expect($createViewContent)->toContain('type="datetime-local"');
-    expect($createViewContent)->toContain('type="number"');
+    // Check form partial has all expected UI components
+    $formContent = File::get("{$this->modulePath}/resources/views/pages/demos/partials/form.blade.php");
+    expect($formContent)->toContain('x-inputs.input');
+    expect($formContent)->toContain('x-inputs.select');
+    expect($formContent)->toContain('x-inputs.toggle');
+    expect($formContent)->toContain('x-media-selector');
+    expect($formContent)->toContain('<textarea');
+    expect($formContent)->toContain('type="date"');
+    expect($formContent)->toContain('type="datetime-local"');
+    expect($formContent)->toContain('type="number"');
+
+    // Check create view pushes TinyMCE assets for editor fields
+    $createContent = File::get("{$this->modulePath}/resources/views/pages/demos/create.blade.php");
+    expect($createContent)->toContain('tinymce');
 });

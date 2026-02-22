@@ -18,8 +18,10 @@
  * Runtime override to inherit the main app's primary color
  * This allows the module to use the same branding as the main application
  */
-:root, :host {
-    --$LOWER_NAME$-color-primary: var(--color-primary, #635bff);
+@layer base {
+    :root, :host {
+        --$LOWER_NAME$-color-primary: var(--color-primary, #635bff);
+    }
 }
 
 /*
@@ -32,37 +34,7 @@
 @source inline("ring-2 ring-primary shadow-md");
 
 /*
- * Custom utilities for this module
- * Add your module-specific styles here using @layer utilities
+ * Custom styles for this module
+ * Note: Do NOT use @apply here — it conflicts with the prefix() setting.
+ * Write plain CSS instead, or use raw Tailwind class names in your Blade files.
  */
-@layer utilities {
-    /* Example: Module-specific card style */
-    .$LOWER_NAME$-card {
-        @apply bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm;
-    }
-
-    .$LOWER_NAME$-card-header {
-        @apply px-6 py-4 border-b border-gray-100 dark:border-gray-700;
-    }
-
-    .$LOWER_NAME$-card-body {
-        @apply p-6;
-    }
-
-    /* Example: Module-specific button style */
-    .$LOWER_NAME$-btn {
-        @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-colors;
-    }
-
-    .$LOWER_NAME$-btn-primary {
-        @apply bg-primary text-white hover:bg-primary/90;
-    }
-}
-
-/*
- * Dark mode overrides
- * Manual dark mode styles if needed
- */
-.dark {
-    /* Add dark mode specific overrides here */
-}

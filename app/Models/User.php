@@ -6,9 +6,12 @@ namespace App\Models;
 
 use App\Concerns\AuthorizationChecker;
 use App\Concerns\QueryBuilderTrait;
+use App\Enums\Hooks\UserFilterHook;
+use App\Support\Facades\Hook;
 use App\Notifications\AdminResetPasswordNotification;
 use App\Notifications\CustomVerifyEmailNotification;
 use App\Observers\UserObserver;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Auth\Notifications\ResetPassword as DefaultResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -27,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasApiTokens;
     use HasFactory;
     use HasRoles;
+    use MustVerifyEmailTrait;
     use Notifiable;
     use QueryBuilderTrait;
 
@@ -64,6 +68,22 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Allow modules to extend fillable fields without touching this file.
+     */
+    public function getFillable(): array
+    {
+        return Hook::applyFilters(UserFilterHook::USER_FILLABLE, $this->fillable);
+    }
+
+    /**
+     * Allow modules to extend attribute casts without touching this file.
+     */
+    public function getCasts(): array
+    {
+        return Hook::applyFilters(UserFilterHook::USER_CASTS, parent::getCasts());
+    }
 
     /**
      * The attributes that should be appended to the model.

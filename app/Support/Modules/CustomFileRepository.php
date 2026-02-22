@@ -11,15 +11,15 @@ use Nwidart\Modules\Laravel\LaravelFileRepository;
 class CustomFileRepository extends LaravelFileRepository
 {
     /**
-     * Get a module path for a specific module with kebab-case folder names.
+     * Get a module path for a specific module with lowercase folder names.
      */
     public function getModulePath($module): string
     {
         try {
             return $this->findOrFail($module)->getPath() . '/';
         } catch (ModuleNotFoundException $e) {
-            // Use a kebab-case for folder names instead of studly case
-            return $this->getPath() . '/' . Str::kebab($module) . '/';
+            // Use lowercase for folder names (e.g. userstorybook instead of user-story-book)
+            return $this->getPath() . '/' . Str::lower($module) . '/';
         }
     }
 }
