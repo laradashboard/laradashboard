@@ -49,6 +49,10 @@ password - 12345678
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 📝 Changelog
+**[v0.9.9.1] - 2026-02-24**
+-   **Fix:** Upgrade core issue on some servers.
+-   **Enhancement:** Added mailer class column to email logs table.
+
 **[v0.9.9] - 2026-02-22**
 -   **Feat:** Menu management for frontend.
 -   **Enhancement:** Module command, module crud command improvements.

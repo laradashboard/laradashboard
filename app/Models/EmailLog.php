@@ -40,6 +40,7 @@ class EmailLog extends Model
         'provider',
         'provider_response',
         'sent_by',
+        'mailer_class',
     ];
 
     protected $casts = [

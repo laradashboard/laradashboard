@@ -329,7 +329,7 @@ class CoreUpgradeService
             if (! $zipPath) {
                 $result['message'] = 'Failed to download upgrade package.';
                 $this->restoreFromBackup($backupFile);
-                Artisan::call('up');
+                $this->bringApplicationOnline();
 
                 return $result;
             }
@@ -339,7 +339,7 @@ class CoreUpgradeService
             if (! $this->extractZip($zipPath, $extractPath)) {
                 $result['message'] = 'Failed to extract upgrade package.';
                 $this->restoreFromBackup($backupFile);
-                Artisan::call('up');
+                $this->bringApplicationOnline();
 
                 return $result;
             }
@@ -348,7 +348,7 @@ class CoreUpgradeService
             if (! $this->copyUpgradeFiles($extractPath)) {
                 $result['message'] = 'Failed to copy upgrade files.';
                 $this->restoreFromBackup($backupFile);
-                Artisan::call('up');
+                $this->bringApplicationOnline();
 
                 return $result;
             }
@@ -373,7 +373,7 @@ class CoreUpgradeService
             $this->clearUpdateInfo();
 
             // Bring application back online
-            Artisan::call('up');
+            $this->bringApplicationOnline();
 
             $result['success'] = true;
             $result['message'] = "Successfully upgraded to version {$version}";
@@ -391,7 +391,7 @@ class CoreUpgradeService
             $this->restoreFromBackup($backupFile);
 
             // Bring application back online
-            Artisan::call('up');
+            $this->bringApplicationOnline();
 
             $result['message'] = 'Upgrade failed: '.$e->getMessage();
 
@@ -435,7 +435,7 @@ class CoreUpgradeService
             if (! $this->extractZip($zipPath, $extractPath)) {
                 $result['message'] = __('Failed to extract upgrade package.');
                 $this->restoreFromBackup($backupFile);
-                Artisan::call('up');
+                $this->bringApplicationOnline();
 
                 return $result;
             }
@@ -444,7 +444,7 @@ class CoreUpgradeService
             if (! $this->copyUpgradeFiles($extractPath)) {
                 $result['message'] = __('Failed to copy upgrade files.');
                 $this->restoreFromBackup($backupFile);
-                Artisan::call('up');
+                $this->bringApplicationOnline();
 
                 return $result;
             }
@@ -472,7 +472,7 @@ class CoreUpgradeService
             $newVersion = $this->getCurrentVersion();
 
             // Bring application back online
-            Artisan::call('up');
+            $this->bringApplicationOnline();
 
             $result['success'] = true;
             $result['message'] = __('Successfully upgraded to version :version', ['version' => $newVersion['version']]);
@@ -489,11 +489,29 @@ class CoreUpgradeService
             $this->restoreFromBackup($backupFile);
 
             // Bring application back online
-            Artisan::call('up');
+            $this->bringApplicationOnline();
 
             $result['message'] = __('Upgrade failed: :error', ['error' => $e->getMessage()]);
 
             return $result;
+        }
+    }
+
+    /**
+     * Bring the application back online by directly deleting the maintenance mode file.
+     *
+     * We intentionally avoid Artisan::call('up') here because after caches are cleared
+     * and new files are copied, the Artisan command may fail to re-bootstrap the
+     * application, leaving the site permanently stuck in maintenance mode.
+     * Deleting the down file directly is exactly what 'artisan up' does internally,
+     * but without requiring a full application re-bootstrap.
+     */
+    protected function bringApplicationOnline(): void
+    {
+        $downFile = storage_path('framework/down');
+
+        if (File::exists($downFile)) {
+            File::delete($downFile);
         }
     }
 
