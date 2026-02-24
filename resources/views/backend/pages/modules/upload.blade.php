@@ -345,25 +345,11 @@
                 if (!fileItem.moduleName || fileItem.activating) return;
 
                 fileItem.activating = true;
-                fileItem.activationStatus = '{{ __('Enabling module...') }}';
 
                 try {
-                    // Step 1: Enable module (skip migrations - we'll run them separately)
-                    const enableResponse = await fetch('/admin/modules/toggle-status/' + fileItem.moduleName, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ skip_migrations: true })
-                    });
-
-                    const enableData = await enableResponse.json();
-                    if (!enableData.success) {
-                        throw new Error(enableData.message || '{{ __('Failed to enable module') }}');
-                    }
-
-                    // Step 2: Run migrations (this can take a while)
+                    // Step 1: Run migrations FIRST while the module is still disabled.
+                    // This prevents the module from going live with missing tables, which
+                    // would break every subsequent request that hits the module's middleware.
                     fileItem.activationStatus = '{{ __('Running migrations...') }}';
 
                     const controller = new AbortController();
@@ -382,8 +368,24 @@
 
                     const migrateData = await migrateResponse.json();
                     if (!migrateData.success) {
-                        // Module is enabled but migrations failed - show warning but mark as activated
-                        this.showToast('warning', '{{ __('Warning') }}', '{{ __('Module enabled but migrations may have issues: ') }}' + (migrateData.message || ''));
+                        throw new Error(migrateData.message || '{{ __('Failed to run migrations') }}');
+                    }
+
+                    // Step 2: Enable the module now that its tables exist.
+                    fileItem.activationStatus = '{{ __('Enabling module...') }}';
+
+                    const enableResponse = await fetch('/admin/modules/toggle-status/' + fileItem.moduleName, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ skip_migrations: true })
+                    });
+
+                    const enableData = await enableResponse.json();
+                    if (!enableData.success) {
+                        throw new Error(enableData.message || '{{ __('Failed to enable module') }}');
                     }
 
                     fileItem.activated = true;
@@ -393,8 +395,7 @@
                 } catch (error) {
                     fileItem.activationStatus = '';
                     if (error.name === 'AbortError') {
-                        this.showToast('warning', '{{ __('Timeout') }}', '{{ __('Migrations are taking longer than expected. The module is enabled - please check the modules page.') }}');
-                        fileItem.activated = true; // Module was enabled, just migrations taking long
+                        this.showToast('warning', '{{ __('Timeout') }}', '{{ __('Migrations are taking longer than expected. Please use the Run Migrations button on the module page.') }}');
                     } else {
                         this.showToast('error', '{{ __('Error') }}', error.message || '{{ __('Failed to activate module. Please try again.') }}');
                     }

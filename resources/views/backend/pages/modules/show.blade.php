@@ -10,7 +10,7 @@
                 <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">v{{ $module->version }}</span>
             </x-slot>
             <x-slot name="actions_after">
-                <div class="flex gap-2" x-data="{ isToggling: false }">
+                <div class="flex gap-2" x-data="{ isToggling: false, isMigrating: false }">
                     @if($module->documentation_url)
                         <a
                             href="{{ $module->documentation_url }}"
@@ -22,6 +22,43 @@
                             {{ __('Documentation') }}
                         </a>
                     @endif
+
+                    <button
+                        type="button"
+                        @click="
+                            if (isMigrating) return;
+                            isMigrating = true;
+                            fetch('{{ route('admin.modules.run-migrations', $module->name) }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                isMigrating = false;
+                                if (data.success) {
+                                    alert('{{ __('Migrations completed successfully.') }}');
+                                } else {
+                                    alert(data.message || '{{ __('Migrations failed.') }}');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                isMigrating = false;
+                                alert('{{ __('An error occurred while running migrations.') }}');
+                            });
+                        "
+                        :disabled="isMigrating"
+                        class="btn-default"
+                        title="{{ __('Run database migrations for this module') }}"
+                    >
+                        <iconify-icon x-show="!isMigrating" icon="lucide:database" class="mr-2"></iconify-icon>
+                        <iconify-icon x-show="isMigrating" icon="lucide:loader-2" class="mr-2 animate-spin"></iconify-icon>
+                        <span x-text="isMigrating ? '{{ __('Running...') }}' : '{{ __('Run Migrations') }}'"></span>
+                    </button>
 
                     <button
                         type="button"

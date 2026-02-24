@@ -5,7 +5,7 @@
         <img
             src="{{ $logoUrl }}"
             alt="{{ $alt }}"
-            class="{{ $sizeClasses() }} rounded-lg object-cover"
+            class="{{ $sizeClasses() }} rounded-lg object-contain"
         />
     @else
         <div class="{{ $sizeClasses() }} rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
