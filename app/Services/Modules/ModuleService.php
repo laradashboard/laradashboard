@@ -1200,7 +1200,7 @@ class ModuleService
         // Use actual module path to handle case sensitivity
         $distPath = $module->getPath() . '/dist/build-' . $moduleSlug;
 
-        return File::isDirectory($distPath) && File::exists($distPath . '/manifest.json');
+        return File::isDirectory($distPath) && $this->manifestExistsInBuildDir($distPath);
     }
 
     /**
@@ -1241,7 +1241,20 @@ class ModuleService
         $moduleSlug = Str::slug($moduleName);
         $distPath = $modulePath . '/dist/build-' . $moduleSlug;
 
-        return File::isDirectory($distPath) && File::exists($distPath . '/manifest.json');
+        return File::isDirectory($distPath) && $this->manifestExistsInBuildDir($distPath);
+    }
+
+    /**
+     * Check whether a Vite manifest exists in a build directory.
+     *
+     * Handles both manifest locations:
+     * - Old Vite / laravel-vite-plugin: {buildDir}/manifest.json
+     * - Vite 5+ default:               {buildDir}/.vite/manifest.json
+     */
+    protected function manifestExistsInBuildDir(string $buildDir): bool
+    {
+        return File::exists($buildDir . '/manifest.json')
+            || File::exists($buildDir . '/.vite/manifest.json');
     }
 
     /**
