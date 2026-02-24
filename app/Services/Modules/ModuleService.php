@@ -783,6 +783,10 @@ class ModuleService
                     Hook::doAction(ModuleActionHook::MODULE_MIGRATING_BEFORE, $moduleName);
                     $this->runModuleMigrations($moduleName);
                     Hook::doAction(ModuleActionHook::MODULE_MIGRATED_AFTER, $moduleName);
+
+                    // Flush Spatie's permission cache after migrations so any new permissions
+                    // and role assignments made during the migration are immediately visible.
+                    app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
                 } else {
                     Log::info("Skipping migrations for module {$moduleName} (will be run separately)");
                 }
