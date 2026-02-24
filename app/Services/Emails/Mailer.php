@@ -7,6 +7,7 @@ namespace App\Services\Emails;
 use App\Models\EmailConnection;
 use App\Services\EmailConnectionService;
 use App\Services\EmailProviderRegistry;
+use App\Support\Facades\Hook;
 use Closure;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailable;
@@ -134,7 +135,20 @@ class Mailer
         $connection = $this->resolveConnection();
         $callback = $this->wrapCallbackWithConnectionDefaults($callback, $connection);
 
-        return $this->getMailer()->raw($text, $callback);
+        $wrappedCallback = function ($message) use ($callback) {
+            $callback($message);
+            try {
+                $message->getSymfonyMessage()->getHeaders()->addTextHeader('X-Mailer-Class', 'RawEmail');
+            } catch (\Throwable) {
+            }
+        };
+
+        try {
+            return $this->getMailer()->raw($text, $wrappedCallback);
+        } catch (\Throwable $e) {
+            Hook::doAction('mailer.send_failed', null, null, null, 'RawEmail', $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
@@ -163,6 +177,13 @@ class Mailer
      */
     public function sendMailable(Mailable $mailable): ?SentMessage
     {
+        $mailerClass = get_class($mailable);
+
+        // Tag the message with the mailable class so the email log listener can categorize it
+        $mailable->withSymfonyMessage(function (\Symfony\Component\Mime\Email $sym) use ($mailerClass) {
+            $sym->getHeaders()->addTextHeader('X-Mailer-Class', $mailerClass);
+        });
+
         $connection = $this->resolveConnection();
 
         // Apply connection defaults to mailable if configured
@@ -170,7 +191,14 @@ class Mailer
             $this->applyConnectionDefaultsToMailable($mailable, $connection);
         }
 
-        return $this->getMailer()->send($mailable);
+        try {
+            return $this->getMailer()->send($mailable);
+        } catch (\Throwable $e) {
+            $to = collect($mailable->to)->first()['address'] ?? null;
+            $from = collect($mailable->from)->first()['address'] ?? null;
+            Hook::doAction('mailer.send_failed', $to, $from, $mailable->subject, $mailerClass, $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
@@ -212,10 +240,19 @@ class Mailer
         $connection = $this->resolveConnection();
         $callback = $this->wrapCallbackWithConnectionDefaults($callback, $connection);
 
-        return $this->getMailer()->send([], [], function ($message) use ($html, $callback) {
-            $message->html($html);
-            $callback($message);
-        });
+        try {
+            return $this->getMailer()->send([], [], function ($message) use ($html, $callback) {
+                $message->html($html);
+                $callback($message);
+                try {
+                    $message->getSymfonyMessage()->getHeaders()->addTextHeader('X-Mailer-Class', 'HtmlEmail');
+                } catch (\Throwable) {
+                }
+            });
+        } catch (\Throwable $e) {
+            Hook::doAction('mailer.send_failed', null, null, null, 'HtmlEmail', $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
