@@ -6,6 +6,7 @@
 
 import { useCallback } from "react";
 import { blockRegistry } from "../../registry/BlockRegistry";
+import { pendingCursors } from "../pendingCursors";
 
 /**
  * @param {Object} options
@@ -166,13 +167,17 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
 
     // Insert a new block after a specific block (for Enter key in text/heading)
     const handleInsertBlockAfter = useCallback(
-        (afterBlockId, blockType) => {
-            const newBlock = blockRegistry.createInstance(blockType);
+        (afterBlockId, blockType, initialProps = {}) => {
+            const newBlock = blockRegistry.createInstance(blockType, initialProps);
             if (!newBlock) return;
 
             // Check if it's a top-level block
             const topLevelIndex = blocks.findIndex((b) => b.id === afterBlockId);
             if (topLevelIndex !== -1) {
+                // If new block has initial content, cursor should start at beginning
+                if (initialProps.content) {
+                    pendingCursors.set(newBlock.id, "start");
+                }
                 actions.addBlock(newBlock, topLevelIndex + 1);
                 actions.selectBlock(newBlock.id);
                 return;
@@ -185,6 +190,9 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
                         const column = block.props.children[colIdx];
                         const nestedIndex = column.findIndex((b) => b.id === afterBlockId);
                         if (nestedIndex !== -1) {
+                            if (initialProps.content) {
+                                pendingCursors.set(newBlock.id, "start");
+                            }
                             actions.addNestedBlock(
                                 block.id,
                                 colIdx,
@@ -242,6 +250,46 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
         [blocks, actions]
     );
 
+    // Merge current block's content onto the previous block (Backspace-at-start)
+    // Supports merging into text blocks (content key) and heading blocks (text key)
+    const handleMergeBlockWithPrevious = useCallback(
+        (blockId, contentToAppend) => {
+            const index = blocks.findIndex((b) => b.id === blockId);
+            if (index <= 0) return; // no previous block
+
+            const prevBlock = blocks[index - 1];
+
+            // Determine the content key based on block type
+            let contentKey;
+            if (prevBlock.type === "text") {
+                contentKey = "content";
+            } else if (prevBlock.type === "heading") {
+                contentKey = "text";
+            } else {
+                return; // can only merge into text or heading blocks
+            }
+
+            const prevContent = prevBlock.props[contentKey] || "";
+            const mergedContent = prevContent + contentToAppend;
+
+            // Compute where the cursor should land: at the junction between
+            // the original prev content and the appended content (text char offset)
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = prevContent;
+            const junctionOffset = tempDiv.textContent.length;
+            pendingCursors.set(prevBlock.id, junctionOffset);
+
+            // Update previous block with merged content, then delete current block
+            actions.updateBlock(prevBlock.id, {
+                ...prevBlock.props,
+                [contentKey]: mergedContent,
+            });
+            actions.deleteBlock(blockId);
+            actions.selectBlock(prevBlock.id);
+        },
+        [blocks, actions]
+    );
+
     return {
         // Helpers
         findBlock,
@@ -257,6 +305,7 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
         handleAddBlock,
         handleInsertBlockAfter,
         handleReplaceBlock,
+        handleMergeBlockWithPrevious,
     };
 }
 

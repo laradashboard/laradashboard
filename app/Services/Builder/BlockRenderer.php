@@ -113,8 +113,13 @@ class BlockRenderer
             $propsJson = $match[3][0];
             $startPos = (int) $match[0][1];
 
+            // The regex already captured the full opening tag — use its length to find
+            // exactly where the opening tag ends. This avoids strpos('>') misidentifying
+            // a '>' inside data-props JSON (e.g. from "<div>" in the content field).
+            $afterOpeningTag = $startPos + \strlen($match[0][0]);
+
             // Find the full block HTML including nested content and proper closing tag
-            $fullMatch = $this->findFullBlockHtml($content, $startPos);
+            $fullMatch = $this->findFullBlockHtml($content, $startPos, $afterOpeningTag);
 
             if ($fullMatch === null) {
                 continue;
@@ -224,14 +229,24 @@ class BlockRenderer
 
     /**
      * Find the full block HTML including nested content
+     *
+     * @param  int  $afterOpeningTag  Position immediately after the opening tag's closing '>'.
+     *                                 When provided by the regex match, this is exact and safe.
+     *                                 Falls back to strpos only when called without this value.
      */
-    protected function findFullBlockHtml(string $content, int $startPos): ?string
+    protected function findFullBlockHtml(string $content, int $startPos, int $afterOpeningTag = -1): ?string
     {
-        $searchStart = strpos($content, '>', $startPos);
-        if ($searchStart === false) {
-            return null;
+        if ($afterOpeningTag >= 0) {
+            $searchStart = $afterOpeningTag;
+        } else {
+            // Fallback: scan for the first '>' — may be inaccurate if data-props
+            // contains HTML with '>' characters, but kept for backwards compatibility.
+            $searchStart = strpos($content, '>', $startPos);
+            if ($searchStart === false) {
+                return null;
+            }
+            $searchStart++;
         }
-        $searchStart++;
 
         $depth = 1;
         $pos = $searchStart;

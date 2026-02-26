@@ -163,6 +163,7 @@ function LaraBuilderInner({
         handleAddBlock,
         handleInsertBlockAfter,
         handleReplaceBlock,
+        handleMergeBlockWithPrevious,
     } = useBlockOperations({ blocks, actions, addBlockAfterSelected });
 
     // Drag and drop
@@ -797,6 +798,7 @@ function LaraBuilderInner({
                                 }
                                 onInsertBlockAfter={handleInsertBlockAfter}
                                 onReplaceBlock={handleReplaceBlock}
+                                onMergeBlockWithPrevious={handleMergeBlockWithPrevious}
                                 canvasSettings={canvasSettings}
                                 previewMode={previewMode}
                                 context={context}

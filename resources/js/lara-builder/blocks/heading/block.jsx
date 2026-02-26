@@ -10,15 +10,18 @@ import { __ } from "@lara-builder/i18n";
 import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
 import SlashCommandMenu from "../../components/SlashCommandMenu";
 import { useEditableContent } from "../../core/hooks/useEditableContent";
+import { pendingCursors } from "../../core/pendingCursors";
 
 const HeadingBlock = ({
     props,
+    blockId,
     onUpdate,
     isSelected,
     onRegisterTextFormat,
     onInsertBlockAfter,
     onDelete,
     onReplaceBlock,
+    onMergeWithPrevious,
     context = "post",
 }) => {
     const editorRef = useRef(null);
@@ -40,6 +43,23 @@ const HeadingBlock = ({
     onDeleteRef.current = onDelete;
     const onReplaceBlockRef = useRef(onReplaceBlock);
     onReplaceBlockRef.current = onReplaceBlock;
+    const onMergeWithPreviousRef = useRef(onMergeWithPrevious);
+    onMergeWithPreviousRef.current = onMergeWithPrevious;
+
+    // Detect if the cursor is at the very start of the editor (no preceding content)
+    const isCursorAtStart = useCallback(() => {
+        const selection = window.getSelection();
+        if (!selection || !selection.isCollapsed || selection.rangeCount === 0) return false;
+        const range = selection.getRangeAt(0);
+        if (range.startOffset !== 0) return false;
+        // Walk up from startContainer; every node must be the first child up to editorRef
+        let node = range.startContainer;
+        while (node && node !== editorRef.current) {
+            if (node.previousSibling) return false;
+            node = node.parentNode;
+        }
+        return node === editorRef.current;
+    }, []);
 
     // Get plain text content from editor
     const getPlainContent = useCallback(() => {
@@ -100,19 +120,45 @@ const HeadingBlock = ({
             // If slash menu is open, don't create new block
             if (showSlashMenu) return;
 
-            // Save current content first
             if (editorRef.current) {
-                const newText = editorRef.current.innerHTML;
-                lastPropsText.current = newText;
-                onUpdateRef.current({ ...propsRef.current, text: newText });
-            }
-            // Insert new text block after this heading
-            if (onInsertBlockAfterRef.current) {
-                onInsertBlockAfterRef.current("text");
+                // Split content at cursor: keep before-cursor in heading,
+                // move after-cursor content into a new text block.
+                const selection = window.getSelection();
+                let afterContent = "";
+
+                if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    range.collapse(true);
+                    const afterRange = document.createRange();
+                    afterRange.setStart(range.startContainer, range.startOffset);
+                    afterRange.setEnd(
+                        editorRef.current,
+                        editorRef.current.childNodes.length
+                    );
+                    const fragment = afterRange.extractContents();
+                    const temp = document.createElement("div");
+                    temp.appendChild(fragment);
+                    afterContent = temp.innerHTML;
+                    afterContent = afterContent.replace(/^(<br\s*\/?>)+/, "");
+                }
+
+                // Save the current (now trimmed) heading content
+                const beforeContent = editorRef.current.innerHTML;
+                lastPropsText.current = beforeContent;
+                onUpdateRef.current({
+                    ...propsRef.current,
+                    text: beforeContent,
+                });
+
+                // Insert new text block with the after-cursor content
+                if (onInsertBlockAfterRef.current) {
+                    onInsertBlockAfterRef.current("text", { content: afterContent });
+                }
             }
         }
 
-        // Backspace on empty content deletes the block
+        // Backspace on empty content deletes the block;
+        // Backspace at start of non-empty content merges with previous block
         if (e.key === "Backspace") {
             const content = editorRef.current?.innerHTML || "";
             if (isContentEmpty(content)) {
@@ -120,6 +166,12 @@ const HeadingBlock = ({
                 e.stopPropagation();
                 if (onDeleteRef.current) {
                     onDeleteRef.current();
+                }
+            } else if (isCursorAtStart()) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (onMergeWithPreviousRef.current) {
+                    onMergeWithPreviousRef.current(editorRef.current.innerHTML);
                 }
             }
         }
@@ -131,7 +183,7 @@ const HeadingBlock = ({
             setSlashQuery("");
         }
         // Shift+Enter allows default behavior (line break)
-    }, [showSlashMenu, isContentEmpty]);
+    }, [showSlashMenu, isContentEmpty, isCursorAtStart]);
 
     /**
      * Sanitize pasted HTML content to remove LaraBuilder wrapper elements
@@ -335,19 +387,64 @@ const HeadingBlock = ({
         }
     }, [isSelected, onRegisterTextFormat, handleAlignChange]);
 
-    // Focus the editor when selected
+    // Focus the editor when selected, placing cursor at the position requested
+    // by insert/merge operations (via pendingCursors), or at the end by default.
     useEffect(() => {
         if (isSelected && editorRef.current) {
-            // Use requestAnimationFrame to ensure focus happens after click event completes
-            // This is necessary when inserting blocks via click from the BlockPanel
             requestAnimationFrame(() => {
-                if (editorRef.current) {
-                    editorRef.current.focus();
-                    // Place cursor at the end
+                if (!editorRef.current) return;
+
+                editorRef.current.focus();
+
+                // Check for a pending cursor position set by an insert/merge operation
+                const pendingPos = blockId !== undefined ? pendingCursors.get(blockId) : undefined;
+                if (pendingPos !== undefined) {
+                    pendingCursors.delete(blockId);
+                }
+
+                const selection = window.getSelection();
+
+                if (pendingPos === "start") {
+                    const range = document.createRange();
+                    range.selectNodeContents(editorRef.current);
+                    range.collapse(true);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                } else if (typeof pendingPos === "number") {
+                    // Cursor at specific text offset (e.g. junction from merge)
+                    const walker = document.createTreeWalker(
+                        editorRef.current,
+                        NodeFilter.SHOW_TEXT,
+                        null
+                    );
+                    let remaining = pendingPos;
+                    let placed = false;
+                    let node;
+                    while ((node = walker.nextNode())) {
+                        const len = node.textContent.length;
+                        if (remaining <= len) {
+                            const range = document.createRange();
+                            range.setStart(node, remaining);
+                            range.collapse(true);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                            placed = true;
+                            break;
+                        }
+                        remaining -= len;
+                    }
+                    if (!placed) {
+                        const range = document.createRange();
+                        range.selectNodeContents(editorRef.current);
+                        range.collapse(false);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                } else {
+                    // Default: cursor at the end
                     const range = document.createRange();
                     range.selectNodeContents(editorRef.current);
                     range.collapse(false);
-                    const selection = window.getSelection();
                     selection.removeAllRanges();
                     selection.addRange(range);
                 }
