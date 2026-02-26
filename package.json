@@ -1,7 +1,7 @@
 {
     "name": "laradashboard",
     "private": true,
-    "version": "0.9.9.4",
+    "version": "0.9.10",
     "type": "module",
     "scripts": {
         "build": "vite build",

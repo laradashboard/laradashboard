@@ -1,5 +1,5 @@
 <div class="flex items-center gap-3">
-    <a href="{{ route('admin.modules.show', $module->name) }}">
+    <a href="{{ route('admin.modules.show', $module->name) }}" class="w-10 h-10">
         <x-module-logo :module="$module" size="md" />
     </a>
 

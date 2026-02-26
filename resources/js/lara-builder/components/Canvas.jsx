@@ -38,7 +38,7 @@ const DropZone = ({ id, isFirst = false }) => {
 // Note: Block features are now read from block.json supports configuration
 // via getBlockSupports() instead of hardcoded arrays
 
-const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, onInsertBlockAfter, onReplaceBlock, totalBlocks, blockIndex, context }) => {
+const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, onInsertBlockAfter, onReplaceBlock, onMergeBlockWithPrevious, totalBlocks, blockIndex, context }) => {
     const [textFormatProps, setTextFormatProps] = useState(null);
     const [isTyping, setIsTyping] = useState(false);
     const typingTimeoutRef = useRef(null);
@@ -219,9 +219,11 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
             {/* Block component */}
             <BlockComponent
                 props={block.props}
+                blockId={block.id}
                 isSelected={isSelected}
                 onUpdate={(newProps) => onUpdate(block.id, newProps)}
-                onInsertBlockAfter={onInsertBlockAfter ? (blockType) => onInsertBlockAfter(block.id, blockType) : undefined}
+                onInsertBlockAfter={onInsertBlockAfter ? (blockType, initialProps) => onInsertBlockAfter(block.id, blockType, initialProps) : undefined}
+                onMergeWithPrevious={onMergeBlockWithPrevious ? (content) => onMergeBlockWithPrevious(block.id, content) : undefined}
                 {...(hasTextFormatting ? {
                     onRegisterTextFormat: setTextFormatProps,
                     onDelete: () => onDelete(block.id),
@@ -260,7 +262,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     );
 };
 
-const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, onInsertBlockAfter, onReplaceBlock, canvasSettings, previewMode = 'desktop', context = 'post' }) => {
+const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, onInsertBlockAfter, onReplaceBlock, onMergeBlockWithPrevious, canvasSettings, previewMode = 'desktop', context = 'post' }) => {
     const { setNodeRef, isOver } = useDroppable({
         id: 'canvas',
     });
@@ -373,6 +375,7 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
                                                 onDuplicateNestedBlock={onDuplicateNestedBlock}
                                                 onInsertBlockAfter={onInsertBlockAfter}
                                                 onReplaceBlock={onReplaceBlock}
+                                                onMergeBlockWithPrevious={onMergeBlockWithPrevious}
                                                 context={context}
                                             />
                                             {/* Drop zone after each block */}

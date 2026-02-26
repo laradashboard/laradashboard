@@ -49,6 +49,10 @@ password - 12345678
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 📝 Changelog
+**[v0.9.10] - 2026-02-26**
+-   **Fix:** Block editor text block, heading block line break and some other issues.
+-   **Fix:** Module list page module icon was not consistent.
+
 **[v0.9.9.4] - 2026-02-24**
 -   **Fix:** Fixed cached permission.
 
