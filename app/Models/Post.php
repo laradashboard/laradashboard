@@ -218,29 +218,28 @@ class Post extends Model implements SpatieHasMedia
      */
     public function registerMediaConversions(?Media $media = null): void
     {
-        // Preview conversion for admin interface
         $this->addMediaConversion('preview')
             ->fit(Fit::Contain, 300, 300);
 
-        // Thumbnail for featured images
         $this->addMediaConversion('thumb')
             ->width(200)
             ->height(200)
             ->sharpen(10);
 
-        // Medium size for content display
         $this->addMediaConversion('medium')
             ->width(500)
             ->height(500);
 
-        // Large size for detailed view
         $this->addMediaConversion('large')
             ->width(1000)
             ->height(1000);
     }
 
     /**
-     * Get the featured image URL
+     * Get the featured image URL.
+     *
+     * Falls back to original image when the requested conversion
+     * hasn't been generated yet (e.g. queue not processed).
      */
     public function getFeaturedImageUrl(string $conversion = ''): ?string
     {
@@ -250,7 +249,11 @@ class Post extends Model implements SpatieHasMedia
             return null;
         }
 
-        return $conversion ? $media->getUrl($conversion) : $media->getUrl();
+        if ($conversion && $media->hasGeneratedConversion($conversion)) {
+            return $media->getUrl($conversion);
+        }
+
+        return $media->getUrl();
     }
 
     /**
@@ -262,18 +265,22 @@ class Post extends Model implements SpatieHasMedia
     }
 
     /**
-     * Get gallery images
+     * Get gallery images with fallback to original when conversions aren't ready.
      */
     public function getGalleryImages(): array
     {
         return $this->getMedia('gallery')->map(function ($media) {
+            $url = fn (string $conversion) => $media->hasGeneratedConversion($conversion)
+                ? $media->getUrl($conversion)
+                : $media->getUrl();
+
             return [
                 'id' => $media->id,
                 'name' => $media->name,
                 'original' => $media->getUrl(),
-                'thumb' => $media->getUrl('thumb'),
-                'medium' => $media->getUrl('medium'),
-                'large' => $media->getUrl('large'),
+                'thumb' => $url('thumb'),
+                'medium' => $url('medium'),
+                'large' => $url('large'),
             ];
         })->toArray();
     }
