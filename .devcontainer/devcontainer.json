@@ -1,0 +1,15 @@
+{
+    "name": "LaraDashboard",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/var/www/html",
+    "forwardPorts": [8000, 5173],
+    "portsAttributes": {
+        "8000": { "label": "Laravel", "onAutoForward": "notify" },
+        "5173": { "label": "Vite", "onAutoForward": "notify" },
+        "3306": { "label": "MySQL", "onAutoForward": "silent" },
+        "6379": { "label": "Redis", "onAutoForward": "silent" }
+    },
+    "remoteUser": "dev",
+    "postCreateCommand": "bash .devcontainer/post-create.sh"
+}
