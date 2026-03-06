@@ -13,14 +13,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    env_file:
+      - .env.devcontainer
     environment:
       APP_ENV: local
       DB_CONNECTION: mysql
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_DATABASE: laradashboard
-      DB_USERNAME: laradashboard
-      DB_PASSWORD: secret
       REDIS_HOST: redis
       REDIS_PORT: 6379
     command: sleep infinity
@@ -29,25 +28,23 @@ services:
 
   mysql:
     image: mysql:8.0
+    env_file:
+      - .env.devcontainer
     environment:
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: laradashboard
-      MYSQL_USER: laradashboard
-      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - mysql-data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psecret"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
     volumes:
       - redis-data:/data
     healthcheck:

@@ -33,7 +33,7 @@ if (includeModules) {
 
 export default defineConfig({
     server: {
-        host: '0.0.0.0',
+        host: process.env.VITE_DEV_HOST || 'localhost',
     },
     plugins: [
         laravel({
