@@ -168,6 +168,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
     // Translation Routes.
     Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');
     Route::post('/translations', [TranslationController::class, 'update'])->name('translations.update');
+    Route::post('/translations/save-chunk', [TranslationController::class, 'saveChunk'])->name('translations.save-chunk');
     Route::post('/translations/create', [TranslationController::class, 'create'])->name('translations.create');
 
     // Login as & Switch back.

@@ -174,8 +174,15 @@ class CoreZipCommand extends Command
         $this->info('╚═══════════════════════════════════════════════════════════╝');
         $this->newLine();
 
-        // Step 1: Install composer dependencies (production only)
-        $this->comment('Step 1/4: Installing composer dependencies (production)...');
+        // Step 1: Sync translations
+        $this->comment('Step 1/5: Syncing translations...');
+        $this->call('translations:extract');
+        $this->call('translations:sync', ['--remove-stale' => true]);
+        $this->info('  ✓ Translations synced');
+        $this->newLine();
+
+        // Step 2: Install composer dependencies (production only)
+        $this->comment('Step 2/5: Installing composer dependencies (production)...');
         if (! $this->runComposerInstall()) {
             $this->error('Composer install failed.');
 
@@ -184,8 +191,8 @@ class CoreZipCommand extends Command
         $this->info('  ✓ Composer dependencies installed (--no-dev)');
         $this->newLine();
 
-        // Step 2: Install npm dependencies
-        $this->comment('Step 2/4: Installing npm dependencies...');
+        // Step 3: Install npm dependencies
+        $this->comment('Step 3/5: Installing npm dependencies...');
         if (! $this->runNpmInstall()) {
             $this->error('npm install failed.');
 
@@ -194,8 +201,8 @@ class CoreZipCommand extends Command
         $this->info('  ✓ npm dependencies installed');
         $this->newLine();
 
-        // Step 3: Build assets
-        $this->comment('Step 3/4: Compiling assets...');
+        // Step 4: Build assets
+        $this->comment('Step 4/5: Compiling assets...');
         if (! $this->runNpmBuild()) {
             $this->error('Asset compilation failed.');
 
@@ -204,8 +211,8 @@ class CoreZipCommand extends Command
         $this->info('  ✓ Assets compiled');
         $this->newLine();
 
-        // Step 4: Create ZIP file
-        $this->comment('Step 4/4: Creating ZIP package...');
+        // Step 5: Create ZIP file
+        $this->comment('Step 5/5: Creating ZIP package...');
 
         $outputPath = $this->option('output')
             ?? $basePath . "/laradashboard-v{$version}.zip";
