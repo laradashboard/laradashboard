@@ -183,6 +183,7 @@ class ModuleMakeCrudCommand extends Command
         $this->generatePermissionMigration();
         $this->generatePolicy();
         $this->registerPolicyInServiceProvider();
+        $this->registerDatatableInLivewireProvider();
         $this->updateRoutes();
         $this->updateMenuService();
 
@@ -190,20 +191,24 @@ class ModuleMakeCrudCommand extends Command
         $this->info('CRUD generated successfully!');
         $this->newLine();
 
+        // Auto-run migrations for the module
+        $this->comment('Running migrations...');
+        try {
+            $this->call('migrate', ['--path' => "modules/{$this->moduleLowerName}/database/migrations", '--no-interaction' => true]);
+        } catch (\Exception $e) {
+            $this->warn('  Could not auto-run migrations: '.$e->getMessage());
+            $this->line('  Run manually: php artisan migrate');
+        }
+
         $this->comment('Files created:');
         $this->showGeneratedFiles();
 
         $this->newLine();
         $this->comment('Next steps:');
-        if ($this->migrationCreated) {
-            $this->line('  1. Run migrations to create the table: php artisan migrate');
-        } else {
-            $this->line('  1. Run migrations if the table does not exist: php artisan migrate');
-        }
-        $this->line('  2. Review and customize the generated Model fillable fields and casts');
-        $this->line('  3. Update the Datatable headers and columns as needed');
-        $this->line('  4. Customize the form partial with appropriate input fields');
-        $this->line('  5. Clear route cache: php artisan optimize:clear');
+        $this->line('  1. Review and customize the generated Model fillable fields and casts');
+        $this->line('  2. Update the Datatable headers and columns as needed');
+        $this->line('  3. Customize the form partial with appropriate input fields');
+        $this->line('  4. Clear route cache: php artisan optimize:clear');
 
         $this->newLine();
         $this->comment('Access your new CRUD:');
@@ -767,7 +772,19 @@ PHP;
         $path = "{$this->modulePath}/app/Http/Controllers/{$this->moduleStudlyName}Controller.php";
 
         if (File::exists($path)) {
-            return;
+            // Check if the existing controller has default CRUD methods from nwidart's
+            // module:make command. These untyped methods (e.g. `public function show($id)`)
+            // conflict with typed method signatures in generated CRUD controllers,
+            // causing PHP LSP (declaration compatibility) errors.
+            $existingContent = File::get($path);
+
+            if (! preg_match('/public\s+function\s+(show|edit|update|destroy|store|create|index)\s*\(/', $existingContent)) {
+                return;
+            }
+
+            $this->warn("  Replaced: Http/Controllers/{$this->moduleStudlyName}Controller.php (removed default CRUD methods to avoid signature conflicts)");
+        } else {
+            $this->info("  Created: Http/Controllers/{$this->moduleStudlyName}Controller.php");
         }
 
         $content = $this->getStub('module-controller');
@@ -775,8 +792,6 @@ PHP;
 
         $this->ensureDirectoryExists(dirname($path));
         File::put($path, $content);
-
-        $this->info("  Created: Http/Controllers/{$this->moduleStudlyName}Controller.php");
     }
 
     /**
@@ -983,8 +998,8 @@ PHP;
 
         $content = File::get($routesPath);
 
-        // Check if routes already exist
-        if (str_contains($content, "admin.{$this->moduleLowerName}.{$this->modelPluralLower}")) {
+        // Check if routes already exist (check for resource route or controller import)
+        if (str_contains($content, "{$this->modelStudlyName}Controller::class")) {
             $this->line('  Routes already exist, skipping...');
 
             return;
@@ -1834,6 +1849,55 @@ BLADE;
 
         File::put($providerPath, $content);
         $this->info("  Updated: Providers/{$this->moduleStudlyName}ServiceProvider.php (policy registered)");
+    }
+
+    /**
+     * Register the datatable Livewire component in the module's LivewireServiceProvider.
+     */
+    protected function registerDatatableInLivewireProvider(): void
+    {
+        $providerPath = "{$this->modulePath}/app/Providers/LivewireServiceProvider.php";
+
+        if (! File::exists($providerPath)) {
+            $this->line('  LivewireServiceProvider not found — register datatable manually:');
+            $this->line("    Livewire::component('{$this->moduleLowerName}::components.{$this->modelLowerName}-datatable', {$this->modelStudlyName}Datatable::class);");
+
+            return;
+        }
+
+        $content = File::get($providerPath);
+
+        // Skip if already registered
+        if (str_contains($content, "{$this->modelStudlyName}Datatable::class")) {
+            $this->line('  Datatable already registered in LivewireServiceProvider, skipping...');
+
+            return;
+        }
+
+        $datatableFqn = "Modules\\{$this->moduleStudlyName}\\Livewire\\Components\\{$this->modelStudlyName}Datatable";
+
+        // Add import if missing
+        if (! str_contains($content, "use {$datatableFqn};")) {
+            // Insert after the last use statement before the class declaration
+            if (preg_match_all('/^use [^;]+;$/m', $content, $matches)) {
+                $lastUseStatement = end($matches[0]);
+                $lastPos = strrpos($content, $lastUseStatement);
+                $insertPos = $lastPos + strlen($lastUseStatement);
+                $content = substr_replace($content, "\nuse {$datatableFqn};", $insertPos, 0);
+            }
+        }
+
+        // Add Livewire::component() call in boot()
+        $componentRegistration = "        Livewire::component('{$this->moduleLowerName}::components.{$this->modelLowerName}-datatable', {$this->modelStudlyName}Datatable::class);";
+        $content = preg_replace(
+            '/(public function boot\(\): void\s*\{[^\}]*?)([\n\r]\s*\})/',
+            "$1\n{$componentRegistration}$2",
+            $content,
+            1
+        );
+
+        File::put($providerPath, $content);
+        $this->info("  Updated: Providers/LivewireServiceProvider.php (datatable registered)");
     }
 
     protected function listAvailableModules(): void
