@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\SendTestEmailRequest;
 use App\Models\EmailTemplate;
+use App\Models\Setting;
 use App\Models\Notification;
 use App\Services\Emails\EmailVariable;
 use App\Services\Emails\EmailSender;
@@ -26,6 +27,8 @@ class SendTestEmailController extends Controller
 
     public function sendTestEmail(SendTestEmailRequest $request): JsonResponse
     {
+        $this->authorize('manage', Setting::class);
+
         $type = $request->input('type');
         $id = (int) $request->input('id');
         $email = $request->input('email');
