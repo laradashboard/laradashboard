@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Backend;
 use App\Ai\Engine\AiCommandProcessor;
 use App\Ai\Registry\ActionRegistry;
 use App\Http\Controllers\Controller;
+use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -27,6 +28,8 @@ class AiCommandController extends Controller
      */
     public function process(Request $request): JsonResponse
     {
+        $this->authorize('aiContent', Post::class);
+
         $validator = Validator::make($request->all(), [
             'command' => 'required|string|min:5|max:2000',
         ]);
@@ -58,6 +61,8 @@ class AiCommandController extends Controller
      */
     public function processStream(Request $request): StreamedResponse
     {
+        $this->authorize('aiContent', Post::class);
+
         $validator = Validator::make($request->all(), [
             'command' => 'required|string|min:5|max:2000',
         ]);
@@ -137,6 +142,8 @@ class AiCommandController extends Controller
      */
     public function status(): JsonResponse
     {
+        $this->authorize('aiContent', Post::class);
+
         $isConfigured = $this->processor->isConfigured();
         $provider = $this->processor->getProvider();
         $availableActions = ActionRegistry::getActionsForUser();
@@ -160,6 +167,8 @@ class AiCommandController extends Controller
      */
     public function examples(): JsonResponse
     {
+        $this->authorize('aiContent', Post::class);
+
         $examples = [
             [
                 'command' => __('Create a post about How to be a serious software engineer'),

@@ -239,7 +239,7 @@ Route::group(['prefix' => 'profile', 'as' => 'profile.', 'middleware' => ['auth'
     Route::put('/update-additional', [ProfileController::class, 'updateAdditional'])->name('update.additional');
 });
 
-Route::get('/locale/{lang}', [LocaleController::class, 'switch'])->name('locale.switch');
+Route::get('/locale/{lang}', [LocaleController::class, 'switch'])->middleware(['auth', 'verified'])->name('locale.switch');
 Route::get('/screenshot-login/{email}', [ScreenshotGeneratorLoginController::class, 'login'])->middleware('web')->name('screenshot.login');
 Route::get('/demo-preview', fn () => view('demo.preview'))->name('demo.preview');
 
