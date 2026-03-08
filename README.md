@@ -49,6 +49,12 @@ password - 12345678
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 📝 Changelog
+
+**[v0.9.11] - 2026-03-09**
+-   **Fix:** Fixed missing authorization checks
+-   **Fix:** Module crud with migration and some other registration logics
+-   **Improvement:** Translation system chunks data saving
+
 **[v0.9.10] - 2026-02-26**
 -   **Fix:** Block editor text block, heading block line break and some other issues.
 -   **Fix:** Module list page module icon was not consistent.
@@ -211,7 +217,7 @@ password - 12345678
 
 ## 🔄 Versions:
 
-Latest version `v0.9.3` - https://github.com/laradashboard/laradashboard/releases/tag/v0.9.3
+Latest version `v0.9.11` - https://github.com/laradashboard/laradashboard/releases/tag/v0.9.11
 
 <details>
 <summary>View Old versions</summary>
