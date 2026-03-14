@@ -12,26 +12,27 @@ import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
  * - Convert <div> and <br> to newlines
  * - Strip all HTML tags and inline styles
  * - HTML-escape the result for safe output
+ *
+ * Uses the DOM to safely extract text, avoiding regex-based tag
+ * stripping (which can be bypassed with nested tags) and
+ * manual entity decode/re-encode (which can double-unescape).
  */
 const sanitizePreContent = (html) => {
     if (!html) return '';
 
-    let text = html;
-    // Convert <br> to newline
-    text = text.replace(/<br\s*\/?>/gi, '\n');
-    // Convert </div><div> to newline (contentEditable line wrapping)
-    text = text.replace(/<\/div>\s*<div[^>]*>/gi, '\n');
-    // Remove leading <div> and trailing </div>
-    text = text.replace(/^<div[^>]*>/i, '');
-    text = text.replace(/<\/div>$/i, '');
-    // Remove any remaining HTML tags
-    text = text.replace(/<[^>]+>/g, '');
-    // Decode HTML entities
-    text = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'");
-    // Re-escape for safe HTML output
-    text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    // Use a temporary DOM element to safely parse and extract text.
+    // innerText preserves line breaks from <br> and <div> elements,
+    // and automatically strips all HTML tags and inline styles.
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    const text = tmp.innerText || '';
 
-    return text;
+    // Escape for safe HTML output
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 };
 
 /**
