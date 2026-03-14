@@ -151,6 +151,12 @@ class EmailVariable
             '/href=["\'](.*?)["\']/i',
             function ($matches) use ($utmParameters) {
                 $url = $matches[1];
+
+                // Skip signed URLs to avoid invalidating their signature.
+                if (str_contains($url, 'signature=')) {
+                    return $matches[0];
+                }
+
                 $separator = strpos($url, '?') === false ? '?' : '&';
                 return 'href="' . $url . $separator . $utmParameters . '"';
             },
