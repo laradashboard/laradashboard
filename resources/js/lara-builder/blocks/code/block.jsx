@@ -102,6 +102,7 @@ const CodeBlock = ({ props, onUpdate, isSelected }) => {
         editorRef,
         contentKey: "code",
         useInnerHTML: false,
+        useInnerText: true,
         propsRef,
         onUpdateRef,
         lastContentRef: lastPropsCode,
@@ -110,6 +111,13 @@ const CodeBlock = ({ props, onUpdate, isSelected }) => {
     const handleInput = useCallback(() => {
         handleContentChange();
     }, [handleContentChange]);
+
+    // Paste as plain text to prevent styled HTML from being inserted
+    const handlePaste = useCallback((e) => {
+        e.preventDefault();
+        const text = e.clipboardData.getData('text/plain');
+        document.execCommand('insertText', false, text);
+    }, []);
 
     // Set initial content only once when becoming selected
     useEffect(() => {
@@ -208,12 +216,12 @@ const CodeBlock = ({ props, onUpdate, isSelected }) => {
                     suppressContentEditableWarning
                     onInput={handleInput}
                     onBlur={handleInput}
+                    onPaste={handlePaste}
                     style={{
                         ...baseStyle,
                         padding: '16px',
                         color: '#d4d4d4',
-                        whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-word',
+                        whiteSpace: 'pre',
                         outline: 'none',
                         margin: 0,
                         minHeight: '60px',

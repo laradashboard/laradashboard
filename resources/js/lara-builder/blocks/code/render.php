@@ -30,6 +30,17 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         $blockClasses .= ' ' . e($customClass);
     }
 
+    // Default vertical margin unless overridden by layout styles
+    $hasMarginTop = ! empty($layoutStyles['margin']['top']);
+    $hasMarginBottom = ! empty($layoutStyles['margin']['bottom']);
+    $defaultMargin = [];
+    if (! $hasMarginTop) {
+        $defaultMargin[] = 'margin-top: 1em';
+    }
+    if (! $hasMarginBottom) {
+        $defaultMargin[] = 'margin-bottom: 1em';
+    }
+
     // Escape code content to prevent XSS
     $escapedCode = e($code);
 
@@ -102,23 +113,32 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     // Pre styles - Prism will add its own background, we just set font sizing
     $preStyles = [
         'margin: 0',
-        'white-space: pre-wrap',
-        'word-wrap: break-word',
+        'white-space: pre',
+        'overflow-x: auto',
         "font-size: {$fontSize}",
         'line-height: 1.5',
         "border-radius: {$borderRadius}",
+        'padding: 16px',
+        "background: {$backgroundColor}",
     ];
     $preStyleAttr = implode('; ', $preStyles);
 
-    $wrapperStyleAttr = $wrapperStyle ? sprintf(' style="%s"', e($wrapperStyle)) : '';
+    // Code element styles to ensure line breaks are preserved
+    $codeStyles = 'white-space: pre; display: block';
+
+    // Combine default margin with wrapper styles
+    $marginStyle = implode('; ', $defaultMargin);
+    $combinedWrapperStyle = implode('; ', array_filter([$marginStyle, $wrapperStyle]));
+    $wrapperStyleAttr = $combinedWrapperStyle ? sprintf(' style="%s"', e($combinedWrapperStyle)) : '';
 
     return sprintf(
-        '<div class="%s"%s><pre class="language-%s" style="%s"><code class="language-%s">%s</code></pre></div>',
+        '<div class="%s"%s><pre class="language-%s" style="%s"><code class="language-%s" style="%s">%s</code></pre></div>',
         e($blockClasses),
         $wrapperStyleAttr,
         e($safeLanguage),
         e($preStyleAttr),
         e($safeLanguage),
+        e($codeStyles),
         $escapedCode
     );
 };

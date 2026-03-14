@@ -32,6 +32,13 @@ const PreformattedBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }
         handleContentChange();
     }, [handleContentChange]);
 
+    // Paste as plain text to prevent styled HTML from being inserted
+    const handlePaste = useCallback((e) => {
+        e.preventDefault();
+        const text = e.clipboardData.getData('text/plain');
+        document.execCommand('insertText', false, text);
+    }, []);
+
     // Stable align change handler
     const handleAlignChange = useCallback((newAlign) => {
         onUpdateRef.current({ ...propsRef.current, align: newAlign });
@@ -98,9 +105,9 @@ const PreformattedBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }
         lineHeight: '1.6',
         padding: '16px',
         borderRadius: '4px',
-        backgroundColor: '#f5f5f5',
-        color: '#333333',
-        border: '1px solid #e0e0e0',
+        backgroundColor: 'var(--color-gray-100, #f3f4f6)',
+        color: 'var(--color-gray-800, #1f2937)',
+        border: '1px solid var(--color-gray-200, #e5e7eb)',
         overflowX: 'auto',
         whiteSpace: 'pre-wrap',
         wordBreak: 'break-word',
@@ -119,6 +126,7 @@ const PreformattedBlock = ({ props, onUpdate, isSelected, onRegisterTextFormat }
                     suppressContentEditableWarning
                     onInput={handleInput}
                     onBlur={handleInput}
+                    onPaste={handlePaste}
                     style={{
                         ...baseStyle,
                         border: '2px solid var(--color-primary, #635bff)',
