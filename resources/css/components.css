@@ -216,7 +216,8 @@
 
     .task.is-dragging {
         border-radius: 0.75rem;
-        box-shadow: 0px 1px 3px 0px rgba(16, 24, 40, 0.1),
+        box-shadow:
+            0px 1px 3px 0px rgba(16, 24, 40, 0.1),
             0px 1px 2px 0px rgba(16, 24, 40, 0.06);
         opacity: 0.8;
         cursor: grabbing; /* Changes the cursor to indicate dragging */
@@ -391,10 +392,33 @@
 
     .prose pre {
         @apply my-4 p-4 bg-gray-900 dark:bg-gray-950 rounded-lg overflow-x-auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
     }
 
     .prose pre code {
         @apply bg-transparent p-0 text-gray-100;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    /* LaraBuilder code block */
+    .prose .lb-code pre {
+        @apply my-0;
+        white-space: pre;
+        overflow-x: auto;
+    }
+
+    .prose .lb-code pre code {
+        display: block;
+        white-space: pre;
+    }
+
+    /* LaraBuilder preformatted block */
+    .prose .lb-preformatted,
+    .prose pre.lb-block {
+        white-space: pre-wrap;
+        word-wrap: break-word;
     }
 
     .prose hr {

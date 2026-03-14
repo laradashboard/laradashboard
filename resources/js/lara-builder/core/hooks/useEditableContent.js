@@ -58,6 +58,7 @@ export function hasContentChanged(oldContent, newContent, isEmpty) {
  * @param {React.RefObject} options.editorRef - Ref to the contenteditable element
  * @param {string} options.contentKey - The prop key for content ('content', 'text', 'code')
  * @param {boolean} options.useInnerHTML - Whether to use innerHTML (true) or textContent (false)
+ * @param {boolean} options.useInnerText - Whether to use innerText (preserves line breaks from <br>/<div>)
  * @param {React.RefObject} options.propsRef - Ref to current props
  * @param {React.RefObject} options.onUpdateRef - Ref to onUpdate callback
  * @param {React.RefObject} options.lastContentRef - Ref to track last known content
@@ -67,6 +68,7 @@ export function useEditableContent({
     editorRef,
     contentKey = "content",
     useInnerHTML = true,
+    useInnerText = false,
     propsRef,
     onUpdateRef,
     lastContentRef,
@@ -83,13 +85,16 @@ export function useEditableContent({
 
     /**
      * Get current content from the editor
+     * - innerHTML: preserves HTML formatting (bold, italic, etc.)
+     * - innerText: preserves line breaks from <br>/<div> as \n (for code blocks)
+     * - textContent: raw text without line break preservation
      */
     const getContent = useCallback(() => {
         if (!editorRef.current) return "";
-        return useInnerHTML
-            ? editorRef.current.innerHTML
-            : editorRef.current.textContent;
-    }, [editorRef, useInnerHTML]);
+        if (useInnerHTML) return editorRef.current.innerHTML;
+        if (useInnerText) return editorRef.current.innerText;
+        return editorRef.current.textContent;
+    }, [editorRef, useInnerHTML, useInnerText]);
 
     /**
      * Handle content change - only triggers update if content actually changed

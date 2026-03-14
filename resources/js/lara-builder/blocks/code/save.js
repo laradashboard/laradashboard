@@ -58,7 +58,7 @@ export const email = (props, options = {}) => {
 
     return `
         <div style="background-color: ${backgroundColor}; border-radius: ${borderRadius}; padding: 16px; overflow-x: auto; font-family: monospace; font-size: ${fontSize}; line-height: 1.5; color: ${textColor};">
-            <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">${code}</pre>
+            <pre style="margin: 0; white-space: pre; overflow-x: auto;">${code}</pre>
         </div>
     `;
 };

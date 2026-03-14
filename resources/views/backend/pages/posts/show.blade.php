@@ -121,8 +121,8 @@
                             }
                         </style>
 
-                        {{-- Prism.js for syntax highlighting in markdown blocks --}}
-                        @if(str_contains($post->content ?? '', 'markdown'))
+                        {{-- Prism.js for syntax highlighting in code/markdown blocks --}}
+                        @if(str_contains($post->content ?? '', 'markdown') || str_contains($post->content ?? '', 'language-') || str_contains($post->content ?? '', '"code"'))
                             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
                             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css" />
                             <style>
