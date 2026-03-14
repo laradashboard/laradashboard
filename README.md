@@ -50,6 +50,11 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v0.9.12] - 2026-03-14**
+-   **Fix:** Fixed security issue with sanitization in content rendering
+-   **Improvement:** Refactored code and pre block for better code snippet support
+-   **Fix:** Fixed email verification link to show valid link
+
 **[v0.9.11] - 2026-03-09**
 -   **Fix:** Fixed missing authorization checks
 -   **Fix:** Module crud with migration and some other registration logics

@@ -319,3 +319,9 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 - Named routes: `module.resource.action` format, e.g. `laradashboard.sitemap`, `laradashboard.modules.index`.
 - Blade views: `snake_case.blade.php` files inside `kebab-case/` directories.
 - Models: singular PascalCase, e.g. `Module`, `MenuItem`.
+
+## Release Management
+- Updates in the README.md file Changelog section.
+- Update the version `version.json`, `package.json` when making a new release.
+- After then run php `artisan core:zip` to create a new zip file for the release.
+- Tag the release in Git with the version number like `v1.0.0` and push the tag to GitHub.
