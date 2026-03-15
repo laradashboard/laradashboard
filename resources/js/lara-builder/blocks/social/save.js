@@ -51,17 +51,20 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    const socialIconSize = parseInt(props.iconSize) || 32;
-    const socialGap = parseInt(props.gap) / 2 || 6;
-    const socialLinksHtml = Object.entries(props.links || {})
-        .filter(([, url]) => url)
-        .map(([platform, url]) => `<a href="${url}" target="_blank" style="display: inline-block; margin: 0 ${socialGap}px;"><img src="${emailIconUrls[platform]}" alt="${platform}" width="${socialIconSize}" height="${socialIconSize}" style="border: 0;" /></a>`)
-        .join('');
+    const serverProps = {
+        links: props.links || {},
+        align: props.align || 'center',
+        iconSize: props.iconSize || '32px',
+        gap: props.gap || '12px',
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    return socialLinksHtml ? `<div style="text-align: ${props.align || 'center'}; padding: 10px 0;">${socialLinksHtml}</div>` : '';
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
+
+    return `<div data-lara-block="social" data-props='${propsJson}'></div>`;
 };
 
 export default {

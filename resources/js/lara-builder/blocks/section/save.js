@@ -85,38 +85,26 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
- * Note: Sections are primarily for page layouts, email output is simplified
+ * Generate placeholder for server-side rendering (email context)
+ * Children are serialized into props for recursive server-side rendering
  */
 export const email = (props, options = {}) => {
-    const { generateBlockHtml } = options;
+    const serverProps = {
+        fullWidth: props.fullWidth ?? true,
+        containerMaxWidth: props.containerMaxWidth || '1280px',
+        contentAlign: props.contentAlign || 'center',
+        backgroundType: props.backgroundType || 'solid',
+        backgroundColor: props.backgroundColor || '#ffffff',
+        gradientFrom: props.gradientFrom || '#f9fafb',
+        gradientTo: props.gradientTo || '#f3f4f6',
+        gradientDirection: props.gradientDirection || 'to-br',
+        children: props.children || [],
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    const {
-        backgroundType = 'solid',
-        backgroundColor = '#ffffff',
-        gradientFrom = '#f9fafb',
-        gradientTo = '#f3f4f6',
-        children = [],
-    } = props;
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-    // For email, use solid color (gradients not well supported)
-    const bgColor = backgroundType === 'gradient' ? gradientFrom : backgroundColor;
-
-    // Generate children HTML - section uses wrapped structure: [[block1, block2, ...]]
-    const childBlocks = children[0] || [];
-    const childrenHtml = childBlocks.map(block => {
-        return generateBlockHtml ? generateBlockHtml(block, options) : '';
-    }).join('');
-
-    return `
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${bgColor};">
-            <tr>
-                <td style="padding: 32px 16px;">
-                    ${childrenHtml}
-                </td>
-            </tr>
-        </table>
-    `;
+    return `<div data-lara-block="section" data-props='${propsJson}'></div>`;
 };
 
 export default {

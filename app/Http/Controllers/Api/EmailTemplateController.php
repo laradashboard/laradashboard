@@ -156,11 +156,11 @@ class EmailTemplateController extends ApiController
 
         $combinedHtml = '';
         if ($emailTemplate->headerTemplate) {
-            $combinedHtml .= $emailTemplate->headerTemplate->body_html;
+            $combinedHtml .= $emailTemplate->headerTemplate->renderContent('email');
         }
-        $combinedHtml .= $emailTemplate->body_html;
+        $combinedHtml .= $emailTemplate->renderContent('email');
         if ($emailTemplate->footerTemplate) {
-            $combinedHtml .= $emailTemplate->footerTemplate->body_html;
+            $combinedHtml .= $emailTemplate->footerTemplate->renderContent('email');
         }
 
         return $this->successResponse(['subject' => $emailTemplate->subject, 'body_html' => $combinedHtml], 'Email content retrieved');

@@ -85,6 +85,17 @@ export const emailTable = (props, content, options = {}) => {
 };
 
 /**
+ * Ensure a CSS value has a unit. Numeric values without a unit get 'px' appended.
+ * Values that already have a unit (e.g., '20px', '1em', '50%') are returned as-is.
+ */
+export const cssUnit = (value) => {
+    if (!value) return value;
+    const str = String(value);
+    if (/^\d+(\.\d+)?$/.test(str)) return `${str}px`;
+    return str;
+};
+
+/**
  * Create email table with common layout styles applied
  *
  * @param {Object} props - Block props with layoutStyles
@@ -101,16 +112,16 @@ export const emailTableWithLayout = (props, content) => {
         // Margin (as table margin)
         if (ls.margin) {
             const { top, right, bottom, left } = ls.margin;
-            if (top) styles.push(`margin-top: ${top}`);
-            if (right) styles.push(`margin-right: ${right}`);
-            if (bottom) styles.push(`margin-bottom: ${bottom}`);
-            if (left) styles.push(`margin-left: ${left}`);
+            if (top) styles.push(`margin-top: ${cssUnit(top)}`);
+            if (right) styles.push(`margin-right: ${cssUnit(right)}`);
+            if (bottom) styles.push(`margin-bottom: ${cssUnit(bottom)}`);
+            if (left) styles.push(`margin-left: ${cssUnit(left)}`);
         }
 
         // Padding
         if (ls.padding) {
             const { top, right, bottom, left } = ls.padding;
-            const paddingStr = `${top || '0'} ${right || '0'} ${bottom || '0'} ${left || '0'}`;
+            const paddingStr = `${cssUnit(top) || '0'} ${cssUnit(right) || '0'} ${cssUnit(bottom) || '0'} ${cssUnit(left) || '0'}`;
             styles.push(`padding: ${paddingStr}`);
         }
 
@@ -122,10 +133,10 @@ export const emailTableWithLayout = (props, content) => {
         // Border
         if (ls.border) {
             if (ls.border.width?.top) {
-                styles.push(`border: ${ls.border.width.top} ${ls.border.style || 'solid'} ${ls.border.color || '#000'}`);
+                styles.push(`border: ${cssUnit(ls.border.width.top)} ${ls.border.style || 'solid'} ${ls.border.color || '#000'}`);
             }
             if (ls.border.radius?.topLeft) {
-                styles.push(`border-radius: ${ls.border.radius.topLeft}`);
+                styles.push(`border-radius: ${cssUnit(ls.border.radius.topLeft)}`);
             }
         }
     }

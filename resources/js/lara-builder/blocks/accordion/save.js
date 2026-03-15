@@ -118,44 +118,29 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    const items = props.items || [{ title: 'Accordion Item', content: 'Content goes here...' }];
-    const borderColor = props.borderColor || '#e5e7eb';
-    const borderRadius = props.borderRadius || '8px';
-    const headerBgColor = props.headerBgColor || '#ffffff';
-    const headerPadding = props.headerPadding || '16px';
-    const titleColor = props.titleColor || '#1f2937';
-    const titleFontSize = props.titleFontSize || '16px';
-    const titleFontWeight = props.titleFontWeight || '600';
-    const contentBgColor = props.contentBgColor || '#ffffff';
-    const contentColor = props.contentColor || '#4b5563';
-    const contentFontSize = props.contentFontSize || '14px';
-    const contentPadding = props.contentPadding || '16px';
-    const iconColor = props.iconColor || '#6b7280';
+    const serverProps = {
+        items: props.items || [{ title: 'Accordion Item', content: 'Content goes here...' }],
+        borderColor: props.borderColor || '#e5e7eb',
+        borderRadius: props.borderRadius || '8px',
+        headerBgColor: props.headerBgColor || '#ffffff',
+        headerPadding: props.headerPadding || '16px',
+        titleColor: props.titleColor || '#1f2937',
+        titleFontSize: props.titleFontSize || '16px',
+        titleFontWeight: props.titleFontWeight || '600',
+        contentBgColor: props.contentBgColor || '#ffffff',
+        contentColor: props.contentColor || '#4b5563',
+        contentFontSize: props.contentFontSize || '14px',
+        contentPadding: props.contentPadding || '16px',
+        iconColor: props.iconColor || '#6b7280',
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    // For email, we render accordion as expanded static content since email clients don't support interactive JS
-    const accordionItems = items.map((item, index) => {
-        const isLast = index === items.length - 1;
-        return `
-            <div style="border-bottom: ${isLast ? 'none' : `1px solid ${borderColor}`};">
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: ${headerPadding}; background-color: ${headerBgColor};">
-                    <span style="font-weight: ${titleFontWeight}; font-size: ${titleFontSize}; color: ${titleColor};">${item.title}</span>
-                    <span style="color: ${iconColor}; font-size: 12px;">&#9660;</span>
-                </div>
-                <div style="padding: ${contentPadding}; background-color: ${contentBgColor}; color: ${contentColor}; font-size: ${contentFontSize}; line-height: 1.6;">
-                    ${item.content}
-                </div>
-            </div>
-        `;
-    }).join('');
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-    return `
-        <div style="border: 1px solid ${borderColor}; border-radius: ${borderRadius}; overflow: hidden;">
-            ${accordionItems}
-        </div>
-    `;
+    return `<div data-lara-block="accordion" data-props='${propsJson}'></div>`;
 };
 
 export default {

@@ -336,11 +336,18 @@ export default function TextBlock({
         if (isSelected && editorRef.current) {
             // Only update if props changed externally (not from our own input)
             if (props.content !== lastPropsContent.current) {
+                // Check if the editor currently has focus — if not (e.g., the user
+                // clicked into the link URL input), just update the HTML silently
+                // without restoring cursor/focus, which would steal focus back.
+                const editorHasFocus =
+                    document.activeElement === editorRef.current ||
+                    editorRef.current.contains(document.activeElement);
+
                 // Save cursor position
                 const selection = window.getSelection();
                 let cursorOffset = 0;
 
-                if (selection.rangeCount > 0) {
+                if (editorHasFocus && selection.rangeCount > 0) {
                     const range = selection.getRangeAt(0);
                     const preCaretRange = range.cloneRange();
                     preCaretRange.selectNodeContents(editorRef.current);
@@ -351,39 +358,41 @@ export default function TextBlock({
                 editorRef.current.innerHTML = props.content || "";
                 lastPropsContent.current = props.content;
 
-                // Restore cursor position
-                try {
-                    const newRange = document.createRange();
-                    const textNodes = [];
-                    const walker = document.createTreeWalker(
-                        editorRef.current,
-                        NodeFilter.SHOW_TEXT,
-                        null,
-                        false
-                    );
-                    let node;
-                    while ((node = walker.nextNode())) {
-                        textNodes.push(node);
-                    }
-
-                    let currentOffset = 0;
-                    for (const textNode of textNodes) {
-                        const nodeLength = textNode.textContent.length;
-                        if (currentOffset + nodeLength >= cursorOffset) {
-                            newRange.setStart(
-                                textNode,
-                                cursorOffset - currentOffset
-                            );
-                            newRange.collapse(true);
-                            selection.removeAllRanges();
-                            selection.addRange(newRange);
-                            break;
+                // Only restore cursor if editor had focus
+                if (editorHasFocus) {
+                    try {
+                        const newRange = document.createRange();
+                        const textNodes = [];
+                        const walker = document.createTreeWalker(
+                            editorRef.current,
+                            NodeFilter.SHOW_TEXT,
+                            null,
+                            false
+                        );
+                        let node;
+                        while ((node = walker.nextNode())) {
+                            textNodes.push(node);
                         }
-                        currentOffset += nodeLength;
+
+                        let currentOffset = 0;
+                        for (const textNode of textNodes) {
+                            const nodeLength = textNode.textContent.length;
+                            if (currentOffset + nodeLength >= cursorOffset) {
+                                newRange.setStart(
+                                    textNode,
+                                    cursorOffset - currentOffset
+                                );
+                                newRange.collapse(true);
+                                selection.removeAllRanges();
+                                selection.addRange(newRange);
+                                break;
+                            }
+                            currentOffset += nodeLength;
+                        }
+                    } catch (e) {
+                        // If cursor restoration fails, just focus at the end
+                        editorRef.current.focus();
                     }
-                } catch (e) {
-                    // If cursor restoration fails, just focus at the end
-                    editorRef.current.focus();
                 }
             }
         }
@@ -507,6 +516,12 @@ export default function TextBlock({
                     onBlur={handleInput}
                     onKeyDown={handleKeyDown}
                     onPaste={handlePaste}
+                    onClick={(e) => {
+                        // Prevent link navigation while editing
+                        if (e.target.tagName === "A" || e.target.closest("a")) {
+                            e.preventDefault();
+                        }
+                    }}
                     style={{
                         ...baseStyle,
                         width: "100%",
@@ -557,5 +572,17 @@ export default function TextBlock({
         return <span dangerouslySetInnerHTML={{ __html: props.content }} />;
     };
 
-    return <div style={baseStyle}>{renderContent()}</div>;
+    return (
+        <div
+            style={baseStyle}
+            onClick={(e) => {
+                // Prevent link navigation in the editor canvas
+                if (e.target.tagName === "A" || e.target.closest("a")) {
+                    e.preventDefault();
+                }
+            }}
+        >
+            {renderContent()}
+        </div>
+    );
 }

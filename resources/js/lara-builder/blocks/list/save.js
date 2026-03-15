@@ -33,31 +33,21 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context (no server rendering available)
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    const items = props.items || [];
-    const listType = props.listType || 'bullet';
-    const color = props.color || '#333333';
-    const fontSize = props.fontSize || '16px';
-    const iconColor = props.iconColor || '#635bff';
+    const serverProps = {
+        items: props.items || [],
+        listType: props.listType || 'bullet',
+        color: props.color || '#333333',
+        fontSize: props.fontSize || '16px',
+        iconColor: props.iconColor || '#635bff',
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    // Check list uses table layout for email
-    if (listType === 'check') {
-        const listItems = items.map(item =>
-            `<tr><td style="vertical-align: top; padding-right: 8px; color: ${iconColor};">&#10003;</td><td style="color: ${color}; font-size: ${fontSize}; padding-bottom: 8px;">${item}</td></tr>`
-        ).join('');
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-        return `<table style="color: ${color}; font-size: ${fontSize}; line-height: 1.6;">${listItems}</table>`;
-    }
-
-    // Regular bullet or numbered list
-    const listTag = listType === 'number' ? 'ol' : 'ul';
-    const listItems = items.map(item =>
-        `<li style="margin-bottom: 8px;">${item}</li>`
-    ).join('');
-
-    return `<${listTag} style="color: ${color}; font-size: ${fontSize}; line-height: 1.8; margin: 0; padding-left: 24px;">${listItems}</${listTag}>`;
+    return `<div data-lara-block="list" data-props='${propsJson}'></div>`;
 };
 
 export default {

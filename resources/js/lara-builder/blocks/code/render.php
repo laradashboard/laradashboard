@@ -24,6 +24,36 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $customCSS = $props['customCSS'] ?? '';
     $customClass = $props['customClass'] ?? '';
 
+    // Email context: inline-styled preformatted code
+    if ($context === 'email') {
+        $escapedCode = e($code);
+
+        $styles = [
+            "background-color: {$backgroundColor}",
+            "color: {$textColor}",
+            "font-size: {$fontSize}",
+            'font-family: Courier New, Courier, monospace',
+            'line-height: 1.5',
+            'padding: 16px',
+            "border-radius: {$borderRadius}",
+            'white-space: pre-wrap',
+            'word-wrap: break-word',
+            'overflow-x: auto',
+            'margin: 1em 0',
+        ];
+
+        $layoutCSS = \App\Helpers\EmailStyleHelper::buildLayoutStyles($layoutStyles);
+        if ($layoutCSS) {
+            $styles[] = $layoutCSS;
+        }
+
+        return sprintf(
+            '<pre style="%s"><code>%s</code></pre>',
+            e(implode('; ', $styles)),
+            $escapedCode
+        );
+    }
+
     // Build block classes
     $blockClasses = 'lb-block lb-code';
     if (! empty($customClass)) {

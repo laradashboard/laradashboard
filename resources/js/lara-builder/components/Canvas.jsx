@@ -60,6 +60,13 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
 
     // Detect typing in contentEditable elements (only real keyboard typing, not toolbar actions)
     const handleInput = useCallback((e) => {
+        // Ignore input events from form elements (e.g., the link URL input in the toolbar).
+        // We only want to hide the toolbar when the user types in a contentEditable block.
+        const target = e.target;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+            return;
+        }
+
         // Only trigger typing mode for actual keyboard input, not programmatic changes
         // Check if the input was from a key press (not from execCommand or other programmatic changes)
         if (!e.inputType || e.inputType.startsWith('insert') || e.inputType.startsWith('delete')) {

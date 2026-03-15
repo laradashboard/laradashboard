@@ -85,8 +85,8 @@ class NotificationController extends Controller
         // Load the email template relationship
         $notification->load('emailTemplate');
 
-        // Use raw template HTML to show the template structure with variable placeholders visible
-        $previewHtml = $notification->emailTemplate->body_html ?? '';
+        // Render template HTML through BlockRenderer to process data-lara-block placeholders
+        $previewHtml = $notification->emailTemplate ? $notification->emailTemplate->renderContent('email') : '';
 
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.show', compact('notification', 'previewHtml'));
     }

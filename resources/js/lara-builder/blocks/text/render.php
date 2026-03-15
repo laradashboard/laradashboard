@@ -23,6 +23,35 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $customCSS = $props['customCSS'] ?? '';
     $customClass = $props['customClass'] ?? '';
 
+    // Email context: inline-styled output
+    if ($context === 'email') {
+        $typography = $layoutStyles['typography'] ?? [];
+
+        $styles = [
+            "text-align: {$align}",
+            'color: ' . ($typography['color'] ?? $color),
+            'font-size: ' . ($typography['fontSize'] ?? $fontSize),
+            'line-height: ' . ($typography['lineHeight'] ?? $lineHeight),
+            'font-family: Arial, Helvetica, sans-serif',
+            'margin: 0 0 16px 0',
+        ];
+
+        if (! empty($typography['fontWeight'])) {
+            $styles[] = "font-weight: {$typography['fontWeight']}";
+        }
+
+        $layoutCSS = \App\Helpers\EmailStyleHelper::buildLayoutStyles($layoutStyles);
+        if ($layoutCSS) {
+            $styles[] = $layoutCSS;
+        }
+
+        return sprintf(
+            '<div style="%s">%s</div>',
+            e(implode('; ', $styles)),
+            $content
+        );
+    }
+
     // Build block classes
     $blockClasses = 'lb-block lb-text';
     if (! empty($customClass)) {

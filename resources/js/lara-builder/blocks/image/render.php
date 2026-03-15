@@ -27,6 +27,83 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $customCSS = $props['customCSS'] ?? '';
     $customClass = $props['customClass'] ?? '';
 
+    // Email context: inline-styled email-safe output
+    if ($context === 'email') {
+        if (empty($src)) {
+            return '';
+        }
+
+        $isCustomWidth = $width === 'custom' && ! empty($customWidth);
+        $isCustomHeight = $height === 'custom' && ! empty($customHeight);
+        $imgWidth = $isCustomWidth ? $customWidth : $width;
+        $imgHeight = $isCustomHeight ? $customHeight : 'auto';
+
+        $imgStyles = [
+            "max-width: {$imgWidth}",
+            'display: block',
+            'margin: 0 auto',
+        ];
+
+        if ($isCustomWidth) {
+            $imgStyles[] = "width: {$customWidth}";
+        }
+
+        $imgStyles[] = "height: {$imgHeight}";
+
+        if ($imgHeight !== 'auto') {
+            $imgStyles[] = 'object-fit: cover';
+        }
+
+        // Border and box-shadow on image
+        if (! empty($layoutStyles['border'])) {
+            $borderCSS = \App\Helpers\EmailStyleHelper::buildBorderStyles($layoutStyles['border']);
+            if ($borderCSS) {
+                $imgStyles[] = $borderCSS;
+            }
+        }
+
+        if (! empty($layoutStyles['boxShadow'])) {
+            $shadow = $layoutStyles['boxShadow'];
+            $x = \App\Helpers\EmailStyleHelper::cssUnit($shadow['x'] ?? '0');
+            $y = \App\Helpers\EmailStyleHelper::cssUnit($shadow['y'] ?? '0');
+            $blur = \App\Helpers\EmailStyleHelper::cssUnit($shadow['blur'] ?? '0');
+            $spread = \App\Helpers\EmailStyleHelper::cssUnit($shadow['spread'] ?? '0');
+            $shadowColor = $shadow['color'] ?? 'rgba(0,0,0,0.1)';
+            $inset = ! empty($shadow['inset']) ? 'inset ' : '';
+            $imgStyles[] = "box-shadow: {$inset}{$x} {$y} {$blur} {$spread} {$shadowColor}";
+        }
+
+        $imgStyleAttr = implode('; ', $imgStyles);
+        $imgHtml = sprintf('<img src="%s" alt="%s" style="%s" />', e($src), e($alt), e($imgStyleAttr));
+
+        if (! empty($link)) {
+            $imgHtml = sprintf('<a href="%s" target="_blank" style="display: inline-block;">%s</a>', e($link), $imgHtml);
+        }
+
+        // Wrapper styles (margin, padding, background)
+        $wrapperStyles = ["text-align: {$align}"];
+
+        if (! empty($layoutStyles['margin'])) {
+            foreach (['top', 'right', 'bottom', 'left'] as $side) {
+                if (! empty($layoutStyles['margin'][$side])) {
+                    $wrapperStyles[] = "margin-{$side}: " . \App\Helpers\EmailStyleHelper::cssUnit($layoutStyles['margin'][$side]);
+                }
+            }
+        }
+        if (! empty($layoutStyles['padding'])) {
+            foreach (['top', 'right', 'bottom', 'left'] as $side) {
+                if (! empty($layoutStyles['padding'][$side])) {
+                    $wrapperStyles[] = "padding-{$side}: " . \App\Helpers\EmailStyleHelper::cssUnit($layoutStyles['padding'][$side]);
+                }
+            }
+        }
+        if (! empty($layoutStyles['background']['color'])) {
+            $wrapperStyles[] = "background-color: {$layoutStyles['background']['color']}";
+        }
+
+        return sprintf('<div style="%s">%s</div>', e(implode('; ', $wrapperStyles)), $imgHtml);
+    }
+
     // Validate and sanitize URL
     if (! empty($src)) {
         $src = filter_var($src, FILTER_SANITIZE_URL);

@@ -69,7 +69,7 @@ class RegistrationWelcomeNotification extends BaseNotification
     {
         return (new EmailSender())
             ->setSubject($notification->emailTemplate->subject ?? __('Welcome to :app_name!', ['app_name' => config('app.name')]))
-            ->setContent($notification->emailTemplate->body_html)
+            ->setContent($notification->emailTemplate->renderContent('email'))
             ->getMailMessage(
                 $notification->from_email,
                 [

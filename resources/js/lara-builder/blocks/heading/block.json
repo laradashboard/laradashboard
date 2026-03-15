@@ -13,6 +13,7 @@
         "bold": true,
         "italic": true,
         "underline": true,
+        "link": true,
         "clearFormat": true,
         "headingLevel": true,
         "colors": true,

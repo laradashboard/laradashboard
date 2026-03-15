@@ -45,18 +45,27 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    return `
-        <div style="padding: 24px 16px; text-align: ${props.align || 'center'}; border-top: 1px solid #e5e7eb;">
-            ${props.companyName ? `<p style="color: ${props.textColor || '#6b7280'}; font-size: 14px; font-weight: 600; margin: 0 0 12px 0;">${props.companyName}</p>` : ''}
-            ${props.address ? `<p style="color: ${props.textColor || '#6b7280'}; font-size: ${props.fontSize || '12px'}; margin: 0 0 8px 0;">${props.address}</p>` : ''}
-            ${(props.phone || props.email) ? `<p style="color: ${props.textColor || '#6b7280'}; font-size: ${props.fontSize || '12px'}; margin: 0 0 8px 0;">${props.phone || ''}${props.phone && props.email ? ' | ' : ''}${props.email ? `<a href="mailto:${props.email}" style="color: ${props.linkColor || '#635bff'}; text-decoration: underline;">${props.email}</a>` : ''}</p>` : ''}
-            ${props.unsubscribeText ? `<p style="color: ${props.textColor || '#6b7280'}; font-size: ${props.fontSize || '12px'}; margin: 16px 0 0 0;"><a href="${props.unsubscribeUrl || '#'}" style="color: ${props.linkColor || '#635bff'}; text-decoration: underline;">${props.unsubscribeText}</a></p>` : ''}
-            ${props.copyright ? `<p style="color: ${props.textColor || '#6b7280'}; font-size: 11px; margin: 12px 0 0 0;">${props.copyright}</p>` : ''}
-        </div>
-    `;
+    const serverProps = {
+        companyName: props.companyName || '',
+        address: props.address || '',
+        email: props.email || '',
+        phone: props.phone || '',
+        unsubscribeText: props.unsubscribeText || 'Unsubscribe',
+        unsubscribeUrl: props.unsubscribeUrl || '#unsubscribe',
+        copyright: props.copyright || '',
+        textColor: props.textColor || '#6b7280',
+        linkColor: props.linkColor || '#635bff',
+        fontSize: props.fontSize || '12px',
+        align: props.align || 'center',
+        layoutStyles: props.layoutStyles || {},
+    };
+
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
+
+    return `<div data-lara-block="footer" data-props='${propsJson}'></div>`;
 };
 
 export default {

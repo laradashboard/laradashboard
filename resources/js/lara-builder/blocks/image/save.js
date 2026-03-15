@@ -35,27 +35,24 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context (no server rendering available)
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    const src = props.src || '';
-    const alt = props.alt || 'Image';
-    const align = props.align || 'center';
-    const link = props.link || '';
+    const serverProps = {
+        src: props.src || '',
+        alt: props.alt || 'Image',
+        width: props.width || '100%',
+        height: props.height || 'auto',
+        customWidth: props.customWidth || '',
+        customHeight: props.customHeight || '',
+        align: props.align || 'center',
+        link: props.link || '',
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    const isCustomWidth = props.width === 'custom' && props.customWidth;
-    const isCustomHeight = props.height === 'custom' && props.customHeight;
-    const imgWidth = isCustomWidth ? props.customWidth : (props.width || '100%');
-    const imgHeight = isCustomHeight ? props.customHeight : (props.height || 'auto');
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-    const imgStyle = `max-width: ${imgWidth};${isCustomWidth ? ` width: ${props.customWidth};` : ''} height: ${imgHeight}; display: block; margin: 0 auto;${imgHeight !== 'auto' ? ' object-fit: cover;' : ''}`;
-    const img = `<img src="${src}" alt="${alt}" style="${imgStyle}" />`;
-
-    if (link) {
-        return `<a href="${link}" target="_blank" style="display: block; text-align: ${align};">${img}</a>`;
-    }
-
-    return `<div style="text-align: ${align};">${img}</div>`;
+    return `<div data-lara-block="image" data-props='${propsJson}'></div>`;
 };
 
 export default {

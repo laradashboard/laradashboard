@@ -16,6 +16,54 @@
 return function (array $props, string $context = 'page', ?string $blockId = null): string {
     $text = $props['text'] ?? '';
     $level = $props['level'] ?? 'h2';
+
+    // Validate heading level early (used by both contexts)
+    $validLevels = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+    if (! in_array($level, $validLevels, true)) {
+        $level = 'h2';
+    }
+
+    // Email context: inline-styled output
+    if ($context === 'email') {
+        $layoutStyles = $props['layoutStyles'] ?? [];
+        $typography = $layoutStyles['typography'] ?? [];
+
+        $align = $props['align'] ?? 'left';
+        $color = $typography['color'] ?? $props['color'] ?? '#333333';
+        $fontSize = $typography['fontSize'] ?? $props['fontSize'] ?? '24px';
+        $fontWeight = $typography['fontWeight'] ?? $props['fontWeight'] ?? '700';
+        $lineHeight = $typography['lineHeight'] ?? $props['lineHeight'] ?? '1.2';
+
+        $styles = [
+            "text-align: {$align}",
+            "color: {$color}",
+            "font-size: {$fontSize}",
+            "font-weight: {$fontWeight}",
+            "line-height: {$lineHeight}",
+            'font-family: Arial, Helvetica, sans-serif',
+            'margin: 0 0 16px 0',
+        ];
+
+        if (! empty($typography['letterSpacing']) || (! empty($props['letterSpacing']) && $props['letterSpacing'] !== '0')) {
+            $ls = $typography['letterSpacing'] ?? $props['letterSpacing'];
+            $styles[] = "letter-spacing: {$ls}";
+        }
+
+        $layoutCSS = \App\Helpers\EmailStyleHelper::buildLayoutStyles($layoutStyles);
+        if ($layoutCSS) {
+            $styles[] = $layoutCSS;
+        }
+
+        $styleAttr = implode('; ', $styles);
+
+        return sprintf(
+            '<%s style="%s">%s</%s>',
+            $level,
+            e($styleAttr),
+            $text,
+            $level
+        );
+    }
     $align = $props['align'] ?? 'left';
     $color = $props['color'] ?? '#333333';
     $fontSize = $props['fontSize'] ?? '32px';
@@ -131,12 +179,6 @@ return function (array $props, string $context = 'page', ?string $blockId = null
 
     $styleAttr = implode('; ', $styles);
     $idAttr = $headingId ? sprintf(' id="%s"', e($headingId)) : '';
-
-    // Validate heading level
-    $validLevels = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-    if (! in_array($level, $validLevels, true)) {
-        $level = 'h2';
-    }
 
     return sprintf(
         '<%s%s class="%s" style="%s">%s</%s>',

@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
         searchInput?.focus();
     }
 
-    if (searchInput) {
+    if (searchInput && searchButton) {
         // Add click event listener to the search button
         searchButton.addEventListener("click", focusSearchInput);
     }

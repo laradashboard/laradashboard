@@ -4,7 +4,6 @@
  * Uses the new factory helpers for cleaner code.
  */
 
-import { emailSpacer } from '@lara-builder/factory';
 import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
 
 /**
@@ -18,11 +17,17 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
- * Uses emailSpacer helper for proper email-safe output
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    return emailSpacer(props.height || '20px');
+    const serverProps = {
+        height: props.height || '20px',
+        layoutStyles: props.layoutStyles || {},
+    };
+
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
+
+    return `<div data-lara-block="spacer" data-props='${propsJson}'></div>`;
 };
 
 export default { page, email };

@@ -24,10 +24,21 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    return `<hr style="border: none; border-top: ${props.thickness || '1px'} ${props.style || 'solid'} ${props.color || '#e5e7eb'}; width: ${props.width || '100%'}; margin: ${props.margin || '20px auto'};" />`;
+    const serverProps = {
+        color: props.color || '#e5e7eb',
+        thickness: props.thickness || '1px',
+        width: props.width || '100%',
+        margin: props.margin || '20px auto',
+        style: props.style || 'solid',
+        layoutStyles: props.layoutStyles || {},
+    };
+
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
+
+    return `<div data-lara-block="divider" data-props='${propsJson}'></div>`;
 };
 
 export default {

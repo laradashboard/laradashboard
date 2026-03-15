@@ -142,58 +142,22 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    const { previewMode = false } = options;
-    const isDirectVideo = isDirectVideoFile(props.videoUrl);
-    const vidInfo = parseVideoUrl(props.videoUrl);
+    const serverProps = {
+        videoUrl: props.videoUrl || '',
+        thumbnailUrl: props.thumbnailUrl || props.thumbnail || '',
+        alt: props.alt || 'Video',
+        width: props.width || '100%',
+        align: props.align || 'center',
+        playButtonColor: props.playButtonColor || '#635bff',
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    // Preview mode uses actual video/iframe elements
-    if (previewMode) {
-        if (isDirectVideo && !props.thumbnailUrl) {
-            return `
-                <div style="text-align: ${props.align || 'center'};">
-                    <video src="${props.videoUrl}" controls style="max-width: ${props.width || '100%'}; width: 100%; height: auto; display: inline-block; border-radius: 8px; background-color: #1a1a2e;" preload="metadata"></video>
-                </div>
-            `;
-        } else if (vidInfo?.embedUrl && !props.thumbnailUrl) {
-            return `
-                <div style="text-align: ${props.align || 'center'};">
-                    <div style="position: relative; max-width: ${props.width || '100%'}; width: 100%; display: inline-block;">
-                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px;">
-                            <iframe src="${vidInfo.embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-    }
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-    // Email HTML uses clickable thumbnail
-    let vidThumbnail;
-    if (props.thumbnailUrl) {
-        vidThumbnail = props.thumbnailUrl;
-    } else if (vidInfo?.thumbnail) {
-        vidThumbnail = vidInfo.thumbnail;
-    } else if (isDirectVideo) {
-        vidThumbnail = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='340' viewBox='0 0 600 340'%3E%3Crect fill='%231a1a2e' width='600' height='340'/%3E%3Ctext fill='%23ffffff' font-family='Arial' font-size='16' x='50%25' y='60%25' text-anchor='middle'%3EClick to play video%3C/text%3E%3C/svg%3E";
-    } else {
-        vidThumbnail = 'https://via.placeholder.com/600x340/1a1a2e/ffffff?text=Video';
-    }
-
-    const vidPlayColor = props.playButtonColor || vidInfo?.color || (isDirectVideo ? '#635bff' : '#ff0000');
-    const videoThumbnail = `
-        <div style="position: relative; display: inline-block; max-width: ${props.width || '100%'}; width: 100%;">
-            <a href="${props.videoUrl}" target="_blank" style="display: block; text-decoration: none;">
-                <img src="${vidThumbnail}" alt="${props.alt || 'Video thumbnail'}" style="width: 100%; height: auto; display: block; border-radius: 8px; background-color: #1a1a2e;" />
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 68px; height: 68px; background-color: ${vidPlayColor}; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <span style="width: 0; height: 0; border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-left: 20px solid white; margin-left: 4px;"></span>
-                </div>
-            </a>
-        </div>
-    `;
-    return `<div style="text-align: ${props.align || 'center'};">${videoThumbnail}</div>`;
+    return `<div data-lara-block="video" data-props='${propsJson}'></div>`;
 };
 
 export default {

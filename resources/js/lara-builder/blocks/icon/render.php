@@ -7,6 +7,17 @@
  */
 
 return function (array $props, string $context = 'page', ?string $blockId = null): string {
+    // Email context: icons can't use web components, use text fallback
+    if ($context === 'email') {
+        $align = $props['align'] ?? 'center';
+
+        // Use a simple star emoji/text fallback since iconify-icon doesn't work in email
+        return sprintf(
+            '<div style="text-align: %s; padding: 8px 0; font-family: Arial, Helvetica, sans-serif;">&#9733;</div>',
+            e($align)
+        );
+    }
+
     $icon = $props['icon'] ?? 'lucide:star';
     $size = $props['size'] ?? '48px';
     $color = $props['color'] ?? '#3b82f6';
