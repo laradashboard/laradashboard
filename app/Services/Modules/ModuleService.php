@@ -793,6 +793,17 @@ class ModuleService
 
                 Hook::doAction(ModuleActionHook::MODULE_ASSETS_PUBLISHING_BEFORE, $moduleName);
                 $this->publishModuleAssets($moduleName);
+
+                // Re-publish module images (logo, banner) to ensure they reflect the latest module.json.
+                // This covers scenarios where module files were updated outside the upload flow.
+                // We overwrite in place (File::copy overwrites by default) without deleting first,
+                // so a simple re-enable doesn't unnecessarily remove and re-copy identical images.
+                $moduleObj = $this->findModuleByName($moduleName);
+                if ($moduleObj) {
+                    $normalizedName = $this->normalizeModuleName($moduleName);
+                    $this->publishModuleImagesFromPath($moduleObj->getPath(), $normalizedName);
+                }
+
                 Hook::doAction(ModuleActionHook::MODULE_ASSETS_PUBLISHED_AFTER, $moduleName);
 
                 // Clear route and config caches so module routes/config are loaded
@@ -1336,22 +1347,19 @@ class ModuleService
             File::ensureDirectoryExists($targetDir);
 
             // Copy all files from marketplace-assets (logo, banner, screenshots, etc.)
+            // Always overwrite to ensure updated assets take effect after module replacement.
             foreach (File::files($marketplaceAssetsPath) as $file) {
                 $targetFile = $targetDir . '/' . $file->getFilename();
-                if (! File::exists($targetFile)) {
-                    File::copy($file->getPathname(), $targetFile);
-                    $published = true;
-                }
+                File::copy($file->getPathname(), $targetFile);
+                $published = true;
             }
 
             // Also copy subdirectories like screenshots/
             foreach (File::directories($marketplaceAssetsPath) as $subDir) {
                 $subDirName = basename($subDir);
                 $targetSubDir = $targetDir . '/' . $subDirName;
-                if (! File::isDirectory($targetSubDir)) {
-                    File::copyDirectory($subDir, $targetSubDir);
-                    $published = true;
-                }
+                File::copyDirectory($subDir, $targetSubDir);
+                $published = true;
             }
 
             if ($published) {
