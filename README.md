@@ -50,6 +50,10 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v0.9.13] - 2026-03-16**
+-   **Refactor:** Block improvements for emails
+-   **Fix:** Module approval now syncs updated version assets and metadata
+
 **[v0.9.12] - 2026-03-14**
 -   **Fix:** Fixed security issue with sanitization in content rendering
 -   **Improvement:** Refactored code and pre block for better code snippet support
