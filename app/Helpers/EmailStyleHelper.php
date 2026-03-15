@@ -170,8 +170,8 @@ class EmailStyleHelper
         }
 
         if (! empty($typography['letterSpacing']) || ! empty($props['letterSpacing'])) {
-            $ls = $typography['letterSpacing'] ?? $props['letterSpacing'];
-            if ($ls && $ls !== '0') {
+            $ls = (string) ($typography['letterSpacing'] ?? $props['letterSpacing'] ?? '');
+            if ($ls !== '' && $ls !== '0') {
                 $styles[] = "letter-spacing: {$ls}";
             }
         }

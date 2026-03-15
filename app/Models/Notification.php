@@ -13,6 +13,9 @@ use App\Concerns\QueryBuilderTrait;
 use App\Services\ReceiverTypeRegistry;
 use Illuminate\Support\Str;
 
+/**
+ * @property-read EmailTemplate|null $emailTemplate
+ */
 class Notification extends Model
 {
     use HasFactory;
