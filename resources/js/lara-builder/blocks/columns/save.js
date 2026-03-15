@@ -72,33 +72,22 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
+ * Generate placeholder for server-side rendering (email context)
+ * Children are serialized into props for recursive server-side rendering
  */
 export const email = (props, options = {}) => {
-    const { generateBlockHtml } = options;
-    const verticalAlign = props.verticalAlign || 'stretch';
-
-    // Map vertical align to email-compatible values
-    const emailVerticalAlign = {
-        'start': 'top',
-        'center': 'middle',
-        'end': 'bottom',
-        'stretch': 'top',
+    const serverProps = {
+        columns: props.columns || 2,
+        gap: props.gap || '20px',
+        verticalAlign: props.verticalAlign || 'stretch',
+        horizontalAlign: props.horizontalAlign || 'stretch',
+        children: props.children || [],
+        layoutStyles: props.layoutStyles || {},
     };
 
-    const columnWidth = `${100 / (props.columns || 2)}%`;
-    const valign = emailVerticalAlign[verticalAlign] || 'top';
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-    const columnsHtml = (props.children || []).map((columnBlocks, index) => {
-        const columnContent = columnBlocks.map(b => generateBlockHtml ? generateBlockHtml(b, options) : '').join('');
-        return `<td style="width: ${columnWidth}; vertical-align: ${valign}; padding: 0 ${index < (props.columns || 2) - 1 ? props.gap || '20px' : '0'} 0 0;">${columnContent || '&nbsp;'}</td>`;
-    }).join('');
-
-    return `
-        <table width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr>${columnsHtml}</tr>
-        </table>
-    `;
+    return `<div data-lara-block="columns" data-props='${propsJson}'></div>`;
 };
 
 export default {

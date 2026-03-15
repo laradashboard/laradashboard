@@ -450,20 +450,36 @@ const TextFormatControls = ({
     const handleUnderline = () => execFormat("underline");
 
     const handleLinkClick = () => {
-        saveSelection();
-        const selection = window.getSelection();
-        if (selection.toString().length === 0) return; // No selection
+        // Selection was already saved via onMouseDown={saveSelection} on the button.
+        // Do NOT call restoreSelection() here — that would move focus back to the
+        // contentEditable editor and prevent the URL input from receiving keystrokes.
+        // handleLinkSubmit() will restore the selection when the user submits.
+        if (!savedSelection.current || savedSelection.current.collapsed) return;
+
+        // Check if the selection is inside an existing <a> tag and pre-fill its URL
+        let existingUrl = "";
+        let node = savedSelection.current.startContainer;
+        while (node && node !== editorRef?.current) {
+            if (node.nodeType === Node.ELEMENT_NODE && node.tagName === "A") {
+                existingUrl = node.getAttribute("href") || "";
+                break;
+            }
+            node = node.parentNode;
+        }
+        setLinkUrl(existingUrl);
         setShowLinkInput(true);
     };
 
     const handleLinkSubmit = () => {
+        restoreSelection();
+
         if (!linkUrl.trim()) {
-            setShowLinkInput(false);
-            return;
+            // Empty URL — remove the link (unlink)
+            document.execCommand("unlink", false, null);
+        } else {
+            document.execCommand("createLink", false, linkUrl);
         }
 
-        restoreSelection();
-        document.execCommand("createLink", false, linkUrl);
         setLinkUrl("");
         setShowLinkInput(false);
 
@@ -626,6 +642,7 @@ const TextFormatControls = ({
                     <div className="relative">
                         <button
                             type="button"
+                            onMouseDown={saveSelection}
                             onClick={handleLinkClick}
                             className={buttonClass}
                             title={__("Insert Link")}
@@ -637,16 +654,22 @@ const TextFormatControls = ({
                             ></iconify-icon>
                         </button>
                         {showLinkInput && (
-                            <div className="absolute left-0 top-full mt-2 z-50">
+                            <div
+                                className="absolute left-0 top-full mt-2 z-50"
+                                onMouseDown={(e) => e.stopPropagation()}
+                            >
                                 <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg shadow-lg border border-gray-200">
                                     <input
                                         ref={linkInputRef}
-                                        type="url"
+                                        type="text"
                                         value={linkUrl}
                                         onChange={(e) =>
                                             setLinkUrl(e.target.value)
                                         }
-                                        onKeyDown={handleLinkKeyDown}
+                                        onKeyDown={(e) => {
+                                            e.stopPropagation();
+                                            handleLinkKeyDown(e);
+                                        }}
                                         placeholder={__("Enter URL...")}
                                         className="w-48 px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:border-primary"
                                     />

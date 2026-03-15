@@ -36,22 +36,24 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    const tableHeaders = (props.headers || []).map(header =>
-        `<th style="background-color: ${props.headerBgColor || '#f1f5f9'}; color: ${props.headerTextColor || '#1e293b'}; padding: ${props.cellPadding || '12px'}; text-align: left; font-weight: 600; border-bottom: 2px solid ${props.borderColor || '#e2e8f0'};">${header}</th>`
-    ).join('');
-    const tableRows = (props.rows || []).map(row =>
-        `<tr>${row.map(cell => `<td style="padding: ${props.cellPadding || '12px'}; border-bottom: 1px solid ${props.borderColor || '#e2e8f0'}; color: #374151;">${cell}</td>`).join('')}</tr>`
-    ).join('');
+    const serverProps = {
+        headers: props.headers || [],
+        rows: props.rows || [],
+        showHeader: props.showHeader ?? true,
+        headerBgColor: props.headerBgColor || '#f1f5f9',
+        headerTextColor: props.headerTextColor || '#1e293b',
+        borderColor: props.borderColor || '#e2e8f0',
+        cellPadding: props.cellPadding || '12px',
+        fontSize: props.fontSize || '14px',
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    return `
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: ${props.fontSize || '14px'}; border-collapse: collapse;">
-            ${props.showHeader && tableHeaders ? `<thead><tr>${tableHeaders}</tr></thead>` : ''}
-            <tbody>${tableRows}</tbody>
-        </table>
-    `;
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
+
+    return `<div data-lara-block="table" data-props='${propsJson}'></div>`;
 };
 
 export default {

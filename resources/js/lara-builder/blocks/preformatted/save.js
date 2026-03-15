@@ -83,23 +83,17 @@ export const page = (props) => {
 };
 
 /**
- * Generate HTML for email context
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props) => {
-    const content = sanitizePreContent(props.text || '');
-    const ls = props.layoutStyles || {};
+    const serverProps = {
+        text: props.text || '',
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    // Get values from layoutStyles or use defaults
-    const bgColor = ls.background?.color || 'var(--color-gray-100, #f3f4f6)';
-    const textColor = ls.typography?.color || 'var(--color-gray-800, #1f2937)';
-    const fontSize = ls.typography?.fontSize || '14px';
-    const lineHeight = ls.typography?.lineHeight || '1.6';
-    const padding = ls.spacing?.padding || '16px';
-    const borderRadius = ls.border?.radius || '4px';
-    const borderWidth = ls.border?.width || '1px';
-    const borderColor = ls.border?.color || 'var(--color-gray-200, #e5e7eb)';
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-    return `<pre style="margin: 1em 0; background-color: ${bgColor}; border-radius: ${borderRadius}; padding: ${padding}; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: ${fontSize}; line-height: ${lineHeight}; color: ${textColor}; border: ${borderWidth} solid ${borderColor};">${content}</pre>`;
+    return `<div data-lara-block="preformatted" data-props='${propsJson}'></div>`;
 };
 
 export default {

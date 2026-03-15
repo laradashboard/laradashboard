@@ -51,7 +51,7 @@ class CustomVerifyEmailNotification extends VerifyEmail
 
         return (new EmailSender())
             ->setSubject($notification->emailTemplate->subject ?? __('Verify Email Address'))
-            ->setContent($notification->emailTemplate->body_html)
+            ->setContent($notification->emailTemplate->renderContent('email'))
             ->getMailMessage(
                 $notification->from_email,
                 [

@@ -86,70 +86,25 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
+ * Generate placeholder for server-side rendering (email context)
+ * PHP render.php computes live countdown values at render time
  */
 export const email = (props, options = {}) => {
-    const countdownTargetDate = props.targetDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const countdownTargetTime = props.targetTime || '23:59';
-    const targetDateTime = `${countdownTargetDate}T${countdownTargetTime}:00`;
-    const targetDate = new Date(targetDateTime);
-    const now = new Date();
-    const diff = Math.max(0, targetDate - now);
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / 1000 / 60) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
+    const serverProps = {
+        title: props.title || 'Sale Ends In',
+        targetDate: props.targetDate || '',
+        targetTime: props.targetTime || '23:59',
+        backgroundColor: props.backgroundColor || '#1e293b',
+        textColor: props.textColor || '#ffffff',
+        numberColor: props.numberColor || '#635bff',
+        align: props.align || 'center',
+        expiredMessage: props.expiredMessage || '',
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    if (diff <= 0 && props.expiredMessage) {
-        return `
-            <div style="padding: 24px; background-color: ${props.backgroundColor || '#1e293b'}; border-radius: 8px; text-align: ${props.align || 'center'};">
-                <p style="color: ${props.textColor || '#ffffff'}; font-size: 18px; font-weight: 600; margin: 0;">${props.expiredMessage}</p>
-            </div>
-        `;
-    }
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
 
-    return `
-        <div style="padding: 24px; background-color: ${props.backgroundColor || '#1e293b'}; border-radius: 8px; text-align: ${props.align || 'center'};">
-            ${props.title ? `<p style="color: ${props.textColor || '#ffffff'}; font-size: 18px; font-weight: 600; margin: 0 0 16px 0;">${props.title}</p>` : ''}
-            <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                    <td align="center">
-                        <table cellpadding="0" cellspacing="0" border="0">
-                            <tr>
-                                <td style="text-align: center; padding: 0 12px;">
-                                    <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
-                                        <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(days).padStart(2, '0')}</span>
-                                        <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Days</span>
-                                    </div>
-                                </td>
-                                <td style="color: ${props.numberColor || '#635bff'}; font-size: 28px; font-weight: 700; padding: 0 4px;">:</td>
-                                <td style="text-align: center; padding: 0 12px;">
-                                    <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
-                                        <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(hours).padStart(2, '0')}</span>
-                                        <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Hours</span>
-                                    </div>
-                                </td>
-                                <td style="color: ${props.numberColor || '#635bff'}; font-size: 28px; font-weight: 700; padding: 0 4px;">:</td>
-                                <td style="text-align: center; padding: 0 12px;">
-                                    <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
-                                        <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(minutes).padStart(2, '0')}</span>
-                                        <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Mins</span>
-                                    </div>
-                                </td>
-                                <td style="color: ${props.numberColor || '#635bff'}; font-size: 28px; font-weight: 700; padding: 0 4px;">:</td>
-                                <td style="text-align: center; padding: 0 12px;">
-                                    <div style="background-color: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
-                                        <span style="color: ${props.numberColor || '#635bff'}; font-size: 36px; font-weight: 700; display: block;">${String(seconds).padStart(2, '0')}</span>
-                                        <span style="color: ${props.textColor || '#ffffff'}; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Secs</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    `;
+    return `<div data-lara-block="countdown" data-props='${propsJson}'></div>`;
 };
 
 export default {

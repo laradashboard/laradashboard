@@ -17,10 +17,17 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    return props.code || '';
+    const serverProps = {
+        code: props.code || '',
+        layoutStyles: props.layoutStyles || {},
+    };
+
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
+
+    return `<div data-lara-block="html" data-props='${propsJson}'></div>`;
 };
 
 export default {

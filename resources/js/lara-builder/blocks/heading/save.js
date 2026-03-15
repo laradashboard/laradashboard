@@ -38,17 +38,26 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context (no server rendering available)
+ * Generate placeholder for server-side rendering (email context)
+ * render.php handles inline-styled email output
  */
 export const email = (props, options = {}) => {
-    const level = props.level || 'h2';
-    const text = props.text || '';
-    const align = props.align || 'left';
-    const color = props.color || '#333333';
-    const fontSize = props.fontSize || '24px';
-    const fontWeight = props.fontWeight || '700';
+    const serverProps = {
+        text: props.text || '',
+        level: props.level || 'h2',
+        align: props.align || 'left',
+        color: props.color || '#333333',
+        fontSize: props.fontSize || '32px',
+        fontWeight: props.fontWeight || 'bold',
+        lineHeight: props.lineHeight || '1.2',
+        letterSpacing: props.letterSpacing || '0',
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    return `<${level} style="text-align: ${align}; color: ${color}; font-size: ${fontSize}; font-weight: ${fontWeight}; margin: 0 0 16px 0;">${text}</${level}>`;
+    const blockId = options.blockId || props._blockId || '';
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
+
+    return `<div data-lara-block="heading" data-block-id="${blockId}" data-props='${propsJson}'></div>`;
 };
 
 export default {

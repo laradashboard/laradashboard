@@ -117,7 +117,8 @@ class Module implements Arrayable, ArrayAccess
         }
 
         // Simple filename - use the module images directory
-        return asset("images/modules/{$this->name}/{$this->logo_image}");
+        // Append version as cache-buster so browsers fetch the new image after module updates
+        return asset("images/modules/{$this->name}/{$this->logo_image}") . '?v=' . urlencode($this->version);
     }
 
     /**
@@ -148,7 +149,8 @@ class Module implements Arrayable, ArrayAccess
         }
 
         // Simple filename - use the module images directory
-        return asset("images/modules/{$this->name}/{$this->banner_image}");
+        // Append version as cache-buster so browsers fetch the new image after module updates
+        return asset("images/modules/{$this->name}/{$this->banner_image}") . '?v=' . urlencode($this->version);
     }
 
     public function toArray(): array

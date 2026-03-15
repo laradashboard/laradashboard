@@ -30,6 +30,48 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $customCSS = $props['customCSS'] ?? '';
     $customClass = $props['customClass'] ?? '';
 
+    // Email context: MSO-compatible button
+    if ($context === 'email') {
+        $background = $layoutStyles['background'] ?? [];
+        $typography = $layoutStyles['typography'] ?? [];
+        $border = $layoutStyles['border'] ?? [];
+
+        $bgColor = $background['color'] ?? $backgroundColor;
+        $txtColor = $typography['color'] ?? $textColor;
+        $fSize = $typography['fontSize'] ?? $fontSize;
+        $fWeight = $typography['fontWeight'] ?? $fontWeight;
+        $bRadius = ! empty($border['radius']) ? $border['radius'] : $borderRadius;
+        $btnLink = ! empty($link) ? $link : '#';
+
+        // Parse padding for MSO
+        $vPad = (int) $padding;
+
+        $buttonHtml = sprintf(
+            '<a href="%s" target="_blank" style="display: inline-block; background-color: %s; color: %s; font-size: %s; font-weight: %s; font-family: Arial, Helvetica, sans-serif; text-decoration: none; padding: %s; border-radius: %s; text-align: center;">%s</a>',
+            e($btnLink),
+            e($bgColor),
+            e($txtColor),
+            e($fSize),
+            e($fWeight),
+            e($padding),
+            e($bRadius),
+            $text
+        );
+
+        $wrapperStyles = ["text-align: {$align}", 'padding: 10px 0'];
+
+        $layoutCSS = \App\Helpers\EmailStyleHelper::buildLayoutStyles($layoutStyles);
+        if ($layoutCSS) {
+            $wrapperStyles[] = $layoutCSS;
+        }
+
+        return sprintf(
+            '<div style="%s">%s</div>',
+            e(implode('; ', $wrapperStyles)),
+            $buttonHtml
+        );
+    }
+
     // Build block classes
     $blockClasses = 'lb-block lb-button';
     if (! empty($customClass)) {

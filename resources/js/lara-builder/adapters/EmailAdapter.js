@@ -11,7 +11,6 @@ import { BaseAdapter } from './BaseAdapter';
 import { LaraHooks } from '../hooks-system/LaraHooks';
 import { BuilderHooks, getBlockHook } from '../hooks-system/HookNames';
 import { blockRegistry } from '../registry/BlockRegistry';
-import { layoutStylesToInlineCSS } from '../components/LayoutStylesSection';
 
 export class EmailAdapter extends BaseAdapter {
     constructor() {
@@ -45,11 +44,12 @@ export class EmailAdapter extends BaseAdapter {
 
     /**
      * Generate HTML for a single block
-     * Delegates to block-registered HTML generators from save.js files
+     * Delegates to block-registered HTML generators from save.js files.
+     * Email save.js now outputs server-side placeholders (data-lara-block),
+     * so layout styles are handled by render.php, not here.
      */
     generateBlockHtml(block, options = {}) {
         const { type, props } = block;
-        const layoutStyles = props?.layoutStyles;
 
         // Pass generateBlockHtml function to options for nested blocks (columns)
         const extendedOptions = {
@@ -62,9 +62,6 @@ export class EmailAdapter extends BaseAdapter {
         if (blockDef?.save?.email) {
             let html = blockDef.save.email(props, extendedOptions);
 
-            // Wrap with layout styles if present
-            html = this._wrapWithLayoutStyles(html, layoutStyles);
-
             // Apply filters for extensibility
             html = LaraHooks.applyFilters(getBlockHook(BuilderHooks.FILTER_HTML_BLOCK, type), html, props, extendedOptions);
             html = LaraHooks.applyFilters(`builder.email.block.${type}`, html, props, extendedOptions);
@@ -75,18 +72,6 @@ export class EmailAdapter extends BaseAdapter {
         // Fallback for blocks without registered generators
         console.warn(`[EmailAdapter] No HTML generator found for block type: ${type}`);
         return '';
-    }
-
-    /**
-     * Generate layout wrapper with inline styles (email-safe using tables)
-     */
-    _wrapWithLayoutStyles(html, layoutStyles) {
-        const layoutCSS = layoutStylesToInlineCSS(layoutStyles);
-        if (!layoutCSS) {
-            return html;
-        }
-        // For email compatibility, use a table-based wrapper
-        return `<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="${layoutCSS}">${html}</td></tr></table>`;
     }
 
     /**

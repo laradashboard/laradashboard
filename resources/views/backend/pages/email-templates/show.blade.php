@@ -69,7 +69,7 @@
 
                 <div x-show="active === 'html'" x-cloak id="content-html">
                     <div class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-headings:text-gray-700 dark:prose-headings:text-white/90 prose-p:text-gray-700 dark:prose-p:text-gray-300">
-                        {!! $emailTemplate->body_html !!}
+                        {!! $emailTemplate->renderContent('email') !!}
                     </div>
                 </div>
 

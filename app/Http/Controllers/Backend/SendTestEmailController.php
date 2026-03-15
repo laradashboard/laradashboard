@@ -79,7 +79,7 @@ class SendTestEmailController extends Controller
 
             $emailSender = app(EmailSender::class);
             $emailSender->setSubject($notification->emailTemplate->subject)
-                ->setContent($notification->emailTemplate->body_html ?? '');
+                ->setContent($notification->emailTemplate->renderContent('email'));
 
             $this->sendMailMessageToRecipient($emailSender, $email, null, $this->emailVariable->getPreviewSampleData());
 

@@ -26,6 +26,46 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $customCSS = $props['customCSS'] ?? '';
     $customClass = $props['customClass'] ?? '';
 
+    // Email context: inline-styled blockquote
+    if ($context === 'email') {
+        $bgColor = $layoutStyles['background']['color'] ?? $backgroundColor;
+        $bColor = $layoutStyles['border']['color'] ?? $borderColor;
+
+        $styles = [
+            'padding: 20px',
+            'padding-left: 24px',
+            "background-color: {$bgColor}",
+            "border-left: 4px solid {$bColor}",
+            'border-radius: 4px',
+            'margin: 10px 0',
+            'font-family: Arial, Helvetica, sans-serif',
+        ];
+
+        $layoutCSS = \App\Helpers\EmailStyleHelper::buildLayoutStyles($layoutStyles);
+        if ($layoutCSS) {
+            $styles[] = $layoutCSS;
+        }
+
+        $quoteHtml = sprintf(
+            '<p style="color: %s; font-size: 16px; font-style: italic; line-height: 1.6; margin: 0;">&ldquo;%s&rdquo;</p>',
+            e($textColor),
+            $text
+        );
+
+        $authorHtml = '';
+        if (! empty($author)) {
+            $titleHtml = $authorTitle ? sprintf(' <span style="color: %s; font-size: 14px;"> - %s</span>', e($textColor), e($authorTitle)) : '';
+            $authorHtml = sprintf(
+                '<p style="color: %s; font-size: 14px; font-weight: 600; margin: 12px 0 0 0;">%s%s</p>',
+                e($authorColor),
+                e($author),
+                $titleHtml
+            );
+        }
+
+        return sprintf('<div style="%s">%s%s</div>', e(implode('; ', $styles)), $quoteHtml, $authorHtml);
+    }
+
     // Build block classes
     $blockClasses = 'lb-block lb-quote';
     if (! empty($customClass)) {

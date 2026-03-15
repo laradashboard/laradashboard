@@ -7,6 +7,49 @@
  */
 
 return function (array $props, string $context = 'page', ?string $blockId = null): string {
+    // Email context: inline-styled stats
+    if ($context === 'email') {
+        $value = $props['value'] ?? '100+';
+        $valueColor = $props['valueColor'] ?? '#3b82f6';
+        $valueSize = $props['valueSize'] ?? '48px';
+        $label = $props['label'] ?? 'Happy Customers';
+        $labelColor = $props['labelColor'] ?? '#6b7280';
+        $labelSize = $props['labelSize'] ?? '14px';
+        $align = $props['align'] ?? 'center';
+        $prefix = $props['prefix'] ?? '';
+        $suffix = $props['suffix'] ?? '';
+        $layoutStyles = $props['layoutStyles'] ?? [];
+
+        $displayValue = e($prefix . $value . $suffix);
+
+        $styles = [
+            "text-align: {$align}",
+            'padding: 16px',
+            'font-family: Arial, Helvetica, sans-serif',
+        ];
+
+        $layoutCSS = \App\Helpers\EmailStyleHelper::buildLayoutStyles($layoutStyles);
+        if ($layoutCSS) {
+            $styles[] = $layoutCSS;
+        }
+
+        $valueHtml = sprintf(
+            '<div style="color: %s; font-size: %s; font-weight: bold; line-height: 1.2; margin-bottom: 8px;">%s</div>',
+            e($valueColor),
+            e($valueSize),
+            $displayValue
+        );
+
+        $labelHtml = sprintf(
+            '<div style="color: %s; font-size: %s;">%s</div>',
+            e($labelColor),
+            e($labelSize),
+            e($label)
+        );
+
+        return sprintf('<div style="%s">%s%s</div>', e(implode('; ', $styles)), $valueHtml, $labelHtml);
+    }
+
     $value = $props['value'] ?? '100+';
     $valueColor = $props['valueColor'] ?? '#3b82f6';
     $valueSize = $props['valueSize'] ?? '48px';

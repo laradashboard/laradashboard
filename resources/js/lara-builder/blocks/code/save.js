@@ -12,19 +12,6 @@
  */
 
 /**
- * Escape HTML entities for email context
- */
-const escapeHtml = (text) => {
-    if (!text) return '';
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-};
-
-/**
  * Generate placeholder for server-side rendering (page context)
  */
 export const page = (props, options = {}) => {
@@ -47,20 +34,22 @@ export const page = (props, options = {}) => {
 };
 
 /**
- * Generate HTML for email context (no server rendering available)
+ * Generate placeholder for server-side rendering (email context)
  */
 export const email = (props, options = {}) => {
-    const code = escapeHtml(props.code || '');
-    const backgroundColor = props.backgroundColor || '#1e1e1e';
-    const textColor = props.textColor || '#d4d4d4';
-    const fontSize = props.fontSize || '14px';
-    const borderRadius = props.borderRadius || '8px';
+    const serverProps = {
+        code: props.code || '',
+        language: props.language || 'plaintext',
+        fontSize: props.fontSize || '14px',
+        backgroundColor: props.backgroundColor || '#1e1e1e',
+        textColor: props.textColor || '#d4d4d4',
+        borderRadius: props.borderRadius || '8px',
+        layoutStyles: props.layoutStyles || {},
+    };
 
-    return `
-        <div style="background-color: ${backgroundColor}; border-radius: ${borderRadius}; padding: 16px; overflow-x: auto; font-family: monospace; font-size: ${fontSize}; line-height: 1.5; color: ${textColor};">
-            <pre style="margin: 0; white-space: pre; overflow-x: auto;">${code}</pre>
-        </div>
-    `;
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
+
+    return `<div data-lara-block="code" data-props='${propsJson}'></div>`;
 };
 
 export default {

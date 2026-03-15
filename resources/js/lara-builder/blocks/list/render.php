@@ -23,6 +23,39 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $customCSS = $props['customCSS'] ?? '';
     $customClass = $props['customClass'] ?? '';
 
+    // Email context: inline-styled list
+    if ($context === 'email') {
+        if (empty($items)) {
+            return '';
+        }
+
+        $typography = $layoutStyles['typography'] ?? [];
+        $listColor = $typography['color'] ?? $color;
+        $listFontSize = $typography['fontSize'] ?? $fontSize;
+
+        $tag = $listType === 'number' ? 'ol' : 'ul';
+        $itemsHtml = '';
+        foreach ($items as $item) {
+            $itemsHtml .= sprintf('<li style="margin-bottom: 8px;">%s</li>', $item);
+        }
+
+        $styles = [
+            "color: {$listColor}",
+            "font-size: {$listFontSize}",
+            'line-height: 1.8',
+            'font-family: Arial, Helvetica, sans-serif',
+            'margin: 0',
+            'padding-left: 24px',
+        ];
+
+        $layoutCSS = \App\Helpers\EmailStyleHelper::buildLayoutStyles($layoutStyles);
+        if ($layoutCSS) {
+            $styles[] = $layoutCSS;
+        }
+
+        return sprintf('<%s style="%s">%s</%s>', $tag, e(implode('; ', $styles)), $itemsHtml, $tag);
+    }
+
     // Build block classes
     $blockClasses = "lb-block lb-list lb-list-{$listType}";
     if (! empty($customClass)) {
