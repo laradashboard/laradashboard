@@ -50,6 +50,13 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v0.9.14] - 2026-03-16**
+-   **Refactor:** Unified server-side block rendering for email and page contexts via render.php
+-   **New:** EmailStyleHelper PHP utility for email-safe inline CSS from layoutStyles
+-   **New:** Server-side render.php for 13 blocks (divider, spacer, footer, social, preformatted, accordion, countdown, table, video, text-editor, html, columns, section)
+-   **Improvement:** Email blocks now use server-side placeholders for consistent rendering with layoutStyles support
+-   **Fix:** Email campaign preview, send, and tracking now process dynamic blocks correctly
+
 **[v0.9.13] - 2026-03-16**
 -   **Refactor:** Block improvements for emails
 -   **Fix:** Module approval now syncs updated version assets and metadata

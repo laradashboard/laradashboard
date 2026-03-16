@@ -102,7 +102,7 @@ class EmailTemplateController extends Controller
         return response()->json([
             'name' => $emailTemplate->name,
             'subject' => $emailTemplate->subject,
-            'body_html' => $emailTemplate->body_html ?? '',
+            'body_html' => $emailTemplate->renderContent('email'),
         ]);
     }
 
@@ -123,7 +123,7 @@ class EmailTemplateController extends Controller
                 'subject' => $template->subject,
                 'type' => $template->type,
                 'type_label' => $template->type_label,
-                'body_html' => $template->body_html ?? '',
+                'body_html' => $template->renderContent('email'),
             ]);
 
         return response()->json([
