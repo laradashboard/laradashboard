@@ -7,9 +7,6 @@
 /storage/*.key
 /vendor
 /bootstrap/cache/*.php
-.env
-.env.local
-.env.production
 .env.backup
 .phpunit.result.cache
 Homestead.json
@@ -45,3 +42,4 @@ public/images/.DS_Store
 # Eclude zip/tar.gz release packages
 *.zip
 *.tar.gz
+config.bat
