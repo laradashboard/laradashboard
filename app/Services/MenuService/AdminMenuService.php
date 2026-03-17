@@ -130,6 +130,16 @@ class AdminMenuService
         ], __('More'));
 
         $this->addMenuItem([
+            'label' => __('Theme'),
+            'icon' => 'lucide:palette',
+            'route' => route('admin.theme.index'),
+            'active' => Route::is('admin.theme.*'),
+            'id' => 'theme',
+            'priority' => 26,
+            'permissions' => 'settings.edit',
+        ], __('More'));
+
+        $this->addMenuItem([
             'label' => __('Monitoring'),
             'icon' => 'lucide:monitor',
             'id' => 'monitoring-submenu',

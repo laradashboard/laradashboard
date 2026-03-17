@@ -1,0 +1,6 @@
+/* lb-text: dark mode */
+.dark .lb-page-content .lb-text[style*="color: #64748b"],
+.dark .lb-page-content .lb-text[style*="color: #475569"],
+.dark .lb-page-content .lb-text[style*="color: #6b7280"],
+.dark .lb-page-content .lb-text[style*="color: #666666"],
+.dark .lb-page-content .lb-text[style*="color: #374151"]{color:#94a3b8!important}

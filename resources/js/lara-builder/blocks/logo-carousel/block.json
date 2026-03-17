@@ -1,0 +1,36 @@
+{
+    "type": "logo-carousel",
+    "version": "1.0.0",
+    "label": "Logo Carousel",
+    "category": "Content",
+    "icon": "mdi:image-multiple-outline",
+    "description": "Auto-scrolling infinite marquee of logos or images",
+    "keywords": ["logo", "carousel", "marquee", "brand", "partner", "client", "scroll"],
+    "contexts": ["page"],
+    "supports": {
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "images": [
+            { "src": "https://placehold.co/150x50/e2e8f0/64748b?text=Logo+1", "alt": "Logo 1", "link": "" },
+            { "src": "https://placehold.co/150x50/e2e8f0/64748b?text=Logo+2", "alt": "Logo 2", "link": "" },
+            { "src": "https://placehold.co/150x50/e2e8f0/64748b?text=Logo+3", "alt": "Logo 3", "link": "" },
+            { "src": "https://placehold.co/150x50/e2e8f0/64748b?text=Logo+4", "alt": "Logo 4", "link": "" },
+            { "src": "https://placehold.co/150x50/e2e8f0/64748b?text=Logo+5", "alt": "Logo 5", "link": "" },
+            { "src": "https://placehold.co/150x50/e2e8f0/64748b?text=Logo+6", "alt": "Logo 6", "link": "" }
+        ],
+        "speed": 30,
+        "direction": "left",
+        "pauseOnHover": true,
+        "gap": "48px",
+        "imageHeight": "40px",
+        "grayscale": true,
+        "headingText": "Trusted by Devs, Startups & Agencies worldwide",
+        "headingColor": "#6b7280",
+        "headingSize": "14px"
+    }
+}

@@ -1,0 +1,31 @@
+{
+    "type": "testimonial",
+    "version": "1.0.0",
+    "label": "Testimonial",
+    "category": "Content",
+    "icon": "mdi:format-quote-close",
+    "description": "Testimonial card with avatar, name, role, star rating, and quote",
+    "keywords": ["testimonial", "review", "quote", "feedback", "rating", "customer"],
+    "contexts": ["page"],
+    "supports": {
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "quote": "This product has completely transformed our workflow. Highly recommended!",
+        "authorName": "John Doe",
+        "authorRole": "CEO, Company",
+        "avatarUrl": "",
+        "rating": 5,
+        "showRating": true,
+        "cardStyle": "shadow",
+        "backgroundColor": "#ffffff",
+        "textColor": "#374151",
+        "nameColor": "#111827",
+        "ratingColor": "#fbbf24",
+        "borderColor": "#e5e7eb"
+    }
+}

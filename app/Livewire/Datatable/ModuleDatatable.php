@@ -38,6 +38,8 @@ class ModuleDatatable extends Datatable
     /**
      * Override sort default since modules don't have created_at.
      */
+    public int $perPage = 100;
+
     public string $sort = 'title';
 
     public string $direction = 'asc';

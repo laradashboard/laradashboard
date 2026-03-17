@@ -1,0 +1,45 @@
+{
+    "type": "button-group",
+    "version": "1.0.0",
+    "label": "Button Group",
+    "category": "Content",
+    "icon": "mdi:button-cursor",
+    "description": "Multiple buttons side by side with responsive stacking",
+    "keywords": ["button", "group", "buttons", "cta", "actions", "links"],
+    "contexts": ["page"],
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "buttons": [
+            {
+                "text": "Get Started",
+                "link": "#",
+                "variant": "solid",
+                "backgroundColor": "#3b82f6",
+                "textColor": "#ffffff",
+                "icon": "",
+                "iconPosition": "left"
+            },
+            {
+                "text": "Learn More",
+                "link": "#",
+                "variant": "outline",
+                "backgroundColor": "#3b82f6",
+                "textColor": "#3b82f6",
+                "icon": "",
+                "iconPosition": "left"
+            }
+        ],
+        "alignment": "center",
+        "gap": "12px",
+        "size": "md",
+        "stackOnMobile": true,
+        "borderRadius": "8px"
+    }
+}

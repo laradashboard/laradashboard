@@ -1,0 +1,101 @@
+{
+    "type": "tabs",
+    "version": "1.0.0",
+    "label": "Tabs",
+    "category": "Layout",
+    "icon": "mdi:tab",
+    "description": "Tabbed content with switchable panels",
+    "keywords": ["tabs", "tabbed", "panels", "switcher", "navigation"],
+    "contexts": ["page"],
+    "supports": {
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "tabs": [
+            {
+                "label": "Tab 1",
+                "heading": "First Tab",
+                "description": "Content for the first tab.",
+                "items": ["Feature one", "Feature two", "Feature three"],
+                "badges": ["Fast", "Easy"]
+            },
+            {
+                "label": "Tab 2",
+                "heading": "Second Tab",
+                "description": "Content for the second tab.",
+                "items": ["Item one", "Item two"],
+                "badges": ["New"]
+            },
+            {
+                "label": "Tab 3",
+                "heading": "Third Tab",
+                "description": "Content for the third tab.",
+                "items": [],
+                "badges": []
+            }
+        ],
+        "activeTab": 0,
+        "tabStyle": "pills",
+        "tabAlignment": "center",
+        "accentColor": "#3b82f6",
+        "contentPadding": "24px",
+        "backgroundColor": "#ffffff",
+        "tabBgColor": "#f3f4f6"
+    },
+    "properties": [
+        {
+            "name": "tabs",
+            "type": "array",
+            "label": "Tabs"
+        },
+        {
+            "name": "activeTab",
+            "type": "number",
+            "label": "Default Active Tab"
+        },
+        {
+            "name": "tabStyle",
+            "type": "select",
+            "label": "Tab Style",
+            "options": [
+                { "value": "pills", "label": "Pills" },
+                { "value": "underline", "label": "Underline" },
+                { "value": "buttons", "label": "Buttons" }
+            ]
+        },
+        {
+            "name": "tabAlignment",
+            "type": "select",
+            "label": "Tab Alignment",
+            "options": [
+                { "value": "left", "label": "Left" },
+                { "value": "center", "label": "Center" },
+                { "value": "stretch", "label": "Stretch" }
+            ]
+        },
+        {
+            "name": "accentColor",
+            "type": "color",
+            "label": "Accent Color"
+        },
+        {
+            "name": "contentPadding",
+            "type": "text",
+            "label": "Content Padding"
+        },
+        {
+            "name": "backgroundColor",
+            "type": "color",
+            "label": "Background Color"
+        },
+        {
+            "name": "tabBgColor",
+            "type": "color",
+            "label": "Tab Background Color"
+        }
+    ]
+}

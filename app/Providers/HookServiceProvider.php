@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Support\HookManager;
+use App\Support\ThemeManager;
+use Illuminate\Support\ServiceProvider;
 
 class HookServiceProvider extends ServiceProvider
 {
@@ -16,6 +17,10 @@ class HookServiceProvider extends ServiceProvider
     {
         $this->app->singleton('hook', function ($app) {
             return new HookManager();
+        });
+
+        $this->app->singleton('theme', function ($app) {
+            return new ThemeManager();
         });
     }
 

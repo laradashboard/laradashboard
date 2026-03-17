@@ -1,0 +1,7 @@
+/* lb-tabs: dark mode */
+.dark .lb-page-content .lb-tabs [style*="background-color: #f3f4f6"]{background-color:#1f2937!important}
+.dark .lb-page-content .lb-tabs [style*="background-color: #ffffff"]{background-color:#111827!important}
+.dark .lb-page-content .lb-tabs [style*="color: #111827"]{color:#f1f5f9!important}
+.dark .lb-page-content .lb-tabs [style*="color: #6b7280"]{color:#94a3b8!important}
+.dark .lb-page-content .lb-tabs [style*="color: #374151"]{color:#d1d5db!important}
+.dark .lb-page-content .lb-tabs [style*="border-color: #e5e7eb"]{border-color:#374151!important}

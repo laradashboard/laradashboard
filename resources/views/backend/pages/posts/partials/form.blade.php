@@ -30,8 +30,14 @@
                     <div class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-300">
                         <span class="mr-1">{{ __('Permalink') }}:</span>
                         <span class="flex-1 truncate" x-show="!showSlugEdit">
-                            <span class="text-gray-400">{{ url('/') }}/</span><span
-                                class="font-medium text-primary" x-text="slug || '{{ __('auto-generated') }}'"></span>
+                            @if(isset($frontendUrl) && $frontendUrl)
+                                <a href="{{ $frontendUrl }}" target="_blank" class="text-primary hover:underline font-medium truncate">
+                                    {{ $frontendUrl }}
+                                </a>
+                            @else
+                                <span class="text-gray-400">{{ url('/') }}/</span><span
+                                    class="font-medium text-primary" x-text="slug || '{{ __('auto-generated') }}'"></span>
+                            @endif
                         </span>
                         <div class="flex-1" x-show="showSlugEdit">
                             <input type="text" name="slug" id="slug" x-model="slug" maxlength="200"

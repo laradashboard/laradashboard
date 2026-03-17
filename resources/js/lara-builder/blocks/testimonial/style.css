@@ -1,0 +1,5 @@
+/* lb-testimonial: dark mode */
+.dark .lb-page-content .lb-testimonial[style*="background-color: #ffffff"]{background-color:#1f2937!important}
+.dark .lb-page-content .lb-testimonial[style*="border-color: #e5e7eb"]{border-color:#374151!important}
+.dark .lb-page-content .lb-testimonial [style*="color: #374151"]{color:#d1d5db!important}
+.dark .lb-page-content .lb-testimonial [style*="color: #111827"]{color:#f1f5f9!important}

@@ -1,0 +1,12 @@
+/* lb-feature-box: dark mode */
+.dark .lb-page-content .lb-feature-box h3[style*="color: #111827"],
+.dark .lb-page-content .lb-feature-box h3[style*="color: #0f172a"]{color:#f1f5f9!important}
+.dark .lb-page-content .lb-feature-box p[style*="color: #6b7280"],
+.dark .lb-page-content .lb-feature-box p[style*="color: #64748b"]{color:#94a3b8!important}
+.dark .lb-page-content .lb-feature-box div[style*="background-color: #dbeafe"]{background-color:rgba(59,130,246,.15)!important}
+.dark .lb-page-content .lb-feature-box div[style*="background-color: #ede9fe"]{background-color:rgba(139,92,246,.15)!important}
+.dark .lb-page-content .lb-feature-box div[style*="background-color: #d1fae5"]{background-color:rgba(16,185,129,.15)!important}
+.dark .lb-page-content .lb-feature-box div[style*="background-color: #fee2e2"]{background-color:rgba(239,68,68,.15)!important}
+.dark .lb-page-content .lb-feature-box div[style*="background-color: #e0e7ff"],
+.dark .lb-page-content .lb-feature-box div[style*="background-color: #eef2ff"]{background-color:rgba(99,102,241,.15)!important}
+.dark .lb-page-content .lb-feature-box div[style*="background-color: #f3e8ff"]{background-color:rgba(139,92,246,.15)!important}

@@ -1,0 +1,5 @@
+/* lb-heading: dark mode */
+.dark .lb-page-content .lb-heading[style*="color: #1e293b"],
+.dark .lb-page-content .lb-heading[style*="color: #0f172a"],
+.dark .lb-page-content .lb-heading[style*="color: #111827"],
+.dark .lb-page-content .lb-heading[style*="color: #333333"]{color:#f1f5f9!important}

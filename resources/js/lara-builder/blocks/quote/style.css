@@ -1,0 +1,3 @@
+/* lb-quote: dark mode */
+.dark .lb-page-content .lb-quote[style*="background-color: #f9fafb"],
+.dark .lb-page-content .lb-quote[style*="background-color: #f8fafc"]{background-color:#1f2937!important}

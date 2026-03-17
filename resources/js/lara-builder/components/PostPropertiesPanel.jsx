@@ -49,15 +49,19 @@ const PostPropertiesPanel = ({
     const [showSlugEdit, setShowSlugEdit] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const url = `${window.location.origin}/admin/posts/${postType || "page"}/${
-        postData?.id || slug || postData?.slug
-    }`;
+    const frontendUrl = postData?.frontend_url;
+    const adminUrl = postData?.id
+        ? `${window.location.origin}/admin/posts/${postType || "page"}/${postData.id}`
+        : null;
+    const displayUrl = frontendUrl || adminUrl;
 
     // Handle copy URL with visual feedback
     const handleCopyUrl = () => {
-        navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        if (displayUrl) {
+            navigator.clipboard.writeText(displayUrl);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
     };
 
     // Handle featured image selection from media library
@@ -170,23 +174,23 @@ const PostPropertiesPanel = ({
                         </button>
                     </div>
 
-                    {/* View URL */}
-                    {(postData?.id || slug) && (
+                    {/* Permalink */}
+                    {(postData?.id || slug) && displayUrl && (
                         <div className="mt-2">
                             <label className="block text-xs font-medium text-gray-500 mb-1">
                                 {__("Permalink")}
                             </label>
                             <div className="flex items-center gap-2">
                                 <div className="flex-1 px-2 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs text-gray-500 truncate font-mono">
-                                    {url}
+                                    {displayUrl}
                                 </div>
-                                {postData?.id && slug && (
+                                {postData?.id && (
                                     <a
-                                        href={url}
+                                        href={displayUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="btn-default px-2 py-1.5 text-xs"
-                                        title={__("View page")}
+                                        title={__("View")}
                                     >
                                         <iconify-icon
                                             icon="mdi:open-in-new"
@@ -216,6 +220,18 @@ const PostPropertiesPanel = ({
                                     ></iconify-icon>
                                 </button>
                             </div>
+                            {frontendUrl && adminUrl && (
+                                <div className="mt-1">
+                                    <a
+                                        href={adminUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs text-gray-400 hover:text-gray-600"
+                                    >
+                                        {__("Admin")} &rarr;
+                                    </a>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

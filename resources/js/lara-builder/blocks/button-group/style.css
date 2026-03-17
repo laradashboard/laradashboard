@@ -1,0 +1,2 @@
+/* lb-button-group: dark mode */
+.dark .lb-page-content .lb-button-group a[style*="background-color: transparent"][style*="border:"]{border-color:#6b7280!important;color:#d1d5db!important}

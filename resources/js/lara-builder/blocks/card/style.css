@@ -1,0 +1,6 @@
+/* lb-card: dark mode */
+.dark .lb-page-content .lb-card[style*="background-color: #ffffff"]{background-color:#1f2937!important}
+.dark .lb-page-content .lb-card[style*="border:"][style*="#e5e7eb"]{border-color:#374151!important}
+.dark .lb-page-content .lb-card[style*="border:"][style*="#e2e8f0"]{border-color:#374151!important}
+.dark .lb-page-content .lb-card .lb-heading[style*="color: #111827"]{color:#f1f5f9!important}
+.dark .lb-page-content .lb-card .lb-text[style*="color: #6b7280"]{color:#94a3b8!important}

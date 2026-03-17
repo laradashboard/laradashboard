@@ -21,6 +21,16 @@ class DesignJsonRenderer
     protected array $discoveredCallbacks = [];
 
     /**
+     * Track block types rendered during a render() call for auto CSS inclusion
+     */
+    protected array $renderedBlockTypes = [];
+
+    /**
+     * Cache for discovered block style.css contents
+     */
+    protected array $discoveredStyles = [];
+
+    /**
      * Gradient direction mapping
      */
     protected array $gradientDirectionMap = [
@@ -43,13 +53,20 @@ class DesignJsonRenderer
      */
     public function render(array $blocks, string $context = 'page'): string
     {
+        $this->renderedBlockTypes = [];
         $html = '';
 
         foreach ($blocks as $block) {
             $html .= $this->renderBlock($block, $context);
         }
 
-        return '<div class="lb-content lb-page-content">' . $html . '</div>';
+        // Auto-include style.css from each rendered block type (page context only)
+        $blockStyles = '';
+        if ($context === 'page' && ! empty($this->renderedBlockTypes)) {
+            $blockStyles = $this->collectBlockStyles();
+        }
+
+        return $blockStyles . '<div class="lb-content lb-page-content">' . $html . '</div>';
     }
 
     /**
@@ -64,6 +81,9 @@ class DesignJsonRenderer
         if (empty($type)) {
             return '';
         }
+
+        // Track this block type for dark mode CSS
+        $this->renderedBlockTypes[] = $type;
 
         try {
             // Try render.php first
@@ -97,6 +117,47 @@ class DesignJsonRenderer
 
             return '';
         }
+    }
+
+    /**
+     * Collect style.css contents from rendered block types into a single <style> tag.
+     * Each block can have an optional style.css next to its render.php.
+     */
+    protected function collectBlockStyles(): string
+    {
+        $css = '';
+
+        foreach (array_unique($this->renderedBlockTypes) as $type) {
+            $css .= $this->getBlockStyleCss($type);
+        }
+
+        if (empty(trim($css))) {
+            return '';
+        }
+
+        return '<style data-lb-block-styles>' . $css . '</style>';
+    }
+
+    /**
+     * Get the CSS content from a block's style.css file
+     */
+    protected function getBlockStyleCss(string $blockType): string
+    {
+        if (array_key_exists($blockType, $this->discoveredStyles)) {
+            return $this->discoveredStyles[$blockType];
+        }
+
+        $stylePath = resource_path("js/lara-builder/blocks/{$blockType}/style.css");
+
+        if (file_exists($stylePath)) {
+            $this->discoveredStyles[$blockType] = file_get_contents($stylePath);
+
+            return $this->discoveredStyles[$blockType];
+        }
+
+        $this->discoveredStyles[$blockType] = '';
+
+        return '';
     }
 
     /**
