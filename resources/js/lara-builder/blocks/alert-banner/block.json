@@ -1,0 +1,29 @@
+{
+    "type": "alert-banner",
+    "version": "1.0.0",
+    "label": "Alert Banner",
+    "category": "Content",
+    "icon": "mdi:bullhorn-outline",
+    "description": "Announcement banner with optional badge, text, and link",
+    "keywords": ["alert", "banner", "announcement", "notification", "callout", "bar"],
+    "contexts": ["page"],
+    "supports": {
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "text": "AI-powered module marketplace is live",
+        "badgeText": "NEW",
+        "linkText": "",
+        "linkUrl": "#",
+        "backgroundColor": "#1e1b4b",
+        "textColor": "#e0e7ff",
+        "badgeColor": "#6366f1",
+        "badgeTextColor": "#ffffff",
+        "align": "center",
+        "padding": "12px 24px"
+    }
+}

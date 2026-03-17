@@ -1,0 +1,2 @@
+/* lb-badge: dark mode */
+.dark .lb-page-content .lb-badge span[style*="background-color: rgba"]{opacity:.9}

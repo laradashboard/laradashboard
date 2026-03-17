@@ -38,6 +38,17 @@ import sectionBlock from './section';
 import iconBlock from './icon';
 import featureBoxBlock from './feature-box';
 import statsItemBlock from './stats-item';
+import latestPostsBlock from './latest-posts';
+import testimonialBlock from './testimonial';
+import cardBlock from './card';
+import badgeBlock from './badge';
+import buttonGroupBlock from './button-group';
+import alertBannerBlock from './alert-banner';
+import tabsBlock from './tabs';
+import starRatingBlock from './star-rating';
+import stepsBlock from './steps';
+import logoCarouselBlock from './logo-carousel';
+import pricingTableBlock from './pricing-table';
 
 /**
  * All modular blocks (new format with block.json)
@@ -69,6 +80,17 @@ const modularBlocks = [
     iconBlock,
     featureBoxBlock,
     statsItemBlock,
+    latestPostsBlock,
+    testimonialBlock,
+    cardBlock,
+    badgeBlock,
+    buttonGroupBlock,
+    alertBannerBlock,
+    tabsBlock,
+    starRatingBlock,
+    stepsBlock,
+    logoCarouselBlock,
+    pricingTableBlock,
 ];
 
 /**

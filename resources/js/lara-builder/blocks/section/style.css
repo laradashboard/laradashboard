@@ -1,0 +1,5 @@
+/* lb-section: dark mode */
+.dark .lb-page-content>.lb-section[style*="background-color: #ffffff"],
+.dark .lb-page-content>.lb-section[style*="background-color: #f8fafc"],
+.dark .lb-page-content>.lb-section[style*="background-color: #f9fafb"],
+.dark .lb-page-content>.lb-section[style*="background-color: #f1f5f9"]{background-color:#111827!important}

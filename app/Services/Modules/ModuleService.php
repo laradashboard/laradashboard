@@ -966,15 +966,19 @@ class ModuleService
 
         $moduleStatuses = $this->getModuleStatuses();
 
+        // getModuleStatuses() normalizes keys to lowercase, so we must use
+        // the same normalization when looking up the current status.
+        $statusKey = $this->normalizeModuleName($jsonName);
+
         // If module is not in statuses file, add it as disabled first
         // then the toggle will enable it (fixing the double-click issue)
-        if (! isset($moduleStatuses[$jsonName])) {
-            $moduleStatuses[$jsonName] = false;
+        if (! isset($moduleStatuses[$statusKey])) {
+            $moduleStatuses[$statusKey] = false;
         }
 
         // Toggle the status.
-        $moduleStatuses[$jsonName] = ! $moduleStatuses[$jsonName];
-        $newStatus = $moduleStatuses[$jsonName];
+        $moduleStatuses[$statusKey] = ! $moduleStatuses[$statusKey];
+        $newStatus = $moduleStatuses[$statusKey];
 
         // Run the module enable/disable artisan command (uses module.json name)
         $this->toggleModule($jsonName, $newStatus, $skipMigrations);

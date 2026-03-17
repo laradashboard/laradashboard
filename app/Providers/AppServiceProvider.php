@@ -42,6 +42,9 @@ class AppServiceProvider extends ServiceProvider
             return new Mailer($app->make(EmailConnectionService::class));
         });
 
+        // Register DesignJsonRenderer as singleton so nested block renders share the same instance
+        $this->app->singleton(\App\Services\Builder\DesignJsonRenderer::class);
+
         // Register Inbound Email services for IMAP email processing
         $this->app->singleton(ImapService::class);
         $this->app->singleton(EmailParserService::class);

@@ -1,0 +1,3 @@
+/* lb-alert-banner: dark mode */
+.dark .lb-page-content .lb-alert-banner[style*="background-color: #f3f4f6"]{background-color:#1f2937!important}
+.dark .lb-page-content .lb-alert-banner[style*="color: #374151"]{color:#d1d5db!important}

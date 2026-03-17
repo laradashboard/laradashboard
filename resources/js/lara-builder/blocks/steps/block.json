@@ -1,0 +1,125 @@
+{
+    "type": "steps",
+    "version": "1.0.0",
+    "label": "Steps",
+    "category": "Content",
+    "icon": "mdi:format-list-numbered",
+    "description": "Numbered steps with title, description, and optional code or link",
+    "keywords": ["steps", "timeline", "process", "numbered", "guide", "how-to"],
+    "contexts": ["page"],
+    "supports": {
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "steps": [
+            {
+                "title": "Download",
+                "description": "Get the starter template and follow the installation wizard.",
+                "code": "git clone https://github.com/laradashboard/laradashboard.git",
+                "linkText": "Installation Guide",
+                "linkUrl": "#"
+            },
+            {
+                "title": "Configure",
+                "description": "Set up your database, run migrations, and configure your environment.",
+                "code": "php artisan migrate --seed",
+                "linkText": "",
+                "linkUrl": ""
+            },
+            {
+                "title": "Launch",
+                "description": "You're ready! Access your admin panel and start building.",
+                "code": "",
+                "linkText": "",
+                "linkUrl": ""
+            }
+        ],
+        "layout": "vertical",
+        "showNumbers": true,
+        "showConnector": true,
+        "numberColor": "#ffffff",
+        "numberBgColor": "#3b82f6",
+        "titleColor": "#111827",
+        "titleSize": "20px",
+        "descriptionColor": "#6b7280",
+        "descriptionSize": "14px",
+        "connectorColor": "#e5e7eb",
+        "codeBackgroundColor": "#1f2937",
+        "codeTextColor": "#e5e7eb"
+    },
+    "properties": [
+        {
+            "name": "steps",
+            "type": "array",
+            "label": "Steps"
+        },
+        {
+            "name": "layout",
+            "type": "select",
+            "label": "Layout",
+            "options": [
+                { "value": "vertical", "label": "Vertical" },
+                { "value": "horizontal", "label": "Horizontal" }
+            ]
+        },
+        {
+            "name": "showNumbers",
+            "type": "boolean",
+            "label": "Show Numbers"
+        },
+        {
+            "name": "showConnector",
+            "type": "boolean",
+            "label": "Show Connector"
+        },
+        {
+            "name": "numberColor",
+            "type": "color",
+            "label": "Number Color"
+        },
+        {
+            "name": "numberBgColor",
+            "type": "color",
+            "label": "Number Background Color"
+        },
+        {
+            "name": "titleColor",
+            "type": "color",
+            "label": "Title Color"
+        },
+        {
+            "name": "titleSize",
+            "type": "text",
+            "label": "Title Size"
+        },
+        {
+            "name": "descriptionColor",
+            "type": "color",
+            "label": "Description Color"
+        },
+        {
+            "name": "descriptionSize",
+            "type": "text",
+            "label": "Description Size"
+        },
+        {
+            "name": "connectorColor",
+            "type": "color",
+            "label": "Connector Color"
+        },
+        {
+            "name": "codeBackgroundColor",
+            "type": "color",
+            "label": "Code Background Color"
+        },
+        {
+            "name": "codeTextColor",
+            "type": "color",
+            "label": "Code Text Color"
+        }
+    ]
+}

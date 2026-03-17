@@ -78,20 +78,26 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $iconPosition = $props['iconPosition'] ?? 'right';
     $transitionDuration = $props['transitionDuration'] ?? 200;
     $independentToggle = $props['independentToggle'] ?? false;
+    $itemGap = $props['itemGap'] ?? '12px';
+    $defaultOpenIndex = $props['defaultOpenIndex'] ?? 0;
 
     $accordionId = 'accordion-' . ($blockId ?? uniqid());
 
     $itemsHtml = '';
-    $lastIdx = count($items) - 1;
     foreach ($items as $index => $item) {
-        $isLast = $index === $lastIdx;
         $itemId = "{$accordionId}-item-{$index}";
         $flexDir = $iconPosition === 'left' ? 'row-reverse' : 'row';
 
+        $itemStyles = [
+            "border: 1px solid {$borderColor}",
+            "border-radius: {$borderRadius}",
+            'overflow: hidden',
+        ];
+
         $itemsHtml .= sprintf(
-            '<div class="lb-accordion-item" data-index="%d" style="border-bottom: %s;"><button type="button" class="lb-accordion-header" data-target="%s" style="display: flex; align-items: center; justify-content: space-between; width: 100%%; padding: %s; background-color: %s; border: none; cursor: pointer; text-align: left; transition: background-color 0.2s; flex-direction: %s;"><span style="font-weight: %s; font-size: %s; color: %s; flex: 1;">%s</span><span class="lb-accordion-icon" style="color: %s; transition: transform %dms ease; %s"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span></button><div id="%s" class="lb-accordion-content" style="max-height: 0; overflow: hidden; transition: max-height %dms ease-in-out;"><div style="padding: %s; background-color: %s; color: %s; font-size: %s; line-height: 1.6;">%s</div></div></div>',
+            '<div class="lb-accordion-item" data-index="%d" style="%s"><button type="button" class="lb-accordion-header" data-target="%s" style="display: flex; align-items: center; justify-content: space-between; width: 100%%; padding: %s; background-color: %s; border: none; cursor: pointer; text-align: left; transition: background-color 0.2s; flex-direction: %s;"><span style="font-weight: %s; font-size: %s; color: %s; flex: 1;">%s</span><span class="lb-accordion-icon" style="color: %s; transition: transform %dms ease; %s"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span></button><div id="%s" class="lb-accordion-content" style="max-height: 0; overflow: hidden; transition: max-height %dms ease-in-out;"><div style="padding: %s; background-color: %s; color: %s; font-size: %s; line-height: 1.6; border-top: 1px solid %s;">%s</div></div></div>',
             $index,
-            $isLast ? 'none' : "1px solid {$borderColor}",
+            e(implode('; ', $itemStyles)),
             e($itemId),
             e($headerPadding),
             e($headerBgColor),
@@ -109,21 +115,23 @@ return function (array $props, string $context = 'page', ?string $blockId = null
             e($contentBgColor),
             e($contentColor),
             e($contentFontSize),
+            e($borderColor),
             $item['content'] ?? ''
         );
     }
 
-    $blockStyles = ['overflow: hidden'];
-    if (empty($layoutStyles['border'])) {
-        $blockStyles[] = "border: 1px solid {$borderColor}";
-        $blockStyles[] = "border-radius: {$borderRadius}";
-    }
+    $blockStyles = [
+        'display: flex',
+        'flex-direction: column',
+        "gap: {$itemGap}",
+    ];
 
     return sprintf(
-        '<div class="%s" id="%s" data-independent="%s" style="%s">%s</div><script>(function(){var a=document.getElementById("%s");if(!a)return;var i=a.dataset.independent==="true";a.querySelectorAll(".lb-accordion-header").forEach(function(h){h.addEventListener("click",function(){var t=this.dataset.target,c=document.getElementById(t),ic=this.querySelector(".lb-accordion-icon"),o=c.style.maxHeight&&c.style.maxHeight!=="0px";if(!i){a.querySelectorAll(".lb-accordion-content").forEach(function(x){x.style.maxHeight="0px"});a.querySelectorAll(".lb-accordion-icon").forEach(function(x){x.style.transform="rotate(0deg)"});a.querySelectorAll(".lb-accordion-header").forEach(function(x){x.style.backgroundColor="%s"})}if(o){c.style.maxHeight="0px";ic.style.transform="rotate(0deg)";this.style.backgroundColor="%s"}else{c.style.maxHeight=c.scrollHeight+"px";ic.style.transform="rotate(180deg)";this.style.backgroundColor="%s"}})});var f=a.querySelector(".lb-accordion-header");if(f)f.click()})();</script>',
+        '<div class="%s" id="%s" data-independent="%s" data-default-open="%d" style="%s">%s</div><script>(function(){var a=document.getElementById("%s");if(!a)return;var i=a.dataset.independent==="true";var d=parseInt(a.dataset.defaultOpen)||0;a.querySelectorAll(".lb-accordion-header").forEach(function(h){h.addEventListener("click",function(){var t=this.dataset.target,c=document.getElementById(t),ic=this.querySelector(".lb-accordion-icon"),o=c.style.maxHeight&&c.style.maxHeight!=="0px";if(!i){a.querySelectorAll(".lb-accordion-content").forEach(function(x){x.style.maxHeight="0px"});a.querySelectorAll(".lb-accordion-icon").forEach(function(x){x.style.transform="rotate(0deg)"});a.querySelectorAll(".lb-accordion-header").forEach(function(x){x.style.backgroundColor="%s"})}if(o){c.style.maxHeight="0px";ic.style.transform="rotate(0deg)";this.style.backgroundColor="%s"}else{c.style.maxHeight=c.scrollHeight+"px";ic.style.transform="rotate(180deg)";this.style.backgroundColor="%s"}})});var headers=a.querySelectorAll(".lb-accordion-header");if(headers[d])headers[d].click()})();</script>',
         e($blockClasses),
         e($accordionId),
         $independentToggle ? 'true' : 'false',
+        (int) $defaultOpenIndex,
         e(implode('; ', $blockStyles)),
         $itemsHtml,
         e($accordionId),

@@ -1,0 +1,32 @@
+{
+    "type": "latest-posts",
+    "version": "1.1.0",
+    "label": "Latest Posts",
+    "category": "Content",
+    "icon": "mdi:post-outline",
+    "description": "Display a grid of latest blog posts with optional search, filter, and pagination",
+    "keywords": ["posts", "blog", "articles", "grid", "latest", "listing"],
+    "contexts": ["page"],
+    "supports": {
+        "spacing": true,
+        "layout": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "postsCount": 6,
+        "columns": 3,
+        "categorySlug": "",
+        "showExcerpt": true,
+        "showImage": true,
+        "showDate": true,
+        "showAuthor": false,
+        "headingText": "",
+        "layout": "grid",
+        "postRoute": "starter26.post",
+        "interactive": false,
+        "showSearch": true,
+        "showCategoryFilter": true,
+        "showSort": true
+    }
+}

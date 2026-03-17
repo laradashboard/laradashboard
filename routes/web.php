@@ -26,6 +26,7 @@ use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\TermController;
+use App\Http\Controllers\Backend\ThemeController;
 use App\Http\Controllers\Backend\TranslationController;
 use App\Http\Controllers\Backend\UserLoginAsController;
 use App\Http\Controllers\Backend\UserController;
@@ -87,6 +88,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
     Route::post('/modules/replace', [ModuleController::class, 'replaceModule'])->name('modules.replace');
     Route::post('/modules/cancel-replacement', [ModuleController::class, 'cancelReplacement'])->name('modules.cancel-replacement');
     Route::delete('/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.delete');
+
+    // Theme Routes.
+    Route::get('/theme/{tab?}', [ThemeController::class, 'index'])->name('theme.index');
+    Route::post('/theme', [ThemeController::class, 'store'])->name('theme.store');
+    Route::post('/theme/activate', [ThemeController::class, 'activate'])->name('theme.activate');
 
     Route::group(['prefix' => 'settings'], function () {
         // Settings Routes.

@@ -1,0 +1,3 @@
+/* lb-stats-item: dark mode */
+.dark .lb-page-content .lb-stats-item div[style*="color: #64748b"],
+.dark .lb-page-content .lb-stats-item div[style*="color: #6b7280"]{color:#94a3b8!important}

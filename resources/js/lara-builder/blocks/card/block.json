@@ -1,0 +1,29 @@
+{
+    "type": "card",
+    "version": "1.0.0",
+    "label": "Card",
+    "category": "Layout",
+    "icon": "mdi:card-outline",
+    "description": "Styled card container with border, shadow, and hover effects - nest blocks inside",
+    "keywords": ["card", "container", "box", "wrapper", "panel", "nest"],
+    "contexts": ["page"],
+    "supports": {
+        "spacing": true,
+        "nesting": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "backgroundColor": "#ffffff",
+        "borderColor": "#e5e7eb",
+        "borderWidth": "1px",
+        "borderRadius": "12px",
+        "shadow": "sm",
+        "hoverShadow": "md",
+        "hoverScale": "none",
+        "padding": "24px",
+        "children": [[]]
+    }
+}

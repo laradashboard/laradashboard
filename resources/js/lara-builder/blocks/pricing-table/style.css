@@ -1,0 +1,5 @@
+/* lb-pricing-table: dark mode */
+.dark .lb-page-content .lb-pricing-table[style*="background-color: #ffffff"]{background-color:#1f2937!important}
+.dark .lb-page-content .lb-pricing-table[style*="border-color: #e5e7eb"]{border-color:#374151!important}
+.dark .lb-page-content .lb-pricing-table [style*="color: #111827"]{color:#f1f5f9!important}
+.dark .lb-page-content .lb-pricing-table [style*="color: #6b7280"]{color:#94a3b8!important}
