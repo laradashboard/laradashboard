@@ -257,7 +257,7 @@ class AdminMenuService
                 <li>
                     <form method="POST" action="' . route('admin.logout.submit') . '">
                         ' . csrf_field() . '
-                        <button type="submit" class="menu-item group w-full text-left menu-item-inactive text-gray-700 dark:text-white hover:text-gray-700">
+                        <button type="submit" :style="`color: ${textColor}`" class="menu-item group w-full text-left menu-item-inactive text-gray-700 dark:text-white hover:text-gray-700">
                             <iconify-icon icon="lucide:log-out" class="menu-item-icon " width="16" height="16"></iconify-icon>
                             <span class="menu-item-text">' . __('Logout') . '</span>
                         </button>

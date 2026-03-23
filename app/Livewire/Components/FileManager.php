@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Components;
 
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -22,8 +23,6 @@ class FileManager extends Component
     public $isCreateMode = false;
     public $tempFiles = [];
     public $isReadOnly = false;
-
-    protected $listeners = ['refreshFiles' => 'loadFiles', 'clearTempFiles' => 'clearTempFiles'];
 
     public function updatedFile()
     {
@@ -48,6 +47,7 @@ class FileManager extends Component
         $this->loadFiles();
     }
 
+    #[On('refreshFiles')]
     public function loadFiles()
     {
         if ($this->isCreateMode) {
@@ -162,6 +162,7 @@ class FileManager extends Component
         return $this->tempFiles;
     }
 
+    #[On('clearTempFiles')]
     public function clearTempFiles()
     {
         foreach ($this->tempFiles as $file) {

@@ -60,7 +60,7 @@ class ContentService
         $postTypes[$postType->name] = $postType;
 
         // Store in cache (using serialized array format).
-        $postTypesArray = collect($postTypes)->map->toArray();
+        $postTypesArray = collect($postTypes)->map->toArray()->all();
         Cache::put('post_types', $postTypesArray, now()->addDay());
 
         return $postType;

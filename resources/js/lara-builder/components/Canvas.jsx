@@ -371,7 +371,7 @@ const Canvas = ({ blocks, selectedBlockId, allBlocksSelected = false, onSelect, 
                     }`}
                     style={contentBackgroundStyle}
                 >
-                    <div style={{ padding: settings.contentPadding }}>
+                    <div style={{ padding: settings.contentPadding, paddingTop: `max(${settings.contentPadding || '0px'}, 48px)` }}>
                         <SortableContext items={blockIds} strategy={verticalListSortingStrategy}>
                             {blocks.length > 0 ? (
                                 <div className={allBlocksSelected ? 'ring-2 ring-primary/50 ring-offset-2 rounded-lg bg-primary/5 transition-all' : ''}>

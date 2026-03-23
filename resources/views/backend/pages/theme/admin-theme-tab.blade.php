@@ -1,5 +1,173 @@
 {!! Hook::applyFilters(SettingFilterHook::SETTINGS_APPEARANCE_TAB_BEFORE_SECTION_START, '') !!}
 
+{{-- Color Palette Presets --}}
+<x-card>
+    <x-slot name="header">
+        {{ __('Color Palette Presets') }}
+    </x-slot>
+    <x-slot name="headerDescription">
+        {{ __('Choose a preset to auto-fill all theme colors, then customize further if needed.') }}
+    </x-slot>
+
+    @php
+        $presetsJson = collect($colorPresets ?? [])->map(function ($preset) {
+            return [
+                'name' => $preset['name'],
+                'colors' => $preset['colors'],
+                'preview' => [
+                    'primary' => $preset['colors']['primary'],
+                    'secondary' => $preset['colors']['secondary'],
+                    'bg' => $preset['colors']['sidebar_bg_lite'],
+                    'dark' => $preset['colors']['sidebar_bg_dark'],
+                ],
+            ];
+        })->values()->toJson();
+    @endphp
+    <div x-data="{
+        presets: {{ $presetsJson }},
+        selected: null,
+        applyPreset(preset) {
+            this.selected = preset.name;
+            this.setColors({
+                'theme_primary_color': preset.colors.primary,
+                'theme_secondary_color': preset.colors.secondary,
+                'navbar_bg_lite': preset.colors.navbar_bg_lite,
+                'sidebar_bg_lite': preset.colors.sidebar_bg_lite,
+                'navbar_text_lite': preset.colors.navbar_text_lite,
+                'sidebar_text_lite': preset.colors.sidebar_text_lite,
+                'navbar_bg_dark': preset.colors.navbar_bg_dark,
+                'sidebar_bg_dark': preset.colors.sidebar_bg_dark,
+                'navbar_text_dark': preset.colors.navbar_text_dark,
+                'sidebar_text_dark': preset.colors.sidebar_text_dark,
+            });
+        },
+        resetToDefault() {
+            this.selected = 'default';
+            this.setColors({
+                'theme_primary_color': '#635bff',
+                'theme_secondary_color': '#1f2937',
+                'navbar_bg_lite': '#FFFFFF',
+                'sidebar_bg_lite': '#FFFFFF',
+                'navbar_text_lite': '#090909',
+                'sidebar_text_lite': '#090909',
+                'navbar_bg_dark': '#171f2e',
+                'sidebar_bg_dark': '#171f2e',
+                'navbar_text_dark': '#ffffff',
+                'sidebar_text_dark': '#ffffff',
+            });
+        },
+        setColors(map) {
+            for (const [field, value] of Object.entries(map)) {
+                const picker = document.getElementById('color-picker-' + field);
+                const input = document.getElementById('input-' + field);
+                if (picker) picker.value = value || '#ffffff';
+                if (input) input.value = value;
+            }
+        }
+    }">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+            <template x-for="preset in presets" :key="preset.name">
+                <button
+                    type="button"
+                    @click="applyPreset(preset)"
+                    :class="selected === preset.name
+                        ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800'
+                        : 'ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-gray-300 dark:hover:ring-gray-600'"
+                    class="relative rounded-xl p-3 text-left transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800 hover:shadow-md"
+                >
+                    {{-- Color Preview Swatches --}}
+                    <div class="flex gap-1 mb-2.5">
+                        <div class="h-8 flex-1 rounded-l-lg" :style="'background:' + preset.preview.primary"></div>
+                        <div class="h-8 flex-1" :style="'background:' + preset.preview.secondary"></div>
+                        <div class="h-8 flex-1" :style="'background:' + preset.preview.bg"></div>
+                        <div class="h-8 flex-1 rounded-r-lg" :style="'background:' + preset.preview.dark"></div>
+                    </div>
+
+                    {{-- Mini Admin Preview --}}
+                    <div class="rounded-md overflow-hidden border border-gray-200 dark:border-gray-600 mb-2" style="height: 48px;">
+                        <div class="flex h-full">
+                            {{-- Mini Sidebar --}}
+                            <div class="w-1/4 flex flex-col gap-0.5 p-1" :style="'background:' + preset.colors.sidebar_bg_lite">
+                                <div class="h-1 rounded-full w-3/4" :style="'background:' + preset.colors.sidebar_text_lite + '; opacity: 0.6'"></div>
+                                <div class="h-1 rounded-full w-full" :style="'background:' + preset.colors.primary + '; opacity: 0.8'"></div>
+                                <div class="h-1 rounded-full w-2/3" :style="'background:' + preset.colors.sidebar_text_lite + '; opacity: 0.4'"></div>
+                            </div>
+                            {{-- Mini Content --}}
+                            <div class="flex-1 flex flex-col">
+                                <div class="h-2.5 flex items-center px-1" :style="'background:' + preset.colors.navbar_bg_lite + '; border-bottom: 1px solid rgba(0,0,0,0.06)'">
+                                    <div class="h-1 w-6 rounded-full" :style="'background:' + preset.colors.navbar_text_lite + '; opacity: 0.5'"></div>
+                                </div>
+                                <div class="flex-1 bg-gray-50 dark:bg-gray-100 p-1">
+                                    <div class="h-1 w-2/3 rounded-full mb-0.5" style="background: rgba(0,0,0,0.1)"></div>
+                                    <div class="h-3 rounded" :style="'background:' + preset.preview.primary + '; opacity: 0.15'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Preset Name --}}
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300" x-text="preset.name"></span>
+                        <iconify-icon
+                            x-show="selected === preset.name"
+                            icon="lucide:check-circle-2"
+                            class="text-primary text-sm"
+                            aria-hidden="true"
+                        ></iconify-icon>
+                    </div>
+                </button>
+            </template>
+
+            {{-- Reset to Default --}}
+            <button
+                type="button"
+                @click="resetToDefault()"
+                :class="selected === 'default'
+                    ? 'ring-2 ring-gray-400 ring-offset-2 dark:ring-offset-gray-800'
+                    : 'ring-1 ring-dashed ring-gray-300 dark:ring-gray-600 hover:ring-gray-400 dark:hover:ring-gray-500'"
+                class="relative rounded-xl p-3 text-left transition-all duration-200 cursor-pointer bg-gray-50 dark:bg-gray-800/50 hover:shadow-md"
+            >
+                {{-- Reset Icon --}}
+                <div class="flex items-center justify-center h-8 mb-2.5">
+                    <iconify-icon icon="lucide:rotate-ccw" class="text-gray-400 dark:text-gray-500 text-xl" aria-hidden="true"></iconify-icon>
+                </div>
+
+                {{-- Mini Preview - Default state --}}
+                <div class="rounded-md overflow-hidden border border-gray-200 dark:border-gray-600 mb-2" style="height: 48px;">
+                    <div class="flex h-full">
+                        <div class="w-1/4 flex flex-col gap-0.5 p-1 bg-white dark:bg-gray-800">
+                            <div class="h-1 rounded-full w-3/4 bg-gray-300"></div>
+                            <div class="h-1 rounded-full w-full bg-gray-200"></div>
+                            <div class="h-1 rounded-full w-2/3 bg-gray-200"></div>
+                        </div>
+                        <div class="flex-1 flex flex-col">
+                            <div class="h-2.5 flex items-center px-1 bg-white dark:bg-gray-800" style="border-bottom: 1px solid rgba(0,0,0,0.06)">
+                                <div class="h-1 w-6 rounded-full bg-gray-300"></div>
+                            </div>
+                            <div class="flex-1 bg-gray-50 dark:bg-gray-100 p-1">
+                                <div class="h-1 w-2/3 rounded-full mb-0.5" style="background: rgba(0,0,0,0.1)"></div>
+                                <div class="h-3 rounded" style="background: rgba(99,91,255,0.15)"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ __('Reset Default') }}</span>
+                    <iconify-icon
+                        x-show="selected === 'default'"
+                        icon="lucide:check-circle-2"
+                        class="text-gray-500 text-sm"
+                        aria-hidden="true"
+                    ></iconify-icon>
+                </div>
+            </button>
+        </div>
+    </div>
+</x-card>
+
+<div class="mt-6"></div>
+
 {{-- Admin Theme --}}
 <x-card>
     <x-slot name="header">

@@ -18,7 +18,33 @@
             const htmlHasDark = document.documentElement.classList.contains('dark');
             const liteBg = '{{ config('settings.sidebar_bg_lite') }}';
             const darkBg = '{{ config('settings.sidebar_bg_dark') }}';
-            this.$el.style.backgroundColor = htmlHasDark ? darkBg : liteBg;
+            const bg = htmlHasDark ? darkBg : liteBg;
+            this.$el.style.backgroundColor = bg;
+
+            // Detect if sidebar bg is dark or light to set appropriate hover/active overlays
+            const isDarkBg = this.isColorDark(bg);
+            const overlay = isDarkBg ? '255,255,255' : '0,0,0';
+            this.$el.style.setProperty('--sidebar-hover-bg', `rgba(${overlay}, 0.08)`);
+
+            if (isDarkBg) {
+                // Dark sidebar: use transparent overlays for active state
+                this.$el.style.setProperty('--sidebar-active-bg', `rgba(255, 255, 255, 0.12)`);
+                this.$el.style.setProperty('--sidebar-active-text', `#ffffff`);
+            } else {
+                // Light sidebar: use brand colors for active state (default from CSS)
+                this.$el.style.removeProperty('--sidebar-active-bg');
+                this.$el.style.removeProperty('--sidebar-active-text');
+            }
+        },
+        isColorDark(hex) {
+            if (!hex || hex.length < 4) return false;
+            hex = hex.replace('#', '');
+            if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            // Relative luminance formula
+            return (r * 299 + g * 587 + b * 114) / 1000 < 128;
         }
     }"
     x-init="init()"
