@@ -115,7 +115,7 @@ class FrontendQueryService
         $results = Post::query()
             ->where('id', '!=', $post->id)
             ->where('status', 'published')
-            ->when($post->terms?->where('taxonomy', 'category')->first(), function ($query) use ($post) {
+            ->when($post->terms->where('taxonomy', 'category')->first(), function ($query) use ($post) {
                 $categoryId = $post->terms->where('taxonomy', 'category')->first()->id;
                 $query->whereHas('terms', fn ($q) => $q->where('terms.id', $categoryId));
             })

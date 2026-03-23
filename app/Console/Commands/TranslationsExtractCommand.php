@@ -239,6 +239,11 @@ class TranslationsExtractCommand extends Command
             return true;
         }
 
+        // Pure numeric strings (not translatable, and json_decode mangles numeric keys)
+        if (ctype_digit($str)) {
+            return true;
+        }
+
         // Pure punctuation / symbols (no letters or digits)
         if (preg_match('/^[^\p{L}\p{N}]+$/u', $str)) {
             return true;

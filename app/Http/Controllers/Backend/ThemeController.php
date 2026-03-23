@@ -256,14 +256,6 @@ class ThemeController extends Controller
         $fields = $request->all();
         $uploadPath = 'uploads/settings';
 
-        // Handle checkbox fields that might not be present when unchecked
-        $checkboxFields = [];
-        foreach ($checkboxFields as $checkboxField) {
-            if (! isset($fields[$checkboxField]) && $request->has('_token')) {
-                $fields[$checkboxField] = '0';
-            }
-        }
-
         foreach ($fields as $fieldName => $fieldValue) {
             if ($fieldName === '_token') {
                 continue;

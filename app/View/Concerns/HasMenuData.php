@@ -7,6 +7,7 @@ namespace App\View\Concerns;
 use App\Services\MenuService;
 use Illuminate\Support\Collection;
 
+/** @phpstan-ignore trait.unused */
 trait HasMenuData
 {
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\View\Concerns;
 
+/** @phpstan-ignore trait.unused */
 trait HasSiteIdentity
 {
     public string $siteName = '';
