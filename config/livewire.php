@@ -30,7 +30,7 @@ return [
 
     /*
     |---------------------------------------------------------------------------
-    | Layout
+    | Component Layout
     |---------------------------------------------------------------------------
     | The view that will be used as the layout when rendering a single component
     | as an entire page via `Route::get('/post/create', CreatePost::class);`.
@@ -38,11 +38,11 @@ return [
     |
     */
 
-    'layout' => 'backend.layouts.app',
+    'component_layout' => 'backend.layouts.app',
 
     /*
     |---------------------------------------------------------------------------
-    | Lazy Loading Placeholder
+    | Component Placeholder
     |---------------------------------------------------------------------------
     | Livewire allows you to lazy load components that would otherwise slow down
     | the initial page load. Every component can have a custom placeholder or
@@ -50,7 +50,47 @@ return [
     |
     */
 
-    'lazy_placeholder' => null,
+    'component_placeholder' => null,
+
+    /*
+    |---------------------------------------------------------------------------
+    | Component Locations
+    |---------------------------------------------------------------------------
+    |
+    | Directories where Livewire will look for single-file and multi-file
+    | (view-based) components.
+    |
+    */
+
+    'component_locations' => [
+        resource_path('views/components'),
+        resource_path('views/livewire'),
+    ],
+
+    /*
+    |---------------------------------------------------------------------------
+    | Component Namespaces
+    |---------------------------------------------------------------------------
+    |
+    | Custom namespaces for organizing view-based components.
+    |
+    */
+
+    'component_namespaces' => [
+        'layouts' => resource_path('views/layouts'),
+        'pages' => resource_path('views/pages'),
+    ],
+
+    /*
+    |---------------------------------------------------------------------------
+    | Smart Wire Keys
+    |---------------------------------------------------------------------------
+    |
+    | Helps prevent wire:key issues on deeply nested components.
+    |
+    */
+
+    'smart_wire_keys' => true,
 
     /*
     |---------------------------------------------------------------------------
@@ -67,7 +107,7 @@ return [
         'disk' => null,        // Example: 'local', 's3'              | Default: 'default'
         'rules' => null,       // Example: ['file', 'mimes:png,jpg']  | Default: ['required', 'file', 'max:12288'] (12MB)
         'directory' => null,   // Example: 'tmp'                      | Default: 'livewire-tmp'
-        'middleware' => null,  // Example: 'throttle:5,1'             | Default: 'throttle:60,1'
+        'middleware' => null,   // Example: 'throttle:5,1'             | Default: 'throttle:60,1'
         'preview_mimes' => [   // Supported file types for temporary pre-signed file URLs...
             'png', 'gif', 'bmp', 'svg', 'wav', 'mp4',
             'mov', 'avi', 'wmv', 'mp3', 'm4a',
@@ -157,4 +197,20 @@ return [
     */
 
     'pagination_theme' => 'tailwind',
+
+    /*
+    |---------------------------------------------------------------------------
+    | Make Command
+    |---------------------------------------------------------------------------
+    |
+    | Configure the default component format and emoji usage for the
+    | `artisan make:livewire` command.
+    |
+    */
+
+    'make_command' => [
+        'type' => 'class',  // Options: 'sfc', 'mfc', or 'class'
+        'emoji' => false,
+    ],
+
 ];

@@ -45,11 +45,18 @@
                                 class="w-full h-full object-cover"
                             >
                         @elseif (! empty($theme['homepage_url']) && $theme['is_enabled'])
-                            <div class="w-full h-full relative">
+                            <div class="w-full h-full relative" x-data="{
+                                scale: 1,
+                                init() {
+                                    const resize = () => this.scale = this.$el.offsetWidth / 1440;
+                                    resize();
+                                    new ResizeObserver(resize).observe(this.$el);
+                                }
+                            }">
                                 <iframe
                                     src="{{ $theme['homepage_url'] }}"
                                     class="absolute top-0 left-0 border-0 pointer-events-none"
-                                    style="width: 1440px; height: 900px; transform: scale(0.25); transform-origin: top left;"
+                                    :style="'width: 1440px; height: 900px; transform: scale(' + scale + '); transform-origin: top left;'"
                                     tabindex="-1"
                                     aria-hidden="true"
                                     loading="lazy"

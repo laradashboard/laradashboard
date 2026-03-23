@@ -56,6 +56,9 @@ enum SettingFilterHook: string
     case SETTINGS_TAB_CONTENT_BEFORE = 'filter.settings.tab_content_before_';
     case SETTINGS_TAB_CONTENT_AFTER = 'filter.settings.tab_content_after_';
 
+    // UI Hooks - Theme tab
+    case THEME_COLOR_PRESETS = 'filter.theme.color_presets';
+
     // Breadcrumbs
     case SETTINGS_AFTER_BREADCRUMBS = 'filter.settings.after_breadcrumbs';
 }

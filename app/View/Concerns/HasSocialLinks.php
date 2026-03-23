@@ -7,6 +7,7 @@ namespace App\View\Concerns;
 use App\Enums\Hooks\FrontendFilterHook;
 use App\Support\Facades\Hook;
 
+/** @phpstan-ignore trait.unused */
 trait HasSocialLinks
 {
     /**

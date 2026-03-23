@@ -17,19 +17,19 @@
     "require": {
         "php": "^8.3|^8.4",
         "cweagans/composer-patches": "^1.7",
-        "dedoc/scramble": "^0.12.23",
+        "dedoc/scramble": "^0.13.0",
         "fakerphp/faker": "^1.24",
         "guzzlehttp/guzzle": "^7.2",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^13.0",
         "laravel/pulse": "^1.4",
         "laravel/sanctum": "^4.1",
         "laravel/socialite": "^5.24",
-        "laravel/telescope": "^5.10",
-        "laravel/tinker": "^2.10",
+        "laravel/telescope": "^5.18",
+        "laravel/tinker": "^3.0",
         "laravel/ui": "^4.5",
-        "livewire/livewire": "^3.6",
-        "mhmiton/laravel-modules-livewire": "^5.1",
-        "nwidart/laravel-modules": "^12.0",
+        "livewire/livewire": "^4.0",
+        "mhmiton/laravel-modules-livewire": "^7.0",
+        "nwidart/laravel-modules": "^13.0",
         "opis/closure": "^3.7",
         "spatie/browsershot": "^5.0",
         "spatie/laravel-medialibrary": "^11.13",
@@ -38,11 +38,10 @@
         "tormjens/eventy": "^0.8.0"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.16",
-        "beyondcode/laravel-dump-server": "^2.1",
+        "barryvdh/laravel-debugbar": "^4.0",
         "brianium/paratest": "*",
         "larastan/larastan": "^3.0",
-        "laravel/boost": "^1.0",
+        "laravel/boost": "^2.0",
         "laravel/pint": "^1.22",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
@@ -60,15 +59,14 @@
         "allow-plugins": {
             "cweagans/composer-patches": true,
             "pestphp/pest-plugin": true,
-            "wikimedia/composer-merge-plugin": false
+            "wikimedia/composer-merge-plugin": true
         },
         "platform-check": false
     },
     "extra": {
         "laravel": {
             "dont-discover": [
-                "barryvdh/laravel-debugbar",
-                "beyondcode/laravel-dump-server"
+                "barryvdh/laravel-debugbar"
             ]
         }
     },

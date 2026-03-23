@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Backend;
 
 use App\Enums\ActionType;
+use App\Enums\Hooks\SettingFilterHook;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Services\ImageService;
 use App\Services\SettingService;
+use App\Support\Facades\Hook;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -38,10 +40,12 @@ class ThemeController extends Controller
             $this->settingService->addSetting('active_theme', $activeTheme);
         }
 
+        $colorPresets = $this->getColorPresets();
+
         $this->setBreadcrumbTitle(__('Theme'))
             ->setBreadcrumbIcon('lucide:palette');
 
-        return $this->renderViewWithBreadcrumbs('backend.pages.theme.index', compact('tab', 'themes', 'activeTheme'));
+        return $this->renderViewWithBreadcrumbs('backend.pages.theme.index', compact('tab', 'themes', 'activeTheme', 'colorPresets'));
     }
 
     public function activate(Request $request)
@@ -114,20 +118,143 @@ class ThemeController extends Controller
         return $themes;
     }
 
+    /**
+     * Get the default color palette presets, filterable via Hook.
+     */
+    private function getColorPresets(): array
+    {
+        $presets = [
+            [
+                'name' => __('Default Indigo'),
+                'colors' => [
+                    'primary' => '#6366F1', 'secondary' => '#8B5CF6',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#1e1e2d',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#a2a3b7',
+                    'navbar_bg_dark' => '#1a1a2e', 'sidebar_bg_dark' => '#151521',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#9899ac',
+                ],
+            ],
+            [
+                'name' => __('Ocean Blue'),
+                'colors' => [
+                    'primary' => '#2563EB', 'secondary' => '#0EA5E9',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#1b2e4b',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#a0aec0',
+                    'navbar_bg_dark' => '#0f172a', 'sidebar_bg_dark' => '#0d1b2a',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#94a3b8',
+                ],
+            ],
+            [
+                'name' => __('Emerald'),
+                'colors' => [
+                    'primary' => '#059669', 'secondary' => '#10B981',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#1a2332',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#a0aec0',
+                    'navbar_bg_dark' => '#0f172a', 'sidebar_bg_dark' => '#111827',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#94a3b8',
+                ],
+            ],
+            [
+                'name' => __('Sunset Orange'),
+                'colors' => [
+                    'primary' => '#EA580C', 'secondary' => '#F59E0B',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#27201a',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#b0a99e',
+                    'navbar_bg_dark' => '#1c1712', 'sidebar_bg_dark' => '#171310',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#a09890',
+                ],
+            ],
+            [
+                'name' => __('Rose'),
+                'colors' => [
+                    'primary' => '#E11D48', 'secondary' => '#F43F5E',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#1e1e2d',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#a2a3b7',
+                    'navbar_bg_dark' => '#1a1a2e', 'sidebar_bg_dark' => '#151521',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#9899ac',
+                ],
+            ],
+            [
+                'name' => __('Purple Reign'),
+                'colors' => [
+                    'primary' => '#7C3AED', 'secondary' => '#A855F7',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#1e1b2e',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#a8a3c0',
+                    'navbar_bg_dark' => '#16132a', 'sidebar_bg_dark' => '#110e21',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#9b96b0',
+                ],
+            ],
+            [
+                'name' => __('Teal Cyan'),
+                'colors' => [
+                    'primary' => '#0D9488', 'secondary' => '#06B6D4',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#1a2830',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#a0b4bc',
+                    'navbar_bg_dark' => '#0f1e26', 'sidebar_bg_dark' => '#0b171e',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#94a8b0',
+                ],
+            ],
+            [
+                'name' => __('Slate Professional'),
+                'colors' => [
+                    'primary' => '#475569', 'secondary' => '#64748B',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#1e293b',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#94a3b8',
+                    'navbar_bg_dark' => '#0f172a', 'sidebar_bg_dark' => '#0f172a',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#94a3b8',
+                ],
+            ],
+            [
+                'name' => __('Amber Gold'),
+                'colors' => [
+                    'primary' => '#D97706', 'secondary' => '#FBBF24',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#262118',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#b5ab98',
+                    'navbar_bg_dark' => '#1a1710', 'sidebar_bg_dark' => '#15120d',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#a59e8c',
+                ],
+            ],
+            [
+                'name' => __('Midnight Navy'),
+                'colors' => [
+                    'primary' => '#1E3A5F', 'secondary' => '#3B82F6',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#152238',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#8fabc4',
+                    'navbar_bg_dark' => '#0a1628', 'sidebar_bg_dark' => '#070f1c',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#8098b4',
+                ],
+            ],
+            [
+                'name' => __('Light Clean'),
+                'colors' => [
+                    'primary' => '#6366F1', 'secondary' => '#8B5CF6',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#f8fafc',
+                    'navbar_text_lite' => '#1e293b', 'sidebar_text_lite' => '#475569',
+                    'navbar_bg_dark' => '#1e1e2d', 'sidebar_bg_dark' => '#151521',
+                    'navbar_text_dark' => '#e2e8f0', 'sidebar_text_dark' => '#a2a3b7',
+                ],
+            ],
+            [
+                'name' => __('Light Warm'),
+                'colors' => [
+                    'primary' => '#EA580C', 'secondary' => '#F59E0B',
+                    'navbar_bg_lite' => '#ffffff', 'sidebar_bg_lite' => '#fafaf9',
+                    'navbar_text_lite' => '#292524', 'sidebar_text_lite' => '#57534e',
+                    'navbar_bg_dark' => '#1c1917', 'sidebar_bg_dark' => '#151412',
+                    'navbar_text_dark' => '#e7e5e4', 'sidebar_text_dark' => '#a8a29e',
+                ],
+            ],
+        ];
+
+        return Hook::applyFilters(SettingFilterHook::THEME_COLOR_PRESETS, $presets);
+    }
+
     public function store(Request $request)
     {
         $this->authorize('manage', Setting::class);
 
         $fields = $request->all();
         $uploadPath = 'uploads/settings';
-
-        // Handle checkbox fields that might not be present when unchecked
-        $checkboxFields = [];
-        foreach ($checkboxFields as $checkboxField) {
-            if (! isset($fields[$checkboxField]) && $request->has('_token')) {
-                $fields[$checkboxField] = '0';
-            }
-        }
 
         foreach ($fields as $fieldName => $fieldValue) {
             if ($fieldName === '_token') {

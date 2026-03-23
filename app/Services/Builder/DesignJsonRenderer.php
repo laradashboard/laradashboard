@@ -90,7 +90,14 @@ class DesignJsonRenderer
             $callback = $this->getBlockRenderCallback($type);
 
             if ($callback) {
-                return $callback($props, $context, $blockId);
+                $html = $callback($props, $context, $blockId);
+
+                // Auto-wrap with layoutStyles (margin/padding) if present
+                if (! empty($html) && ! empty($props['layoutStyles'])) {
+                    $html = $this->wrapWithLayoutStyles($html, $props['layoutStyles'], $blockId);
+                }
+
+                return $html;
             }
 
             // Fall back to built-in renderers
@@ -161,7 +168,8 @@ class DesignJsonRenderer
     }
 
     /**
-     * Get the render callback for a block type
+     * Get the render callback for a block type.
+     * Checks BuilderService registered callbacks first, then auto-discovers render.php.
      */
     protected function getBlockRenderCallback(string $blockType): ?callable
     {
@@ -169,6 +177,16 @@ class DesignJsonRenderer
             return $this->discoveredCallbacks[$blockType];
         }
 
+        // Check module-registered callbacks via BuilderService
+        $builderService = app(BuilderService::class);
+        if ($builderService->hasBlockRenderCallback($blockType)) {
+            $callback = $builderService->getBlockRenderCallback($blockType);
+            $this->discoveredCallbacks[$blockType] = $callback;
+
+            return $callback;
+        }
+
+        // Auto-discover render.php in core blocks folder
         $renderPath = resource_path("js/lara-builder/blocks/{$blockType}/render.php");
 
         if (file_exists($renderPath)) {
@@ -700,5 +718,41 @@ class DesignJsonRenderer
         }
 
         return "margin: {$top} {$right} {$bottom} {$left}";
+    }
+
+    /**
+     * Wrap rendered HTML with a div that applies layoutStyles (margin/padding).
+     * Used for module blocks (render.php callbacks) that don't handle layoutStyles internally.
+     */
+    protected function wrapWithLayoutStyles(string $html, array $layoutStyles, ?string $blockId = null): string
+    {
+        $styles = [];
+
+        if (! empty($layoutStyles['margin'])) {
+            $margin = $this->buildMargin($layoutStyles['margin']);
+            if ($margin) {
+                $styles[] = $margin;
+            }
+        }
+
+        if (! empty($layoutStyles['padding'])) {
+            $padding = $this->buildPadding($layoutStyles['padding']);
+            if ($padding) {
+                $styles[] = $padding;
+            }
+        }
+
+        if (! empty($layoutStyles['maxWidth'])) {
+            $styles[] = 'max-width: ' . $layoutStyles['maxWidth'];
+        }
+
+        if (empty($styles)) {
+            return $html;
+        }
+
+        $styleAttr = htmlspecialchars(implode('; ', $styles));
+        $idAttr = $blockId ? ' id="block-' . e($blockId) . '"' : '';
+
+        return "<div{$idAttr} style=\"{$styleAttr}\">{$html}</div>";
     }
 }

@@ -4,11 +4,38 @@
 }
 
 @utility menu-item {
-    @apply relative flex items-center gap-3 px-4 py-2 rounded-md font-medium text-theme-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out;
+    @apply relative flex items-center gap-3 px-4 py-2 rounded-md font-medium text-theme-sm transition-colors duration-200 ease-in-out;
+    &:hover {
+        background-color: var(--sidebar-hover-bg, rgba(0, 0, 0, 0.08));
+    }
+}
+
+:root {
+    --sidebar-hover-bg: rgba(0, 0, 0, 0.08);
+    --sidebar-active-bg: var(--color-brand-100, rgba(0, 0, 0, 0.12));
+    --sidebar-active-text: var(--color-brand-500, #635bff);
+}
+
+.dark {
+    --sidebar-hover-bg: rgba(255, 255, 255, 0.08);
+    --sidebar-active-bg: var(--color-brand-500, rgba(255, 255, 255, 0.12));
+    --sidebar-active-text: var(--color-brand-25, #ffffff);
 }
 
 @utility menu-item-active {
-    @apply bg-brand-100 text-brand-500 hover:bg-brand-100 hover:text-brand-500 dark:bg-brand-500 dark:text-brand-25 dark:hover:bg-brand-500;
+    background-color: var(--sidebar-active-bg) !important;
+    color: var(--sidebar-active-text) !important;
+    &:hover {
+        background-color: var(--sidebar-active-bg) !important;
+        color: var(--sidebar-active-text) !important;
+    }
+
+    .submenu & {
+        background-color: transparent !important;
+        &:hover {
+            background-color: var(--sidebar-hover-bg) !important;
+        }
+    }
 }
 
 /* @utility menu-item-inactive {
@@ -152,9 +179,7 @@
     @apply rounded-md bg-transparent text-primary dark:text-white py-1 px-0 mx-0 my-0;
 } */
 
-.submenu .menu-item-active {
-    @apply text-brand-500 bg-transparent hover:bg-brand-100 dark:hover:bg-brand-500/20;
-}
+/* submenu active override is inside @utility menu-item-active */
 
 /* .submenu li:hover a:hover,
 .submenu li:hover a:hover .menu-item-text {

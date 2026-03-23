@@ -20,6 +20,7 @@
                         'title' => __('Admin Theme'),
                         'icon' => 'lucide:monitor',
                         'view' => 'backend.pages.theme.admin-theme-tab',
+                        'data' => ['colorPresets' => $colorPresets],
                     ],
                     'custom-code' => [
                         'title' => __('Custom Code'),
