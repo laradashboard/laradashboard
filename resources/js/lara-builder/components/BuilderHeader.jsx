@@ -44,6 +44,11 @@ function BuilderHeader({
     onPasteBlocks,
     // AI Content
     onInsertAIContent,
+    // Preview mode
+    previewMode,
+    setPreviewMode,
+    // Post status
+    status,
 }) {
     // AI modal state
     const [aiModalOpen, setAiModalOpen] = useState(false);
@@ -54,8 +59,32 @@ function BuilderHeader({
         return "lucide:file-text";
     };
 
+    const isNewPost = isPostContext && !postData?.id;
+
+    // Get primary button label based on current status
+    const getPrimaryButtonLabel = () => {
+        if (!isPostContext) return labels.saveText;
+        if (isNewPost || status === "draft" || status === "pending") return __("Publish");
+        if (status === "scheduled") return __("Schedule");
+        return __("Update");
+    };
+
+    // Get primary button status override
+    const getPrimaryStatusOverride = () => {
+        if (!isPostContext) return undefined;
+        if (isNewPost || status === "draft" || status === "pending") return "published";
+        // For published, scheduled, private — keep current status
+        return undefined;
+    };
+
+    // Get secondary (draft) button label
+    const getSecondaryLabel = () => {
+        if (status === "published" || status === "private") return __("Switch to draft");
+        return __("Save draft");
+    };
+
     return (
-        <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between shadow-sm flex-shrink-0">
+        <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between shadow-sm flex-shrink-0 relative">
             <div className="flex items-center gap-2">
                 {listUrl && (
                     <a
@@ -123,6 +152,47 @@ function BuilderHeader({
                 )}
             </div>
 
+            {/* Responsive Preview Switcher - Centered */}
+            {previewMode !== undefined && (
+                <div className="absolute left-1/2 -translate-x-1/2 hidden sm:flex items-center">
+                    <div className="flex items-center bg-gray-100 rounded-lg border border-gray-200 p-0.5">
+                        {["desktop", "tablet", "mobile"].map((mode) => (
+                            <button
+                                key={mode}
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPreviewMode(mode);
+                                }}
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                                    previewMode === mode
+                                        ? "bg-primary text-white shadow-sm"
+                                        : "text-gray-600 hover:bg-gray-200"
+                                }`}
+                                title={__(
+                                    `${mode.charAt(0).toUpperCase() + mode.slice(1)} Preview`
+                                )}
+                            >
+                                <iconify-icon
+                                    icon={`mdi:${
+                                        mode === "desktop"
+                                            ? "monitor"
+                                            : mode === "tablet"
+                                            ? "tablet"
+                                            : "cellphone"
+                                    }`}
+                                    width="16"
+                                    height="16"
+                                ></iconify-icon>
+                                <span className="hidden md:inline">
+                                    {__(mode.charAt(0).toUpperCase() + mode.slice(1))}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className="flex items-center gap-2 sm:gap-4">
                 {/* Post context: AI Button + Title input */}
                 {isPostContext && (
@@ -166,44 +236,99 @@ function BuilderHeader({
                     </div>
                 )}
 
-                {/* Save button */}
-                <button
-                    onClick={onSave}
-                    disabled={saving}
-                    className={`gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 ${
-                        saving ? "btn-default cursor-not-allowed" : "btn-primary"
-                    }`}
-                >
-                    {saving ? (
-                        <>
-                            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                                <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                    fill="none"
-                                />
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                />
-                            </svg>
-                            <span className="hidden sm:inline">{__("Saving...")}</span>
-                        </>
-                    ) : (
-                        <>
-                            <iconify-icon
-                                icon="mdi:content-save"
-                                class="h-4 w-4"
-                            ></iconify-icon>
-                            <span className="hidden sm:inline">{labels.saveText}</span>
-                        </>
-                    )}
-                </button>
+                {/* Post context: Save draft link + Primary action button */}
+                {isPostContext ? (
+                    <>
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSave("draft");
+                            }}
+                            disabled={saving}
+                            className={`hidden sm:inline-flex text-sm font-medium transition-colors ${
+                                saving
+                                    ? "text-gray-400 cursor-not-allowed"
+                                    : "text-primary hover:text-primary/80"
+                            }`}
+                        >
+                            {getSecondaryLabel()}
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSave(getPrimaryStatusOverride());
+                            }}
+                            disabled={saving}
+                            className={`gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 ${
+                                saving ? "btn-default cursor-not-allowed" : "btn-primary"
+                            }`}
+                        >
+                            {saving ? (
+                                <>
+                                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                            fill="none"
+                                        />
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        />
+                                    </svg>
+                                    <span className="hidden sm:inline">{__("Saving...")}</span>
+                                </>
+                            ) : (
+                                <span>{getPrimaryButtonLabel()}</span>
+                            )}
+                        </button>
+                    </>
+                ) : (
+                    /* Email/other context: Single save button */
+                    <button
+                        onClick={onSave}
+                        disabled={saving}
+                        className={`gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 ${
+                            saving ? "btn-default cursor-not-allowed" : "btn-primary"
+                        }`}
+                    >
+                        {saving ? (
+                            <>
+                                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                    <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                        fill="none"
+                                    />
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    />
+                                </svg>
+                                <span className="hidden sm:inline">{__("Saving...")}</span>
+                            </>
+                        ) : (
+                            <>
+                                <iconify-icon
+                                    icon="mdi:content-save"
+                                    class="h-4 w-4"
+                                ></iconify-icon>
+                                <span className="hidden sm:inline">{labels.saveText}</span>
+                            </>
+                        )}
+                    </button>
+                )}
 
                 {/* Editor Options Menu */}
                 <EditorOptionsMenu

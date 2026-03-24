@@ -443,7 +443,7 @@ HTML;
      */
     public function generatePageHtml(array $blocks, ?array $canvasSettings = null): string
     {
-        return app(DesignJsonRenderer::class)->render($blocks, 'page');
+        return app(DesignJsonRenderer::class)->render($blocks, 'page', $canvasSettings ?? []);
     }
 
     /**

@@ -474,8 +474,8 @@ function LaraBuilderInner({
         setCodeEditorHtml(html);
     }, []);
 
-    // Save handler
-    const handleSave = async () => {
+    // Save handler - accepts optional statusOverride for header button actions
+    const handleSave = async (statusOverride) => {
         // Context-specific validation
         if (isEmailContext && !templateName.trim()) {
             showToast(
@@ -488,6 +488,12 @@ function LaraBuilderInner({
         if (isPostContext && !title.trim()) {
             showToast("error", __("Validation Error"), __("Title is required"));
             return;
+        }
+
+        // Apply status override if provided (from header buttons)
+        const effectiveStatus = isPostContext && statusOverride ? statusOverride : status;
+        if (isPostContext && statusOverride) {
+            setStatus(statusOverride);
         }
 
         LaraHooks.doAction(BuilderHooks.ACTION_BEFORE_SAVE, state);
@@ -520,12 +526,12 @@ function LaraBuilderInner({
                 saveData = {
                     title,
                     slug: slug || undefined,
-                    status,
+                    status: effectiveStatus,
                     excerpt,
                     content: html,
                     design_json: designJson,
                     published_at:
-                        status === "scheduled" ? publishedAt : undefined,
+                        effectiveStatus === "scheduled" ? publishedAt : undefined,
                     parent_id: parentId || undefined,
                     featured_image: featuredImage || undefined,
                     remove_featured_image: removeFeaturedImage,
@@ -726,6 +732,9 @@ function LaraBuilderInner({
                             onCopyAllBlocks={handleCopyAllBlocks}
                             onPasteBlocks={handlePasteBlocks}
                             onInsertAIContent={handleInsertAIContent}
+                            previewMode={previewMode}
+                            setPreviewMode={setPreviewMode}
+                            status={status}
                         />
                     </div>
                 )}
@@ -764,58 +773,6 @@ function LaraBuilderInner({
                     {/* Canvas or Code Editor based on mode */}
                     {editorMode === "visual" ? (
                         <div className="flex-1 flex flex-col overflow-hidden">
-                            {/* Responsive Preview Toolbar - click to deselect blocks */}
-                            <div
-                                className="flex items-center justify-center gap-1 py-2 px-4 bg-gray-100 border-b border-gray-200"
-                                onClick={() => actions.selectBlock(null)}
-                            >
-                                <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-0.5">
-                                    {["desktop", "tablet", "mobile"].map(
-                                        (mode) => (
-                                            <button
-                                                key={mode}
-                                                type="button"
-                                                onClick={() =>
-                                                    setPreviewMode(mode)
-                                                }
-                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                                                    previewMode === mode
-                                                        ? "bg-primary text-white"
-                                                        : "text-gray-600 hover:bg-gray-100"
-                                                }`}
-                                                title={__(
-                                                    `${
-                                                        mode
-                                                            .charAt(0)
-                                                            .toUpperCase() +
-                                                        mode.slice(1)
-                                                    } Preview`
-                                                )}
-                                            >
-                                                <iconify-icon
-                                                    icon={`mdi:${
-                                                        mode === "desktop"
-                                                            ? "monitor"
-                                                            : mode === "tablet"
-                                                            ? "tablet"
-                                                            : "cellphone"
-                                                    }`}
-                                                    width="16"
-                                                    height="16"
-                                                ></iconify-icon>
-                                                <span className="hidden sm:inline">
-                                                    {__(
-                                                        mode
-                                                            .charAt(0)
-                                                            .toUpperCase() +
-                                                            mode.slice(1)
-                                                    )}
-                                                </span>
-                                            </button>
-                                        )
-                                    )}
-                                </div>
-                            </div>
                             <Canvas
                                 blocks={blocks}
                                 selectedBlockId={selectedBlockId}

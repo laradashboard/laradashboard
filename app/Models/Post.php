@@ -377,8 +377,9 @@ class Post extends Model implements SpatieHasMedia
         // The content field is a stale HTML snapshot that can't render dynamic blocks.
         if (! empty($this->design_json) && is_array($this->design_json)) {
             $blocks = $this->design_json['blocks'] ?? $this->design_json;
+            $canvasSettings = $this->design_json['canvasSettings'] ?? [];
 
-            return app(DesignJsonRenderer::class)->render($blocks, $context);
+            return app(DesignJsonRenderer::class)->render($blocks, $context, $canvasSettings);
         }
 
         // Fall back to content field processed through BlockRenderer

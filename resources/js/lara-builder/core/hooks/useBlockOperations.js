@@ -132,7 +132,8 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
 
     const handleMoveNestedBlock = useCallback(
         (blockId, pId, colIdx, direction) => {
-            const block = blocks.find((b) => b.id === pId);
+            // Search recursively — parent may be deeply nested
+            const block = findBlock(pId);
             if (!block?.props?.children?.[colIdx]) return;
 
             const column = block.props.children[colIdx];
@@ -144,7 +145,7 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
 
             actions.moveNestedBlock(pId, colIdx, index, colIdx, newIndex);
         },
-        [blocks, actions]
+        [findBlock, actions]
     );
 
     // Duplicate handlers
@@ -157,7 +158,8 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
 
     const handleDuplicateNestedBlock = useCallback(
         (blockId, pId, colIdx) => {
-            const block = blocks.find((b) => b.id === pId);
+            // Search recursively — parent may be deeply nested (e.g. columns inside section)
+            const block = findBlock(pId);
             if (!block?.props?.children?.[colIdx]) return;
 
             const column = block.props.children[colIdx];
@@ -173,7 +175,7 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
                 actions.addNestedBlock(pId, colIdx, duplicatedBlock, index + 1);
             }
         },
-        [blocks, actions]
+        [findBlock, actions]
     );
 
     // Add block handler (for click-to-add)
