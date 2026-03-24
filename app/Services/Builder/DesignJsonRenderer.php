@@ -49,9 +49,10 @@ class DesignJsonRenderer
      *
      * @param  array  $blocks  The blocks from design_json
      * @param  string  $context  The rendering context ('page', 'email')
+     * @param  array  $canvasSettings  Canvas settings (width, contentPadding, layoutStyles)
      * @return string The generated HTML
      */
-    public function render(array $blocks, string $context = 'page'): string
+    public function render(array $blocks, string $context = 'page', array $canvasSettings = []): string
     {
         $this->renderedBlockTypes = [];
         $html = '';
@@ -66,7 +67,63 @@ class DesignJsonRenderer
             $blockStyles = $this->collectBlockStyles();
         }
 
-        return $blockStyles . '<div class="lb-content lb-page-content">' . $html . '</div>';
+        // Build wrapper styles from canvasSettings
+        $wrapperStyle = $this->buildCanvasWrapperStyle($canvasSettings, $context);
+        $styleAttr = $wrapperStyle ? ' style="' . htmlspecialchars($wrapperStyle) . '"' : '';
+
+        return $blockStyles . '<div class="lb-content lb-page-content"' . $styleAttr . '>' . $html . '</div>';
+    }
+
+    /**
+     * Build inline CSS for the page content wrapper from canvasSettings.
+     */
+    protected function buildCanvasWrapperStyle(array $canvasSettings, string $context): string
+    {
+        if (empty($canvasSettings) || $context !== 'page') {
+            return '';
+        }
+
+        $styles = [];
+
+        $width = $canvasSettings['width'] ?? '';
+        if ($width && $width !== '100%') {
+            $styles[] = "max-width: {$width}";
+            $styles[] = 'margin-left: auto';
+            $styles[] = 'margin-right: auto';
+        }
+
+        $layoutStyles = $canvasSettings['layoutStyles'] ?? [];
+
+        // Padding: contentPadding dropdown is the primary control.
+        // layoutStyles.padding (from the advanced Layout section) is used
+        // only when contentPadding is not explicitly set.
+        $contentPadding = $canvasSettings['contentPadding'] ?? null;
+        if ($contentPadding !== null) {
+            // User explicitly chose a value from the dropdown
+            if ($contentPadding !== '0px' && $contentPadding !== '0' && $contentPadding !== '') {
+                $styles[] = "padding: {$contentPadding}";
+            }
+        } elseif (! empty($layoutStyles['padding'])) {
+            $layoutPadding = $this->buildPadding($layoutStyles['padding']);
+            if ($layoutPadding) {
+                $styles[] = $layoutPadding;
+            }
+        }
+
+        // Margin from layout styles
+        if (! empty($layoutStyles['margin'])) {
+            $layoutMargin = $this->buildMargin($layoutStyles['margin']);
+            if ($layoutMargin) {
+                $styles[] = $layoutMargin;
+            }
+        }
+
+        // Background color from layout styles
+        if (! empty($layoutStyles['background']['color'])) {
+            $styles[] = "background-color: {$layoutStyles['background']['color']}";
+        }
+
+        return implode('; ', $styles);
     }
 
     /**
@@ -90,14 +147,9 @@ class DesignJsonRenderer
             $callback = $this->getBlockRenderCallback($type);
 
             if ($callback) {
-                $html = $callback($props, $context, $blockId);
-
-                // Auto-wrap with layoutStyles (margin/padding) if present
-                if (! empty($html) && ! empty($props['layoutStyles'])) {
-                    $html = $this->wrapWithLayoutStyles($html, $props['layoutStyles'], $blockId);
-                }
-
-                return $html;
+                // render.php blocks handle their own layoutStyles internally,
+                // so no additional wrapping is needed.
+                return $callback($props, $context, $blockId);
             }
 
             // Fall back to built-in renderers
