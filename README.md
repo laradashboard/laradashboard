@@ -50,6 +50,31 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v1.0.0] - 2026-03-24**
+-   **Feat:** Upgraded to Laravel 13 and Livewire 4.
+-   **Feat:** Base setup for Starter 26 theme.
+-   **Feat:** CRUD Generator (`module:make-crud`) with Model, Datatable, Views, Routes, Menu scaffolding.
+-   **Feat:** Inbound/Outbound email connection management.
+-   **Feat:** Manual core upgrade system with backup/restore functionality.
+-   **Feat:** Social authentication with Laravel Socialite.
+-   **Feat:** Cache/performance management section in settings page.
+-   **Feat:** Menu architecture for frontend with filter hooks support.
+-   **Feat:** Compact file uploader component.
+-   **Feat:** Clean all action logs button.
+-   **Enhancement:** Module CRUD command improved — generates Blade views instead of Livewire components.
+-   **Enhancement:** Translation system refactored with chunked data saving.
+-   **Enhancement:** Quick links dropdown at navbar.
+-   **Enhancement:** Post list updated with Updated column and activity log timestamps.
+-   **Enhancement:** Media selector modal responsive improvement.
+-   **Refactor:** Unified server-side block rendering for email and page contexts.
+-   **Refactor:** Blocks refactored to remove unnecessary padding and standalone page improvement.
+-   **Fix:** Security fixes with sanitization in content rendering.
+-   **Fix:** Email verification link, template preview, and campaign tracking fixes.
+-   **Fix:** Fixed missing authorization checks.
+-   **Fix:** Module installation, upload, and delete bug fixes.
+-   **Fix:** Fixed cached permission issues.
+-   **Fix:** Numerous test fixes and CI improvements.
+
 **[v0.9.14] - 2026-03-16**
 -   **Refactor:** Unified server-side block rendering for email and page contexts via render.php
 -   **New:** EmailStyleHelper PHP utility for email-safe inline CSS from layoutStyles
@@ -233,7 +258,7 @@ password - 12345678
 
 ## 🔄 Versions:
 
-Latest version `v0.9.11` - https://github.com/laradashboard/laradashboard/releases/tag/v0.9.11
+Latest version `v1.0.0` - https://github.com/laradashboard/laradashboard/releases/tag/v1.0.0
 
 <details>
 <summary>View Old versions</summary>
