@@ -81,6 +81,42 @@
             continue;
         }
 
+        // Check minimum LaraDashboard version compatibility
+        if (! empty($moduleConfig['min_laradashboard_required'])) {
+            $coreVersion = null;
+            $versionFile = dirname(__DIR__) . '/version.json';
+            if (file_exists($versionFile)) {
+                $versionData = json_decode(file_get_contents($versionFile), true);
+                $coreVersion = $versionData['version'] ?? null;
+            }
+
+            if ($coreVersion && version_compare($coreVersion, $moduleConfig['min_laradashboard_required'], '<')) {
+                $statuses[$moduleName] = false;
+                $modified = true;
+                $disabledModules[$moduleName] = sprintf(
+                    'Requires LaraDashboard v%s or higher (current: v%s). Please update this module.',
+                    $moduleConfig['min_laradashboard_required'],
+                    $coreVersion
+                );
+
+                continue;
+            }
+        }
+
+        // Check for conflicting vendor packages that would override core Laravel classes.
+        // Modules that vendor the full laravel/framework will cause fatal class conflicts
+        // (e.g., outdated Illuminate\Cache\FileStore missing abstract methods).
+        // Note: individual illuminate/* packages (collections, support, etc.) from libraries
+        // like maatwebsite/excel are generally safe and should not be blocked.
+        $conflictingFrameworkPath = $moduleDir . '/vendor/laravel/framework';
+        if (is_dir($conflictingFrameworkPath)) {
+            $statuses[$moduleName] = false;
+            $modified = true;
+            $disabledModules[$moduleName] = 'Module vendors a conflicting laravel/framework package. Please run "composer update" inside the module or remove its vendor/laravel/framework directory.';
+
+            continue;
+        }
+
         // Register PSR-4 namespaces for this module ONLY
         try {
             if (file_exists($composerJson)) {

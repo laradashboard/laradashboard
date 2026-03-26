@@ -149,6 +149,7 @@ class ModuleService
             'tags' => $moduleData['keywords'] ?? [],
             'category' => $moduleData['category'] ?? null,
             'priority' => $moduleData['priority'] ?? 0,
+            'min_laradashboard_required' => $moduleData['min_laradashboard_required'] ?? null,
         ]);
     }
 
@@ -266,6 +267,42 @@ class ModuleService
      * - Merges duplicate entries (case-insensitive) preferring enabled status.
      * - Uses module.json name as key to match nwidart/laravel-modules convention.
      */
+    /**
+     * Remove duplicate case entries for a module from modules_statuses.json.
+     *
+     * After nwidart writes "Forum": true, there may be a stale "forum": true entry.
+     * This keeps only the entry matching the module.json name.
+     */
+    public function cleanupDuplicateStatusEntries(string $moduleName): void
+    {
+        $rawStatuses = $this->getRawModuleStatuses();
+        $jsonName = $this->getModuleJsonName($moduleName);
+        $keyToKeep = $jsonName ?? $moduleName;
+        $normalizedSearch = $this->normalizeModuleName($keyToKeep);
+
+        $cleaned = [];
+        $hadDuplicates = false;
+
+        foreach ($rawStatuses as $name => $status) {
+            if ($this->normalizeModuleName($name) === $normalizedSearch) {
+                if ($name === $keyToKeep) {
+                    $cleaned[$name] = $status;
+                } else {
+                    // Duplicate with different case — drop it, keep the status if enabled
+                    $hadDuplicates = true;
+                    $cleaned[$keyToKeep] = ($cleaned[$keyToKeep] ?? false) || $status;
+                }
+            } else {
+                $cleaned[$name] = $status;
+            }
+        }
+
+        if ($hadDuplicates) {
+            File::put($this->modulesStatusesPath, json_encode($cleaned, JSON_PRETTY_PRINT));
+            Log::info("Cleaned up duplicate status entries for module: {$keyToKeep}");
+        }
+    }
+
     public function cleanupOrphanedModuleStatuses(): void
     {
         if (! File::exists($this->modulesStatusesPath)) {
@@ -767,6 +804,11 @@ class ModuleService
                 throw new \RuntimeException("Artisan command failed with exit code {$exitCode}: {$output}");
             }
 
+            // Clean up duplicate case entries in modules_statuses.json.
+            // nwidart writes with its own key (e.g., "Forum"), but there may be
+            // a stale lowercase entry (e.g., "forum") from earlier versions.
+            $this->cleanupDuplicateStatusEntries($moduleName);
+
             // When enabling a module, run migrations and publish assets
             if ($enable) {
                 // Regenerate composer autoloader to ensure module classes are available
@@ -783,6 +825,13 @@ class ModuleService
                     Hook::doAction(ModuleActionHook::MODULE_MIGRATING_BEFORE, $moduleName);
                     $this->runModuleMigrations($moduleName);
                     Hook::doAction(ModuleActionHook::MODULE_MIGRATED_AFTER, $moduleName);
+
+                    // Re-sync permissions for this module after migrations.
+                    // Migrations may have already run (e.g., "Nothing to migrate") but the role
+                    // assignment could have been missed if the role didn't exist at migration time.
+                    // This is idempotent — permissions are created via firstOrCreate, roles get
+                    // givePermissionTo which skips already-assigned permissions.
+                    $this->syncModulePermissions($moduleName);
 
                     // Flush Spatie's permission cache after migrations so any new permissions
                     // and role assignments made during the migration are immediately visible.
@@ -891,6 +940,108 @@ class ModuleService
                 'trace' => $th->getTraceAsString(),
             ]);
             // Don't throw - migrations might fail if tables already exist, which is fine
+        }
+    }
+
+    /**
+     * Re-sync a module's permissions after enabling.
+     *
+     * Modules define their permissions via the PermissionFilterHook::PERMISSION_GROUPS hook.
+     * When enabling, the module's service provider registers this hook, but during enable
+     * the hook may not have fired yet. We look for a static getPermissions() method on the
+     * module's ModuleService class, and if found, sync those permissions to roles.
+     *
+     * This is idempotent — permissions use firstOrCreate and roles skip already-assigned.
+     */
+    protected function syncModulePermissions(string $moduleName): void
+    {
+        try {
+            // Find the module's ModuleService class which typically has getPermissions()
+            $folderName = $this->getActualModuleFolderName($moduleName);
+
+            if (! $folderName) {
+                return;
+            }
+
+            // Read module.json to get namespace
+            $moduleJsonPath = $this->modulesPath . '/' . $folderName . '/module.json';
+
+            if (! File::exists($moduleJsonPath)) {
+                return;
+            }
+
+            $moduleData = json_decode(File::get($moduleJsonPath), true);
+            $namespace = null;
+
+            if (! empty($moduleData['providers'])) {
+                foreach ($moduleData['providers'] as $provider) {
+                    if (preg_match('/^(Modules\\\\[^\\\\]+)\\\\/', $provider, $matches)) {
+                        $namespace = $matches[1];
+
+                        break;
+                    }
+                }
+            }
+
+            if (! $namespace) {
+                return;
+            }
+
+            // Scan the module's Services directory for a class with a static
+            // permission method. Modules use varying names:
+            //   ModuleService::getPermissions()
+            //   CrmService::getCrmPermissions()
+            //   EcomService::getEcomPermissions()
+            //   CustomFormService::getCustomFormPermissions()
+            $servicesPath = $this->modulesPath . '/' . $folderName . '/app/Services';
+
+            if (! File::isDirectory($servicesPath)) {
+                return;
+            }
+
+            $permissionGroups = null;
+
+            foreach (File::files($servicesPath) as $file) {
+                if ($file->getExtension() !== 'php') {
+                    continue;
+                }
+
+                $className = $namespace . '\\Services\\' . $file->getFilenameWithoutExtension();
+
+                if (! class_exists($className)) {
+                    continue;
+                }
+
+                // Look for any public static method matching *Permissions or *permissions
+                $reflection = new \ReflectionClass($className);
+
+                foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_STATIC) as $method) {
+                    if (preg_match('/^get.*[Pp]ermissions$/', $method->getName()) && $method->getNumberOfRequiredParameters() === 0) {
+                        $result = $className::{$method->getName()}();
+
+                        if (is_array($result) && ! empty($result)) {
+                            $permissionGroups = $result;
+
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            if (empty($permissionGroups)) {
+                return;
+            }
+
+            if (empty($permissionGroups)) {
+                return;
+            }
+
+            // Use the existing syncPermissionsForRoles which creates + assigns to Superadmin
+            \App\Services\PermissionService::syncPermissionsForRoles($permissionGroups);
+
+            Log::info("Synced permissions for module {$moduleName}: " . count($permissionGroups) . ' groups');
+        } catch (\Throwable $e) {
+            Log::warning("Could not sync permissions for module {$moduleName}: " . $e->getMessage());
         }
     }
 

@@ -20,6 +20,7 @@ class CheckInstallation
         'install',
         'install/*',
         'livewire/*',
+        'livewire-*',
         '_debugbar/*',
     ];
 
