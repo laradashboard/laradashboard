@@ -994,7 +994,7 @@ class InstallationService
 
             return ['success' => true, 'message' => __('Module installed successfully.')];
         } catch (\Exception $e) {
-            if (isset($tempPath) && File::isDirectory($tempPath)) {
+            if (File::isDirectory($tempPath)) {
                 File::deleteDirectory($tempPath);
             }
 

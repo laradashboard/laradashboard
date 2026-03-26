@@ -1032,10 +1032,6 @@ class ModuleService
                 return;
             }
 
-            if (empty($permissionGroups)) {
-                return;
-            }
-
             // Use the existing syncPermissionsForRoles which creates + assigns to Superadmin
             \App\Services\PermissionService::syncPermissionsForRoles($permissionGroups);
 
