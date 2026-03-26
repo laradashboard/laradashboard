@@ -58,6 +58,8 @@ class Module implements Arrayable, ArrayAccess
 
     public int $priority = 0;
 
+    public ?string $min_laradashboard_required = null;
+
     public function __construct(array $attributes)
     {
         foreach ($attributes as $key => $value) {
@@ -71,6 +73,45 @@ class Module implements Arrayable, ArrayAccess
         }
 
         $this->status = $attributes['status'] ?? false;
+    }
+
+    /**
+     * Check if this module is compatible with the current LaraDashboard version.
+     */
+    public function isCompatibleWithCore(): bool
+    {
+        if (empty($this->min_laradashboard_required)) {
+            return true;
+        }
+
+        $coreVersion = self::getCoreVersion();
+
+        if (! $coreVersion) {
+            return true;
+        }
+
+        return version_compare($coreVersion, $this->min_laradashboard_required, '>=');
+    }
+
+    /**
+     * Get the core LaraDashboard version from version.json.
+     */
+    public static function getCoreVersion(): ?string
+    {
+        static $version = null;
+
+        if ($version === null) {
+            $versionFile = base_path('version.json');
+
+            if (file_exists($versionFile)) {
+                $data = json_decode(file_get_contents($versionFile), true);
+                $version = $data['version'] ?? '';
+            } else {
+                $version = '';
+            }
+        }
+
+        return $version ?: null;
     }
 
     /**

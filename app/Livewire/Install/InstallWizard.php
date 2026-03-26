@@ -7,6 +7,7 @@ namespace App\Livewire\Install;
 use App\Models\User;
 use App\Services\InstallationService;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -33,13 +34,14 @@ class InstallWizard extends Component
         'siteName',
         'primaryColor',
         'adminUserId',
+        'selectedModules',
     ];
 
     // Step tracking (synced with URL query parameter)
     #[Url(as: 'step')]
     public int $currentStep = 1;
 
-    public int $totalSteps = 6;
+    public int $totalSteps = 7;
 
     // Step 1: Requirements
     public array $requirements = [];
@@ -83,6 +85,19 @@ class InstallWizard extends Component
     public string $siteName = 'Lara Dashboard';
 
     public string $primaryColor = '#635bff';
+
+    // Step 6: Modules Setup
+    public array $availableModules = [];
+
+    public array $selectedModules = [];
+
+    public bool $modulesLoaded = false;
+
+    public bool $modulesLoading = false;
+
+    public string $modulesFetchError = '';
+
+    public array $moduleInstallResults = [];
 
     // General state
     public bool $isProcessing = false;
@@ -210,6 +225,11 @@ class InstallWizard extends Component
 
     public function nextStep(): void
     {
+        // Guard against double-clicks while processing
+        if ($this->isProcessing) {
+            return;
+        }
+
         $this->errorMessage = '';
         $this->successMessage = '';
 
@@ -227,6 +247,40 @@ class InstallWizard extends Component
         if ($this->currentStep < $this->totalSteps) {
             $this->currentStep++;
         }
+    }
+
+    public function skipStep(): void
+    {
+        // Guard against double-clicks while processing
+        if ($this->isProcessing) {
+            return;
+        }
+
+        // Only allow skipping optional steps
+        if (! $this->isStepSkippable()) {
+            return;
+        }
+
+        $this->errorMessage = '';
+        $this->successMessage = '';
+
+        // Save wizard data to session
+        $this->saveToSession();
+
+        if ($this->currentStep < $this->totalSteps) {
+            $this->currentStep++;
+        }
+    }
+
+    #[Computed]
+    public function isStepSkippable(): bool
+    {
+        return match ($this->currentStep) {
+            3 => $this->appKeyGenerated, // APP Key - skip only if already generated
+            5 => true, // Site Settings - has defaults
+            6 => true, // Modules - optional
+            default => false,
+        };
     }
 
     public function previousStep(): void
@@ -247,6 +301,7 @@ class InstallWizard extends Component
             3 => $this->validateAppKey(),
             4 => $this->validateAdminUser(),
             5 => $this->validateSiteSettings(),
+            6 => true, // Modules step is optional
             default => true,
         };
     }
@@ -387,6 +442,7 @@ class InstallWizard extends Component
                 2 => $this->processDatabaseStep(),
                 4 => $this->processAdminUserStep(),
                 5 => $this->processSiteSettingsStep(),
+                6 => $this->processModulesStep(),
                 default => true,
             };
         } catch (\Exception $e) {
@@ -493,6 +549,186 @@ class InstallWizard extends Component
         }
     }
 
+    /**
+     * Load available modules from marketplace or local fallback.
+     */
+    public function loadModulesFromMarketplace(): void
+    {
+        if ($this->modulesLoaded || $this->modulesLoading) {
+            return;
+        }
+
+        $this->modulesLoading = true;
+        $this->modulesFetchError = '';
+
+        try {
+            // Read slugs from modules_statuses.json
+            $statuses = $this->installationService->getModuleSlugsFromStatuses();
+            $slugs = array_map('strtolower', array_keys($statuses));
+
+            if (empty($slugs)) {
+                $this->availableModules = [];
+                $this->modulesLoaded = true;
+                $this->modulesLoading = false;
+
+                return;
+            }
+
+            // Try marketplace API first
+            $result = $this->installationService->fetchMarketplaceModules($slugs);
+
+            if ($result['success'] && ! empty($result['modules'])) {
+                $this->availableModules = $result['modules'];
+            } else {
+                // Fallback to local modules
+                $this->availableModules = $this->installationService->getLocalModules($slugs);
+
+                if (! empty($result['error'])) {
+                    $this->modulesFetchError = $result['error'];
+                }
+            }
+
+            // Pre-select all modules that were enabled in modules_statuses.json
+            $this->selectedModules = [];
+            $normalizedStatuses = array_change_key_case($statuses, CASE_LOWER);
+            foreach ($this->availableModules as $module) {
+                $slug = $module['slug'];
+
+                if (($normalizedStatuses[$slug] ?? false) === true) {
+                    $this->selectedModules[] = $slug;
+                }
+            }
+        } catch (\Exception $e) {
+            // Ensure loading completes even if something goes wrong
+            $this->modulesFetchError = __('Failed to load modules: ') . $e->getMessage();
+            $this->availableModules = [];
+        }
+
+        $this->modulesLoaded = true;
+        $this->modulesLoading = false;
+    }
+
+    /**
+     * Toggle a module selection.
+     */
+    public function toggleModule(string $slug): void
+    {
+        // Don't allow toggling paid modules (require license activation)
+        $module = collect($this->availableModules)->firstWhere('slug', $slug);
+        if ($module && ! ($module['is_free'] ?? true)) {
+            return;
+        }
+
+        if (in_array($slug, $this->selectedModules)) {
+            $this->selectedModules = array_values(array_diff($this->selectedModules, [$slug]));
+        } else {
+            $this->selectedModules[] = $slug;
+        }
+    }
+
+    /**
+     * Select all available modules.
+     */
+    public function selectAllModules(): void
+    {
+        $this->selectedModules = array_map(
+            fn (array $module) => $module['slug'],
+            array_filter($this->availableModules, fn (array $module) => $module['is_free'] ?? true)
+        );
+    }
+
+    /**
+     * Deselect all modules.
+     */
+    public function deselectAllModules(): void
+    {
+        $this->selectedModules = [];
+    }
+
+    /**
+     * Process the modules step - download and enable selected modules.
+     */
+    protected function processModulesStep(): bool
+    {
+        $this->moduleInstallResults = [];
+
+        if (empty($this->selectedModules)) {
+            return true;
+        }
+
+        $modulesPath = config('modules.paths.modules', base_path('modules'));
+
+        foreach ($this->selectedModules as $slug) {
+            $module = collect($this->availableModules)->firstWhere('slug', $slug);
+
+            if (! $module) {
+                continue;
+            }
+
+            // Skip paid modules - they require license activation
+            if (! ($module['is_free'] ?? true)) {
+                continue;
+            }
+
+            // Check if module already exists locally
+            $isLocal = ($module['is_local'] ?? false) || $this->moduleExistsLocally($slug, $modulesPath);
+
+            if (! $isLocal && ! empty($module['download_url'])) {
+                // Download from marketplace
+                $downloadResult = $this->installationService->downloadAndInstallModule($slug, $module['download_url']);
+
+                if (! $downloadResult['success']) {
+                    $this->moduleInstallResults[$slug] = [
+                        'success' => false,
+                        'message' => $downloadResult['message'],
+                    ];
+
+                    continue;
+                }
+            }
+
+            // Enable the module
+            $enabled = $this->installationService->enableModule($slug);
+            $this->moduleInstallResults[$slug] = [
+                'success' => $enabled,
+                'message' => $enabled ? __('Installed and enabled') : __('Failed to enable'),
+            ];
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if a module already exists in the local modules directory.
+     */
+    protected function moduleExistsLocally(string $slug, string $modulesPath): bool
+    {
+        if (! is_dir($modulesPath)) {
+            return false;
+        }
+
+        foreach (scandir($modulesPath) as $folder) {
+            if ($folder === '.' || $folder === '..') {
+                continue;
+            }
+
+            $moduleJsonPath = $modulesPath . '/' . $folder . '/module.json';
+
+            if (! file_exists($moduleJsonPath)) {
+                continue;
+            }
+
+            $data = json_decode(file_get_contents($moduleJsonPath), true);
+            $name = strtolower($data['name'] ?? $folder);
+
+            if ($name === strtolower($slug)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function completeInstallation(): void
     {
         $this->isProcessing = true;
@@ -526,7 +762,8 @@ class InstallWizard extends Component
             3 => __('Application Key'),
             4 => __('Admin Account'),
             5 => __('Site Settings'),
-            6 => __('Installation Complete'),
+            6 => __('Modules Setup'),
+            7 => __('Installation Complete'),
             default => '',
         };
     }
@@ -539,7 +776,8 @@ class InstallWizard extends Component
             3 => __('Generate or verify your application encryption key'),
             4 => __('Create your administrator account'),
             5 => __('Configure basic site settings'),
-            6 => __('Your installation is complete!'),
+            6 => __('Select modules to install from the marketplace'),
+            7 => __('Your installation is complete!'),
             default => '',
         };
     }
