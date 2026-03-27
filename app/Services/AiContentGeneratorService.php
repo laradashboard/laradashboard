@@ -64,10 +64,10 @@ class AiContentGeneratorService
         // Check if provider is configured before making request
         if ($this->provider === 'ollama') {
             if (empty($this->baseUrl)) {
-                throw new Exception(__('Ollama is not configured. Please set the Ollama base URL in settings.'));
+                throw new Exception(__('Ollama is not configured. Please set the base URL in Settings → Integrations.'));
             }
         } elseif (empty($this->apiKey)) {
-            throw new Exception(__('AI service is not configured. Please contact the administrator to set up the API key.'));
+            throw new Exception(__('AI is not configured. Please add your API key in Settings → Integrations.'));
         }
 
         try {
@@ -380,7 +380,7 @@ Example format:
 
             // Map common error types to user-friendly messages
             if (str_contains($errorMessage, 'API key') || $errorType === 'invalid_request_error') {
-                return __('AI service is not configured. Please contact the administrator to set up the API key.');
+                return __('AI is not configured. Please add your API key in Settings → Integrations.');
             }
 
             if ($errorType === 'insufficient_quota') {
@@ -454,10 +454,10 @@ Example format:
         // Check if provider is configured before making request
         if ($this->provider === 'ollama') {
             if (empty($this->baseUrl)) {
-                throw new Exception(__('Ollama is not configured. Please set the Ollama base URL in settings.'));
+                throw new Exception(__('Ollama is not configured. Please set the base URL in Settings → Integrations.'));
             }
         } elseif (empty($this->apiKey)) {
-            throw new Exception(__('AI service is not configured. Please contact the administrator to set up the API key.'));
+            throw new Exception(__('AI is not configured. Please add your API key in Settings → Integrations.'));
         }
 
         try {

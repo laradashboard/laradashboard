@@ -50,7 +50,7 @@ password - 12345678
 
 ## 📝 Changelog
 
-**[v1.0.0] - 2026-03-24**
+**[v1.0.0] - 2026-03-27**
 -   **Feat:** Upgraded to Laravel 13 and Livewire 4.
 -   **Feat:** Base setup for Starter 26 theme.
 -   **Feat:** CRUD Generator (`module:make-crud`) with Model, Datatable, Views, Routes, Menu scaffolding.
@@ -61,6 +61,7 @@ password - 12345678
 -   **Feat:** Menu architecture for frontend with filter hooks support.
 -   **Feat:** Compact file uploader component.
 -   **Feat:** Clean all action logs button.
+-   **Feat:** AI filter hooks for extensible AI integrations.
 -   **Enhancement:** Module CRUD command improved — generates Blade views instead of Livewire components.
 -   **Enhancement:** Translation system refactored with chunked data saving.
 -   **Enhancement:** Quick links dropdown at navbar.
@@ -68,6 +69,7 @@ password - 12345678
 -   **Enhancement:** Media selector modal responsive improvement.
 -   **Refactor:** Unified server-side block rendering for email and page contexts.
 -   **Refactor:** Blocks refactored to remove unnecessary padding and standalone page improvement.
+-   **Refactor:** Better structure for module installations.
 -   **Fix:** Security fixes with sanitization in content rendering.
 -   **Fix:** Email verification link, template preview, and campaign tracking fixes.
 -   **Fix:** Fixed missing authorization checks.
@@ -258,7 +260,7 @@ password - 12345678
 
 ## 🔄 Versions:
 
-Latest version `v1.0.0` - https://github.com/laradashboard/laradashboard/releases/tag/v1.0.0
+Latest version `v1.0.2` - https://github.com/laradashboard/laradashboard/releases/tag/v1.0.2
 
 <details>
 <summary>View Old versions</summary>
