@@ -156,6 +156,19 @@
                     </div>
                 </form>
 
+                {{-- Error Message (shown above actions/results) --}}
+                <template x-if="error && !result && !processing">
+                    <div class="mt-4 flex items-start gap-3 p-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-700">
+                        <iconify-icon icon="lucide:alert-circle" width="18" height="18" class="text-red-500 mt-0.5 shrink-0"></iconify-icon>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm text-red-700 dark:text-red-300" x-text="error"></p>
+                        </div>
+                        <button type="button" @click="error = null" class="text-red-400 hover:text-red-600 shrink-0">
+                            <iconify-icon icon="lucide:x" width="14" height="14"></iconify-icon>
+                        </button>
+                    </div>
+                </template>
+
                 {{-- Progress Section (While Processing) --}}
                 <template x-if="processing">
                     <div class="mt-6 p-4 rounded-lg bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-700">
@@ -188,7 +201,7 @@
                 </template>
 
                 {{-- Available Actions Section (Only when no result) --}}
-                <template x-if="!processing && !result && actions.length > 0">
+                <template x-if="!processing && !result && modalActions.length > 0">
                     <div class="mt-6">
                         <div class="flex items-center justify-between mb-3">
                             <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -196,9 +209,9 @@
                             </p>
                         </div>
 
-                        {{-- Action Cards --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <template x-for="action in actions" :key="action.name">
+                        {{-- Action Cards (scrollable, only show modal-compatible actions) --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto max-h-[calc(100vh-24rem)] lg:min-h-[200px]">
+                            <template x-for="action in modalActions" :key="action.name">
                                 <button
                                     type="button"
                                     @click="selectAction(action)"
@@ -280,7 +293,45 @@
                         </div>
                     </template>
 
-                    {{-- Action Buttons --}}
+                    {{-- Result Data (inline display for AI insights, forecasts, etc.) --}}
+                    <template x-if="result.data && (result.data.insights || result.data.summary || result.data.digest || result.data.stale_deals_count || result.data.optimistic)">
+                        <div class="mb-4 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 max-h-60 overflow-y-auto">
+                            {{-- Insights list --}}
+                            <template x-if="result.data.insights && result.data.insights.length > 0">
+                                <div class="space-y-2">
+                                    <template x-for="(insight, i) in result.data.insights" :key="i">
+                                        <div class="flex items-start gap-2">
+                                            <iconify-icon
+                                                :icon="insight.type === 'trend_up' ? 'lucide:trending-up' : insight.type === 'trend_down' ? 'lucide:trending-down' : insight.type === 'alert' ? 'lucide:alert-triangle' : 'lucide:info'"
+                                                :class="insight.type === 'trend_up' ? 'text-green-500' : insight.type === 'trend_down' ? 'text-red-500' : insight.type === 'alert' ? 'text-amber-500' : 'text-blue-500'"
+                                                class="text-base mt-0.5 shrink-0"></iconify-icon>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-800 dark:text-gray-200" x-text="insight.title"></p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400" x-text="insight.detail"></p>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            {{-- Summary / Digest text --}}
+                            <template x-if="result.data.summary || result.data.digest">
+                                <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line" x-text="result.data.summary || result.data.digest"></p>
+                            </template>
+                            {{-- Forecast --}}
+                            <template x-if="result.data.optimistic">
+                                <div class="space-y-1 text-sm">
+                                    <p class="text-gray-700 dark:text-gray-300"><span class="font-medium text-green-600">{{ __('Optimistic') }}:</span> <span x-text="'$' + Number(result.data.optimistic).toLocaleString()"></span></p>
+                                    <p class="text-gray-700 dark:text-gray-300"><span class="font-medium text-blue-600">{{ __('Realistic') }}:</span> <span x-text="'$' + Number(result.data.realistic).toLocaleString()"></span></p>
+                                    <p class="text-gray-700 dark:text-gray-300"><span class="font-medium text-amber-600">{{ __('Pessimistic') }}:</span> <span x-text="'$' + Number(result.data.pessimistic).toLocaleString()"></span></p>
+                                    <template x-if="result.data.analysis">
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2" x-text="result.data.analysis"></p>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    {{-- Action Buttons (only show links that point to actual entity pages, not generic dashboard) --}}
                     <template x-if="result.actions && Object.keys(result.actions).length > 0">
                         <div class="space-y-2">
                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('Next steps') }}</p>
@@ -319,24 +370,7 @@
                 </div>
             </template>
 
-            {{-- Error Message --}}
-            <template x-if="error && !result">
-                <div class="border-t border-gray-200 dark:border-gray-700 p-6">
-                    <div class="flex items-start gap-3 p-4 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-700">
-                        <iconify-icon icon="lucide:alert-circle" width="20" height="20" class="text-red-600 dark:text-red-400 mt-0.5"></iconify-icon>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-red-800 dark:text-red-200" x-text="error"></p>
-                            <button
-                                type="button"
-                                @click="error = null"
-                                class="mt-2 text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
-                            >
-                                {{ __('Try again') }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </template>
+            {{-- Error Message - removed from here, now shown above the form --}}
 
             {{-- Footer --}}
             <div class="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 px-6 py-3 bg-gray-50 dark:bg-gray-900/50 rounded-b-xl">
@@ -360,7 +394,7 @@
                     class="inline-flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium"
                 >
                     <iconify-icon icon="lucide:info" width="14" height="14"></iconify-icon>
-                    <span x-text="actions.length + ' {{ __('capabilities') }}'"></span>
+                    <span x-text="modalActions.length + ' {{ __('capabilities') }}'"></span>
                 </button>
             </div>
 
@@ -380,7 +414,7 @@
                         {{ __('Available capabilities') }}
                     </p>
                     <ul class="space-y-1.5">
-                        <template x-for="action in actions" :key="action.name">
+                        <template x-for="action in modalActions" :key="action.name">
                             <li class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                                 <iconify-icon :icon="getActionIcon(action.name)" width="14" height="14" class="text-purple-500"></iconify-icon>
                                 <span x-text="getActionTitle(action.name)"></span>
@@ -403,6 +437,12 @@ function aiCommandModal() {
         result: null,
         message: '',
         actions: [],
+        get modalActions() {
+            return this.actions.filter(a => {
+                const meta = this.actionMeta[a.name];
+                return !meta || meta.modal !== false;
+            });
+        },
         isConfigured: false,
         provider: 'openai',
         showCapabilities: false,
@@ -587,57 +627,44 @@ function aiCommandModal() {
             }
         },
 
+        // Action metadata from core + modules (via filter hook)
+        actionMeta: @php
+            $meta = [
+                'posts.create' => ['title' => __('Create Content'), 'icon' => 'lucide:file-text', 'icon_class' => 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', 'prompt' => __('Write a blog post about ')],
+                'posts.generate_seo' => ['title' => __('Optimize for SEO'), 'icon' => 'lucide:search', 'icon_class' => 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400', 'prompt' => __('Improve SEO for my latest post')],
+                'pages.create' => ['title' => __('Create Page'), 'icon' => 'lucide:layout', 'icon_class' => 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400', 'prompt' => __('Create a page for ')],
+                'content.improve' => ['title' => __('Improve Content'), 'icon' => 'lucide:wand-2', 'icon_class' => 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', 'prompt' => __('Improve the content of ')],
+                'content.translate' => ['title' => __('Translate'), 'icon' => 'lucide:languages', 'icon_class' => 'bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400', 'prompt' => __('Translate my content to ')],
+            ];
+            // Allow modules to register their action metadata via filter hook
+            $meta = Hook::applyFilters(\App\Enums\Hooks\AiFilterHook::AI_ACTION_META, $meta);
+            echo json_encode($meta);
+        @endphp,
+
         // Get user-friendly action title
         getActionTitle(actionName) {
-            const titles = {
-                'posts.create': '{{ __("Create Content") }}',
-                'posts.generate_seo': '{{ __("Optimize for SEO") }}',
-                'pages.create': '{{ __("Create Page") }}',
-                'content.improve': '{{ __("Improve Content") }}',
-                'content.translate': '{{ __("Translate") }}',
-            };
-            return titles[actionName] || this.formatActionName(actionName);
+            return this.actionMeta[actionName]?.title || this.formatActionName(actionName);
         },
 
-        // Format action name as fallback (improved for underscores)
+        // Format action name as fallback
         formatActionName(name) {
             return name.split(/[._]/).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
         },
 
         // Get icon for action
         getActionIcon(actionName) {
-            const icons = {
-                'posts.create': 'lucide:file-text',
-                'posts.generate_seo': 'lucide:search',
-                'pages.create': 'lucide:layout',
-                'content.improve': 'lucide:wand-2',
-                'content.translate': 'lucide:languages',
-            };
-            return icons[actionName] || 'lucide:sparkles';
+            return this.actionMeta[actionName]?.icon || 'lucide:sparkles';
         },
 
         // Get icon background class
         getActionIconClass(actionName) {
-            const classes = {
-                'posts.create': 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-                'posts.generate_seo': 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
-                'pages.create': 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
-                'content.improve': 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
-                'content.translate': 'bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400',
-            };
-            return classes[actionName] || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
+            return this.actionMeta[actionName]?.icon_class || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
         },
 
         // Pre-fill command when action is selected
         selectAction(action) {
-            const prompts = {
-                'posts.create': '{{ __("Write a blog post about ") }}',
-                'posts.generate_seo': '{{ __("Improve SEO for my latest post") }}',
-                'pages.create': '{{ __("Create a page for ") }}',
-                'content.improve': '{{ __("Improve the content of ") }}',
-                'content.translate': '{{ __("Translate my content to ") }}',
-            };
-            this.command = prompts[action.name] || '';
+            const meta = this.actionMeta[action.name];
+            this.command = meta?.prompt || (action.description ? action.description.replace(/\.$/, '') : this.getActionTitle(action.name));
             this.$refs.commandInput?.focus();
         },
 
