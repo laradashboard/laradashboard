@@ -1,0 +1,6 @@
+/* lb-accordion: dark mode */
+.dark .lb-page-content .lb-accordion-item{border-color:#374151!important}
+.dark .lb-page-content .lb-accordion-header{background-color:#1f2937!important}
+.dark .lb-page-content .lb-accordion-header>span:first-child{color:#f1f5f9!important}
+.dark .lb-page-content .lb-accordion-content>div{background-color:#111827!important;color:#94a3b8!important;border-color:#374151!important}
+.dark .lb-page-content .lb-accordion-icon{color:#9ca3af!important}

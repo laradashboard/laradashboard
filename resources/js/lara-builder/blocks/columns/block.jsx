@@ -7,6 +7,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { getBlockComponent } from "../index";
+import { getBlockSupports } from "../blockLoader";
 import BlockToolbar from "../../components/BlockToolbar";
 import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
 import { __ } from "@lara-builder/i18n";
@@ -53,6 +54,13 @@ const NestedSortableBlock = ({
     const BlockComponent = getBlockComponent(block.type);
     const isSelected = selectedBlockId === block.id;
 
+    // Determine if block supports text editing for cursor style
+    const supports = getBlockSupports(block.type);
+    const isTextEditable = supports.bold || supports.italic || supports.underline || block.type === 'text-editor';
+    const cursorClass = isSelected && isTextEditable
+        ? 'cursor-text'
+        : 'cursor-grab active:cursor-grabbing';
+
     const canMoveUp = blockIndex > 0;
     const canMoveDown = blockIndex < totalBlocks - 1;
 
@@ -97,7 +105,7 @@ const NestedSortableBlock = ({
         <div
             ref={setNodeRef}
             style={style}
-            className={`relative group cursor-grab active:cursor-grabbing ${
+            className={`relative group ${cursorClass} ${
                 isDragging ? "z-50" : ""
             }`}
             onClick={(e) => {

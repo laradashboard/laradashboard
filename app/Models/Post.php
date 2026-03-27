@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\Hooks\AdminFilterHook;
 use App\Services\Builder\BlockRenderer;
 use App\Services\Builder\DesignJsonRenderer;
 use App\Services\Content\ContentService;
 use App\Services\Content\PostType;
+use App\Support\Facades\Hook;
 use App\Concerns\QueryBuilderTrait;
 use App\Concerns\HasMedia;
 use App\Enums\PostStatus;
@@ -370,17 +372,43 @@ class Post extends Model implements SpatieHasMedia
      */
     public function renderContent(string $context = 'page'): string
     {
-        // If content exists, process it through BlockRenderer
+        // Prefer design_json when it exists — it may contain dynamic blocks
+        // (e.g. latest-posts with interactive mode) that need server-side rendering.
+        // The content field is a stale HTML snapshot that can't render dynamic blocks.
+        if (! empty($this->design_json) && is_array($this->design_json)) {
+            $blocks = $this->design_json['blocks'] ?? $this->design_json;
+            $canvasSettings = $this->design_json['canvasSettings'] ?? [];
+
+            return app(DesignJsonRenderer::class)->render($blocks, $context, $canvasSettings);
+        }
+
+        // Fall back to content field processed through BlockRenderer
         if (! empty($this->content)) {
             return app(BlockRenderer::class)->processContent($this->content, $context);
         }
 
-        // If design_json exists, render directly from it
-        if (! empty($this->design_json) && is_array($this->design_json)) {
-            return app(DesignJsonRenderer::class)->render($this->design_json, $context);
+        return '';
+    }
+
+    /**
+     * Get the frontend URL for this post.
+     *
+     * Modules/themes can register a filter on POST_FRONTEND_URL to provide
+     * theme-specific URLs. Falls back to generic URL patterns.
+     */
+    public function getFrontendUrl(): ?string
+    {
+        $url = Hook::applyFilters(AdminFilterHook::POST_FRONTEND_URL, null, $this);
+
+        if (! empty($url)) {
+            return $url;
         }
 
-        return '';
+        // Fallback when no theme registers a filter
+        return match ($this->post_type) {
+            'page' => url('/' . $this->slug),
+            default => url('/post/' . $this->slug),
+        };
     }
 
     /**

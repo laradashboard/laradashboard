@@ -1,0 +1,28 @@
+{
+    "type": "badge",
+    "version": "1.0.0",
+    "label": "Badge",
+    "category": "Content",
+    "icon": "mdi:label-outline",
+    "description": "Small colored label for tags, status indicators, or callouts",
+    "keywords": ["badge", "pill", "tag", "label", "status", "chip"],
+    "contexts": ["page", "email"],
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "text": "NEW",
+        "variant": "soft",
+        "size": "sm",
+        "color": "#3b82f6",
+        "textColor": "#1e40af",
+        "icon": "",
+        "borderRadius": "pill",
+        "align": "center"
+    }
+}

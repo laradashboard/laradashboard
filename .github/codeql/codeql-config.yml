@@ -1,0 +1,6 @@
+name: "CodeQL Custom Configuration"
+
+paths-ignore:
+  - public/vendor/**
+  - vendor/**
+  - node_modules/**

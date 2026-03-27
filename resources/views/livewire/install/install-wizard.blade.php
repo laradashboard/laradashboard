@@ -38,7 +38,8 @@
                             3 => __('APP Key'),
                             4 => __('Admin'),
                             5 => __('Settings'),
-                            6 => __('Complete'),
+                            6 => __('Modules'),
+                            7 => __('Complete'),
                             default => ''
                         } }}
                     </span>
@@ -88,6 +89,9 @@
                     @include('livewire.install.steps.site-settings')
                     @break
                 @case(6)
+                    @include('livewire.install.steps.modules-setup')
+                    @break
+                @case(7)
                     @include('livewire.install.steps.complete')
                     @break
             @endswitch
@@ -110,13 +114,22 @@
                         </x-buttons.button>
                     @endif
                 </div>
-                <div>
+                <div class="flex items-center gap-2">
                     @if ($currentStep < $totalSteps)
+                        @if ($this->isStepSkippable)
+                            <x-buttons.button
+                                variant="secondary"
+                                wire:click="skipStep"
+                                :disabled="$isProcessing"
+                            >
+                                {{ __('Skip') }}
+                            </x-buttons.button>
+                        @endif
                         <x-buttons.button
                             variant="primary"
                             wire:click="nextStep"
                             loadingTarget="nextStep"
-                            loadingText="{{ $currentStep === 2 ? __('Running migrations...') : __('Processing...') }}"
+                            loadingText="{{ match($currentStep) { 2 => __('Running migrations...'), 6 => __('Installing modules...'), default => __('Processing...') } }}"
                         >
                             <span class="flex items-center gap-1">
                                 {{ __('Next') }}

@@ -163,14 +163,16 @@
         </div>
 
         {{-- Add Button --}}
-        <button
-            type="button"
-            @click="addLink()"
-            class="btn btn-default w-full"
-        >
-            <iconify-icon icon="lucide:plus" class="mr-2"></iconify-icon>
-            {{ __('Add Social Link') }}
-        </button>
+        <div class="flex justify-center">
+            <button
+                type="button"
+                @click="addLink()"
+                class="btn btn-default"
+            >
+                <iconify-icon icon="lucide:plus" class="mr-2"></iconify-icon>
+                {{ __('Add Social Link') }}
+            </button>
+        </div>
     </div>
 </x-card>
 

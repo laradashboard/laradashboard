@@ -16,60 +16,79 @@ import { pendingCursors } from "../pendingCursors";
  * @returns {Object} Block operation handlers
  */
 export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
-    // Find block helper (including nested blocks)
+    // Recursive search helper for finding blocks at any nesting depth
+    const searchBlocksRecursive = useCallback((items, id) => {
+        if (!Array.isArray(items)) return null;
+
+        for (const item of items) {
+            if (Array.isArray(item)) {
+                const found = searchBlocksRecursive(item, id);
+                if (found) return found;
+            } else if (item && typeof item === 'object' && item.type) {
+                if (item.id === id) return item;
+                if (Array.isArray(item.props?.children)) {
+                    const found = searchBlocksRecursive(item.props.children, id);
+                    if (found) return found;
+                }
+            }
+        }
+        return null;
+    }, []);
+
+    // Find block helper (including deeply nested blocks)
     const findBlock = useCallback(
         (blockId) => {
-            // Check top level
-            const topLevel = blocks.find((b) => b.id === blockId);
-            if (topLevel) return topLevel;
-
-            // Check nested in columns
-            for (const block of blocks) {
-                if (block.type === "columns" && block.props.children) {
-                    for (const column of block.props.children) {
-                        const nested = column.find((b) => b.id === blockId);
-                        if (nested) return nested;
-                    }
-                }
-            }
-            return null;
+            return searchBlocksRecursive(blocks, blockId);
         },
-        [blocks]
+        [blocks, searchBlocksRecursive]
     );
 
-    // Find block location (returns info about nested blocks too)
-    const findBlockLocation = useCallback(
-        (blockId) => {
-            let blockIndex = blocks.findIndex((b) => b.id === blockId);
+    // Recursive location search helper
+    const searchLocationRecursive = useCallback((items, id, parentId) => {
+        if (!Array.isArray(items)) return null;
 
-            if (blockIndex !== -1) {
-                return {
-                    isNested: false,
-                    parentBlockId: null,
-                    columnIndex: null,
-                    blockIndex,
-                };
-            }
-
-            // Check nested blocks
-            for (const block of blocks) {
-                if (block.type === "columns" && block.props.children) {
-                    for (let colIdx = 0; colIdx < block.props.children.length; colIdx++) {
-                        const column = block.props.children[colIdx];
-                        const nestedIdx = column.findIndex((b) => b.id === blockId);
-                        if (nestedIdx !== -1) {
-                            return {
-                                isNested: true,
-                                parentBlockId: block.id,
-                                columnIndex: colIdx,
-                                blockIndex: nestedIdx,
-                            };
-                        }
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (Array.isArray(item)) {
+                // Item is a column array
+                for (let blockIdx = 0; blockIdx < item.length; blockIdx++) {
+                    const block = item[blockIdx];
+                    if (block.id === id) {
+                        return {
+                            isNested: true,
+                            parentBlockId: parentId,
+                            columnIndex: i,
+                            blockIndex: blockIdx,
+                        };
+                    }
+                    // Search deeper
+                    if (Array.isArray(block.props?.children)) {
+                        const found = searchLocationRecursive(block.props.children, id, block.id);
+                        if (found) return found;
                     }
                 }
+            } else if (item && typeof item === 'object' && item.type) {
+                if (item.id === id) {
+                    return {
+                        isNested: parentId !== null,
+                        parentBlockId: parentId,
+                        columnIndex: null,
+                        blockIndex: i,
+                    };
+                }
+                if (Array.isArray(item.props?.children)) {
+                    const found = searchLocationRecursive(item.props.children, id, item.id);
+                    if (found) return found;
+                }
             }
+        }
+        return null;
+    }, []);
 
-            return null;
+    // Find block location (returns info about nested blocks at any depth)
+    const findBlockLocation = useCallback(
+        (blockId) => {
+            return searchLocationRecursive(blocks, blockId, null);
         },
         [blocks]
     );
@@ -113,7 +132,8 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
 
     const handleMoveNestedBlock = useCallback(
         (blockId, pId, colIdx, direction) => {
-            const block = blocks.find((b) => b.id === pId);
+            // Search recursively — parent may be deeply nested
+            const block = findBlock(pId);
             if (!block?.props?.children?.[colIdx]) return;
 
             const column = block.props.children[colIdx];
@@ -125,7 +145,7 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
 
             actions.moveNestedBlock(pId, colIdx, index, colIdx, newIndex);
         },
-        [blocks, actions]
+        [findBlock, actions]
     );
 
     // Duplicate handlers
@@ -138,7 +158,8 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
 
     const handleDuplicateNestedBlock = useCallback(
         (blockId, pId, colIdx) => {
-            const block = blocks.find((b) => b.id === pId);
+            // Search recursively — parent may be deeply nested (e.g. columns inside section)
+            const block = findBlock(pId);
             if (!block?.props?.children?.[colIdx]) return;
 
             const column = block.props.children[colIdx];
@@ -154,7 +175,7 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
                 actions.addNestedBlock(pId, colIdx, duplicatedBlock, index + 1);
             }
         },
-        [blocks, actions]
+        [findBlock, actions]
     );
 
     // Add block handler (for click-to-add)

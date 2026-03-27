@@ -6,9 +6,13 @@ namespace App\Services;
 
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\Modules\ModuleService;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use PDO;
 use PDOException;
 
@@ -393,7 +397,85 @@ class InstallationService
             // Reconnect to database with new configuration
             $this->reconnectDatabase();
 
-            // Run migrations with explicit database and force flag
+            // Check if core tables already exist (database was previously fully migrated)
+            $coreTablesExist = \Illuminate\Support\Facades\Schema::hasTable('settings')
+                && \Illuminate\Support\Facades\Schema::hasTable('users');
+
+            if ($coreTablesExist) {
+                // Core tables exist - run only pending migrations
+                return $this->runMigrateCommand();
+            }
+
+            // Fresh or partial install - run all migrations
+            $result = $this->runMigrateCommand();
+
+            if ($result['success']) {
+                // Verify core table was created
+                if (! \Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                    return [
+                        'success' => false,
+                        'message' => __('Migration completed but settings table was not created. Output: ') . ($result['output'] ?? ''),
+                    ];
+                }
+
+                return $result;
+            }
+
+            // Migration failed - check if it's a "table already exists" error
+            if (! $this->isTableExistsError($result['message'] ?? '')) {
+                return $result;
+            }
+
+            // Tables from a previous install or another app exist in this database.
+            // Drop conflicting tables that aren't tracked in the migrations table, then retry.
+            Log::warning('Migration failed due to existing tables, attempting to resolve: ' . ($result['message'] ?? ''));
+
+            $this->dropConflictingTables();
+
+            // Retry migrations after dropping conflicting tables
+            $retryResult = $this->runMigrateCommand();
+
+            if ($retryResult['success']) {
+                if (! \Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                    return [
+                        'success' => false,
+                        'message' => __('Migration completed but settings table was not created. Output: ') . ($retryResult['output'] ?? ''),
+                    ];
+                }
+            }
+
+            return $retryResult;
+        } catch (\Exception $e) {
+            // Handle "table already exists" exception gracefully
+            if ($this->isTableExistsError($e->getMessage())) {
+                // Check if core tables ended up created despite the error
+                if (\Illuminate\Support\Facades\Schema::hasTable('settings')
+                    && \Illuminate\Support\Facades\Schema::hasTable('users')) {
+                    Log::warning('Migration exception for existing tables (handled): ' . $e->getMessage());
+
+                    return [
+                        'success' => true,
+                        'message' => __('Database tables already exist. Skipped existing migrations.'),
+                    ];
+                }
+            }
+
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        } finally {
+            // Restore original timeout
+            set_time_limit($originalTimeout);
+        }
+    }
+
+    /**
+     * Run the migrate artisan command and return a normalized result.
+     */
+    protected function runMigrateCommand(): array
+    {
+        try {
             $exitCode = Artisan::call('migrate', [
                 '--force' => true,
                 '--no-interaction' => true,
@@ -402,17 +484,23 @@ class InstallationService
             $output = Artisan::output();
 
             if ($exitCode !== 0) {
+                // If it's a "table already exists" error but core tables are present, that's OK
+                if ($this->isTableExistsError($output)
+                    && \Illuminate\Support\Facades\Schema::hasTable('settings')
+                    && \Illuminate\Support\Facades\Schema::hasTable('users')) {
+                    Log::warning('Some migrations skipped due to existing tables: ' . $output);
+
+                    return [
+                        'success' => true,
+                        'message' => __('Database tables already exist. Skipped existing migrations.'),
+                        'output' => $output,
+                    ];
+                }
+
                 return [
                     'success' => false,
                     'message' => __('Migration failed with exit code: ') . $exitCode . "\n" . $output,
-                ];
-            }
-
-            // Verify that tables were actually created
-            if (! \Illuminate\Support\Facades\Schema::hasTable('settings')) {
-                return [
-                    'success' => false,
-                    'message' => __('Migration completed but settings table was not created. Output: ') . $output,
+                    'output' => $output,
                 ];
             }
 
@@ -425,10 +513,62 @@ class InstallationService
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
+                'output' => '',
             ];
+        }
+    }
+
+    /**
+     * Check if an error message indicates a "table already exists" problem.
+     */
+    protected function isTableExistsError(string $message): bool
+    {
+        return str_contains($message, 'already exists')
+            || str_contains($message, '42S01');
+    }
+
+    /**
+     * Drop tables that exist in the database but are not tracked in the migrations table.
+     * This handles cases where a previous install or another app left orphan tables.
+     */
+    protected function dropConflictingTables(): void
+    {
+        $connection = DB::connection();
+        $schema = $connection->getSchemaBuilder();
+
+        // Get all tables currently in the database
+        $existingTables = $schema->getTableListing();
+
+        // The migrations table itself must be kept
+        $protectedTables = ['migrations'];
+
+        // Get tables that are tracked by already-run migrations
+        $trackedTables = [];
+        if (\Illuminate\Support\Facades\Schema::hasTable('migrations')) {
+            $ranMigrations = DB::table('migrations')->pluck('migration')->toArray();
+            // We can't easily map migration files to table names, so instead
+            // we'll just drop all non-migration-tracked tables and let migrate recreate them.
+            // But safer approach: drop only known problematic vendor tables.
+        }
+
+        // Known vendor tables that commonly conflict (from packages like Telescope, Horizon, etc.)
+        $knownVendorTables = [
+            'telescope_entries',
+            'telescope_entries_tags',
+            'telescope_monitoring',
+        ];
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
+            foreach ($knownVendorTables as $table) {
+                if (in_array($table, $existingTables) && ! in_array($table, $protectedTables)) {
+                    $schema->dropIfExists($table);
+                    Log::info("Dropped conflicting table: {$table}");
+                }
+            }
         } finally {
-            // Restore original timeout
-            set_time_limit($originalTimeout);
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
         }
     }
 
@@ -634,5 +774,295 @@ class InstallationService
             'sqlite' => 'SQLite',
             'sqlsrv' => 'SQL Server',
         ];
+    }
+
+    /**
+     * Read module slugs from modules_statuses.json.
+     *
+     * @return array<string, bool>
+     */
+    public function getModuleSlugsFromStatuses(): array
+    {
+        $path = base_path('modules_statuses.json');
+
+        if (! file_exists($path)) {
+            return [];
+        }
+
+        $contents = file_get_contents($path);
+        $statuses = json_decode($contents, true);
+
+        if (! is_array($statuses)) {
+            return [];
+        }
+
+        return $statuses;
+    }
+
+    /**
+     * Fetch module details from the marketplace API by slugs.
+     *
+     * @param  array<string>  $slugs
+     * @return array{success: bool, modules: array, error: string|null}
+     */
+    public function fetchMarketplaceModules(array $slugs): array
+    {
+        if (empty($slugs)) {
+            return ['success' => true, 'modules' => [], 'error' => null];
+        }
+
+        $marketplaceUrl = rtrim(config('laradashboard.marketplace.url', 'https://laradashboard.com'), '/');
+
+        try {
+            $response = Http::connectTimeout(5)->timeout(10)
+                ->post($marketplaceUrl . '/api/marketplace/modules/bulk-lookup', [
+                    'slugs' => $slugs,
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                return [
+                    'success' => $data['success'] ?? false,
+                    'modules' => $data['data'] ?? [],
+                    'error' => null,
+                ];
+            }
+
+            return [
+                'success' => false,
+                'modules' => [],
+                'error' => __('Marketplace returned status :status', ['status' => $response->status()]),
+            ];
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            return [
+                'success' => false,
+                'modules' => [],
+                'error' => __('Could not connect to the marketplace. You can skip this step and install modules later.'),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'modules' => [],
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Get locally available modules from the modules directory.
+     * Used as fallback when marketplace API is unreachable.
+     *
+     * @param  array<string>  $slugs  Module slugs to look for
+     * @return array<int, array>
+     */
+    public function getLocalModules(array $slugs): array
+    {
+        $modulesPath = config('modules.paths.modules', base_path('modules'));
+        $modules = [];
+
+        if (! is_dir($modulesPath)) {
+            return [];
+        }
+
+        foreach (scandir($modulesPath) as $folder) {
+            if ($folder === '.' || $folder === '..') {
+                continue;
+            }
+
+            $moduleJsonPath = $modulesPath . '/' . $folder . '/module.json';
+
+            if (! file_exists($moduleJsonPath)) {
+                continue;
+            }
+
+            $moduleData = json_decode(file_get_contents($moduleJsonPath), true);
+
+            if (! is_array($moduleData)) {
+                continue;
+            }
+
+            $slug = strtolower($moduleData['name'] ?? $folder);
+
+            if (! in_array($slug, $slugs)) {
+                continue;
+            }
+
+            $modules[] = [
+                'slug' => $slug,
+                'name' => $moduleData['title'] ?? $moduleData['name'] ?? $folder,
+                'description' => $moduleData['description'] ?? '',
+                'icons' => $moduleData['icon'] ?? null,
+                'module_type' => 'free',
+                'is_free' => true,
+                'version' => $moduleData['version'] ?? '1.0.0',
+                'download_url' => null,
+                'is_local' => true,
+            ];
+        }
+
+        return $modules;
+    }
+
+    /**
+     * Download a module from the marketplace and install it.
+     *
+     * @return array{success: bool, message: string}
+     */
+    public function downloadAndInstallModule(string $slug, string $downloadUrl): array
+    {
+        try {
+            $tempPath = storage_path('app/modules_temp/' . uniqid('install_', true));
+            File::ensureDirectoryExists($tempPath);
+            $zipPath = $tempPath . '/module.zip';
+
+            // Download the zip
+            $marketplaceUrl = rtrim(config('laradashboard.marketplace.url', 'https://laradashboard.com'), '/');
+            $appUrl = rtrim(config('app.url', ''), '/');
+
+            if ($marketplaceUrl === $appUrl && ! empty($appUrl)) {
+                // Local development - copy from storage
+                $storagePath = $this->resolveLocalStoragePath($downloadUrl);
+
+                if ($storagePath && File::exists($storagePath)) {
+                    File::copy($storagePath, $zipPath);
+                } else {
+                    File::deleteDirectory($tempPath);
+
+                    return ['success' => false, 'message' => __('Module file not found locally.')];
+                }
+            } else {
+                // Remote download
+                $response = Http::timeout(120)->sink($zipPath)->get($downloadUrl);
+
+                if (! $response->successful()) {
+                    File::deleteDirectory($tempPath);
+
+                    return ['success' => false, 'message' => __('Failed to download module: :status', ['status' => $response->status()])];
+                }
+            }
+
+            // Extract the zip
+            $zip = new \ZipArchive();
+
+            if (! $zip->open($zipPath)) {
+                File::deleteDirectory($tempPath);
+
+                return ['success' => false, 'message' => __('Failed to open module package.')];
+            }
+
+            $extractPath = $tempPath . '/extracted';
+            File::ensureDirectoryExists($extractPath);
+            $zip->extractTo($extractPath);
+            $zip->close();
+
+            // Find module.json in extracted content
+            $moduleService = app(ModuleService::class);
+            $modulesPath = config('modules.paths.modules', base_path('modules'));
+
+            // Find the module folder (handles nested zip structures)
+            $moduleFolder = $this->findModuleFolderInPath($extractPath);
+
+            if (! $moduleFolder) {
+                File::deleteDirectory($tempPath);
+
+                return ['success' => false, 'message' => __('Invalid module package structure.')];
+            }
+
+            $moduleJsonPath = $moduleFolder . '/module.json';
+            $moduleData = json_decode(File::get($moduleJsonPath), true);
+            $folderName = basename($moduleFolder);
+            $moduleName = $moduleData['name'] ?? $folderName;
+
+            // Move to modules directory
+            $targetPath = $modulesPath . '/' . $folderName;
+
+            if (File::isDirectory($targetPath)) {
+                // Module already exists locally, skip download
+                File::deleteDirectory($tempPath);
+
+                return ['success' => true, 'message' => __('Module already exists locally.')];
+            }
+
+            File::moveDirectory($moduleFolder, $targetPath);
+            File::deleteDirectory($tempPath);
+
+            // Set module status as disabled initially
+            $moduleService->setModuleStatus($moduleName, false);
+
+            Log::info("Module downloaded and installed during setup: {$moduleName}");
+
+            return ['success' => true, 'message' => __('Module installed successfully.')];
+        } catch (\Exception $e) {
+            if (File::isDirectory($tempPath)) {
+                File::deleteDirectory($tempPath);
+            }
+
+            Log::error("Failed to install module {$slug}: " . $e->getMessage());
+
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Enable a module by name.
+     */
+    public function enableModule(string $moduleName): bool
+    {
+        try {
+            $moduleService = app(ModuleService::class);
+            $moduleService->toggleModule($moduleName, true);
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error("Failed to enable module {$moduleName}: " . $e->getMessage());
+
+            return false;
+        }
+    }
+
+    /**
+     * Find the module folder containing module.json in an extracted path.
+     */
+    protected function findModuleFolderInPath(string $path): ?string
+    {
+        // Check if module.json is at root
+        if (File::exists($path . '/module.json')) {
+            return $path;
+        }
+
+        // Check subdirectories (one level deep)
+        foreach (File::directories($path) as $dir) {
+            if (File::exists($dir . '/module.json')) {
+                return $dir;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve a download URL to a local storage path for development mode.
+     */
+    protected function resolveLocalStoragePath(string $url): ?string
+    {
+        // Try to extract storage path from URL
+        $parsedUrl = parse_url($url);
+        $path = $parsedUrl['path'] ?? '';
+
+        // Handle /storage/ prefix
+        if (str_contains($path, '/storage/')) {
+            $storagePath = substr($path, strpos($path, '/storage/') + 9);
+
+            return storage_path('app/public/' . $storagePath);
+        }
+
+        // Handle API download routes
+        if (str_contains($path, '/api/modules/') && str_contains($path, '/download/')) {
+            // This is an API route, not a direct file path
+            return null;
+        }
+
+        return null;
     }
 }

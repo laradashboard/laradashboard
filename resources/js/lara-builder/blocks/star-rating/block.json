@@ -1,0 +1,80 @@
+{
+    "type": "star-rating",
+    "version": "1.0.0",
+    "label": "Star Rating",
+    "category": "Content",
+    "icon": "mdi:star",
+    "description": "Visual star rating display",
+    "keywords": ["star", "rating", "review", "score", "stars"],
+    "contexts": ["page", "email"],
+    "supports": {
+        "align": true,
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "rating": 5,
+        "maxStars": 5,
+        "size": "md",
+        "filledColor": "#fbbf24",
+        "emptyColor": "#d1d5db",
+        "showLabel": false,
+        "labelText": "",
+        "align": "center"
+    },
+    "properties": [
+        {
+            "name": "rating",
+            "type": "number",
+            "label": "Rating"
+        },
+        {
+            "name": "maxStars",
+            "type": "number",
+            "label": "Maximum Stars"
+        },
+        {
+            "name": "size",
+            "type": "select",
+            "label": "Size",
+            "options": [
+                { "value": "sm", "label": "Small" },
+                { "value": "md", "label": "Medium" },
+                { "value": "lg", "label": "Large" }
+            ]
+        },
+        {
+            "name": "filledColor",
+            "type": "color",
+            "label": "Filled Color"
+        },
+        {
+            "name": "emptyColor",
+            "type": "color",
+            "label": "Empty Color"
+        },
+        {
+            "name": "showLabel",
+            "type": "boolean",
+            "label": "Show Label"
+        },
+        {
+            "name": "labelText",
+            "type": "text",
+            "label": "Label Text"
+        },
+        {
+            "name": "align",
+            "type": "select",
+            "label": "Alignment",
+            "options": [
+                { "value": "left", "label": "Left" },
+                { "value": "center", "label": "Center" },
+                { "value": "right", "label": "Right" }
+            ]
+        }
+    ]
+}

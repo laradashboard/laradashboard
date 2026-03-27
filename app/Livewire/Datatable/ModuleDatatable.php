@@ -38,6 +38,8 @@ class ModuleDatatable extends Datatable
     /**
      * Override sort default since modules don't have created_at.
      */
+    public int $perPage = 100;
+
     public string $sort = 'title';
 
     public string $direction = 'asc';
@@ -199,9 +201,9 @@ class ModuleDatatable extends Datatable
     /**
      * Custom renderer for version column.
      */
-    public function renderVersionColumn(Module $module): string
+    public function renderVersionColumn(Module $module): Renderable
     {
-        return '<span class="text-sm text-gray-500 dark:text-gray-400">v' . e($module->version) . '</span>';
+        return view('backend.pages.modules.partials.module-version', compact('module'));
     }
 
     /**
@@ -377,6 +379,20 @@ class ModuleDatatable extends Datatable
                 'variant' => 'error',
                 'title' => __('Demo Mode'),
                 'message' => __('Module enabling/disabling is restricted in demo mode.'),
+            ]);
+
+            return;
+        }
+
+        // Check version compatibility before enabling
+        $module = $this->moduleService->getModuleByName($moduleName);
+        if ($module && ! $module->status && ! $module->isCompatibleWithCore()) {
+            $this->dispatch('notify', [
+                'variant' => 'error',
+                'title' => __('Incompatible Module'),
+                'message' => __('This module requires LaraDashboard v:version or higher. Please update the module first.', [
+                    'version' => $module->min_laradashboard_required,
+                ]),
             ]);
 
             return;

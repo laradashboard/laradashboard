@@ -21,6 +21,16 @@ class DesignJsonRenderer
     protected array $discoveredCallbacks = [];
 
     /**
+     * Track block types rendered during a render() call for auto CSS inclusion
+     */
+    protected array $renderedBlockTypes = [];
+
+    /**
+     * Cache for discovered block style.css contents
+     */
+    protected array $discoveredStyles = [];
+
+    /**
      * Gradient direction mapping
      */
     protected array $gradientDirectionMap = [
@@ -39,17 +49,81 @@ class DesignJsonRenderer
      *
      * @param  array  $blocks  The blocks from design_json
      * @param  string  $context  The rendering context ('page', 'email')
+     * @param  array  $canvasSettings  Canvas settings (width, contentPadding, layoutStyles)
      * @return string The generated HTML
      */
-    public function render(array $blocks, string $context = 'page'): string
+    public function render(array $blocks, string $context = 'page', array $canvasSettings = []): string
     {
+        $this->renderedBlockTypes = [];
         $html = '';
 
         foreach ($blocks as $block) {
             $html .= $this->renderBlock($block, $context);
         }
 
-        return '<div class="lb-content lb-page-content">' . $html . '</div>';
+        // Auto-include style.css from each rendered block type (page context only)
+        $blockStyles = '';
+        if ($context === 'page' && ! empty($this->renderedBlockTypes)) {
+            $blockStyles = $this->collectBlockStyles();
+        }
+
+        // Build wrapper styles from canvasSettings
+        $wrapperStyle = $this->buildCanvasWrapperStyle($canvasSettings, $context);
+        $styleAttr = $wrapperStyle ? ' style="' . htmlspecialchars($wrapperStyle) . '"' : '';
+
+        return $blockStyles . '<div class="lb-content lb-page-content"' . $styleAttr . '>' . $html . '</div>';
+    }
+
+    /**
+     * Build inline CSS for the page content wrapper from canvasSettings.
+     */
+    protected function buildCanvasWrapperStyle(array $canvasSettings, string $context): string
+    {
+        if (empty($canvasSettings) || $context !== 'page') {
+            return '';
+        }
+
+        $styles = [];
+
+        $width = $canvasSettings['width'] ?? '';
+        if ($width && $width !== '100%') {
+            $styles[] = "max-width: {$width}";
+            $styles[] = 'margin-left: auto';
+            $styles[] = 'margin-right: auto';
+        }
+
+        $layoutStyles = $canvasSettings['layoutStyles'] ?? [];
+
+        // Padding: contentPadding dropdown is the primary control.
+        // layoutStyles.padding (from the advanced Layout section) is used
+        // only when contentPadding is not explicitly set.
+        $contentPadding = $canvasSettings['contentPadding'] ?? null;
+        if ($contentPadding !== null) {
+            // User explicitly chose a value from the dropdown
+            if ($contentPadding !== '0px' && $contentPadding !== '0' && $contentPadding !== '') {
+                $styles[] = "padding: {$contentPadding}";
+            }
+        } elseif (! empty($layoutStyles['padding'])) {
+            $layoutPadding = $this->buildPadding($layoutStyles['padding']);
+            if ($layoutPadding) {
+                $styles[] = $layoutPadding;
+            }
+        }
+
+        // Margin from layout styles
+        if (! empty($layoutStyles['margin'])) {
+            $layoutMargin = $this->buildMargin($layoutStyles['margin']);
+            if ($layoutMargin) {
+                $styles[] = $layoutMargin;
+            }
+        }
+
+        // Background color from layout styles
+        if (! empty($layoutStyles['background']['color'])) {
+            $styles[] = "background-color: {$layoutStyles['background']['color']}";
+        }
+
+        return implode('; ', $styles);
     }
 
     /**
@@ -65,11 +139,16 @@ class DesignJsonRenderer
             return '';
         }
 
+        // Track this block type for dark mode CSS
+        $this->renderedBlockTypes[] = $type;
+
         try {
             // Try render.php first
             $callback = $this->getBlockRenderCallback($type);
 
             if ($callback) {
+                // render.php blocks handle their own layoutStyles internally,
+                // so no additional wrapping is needed.
                 return $callback($props, $context, $blockId);
             }
 
@@ -100,7 +179,49 @@ class DesignJsonRenderer
     }
 
     /**
-     * Get the render callback for a block type
+     * Collect style.css contents from rendered block types into a single <style> tag.
+     * Each block can have an optional style.css next to its render.php.
+     */
+    protected function collectBlockStyles(): string
+    {
+        $css = '';
+
+        foreach (array_unique($this->renderedBlockTypes) as $type) {
+            $css .= $this->getBlockStyleCss($type);
+        }
+
+        if (empty(trim($css))) {
+            return '';
+        }
+
+        return '<style data-lb-block-styles>' . $css . '</style>';
+    }
+
+    /**
+     * Get the CSS content from a block's style.css file
+     */
+    protected function getBlockStyleCss(string $blockType): string
+    {
+        if (array_key_exists($blockType, $this->discoveredStyles)) {
+            return $this->discoveredStyles[$blockType];
+        }
+
+        $stylePath = resource_path("js/lara-builder/blocks/{$blockType}/style.css");
+
+        if (file_exists($stylePath)) {
+            $this->discoveredStyles[$blockType] = file_get_contents($stylePath);
+
+            return $this->discoveredStyles[$blockType];
+        }
+
+        $this->discoveredStyles[$blockType] = '';
+
+        return '';
+    }
+
+    /**
+     * Get the render callback for a block type.
+     * Checks BuilderService registered callbacks first, then auto-discovers render.php.
      */
     protected function getBlockRenderCallback(string $blockType): ?callable
     {
@@ -108,6 +229,16 @@ class DesignJsonRenderer
             return $this->discoveredCallbacks[$blockType];
         }
 
+        // Check module-registered callbacks via BuilderService
+        $builderService = app(BuilderService::class);
+        if ($builderService->hasBlockRenderCallback($blockType)) {
+            $callback = $builderService->getBlockRenderCallback($blockType);
+            $this->discoveredCallbacks[$blockType] = $callback;
+
+            return $callback;
+        }
+
+        // Auto-discover render.php in core blocks folder
         $renderPath = resource_path("js/lara-builder/blocks/{$blockType}/render.php");
 
         if (file_exists($renderPath)) {
@@ -639,5 +770,41 @@ class DesignJsonRenderer
         }
 
         return "margin: {$top} {$right} {$bottom} {$left}";
+    }
+
+    /**
+     * Wrap rendered HTML with a div that applies layoutStyles (margin/padding).
+     * Used for module blocks (render.php callbacks) that don't handle layoutStyles internally.
+     */
+    protected function wrapWithLayoutStyles(string $html, array $layoutStyles, ?string $blockId = null): string
+    {
+        $styles = [];
+
+        if (! empty($layoutStyles['margin'])) {
+            $margin = $this->buildMargin($layoutStyles['margin']);
+            if ($margin) {
+                $styles[] = $margin;
+            }
+        }
+
+        if (! empty($layoutStyles['padding'])) {
+            $padding = $this->buildPadding($layoutStyles['padding']);
+            if ($padding) {
+                $styles[] = $padding;
+            }
+        }
+
+        if (! empty($layoutStyles['maxWidth'])) {
+            $styles[] = 'max-width: ' . $layoutStyles['maxWidth'];
+        }
+
+        if (empty($styles)) {
+            return $html;
+        }
+
+        $styleAttr = htmlspecialchars(implode('; ', $styles));
+        $idAttr = $blockId ? ' id="block-' . e($blockId) . '"' : '';
+
+        return "<div{$idAttr} style=\"{$styleAttr}\">{$html}</div>";
     }
 }

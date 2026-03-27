@@ -1,0 +1,43 @@
+{
+    "type": "pricing-table",
+    "version": "1.0.0",
+    "label": "Pricing Table",
+    "category": "Content",
+    "icon": "mdi:currency-usd",
+    "description": "Pricing card with plan name, price, features, and CTA button",
+    "keywords": ["pricing", "plan", "price", "table", "subscription", "card", "cta"],
+    "contexts": ["page"],
+    "supports": {
+        "spacing": true,
+        "layout": true,
+        "html": true,
+        "duplicate": true,
+        "remove": true
+    },
+    "defaultProps": {
+        "planName": "Pro",
+        "price": "$29",
+        "period": "/month",
+        "description": "Perfect for growing businesses",
+        "features": [
+            { "text": "Up to 10 projects", "included": true },
+            { "text": "Priority support", "included": true },
+            { "text": "Advanced analytics", "included": true },
+            { "text": "Custom domain", "included": true },
+            { "text": "White labeling", "included": false },
+            { "text": "API access", "included": false }
+        ],
+        "buttonText": "Get Started",
+        "buttonLink": "#",
+        "buttonColor": "#3b82f6",
+        "buttonTextColor": "#ffffff",
+        "highlighted": false,
+        "badgeText": "",
+        "backgroundColor": "#ffffff",
+        "headerColor": "#111827",
+        "priceColor": "#3b82f6",
+        "textColor": "#6b7280",
+        "borderColor": "#e5e7eb",
+        "borderRadius": "16px"
+    }
+}

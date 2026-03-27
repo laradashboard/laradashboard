@@ -30,7 +30,9 @@
     <li class="menu-item-{{ $item->id }}" style="{!! $item->itemStyles !!}">
         <button :style="`color: ${textColor}`" class="menu-item group w-full text-left {{ $isActive }}" type="button" 
                 onclick="handleMenuItemClick(this, '{{ $submenuId }}', '{{ $firstChildRoute }}', {{ $showSubmenu ? 'true' : 'false' }}, {{ $isOnChildPage ? 'true' : 'false' }})">
-            @if (!empty($item->icon))
+            @if (!empty($item->iconImage))
+                <img src="{{ $item->iconImage }}" alt="" class="menu-item-icon w-[18px] h-[18px] object-contain shrink-0" aria-hidden="true">
+            @elseif (!empty($item->icon))
                 <iconify-icon icon="{{ $item->icon }}" class="menu-item-icon" width="18" height="18"></iconify-icon>
             @elseif (!empty($item->iconClass))
                 <iconify-icon icon="lucide:circle" class="menu-item-icon" width="18" height="18"></iconify-icon>
@@ -53,7 +55,9 @@
     <li class="menu-item-{{ $item->id }}" style="{!! $item->itemStyles !!}">
         <a :style="`color: ${textColor}`" href="{{ $item->route ?? '#' }}" class="menu-item group {{ $isActive }}" {!! $target !!}
            @click="if(window.innerWidth < 1024) { sidebarToggle = false; }">
-            @if (!empty($item->icon))
+            @if (!empty($item->iconImage))
+                <img src="{{ $item->iconImage }}" alt="" class="menu-item-icon w-[18px] h-[18px] object-contain shrink-0" aria-hidden="true">
+            @elseif (!empty($item->icon))
                 <iconify-icon icon="{{ $item->icon }}" class="menu-item-icon" width="18" height="18"></iconify-icon>
             @elseif (!empty($item->iconClass))
                 <iconify-icon icon="lucide:circle" class="menu-item-icon" width="18" height="18"></iconify-icon>

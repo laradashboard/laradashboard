@@ -43,6 +43,16 @@ enum AdminFilterHook: string
     case SIDEBAR_MENU_ITEM_AFTER = 'filter.sidebar_menu_item_after_';
     case SIDEBAR_MENU = 'filter.sidebar_menu_';
 
+    // Sidebar logo override.
+    case SIDEBAR_LOGO_OVERRIDE = 'filter.sidebar_logo_override';
+
     // Menu.
     case ADMIN_MENU_GROUPS_BEFORE_SORTING = 'filter.admin_menu_groups_before_sorting';
+
+    // Frontend admin toolbar.
+    case FRONTEND_TOOLBAR_ITEMS = 'filter.frontend_toolbar_items';
+    case FRONTEND_TOOLBAR_ENABLED = 'filter.frontend_toolbar_enabled';
+
+    // Post frontend URL.
+    case POST_FRONTEND_URL = 'filter.post_frontend_url';
 }

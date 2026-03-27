@@ -1,8 +1,7 @@
 {
     "crm": true,
     "DocForge": true,
-    "Starter26": false,
-    "laradashboard": true,
-    "Ecom": true,
+    "Starter26": true,
+    "laradashboard": false,
     "customform": true
 }

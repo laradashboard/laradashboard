@@ -243,7 +243,9 @@ class PostController extends Controller
             ->setBreadcrumbIcon($postTypeModel->icon ?? 'lucide:file-pen')
             ->addBreadcrumbItem($postTypeModel->label, route('admin.posts.index', $postType));
 
-        return $this->renderViewWithBreadcrumbs('backend.pages.posts.edit', compact('post', 'postType', 'postTypeModel', 'taxonomies', 'parentPosts', 'selectedTerms'));
+        $frontendUrl = $post->getFrontendUrl();
+
+        return $this->renderViewWithBreadcrumbs('backend.pages.posts.edit', compact('post', 'postType', 'postTypeModel', 'taxonomies', 'parentPosts', 'selectedTerms', 'frontendUrl'));
     }
 
     public function update(UpdatePostRequest $request, string $postType, string $id): RedirectResponse
@@ -528,6 +530,7 @@ class PostController extends Controller
             'parent_id' => $post->parent_id,
             'published_at' => $post->published_at?->format('Y-m-d\TH:i'),
             'featured_image_url' => $post->getFeaturedImageUrl(),
+            'frontend_url' => $post->getFrontendUrl(),
         ];
 
         return view('backend.pages.posts.builder', [

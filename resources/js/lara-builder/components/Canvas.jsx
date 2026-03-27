@@ -269,7 +269,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     );
 };
 
-const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, onInsertBlockAfter, onReplaceBlock, onMergeBlockWithPrevious, canvasSettings, previewMode = 'desktop', context = 'post' }) => {
+const Canvas = ({ blocks, selectedBlockId, allBlocksSelected = false, onSelect, onUpdate, onDelete, onDeleteNested, onMoveBlock, onDuplicateBlock, onMoveNestedBlock, onDuplicateNestedBlock, onInsertBlockAfter, onReplaceBlock, onMergeBlockWithPrevious, canvasSettings, previewMode = 'desktop', context = 'post' }) => {
     const { setNodeRef, isOver } = useDroppable({
         id: 'canvas',
     });
@@ -278,6 +278,9 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
 
     // Get layout styles from canvasSettings (same format as blocks)
     const canvasLayoutStyles = layoutStylesToCSS(canvasSettings?.layoutStyles || {});
+
+    // Page context uses a full-width canvas like a real page builder
+    const isPageContext = context === 'page';
 
     // Get preview width based on mode
     const getPreviewWidth = () => {
@@ -288,22 +291,32 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
                 return '768px';
             case 'desktop':
             default:
-                return canvasSettings?.width || '700px';
+                return isPageContext
+                    ? (canvasSettings?.width || '100%')
+                    : (canvasSettings?.width || '700px');
         }
     };
 
     // Default settings (width and padding are still separate)
     const settings = {
         width: getPreviewWidth(),
-        contentPadding: canvasSettings?.contentPadding || '32px',
-        contentMargin: canvasSettings?.contentMargin || '40px',
+        contentPadding: isPageContext
+            ? (canvasSettings?.contentPadding || '0px')
+            : (canvasSettings?.contentPadding || '32px'),
+        contentMargin: isPageContext
+            ? (canvasSettings?.contentMargin || '0px')
+            : (canvasSettings?.contentMargin || '40px'),
     };
 
     // Outer container background style (minimal - just padding for now)
     const outerBackgroundStyle = {
-        backgroundColor: '#f3f4f6',
+        backgroundColor: isPageContext ? '#ffffff' : '#f3f4f6',
         padding: settings.contentMargin,
     };
+
+    // Border radius and shadow — page context uses flat design
+    const defaultRadius = isPageContext ? '0px' : '8px';
+    const defaultShadow = isPageContext ? 'none' : '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)';
 
     // Content area background style - uses layoutStyles (same as blocks)
     const contentBackgroundStyle = {
@@ -326,12 +339,12 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
         borderLeftWidth: canvasLayoutStyles.borderLeftWidth,
         borderStyle: canvasLayoutStyles.borderStyle || 'solid',
         borderColor: canvasLayoutStyles.borderColor,
-        borderTopLeftRadius: canvasLayoutStyles.borderTopLeftRadius || '8px',
-        borderTopRightRadius: canvasLayoutStyles.borderTopRightRadius || '8px',
-        borderBottomLeftRadius: canvasLayoutStyles.borderBottomLeftRadius || '8px',
-        borderBottomRightRadius: canvasLayoutStyles.borderBottomRightRadius || '8px',
+        borderTopLeftRadius: canvasLayoutStyles.borderTopLeftRadius || defaultRadius,
+        borderTopRightRadius: canvasLayoutStyles.borderTopRightRadius || defaultRadius,
+        borderBottomLeftRadius: canvasLayoutStyles.borderBottomLeftRadius || defaultRadius,
+        borderBottomRightRadius: canvasLayoutStyles.borderBottomRightRadius || defaultRadius,
         // Box shadow
-        boxShadow: canvasLayoutStyles.boxShadow || '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+        boxShadow: canvasLayoutStyles.boxShadow || defaultShadow,
         // Margin/Padding from layout styles
         marginTop: canvasLayoutStyles.marginTop,
         marginRight: canvasLayoutStyles.marginRight,
@@ -358,10 +371,10 @@ const Canvas = ({ blocks, selectedBlockId, onSelect, onUpdate, onDelete, onDelet
                     }`}
                     style={contentBackgroundStyle}
                 >
-                    <div style={{ padding: settings.contentPadding }}>
+                    <div style={{ padding: settings.contentPadding, paddingTop: `max(${settings.contentPadding || '0px'}, 48px)` }}>
                         <SortableContext items={blockIds} strategy={verticalListSortingStrategy}>
                             {blocks.length > 0 ? (
-                                <div>
+                                <div className={allBlocksSelected ? 'ring-2 ring-primary/50 ring-offset-2 rounded-lg bg-primary/5 transition-all' : ''}>
                                     {/* Drop zone at the top */}
                                     <DropZone id="dropzone-0" isFirst={true} />
 

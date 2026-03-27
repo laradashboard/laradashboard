@@ -341,12 +341,31 @@ class BuilderService
                 // Production: Use built assets from manifest
                 try {
                     $manifest = json_decode(file_get_contents($manifestPath), true);
-                    if (isset($manifest[$relativePath])) {
-                        $assetPath = $manifest[$relativePath]['file'];
+
+                    // Try multiple path variations to match manifest keys:
+                    // 1. Full relative path (modules/customform/resources/js/...)
+                    // 2. Path relative to module dir (resources/js/...)
+                    $pathsToTry = [$relativePath];
+                    if (preg_match('#^modules/[^/]+/(.+)$#', $relativePath, $m)) {
+                        $pathsToTry[] = $m[1];
+                    }
+
+                    $assetFile = null;
+                    foreach ($pathsToTry as $tryPath) {
+                        // Case-insensitive lookup
+                        foreach ($manifest as $key => $entry) {
+                            if (strtolower($key) === strtolower($tryPath)) {
+                                $assetFile = $entry['file'];
+                                break 2;
+                            }
+                        }
+                    }
+
+                    if ($assetFile) {
                         $tags[] = sprintf(
-                            '<script type="module" src="/%s/assets/%s"></script>',
+                            '<script type="module" src="/%s/%s"></script>',
                             $buildPath,
-                            basename($assetPath)
+                            $assetFile
                         );
                     }
                 } catch (\Exception) {

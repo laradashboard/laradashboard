@@ -1,18 +1,23 @@
 @php
     // Default core quick links
-    $defaultLinks = [
-        [
+    $defaultLinks = [];
+
+    // Only show "Visit Site" when a frontend theme is active (ADMIN_SITE_ONLY is false)
+    $isAdminOnly = Hook::applyFilters(AdminFilterHook::ADMIN_SITE_ONLY, true);
+    if (! $isAdminOnly) {
+        $defaultLinks[] = [
             'label' => __('Visit Site'),
             'url' => config('app.url'),
             'icon' => 'lucide:globe',
             'target' => '_blank',
-        ],
-        [
-            'label' => __('Marketplace'),
-            'url' => 'https://laradashboard.com/marketplace',
-            'icon' => 'lucide:store',
-            'target' => '_blank',
-        ],
+        ];
+    }
+
+    $defaultLinks[] = [
+        'label' => __('Marketplace'),
+        'url' => 'https://laradashboard.com/marketplace',
+        'icon' => 'lucide:store',
+        'target' => '_blank',
     ];
 
     // Allow modules to add more links via filter hook

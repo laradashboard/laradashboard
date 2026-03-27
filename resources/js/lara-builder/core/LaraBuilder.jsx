@@ -153,6 +153,7 @@ function LaraBuilderInner({
     // Block operations
     const {
         findBlock,
+        findBlockLocation,
         handleUpdateBlock,
         handleDeleteBlock,
         handleDeleteNestedBlock,
@@ -190,6 +191,7 @@ function LaraBuilderInner({
     // ========================
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState(null);
+    const [allBlocksSelected, setAllBlocksSelected] = useState(false);
 
     // Mobile drawer states
     const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
@@ -229,12 +231,15 @@ function LaraBuilderInner({
             window.removeEventListener("beforeunload", handleBeforeUnload);
     }, [isFormDirty]);
 
+    // Clear allBlocksSelected when selection changes or blocks change
+    useEffect(() => {
+        setAllBlocksSelected(false);
+    }, [selectedBlockId, blocks.length]);
+
     // Keyboard shortcuts for block operations
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (!selectedBlockId) return;
-
-            // Check if user is typing
+            // Check if user is typing in an input/contenteditable
             const activeElement = document.activeElement;
             const isEditing =
                 activeElement?.tagName === "INPUT" ||
@@ -245,38 +250,66 @@ function LaraBuilderInner({
                 activeElement?.closest(".ql-editor") ||
                 activeElement?.closest('[data-text-editing="true"]');
 
-            if (isEditing) return;
+            // Ctrl/Cmd + A: Select all blocks
+            if ((e.ctrlKey || e.metaKey) && e.key === "a") {
+                // If user is editing text, first Ctrl+A selects text (browser default).
+                // Second Ctrl+A (when text is already fully selected) selects all blocks.
+                if (isEditing) {
+                    const selection = window.getSelection();
+                    const editableEl = activeElement?.closest('[contenteditable="true"]') || activeElement;
 
-            // Find block location
-            let isNested = false;
-            let parentBlockId = null;
-            let columnIndex = null;
-            let blockIndex = blocks.findIndex((b) => b.id === selectedBlockId);
+                    // Check if all text in the editable element is already selected
+                    if (selection && editableEl) {
+                        const range = document.createRange();
+                        range.selectNodeContents(editableEl);
+                        const currentRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
 
-            if (blockIndex === -1) {
-                for (const block of blocks) {
-                    if (block.type === "columns" && block.props.children) {
-                        for (
-                            let colIdx = 0;
-                            colIdx < block.props.children.length;
-                            colIdx++
-                        ) {
-                            const column = block.props.children[colIdx];
-                            const nestedIdx = column.findIndex(
-                                (b) => b.id === selectedBlockId
-                            );
-                            if (nestedIdx !== -1) {
-                                isNested = true;
-                                parentBlockId = block.id;
-                                columnIndex = colIdx;
-                                blockIndex = nestedIdx;
-                                break;
-                            }
+                        const isAllSelected = currentRange &&
+                            currentRange.toString().length >= editableEl.textContent.trim().length &&
+                            editableEl.textContent.trim().length > 0;
+
+                        if (isAllSelected) {
+                            // Text already fully selected — escalate to select all blocks
+                            e.preventDefault();
+                            editableEl.blur();
+                            setAllBlocksSelected(true);
+                            return;
                         }
                     }
-                    if (isNested) break;
+                    // Let browser handle first Ctrl+A (select text within block)
+                    return;
                 }
+
+                // Not editing — select all blocks
+                if (selectedBlockId) {
+                    e.preventDefault();
+                    setAllBlocksSelected(true);
+                }
+                return;
             }
+
+            // Delete/Backspace when all blocks are selected — clear all
+            if (allBlocksSelected && (e.key === "Backspace" || e.key === "Delete")) {
+                e.preventDefault();
+                actions.setBlocks([]);
+                setAllBlocksSelected(false);
+                return;
+            }
+
+            // Any other key clears the all-blocks-selected state
+            if (allBlocksSelected && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                setAllBlocksSelected(false);
+            }
+
+            if (!selectedBlockId) return;
+            if (isEditing) return;
+
+            // Find block location (works at any nesting depth)
+            const location = findBlockLocation(selectedBlockId);
+            const isNested = location?.isNested || false;
+            const parentBlockId = location?.parentBlockId || null;
+            const columnIndex = location?.columnIndex ?? null;
+            const blockIndex = location?.blockIndex ?? -1;
 
             // Delete on Backspace/Delete
             if (e.key === "Backspace" || e.key === "Delete") {
@@ -327,7 +360,7 @@ function LaraBuilderInner({
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [selectedBlockId, blocks, actions]);
+    }, [selectedBlockId, blocks, actions, allBlocksSelected, findBlockLocation]);
 
     // Editor mode handlers
     const handleEditorModeChange = useCallback(
@@ -441,8 +474,8 @@ function LaraBuilderInner({
         setCodeEditorHtml(html);
     }, []);
 
-    // Save handler
-    const handleSave = async () => {
+    // Save handler - accepts optional statusOverride for header button actions
+    const handleSave = async (statusOverride) => {
         // Context-specific validation
         if (isEmailContext && !templateName.trim()) {
             showToast(
@@ -455,6 +488,12 @@ function LaraBuilderInner({
         if (isPostContext && !title.trim()) {
             showToast("error", __("Validation Error"), __("Title is required"));
             return;
+        }
+
+        // Apply status override if provided (from header buttons)
+        const effectiveStatus = isPostContext && statusOverride ? statusOverride : status;
+        if (isPostContext && statusOverride) {
+            setStatus(statusOverride);
         }
 
         LaraHooks.doAction(BuilderHooks.ACTION_BEFORE_SAVE, state);
@@ -487,12 +526,12 @@ function LaraBuilderInner({
                 saveData = {
                     title,
                     slug: slug || undefined,
-                    status,
+                    status: effectiveStatus,
                     excerpt,
                     content: html,
                     design_json: designJson,
                     published_at:
-                        status === "scheduled" ? publishedAt : undefined,
+                        effectiveStatus === "scheduled" ? publishedAt : undefined,
                     parent_id: parentId || undefined,
                     featured_image: featuredImage || undefined,
                     remove_featured_image: removeFeaturedImage,
@@ -693,6 +732,9 @@ function LaraBuilderInner({
                             onCopyAllBlocks={handleCopyAllBlocks}
                             onPasteBlocks={handlePasteBlocks}
                             onInsertAIContent={handleInsertAIContent}
+                            previewMode={previewMode}
+                            setPreviewMode={setPreviewMode}
+                            status={status}
                         />
                     </div>
                 )}
@@ -731,61 +773,10 @@ function LaraBuilderInner({
                     {/* Canvas or Code Editor based on mode */}
                     {editorMode === "visual" ? (
                         <div className="flex-1 flex flex-col overflow-hidden">
-                            {/* Responsive Preview Toolbar - click to deselect blocks */}
-                            <div
-                                className="flex items-center justify-center gap-1 py-2 px-4 bg-gray-100 border-b border-gray-200"
-                                onClick={() => actions.selectBlock(null)}
-                            >
-                                <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-0.5">
-                                    {["desktop", "tablet", "mobile"].map(
-                                        (mode) => (
-                                            <button
-                                                key={mode}
-                                                type="button"
-                                                onClick={() =>
-                                                    setPreviewMode(mode)
-                                                }
-                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                                                    previewMode === mode
-                                                        ? "bg-primary text-white"
-                                                        : "text-gray-600 hover:bg-gray-100"
-                                                }`}
-                                                title={__(
-                                                    `${
-                                                        mode
-                                                            .charAt(0)
-                                                            .toUpperCase() +
-                                                        mode.slice(1)
-                                                    } Preview`
-                                                )}
-                                            >
-                                                <iconify-icon
-                                                    icon={`mdi:${
-                                                        mode === "desktop"
-                                                            ? "monitor"
-                                                            : mode === "tablet"
-                                                            ? "tablet"
-                                                            : "cellphone"
-                                                    }`}
-                                                    width="16"
-                                                    height="16"
-                                                ></iconify-icon>
-                                                <span className="hidden sm:inline">
-                                                    {__(
-                                                        mode
-                                                            .charAt(0)
-                                                            .toUpperCase() +
-                                                            mode.slice(1)
-                                                    )}
-                                                </span>
-                                            </button>
-                                        )
-                                    )}
-                                </div>
-                            </div>
                             <Canvas
                                 blocks={blocks}
                                 selectedBlockId={selectedBlockId}
+                                allBlocksSelected={allBlocksSelected}
                                 onSelect={actions.selectBlock}
                                 onUpdate={handleUpdateBlock}
                                 onDelete={handleDeleteBlock}
