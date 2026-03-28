@@ -27,10 +27,16 @@ class Kernel extends ConsoleKernel
         // Schedule the demo database refresh command every 15 minutes in demo mode.
         $schedule->command('demo:refresh-database')->everyFifteenMinutes();
 
-        // Check for module updates twice daily (with silent output).
+        // Check for module updates hourly (with silent output).
         // Uses caching to avoid hitting the API unnecessarily.
         $schedule->command('modules:check-updates --silent')
             ->hourly()
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        // Check for core updates twice daily (with silent output).
+        $schedule->command('core:check-updates --silent')
+            ->twiceDaily(6, 18)
             ->withoutOverlapping()
             ->runInBackground();
 

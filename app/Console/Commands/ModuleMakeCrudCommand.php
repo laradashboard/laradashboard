@@ -194,7 +194,8 @@ class ModuleMakeCrudCommand extends Command
         // Auto-run migrations for the module
         $this->comment('Running migrations...');
         try {
-            $this->call('migrate', ['--path' => "modules/{$this->moduleLowerName}/database/migrations", '--no-interaction' => true]);
+            $relativePath = str_replace(base_path('/'), '', $this->modulePath);
+            $this->call('migrate', ['--path' => "{$relativePath}/database/migrations", '--no-interaction' => true]);
         } catch (\Exception $e) {
             $this->warn('  Could not auto-run migrations: '.$e->getMessage());
             $this->line('  Run manually: php artisan migrate');
@@ -1016,11 +1017,13 @@ PHP;
             $content = substr_replace($content, "\n".$useStatement, $insertPos, 0);
         }
 
-        // Add resource route before closing of the group
+        // Add resource route before the last }); which closes the outermost route group
         $newRoute = "\n\n        Route::resource('{$this->modelPluralLower}', {$this->modelStudlyName}Controller::class);";
 
-        // Find the first }); that closes the route group and insert before it
-        $content = preg_replace('/(\n\s*}\s*\)\s*;)/', $newRoute.'$1', $content, 1);
+        $lastClosingPos = strrpos($content, '});');
+        if ($lastClosingPos !== false) {
+            $content = substr_replace($content, $newRoute."\n    ", $lastClosingPos, 0);
+        }
 
         File::put($routesPath, $content);
         $this->info('  Updated: routes/web.php');
