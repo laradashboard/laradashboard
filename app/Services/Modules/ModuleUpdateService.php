@@ -426,17 +426,11 @@ class ModuleUpdateService
                 if (version_compare($installedVersion, $latestVersion->version, '<')) {
                     $isPro = $module->module_type !== 'free';
 
-                    // For pro modules, use licensed download endpoint; for free, use direct storage URL
+                    // Use API download endpoint for all modules (ZIP files are in private storage)
                     $downloadUrl = null;
                     if ($latestVersion->zip_file) {
-                        if ($isPro) {
-                            // Pro modules require license verification - use API endpoint
-                            $downloadUrl = rtrim(config('laradashboard.marketplace.url'), '/') .
-                                '/api/modules/' . $module->slug . '/download/' . $latestVersion->version;
-                        } else {
-                            // Free modules can download directly
-                            $downloadUrl = asset('storage/' . $latestVersion->zip_file);
-                        }
+                        $downloadUrl = rtrim(config('laradashboard.marketplace.url'), '/') .
+                            '/api/modules/' . $module->slug . '/download/' . $latestVersion->version;
                     }
 
                     $updates[$module->slug] = [
@@ -552,27 +546,21 @@ class ModuleUpdateService
             $parsed = parse_url($downloadUrl);
             $path = $parsed['path'] ?? '';
 
-            // Check if this is an API download URL (pro module) or direct storage URL (free module)
+            // Check if this is an API download URL or direct storage URL
             // API URL format: /api/modules/{slug}/download/{version}
             if (preg_match('#^/api/modules/([^/]+)/download/([^/]+)$#', $path, $matches)) {
-                // Pro module - verify license and get ZIP path from database
                 $slug = $matches[1];
                 $version = $matches[2];
 
-                if (! $licenseKey) {
-                    return [
-                        'success' => false,
-                        'message' => 'License key required for pro module download.',
-                    ];
-                }
-
-                // Verify license in database
-                $verification = $this->verifyLicenseLocally($licenseKey, $slug);
-                if (! $verification['valid']) {
-                    return [
-                        'success' => false,
-                        'message' => $verification['message'],
-                    ];
+                // Only verify license for pro modules (when license key is provided)
+                if ($licenseKey) {
+                    $verification = $this->verifyLicenseLocally($licenseKey, $slug);
+                    if (! $verification['valid']) {
+                        return [
+                            'success' => false,
+                            'message' => $verification['message'],
+                        ];
+                    }
                 }
 
                 // Get ZIP file path from module version
@@ -589,7 +577,7 @@ class ModuleUpdateService
                     ];
                 }
             } elseif (str_starts_with($path, '/storage/')) {
-                // Free module - direct storage URL
+                // Legacy: direct storage URL
                 $relativePath = substr($path, 9); // Remove '/storage/'
                 $storagePath = storage_path('app/' . $relativePath);
             } else {

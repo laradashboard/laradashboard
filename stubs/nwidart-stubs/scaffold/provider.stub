@@ -22,6 +22,7 @@ class $CLASS$ extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->registerModuleVendor();
         $this->registerCommands();
         $this->registerCommandSchedules();
         $this->registerTranslations();
@@ -126,6 +127,17 @@ class $CLASS$ extends ServiceProvider
     public function provides(): array
     {
         return [];
+    }
+
+    /**
+     * Load the module's own vendor autoloader (self-contained module packages).
+     */
+    protected function registerModuleVendor(): void
+    {
+        $vendorAutoload = __DIR__ . '/../../vendor/autoload.php';
+        if (file_exists($vendorAutoload)) {
+            require_once $vendorAutoload;
+        }
     }
 
     private function getPublishableViewPaths(): array

@@ -50,6 +50,10 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v1.0.1] - 2026-03-28**
+-   **Fix:** Fixed automattic module and core upgrade issue on some servers.
+-   **Fix:** Fixed module stubs and crud command to generate files properly.
+
 **[v1.0.0] - 2026-03-27**
 -   **Feat:** Upgraded to Laravel 13 and Livewire 4.
 -   **Feat:** Base setup for Starter 26 theme.
@@ -260,7 +264,7 @@ password - 12345678
 
 ## 🔄 Versions:
 
-Latest version `v1.0.2` - https://github.com/laradashboard/laradashboard/releases/tag/v1.0.2
+Latest version `v1.0.1` - https://github.com/laradashboard/laradashboard/releases/tag/v1.0.1
 
 <details>
 <summary>View Old versions</summary>
