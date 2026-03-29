@@ -50,6 +50,14 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v1.0.2] - 2026-03-29**
+-   **Feat:** Marketplace module browser — browse, search, and install modules from the marketplace.
+-   **Feat:** Module packaging and distribution commands (`module:zip`, `module:package`, `module:compile-css`).
+-   **Feat:** Claude Code agents and commands for faster module development workflow.
+-   **Docs:** Added developer documentation for Tailwind CSS prefixing, AI architecture, theme development, permissions, and module packaging.
+-   **Fix:** Fixed CRUD generator base controller replacement test for updated nwidart stubs.
+-   **Fix:** Assign menu permissions to superadmin migration.
+
 **[v1.0.1] - 2026-03-28**
 -   **Fix:** Fixed automattic module and core upgrade issue on some servers.
 -   **Fix:** Fixed module stubs and crud command to generate files properly.
