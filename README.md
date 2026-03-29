@@ -50,6 +50,9 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v1.0.3] - 2026-03-29**
+-   **Fix:** Fixed marketplace module images not loading (JSON-encoded icon/banner URLs from API were not decoded properly).
+
 **[v1.0.2] - 2026-03-29**
 -   **Feat:** Marketplace module browser — browse, search, and install modules from the marketplace.
 -   **Feat:** Module packaging and distribution commands (`module:zip`, `module:package`, `module:compile-css`).
