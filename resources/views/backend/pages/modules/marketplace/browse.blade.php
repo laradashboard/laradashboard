@@ -84,6 +84,10 @@
                         $moduleBannerUrl = null;
                         $moduleIconUrl = null;
 
+                        // Decode JSON strings from the API (icons/banner may arrive as JSON-encoded strings)
+                        if (is_string($iconsRaw) && str_starts_with(trim($iconsRaw), '{')) {
+                            $iconsRaw = json_decode($iconsRaw, true) ?: $iconsRaw;
+                        }
                         if (is_array($iconsRaw)) {
                             $moduleIconUrl = $iconsRaw['default'] ?? $iconsRaw['logo'] ?? $iconsRaw['1x'] ?? null;
                         } elseif (is_string($iconsRaw)) {
@@ -91,6 +95,9 @@
                         }
 
                         $bannerRaw = $module['banner'] ?? $module['banner_image'] ?? null;
+                        if (is_string($bannerRaw) && (str_starts_with(trim($bannerRaw), '{') || str_starts_with(trim($bannerRaw), '['))) {
+                            $bannerRaw = json_decode($bannerRaw, true) ?: $bannerRaw;
+                        }
                         if (is_array($bannerRaw)) {
                             $moduleBannerUrl = $bannerRaw['default'] ?? $bannerRaw['url'] ?? ($bannerRaw[0] ?? null);
                         } elseif (is_string($bannerRaw)) {
