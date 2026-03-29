@@ -588,6 +588,12 @@ class InstallWizard extends Component
                 }
             }
 
+            // Filter out pro/freemium modules — they require license activation
+            $this->availableModules = array_values(array_filter(
+                $this->availableModules,
+                fn (array $module) => ($module['is_free'] ?? true) && ($module['module_type'] ?? 'free') === 'free'
+            ));
+
             // Pre-select all modules that were enabled in modules_statuses.json
             $this->selectedModules = [];
             $normalizedStatuses = array_change_key_case($statuses, CASE_LOWER);
@@ -646,7 +652,7 @@ class InstallWizard extends Component
     }
 
     /**
-     * Process the modules step - download and enable selected modules.
+     * Process the modules step - download, migrate and enable selected modules.
      */
     protected function processModulesStep(): bool
     {
@@ -657,6 +663,10 @@ class InstallWizard extends Component
         }
 
         $modulesPath = config('modules.paths.modules', base_path('modules'));
+        $marketplaceUrl = rtrim(config('laradashboard.marketplace.url', 'https://laradashboard.com'), '/');
+
+        /** @var \App\Services\Modules\ModuleService $moduleService */
+        $moduleService = app(\App\Services\Modules\ModuleService::class);
 
         foreach ($this->selectedModules as $slug) {
             $module = collect($this->availableModules)->firstWhere('slug', $slug);
@@ -665,34 +675,58 @@ class InstallWizard extends Component
                 continue;
             }
 
-            // Skip paid modules - they require license activation
-            if (! ($module['is_free'] ?? true)) {
-                continue;
-            }
+            try {
+                // Check if module already exists locally
+                $isLocal = ($module['is_local'] ?? false) || $this->moduleExistsLocally($slug, $modulesPath);
 
-            // Check if module already exists locally
-            $isLocal = ($module['is_local'] ?? false) || $this->moduleExistsLocally($slug, $modulesPath);
+                if (! $isLocal) {
+                    // Build download URL from marketplace
+                    $version = $module['version'] ?? '1.0.0';
+                    $downloadUrl = $module['download_url'] ?? "{$marketplaceUrl}/api/modules/{$slug}/download/{$version}";
 
-            if (! $isLocal && ! empty($module['download_url'])) {
-                // Download from marketplace
-                $downloadResult = $this->installationService->downloadAndInstallModule($slug, $module['download_url']);
+                    // Download and install from marketplace
+                    $downloadResult = $this->installationService->downloadAndInstallModule($slug, $downloadUrl);
 
-                if (! $downloadResult['success']) {
-                    $this->moduleInstallResults[$slug] = [
-                        'success' => false,
-                        'message' => $downloadResult['message'],
-                    ];
+                    if (! $downloadResult['success']) {
+                        $this->moduleInstallResults[$slug] = [
+                            'success' => false,
+                            'message' => $downloadResult['message'],
+                        ];
 
-                    continue;
+                        continue;
+                    }
                 }
-            }
 
-            // Enable the module
-            $enabled = $this->installationService->enableModule($slug);
-            $this->moduleInstallResults[$slug] = [
-                'success' => $enabled,
-                'message' => $enabled ? __('Installed and enabled') : __('Failed to enable'),
-            ];
+                // Get the original module name from module.json for migrations and status
+                $originalName = $slug;
+                $folderName = $moduleService->getActualModuleFolderName($slug);
+                if ($folderName) {
+                    $jsonName = $moduleService->getModuleJsonName($slug);
+                    if ($jsonName) {
+                        $originalName = $jsonName;
+                    }
+                }
+
+                // Run migrations
+                $moduleService->runModuleMigrations($originalName);
+
+                // Enable module by writing directly to modules_statuses.json
+                // artisan module:enable won't work for freshly downloaded modules
+                // because nwidart caches the module list at boot time
+                $moduleService->setModuleStatus($originalName, true);
+
+                $this->moduleInstallResults[$slug] = [
+                    'success' => true,
+                    'message' => __('Installed and enabled'),
+                ];
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Install wizard: failed to process module {$slug}: " . $e->getMessage());
+
+                $this->moduleInstallResults[$slug] = [
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ];
+            }
         }
 
         return true;

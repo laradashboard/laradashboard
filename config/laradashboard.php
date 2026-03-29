@@ -27,6 +27,16 @@ return [
          * The API endpoint for downloading module updates.
          */
         'download_endpoint' => '/api/modules/download',
+
+        /*
+         * The API endpoint for browsing marketplace modules.
+         */
+        'modules_endpoint' => '/api/marketplace/modules',
+
+        /*
+         * Cache duration in minutes for marketplace module listings.
+         */
+        'modules_cache_duration' => 5,
     ],
 
     /*
