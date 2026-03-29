@@ -155,7 +155,7 @@
                             @if (!$isFree)
                                 <p class="text-xs text-amber-600 dark:text-amber-400 mt-0.5">{{ __('Requires license — install from admin panel after activation') }}</p>
                             @elseif (!empty($module['description']))
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{{ $module['description'] }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{{ \Illuminate\Support\Str::limit(strip_tags($module['description']), 150) }}</p>
                             @endif
                         </div>
 
