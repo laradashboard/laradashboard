@@ -120,7 +120,7 @@ return new class () extends Migration {
             $blockService->text('You can also log in directly if you already know your password:', 'left', '#666666', '14px'),
             $blockService->text('{login_url}', 'left', '#635bff', '13px'),
             $blockService->spacer('30px'),
-            $blockService->footer('{app_name}'),
+            $blockService->footer('{app_name}', '', '', showUnsubscribe: false),
         ];
     }
 };
