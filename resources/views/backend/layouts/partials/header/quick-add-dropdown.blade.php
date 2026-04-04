@@ -29,9 +29,14 @@
 
     // Allow modules (CRM, etc.) to add their own quick-add items via filter hook
     $quickAddItems = Hook::applyFilters(AdminFilterHook::QUICK_ADD_DROPDOWN, $defaultItems);
+
+    // Filter to only items the current user has permission for
+    $visibleItems = array_filter($quickAddItems, function ($item) {
+        return empty($item['permission']) || auth()->user()?->can($item['permission']);
+    });
 @endphp
 
-@if (count($quickAddItems) > 0)
+@if (count($visibleItems) > 0)
     <div class="relative" x-data="{ quickAddOpen: false }" @mouseenter="quickAddOpen = true" @mouseleave="quickAddOpen = false">
         <button
             class="hover:text-dark-900 relative flex items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white p-2"
@@ -55,26 +60,21 @@
                 <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
                     {{ __('Create New') }}
                 </div>
-                @foreach ($quickAddItems as $item)
-                    @php
-                        $hasPermission = empty($item['permission']) || auth()->user()?->can($item['permission']);
-                    @endphp
-                    @if ($hasPermission)
-                        <a
-                            href="{{ $item['url'] }}"
-                            target="{{ $item['target'] ?? '_self' }}"
-                            class="group flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600"
-                            @click="quickAddOpen = false"
-                        >
-                            <iconify-icon
-                                icon="{{ $item['icon'] ?? 'lucide:plus-circle' }}"
-                                width="18"
-                                height="18"
-                                class="text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-200"
-                            ></iconify-icon>
-                            <span>{{ $item['label'] }}</span>
-                        </a>
-                    @endif
+                @foreach ($visibleItems as $item)
+                    <a
+                        href="{{ $item['url'] }}"
+                        target="{{ $item['target'] ?? '_self' }}"
+                        class="group flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600"
+                        @click="quickAddOpen = false"
+                    >
+                        <iconify-icon
+                            icon="{{ $item['icon'] ?? 'lucide:plus-circle' }}"
+                            width="18"
+                            height="18"
+                            class="text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-200"
+                        ></iconify-icon>
+                        <span>{{ $item['label'] }}</span>
+                    </a>
                 @endforeach
             </div>
         </div>
