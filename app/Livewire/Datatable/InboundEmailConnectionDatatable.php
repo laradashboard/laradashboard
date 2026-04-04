@@ -42,7 +42,7 @@ class InboundEmailConnectionDatatable extends Datatable
                 'allLabel' => __('All Statuses'),
                 'options' => [
                     ['value' => 'active', 'label' => __('Active')],
-                    ['value' => 'inactive', 'label' => __('Inactive')],
+                    ['value' => 'inactive', 'label' => __('Disabled')],
                     ['value' => 'connected', 'label' => __('Connected')],
                     ['value' => 'failed', 'label' => __('Failed')],
                 ],

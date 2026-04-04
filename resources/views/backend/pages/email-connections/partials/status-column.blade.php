@@ -1,22 +1,30 @@
-@php
-    $statusColors = [
-        'green' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-        'red' => 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-        'yellow' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-        'gray' => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400',
-    ];
-    $colorClass = $statusColors[$connection->status_color] ?? $statusColors['gray'];
-@endphp
+<div class="flex flex-col gap-1">
+    @if($connection->is_active)
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+            <iconify-icon icon="lucide:check-circle" class="mr-1"></iconify-icon>
+            {{ __('Active') }}
+        </span>
 
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $colorClass }}">
-    @if($connection->status_color === 'green')
-        <iconify-icon icon="lucide:check-circle" class="mr-1"></iconify-icon>
-    @elseif($connection->status_color === 'red')
-        <iconify-icon icon="lucide:x-circle" class="mr-1"></iconify-icon>
-    @elseif($connection->status_color === 'yellow')
-        <iconify-icon icon="lucide:alert-circle" class="mr-1"></iconify-icon>
+        @if($connection->last_test_status === 'success')
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                <iconify-icon icon="lucide:wifi" class="mr-1"></iconify-icon>
+                {{ __('Connected') }}
+            </span>
+        @elseif($connection->last_test_status === 'failed')
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" title="{{ $connection->last_test_message }}">
+                <iconify-icon icon="lucide:wifi-off" class="mr-1"></iconify-icon>
+                {{ __('Failed') }}
+            </span>
+        @else
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                <iconify-icon icon="lucide:help-circle" class="mr-1"></iconify-icon>
+                {{ __('Not Tested') }}
+            </span>
+        @endif
     @else
-        <iconify-icon icon="lucide:circle" class="mr-1"></iconify-icon>
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+            <iconify-icon icon="lucide:pause-circle" class="mr-1"></iconify-icon>
+            {{ __('Disabled') }}
+        </span>
     @endif
-    {{ $connection->status_label }}
-</span>
+</div>

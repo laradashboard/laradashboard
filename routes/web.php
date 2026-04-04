@@ -98,6 +98,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
         // Settings Routes.
         Route::get('/', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/', [SettingController::class, 'store'])->name('settings.store');
+        Route::delete('/remove-image', [SettingController::class, 'removeImage'])->name('settings.remove-image');
 
         // Email Settings Management Routes.
         Route::get('emails', [EmailSettingController::class, 'index'])->name('email-settings.index');
@@ -115,6 +116,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
             Route::delete('{email_connection}', [EmailConnectionController::class, 'destroy'])->name('destroy');
             Route::post('{email_connection}/test', [EmailConnectionController::class, 'testConnection'])->name('test');
             Route::post('{email_connection}/default', [EmailConnectionController::class, 'setDefault'])->name('default');
+            Route::post('{email_connection}/toggle-active', [EmailConnectionController::class, 'toggleActive'])->name('toggle-active');
             Route::post('reorder', [EmailConnectionController::class, 'reorder'])->name('reorder');
         });
 
@@ -180,6 +182,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
     // Login as & Switch back.
     Route::resource('users', UserController::class);
     Route::delete('users/delete/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
+    Route::post('users/{id}/send-login-link', [UserController::class, 'sendLoginLink'])->name('users.send-login-link');
     Route::get('users/{id}/login-as', [UserLoginAsController::class, 'loginAs'])->name('users.login-as');
     Route::post('users/switch-back', [UserLoginAsController::class, 'switchBack'])->name('users.switch-back');
 

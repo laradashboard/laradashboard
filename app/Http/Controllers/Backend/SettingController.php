@@ -15,6 +15,7 @@ use App\Services\RecaptchaService;
 use App\Services\SettingService;
 use App\Support\Facades\Hook;
 use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
@@ -113,5 +114,37 @@ class SettingController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Settings saved successfully.');
+    }
+
+    /**
+     * Remove an uploaded image for a given setting key via AJAX.
+     */
+    public function removeImage(Request $request): JsonResponse
+    {
+        $this->authorize('manage', Setting::class);
+
+        $allowedKeys = ['site_logo_lite', 'site_logo_dark', 'site_icon', 'site_favicon'];
+
+        $request->validate([
+            'option_key' => ['required', 'string', 'in:' . implode(',', $allowedKeys)],
+        ]);
+
+        $optionKey = $request->input('option_key');
+        $existingValue = (string) config("settings.{$optionKey}");
+
+        if ($existingValue !== '') {
+            $this->imageService->deleteImageFromPublic($existingValue);
+        }
+
+        $this->settingService->addSetting($optionKey, '');
+
+        $this->storeActionLog(ActionType::UPDATED, [
+            'setting_image_removed' => $optionKey,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Image removed successfully.'),
+        ]);
     }
 }

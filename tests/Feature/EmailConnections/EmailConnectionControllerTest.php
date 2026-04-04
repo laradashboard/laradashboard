@@ -211,6 +211,93 @@ test('admin can get all providers', function () {
     ]);
 });
 
+test('admin can toggle an active connection to disabled', function () {
+    $connection = EmailConnection::create([
+        'name' => 'Active Connection',
+        'from_email' => 'active@example.com',
+        'provider_type' => 'php_mail',
+        'is_active' => true,
+        'priority' => 10,
+        'created_by' => $this->admin->id,
+    ]);
+
+    $response = $this->actingAs($this->admin)->postJson(route('admin.email-connections.toggle-active', $connection));
+
+    $response->assertStatus(200);
+    $response->assertJson([
+        'success' => true,
+        'is_active' => false,
+    ]);
+
+    $this->assertDatabaseHas('email_connections', [
+        'id' => $connection->id,
+        'is_active' => false,
+    ]);
+});
+
+test('admin can toggle a disabled connection to active', function () {
+    $connection = EmailConnection::create([
+        'name' => 'Disabled Connection',
+        'from_email' => 'disabled@example.com',
+        'provider_type' => 'php_mail',
+        'is_active' => false,
+        'priority' => 10,
+        'created_by' => $this->admin->id,
+    ]);
+
+    $response = $this->actingAs($this->admin)->postJson(route('admin.email-connections.toggle-active', $connection));
+
+    $response->assertStatus(200);
+    $response->assertJson([
+        'success' => true,
+        'is_active' => true,
+    ]);
+
+    $this->assertDatabaseHas('email_connections', [
+        'id' => $connection->id,
+        'is_active' => true,
+    ]);
+});
+
+test('disabled connections are excluded from active scope', function () {
+    EmailConnection::create([
+        'name' => 'Active Connection',
+        'from_email' => 'active@example.com',
+        'provider_type' => 'php_mail',
+        'is_active' => true,
+        'priority' => 10,
+        'created_by' => $this->admin->id,
+    ]);
+
+    EmailConnection::create([
+        'name' => 'Disabled Connection',
+        'from_email' => 'disabled@example.com',
+        'provider_type' => 'php_mail',
+        'is_active' => false,
+        'priority' => 5,
+        'created_by' => $this->admin->id,
+    ]);
+
+    $activeConnections = EmailConnection::query()->active()->get();
+
+    expect($activeConnections)->toHaveCount(1);
+    expect($activeConnections->first()->name)->toBe('Active Connection');
+});
+
+test('disabled connection returns correct status label', function () {
+    $connection = EmailConnection::create([
+        'name' => 'Disabled Connection',
+        'from_email' => 'disabled@example.com',
+        'provider_type' => 'php_mail',
+        'is_active' => false,
+        'priority' => 10,
+        'created_by' => $this->admin->id,
+    ]);
+
+    expect($connection->status_label)->toBe(__('Disabled'));
+    expect($connection->status_color)->toBe('gray');
+});
+
 test('validation fails with invalid email', function () {
     $response = $this->actingAs($this->admin)->postJson(route('admin.email-connections.store'), [
         'name' => 'Test Connection',

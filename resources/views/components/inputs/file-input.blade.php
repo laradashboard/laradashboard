@@ -7,6 +7,10 @@
     'existingAltText' => '',
     'removeCheckboxName' => 'remove_featured_image',
     'removeCheckboxLabel' => null,
+    'removeUrl' => null,
+    'removeOptionKey' => null,
+    'removeConfirmTitle' => null,
+    'removeConfirmMessage' => null,
     'selectedImageClass' => null,
     'accept' => null,
     'hint' => null,
@@ -23,6 +27,8 @@
         'xl' => 'size-40',
         default => 'size-32',
     };
+    $hasRemoveAction = $existingAttachment && $removeUrl && $removeOptionKey;
+    $removeModalId = 'removeImage_' . str_replace('-', '_', $id);
 @endphp
 
 <div class="space-y-1">
@@ -33,12 +39,38 @@
         <div
             x-data="{
                 preview: '{{ $existingAttachment ?? '' }}',
+                {{ $hasRemoveAction ? $removeModalId . 'Open: false, removing: false,' : '' }}
                 updatePreview(event) {
                     const file = event.target.files[0];
                     if (file) {
                         this.preview = URL.createObjectURL(file);
                     }
+                },
+                @if($hasRemoveAction)
+                async confirmRemove() {
+                    this.removing = true;
+                    try {
+                        const response = await fetch('{{ $removeUrl }}', {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({ option_key: '{{ $removeOptionKey }}' })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            window.location.reload();
+                        }
+                    } catch (error) {
+                        console.error('Error removing image:', error);
+                    } finally {
+                        this.removing = false;
+                        this.{{ $removeModalId }}Open = false;
+                    }
                 }
+                @endif
             }"
             class="flex flex-col items-center gap-3 {{ $selectedImageClass ?? '' }}"
         >
@@ -71,7 +103,22 @@
                 @change="updatePreview"
                 class="form-control-file"
             >
-            @if($existingAttachment && $removeCheckboxLabel)
+            @if($hasRemoveAction)
+                <button
+                    type="button"
+                    x-on:click="{{ $removeModalId }}Open = true"
+                    class="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                >
+                    <iconify-icon icon="lucide:trash-2" width="14" height="14" aria-hidden="true"></iconify-icon>
+                    {{ __('Remove') }}
+                </button>
+
+                @include('components.inputs.partials.remove-image-modal', [
+                    'modalId' => $removeModalId,
+                    'title' => $removeConfirmTitle ?? __('Remove Image'),
+                    'message' => $removeConfirmMessage ?? __('Are you sure you want to remove this image? This action cannot be undone.'),
+                ])
+            @elseif($existingAttachment && $removeCheckboxLabel)
                 <label class="flex items-center">
                     <input type="checkbox" name="{{ $removeCheckboxName }}" id="{{ $removeCheckboxName }}"
                         class="form-checkbox mr-2">
@@ -81,10 +128,61 @@
         </div>
     @else
         @if ($existingAttachment)
-            <div class="mb-4 {{ $selectedImageClass ?? '' }}">
-                <img src="{{ $existingAttachment }}" alt="{{ $existingAltText }}" class="max-h-48 rounded-md">
+            <div
+                @if($hasRemoveAction)
+                    x-data="{
+                        {{ $removeModalId }}Open: false,
+                        removing: false,
+                        async confirmRemove() {
+                            this.removing = true;
+                            try {
+                                const response = await fetch('{{ $removeUrl }}', {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                        'Accept': 'application/json',
+                                    },
+                                    body: JSON.stringify({ option_key: '{{ $removeOptionKey }}' })
+                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                    window.location.reload();
+                                }
+                            } catch (error) {
+                                console.error('Error removing image:', error);
+                            } finally {
+                                this.removing = false;
+                                this.{{ $removeModalId }}Open = false;
+                            }
+                        }
+                    }"
+                @endif
+                class="mb-4 group/remove {{ $selectedImageClass ?? '' }}"
+            >
+                <div>
+                    <img src="{{ $existingAttachment }}" alt="{{ $existingAltText }}" class="max-h-48 rounded-md">
+                </div>
+                @if($hasRemoveAction)
+                    <div class="mt-2 md:opacity-0 md:group-hover/remove:opacity-100 transition-opacity duration-200">
+                        <button
+                            type="button"
+                            x-on:click="{{ $removeModalId }}Open = true"
+                            class="inline-flex items-center gap-1.5 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                        >
+                            <iconify-icon icon="lucide:trash-2" width="15" height="15" aria-hidden="true"></iconify-icon>
+                            {{ __('Remove') }}
+                        </button>
+                    </div>
+                @endif
 
-                @if($removeCheckboxLabel)
+                @if($hasRemoveAction)
+                    @include('components.inputs.partials.remove-image-modal', [
+                        'modalId' => $removeModalId,
+                        'title' => $removeConfirmTitle ?? __('Remove Image'),
+                        'message' => $removeConfirmMessage ?? __('Are you sure you want to remove this image? This action cannot be undone.'),
+                    ])
+                @elseif($removeCheckboxLabel)
                     <div class="mt-2">
                         <label class="flex items-center">
                             <input type="checkbox" name="{{ $removeCheckboxName }}" id="{{ $removeCheckboxName }}"

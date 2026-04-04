@@ -38,6 +38,9 @@
                 <iconify-icon icon="lucide:circle" class="menu-item-icon" width="18" height="18"></iconify-icon>
             @endif
             <span class="menu-item-text">{!! $item->label !!}</span>
+            @if($item->badge)
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none {{ $item->badgeClass ?? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400' }}">{{ $item->badge }}</span>
+            @endif
             <iconify-icon icon="{{ $chevronIcon }}" class="menu-item-arrow transition-all duration-300 w-4 h-4" style="transform: {{ $showSubmenu ? 'rotate(180deg)' : 'rotate(0deg)' }}"></iconify-icon>
         </button>
         <ul id="{{ $submenuId }}" class="submenu space-y-1 mt-1 overflow-hidden {{ $showSubmenu ? 'submenu-expanded' : 'submenu-collapsed' }}">
@@ -63,6 +66,9 @@
                 <iconify-icon icon="lucide:circle" class="menu-item-icon" width="18" height="18"></iconify-icon>
             @endif
             <span class="menu-item-text">{!! $item->label !!}</span>
+            @if($item->badge)
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none {{ $item->badgeClass ?? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400' }}">{{ $item->badge }}</span>
+            @endif
         </a>
     </li>
 @endif

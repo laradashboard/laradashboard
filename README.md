@@ -50,6 +50,20 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v1.1.0] - 2026-04-05**
+-   **Feat:** Account created notification — admin-created users receive an email with login link and password-set URL.
+-   **Feat:** Quick-add dropdown in admin header with hook support (`filter.quick_add_dropdown`).
+-   **Feat:** Admin menu badge support (`setBadge()` / `setBadgeClass()` on `AdminMenuItem`).
+-   **Feat:** Email connection toggle (activate/deactivate) with inline action button.
+-   **Feat:** Email connection status filter (active, disabled, connected, failed).
+-   **Feat:** Setting image removal endpoint for site logos/icons via AJAX.
+-   **Feat:** Send login link action on user edit page.
+-   **Improve:** Demo mode restrictions on core upgrade, backup, and restore operations.
+-   **Improve:** Seeder defaults for authentication, site tagline, copyright, and contact settings.
+-   **Fix:** Removed `@xyflow/react` from root package (belongs to CRM module only).
+-   **Fix:** Renamed "Inactive" to "Disabled" for email connection status labels (consistency).
+-   **Fix:** Removed duplicate demo-mode check in module update flow.
+
 **[v1.0.3] - 2026-03-29**
 -   **Fix:** Fixed marketplace module images not loading (JSON-encoded icon/banner URLs from API were not decoded properly).
 

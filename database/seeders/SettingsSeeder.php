@@ -50,6 +50,16 @@ class SettingsSeeder extends Seeder
             ['option_name' => Setting::SITE_ICON, 'option_value' => '/images/logo/icon.png'],
             ['option_name' => Setting::SITE_FAVICON, 'option_value' => '/images/logo/icon.png'],
 
+            // Authentication defaults
+            ['option_name' => Setting::AUTH_ENABLE_PUBLIC_REGISTRATION, 'option_value' => '1'],
+
+            // Site identity defaults
+            ['option_name' => Setting::SITE_TAGLINE, 'option_value' => 'The Agentic CMS for Laravel'],
+            ['option_name' => Setting::COPYRIGHT_TEXT, 'option_value' => '© {year} Lara Dashboard. All rights reserved.'],
+            ['option_name' => Setting::CONTACT_EMAIL, 'option_value' => 'hello@laradashboard.com'],
+            ['option_name' => Setting::CONTACT_PHONE, 'option_value' => ''],
+            ['option_name' => Setting::CONTACT_ADDRESS, 'option_value' => ''],
+
             // Additional default settings
             ['option_name' => Setting::DEFAULT_PAGINATION, 'option_value' => '10'],
             ['option_name' => Setting::GOOGLE_TAG_MANAGER_SCRIPT, 'option_value' => ''],

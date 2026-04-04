@@ -25,16 +25,13 @@
 @endphp
 
 @if (count($quickLinks) > 0)
-    <div class="relative" x-data="{ quickLinksOpen: false }" @click.outside="quickLinksOpen = false">
-        <x-tooltip title="{{ __('Quick Links') }}" position="bottom">
-            <button
-                @click="quickLinksOpen = !quickLinksOpen"
-                class="hover:text-dark-900 relative flex items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white p-2"
-                aria-label="{{ __('Quick Links') }}"
-            >
-                <iconify-icon icon="lucide:link" width="22" height="22"></iconify-icon>
-            </button>
-        </x-tooltip>
+    <div class="relative" x-data="{ quickLinksOpen: false }" @mouseenter="quickLinksOpen = true" @mouseleave="quickLinksOpen = false">
+        <button
+            class="hover:text-dark-900 relative flex items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white p-2"
+            aria-label="{{ __('Quick Links') }}"
+        >
+            <iconify-icon icon="lucide:link" width="22" height="22"></iconify-icon>
+        </button>
 
         <div
             x-show="quickLinksOpen"

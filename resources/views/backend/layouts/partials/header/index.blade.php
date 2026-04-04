@@ -46,6 +46,8 @@
             </button>
             @include('backend.layouts.partials.header.quick-links-dropdown')
 
+            @include('backend.layouts.partials.header.quick-add-dropdown')
+
             @can('ai_content.generate')
                 @include('backend.layouts.partials.header.ai-command-button')
             @endcan
