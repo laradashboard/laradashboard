@@ -57,6 +57,8 @@ class SettingController extends Controller
                 'hide_admin_url',
                 'custom_login_route',
                 'hide_default_login_url',
+                'auth_redirect_after_login',
+                'auth_redirect_after_register',
             ]);
             $fields = $request->except($restrictedFields);
         } else {

@@ -60,7 +60,6 @@ password - 12345678
 -   **Feat:** Send login link action on user edit page.
 -   **Improve:** Demo mode restrictions on core upgrade, backup, and restore operations.
 -   **Improve:** Seeder defaults for authentication, site tagline, copyright, and contact settings.
--   **Fix:** Removed `@xyflow/react` from root package (belongs to CRM module only).
 -   **Fix:** Renamed "Inactive" to "Disabled" for email connection status labels (consistency).
 -   **Fix:** Removed duplicate demo-mode check in module update flow.
 
