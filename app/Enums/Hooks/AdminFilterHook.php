@@ -19,6 +19,9 @@ enum AdminFilterHook: string
     // Quick links dropdown (beside AI Agent button).
     case QUICK_LINKS_DROPDOWN = 'filter.quick_links_dropdown';
 
+    // Quick-add dropdown (+ button beside AI Agent button).
+    case QUICK_ADD_DROPDOWN = 'filter.quick_add_dropdown';
+
     // Header right menu.
     case HEADER_RIGHT_MENU_BEFORE = 'filter.header_right_menu_before';
     case HEADER_RIGHT_MENU_AFTER = 'filter.header_right_menu_after';

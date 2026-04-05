@@ -79,6 +79,14 @@ class AuthSettingsServiceProvider extends ServiceProvider
                 config(['settings.'.$key => $value]);
             }
         }
+
+        // In demo mode, force redirect paths to /admin regardless of saved settings.
+        if (config('app.demo_mode', false)) {
+            config([
+                'settings.auth_redirect_after_login' => '/admin',
+                'settings.auth_redirect_after_register' => '/admin',
+            ]);
+        }
     }
 
     /**

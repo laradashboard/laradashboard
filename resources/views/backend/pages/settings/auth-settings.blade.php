@@ -275,10 +275,16 @@
                 class="form-control"
                 placeholder="{{ __('/dashboard') }}"
                 value="{{ config('settings.auth_redirect_after_login', '/') }}"
+                @if(config('app.demo_mode', false)) disabled @endif
             >
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 {{ __('The URL path where users will be redirected after successful login.') }}
             </p>
+            @if(config('app.demo_mode', false))
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {{ __('This field is disabled in demo mode.') }}
+            </p>
+            @endif
         </div>
 
         {{-- Redirect After Register --}}
@@ -293,10 +299,16 @@
                 class="form-control"
                 placeholder="{{ __('/') }}"
                 value="{{ config('settings.auth_redirect_after_register', '/') }}"
+                @if(config('app.demo_mode', false)) disabled @endif
             >
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 {{ __('The URL path where users will be redirected after successful registration.') }}
             </p>
+            @if(config('app.demo_mode', false))
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {{ __('This field is disabled in demo mode.') }}
+            </p>
+            @endif
         </div>
     </div>
 </x-card>

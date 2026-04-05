@@ -86,6 +86,13 @@ class CoreUpgradeController extends Controller
      */
     public function upgrade(UpgradeRequest $request): JsonResponse
     {
+        if (config('app.demo_mode', false)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Core upgrades are restricted in demo mode. Please try on your local/live environment.'),
+            ], 403);
+        }
+
         try {
             $version = $request->validated('version');
             $createBackup = $request->boolean('create_backup', true);
@@ -122,6 +129,13 @@ class CoreUpgradeController extends Controller
      */
     public function uploadUpgrade(UploadRequest $request): JsonResponse
     {
+        if (config('app.demo_mode', false)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Manual uploads are restricted in demo mode. Please try on your local/live environment.'),
+            ], 403);
+        }
+
         try {
             $file = $request->file('upgrade_file');
             $createBackup = $request->boolean('create_backup', true);
@@ -158,6 +172,13 @@ class CoreUpgradeController extends Controller
      */
     public function restore(RestoreRequest $request): JsonResponse
     {
+        if (config('app.demo_mode', false)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Restoring backups is restricted in demo mode. Please try on your local/live environment.'),
+            ], 403);
+        }
+
         try {
             $backupPath = $this->backupService->getBackupPath() . '/' . $request->validated('backup_file');
 
@@ -199,6 +220,13 @@ class CoreUpgradeController extends Controller
      */
     public function createBackup(CreateBackupRequest $request): JsonResponse
     {
+        if (config('app.demo_mode', false)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Creating backups is restricted in demo mode. Please try on your local/live environment.'),
+            ], 403);
+        }
+
         try {
             $backupType = $request->validated('backup_type');
             $includeDatabase = $request->boolean('include_database', false);
@@ -236,6 +264,10 @@ class CoreUpgradeController extends Controller
      */
     public function deleteBackup(DeleteBackupRequest $request): RedirectResponse
     {
+        if (config('app.demo_mode', false)) {
+            return back()->with('error', __('Deleting backups is restricted in demo mode.'));
+        }
+
         try {
             $result = $this->backupService->deleteBackup($request->validated('backup_file'));
 
@@ -259,6 +291,10 @@ class CoreUpgradeController extends Controller
     public function downloadBackup(string $filename): BinaryFileResponse|RedirectResponse
     {
         $this->authorize('manageCoreUpgrades', Setting::class);
+
+        if (config('app.demo_mode', false)) {
+            return back()->with('error', __('Downloading backups is restricted in demo mode.'));
+        }
 
         $backupPath = $this->backupService->getBackupPath() . '/' . $filename;
 

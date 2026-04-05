@@ -79,6 +79,26 @@
         }));
     };
 
+    window.toggleConnection = async function(connectionId) {
+        try {
+            const response = await fetch(`{{ route('admin.email-connections.index') }}/${connectionId}/toggle-active`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error toggling connection:', error);
+        }
+    };
+
     window.setAsDefault = async function(connectionId) {
         try {
             const response = await fetch(`{{ route('admin.email-connections.index') }}/${connectionId}/default`, {

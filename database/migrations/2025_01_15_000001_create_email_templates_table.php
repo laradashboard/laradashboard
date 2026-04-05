@@ -158,7 +158,7 @@ return new class () extends Migration {
                 'Enable two-factor authentication if available',
             ]),
             $blockService->spacer('30px'),
-            $blockService->footer('{app_name}'),
+            $blockService->footer('{app_name}', '', '', showUnsubscribe: false),
         ];
     }
 
@@ -198,7 +198,7 @@ return new class () extends Migration {
                 'Need help? Visit our documentation or contact support',
             ]),
             $blockService->spacer('30px'),
-            $blockService->footer('{app_name}'),
+            $blockService->footer('{app_name}', '', '', showUnsubscribe: false),
         ];
     }
 
@@ -236,7 +236,7 @@ return new class () extends Migration {
             $blockService->spacer('20px'),
             $blockService->text('If you did not create an account with us, you can safely ignore this email.', 'left', '#666666', '14px'),
             $blockService->spacer('30px'),
-            $blockService->footer('{app_name}'),
+            $blockService->footer('{app_name}', '', '', showUnsubscribe: false),
         ];
     }
 };

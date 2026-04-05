@@ -570,17 +570,6 @@ class ModuleDatatable extends Datatable
             return;
         }
 
-        // Check demo mode
-        if (config('app.demo_mode', false)) {
-            $this->dispatch('notify', [
-                'variant' => 'error',
-                'title' => __('Demo Mode'),
-                'message' => __('Module updates are restricted in demo mode.'),
-            ]);
-
-            return;
-        }
-
         try {
             $result = $this->updateService->downloadAndInstallUpdate($moduleName);
 

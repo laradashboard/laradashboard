@@ -332,7 +332,7 @@ HTML;
     /**
      * Helper: Create footer block
      */
-    public function footer(string $companyName = '{app_name}', string $address = '', string $email = ''): array
+    public function footer(string $companyName = '{app_name}', string $address = '', string $email = '', bool $showUnsubscribe = true): array
     {
         return [
             'id' => $this->blockId(),
@@ -342,8 +342,8 @@ HTML;
                 'address' => $address,
                 'phone' => '',
                 'email' => $email,
-                'unsubscribeText' => 'Unsubscribe from these emails',
-                'unsubscribeUrl' => '#unsubscribe',
+                'unsubscribeText' => $showUnsubscribe ? 'Unsubscribe from these emails' : '',
+                'unsubscribeUrl' => $showUnsubscribe ? '#unsubscribe' : '',
                 'copyright' => '© {year} ' . $companyName . '. All rights reserved.',
                 'textColor' => '#6b7280',
                 'linkColor' => '#635bff',
@@ -810,10 +810,19 @@ HTML;
                 <p style="color: {$textColor}; font-size: 14px; font-weight: 600; margin: 0 0 12px 0;">{$companyName}</p>
                 {$addressHtml}
                 {$contactHtml}
-                <p style="color: {$textColor}; font-size: {$fontSize}; margin: 16px 0 0 0;"><a href="{$unsubscribeUrl}" style="color: {$linkColor}; text-decoration: underline;">{$unsubscribeText}</a></p>
+                {$this->renderUnsubscribeLink($unsubscribeText, $unsubscribeUrl, $textColor, $fontSize, $linkColor)}
                 <p style="color: {$textColor}; font-size: 11px; margin: 12px 0 0 0;">{$copyright}</p>
             </div>
         HTML;
+    }
+
+    private function renderUnsubscribeLink(string $text, string $url, string $textColor, string $fontSize, string $linkColor): string
+    {
+        if (empty($text) || empty($url)) {
+            return '';
+        }
+
+        return "<p style=\"color: {$textColor}; font-size: {$fontSize}; margin: 16px 0 0 0;\"><a href=\"{$url}\" style=\"color: {$linkColor}; text-decoration: underline;\">{$text}</a></p>";
     }
 
     public function renderSocial(array $props): string

@@ -14,10 +14,12 @@ use App\Models\User;
 use App\Services\LanguageService;
 use App\Services\RolesService;
 use App\Services\TimezoneService;
+use App\Notifications\AccountCreatedNotification;
 use App\Services\UserService;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -72,11 +74,19 @@ class UserController extends Controller
 
         $user = $this->userService->createUserWithMetadata($data, $request);
 
+        // Admin-created users are automatically email-verified.
+        $user->forceFill(['email_verified_at' => now()])->save();
+
         $user = $this->addHooks(
             $user,
             UserActionHook::USER_CREATED_AFTER,
             UserFilterHook::USER_CREATED_AFTER
         );
+
+        // Send login link notification if requested.
+        if ($request->boolean('send_login_link', false)) {
+            $this->dispatchAccountCreatedNotification($user);
+        }
 
         session()->flash('success', __('User has been created.'));
 
@@ -226,5 +236,34 @@ class UserController extends Controller
         }
 
         return redirect()->route('admin.users.index');
+    }
+
+    public function sendLoginLink(int $id): RedirectResponse
+    {
+        $user = User::findOrFail($id);
+
+        $this->authorize('update', $user);
+
+        $this->dispatchAccountCreatedNotification($user);
+
+        session()->flash('success', __('Login link has been sent to :email.', ['email' => $user->email]));
+
+        return back();
+    }
+
+    /**
+     * Dispatch the AccountCreatedNotification to the given user.
+     */
+    private function dispatchAccountCreatedNotification(User $user): void
+    {
+        try {
+            $loginUrl = config('app.url') . route('login', [], false);
+            $user->notify(new AccountCreatedNotification($loginUrl));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send account created notification', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }
