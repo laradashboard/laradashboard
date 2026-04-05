@@ -342,7 +342,7 @@ class EmailTemplateSeeder extends Seeder
                 'Enable two-factor authentication if available',
             ]),
             $this->blockService->spacer('30px'),
-            $this->blockService->footer('{app_name}'),
+            $this->blockService->footer('{app_name}', '', '', showUnsubscribe: false),
         ];
     }
 

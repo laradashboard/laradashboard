@@ -168,6 +168,12 @@
 
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex flex-col sm:flex-row gap-3">
+                            @if(config('app.demo_mode', false))
+                            <span class="btn btn-secondary flex items-center justify-center gap-2 opacity-60 cursor-not-allowed" title="{{ __('Restricted in demo mode') }}">
+                                <iconify-icon icon="lucide:lock" class="text-lg"></iconify-icon>
+                                {{ __('Upgrade restricted in demo') }}
+                            </span>
+                            @else
                             <button type="button"
                                     id="upgrade-btn"
                                     onclick="startUpgrade('{{ $updateInfo['latest_version'] }}')"
@@ -175,6 +181,7 @@
                                 <iconify-icon icon="lucide:download" class="text-lg"></iconify-icon>
                                 {{ __('Upgrade to :version', ['version' => $versionDisplay]) }}
                             </button>
+                            @endif
                             <button type="button"
                                     id="check-updates-btn"
                                     onclick="checkForUpdates()"
@@ -228,12 +235,14 @@
             </x-slot>
 
             <x-slot name="headerRight">
+                @if(!config('app.demo_mode', false))
                 <button type="button"
                         x-on:click="showBackupModal = true"
                         class="btn btn-sm btn-secondary flex items-center gap-1">
                     <iconify-icon icon="lucide:plus" class="text-lg"></iconify-icon>
                     {{ __('Create Backup') }}
                 </button>
+                @endif
             </x-slot>
 
             @if(count($backups) > 0)
@@ -260,6 +269,9 @@
                                         {{ $backup['created_at'] }}
                                     </td>
                                     <td class="px-4 py-3 text-right">
+                                        @if(config('app.demo_mode', false))
+                                            <span class="text-xs text-gray-400 dark:text-gray-500">{{ __('Restricted in demo') }}</span>
+                                        @else
                                         <div class="flex items-center justify-end gap-2">
                                             <a href="{{ route('admin.core-upgrades.download', ['filename' => $backup['name']]) }}"
                                                class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
@@ -283,6 +295,7 @@
                                                 </button>
                                             </form>
                                         </div>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -302,6 +315,7 @@
         </x-card>
 
         {{-- Manual Upload Section --}}
+        @if(!config('app.demo_mode', false))
         <x-card>
             <x-slot name="header">
                 <div class="flex items-center gap-2">
@@ -362,8 +376,12 @@
             </div>
         </x-card>
 
+        @endif
+
         {{-- Create Backup Modal --}}
+        @if(!config('app.demo_mode', false))
         <x-modals.create-backup />
+        @endif
     </div>
 
     {{-- Upgrade Modal --}}

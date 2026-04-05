@@ -15,9 +15,11 @@ class EmailConnectionDatatable extends Datatable
 {
     public string $model = EmailConnection::class;
     public string $providerType = '';
+    public string $statusFilter = '';
     public array $queryString = [
         ...parent::QUERY_STRING_DEFAULTS,
         'providerType' => ['as' => 'provider'],
+        'statusFilter' => ['as' => 'status'],
     ];
 
     public function getSearchbarPlaceholder(): string
@@ -26,6 +28,11 @@ class EmailConnectionDatatable extends Datatable
     }
 
     public function updatingProviderType(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStatusFilter(): void
     {
         $this->resetPage();
     }
@@ -41,6 +48,20 @@ class EmailConnectionDatatable extends Datatable
                 'allLabel' => __('All Providers'),
                 'options' => EmailProviderRegistry::getDropdownItems(),
                 'selected' => $this->providerType,
+            ],
+            [
+                'id' => 'statusFilter',
+                'label' => __('Status'),
+                'filterLabel' => __('Filter by Status'),
+                'icon' => 'lucide:toggle-left',
+                'allLabel' => __('All Statuses'),
+                'options' => [
+                    ['value' => 'active', 'label' => __('Active')],
+                    ['value' => 'disabled', 'label' => __('Disabled')],
+                    ['value' => 'connected', 'label' => __('Connected')],
+                    ['value' => 'failed', 'label' => __('Failed')],
+                ],
+                'selected' => $this->statusFilter,
             ],
         ];
     }
@@ -132,6 +153,15 @@ class EmailConnectionDatatable extends Datatable
             })
             ->when($this->providerType, function ($query) {
                 $query->where('provider_type', $this->providerType);
+            })
+            ->when($this->statusFilter, function ($query) {
+                match ($this->statusFilter) {
+                    'active' => $query->where('is_active', true),
+                    'disabled' => $query->where('is_active', false),
+                    'connected' => $query->where('last_test_status', 'success'),
+                    'failed' => $query->where('last_test_status', 'failed'),
+                    default => null,
+                };
             });
 
         return $this->sortQuery($query);
@@ -169,7 +199,8 @@ class EmailConnectionDatatable extends Datatable
 
     public function renderAfterActionView($connection): string|Renderable
     {
-        return view('backend.pages.email-connections.partials.action-test', compact('connection'));
+        return view('backend.pages.email-connections.partials.action-test', compact('connection'))
+            . view('backend.pages.email-connections.partials.action-toggle', compact('connection'));
     }
 
     public function renderAfterActionEdit($connection): string|Renderable

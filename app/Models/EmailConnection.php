@@ -113,7 +113,7 @@ class EmailConnection extends Model
     public function getStatusLabelAttribute(): string
     {
         if (! $this->is_active) {
-            return __('Inactive');
+            return __('Disabled');
         }
 
         if ($this->last_test_status === 'success') {

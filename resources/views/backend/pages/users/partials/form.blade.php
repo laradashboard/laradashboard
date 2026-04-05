@@ -251,6 +251,17 @@
                 @endif
             @endif
 
+            @if($isCreate)
+                <div class="col-span-2 mt-2">
+                    <x-inputs.checkbox
+                        name="send_login_link"
+                        label="{{ __('Send login link to user via email') }}"
+                        :checked="true"
+                        hint="{{ __('The user will receive an email with their username and a link to set their password.') }}"
+                    />
+                </div>
+            @endif
+
             <div class="col-span-2 flex mt-4">
                 <x-buttons.submit-buttons cancelUrl="{{ $cancelUrl }}" />
             </div>

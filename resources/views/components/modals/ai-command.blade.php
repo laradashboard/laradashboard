@@ -36,8 +36,19 @@
                         <h3 id="ai-command-title" class="font-semibold text-gray-900 dark:text-white">
                             {{ __('AI Agent') }}
                         </h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                            {{ __('What would you like to create today?') }}
+                        <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                            <span class="inline-block w-1.5 h-1.5 rounded-full" :class="isConfigured ? 'bg-green-500' : 'bg-amber-500'"></span>
+                            <template x-if="isConfigured">
+                                <span>
+                                    {{ __('Connected to') }}
+                                    <span class="font-medium" x-text="provider === 'openai' ? 'OpenAI' : (provider === 'claude' ? 'Claude' : 'AI')"></span>
+                                    <span class="text-gray-400 dark:text-gray-500 mx-0.5">&middot;</span>
+                                    <span x-text="modalActions.length + ' {{ __('capabilities') }}'"></span>
+                                </span>
+                            </template>
+                            <template x-if="!isConfigured">
+                                <span>{{ __('Not connected') }}</span>
+                            </template>
                         </p>
                     </div>
                 </div>
@@ -203,15 +214,24 @@
                 {{-- Available Actions Section (Only when no result) --}}
                 <template x-if="!processing && !result && modalActions.length > 0">
                     <div class="mt-6">
-                        <div class="flex items-center justify-between mb-3">
-                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300 shrink-0">
                                 {{ __('I can help you with:') }}
                             </p>
+                            <div class="relative max-w-[200px] w-full">
+                                <iconify-icon icon="lucide:search" width="14" height="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" aria-hidden="true"></iconify-icon>
+                                <input
+                                    type="text"
+                                    x-model="actionSearch"
+                                    placeholder="{{ __('Search...') }}"
+                                    class="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:border-purple-300 focus:ring-1 focus:ring-purple-300 focus:bg-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:border-purple-500 dark:focus:ring-purple-500 dark:focus:bg-gray-600 transition-colors"
+                                >
+                            </div>
                         </div>
 
                         {{-- Action Cards (scrollable, only show modal-compatible actions) --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto max-h-[calc(100vh-24rem)] lg:min-h-[200px]">
-                            <template x-for="action in modalActions" :key="action.name">
+                            <template x-for="action in filteredActions" :key="action.name">
                                 <button
                                     type="button"
                                     @click="selectAction(action)"
@@ -230,24 +250,6 @@
                             </template>
                         </div>
 
-                        {{-- Quick Examples --}}
-                        <div class="mt-5 pt-5 border-t border-gray-200 dark:border-gray-700">
-                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
-                                {{ __('Quick Examples') }}
-                            </p>
-                            <div class="flex flex-wrap gap-2">
-                                <template x-for="example in quickExamples" :key="example">
-                                    <button
-                                        type="button"
-                                        @click="command = example"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 bg-gray-100 hover:bg-purple-100 hover:text-purple-700 rounded-full transition-colors dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-purple-900/30 dark:hover:text-purple-300"
-                                    >
-                                        <iconify-icon icon="lucide:message-square" width="12" height="12"></iconify-icon>
-                                        <span x-text="example"></span>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
                     </div>
                 </template>
             </div>
@@ -372,57 +374,6 @@
 
             {{-- Error Message - removed from here, now shown above the form --}}
 
-            {{-- Footer --}}
-            <div class="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 px-6 py-3 bg-gray-50 dark:bg-gray-900/50 rounded-b-xl">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full" :class="isConfigured ? 'bg-green-500' : 'bg-amber-500'"></div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                        <template x-if="isConfigured">
-                            <span>
-                                {{ __('Connected to') }}
-                                <span class="font-medium" x-text="provider === 'openai' ? 'OpenAI' : (provider === 'claude' ? 'Claude' : 'AI')"></span>
-                            </span>
-                        </template>
-                        <template x-if="!isConfigured">
-                            <span>{{ __('Not connected') }}</span>
-                        </template>
-                    </p>
-                </div>
-                <button
-                    type="button"
-                    @click="showCapabilities = !showCapabilities"
-                    class="inline-flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium"
-                >
-                    <iconify-icon icon="lucide:info" width="14" height="14"></iconify-icon>
-                    <span x-text="modalActions.length + ' {{ __('capabilities') }}'"></span>
-                </button>
-            </div>
-
-            {{-- Capabilities Tooltip/Dropdown --}}
-            <template x-if="showCapabilities">
-                <div
-                    x-transition:enter="transition ease-out duration-100"
-                    x-transition:enter-start="opacity-0 scale-95"
-                    x-transition:enter-end="opacity-100 scale-100"
-                    x-transition:leave="transition ease-in duration-75"
-                    x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 translate-y-4"
-                    class="absolute bottom-16 right-6 w-64 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-10"
-                    @click.away="showCapabilities = false"
-                >
-                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                        {{ __('Available capabilities') }}
-                    </p>
-                    <ul class="space-y-1.5">
-                        <template x-for="action in modalActions" :key="action.name">
-                            <li class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                                <iconify-icon :icon="getActionIcon(action.name)" width="14" height="14" class="text-purple-500"></iconify-icon>
-                                <span x-text="getActionTitle(action.name)"></span>
-                            </li>
-                        </template>
-                    </ul>
-                </div>
-            </template>
         </div>
     </div>
 </template>
@@ -459,12 +410,18 @@ function aiCommandModal() {
         interimTranscript: '',
         pendingVoiceActivation: false, // Track if voice should start after config loads
 
-        // User-friendly quick examples
-        quickExamples: [
-            '{{ __("Write about healthy lifestyle tips") }}',
-            '{{ __("Create a welcome message") }}',
-            '{{ __("Draft an about us page") }}',
-        ],
+        // Search filter for action cards
+        actionSearch: '',
+
+        get filteredActions() {
+            if (!this.actionSearch.trim()) return this.modalActions;
+            const query = this.actionSearch.toLowerCase();
+            return this.modalActions.filter(action => {
+                const title = this.getActionTitle(action.name).toLowerCase();
+                const desc = (action.description || '').toLowerCase();
+                return title.includes(query) || desc.includes(query);
+            });
+        },
 
         init() {
             this.loadStatus();

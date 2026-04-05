@@ -150,6 +150,28 @@ class EmailConnectionController extends Controller
         ]);
     }
 
+    public function toggleActive(EmailConnection $emailConnection): JsonResponse
+    {
+        $this->authorize('manage', Setting::class);
+
+        $emailConnection->update([
+            'is_active' => ! $emailConnection->is_active,
+            'updated_by' => auth()->id(),
+        ]);
+
+        $status = $emailConnection->is_active ? __('activated') : __('deactivated');
+
+        $this->storeActionLog(ActionType::UPDATED, [
+            'email_connection' => $emailConnection->only(['id', 'name', 'is_active']),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Connection :status successfully.', ['status' => $status]),
+            'is_active' => $emailConnection->is_active,
+        ]);
+    }
+
     public function setDefault(EmailConnection $emailConnection): JsonResponse
     {
         $this->authorize('manage', Setting::class);

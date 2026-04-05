@@ -31,6 +31,10 @@
                         label="{{ __('Site Logo Full (Lite Version)') }}"
                         :existingAttachment="config('settings.site_logo_lite') !== '' && !empty(config('settings.site_logo_lite')) ? config('settings.site_logo_lite') : null"
                         :existingAltText="''"
+                        removeUrl="{{ route('admin.settings.remove-image') }}"
+                        removeOptionKey="site_logo_lite"
+                        removeConfirmTitle="{{ __('Remove Logo') }}"
+                        removeConfirmMessage="{{ __('Are you sure you want to remove the lite site logo? This action cannot be undone.') }}"
                     />
                 </div>
 
@@ -41,6 +45,10 @@
                         label="{{ __('Site Logo Full (Dark Version)') }}"
                         :existingAttachment="config('settings.site_logo_dark') !== '' && !empty(config('settings.site_logo_dark')) ? config('settings.site_logo_dark') : null"
                         :existingAltText="''"
+                        removeUrl="{{ route('admin.settings.remove-image') }}"
+                        removeOptionKey="site_logo_dark"
+                        removeConfirmTitle="{{ __('Remove Logo') }}"
+                        removeConfirmMessage="{{ __('Are you sure you want to remove the dark site logo? This action cannot be undone.') }}"
                     />
                 </div>
             </div>
@@ -54,6 +62,10 @@
                         label="{{ __('Site Icon') }}"
                         :existingAttachment="config('settings.site_icon') !== '' && !empty(config('settings.site_icon')) ? config('settings.site_icon') : null"
                         :existingAltText="''"
+                        removeUrl="{{ route('admin.settings.remove-image') }}"
+                        removeOptionKey="site_icon"
+                        removeConfirmTitle="{{ __('Remove Icon') }}"
+                        removeConfirmMessage="{{ __('Are you sure you want to remove the site icon? This action cannot be undone.') }}"
                     />
                 </div>
 
@@ -64,6 +76,10 @@
                         label="{{ __('Site Favicon') }}"
                         :existingAttachment="config('settings.site_favicon') !== '' && !empty(config('settings.site_favicon')) ? config('settings.site_favicon') : null"
                         :existingAltText="''"
+                        removeUrl="{{ route('admin.settings.remove-image') }}"
+                        removeOptionKey="site_favicon"
+                        removeConfirmTitle="{{ __('Remove Favicon') }}"
+                        removeConfirmMessage="{{ __('Are you sure you want to remove the site favicon? This action cannot be undone.') }}"
                     />
                 </div>
             </div>
