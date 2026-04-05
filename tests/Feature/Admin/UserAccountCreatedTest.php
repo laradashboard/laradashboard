@@ -125,5 +125,6 @@ test('unauthenticated user cannot send login link', function () {
 
     $response = $this->post("/admin/users/{$user->id}/send-login-link");
 
-    $response->assertRedirect('/login');
+    // Admin routes redirect unauthenticated users to admin.login, which then redirects to /login
+    $response->assertRedirect(route('admin.login'));
 });
