@@ -21,6 +21,9 @@ return new class () extends Migration {
 
         $blocks = $this->getAccountCreatedBlocks($blockService);
 
+        // Temporarily disable foreign key checks — users table may be empty during migration
+        $this->disableForeignKeyChecks();
+
         // Seed the email template
         DB::table('email_templates')->insert([
             'uuid' => (string) Str::uuid(),
@@ -46,8 +49,6 @@ return new class () extends Migration {
         $template = DB::table('email_templates')->where('name', 'Account Created')->first();
 
         if ($template) {
-            $this->disableForeignKeyChecks();
-
             DB::table('notifications')->insert([
                 'uuid' => (string) Str::uuid(),
                 'name' => 'Account Created Notification',
@@ -70,9 +71,9 @@ return new class () extends Migration {
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-
-            $this->enableForeignKeyChecks();
         }
+
+        $this->enableForeignKeyChecks();
     }
 
     public function down(): void
