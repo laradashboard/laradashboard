@@ -50,6 +50,12 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v1.1.1] - 2026-04-10**
+-   **Feat:** Scheduled queue worker — runs every minute via `schedule:run` to process queued jobs (workflow actions, emails) without requiring a long-running worker.
+-   **Improve:** Sidebar submenu supports deeper (3rd and 4th level) nesting with proper indentation.
+-   **Improve:** Sidebar submenu expands without an inner scrollbar; the sidebar wrapper handles overflow when nav is long.
+-   **Fix:** Cleaned up user dropdown styling in the admin header — removed stray borders and uneven top margins for consistent spacing.
+
 **[v1.1.0] - 2026-04-05**
 -   **Feat:** Account created notification — admin-created users receive an email with login link and password-set URL.
 -   **Feat:** Quick-add dropdown in admin header with hook support (`filter.quick_add_dropdown`).
