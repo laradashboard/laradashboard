@@ -69,7 +69,7 @@
     "packageManager": "npm@10.2.4",
     "overrides": {
         "tmp": "^0.2.4",
-        "basic-ftp": ">=5.2.0",
+        "basic-ftp": ">=5.2.1",
         "lodash": ">=4.17.23",
         "yauzl": ">=3.2.1"
     }
