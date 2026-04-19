@@ -999,30 +999,31 @@ PHP;
 
         $content = File::get($routesPath);
 
-        // Check if routes already exist (check for resource route or controller import)
-        if (str_contains($content, "{$this->modelStudlyName}Controller::class")) {
+        // Check if routes already exist (check for both the use import and the resource route)
+        $useStatement = "use Modules\\{$this->moduleStudlyName}\\Http\\Controllers\\{$this->modelStudlyName}Controller;";
+        if (str_contains($content, $useStatement) && str_contains($content, "Route::resource('{$this->modelPluralLower}'")) {
             $this->line('  Routes already exist, skipping...');
 
             return;
         }
 
-        // Add controller use statement
-        $useStatement = "use Modules\\{$this->moduleStudlyName}\\Http\\Controllers\\{$this->modelStudlyName}Controller;";
-
+        // Add controller use statement (if not already present)
         // Find the last use statement and add after it
-        if (preg_match_all('/^use [^;]+;$/m', $content, $matches)) {
+        if (! str_contains($content, $useStatement) && preg_match_all('/^use [^;]+;$/m', $content, $matches)) {
             $lastUseStatement = end($matches[0]);
             $lastPos = strrpos($content, $lastUseStatement);
             $insertPos = $lastPos + strlen($lastUseStatement);
             $content = substr_replace($content, "\n".$useStatement, $insertPos, 0);
         }
 
-        // Add resource route before the last }); which closes the outermost route group
-        $newRoute = "\n\n        Route::resource('{$this->modelPluralLower}', {$this->modelStudlyName}Controller::class);";
+        // Add resource route before the last }); which closes the outermost route group (if not already present)
+        if (! str_contains($content, "Route::resource('{$this->modelPluralLower}'")) {
+            $newRoute = "\n\n        Route::resource('{$this->modelPluralLower}', {$this->modelStudlyName}Controller::class);";
 
-        $lastClosingPos = strrpos($content, '});');
-        if ($lastClosingPos !== false) {
-            $content = substr_replace($content, $newRoute."\n    ", $lastClosingPos, 0);
+            $lastClosingPos = strrpos($content, '});');
+            if ($lastClosingPos !== false) {
+                $content = substr_replace($content, $newRoute."\n    ", $lastClosingPos, 0);
+            }
         }
 
         File::put($routesPath, $content);

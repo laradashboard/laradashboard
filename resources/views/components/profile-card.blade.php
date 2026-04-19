@@ -13,13 +13,13 @@
     // Extract initials from name (up to 2 characters)
     $initials = '';
     $nameParts = explode(' ', $name);
-    
+
     if (count($nameParts) >= 2) {
         $initials = strtoupper(substr($nameParts[0], 0, 1) . substr($nameParts[1], 0, 1));
     } elseif (count($nameParts) === 1) {
         $initials = strtoupper(substr($nameParts[0], 0, min(2, strlen($nameParts[0]))));
     }
-    
+
     // Define sizes
     $sizes = [
         'sm' => [
@@ -41,23 +41,23 @@
             'subtitle' => 'text-sm',
         ],
     ];
-    
+
     $sizeClasses = $sizes[$size] ?? $sizes['md'];
-    
+
     // Generate consistent background color based on the name
     $colors = [
-        'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 
-        'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500'
+        'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500',
+        'bg-purple-500', 'bg-pink-500', 'bg-primary', 'bg-teal-500'
     ];
-    
+
     $colorIndex = crc32($name) % count($colors);
     $bgColor = $colors[$colorIndex];
 @endphp
 
 @if ($tooltipTitle)
     <x-tooltip title="{{ $tooltipTitle }}" position="top">
-        <a data-tooltip-target="{{ $tooltipId }}" 
-           href="{{ $link ?? '#' }}" 
+        <a data-tooltip-target="{{ $tooltipId }}"
+           href="{{ $link ?? '#' }}"
            {{ $attributes->merge(['class' => 'flex items-center']) }}>
             <div class="flex-shrink-0 {{ $sizeClasses['avatar'] }} mr-3">
                 @if ($imageUrl)
@@ -84,7 +84,7 @@
                 @endif
             </div>
         </a>
-        
+
         @if ($tooltipId)
             <div id="{{ $tooltipId }}"
                  class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
@@ -114,13 +114,13 @@
                     {{ $name }}
                 </span>
             @endif
-            
+
             @if ($subtitle)
                 <span class="{{ $sizeClasses['subtitle'] }} text-gray-500 dark:text-gray-300 truncate">
                     {{ $subtitle }}
                 </span>
             @endif
-            
+
             @if ($extraInfo)
                 <span class="{{ $sizeClasses['subtitle'] }} text-gray-500 dark:text-gray-300 truncate">
                     {{ $extraInfo }}

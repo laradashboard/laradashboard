@@ -14,7 +14,6 @@ $guestRoutes = [
 ];
 
 $authRoutes = [
-    '/admin',
     '/admin/roles',
     '/admin/roles/create',
     '/admin/roles/1/edit',

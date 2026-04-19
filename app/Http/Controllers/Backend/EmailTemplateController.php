@@ -12,7 +12,6 @@ use Illuminate\Http\RedirectResponse;
 use App\Services\Emails\EmailTemplateService;
 use App\Enums\TemplateType;
 use App\Models\EmailTemplate;
-use App\Models\Setting;
 use App\Services\Emails\EmailVariable;
 use Illuminate\Support\Facades\Log;
 
@@ -26,7 +25,7 @@ class EmailTemplateController extends Controller
 
     public function index(): Renderable
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('viewAny', EmailTemplate::class);
 
         $this->setBreadcrumbTitle(__('Email Templates'))
             ->setBreadcrumbIcon('lucide:mail')
@@ -42,7 +41,7 @@ class EmailTemplateController extends Controller
 
     public function show(EmailTemplate $emailTemplate): Renderable
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('view', $emailTemplate);
 
         $rendered = $emailTemplate->renderTemplate($this->emailVariable->getPreviewSampleData());
         $emailTemplate->subject = $rendered['subject'];
@@ -58,7 +57,7 @@ class EmailTemplateController extends Controller
 
     public function destroy(EmailTemplate $emailTemplate): RedirectResponse
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('delete', $emailTemplate);
 
         try {
             $this->emailTemplateService->deleteTemplate($emailTemplate);
@@ -75,7 +74,7 @@ class EmailTemplateController extends Controller
 
     public function getByType(string $type): JsonResponse
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('viewAny', EmailTemplate::class);
 
         try {
             $templates = $this->emailTemplateService->getTemplatesByType($type);
@@ -97,7 +96,7 @@ class EmailTemplateController extends Controller
 
     public function getContent(EmailTemplate $emailTemplate): JsonResponse
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('view', $emailTemplate);
 
         return response()->json([
             'name' => $emailTemplate->name,
@@ -111,7 +110,7 @@ class EmailTemplateController extends Controller
      */
     public function apiList(): JsonResponse
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('viewAny', EmailTemplate::class);
 
         $templates = EmailTemplate::where('is_active', true)
             ->orderBy('name')
@@ -136,7 +135,7 @@ class EmailTemplateController extends Controller
      */
     public function builder(Request $request): Renderable
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('create', EmailTemplate::class);
 
         // Support redirect_url for extensibility - any module can pass a redirect URL
         // to return to after saving the template
@@ -153,7 +152,7 @@ class EmailTemplateController extends Controller
      */
     public function builderEdit(Request $request, EmailTemplate $emailTemplate): Renderable
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('update', $emailTemplate);
 
         // Support redirect_url for extensibility - any module can pass a redirect URL
         // to return to after saving the template
@@ -178,7 +177,7 @@ class EmailTemplateController extends Controller
      */
     public function builderStore(Request $request): JsonResponse
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('create', EmailTemplate::class);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -222,7 +221,7 @@ class EmailTemplateController extends Controller
      */
     public function builderUpdate(Request $request, EmailTemplate $emailTemplate): JsonResponse
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('update', $emailTemplate);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -265,7 +264,7 @@ class EmailTemplateController extends Controller
      */
     public function uploadImage(Request $request): JsonResponse
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('create', EmailTemplate::class);
 
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,gif,webp|max:2048',
@@ -302,7 +301,7 @@ class EmailTemplateController extends Controller
      */
     public function uploadVideo(Request $request): JsonResponse
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('create', EmailTemplate::class);
 
         // Check PHP upload limits
         $maxUploadSize = min(

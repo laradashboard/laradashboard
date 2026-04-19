@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services\Emails;
 
+use App\Enums\Hooks\EmailVariableFilterHook;
 use App\Support\Facades\Hook;
 
 class EmailVariable
 {
     public function getAllVariablesData(): array
     {
-        return Hook::applyFilters('email_template_variables_data', [
+        return Hook::applyFilters(EmailVariableFilterHook::VARIABLES, [
             'first_name' => [
                 'label' => __('Recipient\'s first name'),
                 'sample_data' => 'John',
