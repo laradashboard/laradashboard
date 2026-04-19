@@ -62,7 +62,7 @@ class="bg-gray-50 dark:bg-gray-900 min-h-screen">
 
     <div class="auth-container min-h-screen flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8">
         {{-- Logo --}}
-        <div class="mx-auto w-full max-w-sm mb-4">
+        <div class="mx-auto w-full @yield('auth_card_width', 'max-w-xl') mb-4">
             <a href="{{ url('/') }}" class="flex justify-center">
                 @php
                     $logoLite = config('settings.site_logo_lite');
@@ -86,7 +86,7 @@ class="bg-gray-50 dark:bg-gray-900 min-h-screen">
         </div>
 
         {{-- Card Container --}}
-        <div class="mx-auto w-full max-w-sm">
+        <div class="mx-auto w-full @yield('auth_card_width', 'max-w-sm')">
             <div class="bg-white dark:bg-gray-800 py-5 px-4 shadow-md rounded-lg sm:px-5 border border-gray-200 dark:border-gray-700">
                 @yield('content')
             </div>
