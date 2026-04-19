@@ -1,22 +1,68 @@
 <a id="readme-top"></a>
 
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
+<div align="center">
+
+<img width="100%" alt="Lara Dashboard — open-source Laravel 13 admin panel, CMS and modular starter kit — dashboard preview with charts, user activity and modules" src="demo-screenshots/03-Dashboard-Page-lite-Mode.png" />
+
+# ⚡ Lara Dashboard
+
+### Open-source Laravel Admin Panel, CMS & Modular Starter Kit — powered by Laravel 13, Livewire 3, Tailwind CSS v4 and an AI Agent.
+
+[![Latest Release][release-shield]][release-url]
+[![PHP Version][php-shield]][php-url]
+[![Laravel][laravel-shield]][laravel-url]
+[![Tailwind CSS][tailwind-shield]][tailwind-url]
+[![Livewire][livewire-shield]][livewire-url]
+[![License][license-shield]][license-url]
 [![Stargazers][stars-shield]][stars-url]
+[![Forks][forks-shield]][forks-url]
+[![Contributors][contributors-shield]][contributors-url]
 [![Issues][issues-shield]][issues-url]
-[![Unlicense License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 
-<img width="100%" alt="Lara Dashboard" src="https://github.com/user-attachments/assets/c56009a4-718f-43dc-bd1e-caad5417b05b"  />
+**[🌐 Website](https://laradashboard.com) • [🚀 Live Demo](https://laradashboard.com/try-demo/) • [📖 Documentation](https://laradashboard.com/docs/) • [🧩 Marketplace](https://laradashboard.com) • [💬 Community](https://www.facebook.com/groups/laradashboard)**
 
-**⚡ Lara Dashboard** CMS By Laravel (7.x - 12.x) - Manages Users, Roles, Permissions, Modules, Settings, Translations, Contents(Post, Page, Category, Tags), AI Agent, System logs, Monitoring, Rest API's and every actions of your Laravel application. A complete Agentic CMS solution for Laravel application with Tailwind CSS integrated with all starting features including modules, dark/lite mode, charts, tables, forms, lots of components and many more. This also includes beautiful architecture for module developers to make a complete Agent base solutions. By our preimium modules, you can get more features like CRM, HRM, Course Management and so on.
+</div>
 
-**Demo:** https://laradashboard.com/try-demo/
+---
 
-```
-Email - superadmin@example.com
-password - 12345678
-```
+**Lara Dashboard** is a **production-ready Laravel admin panel and headless CMS** — a batteries-included **Laravel boilerplate / starter kit** with Users, Roles, Permissions (RBAC via Spatie), Modules, Settings, Translations, Posts & Pages, Media Library, **REST API**, AI content generation, and a **WordPress-style hooks system** (via [eventy](https://github.com/tormjens/eventy)) for extensibility.
+
+Built for Laravel developers who want to ship admin dashboards, SaaS apps, CRMs and internal tools in **hours, not weeks** — without trading away Laravel idioms, testability or type-safety.
+
+> **Try the live demo:** <https://laradashboard.com/try-demo/>
+> **Credentials:** `superadmin@example.com` / `12345678`
+
+## ✨ Why Lara Dashboard?
+
+-   🔐 **Complete RBAC** — Users, Roles, Permissions via Spatie, admin impersonation, social auth (Socialite), and 2FA-ready flows.
+-   🧩 **Modular Architecture** — Self-contained modules via [nwidart/laravel-modules](https://laravelmodules.com/). Install, enable, disable, zip and distribute with a single command.
+-   ⚡ **CRUD Generator** — `php artisan module:make-crud` scaffolds Model, Migration, Service, FormRequest, Controller, Datatable, Views, Routes, Menu and Tests in one pass.
+-   📝 **Full CMS** — Posts, Pages, Categories, Tags, Media Library, visual block-based editor with drag-and-drop.
+-   🤖 **AI Agent built-in** — Configure OpenAI, Anthropic, Gemini and more via filter hooks. Generate and refine content inline.
+-   📧 **Email System** — Inbound/outbound SMTP connections, visual email template builder, campaign tracking, notifications.
+-   🌐 **i18n Out-of-the-box** — 21 languages preloaded, chunked translation management, one-click language adds.
+-   🔌 **REST API** — Auto-documented with [Scramble](https://github.com/dedoc/scramble), Sanctum-auth, ready for mobile apps and SPAs.
+-   🎨 **Beautiful UI** — Tailwind CSS v4, Alpine.js, dark/light mode, 60+ components, responsive on every breakpoint.
+-   🪝 **WordPress-style Hooks** — Actions and filters everywhere so you can extend without forking.
+-   🧪 **Tests & Static Analysis** — Pest, PHPStan (Larastan), Rector, Pint — all wired up out of the box.
+-   📦 **Zero-friction Deploy** — cPanel/shared-hosting ready, ZIP distribution with vendor folder, one-click core upgrades with backup/restore.
+
+## 📚 Table of Contents
+
+-   [Requirements](#-requirements)
+-   [Built With](#️-built-with)
+-   [Project Setup](#-project-setup)
+-   [Build Commands](#-build-commands)
+-   [Features — How it Works](#️-how-it-works)
+-   [Module Development](#-module-development)
+-   [CRUD Generator](#crud-generator)
+-   [REST API](#-rest-api-documentation)
+-   [Tests & Code Quality](#tests)
+-   [Distribution Package](#-distribution-package-zip-build)
+-   [Screenshots](#-screenshots)
+-   [Premium Modules](#-premium-features)
+-   [Changelog](#-changelog)
+-   [Contributing](#-contributing)
 
 ## 📋 Requirements:
 
@@ -50,299 +96,28 @@ password - 12345678
 
 ## 📝 Changelog
 
-**[v1.1.2] - 2026-04-19**
--  **Fix:** Fixed Module generator command improvement for Windows OS.
--  **Fix:** Fixed CRUD generator command improvement for Windows OS.
--  **Improve:** Added more extendibility support for email templates.
--  **Improve:** Added more extendibility support for authentication pages.
+> **Latest release:** [v1.1.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.1.2) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
 
-**[v1.1.1] - 2026-04-10**
+**[v1.1.2] — 2026-04-19**
+-   **Fix:** Module generator command improvement for Windows OS.
+-   **Fix:** CRUD generator command improvement for Windows OS.
+-   **Improve:** Added more extendibility support for email templates.
+-   **Improve:** Added more extendibility support for authentication pages.
+
+**[v1.1.1] — 2026-04-10**
 -   **Feat:** Scheduled queue worker — runs every minute via `schedule:run` to process queued jobs (workflow actions, emails) without requiring a long-running worker.
 -   **Improve:** Sidebar submenu supports deeper (3rd and 4th level) nesting with proper indentation.
 -   **Improve:** Sidebar submenu expands without an inner scrollbar; the sidebar wrapper handles overflow when nav is long.
--   **Fix:** Cleaned up user dropdown styling in the admin header — removed stray borders and uneven top margins for consistent spacing.
+-   **Fix:** Cleaned up user dropdown styling in the admin header.
 
-**[v1.1.0] - 2026-04-05**
--   **Feat:** Account created notification — admin-created users receive an email with login link and password-set URL.
+**[v1.1.0] — 2026-04-05**
+-   **Feat:** Account-created notification — admin-created users receive an email with login link and password-set URL.
 -   **Feat:** Quick-add dropdown in admin header with hook support (`filter.quick_add_dropdown`).
 -   **Feat:** Admin menu badge support (`setBadge()` / `setBadgeClass()` on `AdminMenuItem`).
--   **Feat:** Email connection toggle (activate/deactivate) with inline action button.
--   **Feat:** Email connection status filter (active, disabled, connected, failed).
--   **Feat:** Setting image removal endpoint for site logos/icons via AJAX.
--   **Feat:** Send login link action on user edit page.
--   **Improve:** Demo mode restrictions on core upgrade, backup, and restore operations.
--   **Improve:** Seeder defaults for authentication, site tagline, copyright, and contact settings.
--   **Fix:** Renamed "Inactive" to "Disabled" for email connection status labels (consistency).
--   **Fix:** Removed duplicate demo-mode check in module update flow.
+-   **Feat:** Email connection toggle (activate/deactivate), status filter and setting-image removal via AJAX.
+-   **Improve:** Demo-mode restrictions on core upgrade, backup, and restore operations.
 
-**[v1.0.3] - 2026-03-29**
--   **Fix:** Fixed marketplace module images not loading (JSON-encoded icon/banner URLs from API were not decoded properly).
-
-**[v1.0.2] - 2026-03-29**
--   **Feat:** Marketplace module browser — browse, search, and install modules from the marketplace.
--   **Feat:** Module packaging and distribution commands (`module:zip`, `module:package`, `module:compile-css`).
--   **Feat:** Claude Code agents and commands for faster module development workflow.
--   **Docs:** Added developer documentation for Tailwind CSS prefixing, AI architecture, theme development, permissions, and module packaging.
--   **Fix:** Fixed CRUD generator base controller replacement test for updated nwidart stubs.
--   **Fix:** Assign menu permissions to superadmin migration.
-
-**[v1.0.1] - 2026-03-28**
--   **Fix:** Fixed automattic module and core upgrade issue on some servers.
--   **Fix:** Fixed module stubs and crud command to generate files properly.
-
-**[v1.0.0] - 2026-03-27**
--   **Feat:** Upgraded to Laravel 13 and Livewire 4.
--   **Feat:** Base setup for Starter 26 theme.
--   **Feat:** CRUD Generator (`module:make-crud`) with Model, Datatable, Views, Routes, Menu scaffolding.
--   **Feat:** Inbound/Outbound email connection management.
--   **Feat:** Manual core upgrade system with backup/restore functionality.
--   **Feat:** Social authentication with Laravel Socialite.
--   **Feat:** Cache/performance management section in settings page.
--   **Feat:** Menu architecture for frontend with filter hooks support.
--   **Feat:** Compact file uploader component.
--   **Feat:** Clean all action logs button.
--   **Feat:** AI filter hooks for extensible AI integrations.
--   **Enhancement:** Module CRUD command improved — generates Blade views instead of Livewire components.
--   **Enhancement:** Translation system refactored with chunked data saving.
--   **Enhancement:** Quick links dropdown at navbar.
--   **Enhancement:** Post list updated with Updated column and activity log timestamps.
--   **Enhancement:** Media selector modal responsive improvement.
--   **Refactor:** Unified server-side block rendering for email and page contexts.
--   **Refactor:** Blocks refactored to remove unnecessary padding and standalone page improvement.
--   **Refactor:** Better structure for module installations.
--   **Fix:** Security fixes with sanitization in content rendering.
--   **Fix:** Email verification link, template preview, and campaign tracking fixes.
--   **Fix:** Fixed missing authorization checks.
--   **Fix:** Module installation, upload, and delete bug fixes.
--   **Fix:** Fixed cached permission issues.
--   **Fix:** Numerous test fixes and CI improvements.
-
-**[v0.9.14] - 2026-03-16**
--   **Refactor:** Unified server-side block rendering for email and page contexts via render.php
--   **New:** EmailStyleHelper PHP utility for email-safe inline CSS from layoutStyles
--   **New:** Server-side render.php for 13 blocks (divider, spacer, footer, social, preformatted, accordion, countdown, table, video, text-editor, html, columns, section)
--   **Improvement:** Email blocks now use server-side placeholders for consistent rendering with layoutStyles support
--   **Fix:** Email campaign preview, send, and tracking now process dynamic blocks correctly
-
-**[v0.9.13] - 2026-03-16**
--   **Refactor:** Block improvements for emails
--   **Fix:** Module approval now syncs updated version assets and metadata
-
-**[v0.9.12] - 2026-03-14**
--   **Fix:** Fixed security issue with sanitization in content rendering
--   **Improvement:** Refactored code and pre block for better code snippet support
--   **Fix:** Fixed email verification link to show valid link
-
-**[v0.9.11] - 2026-03-09**
--   **Fix:** Fixed missing authorization checks
--   **Fix:** Module crud with migration and some other registration logics
--   **Improvement:** Translation system chunks data saving
-
-**[v0.9.10] - 2026-02-26**
--   **Fix:** Block editor text block, heading block line break and some other issues.
--   **Fix:** Module list page module icon was not consistent.
-
-**[v0.9.9.4] - 2026-02-24**
--   **Fix:** Fixed cached permission.
-
-**[v0.9.9.1] - 2026-02-24**
--   **Fix:** Upgrade core issue on some servers.
--   **Enhancement:** Added mailer class column to email logs table.
-
-**[v0.9.9] - 2026-02-22**
--   **Feat:** Menu management for frontend.
--   **Enhancement:** Module command, module crud command improvements.
--   **Enhancement:** Several pages more filter hook supported.
--   **Fix:** Improved several test cases.
-
-**[v0.9.8] - 2026-02-17**
--   **Feat:** Social authentication with Laravel Socialite.
--   **Feat:** Cache / performance management section in settings page with cache clear, config cache, route cache, view cache and so on.
--   **Enhancement:** Imoprove core download and update system with better UI/UX.
-
-**[v0.9.7] - 2026-02-14**
--   **Fix:** Demo was not loading the faker.
--   **Enhancement:** Post list updated with Updated column.
--   **Enhancement:** Created date in activity log list page.
--   **Enhancement:** Media library modal responsive improvement.
--   **Fix:** Fixed Module:make-crud command to generate menus properly.
--   **Feat:** Added clean all logs button in activity log list page.
-
-**[v0.9.6] - 2026-02-13**
--   **Feat:** Compact attachment component.
--   **Fix:** Fixed module replace modal scroll issue.
--   **Fix:** Demo app refresh issue.
-
-**[v0.9.5] - 2026-02-12**
--   **Fix:** Fixed module installation issue on some servers.
-
-**[v0.9.3] - 2026-02-08**
--   **Feat:** Inbound/Outbound email connection managent.
--   **Feat:** CRUD Generator (`module:make-crud`) - Rapid scaffolding for modules with Model, Datatable, Views, Routes, Menu.
--   **Enhancement:** Fallback queue handling management.
--   **Enhancement:** Quick links dropdown at navbar.
--   **Enhancement:** Updated some stubs for easy module generation following laradashboard.
-
-**[v0.9.2] - 2025-01-11**
--   **Feat:** Manual core upgrade system with backup/restore functionality.
--   **Feat:** Production-ready zip distribution with vendor folder support.
--   **Feat:** cPanel/shared hosting support without document root changes.
--   **Enhancement:** Storage directory structure auto-creation during upgrades.
-
-**[v0.9.1] - 2025-01-04**
--   **Feat:** AI Agent - Agentic CMS assistant to help you create, manage, and optimize content using AI.
--   **Feat:** Beautiful onboarding experience for initial installation.
--   **Enhancement:** Improved AI content generation and fine-tuning options in post/page editor.
--   **Enhancement:** Module improvement stability, upgrade notices.
-
-**[v0.9.0] - 2025-12-19**
--   **chore:** Revamping the versions to v0.9.x.
-
-**[v2.4.0-beta] - 2025-12-19**
-
--   **Feat:** Post / Page Builder - Manage posts/pages with visual drag and drop builder.
--   **Feat:** Email Management System - Email connections, email templates with visual builder.
--   **Feat:** Notifications Management - Centralized notification settings and management.
--   **Feat:** Detail Pages - User, Role, Permission, Module detail views with comprehensive information.
--   **Enhancement:** Improved module detail page with better UI/UX.
--   **Enhancement:** Improved role detail page with better UI/UX.
--   **Enhancement:** Module installation process improved with better UI/UX.
-
-**[v2.3.0-beta] - 2025-09-07**
-
--   **Feat:** Datatable integration for Users, Roles, Permissions, Posts, Categories, Tags.
--   **Feat:** Several new components.
--   **Feat:** Observer added for models.
--   **Feat:** Introduce hooks with more managed/documented way.
--   **Enhancement:** Updated code structure, new components, improved code quality.
--   **Fix:** Several small UI bugs.
-
-**[v2.2.0-beta] - 2025-08-17**
-
--   **Feat:** Media library manager.
--   **Feat:** Improved user / profile UI/UX with lots of options.
--   **Feat:** Implement reCAPTCHA and custom admin login integration with configurable page settings.
--   **Enhancement:** Update menu structure.
--   **Fix:** Several small UI bugs.
-
-**[v2.0.1-beta] - 2025-07-27**
-
--   **Feat:** Refactor Lara Dashboard whole Admin UI - Icons, Accessibility, Components, Pages, Layouts and so on.
--   **Enhancement:** Keep search form design consistent as `form-control` height.
--   **Enhancement:** Global variable for editor script to handle from any module.
--   **Enhancement:** Cleanup many codes to separate service to keep business logics separated.
--   **Enhancement:** Fixed several unit tests.
--   **Fix:** User chart data with SQLite supported.
--   **Fix:** Remove some unnecessary console logs.
--   **Doc:** Added Coding standard docs.
-
-**[v2.0-beta] - 2025-07-20**
-
--   **Feat:** Refactor Lara Dashboard whole Admin UI - Icons, Accessibility, Components, Pages, Layouts and so on.
--   **Enhancement:** Improve components, reusibility, and code quality.
--   **Fix:** Some random UI fixes.
-
-**[v1.7.0-beta] - 2025-07-13**
-
--   **Feat:** Rest API For Lara Dashboard, Scramble API documentation.
--   **Enhancement:** Cleanup class names to use more standard class names.
--   **Fix:** Some random UI fixes.
-
-**[v1.6.0-beta] - 2025-06-21**
-
--   **Enhancement:** Write/Update Standard Unit Tests, pint, rector, phpstan for the project.
--   **Fix:** Potential fix for code scanning alert no. 1: Workflow does not contain permissions.
--   **Fix:** Language switcher if no icon is selected.
--   **Fix:** Non-Translated keys keep empty instead the placeholder.
-
-**[v1.5.0-beta] - 2025-06-01**
-
--   **Feature**: Content Management System (CMS) with Content(Post/Page), Content Category, Content Tag management.
--   **Feature**: Post/Page activity chart in Dashboard.
--   **Feature**: Bulk delete for Users, Roles, Posts, Categories, Tags.
--   **Enhancement**: Sorting features for Users, Roles, Permissions, Posts, Categories, Tags.
--   **Enhancement**: Components - Confirm delete, Success/Error messages, Toast, Text Editor, Breadcrumbs, Action dropdown.
--   **Fix**: System dark mode issues.
--   **Fix**: Modules refactorring in demo mode.
-
-**[v1.3.0-beta] - 2025-05-18**
-
--   **Feature**: Admin Menu architecture with more extendible way.
--   **Feature**: Permission List and detail page.
--   **Enhancement**: Improved module compatibility.
-
-**[v1.2.0-beta] - 2025-05-12**
-
--   **Feature - Translation Management**: Added Translation management sytem with supporting 21 languages by default and possibility to add any in a second.
--   **Enhancement - Dashboard Redesign**: Dashboard redesigned with new card, user history chart, several more design improvements.
--   **Enhancement**: Role list page, user list page to add links of users list sorting by role and role edit page linkings.
--   **Enhancement**: Cleanup code base to use services, requests more, use SOLID whenever needed.
--   **Fix**: Fixed #109 Submenu dropdown icon doesn't change on open/close submenu of a menu item.
--   **Fix**: Fixed #105 Sidebar Icon not working good if collapsed.
--   **Fix**: Fixed #93 Theme primary color, secondary color was not working.
--   **Fix**: Fixed #99 Superadmin role shouldn't be edited.
--   **Fix**: Fixed Mobile responsive has some issues.
--   **Fix**: Fixed Sidebar toggle was not persistent issue.
--   **Fix**: Fixed Role create -> selecting permission group can't check the permissions in that group checkboxes automatically.
-
-**[v1.0.0-beta] - 2025-04-21**
-
--   **Feature - Forget Password Management**: Enhanced the forget password functionality for better reliability and user experience.
--   **Feature - Settings Management**: Added comprehensive settings management features, including API support.
--   **Enhancement - Role-Based Access Control (RBAC) Improvements**: Improved authorization mechanisms and role-based access control.
--   **Feature - Admin Impersonation**: Administrators can now log in as other users and switch back to their original accounts seamlessly.
--   **Enhancement - UI/UX Enhancements**: Updated the role create/edit form for a more intuitive and user-friendly experience.
--   **Enhancement - User Profile and Management Enhancements**: Refactored user-related operations to utilize `UserService` and `RolesService` for better separation of concerns and maintainability.
--   **Docs - Documentation and Configuration Updates**:
-    -   Updated `.env.example` to include a `GITHUB_LINK` variable for improved project visibility.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## 🔄 Versions:
-
-Latest version `v1.1.2` - https://github.com/laradashboard/laradashboard/releases/tag/v1.1.2
-
-<details>
-<summary>View Old versions</summary>
-
--   Laravel `7.x` & PHP -`7.x`
-
-    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel7.x
-    -   Branch - https://github.com/ManiruzzamanAkash/laravel-role/tree/Laravel7.x
-
--   Laravel `9.7` & PHP - `8.x`
-
-    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel9.x
-
--   Laravel `11.x`
-
-    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v11.x-main
-
--   Laravel `12.x` & PHP >= `8.3`
-
-    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel12.x
-
--   Laravel `12.x` & Tail Admin Template Integration
-
-    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel12.x-tailadmin
-
--   Laravel `12.x` & Module & Action Log integration
-
-    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/Laravel12.x-module-logs
-
--   v1.0.0 - Settings, Forget password and lots of refactorring
-    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.0.0
--   v1.2.0 - Translation Management, Dashboard Redesign, Role/User List improvements
-    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.2.0
--   v1.3.0 - Admin Menu architecture, Permission List and detail page
-    -   Tag - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.3.0
--   v1.5.0 - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.5.0
--   v1.6.0 - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.6.0
--   v1.7.0 - https://github.com/ManiruzzamanAkash/laravel-role/releases/tag/v1.7.0
-
-More release tags - https://github.com/laradashboard/laradashboard/releases
-
-</details>
+👉 **[See the full changelog for all versions (v0.9.x – v2.x) →](CHANGELOG.md)**
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -542,7 +317,7 @@ git remote set-url origin git@github.com:laradashboard/laradashboard.git
 1. AI Content Generation - Configure AI providers (OpenAI, Anthropic, etc.) for content generation
 1. Email Management - Email connections, email templates with visual builder, notifications
 1. Detail Pages - User, Role, Permission, Module detail views with comprehensive information
-1. Rest API - Rest API's for Users, Roles, Permissions, Settings, Translations, Content(Post/Page/Category/Tag) and so on.
+1. REST API — auto-documented REST endpoints for Users, Roles, Permissions, Settings, Translations, and Content (Post / Page / Category / Tag).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -996,7 +771,7 @@ https://laradashboard.com/try-demo/
 
 ## ✨ Premium Features
 
-Please visit at Lara Dashboard to get more premium moduels - https://laradashboard.com. Premium modules included CRM, HRM, Course Managements and so on.
+Visit [laradashboard.com](https://laradashboard.com) for premium modules — **CRM**, **HRM**, **Course Management**, **Project Management** and more. Each premium module ships with the same CRUD generator, hooks, and test scaffolding as the core.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -1114,6 +889,16 @@ If you like my work you may consider buying me a ☕ / 🍕
 [license-url]: https://github.com/laradashboard/laradashboard/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/maniruzzamanakash
+[release-shield]: https://img.shields.io/github/v/release/laradashboard/laradashboard?style=for-the-badge&color=success
+[release-url]: https://github.com/laradashboard/laradashboard/releases/latest
+[php-shield]: https://img.shields.io/badge/PHP-8.3%20%7C%208.4-777BB4?style=for-the-badge&logo=php&logoColor=white
+[php-url]: https://www.php.net
+[laravel-shield]: https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
+[laravel-url]: https://laravel.com
+[tailwind-shield]: https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
+[tailwind-url]: https://tailwindcss.com
+[livewire-shield]: https://img.shields.io/badge/Livewire-3.x-FB70A9?style=for-the-badge&logo=laravel&logoColor=white
+[livewire-url]: https://livewire.laravel.com
 [product-screenshot]: images/screenshot.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
