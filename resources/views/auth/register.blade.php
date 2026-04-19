@@ -4,6 +4,8 @@
     {{ $pageTitle ?? __('Create Account') }} | {{ config('app.name') }}
 @endsection
 
+@section('auth_card_width', 'max-w-xl')
+
 @section('content')
 <div>
     {{-- Header --}}

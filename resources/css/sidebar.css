@@ -107,8 +107,10 @@
 }
 
 .submenu-expanded {
-    @apply opacity-100 mt-1 pointer-events-auto overflow-y-auto;
-    max-height: 500px;
+    @apply opacity-100 mt-1 pointer-events-auto;
+    /* Large max-height so all submenu items are visible without scrolling.
+       The outer sidebar wrapper handles scroll when the full nav overflows. */
+    max-height: 2000px;
     transform: scaleY(1) translateY(0);
 }
 
@@ -170,6 +172,15 @@
 
 .submenu li .menu-item {
     @apply pl-12;
+}
+
+/* Deeper nesting (3rd level) gets extra indentation so it visually sits under its parent submenu item. */
+.submenu .submenu li .menu-item {
+    @apply pl-16 text-[13px];
+}
+
+.submenu .submenu .submenu li .menu-item {
+    @apply pl-20;
 }
 
 /* .submenu .menu-item,

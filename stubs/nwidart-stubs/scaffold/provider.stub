@@ -28,7 +28,7 @@ class $CLASS$ extends ServiceProvider
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
-        $this->loadMigrationsFrom(module_path($this->name, '$MIGRATIONS_PATH$'));
+        $this->loadMigrationsFrom(module_path($this->name, config('modules.paths.generator.migration.path', 'database/migrations')));
 
         // Bootstrap module services (menu, permissions, etc.)
         $this->app->booted(function () {
@@ -76,8 +76,8 @@ class $CLASS$ extends ServiceProvider
             $this->loadTranslationsFrom($langPath, $this->nameLower);
             $this->loadJsonTranslationsFrom($langPath);
         } else {
-            $this->loadTranslationsFrom(module_path($this->name, '$PATH_LANG$'), $this->nameLower);
-            $this->loadJsonTranslationsFrom(module_path($this->name, '$PATH_LANG$'));
+            $this->loadTranslationsFrom(module_path($this->name, config('modules.paths.generator.lang.path', 'lang')), $this->nameLower);
+            $this->loadJsonTranslationsFrom(module_path($this->name, config('modules.paths.generator.lang.path', 'lang')));
         }
     }
 
@@ -111,7 +111,7 @@ class $CLASS$ extends ServiceProvider
     public function registerViews(): void
     {
         $viewPath = resource_path('views/modules/'.$this->nameLower);
-        $sourcePath = module_path($this->name, '$PATH_VIEWS$');
+        $sourcePath = module_path($this->name, config('modules.paths.generator.views.path', 'resources/views'));
 
         $this->publishes([$sourcePath => $viewPath], ['views', $this->nameLower.'-module-views']);
 
