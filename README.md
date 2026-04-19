@@ -50,6 +50,12 @@ password - 12345678
 
 ## 📝 Changelog
 
+**[v1.1.2] - 2026-04-19**
+-  **Fix:** Fixed Module generator command improvement for Windows OS.
+-  **Fix:** Fixed CRUD generator command improvement for Windows OS.
+-  **Improve:** Added more extendibility support for email templates.
+-  **Improve:** Added more extendibility support for authentication pages.
+
 **[v1.1.1] - 2026-04-10**
 -   **Feat:** Scheduled queue worker — runs every minute via `schedule:run` to process queued jobs (workflow actions, emails) without requiring a long-running worker.
 -   **Improve:** Sidebar submenu supports deeper (3rd and 4th level) nesting with proper indentation.
@@ -294,7 +300,7 @@ password - 12345678
 
 ## 🔄 Versions:
 
-Latest version `v1.0.1` - https://github.com/laradashboard/laradashboard/releases/tag/v1.0.1
+Latest version `v1.1.2` - https://github.com/laradashboard/laradashboard/releases/tag/v1.1.2
 
 <details>
 <summary>View Old versions</summary>
@@ -1012,30 +1018,18 @@ Lara Dashboard uses [nwidart/laravel-modules](https://laravelmodules.com/) for m
 php artisan module:make Blog
 
 # Build and package for distribution
-php artisan module:compile-css Blog --dist
-php artisan module:package Blog --no-vendor
+php artisan module:zip Blog
 # Output: Blog-v1.0.0.zip
 ```
 
+[Learn module development documentation](https://laradashboard.com/docs/main/developer-guide/module-development)
+
 ### CRUD Generator
 
-Rapidly scaffold complete CRUD operations with a single command:
+Rapidly scaffold complete CRUD operations with a single command.
 
 ```bash
-# 1. Create migration first
-php artisan module:make-migration create_blog_posts_table Blog
-
-# 2. Run migration
-php artisan migrate
-
-# 3. Generate complete CRUD (Model, Datatable, Views, Routes, Menu)
-php artisan module:make-crud Blog --migration=create_blog_posts_table
-
-# Or use model name (auto-detects migration)
-php artisan module:make-crud Blog --model=Post
-
-# 4. Clear cache and visit /admin/blog/posts
-php artisan optimize:clear
+php artisan module:make-crud Blog --model=Article --fields="title:string,author:string,content:text,is_published:boolean"
 ```
 
 **What gets generated:**
@@ -1046,7 +1040,7 @@ php artisan optimize:clear
 - ✅ Routes (index, create, show, edit)
 - ✅ Sidebar menu item
 
-**[📖 Full CRUD Generator Guide](docs/LaraDocs/developer-guide/crud-generator.md)** - Covers customization, filters, permissions, and best practices.
+[Learn more CRUD generator documentation](https://laradashboard.com/docs/main/developer-guide/crud-generator)
 
 ### Installing Modules
 
@@ -1058,7 +1052,7 @@ unzip Blog-v1.0.0.zip -d modules/
 php artisan module:enable Blog
 ```
 
-**[📖 Full Module Development Guide](docs/module-development.md)** - Covers module structure, Tailwind CSS setup, building, packaging, and best practices.
+**[📖 Full Module Development Guide](https://laradashboard.com/docs/main/developer-guide/module-development)** - Covers module structure, Tailwind CSS setup, building, packaging, and best practices.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
