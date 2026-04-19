@@ -52,49 +52,59 @@ require __DIR__.'/install.php';
  */
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'verified']], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('roles', RoleController::class);
-    Route::delete('roles/delete/bulk-delete', [RoleController::class, 'bulkDelete'])->name('roles.bulk-delete');
 
-    // Permissions Routes.
-    Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
-    Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('permissions.show');
+    Route::middleware('can:role.view')->group(function () {
+        Route::resource('roles', RoleController::class);
+        Route::delete('roles/delete/bulk-delete', [RoleController::class, 'bulkDelete'])->name('roles.bulk-delete');
 
-    // Menu Management Routes.
-    Route::group(['prefix' => 'menus', 'as' => 'menus.'], function () {
-        Route::get('/', [MenuController::class, 'index'])->name('index');
-        Route::get('/create', [MenuController::class, 'create'])->name('create');
-        Route::post('/', [MenuController::class, 'store'])->name('store');
-        Route::get('/{menu}/builder', [MenuController::class, 'builder'])->name('builder');
-        Route::put('/{menu}', [MenuController::class, 'update'])->name('update');
-        Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('destroy');
-        Route::post('/{menu}/duplicate', [MenuController::class, 'duplicate'])->name('duplicate');
-        // Menu Items AJAX Routes
-        Route::post('/{menu}/items', [MenuController::class, 'addItem'])->name('items.store');
-        Route::put('/{menu}/items/{item}', [MenuController::class, 'updateItem'])->name('items.update');
-        Route::delete('/{menu}/items/{item}', [MenuController::class, 'deleteItem'])->name('items.destroy');
-        Route::post('/{menu}/items/reorder', [MenuController::class, 'reorderItems'])->name('items.reorder');
+        // Permissions Routes.
+        Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
+        Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('permissions.show');
     });
 
-    // Modules Routes.
-    Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
-    Route::get('/modules/upload', [ModuleController::class, 'upload'])->name('modules.upload');
-    Route::get('/modules/{module}', [ModuleController::class, 'show'])->name('modules.show');
-    Route::post('/modules/toggle-status/{module}', [ModuleController::class, 'toggleStatus'])->name('modules.toggle-status');
-    Route::post('/modules/run-migrations/{module}', [ModuleController::class, 'runMigrations'])->name('modules.run-migrations');
-    Route::post('/modules/bulk-activate', [ModuleController::class, 'bulkActivate'])->name('modules.bulk-activate');
-    Route::post('/modules/bulk-deactivate', [ModuleController::class, 'bulkDeactivate'])->name('modules.bulk-deactivate');
-    Route::post('/modules/store', [ModuleController::class, 'store'])->name('modules.store');
-    Route::post('/modules/upload-ajax', [ModuleController::class, 'uploadAjax'])->name('modules.upload-ajax');
-    Route::post('/modules/replace', [ModuleController::class, 'replaceModule'])->name('modules.replace');
-    Route::post('/modules/cancel-replacement', [ModuleController::class, 'cancelReplacement'])->name('modules.cancel-replacement');
-    Route::delete('/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.delete');
+    // Menu Management Routes — `settings.edit` covers menu / theme /
+    // module-level platform configuration.
+    Route::middleware('can:settings.edit')->group(function () {
+        Route::group(['prefix' => 'menus', 'as' => 'menus.'], function () {
+            Route::get('/', [MenuController::class, 'index'])->name('index');
+            Route::get('/create', [MenuController::class, 'create'])->name('create');
+            Route::post('/', [MenuController::class, 'store'])->name('store');
+            Route::get('/{menu}/builder', [MenuController::class, 'builder'])->name('builder');
+            Route::put('/{menu}', [MenuController::class, 'update'])->name('update');
+            Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('destroy');
+            Route::post('/{menu}/duplicate', [MenuController::class, 'duplicate'])->name('duplicate');
+            // Menu Items AJAX Routes
+            Route::post('/{menu}/items', [MenuController::class, 'addItem'])->name('items.store');
+            Route::put('/{menu}/items/{item}', [MenuController::class, 'updateItem'])->name('items.update');
+            Route::delete('/{menu}/items/{item}', [MenuController::class, 'deleteItem'])->name('items.destroy');
+            Route::post('/{menu}/items/reorder', [MenuController::class, 'reorderItems'])->name('items.reorder');
+        });
 
-    // Theme Routes.
-    Route::get('/theme/{tab?}', [ThemeController::class, 'index'])->name('theme.index');
-    Route::post('/theme', [ThemeController::class, 'store'])->name('theme.store');
-    Route::post('/theme/activate', [ThemeController::class, 'activate'])->name('theme.activate');
+        // Theme Routes.
+        Route::get('/theme/{tab?}', [ThemeController::class, 'index'])->name('theme.index');
+        Route::post('/theme', [ThemeController::class, 'store'])->name('theme.store');
+        Route::post('/theme/activate', [ThemeController::class, 'activate'])->name('theme.activate');
+    });
 
-    Route::group(['prefix' => 'settings'], function () {
+    // Module management — gated by `module.view` (read) / `settings.edit`
+    // (write). One gate on the block for simplicity; controllers still
+    // re-authorize individual write actions.
+    Route::middleware('can:module.view')->group(function () {
+        Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
+        Route::get('/modules/upload', [ModuleController::class, 'upload'])->name('modules.upload');
+        Route::get('/modules/{module}', [ModuleController::class, 'show'])->name('modules.show');
+        Route::post('/modules/toggle-status/{module}', [ModuleController::class, 'toggleStatus'])->name('modules.toggle-status');
+        Route::post('/modules/run-migrations/{module}', [ModuleController::class, 'runMigrations'])->name('modules.run-migrations');
+        Route::post('/modules/bulk-activate', [ModuleController::class, 'bulkActivate'])->name('modules.bulk-activate');
+        Route::post('/modules/bulk-deactivate', [ModuleController::class, 'bulkDeactivate'])->name('modules.bulk-deactivate');
+        Route::post('/modules/store', [ModuleController::class, 'store'])->name('modules.store');
+        Route::post('/modules/upload-ajax', [ModuleController::class, 'uploadAjax'])->name('modules.upload-ajax');
+        Route::post('/modules/replace', [ModuleController::class, 'replaceModule'])->name('modules.replace');
+        Route::post('/modules/cancel-replacement', [ModuleController::class, 'cancelReplacement'])->name('modules.cancel-replacement');
+        Route::delete('/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.delete');
+    });
+
+    Route::group(['prefix' => 'settings', 'middleware' => 'can:settings.edit'], function () {
         // Settings Routes.
         Route::get('/', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/', [SettingController::class, 'store'])->name('settings.store');
@@ -132,8 +142,35 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
             Route::post('{inbound_email_connection}/process-now', [InboundEmailConnectionController::class, 'processNow'])->name('process-now');
         });
 
-        // Email Templates Management Routes.
-        Route::group(['prefix' => 'email-templates', 'as' => 'email-templates.'], function () {
+        // (Email Templates — extracted below so they use the narrower
+        // `email_template.view` permission instead of `settings.edit`.)
+
+        // Notifications Management Routes.
+        Route::resource('notifications', NotificationController::class);
+
+        // Core Upgrades Routes.
+        Route::prefix('core-upgrades')->as('core-upgrades.')->group(function () {
+            Route::get('/', [CoreUpgradeController::class, 'index'])->name('index');
+            Route::post('/check', [CoreUpgradeController::class, 'checkUpdates'])->name('check');
+            Route::post('/upgrade', [CoreUpgradeController::class, 'upgrade'])->name('upgrade');
+            Route::post('/upload', [CoreUpgradeController::class, 'uploadUpgrade'])->name('upload');
+            Route::post('/backup', [CoreUpgradeController::class, 'createBackup'])->name('backup');
+            Route::get('/download/{filename}', [CoreUpgradeController::class, 'downloadBackup'])->name('download');
+            Route::post('/restore', [CoreUpgradeController::class, 'restore'])->name('restore');
+            Route::post('/delete-backup', [CoreUpgradeController::class, 'deleteBackup'])->name('delete-backup');
+            Route::get('/update-status', [CoreUpgradeController::class, 'getUpdateStatus'])->name('update-status');
+        });
+    });
+
+    // Email Templates Management Routes — gated by `email_template.view`
+    // (view actions) / `email_template.create` / `email_template.edit` /
+    // `email_template.delete` via EmailTemplatePolicy. Lives outside the
+    // `settings.edit` group so an org-level role (e.g. "Organization
+    // Owner") can manage templates without also reaching /admin/settings.
+    Route::middleware('can:email_template.view')
+        ->prefix('settings/email-templates')
+        ->as('email-templates.')
+        ->group(function () {
             // List and view routes.
             Route::get('/', [EmailTemplateController::class, 'index'])->name('index');
             Route::get('{email_template}', [EmailTemplateController::class, 'show'])->name('show')->where('email_template', '[0-9]+');
@@ -156,39 +193,35 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
             Route::post('upload-video', [EmailTemplateController::class, 'uploadVideo'])->name('upload-video');
         });
 
-        // Notifications Management Routes.
-        Route::resource('notifications', NotificationController::class);
-
-        // Core Upgrades Routes.
-        Route::prefix('core-upgrades')->as('core-upgrades.')->group(function () {
-            Route::get('/', [CoreUpgradeController::class, 'index'])->name('index');
-            Route::post('/check', [CoreUpgradeController::class, 'checkUpdates'])->name('check');
-            Route::post('/upgrade', [CoreUpgradeController::class, 'upgrade'])->name('upgrade');
-            Route::post('/upload', [CoreUpgradeController::class, 'uploadUpgrade'])->name('upload');
-            Route::post('/backup', [CoreUpgradeController::class, 'createBackup'])->name('backup');
-            Route::get('/download/{filename}', [CoreUpgradeController::class, 'downloadBackup'])->name('download');
-            Route::post('/restore', [CoreUpgradeController::class, 'restore'])->name('restore');
-            Route::post('/delete-backup', [CoreUpgradeController::class, 'deleteBackup'])->name('delete-backup');
-            Route::get('/update-status', [CoreUpgradeController::class, 'getUpdateStatus'])->name('update-status');
-        });
-    });
-
-    // Translation Routes.
-    Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');
-    Route::post('/translations', [TranslationController::class, 'update'])->name('translations.update');
-    Route::post('/translations/save-chunk', [TranslationController::class, 'saveChunk'])->name('translations.save-chunk');
-    Route::post('/translations/create', [TranslationController::class, 'create'])->name('translations.create');
-
-    // Login as & Switch back.
-    Route::resource('users', UserController::class);
-    Route::delete('users/delete/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
-    Route::post('users/{id}/send-login-link', [UserController::class, 'sendLoginLink'])->name('users.send-login-link');
-    Route::get('users/{id}/login-as', [UserLoginAsController::class, 'loginAs'])->name('users.login-as');
+    // Switch-back must remain accessible to the impersonated user so
+    // they can exit an impersonation session (they may not hold the
+    // `user.login_as` permission themselves — only the impersonator does).
     Route::post('users/switch-back', [UserLoginAsController::class, 'switchBack'])->name('users.switch-back');
 
-    // Action Log Routes.
-    Route::get('/action-log', [ActionLogController::class, 'index'])->name('actionlog.index');
-    Route::delete('/action-log/clean', [ActionLogController::class, 'clean'])->name('actionlog.clean');
+    // Translation Routes — gated by `translations.view`.
+    Route::middleware('can:translations.view')->group(function () {
+        Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');
+        Route::post('/translations', [TranslationController::class, 'update'])->name('translations.update');
+        Route::post('/translations/save-chunk', [TranslationController::class, 'saveChunk'])->name('translations.save-chunk');
+        Route::post('/translations/create', [TranslationController::class, 'create'])->name('translations.create');
+    });
+
+    // User management — gated by `user.view` (index/show) and
+    // `user.login_as` for impersonation entry.
+    Route::middleware('can:user.view')->group(function () {
+        Route::resource('users', UserController::class);
+        Route::delete('users/delete/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
+        Route::post('users/{id}/send-login-link', [UserController::class, 'sendLoginLink'])->name('users.send-login-link');
+    });
+    Route::middleware('can:user.login_as')->group(function () {
+        Route::get('users/{id}/login-as', [UserLoginAsController::class, 'loginAs'])->name('users.login-as');
+    });
+
+    // Action Log Routes — gated by `settings.view` (platform audit trail).
+    Route::middleware('can:settings.view')->group(function () {
+        Route::get('/action-log', [ActionLogController::class, 'index'])->name('actionlog.index');
+        Route::delete('/action-log/clean', [ActionLogController::class, 'clean'])->name('actionlog.clean');
+    });
 
     // Posts/Pages Routes - Dynamic post types.
     Route::get('/posts/{postType?}', [PostController::class, 'index'])->name('posts.index');

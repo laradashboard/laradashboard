@@ -48,6 +48,15 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->runInBackground()
             ->appendOutputTo(storage_path('logs/inbound-email.log'));
+
+        // Process queued jobs (workflow actions, emails, etc.).
+        // Runs every minute, processes up to 50 jobs per batch, stops after 55 seconds
+        // to avoid overlapping with the next scheduled run.
+        $schedule->command('queue:work --stop-when-empty --max-jobs=50 --max-time=55')
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->appendOutputTo(storage_path('logs/queue-worker.log'));
     }
 
     /**

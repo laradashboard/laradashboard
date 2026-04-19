@@ -266,6 +266,10 @@ document.addEventListener('livewire:init', function () {
 
 # Project Coding Conventions
 
+## Core / Module Boundary (STRICT — do not break)
+
+**The core codebase (`app/`, `resources/`, `routes/`, `config/`, `database/`, `tests/`) must never reference, import, or embed knowledge from any module.** Modules may depend on core. Core may not depend on any module. If a piece of code needs to know about a module's models, roles, permissions, columns, routes, or concepts, that code belongs inside the module — full stop.
+
 ## Architecture: No Logic in Route Closures
 
 **Never put business logic inside `web.php` or `api.php` route closures.** All logic belongs in dedicated controllers.

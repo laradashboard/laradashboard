@@ -6,10 +6,9 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Email\StoreDuplicateEmailRequest;
-use App\Models\Setting;
-use Illuminate\Http\RedirectResponse;
-use App\Services\Emails\EmailTemplateService;
 use App\Models\EmailTemplate;
+use App\Services\Emails\EmailTemplateService;
+use Illuminate\Http\RedirectResponse;
 
 class DuplicateEmailTemplateController extends Controller
 {
@@ -20,7 +19,7 @@ class DuplicateEmailTemplateController extends Controller
 
     public function store(EmailTemplate $emailTemplate, StoreDuplicateEmailRequest $request): RedirectResponse
     {
-        $this->authorize('manage', Setting::class);
+        $this->authorize('create', EmailTemplate::class);
 
         try {
             $newTemplate = $this->emailTemplateService->duplicateTemplate(

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\ActionLog;
+use App\Models\EmailTemplate;
 use App\Models\Media;
 use App\Models\Menu;
 use App\Models\Module;
@@ -11,6 +12,7 @@ use App\Models\Setting;
 use App\Models\Term;
 use App\Models\User;
 use App\Policies\ActionLogPolicy;
+use App\Policies\EmailTemplatePolicy;
 use App\Policies\MediaPolicy;
 use App\Policies\MenuPolicy;
 use App\Policies\ModulePolicy;
@@ -40,6 +42,7 @@ class AuthServiceProvider extends ServiceProvider
         Media::class => MediaPolicy::class,
         Menu::class => MenuPolicy::class,
         Setting::class => SettingPolicy::class,
+        EmailTemplate::class => EmailTemplatePolicy::class,
         Module::class => ModulePolicy::class,
         ActionLog::class => ActionLogPolicy::class,
     ];
