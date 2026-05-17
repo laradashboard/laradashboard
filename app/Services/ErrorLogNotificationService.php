@@ -108,15 +108,11 @@ class ErrorLogNotificationService
     /**
      * Stream the log file, group ERROR-class entries by content hash.
      *
-     * @return Collection<string, array{
-     *     level: string,
-     *     message: string,
-     *     file: ?string,
-     *     line: ?int,
-     *     count: int,
-     *     first_seen_at: CarbonImmutable,
-     *     last_seen_at: CarbonImmutable,
-     * }>
+     * Each value is an array with keys: level, message, file, line, count,
+     * first_seen_at, last_seen_at. Not expressed as a typed shape because
+     * static analysis can't carry it through the `collect()` boundary.
+     *
+     * @return Collection<string, array<string, mixed>>
      */
     private function parseEntries(string $path, ?CarbonImmutable $cutoff): Collection
     {
