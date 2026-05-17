@@ -1,7 +1,13 @@
-@props(['enableLivewire' => false, 'placeholder' => null])
+@props(['enableLivewire' => false, 'placeholder' => null, 'widthClass' => null])
+
+@php
+    $widthClass = $widthClass ?: ($enableLivewire
+        ? 'min-w-full md:min-w-[280px]'
+        : 'min-w-full md:min-w-80 lg:min-w-96 xl:min-w-130 2xl:min-w-150');
+@endphp
 
 @if($enableLivewire ?? false)
-    <div class="relative flex items-center justify-center min-w-full md:min-w-[280px]"
+    <div class="relative flex items-center justify-center {{ $widthClass }}"
         wire:ignore.self
         x-data="{
             searchValue: $wire.search || '',
@@ -87,7 +93,7 @@
             @endif
         @endforeach
 
-        <div class="relative flex items-center justify-center min-w-full md:min-w-80 lg:min-w-96 xl:min-w-130 2xl:min-w-150">
+        <div class="relative flex items-center justify-center {{ $widthClass }}">
             <span class="pointer-events-none absolute left-4 flex">
                 <iconify-icon icon="lucide:search" class="text-gray-500 dark:text-gray-400" width="20" height="20"></iconify-icon>
             </span>
