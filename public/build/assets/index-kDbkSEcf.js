@@ -581,4 +581,4 @@ Feature three`,rows:3,style:{marginBottom:"10px"}}),n.jsx("label",{style:m,child
             .lb-image-wrapper { margin: 0 0 16px 0; }
             .lb-button:hover { opacity: 0.9; }
             .lb-columns { margin: 0 0 16px 0; }
-        `}}fo.register("email",new Xf);fo.register("page",new ZN);fo.register("campaign",new Xf);export{Ea as L,ON as P,t4 as R,c as _,n4 as a,e4 as b,r4 as c,l4 as d,Ze as e,v as f,Dm as i,n as j,al as m,o4 as r};
+        `}}fo.register("email",new Xf);fo.register("page",new ZN);fo.register("campaign",new Xf);export{l4 as L,ON as P,t4 as R,c as _,Ea as a,n4 as b,e4 as c,Ze as d,r4 as e,o4 as f,Dm as i,n as j,al as m,v as r};
