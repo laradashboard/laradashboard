@@ -256,7 +256,17 @@ class ModuleZipCommand extends Command
     {
         $configPath = "modules/{$moduleName}/vite.config.js";
 
-        $command = ['npx', 'vite', 'build', '--config', $configPath];
+        // Prefer the module's local vite binary directly. `npx vite` hangs
+        // under Symfony Process because npx prompts for confirmation when
+        // there is no TTY ("Need to install the following packages…"), which
+        // never receives an answer and times out at 300s.
+        $localVite = "{$modulePath}/node_modules/.bin/vite";
+        if (is_executable($localVite)) {
+            $command = [$localVite, 'build', '--config', $configPath];
+        } else {
+            // `--yes` skips the npx install prompt that would otherwise hang.
+            $command = ['npx', '--yes', 'vite', 'build', '--config', $configPath];
+        }
 
         if (! $this->option('no-minify')) {
             $command[] = '--minify';
@@ -265,14 +275,24 @@ class ModuleZipCommand extends Command
         $process = new Process($command, base_path());
         $process->setTimeout(300);
 
-        // Set environment variable for dist build
+        // Set environment variable for dist build. Merge with the parent
+        // environment so PATH and other shell-resolved tools still work.
         $env = $process->getEnv();
         $env['MODULE_DIST_BUILD'] = 'true';
+        // Ensure non-interactive npm/npx commands never prompt.
+        $env['CI'] = $env['CI'] ?? '1';
         $process->setEnv($env);
 
-        $process->run(function ($type, $buffer) {
-            // Suppress output for cleaner display
+        $stderr = '';
+        $process->run(function ($type, $buffer) use (&$stderr) {
+            if ($type === Process::ERR) {
+                $stderr .= $buffer;
+            }
         });
+
+        if (! $process->isSuccessful() && $stderr !== '') {
+            $this->line('  ' . trim($stderr));
+        }
 
         return $process->isSuccessful();
     }

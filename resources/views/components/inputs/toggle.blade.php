@@ -55,7 +55,7 @@
             @if($disabled) disabled @endif
             {{ $attributes->class(['sr-only peer']) }}
         >
-        <div class="relative {{ $sizeConfig['track'] }} bg-gray-200 dark:bg-gray-700 rounded-full peer {{ $sizeConfig['translate'] }} rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full {{ $sizeConfig['thumb'] }} after:transition-all peer-checked:bg-primary peer-focus:ring-2 peer-focus:ring-primary/20"></div>
+        <div class="relative shrink-0 {{ $sizeConfig['track'] }} bg-gray-200 dark:bg-gray-700 rounded-full peer {{ $sizeConfig['translate'] }} rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full {{ $sizeConfig['thumb'] }} after:transition-all peer-checked:bg-primary peer-focus:ring-2 peer-focus:ring-primary/20"></div>
 
         {{-- Label on right (inline with toggle) --}}
         @if($label && $labelPosition === 'right')

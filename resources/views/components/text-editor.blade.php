@@ -330,21 +330,17 @@
             }
         });
 
-        // Clean up on page unload
-        window.addEventListener('beforeunload', function() {
-            const editor = window['tinymce-' + editorId];
-            if (editor) {
-                tinymce.remove(editor);
-            }
-        });
-
-        // Update textarea before form submission
+        // Update textarea before form submission.
+        // Do NOT call tinymce.remove() here or in a beforeunload handler — removing the editor
+        // restores the original textarea visibility, which briefly exposes the raw HTML content
+        // (e.g. "<p>...</p>") during page navigation.
         const form = textareaElement.closest('form');
         if (form) {
             form.addEventListener('submit', function() {
                 const editor = window['tinymce-' + editorId];
                 if (editor) {
                     textareaElement.value = editor.getContent();
+                    textareaElement.style.display = 'none';
                 }
             });
         }

@@ -96,7 +96,12 @@ Built for Laravel developers who want to ship admin dashboards, SaaS apps, CRMs 
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.1.3](https://github.com/laradashboard/laradashboard/releases/tag/v1.1.3) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.1.4](https://github.com/laradashboard/laradashboard/releases/tag/v1.1.4) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.1.4] — 2026-05-18**
+-   **New:** Daily error digest email notifications for admins with error details.
+-   **Improve:** Improved module generator command to support custom stub templates and better error handling.
+-   **Fix:** Fixed switch toggle component styling.
 
 **[v1.1.3] — 2026-05-04**
 -   **Improve:** Improved file upload component with close button and better error handling.
@@ -113,13 +118,6 @@ Built for Laravel developers who want to ship admin dashboards, SaaS apps, CRMs 
 -   **Improve:** Sidebar submenu supports deeper (3rd and 4th level) nesting with proper indentation.
 -   **Improve:** Sidebar submenu expands without an inner scrollbar; the sidebar wrapper handles overflow when nav is long.
 -   **Fix:** Cleaned up user dropdown styling in the admin header.
-
-**[v1.1.0] — 2026-04-05**
--   **Feat:** Account-created notification — admin-created users receive an email with login link and password-set URL.
--   **Feat:** Quick-add dropdown in admin header with hook support (`filter.quick_add_dropdown`).
--   **Feat:** Admin menu badge support (`setBadge()` / `setBadgeClass()` on `AdminMenuItem`).
--   **Feat:** Email connection toggle (activate/deactivate), status filter and setting-image removal via AJAX.
--   **Improve:** Demo-mode restrictions on core upgrade, backup, and restore operations.
 
 👉 **[See the full changelog for all versions (v0.9.x – v2.x) →](CHANGELOG.md)**
 

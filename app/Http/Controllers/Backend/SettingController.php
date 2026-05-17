@@ -76,8 +76,18 @@ class SettingController extends Controller
 
         $uploadPath = 'uploads/settings';
 
+        // If the error-notifications recipient is left blank, default it to the
+        // currently logged-in admin so the scheduled digest knows where to send.
+        if (
+            array_key_exists('error_notifications_email', $fields)
+            && trim((string) $fields['error_notifications_email']) === ''
+            && ($currentEmail = $request->user()?->email)
+        ) {
+            $fields['error_notifications_email'] = $currentEmail;
+        }
+
         // Handle checkbox fields that might not be present when unchecked
-        $checkboxFields = ['hide_admin_url', 'hide_default_login_url'];
+        $checkboxFields = ['hide_admin_url', 'hide_default_login_url', 'error_notifications_enabled'];
         foreach ($checkboxFields as $checkboxField) {
             // Skip restricted fields in demo mode
             if (config('app.demo_mode', false) && in_array($checkboxField, $restrictedFields ?? [])) {
