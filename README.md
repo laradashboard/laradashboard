@@ -96,7 +96,10 @@ Built for Laravel developers who want to ship admin dashboards, SaaS apps, CRMs 
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.1.4](https://github.com/laradashboard/laradashboard/releases/tag/v1.1.4) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.1.5](https://github.com/laradashboard/laradashboard/releases/tag/v1.1.5) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.1.5] — 2026-05-18**
+-   **Fix:** Migration is now idempotent — safe to re-run on databases that half-applied the v1.1.4 release.
 
 **[v1.1.4] — 2026-05-18**
 -   **New:** Daily error digest email notifications for admins with error details.
