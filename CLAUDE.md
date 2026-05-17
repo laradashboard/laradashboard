@@ -324,8 +324,17 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 - Blade views: `snake_case.blade.php` files inside `kebab-case/` directories.
 - Models: singular PascalCase, e.g. `Module`, `MenuItem`.
 
+## Migrations (upgrade-safe)
+
+**Migrations must never reference application classes added in the same release.** Core upgrades run `artisan migrate` inside the same PHP-FPM request that loaded the *old* classes. PHP cannot reload a class already in memory, so a brand-new constant on `App\Models\Setting` (or any new method/enum case) will throw `Undefined constant` mid-migration.
+
+- Use literal strings, not `Model::SOME_CONSTANT`, for option names / keys.
+- Use `DB::table('settings')->updateOrInsert(...)` instead of `Setting::updateOrCreate(...)` for seeding inside migrations — this also avoids firing model observers during an upgrade.
+- Guard `Schema::create` with `Schema::hasTable(...)` so a half-applied migration (table created, seed step threw) is safe to re-run.
+- Reference: `database/migrations/2026_05_17_125543_create_error_notification_logs_table.php`.
+
 ## Release Management
-- Updates in the README.md file Changelog section.
-- Update the version `version.json`, `package.json` when making a new release.
-- After then run php `artisan core:zip` to create a new zip file for the release.
+- Update the changelog section in **both** `CHANGELOG.md` (canonical) and `README.md` (summary). Keep the "Latest release" link at the top of each in sync.
+- Update the version in `version.json` and `package.json` when making a new release.
+- After then run `php artisan core:zip` to create a new zip file for the release.
 - Tag the release in Git with the version number like `v1.0.0` and push the tag to GitHub.
