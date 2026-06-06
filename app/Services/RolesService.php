@@ -8,6 +8,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Spatie\Permission\Models\Permission;
 use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class RolesService
 {
@@ -22,7 +23,13 @@ class RolesService
 
     public function getRolesDropdown(): array
     {
-        return Role::pluck('name', 'name')->toArray();
+        $query = Role::query();
+
+        if (! Auth::user()?->hasRole('Superadmin')) {
+            $query->where('name', '!=', 'Superadmin');
+        }
+
+        return $query->pluck('name', 'name')->toArray();
     }
 
     public function getPaginatedRoles(?string $search = null, int $perPage = 10): LengthAwarePaginator
@@ -265,7 +272,7 @@ class RolesService
         $roleName = strtolower($roleName);
 
         switch ($roleName) {
-            case 'Superadmin':
+            case 'superadmin':
                 // All permissions.
                 $allPermissionNames = [];
                 foreach ($this->permissionService->getAllPermissions() as $group) {
@@ -276,7 +283,7 @@ class RolesService
 
                 return $allPermissionNames;
 
-            case 'Admin':
+            case 'admin':
                 // All except some critical permissions.
                 $adminExcludedPermissions = [
                     'user.delete',
@@ -290,7 +297,7 @@ class RolesService
 
                 return array_diff($allPermissionNames, $adminExcludedPermissions);
 
-            case 'Editor':
+            case 'editor':
                 return [
                     'dashboard.view',
                     'blog.create',
@@ -308,8 +315,8 @@ class RolesService
                     'term.create',
                 ];
 
-            case 'Subscriber':
-            case 'Contact':
+            case 'subscriber':
+            case 'contact':
                 return [
                     'dashboard.view',
                     'profile.view',
