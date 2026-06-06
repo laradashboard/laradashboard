@@ -17,8 +17,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Authorization is handled by the controller using policies
-        return true;
+        return auth()->user()?->can('update', User::find(request()->route('user'))) ?? false;
     }
 
     /**
