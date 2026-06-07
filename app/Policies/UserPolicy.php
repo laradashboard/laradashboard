@@ -105,7 +105,30 @@ class UserPolicy extends BasePolicy
      */
     public function loginAs(User $user, User $model): bool
     {
-        return $this->checkPermission($user, 'user.login_as');
+        // User cannot impersonate themselves.
+        if ($user->id === $model->id) {
+            return false;
+        }
+
+        // Must have impersonation permission.
+        if (! $this->checkPermission($user, 'user.login_as')) {
+            return false;
+        }
+
+        $userIsSuperadmin = $user->hasRole('Superadmin');
+        $targetIsSuperadmin = $model->hasRole('Superadmin');
+
+        // Non-Superadmin users cannot impersonate Superadmin.
+        if ($targetIsSuperadmin && ! $userIsSuperadmin) {
+            return false;
+        }
+
+        // Superadmin can impersonate anybody
+        if ($userIsSuperadmin) {
+            return true;
+        }
+
+        return true;
     }
 
     /**
