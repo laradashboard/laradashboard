@@ -269,10 +269,9 @@ class RolesService
      */
     public function getPredefinedRolePermissions(string $roleName): array
     {
-        $roleName = strtolower($roleName);
 
         switch ($roleName) {
-            case 'superadmin':
+            case 'Superadmin':
                 // All permissions.
                 $allPermissionNames = [];
                 foreach ($this->permissionService->getAllPermissions() as $group) {
@@ -283,7 +282,7 @@ class RolesService
 
                 return $allPermissionNames;
 
-            case 'admin':
+            case 'Admin':
                 // All except some critical permissions.
                 $adminExcludedPermissions = [
                     'user.delete',
@@ -297,7 +296,7 @@ class RolesService
 
                 return array_diff($allPermissionNames, $adminExcludedPermissions);
 
-            case 'editor':
+            case 'Editor':
                 return [
                     'dashboard.view',
                     'blog.create',
@@ -315,8 +314,8 @@ class RolesService
                     'term.create',
                 ];
 
-            case 'subscriber':
-            case 'contact':
+            case 'Subscriber':
+            case 'Contact':
                 return [
                     'dashboard.view',
                     'profile.view',
