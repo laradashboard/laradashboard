@@ -74,6 +74,7 @@
         "lodash": ">=4.18.0",
         "yauzl": ">=3.2.1",
         "brace-expansion": ">=1.1.13",
-        "postcss": ">=8.5.10"
+        "postcss": ">=8.5.10",
+        "js-yaml": ">=4.2.0"
     }
 }
