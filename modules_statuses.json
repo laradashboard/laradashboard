@@ -1,6 +1,6 @@
 {
     "crm": true,
-    "DocForge": true,
-    "Starter26": true,
+    "DocForge": false,
+    "Starter26": false,
     "customform": true
 }

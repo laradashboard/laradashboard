@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Support\Facades\Hook;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use InvalidArgumentException;
 
 class UserService
@@ -31,6 +33,29 @@ class UserService
         $this->syncUserRoles($user, $data);
 
         return $user;
+    }
+
+    private function ensureCanManageRoles(User $targetUser, array $roles): void
+    {
+        $authUser = Auth::user();
+
+        if (! $authUser) {
+            abort(403);
+        }
+
+        $isSuperadmin = $authUser->hasRole(Role::SUPERADMIN);
+
+        // Prevent non-superadmin from modifying an existing superadmin user.
+        if ($targetUser->hasRole(Role::SUPERADMIN) && ! $isSuperadmin) {
+            abort(403, __('You are not allowed to modify a Superadmin user.'));
+        }
+
+        // Prevent non-superadmin from assigning the Superadmin role.
+        $requestedRoles = collect($roles)->filter()->values();
+
+        if ($requestedRoles->contains(Role::SUPERADMIN) && ! $isSuperadmin) {
+            abort(403, __('You are not allowed to assign the Superadmin role.'));
+        }
     }
 
     public function pluck(string ...$columns): Collection
@@ -157,6 +182,7 @@ class UserService
     private function syncUserRoles(User $user, array $data): void
     {
         if (isset($data['roles'])) {
+            $this->ensureCanManageRoles($user, $data['roles']);
             $user->syncRoles($data['roles']);
         }
     }
@@ -209,6 +235,8 @@ class UserService
 
         $filteredRoles = array_filter($roles);
 
+        $this->ensureCanManageRoles($user, $filteredRoles);
+
         if (! empty($filteredRoles)) {
             $user->syncRoles($filteredRoles);
         }
@@ -216,6 +244,8 @@ class UserService
 
     private function updateUserRoles(User $user, array $roles): void
     {
+        $this->ensureCanManageRoles($user, $roles);
+
         $user->roles()->detach();
         $this->assignUserRoles($user, $roles);
     }
@@ -288,7 +318,7 @@ class UserService
         $deletedCount = 0;
 
         foreach ($users as $user) {
-            if ($user->hasRole('superadmin')) {
+            if ($user->hasRole(Role::SUPERADMIN)) {
                 continue;
             }
             if ($currentUserId && $user->id == $currentUserId) {

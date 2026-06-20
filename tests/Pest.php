@@ -11,6 +11,9 @@
 |
 */
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\Security\InteractsWithSecurityUsers;
+
 pest()->extend(Tests\TestCase::class)
     ->in(
         'Feature',
@@ -18,6 +21,11 @@ pest()->extend(Tests\TestCase::class)
         'Unit',
         'Browser'
     );
+
+uses(
+    RefreshDatabase::class,
+    InteractsWithSecurityUsers::class,
+)->in('Feature/Security');
 
 /*
 |--------------------------------------------------------------------------

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Role;
 use App\Models\User;
 
 class UserPolicy extends BasePolicy
@@ -105,7 +106,30 @@ class UserPolicy extends BasePolicy
      */
     public function loginAs(User $user, User $model): bool
     {
-        return $this->checkPermission($user, 'user.login_as');
+        // User cannot impersonate themselves.
+        if ($user->id === $model->id) {
+            return false;
+        }
+
+        // Must have impersonation permission.
+        if (! $this->checkPermission($user, 'user.login_as')) {
+            return false;
+        }
+
+        $userIsSuperadmin = $user->hasRole(Role::SUPERADMIN);
+        $targetIsSuperadmin = $model->hasRole(Role::SUPERADMIN);
+
+        // Non-Superadmin users cannot impersonate Superadmin.
+        if ($targetIsSuperadmin && ! $userIsSuperadmin) {
+            return false;
+        }
+
+        // Superadmin can impersonate anybody
+        if ($userIsSuperadmin) {
+            return true;
+        }
+
+        return true;
     }
 
     /**
@@ -115,7 +139,7 @@ class UserPolicy extends BasePolicy
     {
         $isSuperAdmin = $model->email === 'superadmin@example.com' ||
             $model->username === 'Superadmin' ||
-            $model->hasRole('Superadmin');
+            $model->hasRole(Role::SUPERADMIN);
 
         if (config('app.demo_mode') && $isSuperAdmin) {
             return false;

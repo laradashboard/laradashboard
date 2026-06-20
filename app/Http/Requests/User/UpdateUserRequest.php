@@ -7,6 +7,9 @@ namespace App\Http\Requests\User;
 use App\Enums\Hooks\UserFilterHook;
 use App\Http\Requests\FormRequest;
 use App\Support\Facades\Hook;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -15,8 +18,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Authorization is handled by the controller using policies
-        return true;
+        return auth()->user()?->can('update', User::find(request()->route('user'))) ?? false;
     }
 
     /**
@@ -28,6 +30,15 @@ class UpdateUserRequest extends FormRequest
     {
         // Get user ID from the request parameters
         $userId = request()->route('user');
+
+        $targetUser = User::find($userId);
+
+        if (
+            $targetUser?->hasRole(Role::SUPERADMIN)
+            && ! auth()->user()?->hasRole(Role::SUPERADMIN)
+        ) {
+            abort(403, __('You are not allowed to modify a Superadmin user.'));
+        }
 
         return Hook::applyFilters(UserFilterHook::USER_UPDATE_VALIDATION_RULES, [
             /** @example "Jane" */
@@ -50,7 +61,18 @@ class UpdateUserRequest extends FormRequest
 
             /** @example [1, 2, 3] */
             'roles' => 'nullable|array',
-            'roles.*' => 'nullable|exists:roles,name',
+            'roles.*' => [
+                'nullable',
+                Rule::exists('roles', 'name'),
+                function ($attribute, $value, $fail) {
+                    if (
+                        $value === Role::SUPERADMIN
+                        && ! auth()->user()?->hasRole(Role::SUPERADMIN)
+                    ) {
+                        $fail(__('You are not allowed to assign the Superadmin role.'));
+                    }
+                },
+            ],
         ], $userId);
     }
 }
