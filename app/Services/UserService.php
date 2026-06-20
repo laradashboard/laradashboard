@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Support\Facades\Hook;
 use Illuminate\Support\Facades\Hash;
@@ -42,20 +43,18 @@ class UserService
             abort(403);
         }
 
-        $isSuperadmin = $authUser->hasRole('Superadmin');
+        $isSuperadmin = $authUser->hasRole(Role::SUPERADMIN);
 
         // Prevent non-superadmin from modifying an existing superadmin user.
-        if ($targetUser->hasRole('Superadmin') && ! $isSuperadmin) {
+        if ($targetUser->hasRole(Role::SUPERADMIN) && ! $isSuperadmin) {
             abort(403, __('You are not allowed to modify a Superadmin user.'));
         }
 
-        // Prevent non-superadmin from assigning superadmin role.
-        $requestedRoles = collect($roles)
-            ->filter()
-            ->map(fn ($role) => strtolower((string) $role));
+        // Prevent non-superadmin from assigning the Superadmin role.
+        $requestedRoles = collect($roles)->filter()->values();
 
-        if ($requestedRoles->contains('Superadmin') && ! $isSuperadmin) {
-            abort(403, __('You are not allowed to assign Superadmin role.'));
+        if ($requestedRoles->contains(Role::SUPERADMIN) && ! $isSuperadmin) {
+            abort(403, __('You are not allowed to assign the Superadmin role.'));
         }
     }
 
@@ -319,7 +318,7 @@ class UserService
         $deletedCount = 0;
 
         foreach ($users as $user) {
-            if ($user->hasRole('Superadmin')) {
+            if ($user->hasRole(Role::SUPERADMIN)) {
                 continue;
             }
             if ($currentUserId && $user->id == $currentUserId) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -29,8 +30,8 @@ class UserLoginAsController extends Controller
         }
 
         if (
-            $targetUser->hasRole('Superadmin')
-            && ! $currentUser->hasRole('Superadmin')
+            $targetUser->hasRole(Role::SUPERADMIN)
+            && ! $currentUser->hasRole(Role::SUPERADMIN)
         ) {
             Log::warning('Blocked Superadmin impersonation attempt.', [
                 'actor_user_id' => $currentUser->id,

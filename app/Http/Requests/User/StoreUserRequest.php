@@ -6,6 +6,7 @@ namespace App\Http\Requests\User;
 
 use App\Enums\Hooks\UserFilterHook;
 use App\Http\Requests\FormRequest;
+use App\Models\Role;
 use App\Models\User;
 use App\Support\Facades\Hook;
 use Illuminate\Validation\Rule;
@@ -52,8 +53,8 @@ class StoreUserRequest extends FormRequest
                 Rule::exists('roles', 'name'),
                 function ($attribute, $value, $fail) {
                     if (
-                        strtolower((string) $value) === 'superadmin'
-                        && ! auth()->user()?->hasRole('Superadmin')
+                        $value === Role::SUPERADMIN
+                        && ! auth()->user()?->hasRole(Role::SUPERADMIN)
                     ) {
                         $fail(__('You are not allowed to assign the Superadmin role.'));
                     }
