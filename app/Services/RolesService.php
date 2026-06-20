@@ -8,6 +8,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Spatie\Permission\Models\Permission;
 use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class RolesService
 {
@@ -22,7 +23,13 @@ class RolesService
 
     public function getRolesDropdown(): array
     {
-        return Role::pluck('name', 'name')->toArray();
+        $query = Role::query();
+
+        if (! Auth::user()?->hasRole('Superadmin')) {
+            $query->where('name', '!=', 'Superadmin');
+        }
+
+        return $query->pluck('name', 'name')->toArray();
     }
 
     public function getPaginatedRoles(?string $search = null, int $perPage = 10): LengthAwarePaginator
@@ -262,7 +269,6 @@ class RolesService
      */
     public function getPredefinedRolePermissions(string $roleName): array
     {
-        $roleName = strtolower($roleName);
 
         switch ($roleName) {
             case 'Superadmin':
