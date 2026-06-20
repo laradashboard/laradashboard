@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -397,6 +398,12 @@ class ModuleService
      */
     public function uploadModule(Request $request): string
     {
+        Log::info('Module upload initiated.', [
+            'user_id' => Auth::id(),
+            'ip' => $request->ip(),
+            'filename' => $request->file('module')?->getClientOriginalName(),
+        ]);
+
         // First, clean up orphaned entries from module_statuses.json
         // This handles cases where module folders were manually deleted
         $this->cleanupOrphanedModuleStatuses();
@@ -773,7 +780,10 @@ class ModuleService
     public function toggleModule($moduleName, $enable = true, bool $skipMigrations = false): bool
     {
         $action = $enable ? 'enable' : 'disable';
-        Log::info("Attempting to {$action} module: {$moduleName}" . ($skipMigrations ? ' (skipping migrations)' : ''));
+        Log::info("Attempting to {$action} module: {$moduleName}" . ($skipMigrations ? ' (skipping migrations)' : ''), [
+            'user_id' => Auth::id(),
+            'ip' => request()->ip(),
+        ]);
 
         // Fire action hooks before enabling/disabling
         if ($enable) {
@@ -1457,39 +1467,31 @@ class ModuleService
 
         // Process logo_image
         $logoImage = $moduleJson['logo_image'] ?? null;
-        if ($logoImage && ! str_starts_with($logoImage, '/') && ! str_starts_with($logoImage, 'http')) {
-            // First check in marketplace-assets folder
-            $sourcePath = $marketplaceAssetsPath . '/' . $logoImage;
+        if ($logoImage) {
+            $sourcePath = $this->resolveSafeModuleAssetPath($modulePath, $logoImage);
 
-            // Fallback to module root for backwards compatibility
-            if (! File::exists($sourcePath)) {
-                $sourcePath = $modulePath . '/' . $logoImage;
-            }
-
-            if (File::exists($sourcePath)) {
+            if ($sourcePath !== null && $this->isAllowedModuleImageExtension($sourcePath)) {
                 File::ensureDirectoryExists($targetDir);
                 File::copy($sourcePath, $targetDir . '/' . basename($logoImage));
-                Log::info("Published logo for module {$moduleName}: {$logoImage}");
+                Log::info("Published logo for module {$moduleName}: " . basename($logoImage));
                 $published = true;
+            } elseif ($sourcePath === null) {
+                Log::warning("Rejected unsafe logo path for module {$moduleName}: {$logoImage}");
             }
         }
 
         // Process banner_image
         $bannerImage = $moduleJson['banner_image'] ?? null;
-        if ($bannerImage && ! str_starts_with($bannerImage, '/') && ! str_starts_with($bannerImage, 'http')) {
-            // First check in marketplace-assets folder
-            $sourcePath = $marketplaceAssetsPath . '/' . $bannerImage;
+        if ($bannerImage) {
+            $sourcePath = $this->resolveSafeModuleAssetPath($modulePath, $bannerImage);
 
-            // Fallback to module root for backwards compatibility
-            if (! File::exists($sourcePath)) {
-                $sourcePath = $modulePath . '/' . $bannerImage;
-            }
-
-            if (File::exists($sourcePath)) {
+            if ($sourcePath !== null && $this->isAllowedModuleImageExtension($sourcePath)) {
                 File::ensureDirectoryExists($targetDir);
                 File::copy($sourcePath, $targetDir . '/' . basename($bannerImage));
-                Log::info("Published banner for module {$moduleName}: {$bannerImage}");
+                Log::info("Published banner for module {$moduleName}: " . basename($bannerImage));
                 $published = true;
+            } elseif ($sourcePath === null) {
+                Log::warning("Rejected unsafe banner path for module {$moduleName}: {$bannerImage}");
             }
         }
 
@@ -1519,6 +1521,59 @@ class ModuleService
         }
 
         return $published;
+    }
+
+    /**
+     * Resolve a module asset path and ensure it stays within the module directory.
+     */
+    protected function resolveSafeModuleAssetPath(string $modulePath, string $relativePath): ?string
+    {
+        if (
+            str_starts_with($relativePath, '/')
+            || str_starts_with($relativePath, 'http://')
+            || str_starts_with($relativePath, 'https://')
+            || str_contains($relativePath, "\0")
+            || str_contains($relativePath, '..')
+        ) {
+            return null;
+        }
+
+        $moduleRealPath = realpath($modulePath);
+        if ($moduleRealPath === false) {
+            return null;
+        }
+
+        $candidatePaths = [
+            $modulePath . '/marketplace-assets/' . $relativePath,
+            $modulePath . '/' . $relativePath,
+        ];
+
+        foreach ($candidatePaths as $candidatePath) {
+            if (! File::exists($candidatePath)) {
+                continue;
+            }
+
+            $resolvedPath = realpath($candidatePath);
+            if ($resolvedPath === false) {
+                continue;
+            }
+
+            if (str_starts_with($resolvedPath, $moduleRealPath . DIRECTORY_SEPARATOR) || $resolvedPath === $moduleRealPath) {
+                return $resolvedPath;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Allow only common image extensions for published module assets.
+     */
+    protected function isAllowedModuleImageExtension(string $path): bool
+    {
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+        return in_array($extension, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'], true);
     }
 
     /**
