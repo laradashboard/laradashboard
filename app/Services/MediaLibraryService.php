@@ -362,9 +362,10 @@ class MediaLibraryService
             return true;
         }
 
-        $currentMedia = $model->getFirstMedia($collection);
+        $currentMedia = $model->getMedia($collection)->first();
 
-        return $currentMedia !== null && (int) $currentMedia->id === (int) $media->id;
+        return $currentMedia instanceof SpatieMedia
+            && (int) $currentMedia->id === (int) $media->id;
     }
 
     protected function isStandaloneMedia(SpatieMedia $media): bool
