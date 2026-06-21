@@ -885,7 +885,7 @@ function LaraBuilderInner({
                 const props = item.props || {};
                 for (const key of ["content", "text", "html"]) {
                     if (typeof props[key] === "string") {
-                        textLength += props[key].replace(/<[^>]*>/g, "").length;
+                        textLength += props[key].replace(/[<>]/g, "").length;
                     }
                 }
 
