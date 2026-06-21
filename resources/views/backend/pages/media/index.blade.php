@@ -16,6 +16,26 @@
                 this.uploadModalOpen = true;
             }
 
+            const autoSelectRaw = sessionStorage.getItem('mediaLibraryAutoSelect');
+            if (autoSelectRaw) {
+                sessionStorage.removeItem('mediaLibraryAutoSelect');
+
+                try {
+                    const uploadedIds = JSON.parse(autoSelectRaw).map(String);
+                    if (uploadedIds.length > 0) {
+                        this.selectedMedia = uploadedIds;
+
+                        this.$nextTick(() => {
+                            const lastId = uploadedIds[uploadedIds.length - 1];
+                            const target = document.querySelector(`[data-media-id="${lastId}"]`);
+                            target?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to restore uploaded media selection:', error);
+                }
+            }
+
             // Watch for modal close and remove ?new from URL
             this.$watch('uploadModalOpen', (value) => {
                 if (!value) {
@@ -262,6 +282,7 @@
                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                 @foreach ($media as $item)
                                     <div
+                                        data-media-id="{{ $item->id }}"
                                         class="relative group border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800">
                                         <div class="absolute top-2 left-2 z-10 transition-opacity duration-200"
                                             :class="selectedMedia.includes('{{ $item->id }}') ? 'opacity-100' : 'group-hover:opacity-100'">
@@ -445,7 +466,7 @@
                                 </thead>
                                 <tbody class="table-tbody">
                                     @foreach ($media as $item)
-                                        <tr class="table-tr">
+                                        <tr class="table-tr" data-media-id="{{ $item->id }}">
                                             <td class="table-td table-td-checkbox">
                                                 <input type="checkbox" value="{{ $item->id }}"
                                                     x-model="selectedMedia"

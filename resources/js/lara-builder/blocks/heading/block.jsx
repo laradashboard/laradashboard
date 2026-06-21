@@ -8,6 +8,7 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import { __ } from "@lara-builder/i18n";
 import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
+import { resolvePageTextColor } from "@lara-builder/tokens/contentTokens";
 import SlashCommandMenu from "../../components/SlashCommandMenu";
 import { useEditableContent } from "../../core/hooks/useEditableContent";
 import { pendingCursors } from "../../core/pendingCursors";
@@ -484,7 +485,6 @@ const HeadingBlock = ({
     // Base styles for the heading block
     const defaultStyle = {
         textAlign: props.align || "left",
-        color: props.color || "#333333",
         fontSize: props.fontSize || getDefaultFontSize(props.level),
         fontWeight: props.fontWeight || "bold",
         lineHeight: props.lineHeight || "1.3",
@@ -492,6 +492,14 @@ const HeadingBlock = ({
         padding: "8px",
         borderRadius: "4px",
     };
+
+    const resolvedColor = resolvePageTextColor(
+        props.color,
+        props.layoutStyles?.typography?.color
+    );
+    if (resolvedColor) {
+        defaultStyle.color = resolvedColor;
+    }
 
     // Apply layout styles (typography, background, spacing, border, shadow)
     const baseStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);

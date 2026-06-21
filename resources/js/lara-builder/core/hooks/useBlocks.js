@@ -10,6 +10,7 @@
 import { useCallback, useMemo } from 'react';
 import { useBuilder } from '../BuilderContext';
 import { blockRegistry } from '../../registry/BlockRegistry';
+import { pendingCursors } from '../pendingCursors';
 
 /**
  * Hook for block management operations
@@ -71,9 +72,19 @@ export function useBlocks() {
             const selectedIndex = blocks.findIndex((b) => b.id === selectedBlockId);
             const insertIndex = selectedIndex > -1 ? selectedIndex + 1 : blocks.length;
 
-            return addBlockByType(type, insertIndex, props);
+            const instance = addBlockByType(type, insertIndex, props);
+
+            if (instance) {
+                actions.selectBlock(instance.id);
+
+                if (["text", "heading"].includes(type)) {
+                    pendingCursors.set(instance.id, "start");
+                }
+            }
+
+            return instance;
         },
-        [blocks, selectedBlockId, addBlockByType]
+        [blocks, selectedBlockId, addBlockByType, actions]
     );
 
     /**

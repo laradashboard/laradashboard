@@ -207,6 +207,14 @@ function uploadFiles() {
     })
     .then(data => {
         if (data.success) {
+            const uploadedFileIds = Array.isArray(data.files)
+                ? data.files.map(file => file?.id).filter(id => id != null)
+                : [];
+
+            if (uploadedFileIds.length > 0) {
+                sessionStorage.setItem('mediaLibraryAutoSelect', JSON.stringify(uploadedFileIds));
+            }
+
             if (window.showToast) {
                 window.showToast('success', '{{ __('Success') }}', data.message);
             }

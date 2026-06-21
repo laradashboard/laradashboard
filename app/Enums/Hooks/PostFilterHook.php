@@ -35,6 +35,8 @@ enum PostFilterHook: string
     case POST_FORM_AFTER_SLUG = 'filter.post.form_after_slug';
     case POST_FORM_AFTER_CONTENT = 'filter.post.form_after_content';
     case POST_FORM_AFTER_EXCERPT = 'filter.post.form_after_excerpt';
+    case POST_BUILDER_SEO_META = 'filter.post.builder_seo_meta';
+    case POST_BUILDER_SEO_FIELDS = 'filter.post.builder_seo_fields';
     case POST_FORM_AFTER_STATUS = 'filter.post.form_after_status';
     case POST_FORM_AFTER_PUBLISH_DATE = 'filter.post.form_after_publish_date';
     case POST_FORM_AFTER_SUBMIT_BUTTONS = 'filter.post.form_after_submit_buttons';

@@ -2,9 +2,48 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.1.5](https://github.com/laradashboard/laradashboard/releases/tag/v1.1.5) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.2.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.0) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.2.0] — 2026-06-21
+
+### Lara Builder — SEO & content editing
+
+- **New:** SEO drawer in the post/page builder with live score, checklist, SERP preview, and per-field guidance (`SeoDrawer`, `seoAnalyzer.js`).
+- **New:** AI “Generate SEO” action for meta title, description, keywords, Open Graph fields, and schema type.
+- **New:** Advanced SEO meta persisted on posts (canonical, noindex/nofollow, schema type, OG title/description).
+- **New:** Debounced auto-save for draft/pending posts once a title exists.
+- **New:** Text ↔ heading block conversion in the properties sidebar (`BlockConvertSection`).
+- **New:** Unified content typography tokens with CSS variables — consistent near-black defaults, inherit-by-default text/heading/list blocks, section-level text color override, and variable-based dark mode (`ContentTokens`, `content-tokens.css`).
+- **Improve:** Builder header redesign — Publish / Save draft / Update actions, SEO score badge, AI content button, save status indicator.
+- **Improve:** Auto-focus title field when creating a new post/page (no longer steals focus via auto-selected first block).
+- **Improve:** AI Content modal — “Generate Content” moved to footer for clearer primary action.
+- **Improve:** Excerpt auto-regenerates from content when cleared on save.
+- **Improve:** Canvas/page settings in post properties panel (width, padding, layout styles).
+
+### Media library & featured images
+
+- **Fix:** Featured images no longer duplicate media files when reusing library items or sharing across posts.
+- **Fix:** Posts reference library media via `featured_media_id` meta instead of copying files; legacy Spatie attachments still supported.
+- **Fix:** Broken featured image URLs/thumbnails after save (legacy path + missing thumb conversion fallback).
+- **Fix:** Replacing a featured image no longer deletes the previous file from the library.
+- **Fix:** Post list admin thumbnails use resolved URLs with thumb → original fallback.
+- **Improve:** Media picker auto-selects uploaded files (single = that file; multiple = last uploaded + all checked in multi-select).
+- **Improve:** Media library index auto-selects uploaded items after reload; upload API returns normalized file payloads with URLs.
+- **Fix:** Media modal broken thumbnails/truncated URLs in Select Media dialog.
+
+### Save / publish UX
+
+- **Fix:** Publish no longer leaves form in false “Unsaved” state or triggers leave-page reload warnings (status baseline + in-place URL update for new posts).
+
+### Frontend SEO
+
+- **Improve:** `seo-head` component and `SeoHelper` support builder meta, featured images, and structured data defaults.
+
+### Tests
+
+- Added/updated: `PostBuilderImprovementsTest`, `MediaLibraryServiceTest`, `PostBuilderServiceTest`, `MediaUploadTest`, `ContentTokensTest`, `SeoHelperTest`.
 
 ## [v1.1.5] — 2026-05-18
 

@@ -25,7 +25,7 @@
     "defaultProps": {
         "content": "",
         "align": "left",
-        "color": "#666666",
+        "color": "",
         "fontSize": "16px",
         "lineHeight": "1.6"
     }

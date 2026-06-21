@@ -7,28 +7,43 @@ namespace App\Services\Frontend;
 use App\Enums\Hooks\FrontendFilterHook;
 use App\Models\Post;
 use App\Models\Term;
+use App\Services\Builder\PostBuilderService;
 use App\Support\Facades\Hook;
 use Illuminate\Support\Str;
 
 class SeoHelper
 {
+    public function __construct(
+        private readonly PostBuilderService $postBuilderService
+    ) {
+    }
+
     /**
      * Build SEO params for a post (article).
      */
     public function forPost(Post $post): array
     {
+        $displayTitle = $this->postBuilderService->getDisplayTitle($post);
+        $seoTitle = trim((string) $post->getMeta(PostBuilderService::META_SEO_TITLE, ''));
+        $seoDescription = trim((string) $post->getMeta(PostBuilderService::META_SEO_DESCRIPTION, ''));
+        $seoKeywords = trim((string) $post->getMeta(PostBuilderService::META_SEO_KEYWORDS, ''));
+
         $params = [
-            'title' => $post->title,
-            'description' => $this->extractDescription($post),
+            'title' => $seoTitle !== '' ? $seoTitle : $displayTitle,
+            'description' => $seoDescription !== '' ? Str::limit(strip_tags($seoDescription), 160) : $this->extractDescription($post),
             'ogType' => 'article',
             '_toolbarPost' => $post,
         ];
+
+        if ($seoKeywords !== '') {
+            $params['keywords'] = $seoKeywords;
+        }
 
         if ($post->featured_image) {
             $params['ogImage'] = $post->featured_image;
         }
 
-        return $this->mergeDefaults($params);
+        return $this->mergeDefaults($this->applyAdvancedSeoMeta($post, $params));
     }
 
     /**
@@ -36,17 +51,26 @@ class SeoHelper
      */
     public function forPage(Post $page): array
     {
+        $displayTitle = $this->postBuilderService->getDisplayTitle($page);
+        $seoTitle = trim((string) $page->getMeta(PostBuilderService::META_SEO_TITLE, ''));
+        $seoDescription = trim((string) $page->getMeta(PostBuilderService::META_SEO_DESCRIPTION, ''));
+        $seoKeywords = trim((string) $page->getMeta(PostBuilderService::META_SEO_KEYWORDS, ''));
+
         $params = [
-            'title' => $page->title,
-            'description' => $this->extractDescription($page),
+            'title' => $seoTitle !== '' ? $seoTitle : $displayTitle,
+            'description' => $seoDescription !== '' ? Str::limit(strip_tags($seoDescription), 160) : $this->extractDescription($page),
             '_toolbarPost' => $page,
         ];
+
+        if ($seoKeywords !== '') {
+            $params['keywords'] = $seoKeywords;
+        }
 
         if ($page->featured_image) {
             $params['ogImage'] = $page->featured_image;
         }
 
-        return $this->mergeDefaults($params);
+        return $this->mergeDefaults($this->applyAdvancedSeoMeta($page, $params));
     }
 
     /**
@@ -164,10 +188,57 @@ class SeoHelper
      */
     protected function extractDescription(Post $post): string
     {
+        $seoDescription = trim((string) $post->getMeta(PostBuilderService::META_SEO_DESCRIPTION, ''));
+
+        if ($seoDescription !== '') {
+            return Str::limit(strip_tags($seoDescription), 160);
+        }
+
         if ($post->excerpt) {
             return Str::limit(strip_tags($post->excerpt), 160);
         }
 
         return Str::limit(strip_tags($post->content ?? ''), 160);
+    }
+
+    /**
+     * Apply advanced SEO meta overrides (Open Graph, robots, canonical).
+     *
+     * @param  array<string, mixed>  $params
+     * @return array<string, mixed>
+     */
+    protected function applyAdvancedSeoMeta(Post $post, array $params): array
+    {
+        $ogTitle = trim((string) $post->getMeta(PostBuilderService::META_SEO_OG_TITLE, ''));
+        $ogDescription = trim((string) $post->getMeta(PostBuilderService::META_SEO_OG_DESCRIPTION, ''));
+        $canonical = trim((string) $post->getMeta(PostBuilderService::META_SEO_CANONICAL, ''));
+        $noindex = filter_var($post->getMeta(PostBuilderService::META_SEO_NOINDEX, false), FILTER_VALIDATE_BOOLEAN);
+        $nofollow = filter_var($post->getMeta(PostBuilderService::META_SEO_NOFOLLOW, false), FILTER_VALIDATE_BOOLEAN);
+        $schemaType = trim((string) $post->getMeta(PostBuilderService::META_SEO_SCHEMA_TYPE, ''));
+
+        if ($ogTitle !== '') {
+            $params['ogTitle'] = $ogTitle;
+        }
+
+        if ($ogDescription !== '') {
+            $params['ogDescription'] = Str::limit(strip_tags($ogDescription), 200);
+        }
+
+        if ($canonical !== '') {
+            $params['canonical'] = $canonical;
+        }
+
+        if ($noindex || $nofollow) {
+            $directives = [];
+            $directives[] = $noindex ? 'noindex' : 'index';
+            $directives[] = $nofollow ? 'nofollow' : 'follow';
+            $params['robots'] = implode(', ', $directives);
+        }
+
+        if ($schemaType !== '') {
+            $params['schemaType'] = $schemaType;
+        }
+
+        return $params;
     }
 }

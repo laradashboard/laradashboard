@@ -2,6 +2,7 @@ import { blockRegistry } from "../registry/BlockRegistry";
 import { __ } from "@lara-builder/i18n";
 import { AutoEditor } from "@lara-builder/factory";
 import LayoutStylesSection from "./LayoutStylesSection";
+import BlockConvertSection from "./BlockConvertSection";
 
 /**
  * PropertiesPanel - Renders property editors for blocks
@@ -17,6 +18,7 @@ import LayoutStylesSection from "./LayoutStylesSection";
 const PropertiesPanel = ({
     selectedBlock,
     onUpdate,
+    onReplaceBlock,
     onImageUpload,
     onVideoUpload,
     canvasSettings,
@@ -90,6 +92,17 @@ const PropertiesPanel = ({
     // Get label for the block
     const blockLabel = blockConfig?.label || selectedBlock.type;
 
+    const handleConvertBlock = onReplaceBlock
+        ? (newType) => onReplaceBlock(selectedBlock.id, newType)
+        : null;
+
+    const blockConvertSection = (
+        <BlockConvertSection
+            blockType={selectedBlock.type}
+            onConvert={handleConvertBlock}
+        />
+    );
+
     // Check for custom property editor from registry
     const CustomPropertyEditor = blockConfig?.editor;
     const blockFields = blockConfig?.fields;
@@ -103,6 +116,8 @@ const PropertiesPanel = ({
                         {__(blockLabel)}
                     </span>
                 </div>
+
+                {blockConvertSection}
 
                 <CustomPropertyEditor
                     props={props}
@@ -148,6 +163,8 @@ const PropertiesPanel = ({
                     </span>
                 </div>
 
+                {blockConvertSection}
+
                 <AutoEditor
                     fields={blockFields}
                     blockProps={props}
@@ -189,6 +206,8 @@ const PropertiesPanel = ({
                     {__(blockLabel)}
                 </span>
             </div>
+
+            {blockConvertSection}
 
             <p className="text-gray-500 text-sm mb-4">
                 {__("Click the block to edit it directly.")}

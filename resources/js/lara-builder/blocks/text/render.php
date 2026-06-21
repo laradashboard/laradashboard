@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Support\Builder\ContentTokens;
+
 /**
  * Text Block - Server-side Renderer
  *
@@ -16,7 +20,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     // Support both 'content' (from HTML save) and 'text' (from design_json)
     $content = $props['content'] ?? $props['text'] ?? '';
     $align = $props['align'] ?? 'left';
-    $color = $props['color'] ?? '#666666';
+    $color = $props['color'] ?? '';
     $fontSize = $props['fontSize'] ?? '16px';
     $lineHeight = $props['lineHeight'] ?? '1.6';
     $layoutStyles = $props['layoutStyles'] ?? [];
@@ -29,7 +33,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
 
         $styles = [
             "text-align: {$align}",
-            'color: ' . ($typography['color'] ?? $color),
+            'color: ' . ContentTokens::resolveEmailTextColor($color, $typography['color'] ?? null),
             'font-size: ' . ($typography['fontSize'] ?? $fontSize),
             'line-height: ' . ($typography['lineHeight'] ?? $lineHeight),
             'font-family: Arial, Helvetica, sans-serif',
@@ -61,6 +65,9 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     // Build inline styles
     $styles = [];
 
+    // Paragraph spacing between consecutive text blocks
+    $styles[] = 'margin-bottom: 1em';
+
     // Alignment
     if ($align) {
         $styles[] = "text-align: {$align}";
@@ -69,10 +76,13 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     // Typography - check layoutStyles first, fallback to direct props
     $typography = $layoutStyles['typography'] ?? [];
 
-    if (! empty($typography['color'])) {
-        $styles[] = "color: {$typography['color']}";
-    } elseif ($color) {
-        $styles[] = "color: {$color}";
+    $resolvedColor = ContentTokens::resolvePageTextColor(
+        $color,
+        $typography['color'] ?? null
+    );
+
+    if ($resolvedColor !== null) {
+        $styles[] = "color: {$resolvedColor}";
     }
 
     if (! empty($typography['fontSize'])) {

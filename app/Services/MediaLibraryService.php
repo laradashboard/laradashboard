@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\Concerns\HandlesMediaOperations;
 use App\Models\Media;
+use App\Models\Post;
+use App\Services\Builder\PostBuilderService;
 use App\Support\Helper\MediaHelper;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Http\Request;
@@ -137,10 +139,10 @@ class MediaLibraryService
                 'disk' => 'public',
                 'conversions_disk' => 'public',
                 'size' => $file->getSize(),
-                'manipulations' => '[]',
-                'custom_properties' => '[]',
-                'generated_conversions' => '[]',
-                'responsive_images' => '[]',
+                'manipulations' => [],
+                'custom_properties' => [],
+                'generated_conversions' => [],
+                'responsive_images' => [],
                 'order_column' => null,
             ]);
 
@@ -243,103 +245,427 @@ class MediaLibraryService
         }
     }
 
+    /**
+     * Link a post to a library media item without moving or copying the file.
+     */
+    public function setPostFeaturedMedia(Post $post, SpatieMedia $media): SpatieMedia
+    {
+        $this->normalizeMediaAttributes($media);
+        $this->releaseMediaCollection($post, 'featured');
+
+        if (! $this->isStandaloneMedia($media)) {
+            $this->releaseMediaToLibrary($media);
+        }
+
+        $post->setMeta(PostBuilderService::META_FEATURED_MEDIA_ID, (string) $media->id);
+
+        return $media->fresh();
+    }
+
+    public function clearPostFeaturedMedia(Post $post): void
+    {
+        $this->releaseMediaCollection($post, 'featured');
+        $post->deleteMeta(PostBuilderService::META_FEATURED_MEDIA_ID);
+    }
+
     public function clearMediaCollection(HasMedia $model, string $collection = 'default'): void
     {
-        $model->clearMediaCollection($collection);
+        $this->releaseMediaCollection($model, $collection);
     }
 
     /**
-     * Associate existing media with a model by URL or ID
+     * Detach media from a model and return it to the standalone library.
+     */
+    public function releaseMediaCollection(HasMedia $model, string $collection = 'default'): void
+    {
+        $model->getMedia($collection)->each(function (SpatieMedia $media): void {
+            $this->releaseMediaToLibrary($media);
+        });
+    }
+
+    /**
+     * Associate existing media with a model by URL or ID.
+     *
+     * Reuses library uploads by reassigning the existing media record instead of
+     * copying the file, which previously created duplicate library entries.
      */
     public function associateExistingMedia(
         HasMedia $model,
         string $mediaUrlOrId,
         string $collection = 'default'
     ): ?SpatieMedia {
-        $media = null;
-
-        // Try to find media by ID first (most reliable)
-        if (is_numeric($mediaUrlOrId)) {
-            $media = SpatieMedia::find($mediaUrlOrId);
-        } else {
-            // Extract file name from URL path
-            $urlPath = parse_url($mediaUrlOrId, PHP_URL_PATH);
-            $fileName = basename($urlPath);
-
-            // Try to find media by file name
-            $media = SpatieMedia::where('file_name', $fileName)->first();
-
-            // If not found, try by full URL pattern
-            if (! $media) {
-                $media = SpatieMedia::where('disk', 'public')
-                    ->get()
-                    ->first(function ($item) use ($mediaUrlOrId) {
-                        try {
-                            return $item->getUrl() === $mediaUrlOrId;
-                        } catch (\Exception $e) {
-                            return false;
-                        }
-                    });
-            }
-        }
+        $media = $this->findMediaByUrlOrId($mediaUrlOrId);
 
         if (! $media) {
             Log::warning("Media not found for ID/URL: {$mediaUrlOrId}");
+
             return null;
         }
 
-        // Copy the media file to associate it with the model
-        try {
-            // For standalone media (model_id = 0), construct the correct path
-            if ($media->model_id == 0) {
-                // Standalone media is stored in media/ directory
-                $mediaPath = storage_path('app/public/media/' . $media->file_name);
-            } else {
-                // Model-attached media uses the default path
-                $mediaPath = $media->getPath();
+        if ($this->isMediaAlreadyAssociated($model, $media, $collection)) {
+            if ($collection === 'featured' && $model instanceof Post) {
+                return $this->setPostFeaturedMedia($model, $media);
             }
 
-            if (file_exists($mediaPath)) {
-                $copiedMedia = $model
+            return $media;
+        }
+
+        $this->normalizeMediaAttributes($media);
+
+        if ($collection === 'featured' && $model instanceof Post) {
+            return $this->setPostFeaturedMedia($model, $media);
+        }
+
+        $this->clearMediaCollectionExcept($model, $collection, (int) $media->id);
+
+        if ($this->canReassignMedia($media, $model)) {
+            return $this->reassignMediaToModel($model, $media, $collection);
+        }
+
+        return $this->copyMediaToModel($model, $media, $collection);
+    }
+
+    protected function findMediaByUrlOrId(string $mediaUrlOrId): ?SpatieMedia
+    {
+        if (is_numeric($mediaUrlOrId)) {
+            return SpatieMedia::find((int) $mediaUrlOrId);
+        }
+
+        $urlPath = parse_url($mediaUrlOrId, PHP_URL_PATH);
+        $fileName = basename((string) $urlPath);
+
+        $media = SpatieMedia::where('file_name', $fileName)->first();
+
+        if ($media) {
+            return $media;
+        }
+
+        return SpatieMedia::where('disk', 'public')
+            ->get()
+            ->first(function ($item) use ($mediaUrlOrId) {
+                try {
+                    return $item->getUrl() === $mediaUrlOrId;
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            });
+    }
+
+    protected function isMediaAlreadyAssociated(
+        HasMedia $model,
+        SpatieMedia $media,
+        string $collection
+    ): bool {
+        if ($media->model_type === $model->getMorphClass()
+            && (int) $media->model_id === (int) $model->getKey()
+            && $media->collection_name === $collection) {
+            return true;
+        }
+
+        $currentMedia = $model->getMedia($collection)->first();
+
+        return $currentMedia instanceof SpatieMedia
+            && (int) $currentMedia->id === (int) $media->id;
+    }
+
+    protected function isStandaloneMedia(SpatieMedia $media): bool
+    {
+        return (int) $media->model_id === 0 || $media->model_type === '' || $media->model_type === null;
+    }
+
+    protected function canReassignMedia(SpatieMedia $media, HasMedia $model): bool
+    {
+        if ($this->isStandaloneMedia($media)) {
+            return true;
+        }
+
+        return $media->model_type === $model->getMorphClass()
+            && (int) $media->model_id === (int) $model->getKey();
+    }
+
+    protected function clearMediaCollectionExcept(
+        HasMedia $model,
+        string $collection,
+        int $exceptMediaId
+    ): void {
+        $model->getMedia($collection)->each(function (SpatieMedia $existingMedia) use ($exceptMediaId): void {
+            if ((int) $existingMedia->id === $exceptMediaId) {
+                return;
+            }
+
+            $this->releaseMediaToLibrary($existingMedia);
+        });
+    }
+
+    protected function releaseMediaToLibrary(SpatieMedia $media): void
+    {
+        if ($this->isStandaloneMedia($media)) {
+            return;
+        }
+
+        $this->normalizeMediaAttributes($media);
+
+        $sourcePath = $this->resolveMediaPath($media);
+        $libraryDirectory = storage_path('app/public/media');
+        $libraryPath = $libraryDirectory . '/' . $media->file_name;
+
+        if ($sourcePath !== null && file_exists($sourcePath) && $sourcePath !== $libraryPath) {
+            if (! is_dir($libraryDirectory)) {
+                mkdir($libraryDirectory, 0755, true);
+            }
+
+            if (! file_exists($libraryPath)) {
+                rename($sourcePath, $libraryPath);
+            }
+        }
+
+        $media->model_type = '';
+        $media->model_id = 0;
+        $media->collection_name = 'uploads';
+        $media->order_column = null;
+        $media->save();
+    }
+
+    protected function deleteMediaRecordSafely(SpatieMedia $media): void
+    {
+        $this->normalizeMediaAttributes($media);
+
+        try {
+            $media->delete();
+        } catch (\Throwable $e) {
+            Log::warning('Failed to delete media via Spatie, using manual cleanup', [
+                'media_id' => $media->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            $this->deleteMediaFilesFromDisk($media);
+            SpatieMedia::query()->whereKey($media->id)->delete();
+        }
+    }
+
+    /**
+     * Legacy uploads stored JSON columns as strings, which breaks Spatie deletes.
+     */
+    protected function normalizeMediaAttributes(SpatieMedia $media): SpatieMedia
+    {
+        foreach (['manipulations', 'custom_properties', 'generated_conversions', 'responsive_images'] as $attribute) {
+            $value = $media->getAttributes()[$attribute] ?? null;
+
+            if (is_string($value)) {
+                $decoded = json_decode($value, true);
+                $media->setAttribute($attribute, is_array($decoded) ? $decoded : []);
+            } elseif ($value === null) {
+                $media->setAttribute($attribute, []);
+            }
+        }
+
+        return $media;
+    }
+
+    protected function deleteMediaFilesFromDisk(SpatieMedia $media): void
+    {
+        $paths = array_filter([
+            $this->resolveMediaPath($media),
+        ]);
+
+        try {
+            $paths[] = $media->getPath();
+        } catch (\Throwable $e) {
+            // Ignore path resolution failures for legacy rows.
+        }
+
+        foreach (array_unique($paths) as $path) {
+            if (is_string($path) && file_exists($path)) {
+                @unlink($path);
+            }
+        }
+    }
+
+    protected function reassignMediaToModel(
+        HasMedia $model,
+        SpatieMedia $media,
+        string $collection
+    ): SpatieMedia {
+        $sourcePath = $this->resolveMediaPath($media);
+
+        $media->model_type = $model->getMorphClass();
+        $media->model_id = $model->getKey();
+        $media->collection_name = $collection;
+        $media->order_column = $media->order_column ?? 1;
+        $this->normalizeMediaAttributes($media);
+        $media->save();
+
+        $media = $media->fresh();
+
+        if ($sourcePath !== null && file_exists($sourcePath)) {
+            $destinationPath = $media->getPath();
+
+            if ($sourcePath !== $destinationPath) {
+                $destinationDirectory = dirname($destinationPath);
+
+                if (! is_dir($destinationDirectory)) {
+                    mkdir($destinationDirectory, 0755, true);
+                }
+
+                rename($sourcePath, $destinationPath);
+            }
+        }
+
+        return $media;
+    }
+
+    /**
+     * Resolve public URLs for a media item (original + thumbnail).
+     *
+     * @return array{url: string, thumbnail_url: string}
+     */
+    public function resolveMediaUrls(SpatieMedia $media): array
+    {
+        $url = $this->resolveMediaUrl($media) ?? asset('storage/media/' . $media->file_name);
+        $thumbnailUrl = $this->resolveMediaUrl($media, 'thumb') ?? $url;
+
+        return [
+            'url' => $url,
+            'thumbnail_url' => $thumbnailUrl,
+        ];
+    }
+
+    /**
+     * Resolve a public URL for a media item, including legacy standalone paths.
+     */
+    public function resolveMediaUrl(SpatieMedia $media, string $conversion = ''): ?string
+    {
+        if ($conversion !== '') {
+            try {
+                if ($media->hasGeneratedConversion($conversion)) {
+                    $conversionPath = $media->getPath($conversion);
+
+                    if (file_exists($conversionPath)) {
+                        return $media->getUrl($conversion);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Legacy media rows may store JSON fields as strings.
+            }
+
+            return $this->resolveOriginalMediaUrl($media);
+        }
+
+        return $this->resolveOriginalMediaUrl($media);
+    }
+
+    protected function resolveOriginalMediaUrl(SpatieMedia $media): ?string
+    {
+        $resolvedPath = $this->resolveMediaPath($media);
+
+        if ($resolvedPath !== null && file_exists($resolvedPath)) {
+            if (! $this->isStandaloneMedia($media) && str_contains($resolvedPath, '/media/' . $media->file_name)) {
+                $this->moveMediaFileToExpectedPath($media, $resolvedPath);
+
+                try {
+                    return $media->getUrl();
+                } catch (\Throwable $e) {
+                    return asset('storage/media/' . $media->file_name);
+                }
+            }
+
+            if ($this->isStandaloneMedia($media) || str_contains($resolvedPath, '/media/' . $media->file_name)) {
+                return asset('storage/media/' . $media->file_name);
+            }
+
+            try {
+                return $media->getUrl();
+            } catch (\Throwable $e) {
+                return asset('storage/media/' . $media->file_name);
+            }
+        }
+
+        try {
+            return $media->getUrl();
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    protected function moveMediaFileToExpectedPath(SpatieMedia $media, string $sourcePath): void
+    {
+        try {
+            $destinationPath = $media->getPath();
+        } catch (\Throwable $e) {
+            return;
+        }
+
+        if ($sourcePath === $destinationPath || ! file_exists($sourcePath)) {
+            return;
+        }
+
+        $destinationDirectory = dirname($destinationPath);
+
+        if (! is_dir($destinationDirectory)) {
+            mkdir($destinationDirectory, 0755, true);
+        }
+
+        rename($sourcePath, $destinationPath);
+    }
+
+    protected function copyMediaToModel(
+        HasMedia $model,
+        SpatieMedia $media,
+        string $collection
+    ): ?SpatieMedia {
+        try {
+            $mediaPath = $this->resolveMediaPath($media);
+
+            if ($mediaPath !== null && file_exists($mediaPath)) {
+                return $model
                     ->addMedia($mediaPath)
                     ->preservingOriginal()
                     ->usingName($media->name)
                     ->usingFileName($media->file_name)
                     ->toMediaCollection($collection);
-
-                return $copiedMedia;
-            } else {
-                // Try alternative paths for different storage structures
-                $alternativePaths = [
-                    storage_path('app/public/' . $media->file_name),
-                    storage_path('app/public/uploads/' . $media->file_name),
-                    public_path('storage/media/' . $media->file_name),
-                    public_path('storage/' . $media->file_name),
-                ];
-
-                foreach ($alternativePaths as $altPath) {
-                    if (file_exists($altPath)) {
-                        $copiedMedia = $model
-                            ->addMedia($altPath)
-                            ->preservingOriginal()
-                            ->usingName($media->name)
-                            ->usingFileName($media->file_name)
-                            ->toMediaCollection($collection);
-                        return $copiedMedia;
-                    }
-                }
-
-                Log::warning("Media file does not exist at any expected path", [
-                    'primary_path' => $mediaPath,
-                    'alternative_paths' => $alternativePaths,
-                    'media_id' => $media->id,
-                ]);
             }
-        } catch (\Exception $e) {
+
+            Log::warning('Media file does not exist at any expected path', [
+                'media_id' => $media->id,
+            ]);
+        } catch (\Throwable $e) {
             Log::error('Failed to associate existing media: ' . $e->getMessage(), [
                 'media_id' => $media->id,
                 'exception' => $e,
             ]);
+        }
+
+        return null;
+    }
+
+    protected function resolveMediaPath(SpatieMedia $media): ?string
+    {
+        if ($this->isStandaloneMedia($media)) {
+            $primaryPath = storage_path('app/public/media/' . $media->file_name);
+
+            if (file_exists($primaryPath)) {
+                return $primaryPath;
+            }
+        } else {
+            $modelPath = $media->getPath();
+
+            if (file_exists($modelPath)) {
+                return $modelPath;
+            }
+        }
+
+        $alternativePaths = [
+            storage_path('app/public/media/' . $media->file_name),
+            storage_path('app/public/' . $media->file_name),
+            storage_path('app/public/uploads/' . $media->file_name),
+            public_path('storage/media/' . $media->file_name),
+            public_path('storage/' . $media->file_name),
+        ];
+
+        foreach ($alternativePaths as $alternativePath) {
+            if (file_exists($alternativePath)) {
+                return $alternativePath;
+            }
         }
 
         return null;

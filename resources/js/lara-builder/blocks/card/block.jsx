@@ -5,7 +5,7 @@ import {
     useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { getBlockComponent } from "../index";
 import { getBlockSupports } from "../blockLoader";
 import BlockToolbar from "../../components/BlockToolbar";
@@ -67,7 +67,7 @@ const NestedSortableBlock = ({
     const canMoveUp = blockIndex > 0;
     const canMoveDown = blockIndex < totalBlocks - 1;
 
-    const handleRegisterTextFormat = (formatProps) => {
+    const handleRegisterTextFormat = useCallback((formatProps) => {
         if (formatProps) {
             setTextFormatProps({
                 editorRef: formatProps.editorRef,
@@ -77,9 +77,9 @@ const NestedSortableBlock = ({
         } else {
             setTextFormatProps(null);
         }
-    };
+    }, []);
 
-    const handleRegisterAlign = (alignData) => {
+    const handleRegisterAlign = useCallback((alignData) => {
         if (alignData) {
             setAlignProps({
                 align: alignData.align,
@@ -88,7 +88,7 @@ const NestedSortableBlock = ({
         } else {
             setAlignProps(null);
         }
-    };
+    }, []);
 
     if (!BlockComponent) {
         return (

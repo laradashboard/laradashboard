@@ -22,6 +22,7 @@
         "contentAlign": "center",
         "backgroundType": "solid",
         "backgroundColor": "#ffffff",
+        "textColor": "",
         "gradientFrom": "#f9fafb",
         "gradientTo": "#f3f4f6",
         "gradientDirection": "to-br",

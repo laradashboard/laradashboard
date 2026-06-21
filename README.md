@@ -96,7 +96,13 @@ Built for Laravel developers who want to ship admin dashboards, SaaS apps, CRMs 
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.1.5](https://github.com/laradashboard/laradashboard/releases/tag/v1.1.5) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.2.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.0) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.2.0] — 2026-06-21**
+-   **New:** Lara Builder SEO drawer with live score, checklist, SERP preview, and AI-generated meta fields.
+-   **New:** Auto-save for draft posts, text ↔ heading block conversion, and unified content typography tokens (inherit-by-default colors + section text color).
+-   **Fix:** Media library featured image duplicates, broken thumbnails/URLs, and publish/save “Unsaved” false-positive state.
+-   **Improve:** Media upload auto-select, post list thumbnails, builder header/actions, and AI content modal UX.
 
 **[v1.1.5] — 2026-05-18**
 -   **Fix:** Migration is now idempotent — safe to re-run on databases that half-applied the v1.1.4 release.
