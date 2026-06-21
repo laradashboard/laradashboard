@@ -32,7 +32,7 @@
  * />
  */
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import {
     DndContext,
     DragOverlay,
@@ -48,6 +48,7 @@ import { useEmailState } from "./hooks/useEmailState";
 import { usePostState } from "./hooks/usePostState";
 import { useBlockOperations } from "./hooks/useBlockOperations";
 import { useDragAndDrop } from "./hooks/useDragAndDrop";
+import { useAutoSave, shouldAutoSavePost } from "./hooks/useAutoSave";
 import { LaraHooks } from "../hooks-system/LaraHooks";
 import { BuilderHooks } from "../hooks-system/HookNames";
 import { blockRegistry } from "../registry/BlockRegistry";
@@ -102,6 +103,8 @@ function LaraBuilderInner({
     } = useBuilder();
 
     const { blocks, selectedBlockId, canvasSettings, isDirty } = state;
+    const stateRef = useRef(state);
+    stateRef.current = state;
 
     // Enable keyboard shortcuts for history
     useHistory({ enableKeyboardShortcuts: true });
@@ -135,8 +138,18 @@ function LaraBuilderInner({
         parentId,
         selectedTerms,
         featuredImage,
+        featuredImageId,
         removeFeaturedImage,
         postDirty,
+        seoTitle,
+        seoDescription,
+        seoKeywords,
+        seoOgTitle,
+        seoOgDescription,
+        seoCanonical,
+        seoNoindex,
+        seoNofollow,
+        seoSchemaType,
         setTitle,
         setSlug,
         setStatus,
@@ -145,7 +158,17 @@ function LaraBuilderInner({
         setParentId,
         setSelectedTerms,
         setFeaturedImage,
+        setFeaturedImageId,
         setRemoveFeaturedImage,
+        setSeoTitle,
+        setSeoDescription,
+        setSeoKeywords,
+        setSeoOgTitle,
+        setSeoOgDescription,
+        setSeoCanonical,
+        setSeoNoindex,
+        setSeoNofollow,
+        setSeoSchemaType,
         generateSlug,
         markPostSaved,
     } = usePostState({ postData, initialSelectedTerms, isPostContext });
@@ -190,6 +213,8 @@ function LaraBuilderInner({
     // Local UI state
     // ========================
     const [saving, setSaving] = useState(false);
+    const [lastSavedAt, setLastSavedAt] = useState(null);
+    const [currentPostId, setCurrentPostId] = useState(postData?.id ?? null);
     const [toast, setToast] = useState(null);
     const [allBlocksSelected, setAllBlocksSelected] = useState(false);
 
@@ -208,6 +233,14 @@ function LaraBuilderInner({
     // Preview mode: 'desktop', 'tablet', 'mobile'
     const [previewMode, setPreviewMode] = useState("desktop");
 
+    // Validation refs for focusing invalid fields
+    const headerTitleRef = useRef(null);
+    const sidebarTitleRef = useRef(null);
+    const headerTemplateNameRef = useRef(null);
+    const [titleError, setTitleError] = useState(null);
+    const [templateNameError, setTemplateNameError] = useState(null);
+    const suppressBeforeUnloadRef = useRef(false);
+
     // Show toast helper
     const showToast = useCallback((variant, titleText, message) => {
         setToast({ variant, title: titleText, message });
@@ -219,11 +252,13 @@ function LaraBuilderInner({
     // Warn user before leaving with unsaved changes
     useEffect(() => {
         const handleBeforeUnload = (e) => {
-            if (isFormDirty) {
-                e.preventDefault();
-                e.returnValue = "";
-                return "";
+            if (suppressBeforeUnloadRef.current || !isFormDirty) {
+                return undefined;
             }
+
+            e.preventDefault();
+            e.returnValue = "";
+            return "";
         };
 
         window.addEventListener("beforeunload", handleBeforeUnload);
@@ -474,120 +509,324 @@ function LaraBuilderInner({
         setCodeEditorHtml(html);
     }, []);
 
+    const focusTitleField = useCallback(() => {
+        actions.selectBlock(null);
+
+        const useSidebarTitle = window.matchMedia("(max-width: 767px)").matches;
+
+        if (useSidebarTitle) {
+            setRightDrawerOpen(true);
+            window.setTimeout(() => {
+                sidebarTitleRef.current?.focus();
+                sidebarTitleRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+            }, 200);
+            return;
+        }
+
+        headerTitleRef.current?.focus();
+        headerTitleRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+        });
+    }, [actions]);
+
+    const focusTemplateNameField = useCallback(() => {
+        headerTemplateNameRef.current?.focus();
+        headerTemplateNameRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+        });
+    }, []);
+
+    const hasAutoFocusedTitleRef = useRef(false);
+
+    useEffect(() => {
+        if (
+            hasAutoFocusedTitleRef.current ||
+            !isPostContext ||
+            postData?.id ||
+            currentPostId
+        ) {
+            return undefined;
+        }
+
+        hasAutoFocusedTitleRef.current = true;
+
+        const timer = window.setTimeout(() => {
+            focusTitleField();
+        }, 150);
+
+        return () => window.clearTimeout(timer);
+    }, [isPostContext, postData?.id, currentPostId, focusTitleField]);
+
+    useEffect(() => {
+        if (titleError && title.trim()) {
+            setTitleError(null);
+        }
+    }, [title, titleError]);
+
+    useEffect(() => {
+        if (templateNameError && templateName.trim()) {
+            setTemplateNameError(null);
+        }
+    }, [templateName, templateNameError]);
+
     // Save handler - accepts optional statusOverride for header button actions
-    const handleSave = async (statusOverride) => {
-        // Context-specific validation
-        if (isEmailContext && !templateName.trim()) {
-            showToast(
-                "error",
-                __("Validation Error"),
-                __("Template name is required")
-            );
-            return;
-        }
-        if (isPostContext && !title.trim()) {
-            showToast("error", __("Validation Error"), __("Title is required"));
-            return;
-        }
+    const handleSave = useCallback(
+        async (statusOverride, options = {}) => {
+            const { silent = false, autoSave = false, preferInPlaceNavigation = false } =
+                options;
+            const stayInPlace = autoSave || preferInPlaceNavigation;
 
-        // Apply status override if provided (from header buttons)
-        const effectiveStatus = isPostContext && statusOverride ? statusOverride : status;
-        if (isPostContext && statusOverride) {
-            setStatus(statusOverride);
-        }
-
-        LaraHooks.doAction(BuilderHooks.ACTION_BEFORE_SAVE, state);
-
-        setSaving(true);
-
-        try {
-            const html = editorMode === "code" ? codeEditorHtml : getHtml();
-            const designJson = getSaveData();
-
-            let saveData = {};
-
-            if (isEmailContext) {
-                saveData = {
-                    name: templateName,
-                    // Use template name as subject if subject is empty
-                    subject: templateSubject || templateName,
-                    is_active: templateStatus,
-                    body_html: html,
-                    design_json: designJson,
-                };
-            } else if (isPostContext) {
-                const taxonomyData = {};
-                Object.entries(selectedTerms).forEach(
-                    ([taxonomyName, termIds]) => {
-                        taxonomyData[`taxonomy_${taxonomyName}`] = termIds;
-                    }
-                );
-
-                saveData = {
-                    title,
-                    slug: slug || undefined,
-                    status: effectiveStatus,
-                    excerpt,
-                    content: html,
-                    design_json: designJson,
-                    published_at:
-                        effectiveStatus === "scheduled" ? publishedAt : undefined,
-                    parent_id: parentId || undefined,
-                    featured_image: featuredImage || undefined,
-                    remove_featured_image: removeFeaturedImage,
-                    ...taxonomyData,
-                };
-            }
-
-            const result = await onSave(saveData);
-
-            // Mark as saved
-            actions.markSaved();
-
-            if (isEmailContext) {
-                markEmailSaved();
-            } else if (isPostContext) {
-                markPostSaved();
-            }
-
-            // Show success toast
-            const isEdit = !!(templateData?.uuid || postData?.id);
-            showToast(
-                "success",
-                isEdit ? __("Saved") : __("Created"),
-                result?.message ||
-                    (isEdit
-                        ? __("Saved successfully!")
-                        : __("Created successfully!"))
-            );
-
-            LaraHooks.doAction(BuilderHooks.ACTION_AFTER_SAVE, result);
-
-            // Redirect for new items
-            if (!isEdit) {
-                if (result?.id && listUrl) {
-                    setTimeout(() => {
-                        window.location.href = `${listUrl.replace(/\/$/, "")}/${
-                            result.id
-                        }/edit`;
-                    }, 500);
-                } else if (result?.redirect) {
-                    setTimeout(() => {
-                        window.location.href = result.redirect;
-                    }, 500);
+            // Context-specific validation
+            if (isEmailContext && !templateName.trim()) {
+                const message = __("Template name is required");
+                setTemplateNameError(message);
+                focusTemplateNameField();
+                if (!silent) {
+                    showToast("error", __("Validation Error"), message);
                 }
+                return;
             }
-        } catch (error) {
-            showToast(
-                "error",
-                __("Save Failed"),
-                error.message || __("Failed to save")
-            );
-            LaraHooks.doAction(BuilderHooks.ACTION_SAVE_ERROR, error);
-        } finally {
-            setSaving(false);
-        }
-    };
+            if (isPostContext && !title.trim()) {
+                if (!silent) {
+                    const message = __("Title is required");
+                    setTitleError(message);
+                    focusTitleField();
+                    showToast("error", __("Validation Error"), message);
+                }
+                return;
+            }
+
+            setTitleError(null);
+            setTemplateNameError(null);
+
+            // Apply status override for this save without mutating UI early.
+            const effectiveStatus =
+                isPostContext && statusOverride ? statusOverride : status;
+
+            LaraHooks.doAction(BuilderHooks.ACTION_BEFORE_SAVE, stateRef.current);
+
+            const wasEdit = !!(templateData?.uuid || currentPostId);
+
+            setSaving(true);
+
+            try {
+                const html = editorMode === "code" ? codeEditorHtml : getHtml();
+                const designJson = getSaveData();
+
+                let saveData = {};
+
+                if (isEmailContext) {
+                    saveData = {
+                        name: templateName,
+                        subject: templateSubject || templateName,
+                        is_active: templateStatus,
+                        body_html: html,
+                        design_json: designJson,
+                    };
+                } else if (isPostContext) {
+                    const taxonomyData = {};
+                    Object.entries(selectedTerms).forEach(
+                        ([taxonomyName, termIds]) => {
+                            taxonomyData[`taxonomy_${taxonomyName}`] = termIds;
+                        }
+                    );
+
+                    saveData = {
+                        title,
+                        slug: slug || undefined,
+                        status: effectiveStatus,
+                        excerpt,
+                        content: html,
+                        design_json: designJson,
+                        published_at:
+                            effectiveStatus === "scheduled"
+                                ? publishedAt
+                                : undefined,
+                        parent_id: parentId || undefined,
+                        featured_image: featuredImage || undefined,
+                        featured_image_id: featuredImageId || undefined,
+                        remove_featured_image: removeFeaturedImage,
+                        seo_title: seoTitle,
+                        seo_description: seoDescription,
+                        seo_keywords: seoKeywords,
+                        seo_og_title: seoOgTitle,
+                        seo_og_description: seoOgDescription,
+                        seo_canonical: seoCanonical,
+                        seo_noindex: seoNoindex,
+                        seo_nofollow: seoNofollow,
+                        seo_schema_type: seoSchemaType,
+                        ...taxonomyData,
+                    };
+                }
+
+                const result = await onSave(saveData, {
+                    postId: currentPostId,
+                    autoSave,
+                });
+
+                actions.markSaved();
+
+                if (isEmailContext) {
+                    markEmailSaved();
+                } else if (isPostContext) {
+                    const savedFeaturedImage =
+                        result?.featured_image_url || featuredImage;
+                    const savedFeaturedImageId = result?.featured_image_id
+                        ? String(result.featured_image_id)
+                        : featuredImageId;
+
+                    if (result?.featured_image_url) {
+                        setFeaturedImage(savedFeaturedImage);
+                    }
+
+                    if (result?.featured_image_id) {
+                        setFeaturedImageId(savedFeaturedImageId);
+                    }
+
+                    if (effectiveStatus !== status) {
+                        setStatus(effectiveStatus);
+                    }
+
+                    markPostSaved({
+                        status: effectiveStatus,
+                        featuredImage: savedFeaturedImage,
+                        featuredImageId: savedFeaturedImageId,
+                    });
+                }
+
+                setLastSavedAt(new Date());
+
+                if (isPostContext && result?.id && !currentPostId) {
+                    setCurrentPostId(result.id);
+
+                    if (listUrl) {
+                        suppressBeforeUnloadRef.current = true;
+                        window.history.replaceState(
+                            null,
+                            "",
+                            result.redirect ||
+                                `${listUrl.replace(/\/$/, "")}/${result.id}/edit`
+                        );
+                    }
+                }
+
+                if (!silent) {
+                    const draftSaved =
+                        isPostContext && effectiveStatus === "draft";
+                    showToast(
+                        "success",
+                        draftSaved
+                            ? __("Draft saved")
+                            : wasEdit || result?.id
+                              ? __("Saved")
+                              : __("Created"),
+                        result?.message ||
+                            (draftSaved
+                                ? __("Your draft has been saved.")
+                                : wasEdit || result?.id
+                                  ? __("Saved successfully!")
+                                  : __("Created successfully!"))
+                    );
+                }
+
+                LaraHooks.doAction(BuilderHooks.ACTION_AFTER_SAVE, result);
+
+                if (!wasEdit && !stayInPlace && !isPostContext) {
+                    if (result?.id && listUrl) {
+                        suppressBeforeUnloadRef.current = true;
+                        setTimeout(() => {
+                            window.location.href = `${listUrl.replace(/\/$/, "")}/${
+                                result.id
+                            }/edit`;
+                        }, 500);
+                    } else if (result?.redirect) {
+                        suppressBeforeUnloadRef.current = true;
+                        setTimeout(() => {
+                            window.location.href = result.redirect;
+                        }, 500);
+                    }
+                }
+            } catch (error) {
+                if (!silent) {
+                    showToast(
+                        "error",
+                        __("Save Failed"),
+                        error.message || __("Failed to save")
+                    );
+                }
+                LaraHooks.doAction(BuilderHooks.ACTION_SAVE_ERROR, error);
+                throw error;
+            } finally {
+                setSaving(false);
+            }
+        },
+        [
+            isEmailContext,
+            isPostContext,
+            templateName,
+            title,
+            status,
+            editorMode,
+            codeEditorHtml,
+            getHtml,
+            getSaveData,
+            templateSubject,
+            templateStatus,
+            selectedTerms,
+            slug,
+            excerpt,
+            publishedAt,
+            parentId,
+            featuredImage,
+            featuredImageId,
+            removeFeaturedImage,
+            seoTitle,
+            seoDescription,
+            seoKeywords,
+            seoOgTitle,
+            seoOgDescription,
+            seoCanonical,
+            seoNoindex,
+            seoNofollow,
+            seoSchemaType,
+            onSave,
+            currentPostId,
+            actions,
+            markEmailSaved,
+            markPostSaved,
+            showToast,
+            templateData?.uuid,
+            listUrl,
+            focusTemplateNameField,
+            focusTitleField,
+            setStatus,
+        ]
+    );
+
+    const handleAutoSave = useCallback(async () => {
+        await handleSave(undefined, { silent: true, autoSave: true });
+    }, [handleSave]);
+
+    useAutoSave({
+        enabled: isPostContext && shouldAutoSavePost(status),
+        isDirty: isFormDirty,
+        canSave: Boolean(title.trim()),
+        isSaving: saving,
+        onAutoSave: handleAutoSave,
+    });
+
+    const builderPostData = useMemo(
+        () =>
+            isPostContext && currentPostId
+                ? { ...(postData || {}), id: currentPostId }
+                : postData,
+        [isPostContext, currentPostId, postData]
+    );
 
     // Context-specific labels
     const labels = useMemo(() => {
@@ -624,6 +863,43 @@ function LaraBuilderInner({
         );
     }, [context, postTypeModel, postData]);
 
+    const { contentLength, blockCount } = useMemo(() => {
+        let count = 0;
+        let textLength = (title || "").length + (excerpt || "").length;
+
+        const walkBlocks = (items) => {
+            if (!Array.isArray(items)) return;
+
+            for (const item of items) {
+                if (Array.isArray(item)) {
+                    walkBlocks(item);
+                    continue;
+                }
+
+                if (!item || typeof item !== "object" || !item.type) {
+                    continue;
+                }
+
+                count++;
+
+                const props = item.props || {};
+                for (const key of ["content", "text", "html"]) {
+                    if (typeof props[key] === "string") {
+                        textLength += props[key].replace(/<[^>]*>/g, "").length;
+                    }
+                }
+
+                if (Array.isArray(props.children)) {
+                    walkBlocks(props.children);
+                }
+            }
+        };
+
+        walkBlocks(blocks);
+
+        return { contentLength: textLength, blockCount: count };
+    }, [blocks, title, excerpt]);
+
     // Determine which properties panel to use
     const ActivePropertiesPanel = PropertiesPanelComponent || PropertiesPanel;
 
@@ -631,6 +907,7 @@ function LaraBuilderInner({
     const propertiesPanelProps = {
         selectedBlock,
         onUpdate: handleUpdateBlock,
+        onReplaceBlock: handleReplaceBlock,
         onImageUpload,
         onVideoUpload,
         canvasSettings,
@@ -665,7 +942,9 @@ function LaraBuilderInner({
             selectedTerms,
             setSelectedTerms,
             featuredImage,
+            featuredImageId,
             setFeaturedImage,
+            setFeaturedImageId,
             removeFeaturedImage,
             setRemoveFeaturedImage,
             taxonomies,
@@ -674,6 +953,11 @@ function LaraBuilderInner({
             statuses,
             postData,
             postType,
+            titleInputRef: sidebarTitleRef,
+            titleError,
+            lastSavedAt,
+            saving,
+            isFormDirty,
         });
     }
 
@@ -713,7 +997,7 @@ function LaraBuilderInner({
                             isPostContext={isPostContext}
                             isEmailContext={isEmailContext}
                             templateData={templateData}
-                            postData={postData}
+                            postData={builderPostData}
                             postTypeModel={postTypeModel}
                             canUndo={canUndo}
                             canRedo={canRedo}
@@ -721,10 +1005,14 @@ function LaraBuilderInner({
                             redo={redo}
                             title={title}
                             setTitle={setTitle}
+                            titleInputRef={headerTitleRef}
+                            titleError={titleError}
                             excerpt={excerpt}
                             setExcerpt={setExcerpt}
                             templateName={templateName}
                             setTemplateName={setTemplateName}
+                            templateNameInputRef={headerTemplateNameRef}
+                            templateNameError={templateNameError}
                             saving={saving}
                             onSave={handleSave}
                             editorMode={editorMode}
@@ -735,6 +1023,35 @@ function LaraBuilderInner({
                             previewMode={previewMode}
                             setPreviewMode={setPreviewMode}
                             status={status}
+                            slug={slug}
+                            seoTitle={seoTitle}
+                            setSeoTitle={setSeoTitle}
+                            seoDescription={seoDescription}
+                            setSeoDescription={setSeoDescription}
+                            seoKeywords={seoKeywords}
+                            setSeoKeywords={setSeoKeywords}
+                            seoOgTitle={seoOgTitle}
+                            setSeoOgTitle={setSeoOgTitle}
+                            seoOgDescription={seoOgDescription}
+                            setSeoOgDescription={setSeoOgDescription}
+                            seoCanonical={seoCanonical}
+                            setSeoCanonical={setSeoCanonical}
+                            seoNoindex={seoNoindex}
+                            setSeoNoindex={setSeoNoindex}
+                            seoNofollow={seoNofollow}
+                            setSeoNofollow={setSeoNofollow}
+                            seoSchemaType={seoSchemaType}
+                            setSeoSchemaType={setSeoSchemaType}
+                            contentHtml={
+                                editorMode === "code" ? codeEditorHtml : getHtml()
+                            }
+                            postType={postType}
+                            contentLength={contentLength}
+                            blockCount={blockCount}
+                            showToast={showToast}
+                            onFocusTitle={focusTitleField}
+                            featuredImage={featuredImage}
+                            removeFeaturedImage={removeFeaturedImage}
                         />
                     </div>
                 )}
@@ -884,6 +1201,10 @@ function LaraBuilder({
     // Custom properties panel component
     PropertiesPanelComponent,
 }) {
+    const isNewDocument = !postData?.id && !templateData?.uuid;
+    const isPostLikeContext = context === "page" || context === "post";
+    const autoSelectFirstBlock = isNewDocument && !isPostLikeContext;
+
     // Fire init action
     useEffect(() => {
         LaraHooks.doAction(BuilderHooks.ACTION_INIT, { context, initialData });
@@ -893,7 +1214,7 @@ function LaraBuilder({
         <BuilderProvider
             context={context}
             initialData={initialData}
-            config={config}
+            config={{ ...config, autoSelectFirstBlock }}
         >
             <LaraBuilderInner
                 onSave={onSave}

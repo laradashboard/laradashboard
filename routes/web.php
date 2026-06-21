@@ -262,6 +262,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
     Route::prefix('ai')->name('ai.')->group(function () {
         Route::get('/providers', [AiContentController::class, 'getProviders'])->name('providers');
         Route::post('/generate-content', [AiContentController::class, 'generateContent'])->name('generate-content');
+        Route::post('/generate-seo', [AiContentController::class, 'generateSeo'])->name('generate-seo');
         Route::post('/modify-text', [AiContentController::class, 'modifyText'])->name('modify-text');
 
         // AI Command System (Agentic CMS).

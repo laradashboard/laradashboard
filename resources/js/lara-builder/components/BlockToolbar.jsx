@@ -403,6 +403,7 @@ const TextFormatControls = ({
     const showAIAssistant = supports.aiAssistant !== false;
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkUrl, setLinkUrl] = useState("");
+    const [openInNewTab, setOpenInNewTab] = useState(false);
     const linkInputRef = useRef(null);
     const savedSelection = useRef(null);
 
@@ -458,16 +459,46 @@ const TextFormatControls = ({
 
         // Check if the selection is inside an existing <a> tag and pre-fill its URL
         let existingUrl = "";
+        let existingTargetBlank = false;
         let node = savedSelection.current.startContainer;
         while (node && node !== editorRef?.current) {
             if (node.nodeType === Node.ELEMENT_NODE && node.tagName === "A") {
                 existingUrl = node.getAttribute("href") || "";
+                existingTargetBlank = node.getAttribute("target") === "_blank";
                 break;
             }
             node = node.parentNode;
         }
         setLinkUrl(existingUrl);
+        setOpenInNewTab(existingTargetBlank);
         setShowLinkInput(true);
+    };
+
+    const applyLinkAttributes = (anchor) => {
+        if (!anchor) return;
+
+        if (openInNewTab) {
+            anchor.setAttribute("target", "_blank");
+            anchor.setAttribute("rel", "noopener noreferrer");
+        } else {
+            anchor.removeAttribute("target");
+            anchor.removeAttribute("rel");
+        }
+    };
+
+    const findAnchorInSelection = () => {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return null;
+
+        let node = selection.anchorNode;
+        while (node && node !== editorRef?.current) {
+            if (node.nodeType === Node.ELEMENT_NODE && node.tagName === "A") {
+                return node;
+            }
+            node = node.parentNode;
+        }
+
+        return null;
     };
 
     const handleLinkSubmit = () => {
@@ -478,12 +509,15 @@ const TextFormatControls = ({
             document.execCommand("unlink", false, null);
         } else {
             document.execCommand("createLink", false, linkUrl);
+            applyLinkAttributes(findAnchorInSelection());
         }
 
         setLinkUrl("");
+        setOpenInNewTab(false);
         setShowLinkInput(false);
 
         if (editorRef?.current) {
+            editorRef.current.dispatchEvent(new Event("input", { bubbles: true }));
             editorRef.current.focus();
         }
     };
@@ -495,6 +529,7 @@ const TextFormatControls = ({
         } else if (e.key === "Escape") {
             setShowLinkInput(false);
             setLinkUrl("");
+            setOpenInNewTab(false);
         }
     };
 
@@ -658,48 +693,62 @@ const TextFormatControls = ({
                                 className="absolute left-0 top-full mt-2 z-50"
                                 onMouseDown={(e) => e.stopPropagation()}
                             >
-                                <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg shadow-lg border border-gray-200">
-                                    <input
-                                        ref={linkInputRef}
-                                        type="text"
-                                        value={linkUrl}
-                                        onChange={(e) =>
-                                            setLinkUrl(e.target.value)
-                                        }
-                                        onKeyDown={(e) => {
-                                            e.stopPropagation();
-                                            handleLinkKeyDown(e);
-                                        }}
-                                        placeholder={__("Enter URL...")}
-                                        className="w-48 px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:border-primary"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={handleLinkSubmit}
-                                        className="p-1 rounded bg-primary text-white hover:bg-primary/80"
-                                        title={__("Apply")}
-                                    >
-                                        <iconify-icon
-                                            icon="mdi:check"
-                                            width="14"
-                                            height="14"
-                                        ></iconify-icon>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setShowLinkInput(false);
-                                            setLinkUrl("");
-                                        }}
-                                        className="p-1 rounded text-gray-400 hover:text-gray-600"
-                                        title={__("Cancel")}
-                                    >
-                                        <iconify-icon
-                                            icon="mdi:close"
-                                            width="14"
-                                            height="14"
-                                        ></iconify-icon>
-                                    </button>
+                                <div className="flex flex-col gap-2 px-3 py-2 bg-white rounded-lg shadow-lg border border-gray-200 min-w-[14rem]">
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            ref={linkInputRef}
+                                            type="text"
+                                            value={linkUrl}
+                                            onChange={(e) =>
+                                                setLinkUrl(e.target.value)
+                                            }
+                                            onKeyDown={(e) => {
+                                                e.stopPropagation();
+                                                handleLinkKeyDown(e);
+                                            }}
+                                            placeholder={__("Enter URL...")}
+                                            className="w-48 px-2 py-1 text-sm bg-gray-50 border border-gray-200 rounded text-gray-700 placeholder-gray-400 focus:outline-none focus:border-primary"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleLinkSubmit}
+                                            className="p-1 rounded bg-primary text-white hover:bg-primary/80"
+                                            title={__("Apply")}
+                                        >
+                                            <iconify-icon
+                                                icon="mdi:check"
+                                                width="14"
+                                                height="14"
+                                            ></iconify-icon>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setShowLinkInput(false);
+                                                setLinkUrl("");
+                                                setOpenInNewTab(false);
+                                            }}
+                                            className="p-1 rounded text-gray-400 hover:text-gray-600"
+                                            title={__("Cancel")}
+                                        >
+                                            <iconify-icon
+                                                icon="mdi:close"
+                                                width="14"
+                                                height="14"
+                                            ></iconify-icon>
+                                        </button>
+                                    </div>
+                                    <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={openInNewTab}
+                                            onChange={(e) =>
+                                                setOpenInNewTab(e.target.checked)
+                                            }
+                                            className="rounded border-gray-300 text-primary focus:ring-primary"
+                                        />
+                                        {__("Open in new tab")}
+                                    </label>
                                 </div>
                             </div>
                         )}
@@ -801,6 +850,7 @@ const BlockToolbar = ({
     onMoveDown,
     onDelete,
     onDuplicate,
+    onConvertBlock,
     canMoveUp,
     canMoveDown,
     // Text format props (optional - for text-based blocks)

@@ -5,7 +5,7 @@
  * reuses the shared PropertiesPanel block editors when a block is selected.
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import PropertiesPanel from "./PropertiesPanel";
 import LayoutStylesSection from "./LayoutStylesSection";
 import TaxonomySection from "./TaxonomySection";
@@ -15,6 +15,7 @@ import { mediaLibrary } from "../services/MediaLibraryService";
 const PostPropertiesPanel = ({
     selectedBlock,
     onUpdate,
+    onReplaceBlock,
     onImageUpload,
     onVideoUpload,
     canvasSettings,
@@ -37,6 +38,7 @@ const PostPropertiesPanel = ({
     setSelectedTerms,
     featuredImage,
     setFeaturedImage,
+    setFeaturedImageId,
     removeFeaturedImage,
     setRemoveFeaturedImage,
     taxonomies,
@@ -45,15 +47,72 @@ const PostPropertiesPanel = ({
     statuses,
     postData,
     postType,
+    titleInputRef,
+    titleError,
+    lastSavedAt,
+    saving,
+    isFormDirty,
 }) => {
-    const [showSlugEdit, setShowSlugEdit] = useState(false);
     const [copied, setCopied] = useState(false);
 
     const frontendUrl = postData?.frontend_url;
-    const adminUrl = postData?.id
-        ? `${window.location.origin}/admin/posts/${postType || "page"}/${postData.id}`
-        : null;
-    const displayUrl = frontendUrl || adminUrl;
+    const previewUrl =
+        postData?.preview_url ||
+        (postData?.id
+            ? `${window.location.origin}/admin/posts/${postType || "page"}/${postData.id}`
+            : null);
+
+    const slugPreviewUrl = useMemo(() => {
+        if (!slug) {
+            return null;
+        }
+
+        const basePath =
+            postType === "page" ? "" : "post/";
+
+        return `${window.location.origin}/${basePath}${slug}`;
+    }, [slug, postType]);
+
+    const displayUrl = frontendUrl || slugPreviewUrl || previewUrl;
+
+    const lastEditedLabel = useMemo(() => {
+        if (saving) {
+            return __("Saving...");
+        }
+
+        if (isFormDirty) {
+            return __("Unsaved changes.");
+        }
+
+        if (!lastSavedAt) {
+            return null;
+        }
+
+        const seconds = Math.floor((Date.now() - lastSavedAt.getTime()) / 1000);
+
+        if (seconds < 60) {
+            return __("Last edited a moment ago.");
+        }
+
+        if (seconds < 3600) {
+            const minutes = Math.floor(seconds / 60);
+
+            return minutes === 1
+                ? __("Last edited a minute ago.")
+                : __("Last edited :count minutes ago.").replace(
+                      ":count",
+                      String(minutes)
+                  );
+        }
+
+        return __("Last edited :time.").replace(
+            ":time",
+            lastSavedAt.toLocaleString([], {
+                dateStyle: "medium",
+                timeStyle: "short",
+            })
+        );
+    }, [lastSavedAt, saving, isFormDirty]);
 
     // Handle copy URL with visual feedback
     const handleCopyUrl = () => {
@@ -70,6 +129,7 @@ const PostPropertiesPanel = ({
             const file = await mediaLibrary.selectImage();
             if (file) {
                 setFeaturedImage(file.url);
+                setFeaturedImageId(String(file.id));
                 setRemoveFeaturedImage(false);
             }
         } catch (error) {
@@ -94,6 +154,7 @@ const PostPropertiesPanel = ({
             <PropertiesPanel
                 selectedBlock={selectedBlock}
                 onUpdate={onUpdate}
+                onReplaceBlock={onReplaceBlock}
                 onImageUpload={onImageUpload}
                 onVideoUpload={onVideoUpload}
                 canvasSettings={canvasSettings}
@@ -105,91 +166,124 @@ const PostPropertiesPanel = ({
     // Show post settings when no block is selected
     return (
         <div className="h-full overflow-y-auto px-1">
-            {/* Post Details Section */}
             <div className="mb-6">
-                <div className="mb-4 pb-2 border-b border-gray-200">
+                <div className="mb-3 pb-2 border-b border-gray-200 flex items-center justify-between gap-2">
                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        {__(":type Details").replace(
-                            ":type",
-                            postTypeModel.label_singular
-                        )}
+                        {postTypeModel.label_singular}
                     </span>
+                    {lastEditedLabel && (
+                        <span className="text-xs text-gray-400 truncate">
+                            {lastEditedLabel}
+                        </span>
+                    )}
                 </div>
 
-                {/* Title (shown on mobile, hidden on desktop where it's in header) */}
-                <div className="mb-4 md:hidden">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                {/* Title (mobile only — desktop uses header) */}
+                <div className="mb-3 md:hidden">
+                    <label
+                        htmlFor="lara-builder-sidebar-title"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                         {__("Title")}
                     </label>
                     <input
+                        ref={titleInputRef}
+                        id="lara-builder-sidebar-title"
                         type="text"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="form-control"
+                        className={`form-control ${
+                            titleError
+                                ? "border-red-500 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-100"
+                                : ""
+                        }`}
                         placeholder={__("Enter title...")}
+                        aria-invalid={titleError ? "true" : undefined}
+                        title={titleError || undefined}
                     />
                 </div>
 
-                {/* Slug */}
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {__("Slug")}
-                    </label>
-                    <div className="flex gap-2">
-                        {showSlugEdit ? (
+                <div className="space-y-3">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {__("Status")}
+                        </label>
+                        <select
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            className="form-control"
+                        >
+                            {Object.entries(statuses).map(([value, label]) => (
+                                <option key={value} value={value}>
+                                    {label}
+                                </option>
+                            ))}
+                        </select>
+                        {(status === "published" || status === "private") && (
+                            <p className="text-xs text-gray-400 mt-1">
+                                {__(
+                                    "Use Update to save while live. Set Draft to unpublish."
+                                )}
+                            </p>
+                        )}
+                    </div>
+
+                    {status === "scheduled" && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                {__("Publish Date")}
+                            </label>
+                            <input
+                                type="datetime-local"
+                                value={publishedAt}
+                                onChange={(e) => setPublishedAt(e.target.value)}
+                                className="form-control"
+                            />
+                        </div>
+                    )}
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {__("Slug")}
+                        </label>
+                        <div className="flex gap-2">
                             <input
                                 type="text"
                                 value={slug}
                                 onChange={(e) => setSlug(e.target.value)}
-                                className="form-control flex-1"
-                                placeholder="post-slug"
+                                className="form-control flex-1 min-w-0"
+                                placeholder={__("auto-generated from title")}
                             />
-                        ) : (
-                            <div className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-600 truncate">
-                                {slug || (
-                                    <span className="text-gray-400 italic">
-                                        {__("auto-generated")}
-                                    </span>
-                                )}
-                            </div>
-                        )}
-                        <button
-                            type="button"
-                            onClick={() => setShowSlugEdit(!showSlugEdit)}
-                            className="btn-default px-3 py-2 text-xs"
-                        >
-                            {showSlugEdit ? __("OK") : __("Edit")}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={generateSlug}
-                            className="btn-default px-3 py-2 text-xs"
-                            title={__("Generate from title")}
-                        >
-                            <iconify-icon
-                                icon="mdi:refresh"
-                                width="16"
-                                height="16"
-                            ></iconify-icon>
-                        </button>
+                            <button
+                                type="button"
+                                onClick={generateSlug}
+                                className="btn-default px-3 py-2 shrink-0"
+                                title={__("Generate from title")}
+                            >
+                                <iconify-icon
+                                    icon="mdi:refresh"
+                                    width="16"
+                                    height="16"
+                                ></iconify-icon>
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Permalink */}
-                    {(postData?.id || slug) && displayUrl && (
-                        <div className="mt-2">
-                            <label className="block text-xs font-medium text-gray-500 mb-1">
+                    {displayUrl && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
                                 {__("Permalink")}
                             </label>
                             <div className="flex items-center gap-2">
-                                <div className="flex-1 px-2 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs text-gray-500 truncate font-mono">
+                                <div className="flex-1 min-w-0 px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-xs text-gray-500 truncate font-mono">
                                     {displayUrl}
                                 </div>
-                                {postData?.id && (
+                                {postData?.id && frontendUrl && (
                                     <a
                                         href={displayUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="btn-default px-2 py-1.5 text-xs"
+                                        className="btn-default px-2 py-2 shrink-0"
                                         title={__("View")}
                                     >
                                         <iconify-icon
@@ -202,7 +296,7 @@ const PostPropertiesPanel = ({
                                 <button
                                     type="button"
                                     onClick={handleCopyUrl}
-                                    className={`btn-default px-2 py-1.5 text-xs ${
+                                    className={`btn-default px-2 py-2 shrink-0 ${
                                         copied ? "text-green-600" : ""
                                     }`}
                                     title={
@@ -220,63 +314,21 @@ const PostPropertiesPanel = ({
                                     ></iconify-icon>
                                 </button>
                             </div>
-                            {frontendUrl && adminUrl && (
-                                <div className="mt-1">
+                            {previewUrl &&
+                                frontendUrl &&
+                                previewUrl !== frontendUrl && (
                                     <a
-                                        href={adminUrl}
+                                        href={previewUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-xs text-gray-400 hover:text-gray-600"
+                                        className="inline-block mt-1 text-xs text-gray-400 hover:text-gray-600"
                                     >
-                                        {__("Admin")} &rarr;
+                                        {__("Preview")} &rarr;
                                     </a>
-                                </div>
-                            )}
+                                )}
                         </div>
                     )}
                 </div>
-            </div>
-
-            {/* Status Section */}
-            <div className="mb-6">
-                <div className="mb-4 pb-2 border-b border-gray-200">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        {__("Status & Visibility")}
-                    </span>
-                </div>
-
-                {/* Status */}
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {__("Status")}
-                    </label>
-                    <select
-                        value={status}
-                        onChange={(e) => setStatus(e.target.value)}
-                        className="form-control"
-                    >
-                        {Object.entries(statuses).map(([value, label]) => (
-                            <option key={value} value={value}>
-                                {label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Publish Date (for scheduled posts) */}
-                {status === "scheduled" && (
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            {__("Publish Date")}
-                        </label>
-                        <input
-                            type="datetime-local"
-                            value={publishedAt}
-                            onChange={(e) => setPublishedAt(e.target.value)}
-                            className="form-control"
-                        />
-                    </div>
-                )}
             </div>
 
             {/* Featured Image Section */}
@@ -300,6 +352,7 @@ const PostPropertiesPanel = ({
                                     type="button"
                                     onClick={() => {
                                         setFeaturedImage("");
+                                        setFeaturedImageId("");
                                         setRemoveFeaturedImage(true);
                                     }}
                                     className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"

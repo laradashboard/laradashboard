@@ -42,6 +42,7 @@ enum BuilderFilterHook: string
     // Save filters
     case BUILDER_SAVE_DATA = 'filter.builder.save.data';
     case BUILDER_SAVE_HTML = 'filter.builder.save.html';
+    case BUILDER_SEO_META_SAVE = 'filter.builder.seo_meta.save';
 
     /**
      * Get the context-specific blocks hook

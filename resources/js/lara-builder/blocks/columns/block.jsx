@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
     SortableContext,
@@ -64,8 +64,7 @@ const NestedSortableBlock = ({
     const canMoveUp = blockIndex > 0;
     const canMoveDown = blockIndex < totalBlocks - 1;
 
-    // Handler for blocks to register their text format capabilities
-    const handleRegisterTextFormat = (formatProps) => {
+    const handleRegisterTextFormat = useCallback((formatProps) => {
         if (formatProps) {
             setTextFormatProps({
                 editorRef: formatProps.editorRef,
@@ -75,10 +74,9 @@ const NestedSortableBlock = ({
         } else {
             setTextFormatProps(null);
         }
-    };
+    }, []);
 
-    // Handler for blocks to register alignment-only capabilities
-    const handleRegisterAlign = (alignData) => {
+    const handleRegisterAlign = useCallback((alignData) => {
         if (alignData) {
             setAlignProps({
                 align: alignData.align,
@@ -87,7 +85,7 @@ const NestedSortableBlock = ({
         } else {
             setAlignProps(null);
         }
-    };
+    }, []);
 
     if (!BlockComponent) {
         return (

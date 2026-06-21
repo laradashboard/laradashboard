@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Support\Builder\ContentTokens;
+
 /**
  * Section Block - Server-side Renderer
  *
@@ -15,6 +19,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $contentAlign = $props['contentAlign'] ?? 'center';
     $backgroundType = $props['backgroundType'] ?? 'solid';
     $backgroundColor = $props['backgroundColor'] ?? '#ffffff';
+    $textColor = $props['textColor'] ?? '';
     $gradientFrom = $props['gradientFrom'] ?? '#f9fafb';
     $gradientTo = $props['gradientTo'] ?? '#f3f4f6';
     $gradientDirection = $props['gradientDirection'] ?? 'to-br';
@@ -81,6 +86,8 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         $backgroundStyle,
         'padding: 48px 16px',
     ];
+
+    $sectionStyles = array_merge($sectionStyles, ContentTokens::sectionTextColorStyles($textColor));
 
     if (! empty($layoutStyles['padding'])) {
         $padding = $layoutStyles['padding'];

@@ -5,10 +5,11 @@ import {
     useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { getBlockComponent } from "../index";
 import { getBlockSupports } from "../blockLoader";
 import BlockToolbar from "../../components/BlockToolbar";
+import { buildSectionTextColorStyles } from "@lara-builder/tokens/contentTokens";
 import { __ } from "@lara-builder/i18n";
 
 // Nested sortable block within the section
@@ -67,7 +68,7 @@ const NestedSortableBlock = ({
     const canMoveUp = blockIndex > 0;
     const canMoveDown = blockIndex < totalBlocks - 1;
 
-    const handleRegisterTextFormat = (formatProps) => {
+    const handleRegisterTextFormat = useCallback((formatProps) => {
         if (formatProps) {
             setTextFormatProps({
                 editorRef: formatProps.editorRef,
@@ -77,9 +78,9 @@ const NestedSortableBlock = ({
         } else {
             setTextFormatProps(null);
         }
-    };
+    }, []);
 
-    const handleRegisterAlign = (alignData) => {
+    const handleRegisterAlign = useCallback((alignData) => {
         if (alignData) {
             setAlignProps({
                 align: alignData.align,
@@ -88,7 +89,7 @@ const NestedSortableBlock = ({
         } else {
             setAlignProps(null);
         }
-    };
+    }, []);
 
     if (!BlockComponent) {
         return (
@@ -262,6 +263,7 @@ const SectionBlock = ({
         gradientFrom = "#f9fafb",
         gradientTo = "#f3f4f6",
         gradientDirection = "to-br",
+        textColor = "",
         children = [[]],
     } = props;
 
@@ -296,6 +298,7 @@ const SectionBlock = ({
             paddingBottom: props.layoutStyles.padding.bottom || "48px",
             paddingLeft: props.layoutStyles.padding.left || "16px",
         }),
+        ...buildSectionTextColorStyles(textColor),
     };
 
     // Inner container style
@@ -313,7 +316,7 @@ const SectionBlock = ({
 
     return (
         <div
-            className={`transition-all rounded-lg ${isSelected ? "ring-2 ring-primary ring-offset-2" : ""}`}
+            className={`lb-section transition-all rounded-lg ${isSelected ? "ring-2 ring-primary ring-offset-2" : ""}`}
             style={sectionStyle}
         >
             <div style={containerStyle}>

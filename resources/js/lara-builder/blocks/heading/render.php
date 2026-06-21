@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Support\Builder\ContentTokens;
+
 /**
  * Heading Block - Server-side Renderer
  *
@@ -29,7 +33,10 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         $typography = $layoutStyles['typography'] ?? [];
 
         $align = $props['align'] ?? 'left';
-        $color = $typography['color'] ?? $props['color'] ?? '#333333';
+        $color = ContentTokens::resolveHeadingEmailColor(
+            $props['color'] ?? null,
+            $typography['color'] ?? null
+        );
         $fontSize = $typography['fontSize'] ?? $props['fontSize'] ?? '24px';
         $fontWeight = $typography['fontWeight'] ?? $props['fontWeight'] ?? '700';
         $lineHeight = $typography['lineHeight'] ?? $props['lineHeight'] ?? '1.2';
@@ -65,7 +72,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         );
     }
     $align = $props['align'] ?? 'left';
-    $color = $props['color'] ?? '#333333';
+    $color = $props['color'] ?? '';
     $fontSize = $props['fontSize'] ?? '32px';
     $fontWeight = $props['fontWeight'] ?? 'bold';
     $lineHeight = $props['lineHeight'] ?? '1.2';
@@ -101,10 +108,13 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     // Check if typography styles exist in layoutStyles, otherwise use direct props
     $typography = $layoutStyles['typography'] ?? [];
 
-    if (! empty($typography['color'])) {
-        $styles[] = "color: {$typography['color']}";
-    } elseif ($color) {
-        $styles[] = "color: {$color}";
+    $resolvedColor = ContentTokens::resolveHeadingPageColor(
+        $color,
+        $typography['color'] ?? null
+    );
+
+    if ($resolvedColor !== null) {
+        $styles[] = "color: {$resolvedColor}";
     }
 
     if (! empty($typography['fontSize'])) {
