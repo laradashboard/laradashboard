@@ -398,12 +398,6 @@ class ModuleService
      */
     public function uploadModule(Request $request): string
     {
-        Log::info('Module upload initiated.', [
-            'user_id' => Auth::id(),
-            'ip' => $request->ip(),
-            'filename' => $request->file('module')?->getClientOriginalName(),
-        ]);
-
         // First, clean up orphaned entries from module_statuses.json
         // This handles cases where module folders were manually deleted
         $this->cleanupOrphanedModuleStatuses();

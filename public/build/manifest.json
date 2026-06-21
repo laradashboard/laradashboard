@@ -1,6 +1,6 @@
 {
-  "_index-l0vBe5jH.js": {
-    "file": "assets/index-l0vBe5jH.js",
+  "_index-DO4I10j0.js": {
+    "file": "assets/index-DO4I10j0.js",
     "name": "index"
   },
   "resources/css/app.css": {
@@ -22,21 +22,21 @@
     ]
   },
   "resources/js/lara-builder/entry.jsx": {
-    "file": "assets/entry-CaAy6loq.js",
+    "file": "assets/entry-Cm55uNWL.js",
     "name": "entry",
     "src": "resources/js/lara-builder/entry.jsx",
     "isEntry": true,
     "imports": [
-      "_index-l0vBe5jH.js"
+      "_index-DO4I10j0.js"
     ]
   },
   "resources/js/lara-builder/post-entry.jsx": {
-    "file": "assets/post-entry-qlQ4jbsM.js",
+    "file": "assets/post-entry-BqQHtCQE.js",
     "name": "post-entry",
     "src": "resources/js/lara-builder/post-entry.jsx",
     "isEntry": true,
     "imports": [
-      "_index-l0vBe5jH.js"
+      "_index-DO4I10j0.js"
     ],
     "css": [
       "assets/post-entry-TC8QQP5f.css"
