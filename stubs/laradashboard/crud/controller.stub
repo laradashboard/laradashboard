@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace $MODULE_NAMESPACE$\$STUDLY_NAME$\Http\Controllers;
 
-use Illuminate\Contracts\Support\Renderable;
+$CONTROLLER_PARENT_IMPORT$use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use $MODULE_NAMESPACE$\$STUDLY_NAME$\Http\Requests\$MODEL_NAME$Request;
 use $MODULE_NAMESPACE$\$STUDLY_NAME$\Models\$MODEL_NAME$;
 use $MODULE_NAMESPACE$\$STUDLY_NAME$\Services\$MODEL_NAME$Service;
 
-class $MODEL_NAME$Controller extends $STUDLY_NAME$Controller
+class $MODEL_NAME$Controller extends $CONTROLLER_PARENT$
 {
     public function __construct(private readonly $MODEL_NAME$Service $$MODEL_LOWER$Service) {}
 

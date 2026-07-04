@@ -210,6 +210,9 @@ class ModuleMakeCrudCommand extends Command
         $this->line('  2. Update the Datatable headers and columns as needed');
         $this->line('  3. Customize the form partial with appropriate input fields');
         $this->line('  4. Clear route cache: php artisan optimize:clear');
+        $this->line("  5. Compile the module's CSS so it loads without the Vite dev server:");
+        $this->line("       php artisan module:compile-css {$this->moduleStudlyName}");
+        $this->line('     (Skippable while `npm run dev` is running; the page renders unstyled until compiled.)');
 
         $this->newLine();
         $this->comment('Access your new CRUD:');
@@ -770,6 +773,15 @@ PHP;
      */
     protected function generateModuleController(): void
     {
+        // When the model shares the module's name (e.g. `Sampler` model in the
+        // `Sampler` module), the base module controller and the CRUD controller
+        // would resolve to the same class/file. In that case we skip the base
+        // controller entirely: the CRUD controller (generated next) extends the
+        // core Controller directly instead.
+        if ($this->modelStudlyName === $this->moduleStudlyName) {
+            return;
+        }
+
         $path = "{$this->modulePath}/app/Http/Controllers/{$this->moduleStudlyName}Controller.php";
 
         if (File::exists($path)) {
@@ -801,8 +813,13 @@ PHP;
     protected function generateController(): void
     {
         $path = "{$this->modulePath}/app/Http/Controllers/{$this->modelStudlyName}Controller.php";
+        $isSelfNamed = $this->modelStudlyName === $this->moduleStudlyName;
 
-        if (File::exists($path)) {
+        // For self-named modules the file at this path is the (empty) module
+        // controller left over from `module:make`; we must overwrite it with the
+        // full CRUD controller. For distinctly-named models we keep any existing
+        // controller so custom code is not clobbered.
+        if (File::exists($path) && ! $isSelfNamed) {
             $this->line("  Skipped: Http/Controllers/{$this->modelStudlyName}Controller.php (already exists)");
 
             return;
@@ -810,6 +827,8 @@ PHP;
 
         $content = $this->getStub('controller');
         $content = $this->replaceStubTokens($content, [
+            '$CONTROLLER_PARENT$' => $isSelfNamed ? 'Controller' : "{$this->moduleStudlyName}Controller",
+            '$CONTROLLER_PARENT_IMPORT$' => $isSelfNamed ? "use App\\Http\\Controllers\\Controller;\n" : '',
             '$FILE_UPLOAD_STORE$' => $this->generateFileUploadStoreCode(),
             '$FILE_UPLOAD_UPDATE$' => $this->generateFileUploadUpdateCode(),
         ]);
