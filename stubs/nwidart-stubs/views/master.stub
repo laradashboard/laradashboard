@@ -5,7 +5,9 @@
 @endsection
 
 @push('styles')
-    @vite(['modules/$STUDLY_NAME$/resources/assets/css/app.css'], 'build-$LOWER_NAME$')
+    {{-- Resilient CSS loader: renders the compiled module bundle when present and
+         degrades gracefully (no 500) when it has not been built yet. --}}
+    <x-module-styles :entrypoints="['modules/$STUDLY_NAME$/resources/assets/css/app.css']" build="build-$LOWER_NAME$" />
 @endpush
 
 @section('admin-content')

@@ -12,7 +12,9 @@ export default defineConfig({
     build: {
         outDir: isDistBuild ? distOutDir : devOutDir,
         emptyOutDir: true,
-        manifest: true,
+        // Write the manifest at the build-dir root (public/build-$LOWER_NAME$/manifest.json)
+        // so Laravel and <x-module-styles> can locate it without the Vite dev server.
+        manifest: 'manifest.json',
     },
     plugins: [
         laravel({

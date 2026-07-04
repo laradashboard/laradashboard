@@ -449,6 +449,50 @@ PHP;
     expect($crudControllerContent)->toContain('extends TestCrudController');
 });
 
+test('generated module scaffolding uses resilient module-styles component and root manifest', function () {
+    $this->artisan('module:make', ['name' => [$this->moduleName]])
+        ->assertSuccessful();
+
+    // The master layout must load module CSS via the graceful <x-module-styles>
+    // component rather than a raw @vite() call that fatals on a missing manifest.
+    $master = File::get("{$this->modulePath}/resources/views/layouts/master.blade.php");
+    expect($master)
+        ->toContain('<x-module-styles')
+        ->toContain('build-testcrud')
+        ->not->toContain('@vite(');
+
+    // The Vite config must emit the manifest at the build-dir root so Laravel can find it.
+    $viteConfig = File::get("{$this->modulePath}/vite.config.js");
+    expect($viteConfig)->toContain("manifest: 'manifest.json'");
+});
+
+test('crud command generates a working controller when model name equals module name', function () {
+    $this->artisan('module:make', ['name' => [$this->moduleName]])
+        ->assertSuccessful();
+
+    // Model name intentionally matches the module name (e.g. `Sampler` in the
+    // `Sampler` module) — the base and CRUD controllers would otherwise collide.
+    $this->artisan('module:make-crud', [
+        'module' => $this->moduleName,
+        '--model' => $this->moduleName,
+        '--fields' => 'title:string,content:text,is_published:boolean',
+    ])->assertSuccessful();
+
+    $controller = File::get("{$this->modulePath}/app/Http/Controllers/TestCrudController.php");
+
+    // There is a single controller: the full CRUD controller extending the core
+    // Controller — not an empty base class, and never extending itself.
+    expect($controller)
+        ->toContain('use App\\Http\\Controllers\\Controller;')
+        ->toContain('class TestCrudController extends Controller')
+        ->toContain('public function index(): Renderable')
+        ->not->toContain('extends TestCrudController');
+
+    // The resource route points at that controller.
+    $routes = File::get("{$this->modulePath}/routes/web.php");
+    expect($routes)->toContain('TestCrudController::class');
+});
+
 test('crud command comprehensive example', function () {
     $this->artisan('module:make', ['name' => [$this->moduleName]])
         ->assertSuccessful();
