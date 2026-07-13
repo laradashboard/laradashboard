@@ -1,0 +1,65 @@
+/**
+ * Text Editor block styles.
+ * Restores list markers stripped by Tailwind Preflight so bullet/numbered
+ * lists match the frontend `.prose` / post preview appearance.
+ */
+
+.lb-text-editor ul,
+.lb-builder-canvas .lb-text-editor ul,
+.lb-builder-canvas [data-text-editing="true"] ul,
+.lb-page-content .lb-text-editor ul {
+    list-style-type: disc;
+    list-style-position: outside;
+    margin: 0.75em 0;
+    padding-left: 1.5em;
+}
+
+.lb-text-editor ol,
+.lb-builder-canvas .lb-text-editor ol,
+.lb-builder-canvas [data-text-editing="true"] ol,
+.lb-page-content .lb-text-editor ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin: 0.75em 0;
+    padding-left: 1.5em;
+}
+
+.lb-text-editor li,
+.lb-builder-canvas .lb-text-editor li,
+.lb-builder-canvas [data-text-editing="true"] li,
+.lb-page-content .lb-text-editor li {
+    margin: 0.25em 0;
+    padding-left: 0.25em;
+    display: list-item;
+}
+
+.lb-text-editor ul ul,
+.lb-builder-canvas .lb-text-editor ul ul,
+.lb-builder-canvas [data-text-editing="true"] ul ul,
+.lb-page-content .lb-text-editor ul ul {
+    list-style-type: circle;
+    margin: 0.25em 0;
+}
+
+.lb-text-editor ul ul ul,
+.lb-builder-canvas .lb-text-editor ul ul ul,
+.lb-builder-canvas [data-text-editing="true"] ul ul ul,
+.lb-page-content .lb-text-editor ul ul ul {
+    list-style-type: square;
+}
+
+.lb-text-editor ol ol,
+.lb-builder-canvas .lb-text-editor ol ol,
+.lb-builder-canvas [data-text-editing="true"] ol ol,
+.lb-page-content .lb-text-editor ol ol {
+    list-style-type: lower-alpha;
+    margin: 0.25em 0;
+}
+
+.lb-page-content .lb-text-editor {
+    margin-bottom: 1em;
+}
+
+.lb-page-content .lb-text-editor:last-child {
+    margin-bottom: 0;
+}

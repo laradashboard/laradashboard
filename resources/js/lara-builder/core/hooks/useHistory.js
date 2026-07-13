@@ -32,7 +32,10 @@ function isTextEditing() {
         activeElement.closest('[contenteditable="true"]') ||
         activeElement.closest('[data-text-editing="true"]') ||
         activeElement.closest('.ProseMirror') ||
-        activeElement.closest('.ql-editor')
+        activeElement.closest('.ql-editor') ||
+        activeElement.closest('.mce-content-body') ||
+        activeElement.closest('.tox-dialog') ||
+        activeElement.closest('.tox-textfield')
     );
 }
 
