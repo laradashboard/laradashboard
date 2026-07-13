@@ -194,7 +194,7 @@
                             <div>
                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('URL') }}</label>
                                 <div class="flex items-center gap-2">
-                                    <input id="{{ $id }}_fileUrl" type="text" readonly class="form-control text-xs flex-1" />
+                                    <input id="{{ $id }}_fileUrl" type="text" readonly class="form-control text-xs flex-1 min-w-0" title="" />
                                     <button type="button" onclick="copyToClipboard('{{ $id }}_fileUrl')" class="btn-default p-2" title="{{ __('Copy URL') }}">
                                         <iconify-icon icon="lucide:copy" class="text-sm"></iconify-icon>
                                     </button>
@@ -640,6 +640,7 @@ function showMediaDetails(modalId, file) {
     document.getElementById(`${modalId}_fileType`).textContent = file.extension?.toUpperCase() || 'Unknown';
     document.getElementById(`${modalId}_fileSize`).textContent = file.human_readable_size || '0 KB';
     document.getElementById(`${modalId}_fileUrl`).value = file.url;
+    document.getElementById(`${modalId}_fileUrl`).title = file.url;
 
     // Update upload date
     const uploadDate = file.created_at ? new Date(file.created_at).toLocaleDateString() : 'Unknown';
@@ -967,6 +968,70 @@ function triggerFileUpload(modalId) {
     fileInput.click();
 }
 
+function extractUploadedFileIds(files) {
+    if (!Array.isArray(files)) {
+        return [];
+    }
+
+    return files
+        .map(file => file?.id)
+        .filter(id => id != null);
+}
+
+function autoSelectUploadedMedia(modalId, uploadedFileIds) {
+    if (!uploadedFileIds || uploadedFileIds.length === 0) {
+        return;
+    }
+
+    const modalData = window.mediaModalData[modalId];
+    if (!modalData) {
+        return;
+    }
+
+    const uploadedIdSet = new Set(uploadedFileIds.map(id => Number(id)));
+    const uploadedFiles = modalData.allFiles.filter(file => uploadedIdSet.has(Number(file.id)));
+
+    if (uploadedFiles.length === 0) {
+        return;
+    }
+
+    const eligibleFiles = uploadedFiles.filter(file => {
+        if (modalData.allowedTypes === 'all') {
+            return true;
+        }
+
+        return checkFileTypeAllowed(file.mime_type, modalData.allowedTypes);
+    });
+
+    if (eligibleFiles.length === 0) {
+        return;
+    }
+
+    const primaryFile = eligibleFiles[eligibleFiles.length - 1];
+
+    if (modalData.multiple) {
+        eligibleFiles.forEach(file => {
+            const isAlreadySelected = modalData.selectedFiles.some(selected => selected.id === file.id);
+            if (!isAlreadySelected) {
+                modalData.selectedFiles.push(file);
+            }
+        });
+
+        modalData.currentFile = primaryFile;
+        showMediaDetails(modalId, primaryFile);
+        updateMediaItemSelection(modalId);
+        updateCheckboxStates(modalId);
+        updateSelectedInfo(modalId);
+    } else {
+        selectMediaFile(modalId, primaryFile);
+    }
+
+    const activeItem = document.querySelector(`#${modalId}_mediaContainer [data-file-id="${primaryFile.id}"]`);
+    if (activeItem) {
+        activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
 async function handleFileUpload(event, modalId) {
     const files = Array.from(event.target.files);
     if (files.length === 0) return;
@@ -994,8 +1059,16 @@ async function handleFileUpload(event, modalId) {
         const data = await response.json();
 
         if (data.success) {
-            // Reload media files
-            loadMediaFiles(modalId, true);
+            const uploadedFileIds = extractUploadedFileIds(data.files);
+            const modalData = window.mediaModalData[modalId];
+
+            if (modalData) {
+                modalData.currentPage = 1;
+                modalData.hasMorePages = true;
+            }
+
+            await loadMediaFiles(modalId, true);
+            autoSelectUploadedMedia(modalId, uploadedFileIds);
 
             // Show success message
             if (window.showToast) {

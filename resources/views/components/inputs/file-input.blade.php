@@ -38,13 +38,37 @@
     @if($avatarStyle)
         <div
             x-data="{
+                originalPreview: '{{ $existingAttachment ?? '' }}',
                 preview: '{{ $existingAttachment ?? '' }}',
+                blobUrl: null,
+                hasNewSelection: false,
                 {{ $hasRemoveAction ? $removeModalId . 'Open: false, removing: false,' : '' }}
                 updatePreview(event) {
-                    const file = event.target.files[0];
-                    if (file) {
-                        this.preview = URL.createObjectURL(file);
+                    const file = event.target.files && event.target.files[0];
+                    if (this.blobUrl) {
+                        URL.revokeObjectURL(this.blobUrl);
+                        this.blobUrl = null;
                     }
+                    if (file) {
+                        this.blobUrl = URL.createObjectURL(file);
+                        this.preview = this.blobUrl;
+                        this.hasNewSelection = true;
+                    } else {
+                        this.preview = this.originalPreview;
+                        this.hasNewSelection = false;
+                    }
+                },
+                clearSelection() {
+                    const input = this.$refs.fileInput;
+                    if (input) {
+                        input.value = '';
+                    }
+                    if (this.blobUrl) {
+                        URL.revokeObjectURL(this.blobUrl);
+                        this.blobUrl = null;
+                    }
+                    this.preview = this.originalPreview;
+                    this.hasNewSelection = false;
                 },
                 @if($hasRemoveAction)
                 async confirmRemove() {
@@ -74,29 +98,43 @@
             }"
             class="flex flex-col items-center gap-3 {{ $selectedImageClass ?? '' }}"
         >
-            <label for="{{ $id }}" class="cursor-pointer inline-block">
-                <div class="relative group">
-                    <template x-if="preview">
-                        <img
-                            :src="preview"
-                            alt="{{ $existingAltText }}"
-                            class="{{ $avatarSizeClasses }} rounded-full object-cover ring-4 ring-gray-100 dark:ring-gray-700 shadow-lg"
-                        >
-                    </template>
-                    <template x-if="!preview">
-                        <div class="{{ $avatarSizeClasses }} rounded-full bg-gray-100 dark:bg-gray-700 ring-4 ring-gray-100 dark:ring-gray-700 shadow-lg flex items-center justify-center">
-                            <iconify-icon icon="lucide:user" class="text-gray-400 dark:text-gray-500" width="48" height="48"></iconify-icon>
+            <div class="relative">
+                <label for="{{ $id }}" class="cursor-pointer inline-block">
+                    <div class="relative group">
+                        <template x-if="preview">
+                            <img
+                                :src="preview"
+                                alt="{{ $existingAltText }}"
+                                class="{{ $avatarSizeClasses }} rounded-full object-cover ring-4 ring-gray-100 dark:ring-gray-700 shadow-lg"
+                            >
+                        </template>
+                        <template x-if="!preview">
+                            <div class="{{ $avatarSizeClasses }} rounded-full bg-gray-100 dark:bg-gray-700 ring-4 ring-gray-100 dark:ring-gray-700 shadow-lg flex items-center justify-center">
+                                <iconify-icon icon="lucide:user" class="text-gray-400 dark:text-gray-500" width="48" height="48"></iconify-icon>
+                            </div>
+                        </template>
+                        <div class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <iconify-icon icon="lucide:camera" class="text-white" width="24" height="24"></iconify-icon>
                         </div>
-                    </template>
-                    <div class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <iconify-icon icon="lucide:camera" class="text-white" width="24" height="24"></iconify-icon>
                     </div>
-                </div>
-            </label>
+                </label>
+                <button
+                    type="button"
+                    x-show="hasNewSelection"
+                    x-cloak
+                    x-on:click.stop.prevent="clearSelection()"
+                    class="absolute -top-1 -right-1 z-10 inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-600 text-white shadow-md ring-2 ring-white dark:ring-gray-800 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+                    aria-label="{{ __('Remove selected image') }}"
+                    title="{{ __('Remove selected image') }}"
+                >
+                    <iconify-icon icon="lucide:x" width="14" height="14" aria-hidden="true"></iconify-icon>
+                </button>
+            </div>
             <input
                 type="file"
                 name="{{ $name }}"
                 id="{{ $id }}"
+                x-ref="fileInput"
                 {{ $multiple ? 'multiple' : '' }}
                 @if($accept) accept="{{ $accept }}" @endif
                 {{ $attributes->whereStartsWith('wire:') }}

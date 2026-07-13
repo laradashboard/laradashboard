@@ -2,7 +2,8 @@
  * Image Block - Canvas Component
  *
  * Renders the image block in the builder canvas.
- * Supports inline image selection when clicked.
+ * Block click selects the block (properties panel); only the
+ * empty-state upload affordance opens the media library.
  */
 
 import { useState, useCallback } from 'react';
@@ -48,9 +49,8 @@ const ImageBlock = ({ props, onUpdate, isSelected }) => {
         objectFit: isCustomWidth || isCustomHeight ? 'cover' : undefined,
     };
 
-    // Handle image selection from media library
-    const handleSelectImage = useCallback(async (e) => {
-        e.stopPropagation();
+    // Open media library and apply the selected image
+    const openMediaLibrary = useCallback(async () => {
         try {
             const file = await mediaLibrary.selectImage();
             if (file && onUpdate) {
@@ -64,6 +64,17 @@ const ImageBlock = ({ props, onUpdate, isSelected }) => {
             // Selection cancelled - ignore
         }
     }, [props, onUpdate]);
+
+    // Overlay actions: stop propagation so the canvas selection click is not disrupted
+    const handleSelectImage = useCallback(async (e) => {
+        e.stopPropagation();
+        await openMediaLibrary();
+    }, [openMediaLibrary]);
+
+    // Empty-state upload trigger: do not stop propagation so the block still gets selected
+    const handlePlaceholderSelect = useCallback(async () => {
+        await openMediaLibrary();
+    }, [openMediaLibrary]);
 
     // Handle remove image
     const handleRemoveImage = useCallback((e) => {
@@ -150,29 +161,36 @@ const ImageBlock = ({ props, onUpdate, isSelected }) => {
                 </div>
             ) : (
                 <div
-                    onClick={handleSelectImage}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    style={{ cursor: 'pointer' }}
                     className={`bg-gray-100 dark:bg-gray-800 border-2 border-dashed ${
                         isHovered || isSelected
                             ? 'border-primary bg-primary/10 dark:bg-primary/20'
                             : 'border-gray-300 dark:border-gray-600'
                     } text-gray-500 dark:text-gray-400 p-8 rounded-lg text-center transition-colors`}
                 >
-                    <iconify-icon
-                        icon={isHovered || isSelected ? 'lucide:upload' : 'mdi:image-plus'}
-                        width="40"
-                        height="40"
-                        class="mb-2"
-                        style={{ color: isHovered || isSelected ? 'var(--color-primary, #635bff)' : undefined }}
-                    ></iconify-icon>
-                    <div className="text-sm font-medium">
-                        {isHovered || isSelected ? __('Click to select image') : __('Click to add image')}
-                    </div>
-                    <div className="text-xs mt-1 opacity-70">
-                        {__('or use the properties panel')}
-                    </div>
+                    {/* Only the icon + text open the media library; the surrounding
+                        placeholder still selects the block for the properties panel */}
+                    <button
+                        type="button"
+                        onClick={handlePlaceholderSelect}
+                        className="inline-flex flex-col items-center max-w-full cursor-pointer bg-transparent border-0 p-0 text-inherit"
+                        aria-label={__('Click to select image')}
+                    >
+                        <iconify-icon
+                            icon={isHovered || isSelected ? 'lucide:upload' : 'mdi:image-plus'}
+                            width="40"
+                            height="40"
+                            class="mb-2"
+                            style={{ color: isHovered || isSelected ? 'var(--color-primary, #635bff)' : undefined }}
+                        ></iconify-icon>
+                        <span className="text-sm font-medium">
+                            {isHovered || isSelected ? __('Click to select image') : __('Click to add image')}
+                        </span>
+                        <span className="text-xs mt-1 opacity-70">
+                            {__('or use the properties panel')}
+                        </span>
+                    </button>
                 </div>
             )}
         </div>

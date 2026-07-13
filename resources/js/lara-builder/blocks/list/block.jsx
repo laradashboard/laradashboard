@@ -4,6 +4,7 @@
 
 import { useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
+import { resolvePageTextColor } from "@lara-builder/tokens/contentTokens";
 
 const DEFAULT_ITEMS = ["List item"];
 
@@ -200,17 +201,23 @@ export default function ListBlock({
         props.layoutStyles
     );
 
+    const baseListStyle = {
+        fontSize: props.fontSize || "16px",
+        lineHeight: "1.8",
+        margin: 0,
+        textAlign: props.align || "left",
+    };
+
+    const resolvedColor = resolvePageTextColor(
+        props.color,
+        props.layoutStyles?.typography?.color
+    );
+    if (resolvedColor) {
+        baseListStyle.color = resolvedColor;
+    }
+
     const listStyle = {
-        ...applyLayoutStyles(
-            {
-                color: props.color || "#333333",
-                fontSize: props.fontSize || "16px",
-                lineHeight: "1.8",
-                margin: 0,
-                textAlign: props.align || "left",
-            },
-            props.layoutStyles
-        ),
+        ...applyLayoutStyles(baseListStyle, props.layoutStyles),
         paddingLeft: listType === "check" ? "0" : "24px",
         listStyleType:
             listType === "bullet"

@@ -49,6 +49,14 @@ class Kernel extends ConsoleKernel
             ->runInBackground()
             ->appendOutputTo(storage_path('logs/inbound-email.log'));
 
+        // Send the daily error digest email at the configured time (defaults to 09:00).
+        // Skips itself when the setting is disabled or when nothing new has been seen.
+        $errorNotifyTime = (string) config('settings.error_notifications_time', '09:00');
+        $schedule->command('errors:notify-daily')
+            ->dailyAt(preg_match('/^\d{2}:\d{2}$/', $errorNotifyTime) ? $errorNotifyTime : '09:00')
+            ->withoutOverlapping()
+            ->runInBackground();
+
         // Process queued jobs (workflow actions, emails, etc.).
         // Runs every minute, processes up to 50 jobs per batch, stops after 55 seconds
         // to avoid overlapping with the next scheduled run.

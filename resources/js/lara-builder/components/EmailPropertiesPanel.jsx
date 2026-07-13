@@ -12,6 +12,7 @@ import { __ } from '@lara-builder/i18n';
 const EmailPropertiesPanel = ({
     selectedBlock,
     onUpdate,
+    onReplaceBlock,
     onImageUpload,
     onVideoUpload,
     canvasSettings,
@@ -39,6 +40,7 @@ const EmailPropertiesPanel = ({
             <PropertiesPanel
                 selectedBlock={selectedBlock}
                 onUpdate={onUpdate}
+                onReplaceBlock={onReplaceBlock}
                 onImageUpload={onImageUpload}
                 onVideoUpload={onVideoUpload}
                 canvasSettings={canvasSettings}

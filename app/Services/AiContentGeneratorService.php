@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class AiContentGeneratorService
 {
@@ -86,6 +87,159 @@ class AiContentGeneratorService
         }
     }
 
+    /**
+     * Generate SEO metadata for a post/page from builder context.
+     *
+     * @param  array<string, mixed>  $context
+     * @return array<string, string>
+     */
+    public function generateSeoMeta(array $context): array
+    {
+        if (! $this->isConfigured()) {
+            return $this->generateSeoMetaFallback($context);
+        }
+
+        try {
+            $systemPrompt = $this->getSystemPrompt('seo_meta');
+            $userPrompt = $this->buildSeoUserPrompt($context);
+            $response = $this->sendRequest($systemPrompt, $userPrompt);
+
+            return $this->parseSeoResponse($response, $context);
+        } catch (Exception $e) {
+            Log::warning('AI SEO generation failed, using fallback', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->generateSeoMetaFallback($context);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    private function buildSeoUserPrompt(array $context): string
+    {
+        $title = trim((string) ($context['title'] ?? ''));
+        $excerpt = trim((string) ($context['excerpt'] ?? ''));
+        $slug = trim((string) ($context['slug'] ?? ''));
+        $postType = trim((string) ($context['post_type'] ?? 'post'));
+        $content = trim(strip_tags((string) ($context['content'] ?? '')));
+        $content = Str::limit($content, 4000);
+
+        return implode("\n", array_filter([
+            "Post type: {$postType}",
+            $title !== '' ? "Title: {$title}" : null,
+            $slug !== '' ? "Slug: {$slug}" : null,
+            $excerpt !== '' ? "Excerpt: {$excerpt}" : null,
+            $content !== '' ? "Content:\n{$content}" : null,
+        ]));
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     * @return array<string, string>
+     */
+    private function generateSeoMetaFallback(array $context): array
+    {
+        $title = trim((string) ($context['title'] ?? '')) ?: __('Untitled');
+        $sourceText = trim(strip_tags((string) ($context['content'] ?? '')));
+        if ($sourceText === '') {
+            $sourceText = trim(strip_tags((string) ($context['excerpt'] ?? '')));
+        }
+
+        $description = Str::limit($sourceText, 160);
+        $keywords = $this->guessKeywordsFromTitle($title);
+        $postType = (string) ($context['post_type'] ?? 'post');
+
+        return $this->normalizeSeoPayload([
+            'seo_title' => $title,
+            'seo_description' => $description,
+            'seo_keywords' => $keywords,
+            'seo_og_title' => $title,
+            'seo_og_description' => Str::limit($sourceText, 200),
+            'seo_schema_type' => $postType === 'post' ? 'BlogPosting' : 'WebPage',
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     * @return array<string, string>
+     */
+    private function parseSeoResponse(Response $response, array $context): array
+    {
+        if (! $response->successful()) {
+            throw new Exception($this->parseApiError($response));
+        }
+
+        $data = $response->json();
+
+        $content = match ($this->provider) {
+            'openai' => $data['choices'][0]['message']['content'] ?? '',
+            'claude' => $data['content'][0]['text'] ?? '',
+            'gemini' => $this->extractGeminiContent($data),
+            'ollama' => $data['message']['content'] ?? '',
+            default => throw new Exception("Unknown provider: {$this->provider}")
+        };
+
+        $cleanedContent = $this->extractJsonFromResponse($content);
+        $parsed = json_decode($cleanedContent, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($parsed)) {
+            return $this->generateSeoMetaFallback($context);
+        }
+
+        return $this->normalizeSeoPayload([
+            'seo_title' => $parsed['seo_title'] ?? $parsed['title'] ?? ($context['title'] ?? ''),
+            'seo_description' => $parsed['seo_description'] ?? $parsed['description'] ?? '',
+            'seo_keywords' => $parsed['seo_keywords'] ?? $parsed['keywords'] ?? '',
+            'seo_og_title' => $parsed['seo_og_title'] ?? $parsed['og_title'] ?? '',
+            'seo_og_description' => $parsed['seo_og_description'] ?? $parsed['og_description'] ?? '',
+            'seo_schema_type' => $parsed['seo_schema_type'] ?? $parsed['schema_type'] ?? '',
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, string>
+     */
+    private function normalizeSeoPayload(array $payload): array
+    {
+        $allowedSchemaTypes = ['Article', 'BlogPosting', 'WebPage', 'NewsArticle'];
+        $schemaType = trim((string) ($payload['seo_schema_type'] ?? ''));
+        if (! in_array($schemaType, $allowedSchemaTypes, true)) {
+            $schemaType = 'WebPage';
+        }
+
+        return [
+            'seo_title' => Str::limit(trim((string) ($payload['seo_title'] ?? '')), 60, ''),
+            'seo_description' => Str::limit(trim((string) ($payload['seo_description'] ?? '')), 160, ''),
+            'seo_keywords' => Str::limit(trim((string) ($payload['seo_keywords'] ?? '')), 500, ''),
+            'seo_og_title' => Str::limit(trim((string) ($payload['seo_og_title'] ?? '')), 70, ''),
+            'seo_og_description' => Str::limit(trim((string) ($payload['seo_og_description'] ?? '')), 200, ''),
+            'seo_schema_type' => $schemaType,
+        ];
+    }
+
+    private function guessKeywordsFromTitle(string $title): string
+    {
+        $words = preg_split('/\s+/', Str::lower($title)) ?: [];
+        $stopWords = ['the', 'a', 'an', 'and', 'or', 'for', 'to', 'in', 'on', 'of', 'with', 'is', 'are', 'your', 'how', 'what'];
+        $keywords = [];
+
+        foreach ($words as $word) {
+            $word = preg_replace('/[^a-z0-9-]/', '', $word) ?? '';
+            if (strlen($word) < 3 || in_array($word, $stopWords, true)) {
+                continue;
+            }
+            $keywords[] = $word;
+            if (count($keywords) >= 5) {
+                break;
+            }
+        }
+
+        return implode(', ', $keywords);
+    }
+
     private function getSystemPrompt(string $type): string
     {
         return match ($type) {
@@ -109,6 +263,20 @@ Example format:
   "content": "First paragraph with 3-5 sentences introducing the topic.\\n\\nSecond paragraph with detailed information and examples.\\n\\nThird paragraph expanding on key points.\\n\\nContinue with more paragraphs to reach the desired length."
 }',
             'page_content' => 'You are a web page content creation assistant. Generate professional page content including title, excerpt, and main content based on the user\'s requirements. Return the response in JSON format with keys: "title", "excerpt", and "content". Use double line breaks (\\n\\n) to separate paragraphs and make the content informative, professional, and well-structured.',
+            'seo_meta' => 'You are an expert SEO specialist. Analyze the page and generate optimized metadata.
+
+Return ONLY valid JSON with these keys:
+- "seo_title": string, 30-60 characters, compelling for search results
+- "seo_description": string, 120-160 characters, includes primary keyword naturally
+- "seo_keywords": string, comma-separated, 3-6 relevant keywords (first is primary)
+- "seo_og_title": string, social title, slightly more engaging (max 70 chars)
+- "seo_og_description": string, social description (max 200 chars)
+- "seo_schema_type": one of "Article", "BlogPosting", "WebPage", "NewsArticle"
+
+Rules:
+- Include the primary keyword in seo_title and seo_description
+- Write for humans, avoid keyword stuffing
+- Match the content topic accurately',
             default => 'You are a helpful content creation assistant. Generate content based on the user\'s requirements and return it in JSON format with appropriate keys. Use proper paragraph breaks with \\n\\n.'
         };
     }

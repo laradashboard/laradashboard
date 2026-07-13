@@ -131,4 +131,63 @@ class AiContentController extends Controller
             ], 500);
         }
     }
+
+    public function generateSeo(Request $request): JsonResponse
+    {
+        $this->authorize('create', Post::class);
+
+        $validator = Validator::make($request->all(), [
+            'title' => 'nullable|string|max:255',
+            'content' => 'nullable|string|max:50000',
+            'excerpt' => 'nullable|string|max:5000',
+            'slug' => 'nullable|string|max:200',
+            'post_type' => 'nullable|string|max:50',
+            'provider' => 'nullable|string|in:openai,claude,gemini,ollama',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()->toArray(),
+            ], 422);
+        }
+
+        $title = trim((string) $request->input('title', ''));
+        $content = trim(strip_tags((string) $request->input('content', '')));
+
+        if ($title === '' && $content === '') {
+            return response()->json([
+                'success' => false,
+                'message' => __('Add a title or content before generating SEO metadata.'),
+                'data' => null,
+            ], 422);
+        }
+
+        try {
+            if ($request->filled('provider')) {
+                $this->aiService->setProvider($request->provider);
+            }
+
+            $seoMeta = $this->aiService->generateSeoMeta([
+                'title' => $title,
+                'content' => $request->input('content', ''),
+                'excerpt' => $request->input('excerpt', ''),
+                'slug' => $request->input('slug', ''),
+                'post_type' => $request->input('post_type', 'post'),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('SEO metadata generated successfully.'),
+                'data' => $seoMeta,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate SEO metadata: ' . $e->getMessage(),
+                'data' => null,
+            ], 500);
+        }
+    }
 }

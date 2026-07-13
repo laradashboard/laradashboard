@@ -10,6 +10,7 @@ const SectionEditor = ({ props, onUpdate }) => {
         gradientFrom = "#f9fafb",
         gradientTo = "#f3f4f6",
         gradientDirection = "to-br",
+        textColor = "",
     } = props;
 
     const handleChange = (key, value) => {
@@ -94,6 +95,40 @@ const SectionEditor = ({ props, onUpdate }) => {
                     </div>
                 </div>
             )}
+
+            {/* Text Color */}
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {__("Text Color")}
+                </label>
+                <div className="flex gap-2">
+                    <input
+                        type="color"
+                        value={textColor || "#111827"}
+                        onChange={(e) => handleChange("textColor", e.target.value)}
+                        className="h-10 w-12 border border-gray-300 rounded cursor-pointer"
+                    />
+                    <input
+                        type="text"
+                        value={textColor}
+                        onChange={(e) => handleChange("textColor", e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        placeholder={__("Inherit from page")}
+                    />
+                    {textColor && (
+                        <button
+                            type="button"
+                            onClick={() => handleChange("textColor", "")}
+                            className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                        >
+                            {__("Reset")}
+                        </button>
+                    )}
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                    {__("Leave empty to inherit. Set a color for dark hero sections or contrast blocks.")}
+                </p>
+            </div>
 
             {/* Gradient Colors */}
             {backgroundType === "gradient" && (

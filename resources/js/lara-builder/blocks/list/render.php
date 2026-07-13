@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Support\Builder\ContentTokens;
+
 /**
  * List Block - Server-side Renderer
  *
@@ -16,7 +20,7 @@
 return function (array $props, string $context = 'page', ?string $blockId = null): string {
     $items = $props['items'] ?? [];
     $listType = $props['listType'] ?? 'bullet';
-    $color = $props['color'] ?? '#333333';
+    $color = $props['color'] ?? '';
     $fontSize = $props['fontSize'] ?? '16px';
     $iconColor = $props['iconColor'] ?? '#635bff';
     $layoutStyles = $props['layoutStyles'] ?? [];
@@ -30,7 +34,10 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         }
 
         $typography = $layoutStyles['typography'] ?? [];
-        $listColor = $typography['color'] ?? $color;
+        $listColor = ContentTokens::resolveEmailTextColor(
+            $color,
+            $typography['color'] ?? null
+        );
         $listFontSize = $typography['fontSize'] ?? $fontSize;
 
         $tag = $listType === 'number' ? 'ol' : 'ul';
@@ -82,10 +89,13 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     // Typography - check layoutStyles first
     $typography = $layoutStyles['typography'] ?? [];
 
-    if (! empty($typography['color'])) {
-        $blockStyles[] = "color: {$typography['color']}";
-    } else {
-        $blockStyles[] = "color: {$color}";
+    $resolvedColor = ContentTokens::resolvePageTextColor(
+        $color,
+        $typography['color'] ?? null
+    );
+
+    if ($resolvedColor !== null) {
+        $blockStyles[] = "color: {$resolvedColor}";
     }
 
     if (! empty($typography['fontSize'])) {

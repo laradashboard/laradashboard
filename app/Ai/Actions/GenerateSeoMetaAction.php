@@ -7,6 +7,7 @@ namespace App\Ai\Actions;
 use App\Ai\Contracts\AiActionInterface;
 use App\Ai\Data\AiResult;
 use App\Models\Post;
+use App\Services\Builder\PostBuilderService;
 use Exception;
 use Illuminate\Support\Facades\Http;
 
@@ -15,6 +16,11 @@ use Illuminate\Support\Facades\Http;
  */
 class GenerateSeoMetaAction implements AiActionInterface
 {
+    public function __construct(
+        private readonly PostBuilderService $postBuilderService
+    ) {
+    }
+
     public static function name(): string
     {
         return 'posts.generate_seo';
@@ -61,17 +67,17 @@ class GenerateSeoMetaAction implements AiActionInterface
 
             $meta = $this->generateSeoMeta($post);
 
-            $post->update([
-                'meta_title' => $meta['title'],
-                'meta_description' => $meta['description'],
+            $this->postBuilderService->saveSeoMeta($post, [
+                'seo_title' => $meta['title'],
+                'seo_description' => $meta['description'],
             ]);
 
             return AiResult::success(
                 message: __('SEO meta generated successfully.'),
                 data: [
                     'post_id' => $post->id,
-                    'meta_title' => $meta['title'],
-                    'meta_description' => $meta['description'],
+                    'seo_title' => $meta['title'],
+                    'seo_description' => $meta['description'],
                 ],
                 actions: [
                     __('Edit Post') => route('admin.posts.edit', ['postType' => $post->post_type, 'post' => $post->id]),

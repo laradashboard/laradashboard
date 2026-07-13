@@ -9,6 +9,7 @@ import { closestCenter, pointerWithin } from "@dnd-kit/core";
 import { LaraHooks } from "../../hooks-system/LaraHooks";
 import { BuilderHooks } from "../../hooks-system/HookNames";
 import { blockRegistry } from "../../registry/BlockRegistry";
+import { pendingCursors } from "../pendingCursors";
 
 /**
  * @param {Object} options
@@ -50,10 +51,15 @@ export function useDragAndDrop({ blocks, actions }) {
                 const newBlock = blockRegistry.createInstance(blockType);
                 if (!newBlock) return;
 
+                if (["text", "heading"].includes(blockType)) {
+                    pendingCursors.set(newBlock.id, "start");
+                }
+
                 // Dropping into a column
                 if (overData?.type === "column") {
                     const { parentId: pId, columnIndex: colIdx } = overData;
                     actions.addNestedBlock(pId, colIdx, newBlock);
+                    actions.selectBlock(newBlock.id);
                     return;
                 }
 
@@ -74,6 +80,8 @@ export function useDragAndDrop({ blocks, actions }) {
                         actions.addBlock(newBlock);
                     }
                 }
+
+                actions.selectBlock(newBlock.id);
 
                 LaraHooks.doAction(BuilderHooks.ACTION_DROP, newBlock, event);
                 return;

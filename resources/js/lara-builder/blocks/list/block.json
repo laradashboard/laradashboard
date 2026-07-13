@@ -24,7 +24,7 @@
     "defaultProps": {
         "items": ["First item", "Second item", "Third item"],
         "listType": "bullet",
-        "color": "#333333",
+        "color": "",
         "fontSize": "16px",
         "iconColor": "#635bff"
     }

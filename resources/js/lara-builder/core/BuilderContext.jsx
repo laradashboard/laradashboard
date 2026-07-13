@@ -16,6 +16,7 @@
 
 import React, { createContext, useContext, useReducer, useCallback, useMemo, useEffect } from 'react';
 import { builderReducer, initialState, actions as actionCreators, createDefaultTextBlock } from './BuilderReducer';
+import { pendingCursors } from './pendingCursors';
 import { LaraHooks } from '../hooks-system/LaraHooks';
 import { BuilderHooks } from '../hooks-system/HookNames';
 import { OutputAdapterRegistry } from '../registry/OutputAdapterRegistry';
@@ -65,8 +66,18 @@ export function BuilderProvider({
             ? initialData.blocks
             : [createDefaultTextBlock()];
 
-        // Select the first block by default for better UX
-        const initialSelectedId = initialBlocks[0]?.id || null;
+        const autoSelectFirstBlock = config.autoSelectFirstBlock === true;
+        const initialSelectedId = autoSelectFirstBlock
+            ? initialBlocks[0]?.id || null
+            : null;
+
+        if (
+            autoSelectFirstBlock &&
+            initialSelectedId &&
+            ["text", "heading"].includes(initialBlocks[0]?.type)
+        ) {
+            pendingCursors.set(initialSelectedId, "start");
+        }
 
         let state = {
             ...initialState,

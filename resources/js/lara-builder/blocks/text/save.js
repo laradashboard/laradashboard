@@ -1,32 +1,25 @@
 /**
  * Text Block - Save/Output Generators
- *
- * Page context: Returns placeholder for server-side rendering via render.php
- * Email context: Generates inline HTML (email clients can't call server)
- *
- * This approach ensures:
- * - Single source of truth (render.php) for page display
- * - Future shortcode/variable replacement server-side
- * - Email still works without server calls
  */
+
+import { resolveEmailTextColor, serializeContentColorForSave } from "@lara-builder/tokens/contentTokens";
 
 /**
  * Generate placeholder for server-side rendering (page context)
  */
 export const page = (props, options = {}) => {
     const serverProps = {
-        content: props.content || '',
-        align: props.align || 'left',
-        color: props.color || '#666666',
-        fontSize: props.fontSize || '16px',
-        lineHeight: props.lineHeight || '1.6',
+        content: props.content || "",
+        align: props.align || "left",
+        color: serializeContentColorForSave(props.color),
+        fontSize: props.fontSize || "16px",
+        lineHeight: props.lineHeight || "1.6",
         layoutStyles: props.layoutStyles || {},
-        customCSS: props.customCSS || '',
-        customClass: props.customClass || '',
+        customCSS: props.customCSS || "",
+        customClass: props.customClass || "",
     };
 
-    // Escape for HTML attribute
-    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, "&#39;");
 
     return `<div data-lara-block="text" data-props='${propsJson}'></div>`;
 };
@@ -36,15 +29,18 @@ export const page = (props, options = {}) => {
  */
 export const email = (props, options = {}) => {
     const serverProps = {
-        content: props.content || '',
-        align: props.align || 'left',
-        color: props.color || '#666666',
-        fontSize: props.fontSize || '16px',
-        lineHeight: props.lineHeight || '1.6',
+        content: props.content || "",
+        align: props.align || "left",
+        color: resolveEmailTextColor(
+            props.color,
+            props.layoutStyles?.typography?.color
+        ),
+        fontSize: props.fontSize || "16px",
+        lineHeight: props.lineHeight || "1.6",
         layoutStyles: props.layoutStyles || {},
     };
 
-    const propsJson = JSON.stringify(serverProps).replace(/'/g, '&#39;');
+    const propsJson = JSON.stringify(serverProps).replace(/'/g, "&#39;");
 
     return `<div data-lara-block="text" data-props='${propsJson}'></div>`;
 };

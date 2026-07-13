@@ -905,12 +905,97 @@ class InstallationService
     }
 
     /**
+     * Resolve trusted module metadata for installation, ignoring client-controlled state.
+     *
+     * @param  array<string>  $selectedSlugs
+     * @return array<int, array<string, mixed>>
+     */
+    public function getTrustedModulesForInstall(array $selectedSlugs): array
+    {
+        $allowedStatuses = $this->getModuleSlugsFromStatuses();
+        $allowedSlugs = array_map('strtolower', array_keys($allowedStatuses));
+
+        $validatedSlugs = array_values(array_intersect(
+            array_map('strtolower', $selectedSlugs),
+            $allowedSlugs
+        ));
+
+        if (empty($validatedSlugs)) {
+            return [];
+        }
+
+        $result = $this->fetchMarketplaceModules($validatedSlugs);
+
+        $modules = [];
+        if ($result['success'] && ! empty($result['modules'])) {
+            $modules = $result['modules'];
+        } else {
+            $modules = $this->getLocalModules($validatedSlugs);
+        }
+
+        return array_values(array_filter(
+            $modules,
+            fn (array $module) => ($module['is_free'] ?? true) && ($module['module_type'] ?? 'free') === 'free'
+        ));
+    }
+
+    /**
+     * Build a trusted marketplace download URL for a module.
+     */
+    public function buildTrustedModuleDownloadUrl(string $slug, string $version): string
+    {
+        $marketplaceUrl = rtrim(config('laradashboard.marketplace.url', 'https://laradashboard.com'), '/');
+        $slug = strtolower($slug);
+
+        return "{$marketplaceUrl}/api/modules/{$slug}/download/{$version}";
+    }
+
+    /**
+     * Validate that a module download URL comes from a trusted source.
+     */
+    public function isTrustedModuleDownloadUrl(string $url): bool
+    {
+        $parsedUrl = parse_url($url);
+        if (empty($parsedUrl['host'])) {
+            return false;
+        }
+
+        $marketplaceUrl = rtrim(config('laradashboard.marketplace.url', 'https://laradashboard.com'), '/');
+        $marketplaceHost = parse_url($marketplaceUrl, PHP_URL_HOST);
+
+        if ($parsedUrl['host'] === $marketplaceHost) {
+            $path = $parsedUrl['path'] ?? '';
+
+            return (bool) preg_match('#^/api/modules/[a-z0-9\-]+/download/[0-9a-zA-Z\.\-]+#', $path);
+        }
+
+        $appUrl = rtrim(config('app.url', ''), '/');
+        $appHost = parse_url($appUrl, PHP_URL_HOST);
+
+        if ($marketplaceUrl === $appUrl && ! empty($appUrl) && $parsedUrl['host'] === $appHost) {
+            return $this->resolveLocalStoragePath($url) !== null;
+        }
+
+        return false;
+    }
+
+    /**
      * Download a module from the marketplace and install it.
      *
      * @return array{success: bool, message: string}
      */
     public function downloadAndInstallModule(string $slug, string $downloadUrl): array
     {
+        if (! $this->isTrustedModuleDownloadUrl($downloadUrl)) {
+            Log::warning('Blocked untrusted module download URL during installation.', [
+                'slug' => $slug,
+                'url' => $downloadUrl,
+                'ip' => request()->ip(),
+            ]);
+
+            return ['success' => false, 'message' => __('Untrusted module download source.')];
+        }
+
         try {
             $tempPath = storage_path('app/modules_temp/' . uniqid('install_', true));
             File::ensureDirectoryExists($tempPath);

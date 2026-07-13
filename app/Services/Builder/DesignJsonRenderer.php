@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Builder;
 
+use App\Support\Builder\ContentTokens;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -61,10 +62,18 @@ class DesignJsonRenderer
             $html .= $this->renderBlock($block, $context);
         }
 
-        // Auto-include style.css from each rendered block type (page context only)
+        // Auto-include content tokens + block style.css for page context.
         $blockStyles = '';
-        if ($context === 'page' && ! empty($this->renderedBlockTypes)) {
-            $blockStyles = $this->collectBlockStyles();
+        if ($context === 'page') {
+            $css = ContentTokens::contentTokensCss();
+
+            foreach (array_unique($this->renderedBlockTypes) as $type) {
+                $css .= $this->getBlockStyleCss($type);
+            }
+
+            if (! empty(trim($css))) {
+                $blockStyles = '<style data-lb-content-styles>' . $css . '</style>';
+            }
         }
 
         // Build wrapper styles from canvasSettings
@@ -83,7 +92,7 @@ class DesignJsonRenderer
             return '';
         }
 
-        $styles = [];
+        $styles = ContentTokens::pageWrapperVariableStyles();
 
         $width = $canvasSettings['width'] ?? '';
         if ($width && $width !== '100%') {

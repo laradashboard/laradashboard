@@ -182,6 +182,15 @@ class Setting extends Model
     public const AUTH_SOCIAL_LINKEDIN_CLIENT_SECRET = 'auth_social_linkedin_client_secret';
 
     // =========================================================================
+    // Error Notifications
+    // =========================================================================
+    public const ERROR_NOTIFICATIONS_ENABLED = 'error_notifications_enabled';
+
+    public const ERROR_NOTIFICATIONS_EMAIL = 'error_notifications_email';
+
+    public const ERROR_NOTIFICATIONS_TIME = 'error_notifications_time';
+
+    // =========================================================================
     // CMS Site Identity Settings
     // =========================================================================
     public const SITE_TAGLINE = 'site_tagline';

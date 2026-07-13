@@ -13,6 +13,7 @@ use App\Http\Requests\Post\UpdatePostRequest;
 use App\Http\Requests\Common\BulkDeleteRequest;
 use App\Models\Post;
 use App\Models\Term;
+use App\Services\Builder\PostBuilderService;
 use App\Services\Content\ContentService;
 use App\Services\MediaLibraryService;
 use App\Services\PostMetaService;
@@ -32,7 +33,8 @@ class PostController extends Controller
         private readonly ContentService $contentService,
         private readonly PostMetaService $postMetaService,
         private readonly PostService $postService,
-        private readonly MediaLibraryService $mediaService
+        private readonly MediaLibraryService $mediaService,
+        private readonly PostBuilderService $postBuilderService
     ) {
     }
 
@@ -128,7 +130,7 @@ class PostController extends Controller
         $post->title = $data['title'];
         $post->slug = $data['slug'] ?? Str::slug($data['title']);
         $post->content = $data['content'];
-        $post->excerpt = $data['excerpt'] ?? Str::limit(strip_tags($data['content']), 200);
+        $post->excerpt = $this->postBuilderService->resolveExcerpt($data['excerpt'] ?? null, $data['content'] ?? null);
         $post->status = $data['status'];
         $post->post_type = $postType;
         $post->user_id = Auth::id();
@@ -148,7 +150,7 @@ class PostController extends Controller
 
         // Handle featured image removal first.
         if (isset($data['remove_featured_image']) && $data['remove_featured_image']) {
-            $post->clearMediaCollection('featured');
+            $this->mediaService->clearPostFeaturedMedia($post);
         } elseif (! empty($data['featured_image'])) {
             if ($request->hasFile('featured_image')) {
                 $post->clearMediaCollection('featured');
@@ -264,7 +266,7 @@ class PostController extends Controller
         $post->title = $data['title'];
         $post->slug = $data['slug'] ?? Str::slug($data['title']);
         $post->content = $data['content'];
-        $post->excerpt = $data['excerpt'] ?? Str::limit(strip_tags($data['content']), 200);
+        $post->excerpt = $this->postBuilderService->resolveExcerpt($data['excerpt'] ?? null, $data['content'] ?? null);
         $post->status = $data['status'];
         $post->parent_id = $data['parent_id'] ?? null;
 
@@ -282,14 +284,13 @@ class PostController extends Controller
 
         // Handle featured image removal first.
         if (isset($data['remove_featured_image']) && $data['remove_featured_image']) {
-            $post->clearMediaCollection('featured');
+            $this->mediaService->clearPostFeaturedMedia($post);
         } elseif (! empty($data['featured_image'])) {
-            $post->clearMediaCollection('featured');
-
             if ($request->hasFile('featured_image')) {
+                $post->clearMediaCollection('featured');
                 $post->addMediaFromRequest('featured_image')->toMediaCollection('featured');
             } else {
-                $this->mediaService->associateExistingMedia($post, $data['featured_image'], 'featured');
+                $this->mediaService->associateExistingMedia($post, (string) $data['featured_image'], 'featured');
             }
         }
 
@@ -530,7 +531,10 @@ class PostController extends Controller
             'parent_id' => $post->parent_id,
             'published_at' => $post->published_at?->format('Y-m-d\TH:i'),
             'featured_image_url' => $post->getFeaturedImageUrl(),
+            'featured_image_id' => $post->getFeaturedMedia()?->id,
             'frontend_url' => $post->getFrontendUrl(),
+            'preview_url' => route('admin.posts.show', [$postType, $post->id]),
+            ...$this->postBuilderService->getSeoMetaForBuilder($post),
         ];
 
         return view('backend.pages.posts.builder', [
@@ -565,6 +569,15 @@ class PostController extends Controller
             'status' => 'required|string|in:draft,published,pending,scheduled,private',
             'content' => 'nullable|string',
             'excerpt' => 'nullable|string',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string|max:500',
+            'seo_keywords' => 'nullable|string|max:500',
+            'seo_og_title' => 'nullable|string|max:255',
+            'seo_og_description' => 'nullable|string|max:500',
+            'seo_canonical' => 'nullable|string|max:500',
+            'seo_noindex' => 'nullable|boolean',
+            'seo_nofollow' => 'nullable|boolean',
+            'seo_schema_type' => 'nullable|string|in:Article,BlogPosting,WebPage,NewsArticle',
             'design_json' => 'nullable|array',
             'published_at' => 'nullable|date',
             'parent_id' => 'nullable|integer|exists:posts,id',
@@ -588,7 +601,7 @@ class PostController extends Controller
         $post->slug = $slug;
         $post->content = $data['content'] ?? '';
         $post->design_json = $data['design_json'] ?? null;
-        $post->excerpt = $data['excerpt'] ?? Str::limit(strip_tags($data['content'] ?? ''), 200);
+        $post->excerpt = $this->postBuilderService->resolveExcerpt($data['excerpt'] ?? null, $data['content'] ?? null);
         $post->status = $data['status'];
         $post->post_type = $postType;
         $post->user_id = Auth::id();
@@ -602,6 +615,8 @@ class PostController extends Controller
         }
 
         $post->save();
+
+        $this->postBuilderService->saveSeoMeta($post, $data);
 
         // Handle featured image.
         $this->handleBuilderFeaturedImage($request, $post);
@@ -620,6 +635,8 @@ class PostController extends Controller
             'message' => __('Post has been created.'),
             'id' => $post->id,
             'redirect' => route('admin.posts.edit', [$postType, $post->id]),
+            'featured_image_url' => $post->fresh()->getFeaturedImageUrl(),
+            'featured_image_id' => $post->fresh()->getFirstMedia('featured')?->id,
         ]);
     }
 
@@ -637,6 +654,15 @@ class PostController extends Controller
             'status' => 'required|string|in:draft,published,pending,scheduled,private',
             'content' => 'nullable|string',
             'excerpt' => 'nullable|string',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string|max:500',
+            'seo_keywords' => 'nullable|string|max:500',
+            'seo_og_title' => 'nullable|string|max:255',
+            'seo_og_description' => 'nullable|string|max:500',
+            'seo_canonical' => 'nullable|string|max:500',
+            'seo_noindex' => 'nullable|boolean',
+            'seo_nofollow' => 'nullable|boolean',
+            'seo_schema_type' => 'nullable|string|in:Article,BlogPosting,WebPage,NewsArticle',
             'design_json' => 'nullable|array',
             'published_at' => 'nullable|date',
             'parent_id' => 'nullable|integer|exists:posts,id',
@@ -658,7 +684,7 @@ class PostController extends Controller
         $post->slug = $data['slug'] ?? Str::slug($data['title']);
         $post->content = $data['content'] ?? '';
         $post->design_json = $data['design_json'] ?? null;
-        $post->excerpt = $data['excerpt'] ?? Str::limit(strip_tags($data['content'] ?? ''), 200);
+        $post->excerpt = $this->postBuilderService->resolveExcerpt($data['excerpt'] ?? null, $data['content'] ?? null);
         $post->status = $data['status'];
         $post->parent_id = $data['parent_id'] ?? null;
 
@@ -670,6 +696,8 @@ class PostController extends Controller
         }
 
         $post->save();
+
+        $this->postBuilderService->saveSeoMeta($post, $data);
 
         // Handle featured image.
         $this->handleBuilderFeaturedImage($request, $post);
@@ -688,6 +716,8 @@ class PostController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('Post has been updated.'),
+            'featured_image_url' => $post->fresh()->getFeaturedImageUrl(),
+            'featured_image_id' => $post->fresh()->getFirstMedia('featured')?->id,
         ]);
     }
 
@@ -775,25 +805,27 @@ class PostController extends Controller
      */
     protected function handleBuilderFeaturedImage(Request $request, Post $post): void
     {
-        // Handle removal.
         if ($request->boolean('remove_featured_image')) {
-            $post->clearMediaCollection('featured');
+            $this->mediaService->clearPostFeaturedMedia($post);
 
             return;
         }
 
-        // Handle new image URL.
-        $featuredImageUrl = $request->input('featured_image');
-        if ($featuredImageUrl && filter_var($featuredImageUrl, FILTER_VALIDATE_URL)) {
-            // Check if it's a different image.
-            $currentUrl = $post->getFeaturedImageUrl();
-            if ($featuredImageUrl !== $currentUrl) {
-                $post->clearMediaCollection('featured');
+        $identifier = $request->input('featured_image_id') ?: $request->input('featured_image');
 
-                // Try to associate existing media or add from URL.
-                $this->mediaService->associateExistingMedia($post, $featuredImageUrl, 'featured');
+        if (empty($identifier)) {
+            return;
+        }
+
+        if (is_numeric($identifier)) {
+            $currentMedia = $post->getFeaturedMedia();
+
+            if ($currentMedia && (int) $currentMedia->id === (int) $identifier) {
+                return;
             }
         }
+
+        $this->mediaService->associateExistingMedia($post, (string) $identifier, 'featured');
     }
 
     /**

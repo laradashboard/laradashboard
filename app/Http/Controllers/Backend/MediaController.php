@@ -40,18 +40,9 @@ class MediaController extends Controller
 
         // Transform media items to include proper URLs.
         $result['media']->getCollection()->transform(function ($item) {
-            try {
-                if (empty($item->model_type) || $item->model_id == 0) {
-                    $item->url = asset('storage/media/' . $item->file_name);
-                    $item->thumb_url = $item->url;
-                } else {
-                    $item->url = $item->getUrl();
-                    $item->thumb_url = $item->hasGeneratedConversion('thumb') ? $item->getUrl('thumb') : $item->getUrl();
-                }
-            } catch (\Exception $e) {
-                $item->url = asset('storage/media/' . $item->file_name);
-                $item->thumb_url = $item->url;
-            }
+            $urls = $this->mediaLibraryService->resolveMediaUrls($item);
+            $item->url = $urls['url'];
+            $item->thumb_url = $urls['thumbnail_url'];
 
             return $item;
         });
@@ -105,7 +96,9 @@ class MediaController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => __('Files uploaded successfully'),
-                'files' => $uploadedFiles,
+                'files' => collect($uploadedFiles)
+                    ->map(fn ($item) => $this->transformMediaItemForApi($item))
+                    ->values(),
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
@@ -158,40 +151,7 @@ class MediaController extends Controller
         );
 
         // Transform media for API response.
-        $mediaItems = $result['media']->map(function ($item) {
-            $url = '';
-            $thumbnailUrl = '';
-
-            try {
-                if (empty($item->model_type) || $item->model_id == 0) {
-                    $url = asset('storage/media/' . $item->file_name);
-                    $thumbnailUrl = $url;
-                } else {
-                    $url = $item->getUrl();
-                    $thumbnailUrl = $item->hasGeneratedConversion('thumb') ? $item->getUrl('thumb') : $item->getUrl();
-                }
-            } catch (\Exception $e) {
-                $url = asset('storage/media/' . $item->file_name);
-                $thumbnailUrl = $url;
-            }
-
-            return [
-                'id' => $item->id,
-                'name' => $item->name,
-                'file_name' => $item->file_name,
-                'mime_type' => $item->mime_type,
-                'size' => $item->size,
-                'human_readable_size' => $item->human_readable_size,
-                'url' => $url,
-                'thumbnail_url' => $thumbnailUrl,
-                'extension' => pathinfo($item->file_name, PATHINFO_EXTENSION),
-                'created_at' => $item->created_at->format('Y-m-d H:i:s'),
-                'collection_name' => $item->collection_name ?? 'default',
-                'model_type' => $item->model_type,
-                'model_id' => $item->model_id,
-                'is_standalone' => empty($item->model_type) || $item->model_id == 0,
-            ];
-        });
+        $mediaItems = $result['media']->map(fn ($item) => $this->transformMediaItemForApi($item));
 
         return response()->json([
             'success' => true,
@@ -229,5 +189,30 @@ class MediaController extends Controller
             'success' => true,
             'limits' => $limits,
         ]);
+    }
+
+    /**
+     * @param  \App\Models\Media|\Spatie\MediaLibrary\MediaCollections\Models\Media  $item
+     */
+    private function transformMediaItemForApi(object $item): array
+    {
+        $urls = $this->mediaLibraryService->resolveMediaUrls($item);
+
+        return [
+            'id' => $item->id,
+            'name' => $item->name,
+            'file_name' => $item->file_name,
+            'mime_type' => $item->mime_type,
+            'size' => $item->size,
+            'human_readable_size' => $item->human_readable_size,
+            'url' => $urls['url'],
+            'thumbnail_url' => $urls['thumbnail_url'],
+            'extension' => pathinfo($item->file_name, PATHINFO_EXTENSION),
+            'created_at' => $item->created_at->format('Y-m-d H:i:s'),
+            'collection_name' => $item->collection_name ?? 'default',
+            'model_type' => $item->model_type,
+            'model_id' => $item->model_id,
+            'is_standalone' => empty($item->model_type) || $item->model_id == 0,
+        ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Role;
 use App\Models\User;
 
 class UserPolicy extends BasePolicy
@@ -115,8 +116,8 @@ class UserPolicy extends BasePolicy
             return false;
         }
 
-        $userIsSuperadmin = $user->hasRole('Superadmin');
-        $targetIsSuperadmin = $model->hasRole('Superadmin');
+        $userIsSuperadmin = $user->hasRole(Role::SUPERADMIN);
+        $targetIsSuperadmin = $model->hasRole(Role::SUPERADMIN);
 
         // Non-Superadmin users cannot impersonate Superadmin.
         if ($targetIsSuperadmin && ! $userIsSuperadmin) {
@@ -138,7 +139,7 @@ class UserPolicy extends BasePolicy
     {
         $isSuperAdmin = $model->email === 'superadmin@example.com' ||
             $model->username === 'Superadmin' ||
-            $model->hasRole('Superadmin');
+            $model->hasRole(Role::SUPERADMIN);
 
         if (config('app.demo_mode') && $isSuperAdmin) {
             return false;

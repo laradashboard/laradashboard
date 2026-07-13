@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Support\Builder\ContentTokens;
+
 /**
  * Quote Block - Server-side Renderer
  *
@@ -20,8 +24,8 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $align = $props['align'] ?? 'left';
     $borderColor = $props['borderColor'] ?? '#635bff';
     $backgroundColor = $props['backgroundColor'] ?? '#f8fafc';
-    $textColor = $props['textColor'] ?? '#475569';
-    $authorColor = $props['authorColor'] ?? '#1e293b';
+    $textColor = $props['textColor'] ?? ContentTokens::QUOTE_TEXT;
+    $authorColor = $props['authorColor'] ?? ContentTokens::QUOTE_AUTHOR;
     $layoutStyles = $props['layoutStyles'] ?? [];
     $customCSS = $props['customCSS'] ?? '';
     $customClass = $props['customClass'] ?? '';

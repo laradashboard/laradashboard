@@ -168,12 +168,6 @@
 
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex flex-col sm:flex-row gap-3">
-                            @if(config('app.demo_mode', false))
-                            <span class="btn btn-secondary flex items-center justify-center gap-2 opacity-60 cursor-not-allowed" title="{{ __('Restricted in demo mode') }}">
-                                <iconify-icon icon="lucide:lock" class="text-lg"></iconify-icon>
-                                {{ __('Upgrade restricted in demo') }}
-                            </span>
-                            @else
                             <button type="button"
                                     id="upgrade-btn"
                                     onclick="startUpgrade('{{ $updateInfo['latest_version'] }}')"
@@ -181,7 +175,6 @@
                                 <iconify-icon icon="lucide:download" class="text-lg"></iconify-icon>
                                 {{ __('Upgrade to :version', ['version' => $versionDisplay]) }}
                             </button>
-                            @endif
                             <button type="button"
                                     id="check-updates-btn"
                                     onclick="checkForUpdates()"
@@ -190,6 +183,12 @@
                                 {{ __('Check Again') }}
                             </button>
                         </div>
+                        @if(config('app.demo_mode', false))
+                            <p class="mt-3 text-xs text-amber-600 dark:text-amber-400 flex items-start gap-1.5">
+                                <iconify-icon icon="lucide:info" class="mt-0.5 shrink-0" width="14" height="14" aria-hidden="true"></iconify-icon>
+                                <span>{{ __('Demo mode: upgrades run without creating a backup archive.') }}</span>
+                            </p>
+                        @endif
                     </div>
                 </div>
             </x-card>
@@ -458,12 +457,17 @@
         }
 
         function startUpgrade(version) {
-            if (!confirm('{{ __("This will upgrade your system to the latest version. A backup will be created automatically. Continue?") }}')) {
+            const isDemoMode = {{ config('app.demo_mode', false) ? 'true' : 'false' }};
+            const confirmMessage = isDemoMode
+                ? '{{ __("Demo mode: this will upgrade your system to the latest version without creating a backup. Continue?") }}'
+                : '{{ __("This will upgrade your system to the latest version. A backup will be created automatically. Continue?") }}';
+
+            if (!confirm(confirmMessage)) {
                 return;
             }
 
             document.getElementById('upgrade-modal').classList.remove('hidden');
-            updateProgress(10, '{{ __("Creating backup...") }}');
+            updateProgress(10, isDemoMode ? '{{ __("Starting upgrade...") }}' : '{{ __("Creating backup...") }}');
 
             fetch('{{ route("admin.core-upgrades.upgrade") }}', {
                 method: 'POST',
@@ -473,7 +477,7 @@
                 },
                 body: JSON.stringify({
                     version: version,
-                    create_backup: true
+                    create_backup: !isDemoMode
                 })
             })
             .then(response => response.json())

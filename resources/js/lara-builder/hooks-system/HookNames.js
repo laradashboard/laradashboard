@@ -52,6 +52,9 @@ export const BuilderHooks = {
     FILTER_TOOLBAR: 'builder.ui.toolbar',
     FILTER_BLOCK_TOOLBAR: 'builder.ui.blockToolbar',
     FILTER_MORE_TEXT_CONTROLS: 'builder.ui.moreTextControls',
+    FILTER_SEO_FIELDS: 'builder.seo.fields',
+    FILTER_SEO_CHECKS: 'builder.seo.checks',
+    FILTER_SEO_ANALYSIS: 'builder.seo.analysis',
 
     // State
     FILTER_INITIAL_STATE: 'builder.state.initial',

@@ -7,6 +7,7 @@
  */
 
 import { buildBlockClasses, mergeBlockStyles } from '@lara-builder/utils';
+import { buildSectionTextColorStyles } from '@lara-builder/tokens/contentTokens';
 
 // Gradient direction mapping
 const gradientDirectionMap = {
@@ -37,6 +38,7 @@ export const page = (props, options = {}) => {
         gradientFrom = '#f9fafb',
         gradientTo = '#f3f4f6',
         gradientDirection = 'to-br',
+        textColor = '',
         children = [],
     } = props;
 
@@ -68,7 +70,15 @@ export const page = (props, options = {}) => {
         defaultPadding,
     ].filter(Boolean).join('; ');
 
-    const mergedStyles = mergeBlockStyles(props, sectionStyles);
+    const textColorStyles = buildSectionTextColorStyles(textColor);
+    const textColorCss = Object.entries(textColorStyles)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('; ');
+
+    const mergedStyles = mergeBlockStyles(
+        props,
+        [sectionStyles, textColorCss].filter(Boolean).join('; ')
+    );
 
     // Container styles
     const containerStyles = fullWidth
@@ -98,6 +108,7 @@ export const email = (props, options = {}) => {
         gradientFrom: props.gradientFrom || '#f9fafb',
         gradientTo: props.gradientTo || '#f3f4f6',
         gradientDirection: props.gradientDirection || 'to-br',
+        textColor: props.textColor || '',
         children: props.children || [],
         layoutStyles: props.layoutStyles || {},
     };

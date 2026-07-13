@@ -86,16 +86,17 @@ class CoreUpgradeController extends Controller
      */
     public function upgrade(UpgradeRequest $request): JsonResponse
     {
-        if (config('app.demo_mode', false)) {
-            return response()->json([
-                'success' => false,
-                'message' => __('Core upgrades are restricted in demo mode. Please try on your local/live environment.'),
-            ], 403);
-        }
-
         try {
             $version = $request->validated('version');
-            $createBackup = $request->boolean('create_backup', true);
+            $isDemoMode = (bool) config('app.demo_mode', false);
+
+            // In demo mode the upgrade itself is allowed (so the flow is
+            // demo-able), but we never write a backup zip — those archives
+            // contain the full app source and would let demo visitors
+            // download proprietary assets.
+            $createBackup = $isDemoMode
+                ? false
+                : $request->boolean('create_backup', true);
 
             $backupFile = null;
             if ($createBackup) {

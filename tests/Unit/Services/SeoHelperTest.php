@@ -6,6 +6,7 @@ namespace Tests\Unit\Services;
 
 use App\Models\Post;
 use App\Models\Term;
+use App\Services\Builder\PostBuilderService;
 use App\Services\Frontend\SeoHelper;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -39,6 +40,26 @@ class SeoHelperTest extends TestCase
         $this->assertEquals('article', $params['ogType']);
         $this->assertEquals('Short excerpt.', $params['description']);
         $this->assertSame($post, $params['_toolbarPost']);
+    }
+
+    public function test_for_post_uses_custom_seo_meta(): void
+    {
+        $post = Post::factory()->create([
+            'title' => 'Post Title',
+            'content' => 'Post content body.',
+            'excerpt' => 'Post excerpt.',
+            'status' => 'published',
+        ]);
+
+        $post->setMeta(PostBuilderService::META_SEO_TITLE, 'Custom SEO Title');
+        $post->setMeta(PostBuilderService::META_SEO_DESCRIPTION, 'Custom SEO description.');
+        $post->setMeta(PostBuilderService::META_SEO_KEYWORDS, 'laravel, cms');
+
+        $params = $this->seo->forPost($post);
+
+        $this->assertStringContainsString('Custom SEO Title', $params['title']);
+        $this->assertEquals('Custom SEO description.', $params['description']);
+        $this->assertEquals('laravel, cms', $params['keywords']);
     }
 
     public function test_for_post_uses_content_when_no_excerpt(): void

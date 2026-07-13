@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import { __ } from "@lara-builder/i18n";
 import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
+import { resolvePageTextColor } from "@lara-builder/tokens/contentTokens";
 import SlashCommandMenu from "../../components/SlashCommandMenu";
 import { useEditableContent } from "../../core/hooks/useEditableContent";
 import { pendingCursors } from "../../core/pendingCursors";
@@ -484,13 +485,20 @@ export default function TextBlock({
     // Base styles for the text block
     const defaultStyle = {
         textAlign: props.align || "left",
-        color: props.color || "#666666",
         fontSize: props.fontSize || "16px",
         lineHeight: props.lineHeight || "1.6",
         padding: "8px",
         borderRadius: "4px",
         minHeight: "40px",
     };
+
+    const resolvedColor = resolvePageTextColor(
+        props.color,
+        props.layoutStyles?.typography?.color
+    );
+    if (resolvedColor) {
+        defaultStyle.color = resolvedColor;
+    }
 
     // Apply layout styles (typography, background, spacing, border, shadow)
     const baseStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);

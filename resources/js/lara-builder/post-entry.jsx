@@ -28,6 +28,7 @@ import "./adapters";
 
 // Import and initialize translations
 import { initTranslations } from "./i18n";
+import "@lara-builder/styles/content-tokens.css";
 
 // Register all modular blocks (new architecture with block.json, editor.jsx)
 // Each block includes component + propertyEditor
@@ -132,13 +133,18 @@ if (container) {
     };
 
     // Save handler
-    const handleSave = async (data) => {
+    const handleSave = async (data, options = {}) => {
         if (!saveUrl) {
             throw new Error("Save URL not configured");
         }
 
-        const response = await fetch(saveUrl, {
-            method: postData?.id ? "PUT" : "POST",
+        const postId = options.postId ?? postData?.id ?? null;
+        const url = postId
+            ? `${saveUrl.replace(/\/\d+\/?$/, "")}/${postId}`
+            : saveUrl;
+
+        const response = await fetch(url, {
+            method: postId ? "PUT" : "POST",
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRF-TOKEN": document.querySelector(

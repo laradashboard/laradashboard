@@ -230,18 +230,39 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
         [blocks, actions]
     );
 
-    // Replace a block with a new block of different type (for slash commands)
+    // Replace a block with a new block of different type (for slash commands / convert)
     const handleReplaceBlock = useCallback(
-        (blockId, newBlockType) => {
-            const newBlock = blockRegistry.createInstance(newBlockType);
+        (blockId, newBlockType, options = {}) => {
+            const currentBlock = findBlock(blockId);
+            const transferredProps = { ...(options.initialProps || {}) };
+
+            if (currentBlock) {
+                if (currentBlock.type === "text" && newBlockType === "heading") {
+                    transferredProps.text = currentBlock.props.content || "";
+                    transferredProps.level =
+                        transferredProps.level || currentBlock.props.level || "h2";
+                } else if (
+                    currentBlock.type === "heading" &&
+                    newBlockType === "text"
+                ) {
+                    transferredProps.content = currentBlock.props.text || "";
+                }
+            }
+
+            const newBlock = blockRegistry.createInstance(
+                newBlockType,
+                transferredProps
+            );
             if (!newBlock) return;
+
+            if (["text", "heading"].includes(newBlockType)) {
+                pendingCursors.set(newBlock.id, "start");
+            }
 
             // Find the block's position
             const blockIndex = blocks.findIndex((b) => b.id === blockId);
             if (blockIndex !== -1) {
-                // Delete the old block and insert new one at same position
                 actions.deleteBlock(blockId);
-                // Use setTimeout to ensure delete completes first
                 setTimeout(() => {
                     actions.addBlock(newBlock, blockIndex);
                     actions.selectBlock(newBlock.id);
@@ -256,10 +277,14 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
                         const column = block.props.children[colIdx];
                         const nestedIndex = column.findIndex((b) => b.id === blockId);
                         if (nestedIndex !== -1) {
-                            // Delete nested block and insert new one
                             actions.deleteNestedBlock(block.id, colIdx, blockId);
                             setTimeout(() => {
-                                actions.addNestedBlock(block.id, colIdx, newBlock, nestedIndex);
+                                actions.addNestedBlock(
+                                    block.id,
+                                    colIdx,
+                                    newBlock,
+                                    nestedIndex
+                                );
                                 actions.selectBlock(newBlock.id);
                             }, 0);
                             return;
@@ -268,7 +293,7 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
                 }
             }
         },
-        [blocks, actions]
+        [blocks, actions, findBlock]
     );
 
     // Merge current block's content onto the previous block (Backspace-at-start)

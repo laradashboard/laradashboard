@@ -233,8 +233,8 @@ class PostDatatable extends Datatable
         ?>
         <div class="flex gap-0.5 items-center">
             <?php if ($post->hasFeaturedImage()): ?>
-                <img src="<?php echo $post->getFeaturedImageUrl('thumb') ?>" alt="<?php echo $post->title ?>"
-                    class="w-12 object-cover rounded mr-3 min-w-10">
+                <img src="<?php echo e($post->getFeaturedImageUrl('thumb') ?? $post->getFeaturedImageUrl()) ?>" alt="<?php echo e($post->title) ?>"
+                    class="h-10 w-10 object-cover rounded mr-3 shrink-0">
             <?php else: ?>
                 <div class="bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center mr-2 h-10 w-10 min-w-10">
                     <iconify-icon icon="lucide:image" class=" text-center text-gray-400"></iconify-icon>

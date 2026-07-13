@@ -7,14 +7,17 @@ namespace App\Models;
 use App\Enums\Hooks\AdminFilterHook;
 use App\Services\Builder\BlockRenderer;
 use App\Services\Builder\DesignJsonRenderer;
+use App\Services\Builder\PostBuilderService;
 use App\Services\Content\ContentService;
 use App\Services\Content\PostType;
+use App\Services\MediaLibraryService;
 use App\Support\Facades\Hook;
 use App\Concerns\QueryBuilderTrait;
 use App\Concerns\HasMedia;
 use App\Enums\PostStatus;
 use App\Observers\PostObserver;
 use Spatie\MediaLibrary\HasMedia as SpatieHasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -238,6 +241,24 @@ class Post extends Model implements SpatieHasMedia
     }
 
     /**
+     * Get the featured media item for this post.
+     */
+    public function getFeaturedMedia(): ?SpatieMedia
+    {
+        $mediaId = $this->getMeta(PostBuilderService::META_FEATURED_MEDIA_ID);
+
+        if ($mediaId) {
+            $media = SpatieMedia::find((int) $mediaId);
+
+            if ($media) {
+                return $media;
+            }
+        }
+
+        return $this->getFirstMedia('featured');
+    }
+
+    /**
      * Get the featured image URL.
      *
      * Falls back to original image when the requested conversion
@@ -245,17 +266,20 @@ class Post extends Model implements SpatieHasMedia
      */
     public function getFeaturedImageUrl(string $conversion = ''): ?string
     {
-        $media = $this->getFirstMedia('featured');
+        $media = $this->getFeaturedMedia();
 
         if (! $media) {
             return null;
         }
 
-        if ($conversion && $media->hasGeneratedConversion($conversion)) {
-            return $media->getUrl($conversion);
+        $service = app(MediaLibraryService::class);
+        $url = $service->resolveMediaUrl($media, $conversion);
+
+        if ($url === null && $conversion !== '') {
+            $url = $service->resolveMediaUrl($media);
         }
 
-        return $media->getUrl();
+        return $url;
     }
 
     /**
@@ -263,7 +287,7 @@ class Post extends Model implements SpatieHasMedia
      */
     public function hasFeaturedImage(): bool
     {
-        return $this->hasMedia('featured');
+        return $this->getFeaturedMedia() !== null;
     }
 
     /**
@@ -409,6 +433,14 @@ class Post extends Model implements SpatieHasMedia
             'page' => url('/' . $this->slug),
             default => url('/post/' . $this->slug),
         };
+    }
+
+    /**
+     * Get a display title with fallbacks for empty post titles.
+     */
+    public function getDisplayTitle(): string
+    {
+        return app(PostBuilderService::class)->getDisplayTitle($this);
     }
 
     /**

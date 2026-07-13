@@ -27,6 +27,11 @@
                         'icon' => 'lucide:shield',
                         'view' => 'backend.pages.settings.performance-security-tab',
                     ],
+                    'notifications' => [
+                        'title' => __('Notifications'),
+                        'icon' => 'lucide:bell',
+                        'view' => 'backend.pages.settings.notifications-tab',
+                    ],
                 ]),
             ])
 

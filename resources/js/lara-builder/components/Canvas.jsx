@@ -8,6 +8,7 @@ import BlockToolbar from './BlockToolbar';
 import { layoutStylesToCSS } from './LayoutStylesSection';
 import { buildBlockClasses } from './BlockWrapper';
 import { __ } from '@lara-builder/i18n';
+import { getCanvasContentStyleProperties } from '@lara-builder/tokens/contentTokens';
 
 // Drop zone indicator between blocks
 const DropZone = ({ id, isFirst = false }) => {
@@ -214,6 +215,11 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     onMoveDown={() => onMoveBlock(block.id, 'down')}
                     onDelete={() => onDelete(block.id)}
                     onDuplicate={() => onDuplicateBlock(block.id)}
+                    onConvertBlock={
+                        onReplaceBlock
+                            ? (newType) => onReplaceBlock(block.id, newType)
+                            : undefined
+                    }
                     canMoveUp={canMoveUp}
                     canMoveDown={canMoveDown}
                     textFormatProps={textFormatProps}
@@ -256,6 +262,11 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                     onMoveDown={() => onMoveBlock(block.id, 'down')}
                     onDelete={() => onDelete(block.id)}
                     onDuplicate={() => onDuplicateBlock(block.id)}
+                    onConvertBlock={
+                        onReplaceBlock
+                            ? (newType) => onReplaceBlock(block.id, newType)
+                            : undefined
+                    }
                     canMoveUp={canMoveUp}
                     canMoveDown={canMoveDown}
                     textFormatProps={textFormatProps}
@@ -279,8 +290,8 @@ const Canvas = ({ blocks, selectedBlockId, allBlocksSelected = false, onSelect, 
     // Get layout styles from canvasSettings (same format as blocks)
     const canvasLayoutStyles = layoutStylesToCSS(canvasSettings?.layoutStyles || {});
 
-    // Page context uses a full-width canvas like a real page builder
-    const isPageContext = context === 'page';
+    // Page/post context uses a full-width canvas like a real page builder
+    const isPageContext = context === 'page' || context === 'post';
 
     // Get preview width based on mode
     const getPreviewWidth = () => {
@@ -354,6 +365,7 @@ const Canvas = ({ blocks, selectedBlockId, allBlocksSelected = false, onSelect, 
         paddingRight: canvasLayoutStyles.paddingRight,
         paddingBottom: canvasLayoutStyles.paddingBottom,
         paddingLeft: canvasLayoutStyles.paddingLeft,
+        ...(isPageContext ? getCanvasContentStyleProperties() : {}),
     };
 
     return (
@@ -367,6 +379,8 @@ const Canvas = ({ blocks, selectedBlockId, allBlocksSelected = false, onSelect, 
                 <div
                     ref={setNodeRef}
                     className={`min-h-[400px] transition-colors ${
+                        isPageContext ? 'lb-page-content lb-builder-canvas' : ''
+                    } ${
                         isOver ? 'ring-2 ring-primary ring-offset-2' : ''
                     }`}
                     style={contentBackgroundStyle}

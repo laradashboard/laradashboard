@@ -663,28 +663,25 @@ class InstallWizard extends Component
         }
 
         $modulesPath = config('modules.paths.modules', base_path('modules'));
-        $marketplaceUrl = rtrim(config('laradashboard.marketplace.url', 'https://laradashboard.com'), '/');
 
         /** @var \App\Services\Modules\ModuleService $moduleService */
         $moduleService = app(\App\Services\Modules\ModuleService::class);
 
-        foreach ($this->selectedModules as $slug) {
-            $module = collect($this->availableModules)->firstWhere('slug', $slug);
+        // Rebuild trusted module metadata server-side; never trust client-controlled availableModules.
+        $trustedModules = $this->installationService->getTrustedModulesForInstall($this->selectedModules);
 
-            if (! $module) {
-                continue;
-            }
+        foreach ($trustedModules as $module) {
+            $slug = $module['slug'];
 
             try {
                 // Check if module already exists locally
                 $isLocal = ($module['is_local'] ?? false) || $this->moduleExistsLocally($slug, $modulesPath);
 
                 if (! $isLocal) {
-                    // Build download URL from marketplace
                     $version = $module['version'] ?? '1.0.0';
-                    $downloadUrl = $module['download_url'] ?? "{$marketplaceUrl}/api/modules/{$slug}/download/{$version}";
+                    $downloadUrl = $this->installationService->buildTrustedModuleDownloadUrl($slug, $version);
 
-                    // Download and install from marketplace
+                    // Download and install from trusted marketplace endpoint only
                     $downloadResult = $this->installationService->downloadAndInstallModule($slug, $downloadUrl);
 
                     if (! $downloadResult['success']) {
