@@ -434,7 +434,20 @@ describe('renderBlock', function () {
         $html = $this->blockService->renderBlock($block);
 
         expect($html)->toContain('<ol')
+            ->and($html)->toContain('First')
+            ->and($html)->toContain('Second')
             ->and($html)->toContain('</ol>');
+    });
+
+    test('renders check list correctly', function () {
+        $block = $this->blockService->listBlock(['Done', 'Pending'], 'check');
+        $block['props']['iconColor'] = '#ff0000';
+        $html = $this->blockService->renderBlock($block);
+
+        expect($html)->toContain('lb-list-check')
+            ->and($html)->toContain('Done')
+            ->and($html)->toContain('Pending')
+            ->and($html)->toContain('#ff0000');
     });
 
     test('renders empty string for list with no items', function () {

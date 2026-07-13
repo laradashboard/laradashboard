@@ -2,8 +2,30 @@
  * List Block - Canvas Component
  */
 
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
+
+const DEFAULT_ITEMS = ["List item"];
+
+const serializeItems = (items) => JSON.stringify(items ?? []);
+
+const buildListHtml = (items, listType = "bullet", iconColor = "#635bff") => {
+    const normalized = items?.length ? items : DEFAULT_ITEMS;
+
+    if (listType === "check") {
+        return normalized
+            .map(
+                (item) =>
+                    `<li style="display:flex;align-items:flex-start;gap:8px;margin-bottom:4px;list-style:none;">` +
+                    `<span contenteditable="false" style="color:${iconColor};flex-shrink:0;user-select:none;">✓</span>` +
+                    `<span>${item || "<br>"}</span>` +
+                    `</li>`
+            )
+            .join("");
+    }
+
+    return normalized.map((item) => `<li>${item || "<br>"}</li>`).join("");
+};
 
 export default function ListBlock({
     props,
@@ -14,61 +36,144 @@ export default function ListBlock({
     const editorRef = useRef(null);
     const propsRef = useRef(props);
     const onUpdateRef = useRef(onUpdate);
+    const lastPropsItems = useRef(serializeItems(props.items));
+    const lastListType = useRef(props.listType || "bullet");
+    const lastIconColor = useRef(props.iconColor || "#635bff");
+    const liveItemsRef = useRef(props.items || DEFAULT_ITEMS);
 
     propsRef.current = props;
     onUpdateRef.current = onUpdate;
 
-    const items = props.items || ["List item"];
+    const items = props.items?.length ? props.items : DEFAULT_ITEMS;
     const listType = props.listType || "bullet";
+    const iconColor = props.iconColor || "#635bff";
     const ListTag = listType === "number" ? "ol" : "ul";
 
-    // Save items from editor DOM
-    const saveItems = useCallback(() => {
-        if (!editorRef.current) return;
+    const extractItemsFromEditor = useCallback(() => {
+        if (!editorRef.current) {
+            return liveItemsRef.current;
+        }
 
         const lis = editorRef.current.querySelectorAll(":scope > li");
         const newItems = Array.from(lis)
             .map((li) => {
                 const clone = li.cloneNode(true);
-                clone.querySelectorAll("ul, ol").forEach((n) => n.remove());
+                clone.querySelectorAll("ul, ol").forEach((node) => node.remove());
+
+                if (listType === "check") {
+                    const contentSpan = clone.querySelector("span:last-child");
+                    return (contentSpan?.innerHTML ?? clone.innerHTML).trim();
+                }
+
                 return clone.innerHTML.trim();
             })
             .filter((html) => html && html !== "<br>");
 
-        const finalItems = newItems.length > 0 ? newItems : [""];
+        return newItems.length > 0 ? newItems : [""];
+    }, [listType]);
 
-        if (
-            JSON.stringify(finalItems) !==
-            JSON.stringify(propsRef.current.items)
-        ) {
+    const syncEditorFromItems = useCallback(
+        (itemsToRender) => {
+            if (!editorRef.current) {
+                return;
+            }
+
+            editorRef.current.innerHTML = buildListHtml(
+                itemsToRender,
+                listType,
+                iconColor
+            );
+        },
+        [listType, iconColor]
+    );
+
+    const saveItems = useCallback(() => {
+        if (!editorRef.current) {
+            return;
+        }
+
+        const finalItems = extractItemsFromEditor();
+        const serialized = serializeItems(finalItems);
+
+        liveItemsRef.current = finalItems;
+
+        if (serialized !== lastPropsItems.current) {
+            lastPropsItems.current = serialized;
             onUpdateRef.current({ ...propsRef.current, items: finalItems });
+        }
+    }, [extractItemsFromEditor]);
+
+    const handleKeyDown = useCallback((e) => {
+        const isMod = e.ctrlKey || e.metaKey;
+
+        // Allow native browser undo/redo inside list items
+        if (isMod && (e.key === "z" || e.key === "y")) {
+            e.stopPropagation();
+            return;
         }
     }, []);
 
     // Initialize editor when selected
     useEffect(() => {
-        if (isSelected && editorRef.current) {
-            editorRef.current.innerHTML = items
-                .map((item) => `<li>${item || "<br>"}</li>`)
-                .join("");
-            // Use requestAnimationFrame to ensure focus happens after click event completes
-            // This is necessary when inserting blocks via click from the BlockPanel
-            requestAnimationFrame(() => {
-                if (editorRef.current) {
-                    editorRef.current.focus();
-                }
-            });
+        if (!isSelected || !editorRef.current) {
+            return;
         }
+
+        const isEmptyEditor =
+            editorRef.current.innerHTML === "" ||
+            editorRef.current.innerHTML === "<br>";
+
+        if (isEmptyEditor) {
+            syncEditorFromItems(items);
+            lastPropsItems.current = serializeItems(items);
+            liveItemsRef.current = items;
+        }
+
+        lastListType.current = listType;
+
+        requestAnimationFrame(() => {
+            editorRef.current?.focus();
+        });
+        // Only initialize when selection changes — item/listType sync is handled separately.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSelected]);
 
-    // First time load the items when not selected.
-    useEffect(() => {
-        if (!isSelected && editorRef.current) {
-            editorRef.current.innerHTML = items
-                .map((item) => `<li>${item || "<br>"}</li>`)
-                .join("");
+    // Sync editor when props change externally (list type, sidebar, builder undo/redo)
+    useLayoutEffect(() => {
+        if (!editorRef.current) {
+            return;
         }
-    }, []);
+
+        const serializedItems = serializeItems(items);
+        const itemsChanged = serializedItems !== lastPropsItems.current;
+        const listTypeChanged = listType !== lastListType.current;
+        const iconColorChanged = iconColor !== lastIconColor.current;
+
+        if (!itemsChanged && !listTypeChanged && !iconColorChanged) {
+            return;
+        }
+
+        if (listTypeChanged) {
+            const preservedItems =
+                items?.length > 0 && items.some((item) => item !== "")
+                    ? items
+                    : liveItemsRef.current;
+
+            syncEditorFromItems(preservedItems);
+            lastPropsItems.current = serializeItems(preservedItems);
+            liveItemsRef.current = preservedItems;
+            lastListType.current = listType;
+            lastIconColor.current = iconColor;
+            return;
+        }
+
+        if (itemsChanged || iconColorChanged) {
+            syncEditorFromItems(items);
+            lastPropsItems.current = serializedItems;
+            liveItemsRef.current = items;
+            lastIconColor.current = iconColor;
+        }
+    }, [items, listType, iconColor, syncEditorFromItems]);
 
     // Register toolbar
     useEffect(() => {
@@ -90,7 +195,6 @@ export default function ListBlock({
         }
     }, [isSelected, onRegisterTextFormat, props.align]);
 
-    // Styles
     const containerStyle = applyLayoutStyles(
         { padding: "8px", borderRadius: "4px" },
         props.layoutStyles
@@ -112,8 +216,8 @@ export default function ListBlock({
             listType === "bullet"
                 ? "disc"
                 : listType === "number"
-                ? "decimal"
-                : "none",
+                  ? "decimal"
+                  : "none",
     };
 
     if (isSelected) {
@@ -125,6 +229,7 @@ export default function ListBlock({
                     suppressContentEditableWarning
                     onInput={saveItems}
                     onBlur={saveItems}
+                    onKeyDown={handleKeyDown}
                     style={{
                         ...listStyle,
                         paddingLeft: listType === "check" ? "8px" : "32px",
@@ -147,8 +252,10 @@ export default function ListBlock({
             <ListTag
                 style={listStyle}
                 suppressContentEditableWarning
-                ref={editorRef}
-            ></ListTag>
+                dangerouslySetInnerHTML={{
+                    __html: buildListHtml(items, listType, iconColor),
+                }}
+            />
         </div>
     );
 }

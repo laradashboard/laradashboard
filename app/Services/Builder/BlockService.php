@@ -703,6 +703,7 @@ HTML;
         $listType = $props['listType'] ?? 'bullet';
         $color = $props['color'] ?? '#666666';
         $fontSize = $props['fontSize'] ?? '16px';
+        $iconColor = $props['iconColor'] ?? '#635bff';
 
         if (empty($items)) {
             return '';
@@ -710,11 +711,26 @@ HTML;
 
         $tag = $listType === 'number' ? 'ol' : 'ul';
         $itemsHtml = '';
+
         foreach ($items as $item) {
-            $itemsHtml .= "<li style=\"margin-bottom: 8px;\">{$item}</li>";
+            if ($listType === 'check') {
+                $itemsHtml .= sprintf(
+                    '<li style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; list-style: none;"><span style="color: %s; flex-shrink: 0;">✓</span><span>%s</span></li>',
+                    e($iconColor),
+                    $item
+                );
+            } else {
+                $itemsHtml .= "<li style=\"margin-bottom: 8px;\">{$item}</li>";
+            }
         }
 
-        return "<{$tag} style=\"color: {$color}; font-size: {$fontSize}; line-height: 1.8; margin: 0; padding-left: 24px;\">{$itemsHtml}</{$tag}>";
+        $listStyle = $listType === 'check'
+            ? "color: {$color}; font-size: {$fontSize}; line-height: 1.8; margin: 0; padding-left: 0; list-style: none;"
+            : "color: {$color}; font-size: {$fontSize}; line-height: 1.8; margin: 0; padding-left: 24px;";
+
+        $classAttr = $listType === 'check' ? ' class="lb-list lb-list-check"' : '';
+
+        return "<{$tag}{$classAttr} style=\"{$listStyle}\">{$itemsHtml}</{$tag}>";
     }
 
     public function renderQuote(array $props): string
