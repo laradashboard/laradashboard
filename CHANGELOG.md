@@ -2,9 +2,30 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.2.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.0) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.2.1](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.1) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.2.1] — 2026-07-15
+
+### Lara Builder
+
+- **Fix:** Text Editor block lifecycle stabilized — cleaner mount/unmount, reliable content persistence, and restored list markers in the canvas.
+- **Fix:** List blocks preserve content when changing list type (ordered ↔ unordered).
+- **New:** Native Ctrl+Z / Cmd+Z undo support in the builder via history integration.
+
+### Modules & scaffolding
+
+- **Fix:** `module:make-crud` command and related stubs (controller, Vite, master view).
+- **New:** `ModuleStyles` Blade component safely renders module Vite CSS without crashing when the build/manifest is missing.
+
+### Dependencies
+
+- **Chore:** Bumped `spatie/laravel-medialibrary` from 11.21.0 to 11.23.0.
+
+### Tests
+
+- Added/updated: `TextEditorBlockBuilderTest`, `TextEditorBlockTest`, `ModuleMakeCrudCommandTest`, `ModuleStylesComponentTest`, `BlockServiceTest`.
 
 ## [v1.2.0] — 2026-06-21
 

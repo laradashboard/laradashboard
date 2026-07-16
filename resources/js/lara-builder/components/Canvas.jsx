@@ -127,8 +127,9 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     const hasSelfEditor = SELF_EDITING_BLOCKS.includes(block.type);
     const toolbarAtBottom = hasSelfEditor;
 
-    // Alignment props for align-only blocks (align support but no text formatting)
-    const alignProps = hasAlignOnly ? {
+    // Alignment props for align-only blocks (align support but no text formatting).
+    // Self-editing blocks (text-editor / TinyMCE) own their alignment UI — skip duplicate controls.
+    const alignProps = hasAlignOnly && !hasSelfEditor ? {
         align: block.props?.align || 'center',
         onAlignChange: (newAlign) => onUpdate(block.id, { ...block.props, align: newAlign }),
     } : null;
@@ -237,7 +238,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
                 onUpdate={(newProps) => onUpdate(block.id, newProps)}
                 onInsertBlockAfter={onInsertBlockAfter ? (blockType, initialProps) => onInsertBlockAfter(block.id, blockType, initialProps) : undefined}
                 onMergeWithPrevious={onMergeBlockWithPrevious ? (content) => onMergeBlockWithPrevious(block.id, content) : undefined}
-                {...(hasTextFormatting ? {
+                {...(hasTextFormatting || hasSelfEditor ? {
                     onRegisterTextFormat: setTextFormatProps,
                     onDelete: () => onDelete(block.id),
                     onReplaceBlock: onReplaceBlock ? (blockType) => onReplaceBlock(block.id, blockType) : undefined,
@@ -372,7 +373,19 @@ const Canvas = ({ blocks, selectedBlockId, allBlocksSelected = false, onSelect, 
         <div
             className="flex-1 overflow-auto"
             style={outerBackgroundStyle}
-            onClick={() => onSelect(null)}
+            onClick={(e) => {
+                // TinyMCE (and similar) UI is portaled outside the block DOM.
+                // Ignore those clicks so opening a dialog/toolbar doesn't deselect
+                // the block and leave an orphaned modal backdrop.
+                if (
+                    e.target.closest?.(
+                        '.tox, .tox-tinymce-aux, .tox-dialog, .tox-dialog-wrap, .mce-content-body'
+                    )
+                ) {
+                    return;
+                }
+                onSelect(null);
+            }}
         >
             <div className="mx-auto" style={{ maxWidth: settings.width }}>
                 {/* Email preview container */}

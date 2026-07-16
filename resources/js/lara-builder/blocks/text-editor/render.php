@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Support\Builder\ContentTokens;
+
 /**
  * Text Editor Block - Server-side Renderer
  *
@@ -9,19 +13,21 @@
 return function (array $props, string $context = 'page', ?string $blockId = null): string {
     $content = $props['content'] ?? '';
     $align = $props['align'] ?? 'left';
-    $color = $props['color'] ?? '#333333';
+    $color = $props['color'] ?? '';
     $fontSize = $props['fontSize'] ?? '16px';
     $lineHeight = $props['lineHeight'] ?? '1.6';
     $layoutStyles = $props['layoutStyles'] ?? [];
+    $customCSS = $props['customCSS'] ?? '';
+    $customClass = $props['customClass'] ?? '';
 
     if ($context === 'email') {
         $typography = $layoutStyles['typography'] ?? [];
 
         $styles = [
             "text-align: {$align}",
-            'color: ' . ($typography['color'] ?? $color),
-            'font-size: ' . ($typography['fontSize'] ?? $fontSize),
-            'line-height: ' . ($typography['lineHeight'] ?? $lineHeight),
+            'color: '.ContentTokens::resolveEmailTextColor($color, $typography['color'] ?? null),
+            'font-size: '.($typography['fontSize'] ?? $fontSize),
+            'line-height: '.($typography['lineHeight'] ?? $lineHeight),
             'font-family: Arial, Helvetica, sans-serif',
         ];
 
@@ -33,11 +39,9 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         return sprintf('<div style="%s">%s</div>', e(implode('; ', $styles)), $content);
     }
 
-    // Page context
-    $customClass = $props['customClass'] ?? '';
     $blockClasses = 'lb-block lb-text-editor';
     if (! empty($customClass)) {
-        $blockClasses .= ' ' . e($customClass);
+        $blockClasses .= ' '.e($customClass);
     }
 
     $typography = $layoutStyles['typography'] ?? [];
@@ -46,17 +50,28 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     if ($align) {
         $styles[] = "text-align: {$align}";
     }
-    if (empty($typography['color']) && $color) {
-        $styles[] = "color: {$color}";
+
+    $resolvedColor = ContentTokens::resolvePageTextColor(
+        $color,
+        $typography['color'] ?? null
+    );
+
+    if ($resolvedColor !== null) {
+        $styles[] = "color: {$resolvedColor}";
     }
-    if (empty($typography['fontSize']) && $fontSize) {
+
+    if (! empty($typography['fontSize'])) {
+        $styles[] = "font-size: {$typography['fontSize']}";
+    } elseif ($fontSize) {
         $styles[] = "font-size: {$fontSize}";
     }
-    if (empty($typography['lineHeight']) && $lineHeight) {
+
+    if (! empty($typography['lineHeight'])) {
+        $styles[] = "line-height: {$typography['lineHeight']}";
+    } elseif ($lineHeight) {
         $styles[] = "line-height: {$lineHeight}";
     }
 
-    // Add layout styles
     if (! empty($layoutStyles['margin'])) {
         foreach (['top', 'right', 'bottom', 'left'] as $side) {
             if (isset($layoutStyles['margin'][$side])) {
@@ -64,6 +79,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
             }
         }
     }
+
     if (! empty($layoutStyles['padding'])) {
         foreach (['top', 'right', 'bottom', 'left'] as $side) {
             if (isset($layoutStyles['padding'][$side])) {
@@ -71,8 +87,13 @@ return function (array $props, string $context = 'page', ?string $blockId = null
             }
         }
     }
+
     if (! empty($layoutStyles['background']['color'])) {
         $styles[] = "background-color: {$layoutStyles['background']['color']}";
+    }
+
+    if (! empty($customCSS)) {
+        $styles[] = $customCSS;
     }
 
     return sprintf(

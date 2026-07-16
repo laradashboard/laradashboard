@@ -13,7 +13,7 @@ export const page = (props, options = {}) => {
         listType: props.listType || "bullet",
         color: serializeContentColorForSave(props.color),
         fontSize: props.fontSize || "16px",
-        iconColor: props.iconColor || "#635bff",
+        iconColor: props.iconColor || "",
         layoutStyles: props.layoutStyles || {},
         customCSS: props.customCSS || "",
         customClass: props.customClass || "",
@@ -33,7 +33,7 @@ export const email = (props, options = {}) => {
             props.layoutStyles?.typography?.color
         ),
         fontSize: props.fontSize || "16px",
-        iconColor: props.iconColor || "#635bff",
+        iconColor: props.iconColor || "",
         layoutStyles: props.layoutStyles || {},
     };
 

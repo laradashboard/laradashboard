@@ -8,6 +8,6 @@ import { createBlockFromJson } from '@lara-builder/factory';
 import config from './block.json';
 import block from './block';
 import save from './save';
+import './style.css';
 
-// Editor is embedded in block.jsx for text-editor
 export default createBlockFromJson(config, { block, save });

@@ -987,8 +987,9 @@ const BlockToolbar = ({
                 </>
             )}
 
-            {/* Alignment-only Controls - for blocks with align but no text formatting */}
-            {hasAlignOnly && alignProps && (
+            {/* Alignment-only Controls - for blocks with align but no text formatting.
+                Skip for self-editing blocks (TinyMCE owns align controls). */}
+            {hasAlignOnly && !hasSelfEditor && alignProps && (
                 <>
                     <AlignOnlyControls
                         align={alignProps.align}

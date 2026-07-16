@@ -279,7 +279,7 @@ HTML;
                 'listType' => $listType,
                 'color' => $color,
                 'fontSize' => '16px',
-                'iconColor' => '#635bff',
+                'iconColor' => '',
                 'layoutStyles' => $this->defaultLayoutStyles(),
             ],
         ];
@@ -703,6 +703,7 @@ HTML;
         $listType = $props['listType'] ?? 'bullet';
         $color = $props['color'] ?? '#666666';
         $fontSize = $props['fontSize'] ?? '16px';
+        $iconColor = $props['iconColor'] ?? '';
 
         if (empty($items)) {
             return '';
@@ -710,11 +711,39 @@ HTML;
 
         $tag = $listType === 'number' ? 'ol' : 'ul';
         $itemsHtml = '';
+
         foreach ($items as $item) {
-            $itemsHtml .= "<li style=\"margin-bottom: 8px;\">{$item}</li>";
+            if ($listType === 'check') {
+                $itemsHtml .= sprintf(
+                    '<li class="lb-list-check-item"><span class="lb-list-check-icon">✓</span><span>%s</span></li>',
+                    $item
+                );
+            } else {
+                $itemsHtml .= "<li>{$item}</li>";
+            }
         }
 
-        return "<{$tag} style=\"color: {$color}; font-size: {$fontSize}; line-height: 1.8; margin: 0; padding-left: 24px;\">{$itemsHtml}</{$tag}>";
+        $listClasses = $listType === 'check' ? 'lb-list lb-list-check' : 'lb-list';
+        $listStyleParts = [
+            "color: {$color}",
+            "font-size: {$fontSize}",
+        ];
+
+        if ($listType === 'check') {
+            $normalizedIcon = strtolower(trim((string) $iconColor));
+            $isLegacyIcon = $normalizedIcon === ''
+                || $normalizedIcon === 'inherit'
+                || $normalizedIcon === 'currentcolor'
+                || $normalizedIcon === '#635bff';
+
+            if (! $isLegacyIcon) {
+                $listStyleParts[] = "--lb-list-icon-color: {$iconColor}";
+            }
+        }
+
+        $listStyle = implode('; ', $listStyleParts);
+
+        return "<{$tag} class=\"{$listClasses}\" style=\"{$listStyle}\">{$itemsHtml}</{$tag}>";
     }
 
     public function renderQuote(array $props): string

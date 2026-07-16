@@ -96,7 +96,12 @@ Built for Laravel developers who want to ship admin dashboards, SaaS apps, CRMs 
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.2.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.0) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.2.1](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.1) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.2.1] — 2026-07-15**
+-   **Fix:** Text Editor block lifecycle and list markers in the canvas; list blocks keep content when changing type.
+-   **New:** Native Ctrl+Z / Cmd+Z undo in Lara Builder; `ModuleStyles` component for safe module Vite CSS.
+-   **Fix:** `module:make-crud` command and stubs; bumped `spatie/laravel-medialibrary` to 11.23.0.
 
 **[v1.2.0] — 2026-06-21**
 -   **New:** Lara Builder SEO drawer with live score, checklist, SERP preview, and AI-generated meta fields.

@@ -22,7 +22,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $listType = $props['listType'] ?? 'bullet';
     $color = $props['color'] ?? '';
     $fontSize = $props['fontSize'] ?? '16px';
-    $iconColor = $props['iconColor'] ?? '#635bff';
+    $iconColor = $props['iconColor'] ?? '';
     $layoutStyles = $props['layoutStyles'] ?? [];
     $customCSS = $props['customCSS'] ?? '';
     $customClass = $props['customClass'] ?? '';
@@ -72,19 +72,8 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     // Determine list tag
     $listTag = $listType === 'number' ? 'ol' : 'ul';
 
-    // Build block styles
-    $blockStyles = [
-        'line-height: 1.8',
-        'margin: 0',
-    ];
-
-    // Padding based on list type
-    if ($listType === 'check') {
-        $blockStyles[] = 'list-style: none';
-        $blockStyles[] = 'padding-left: 0';
-    } else {
-        $blockStyles[] = 'padding-left: 24px';
-    }
+    // Build block styles (dynamic typography only; structure in style.css)
+    $blockStyles = [];
 
     // Typography - check layoutStyles first
     $typography = $layoutStyles['typography'] ?? [];
@@ -110,6 +99,26 @@ return function (array $props, string $context = 'page', ?string $blockId = null
 
     if (! empty($typography['lineHeight'])) {
         $blockStyles[] = "line-height: {$typography['lineHeight']}";
+    }
+
+    if ($listType === 'check') {
+        $normalizedIcon = strtolower(trim((string) $iconColor));
+        // Legacy primary default (#635bff) inherits list text color via currentColor.
+        $isLegacyIcon = $normalizedIcon === ''
+            || $normalizedIcon === 'inherit'
+            || $normalizedIcon === 'currentcolor'
+            || $normalizedIcon === '#635bff';
+
+        if (! $isLegacyIcon) {
+            $resolvedIconColor = ContentTokens::resolvePageTextColor(
+                $iconColor,
+                $typography['color'] ?? null
+            ) ?? $iconColor;
+
+            if ($resolvedIconColor !== null && $resolvedIconColor !== '') {
+                $blockStyles[] = '--lb-list-icon-color: ' . $resolvedIconColor;
+            }
+        }
     }
 
     // Layout styles (margin, padding overrides)
@@ -142,16 +151,13 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $itemsHtml = '';
     foreach ($items as $item) {
         if ($listType === 'check') {
-            // Check list with icon
             $itemsHtml .= sprintf(
-                '<li style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px;"><span style="color: %s; flex-shrink: 0;">✓</span><span>%s</span></li>',
-                e($iconColor),
+                '<li class="lb-list-check-item"><span class="lb-list-check-icon">✓</span><span>%s</span></li>',
                 $item // Allow HTML formatting in list items
             );
         } else {
-            // Regular bullet or numbered list
             $itemsHtml .= sprintf(
-                '<li style="margin-bottom: 8px;">%s</li>',
+                '<li>%s</li>',
                 $item // Allow HTML formatting in list items
             );
         }

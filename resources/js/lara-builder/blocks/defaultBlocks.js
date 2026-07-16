@@ -233,7 +233,7 @@ export const defaultBlocks = [
             listType: 'bullet',
             color: '#333333',
             fontSize: '16px',
-            iconColor: '#635bff',
+            iconColor: '',
             layoutStyles: { ...defaultLayoutStyles },
         },
         supports: {

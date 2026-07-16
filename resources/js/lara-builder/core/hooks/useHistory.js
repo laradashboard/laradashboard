@@ -16,6 +16,30 @@ import { LaraHooks } from '../../hooks-system/LaraHooks';
 import { BuilderHooks } from '../../hooks-system/HookNames';
 
 /**
+ * Check if the user is actively editing text content.
+ * When true, native browser undo/redo should take precedence over builder history.
+ */
+function isTextEditing() {
+    const activeElement = document.activeElement;
+    if (!activeElement) {
+        return false;
+    }
+
+    return (
+        activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.isContentEditable ||
+        activeElement.closest('[contenteditable="true"]') ||
+        activeElement.closest('[data-text-editing="true"]') ||
+        activeElement.closest('.ProseMirror') ||
+        activeElement.closest('.ql-editor') ||
+        activeElement.closest('.mce-content-body') ||
+        activeElement.closest('.tox-dialog') ||
+        activeElement.closest('.tox-textfield')
+    );
+}
+
+/**
  * Hook for history management with keyboard shortcuts
  *
  * @param {Object} options
@@ -36,6 +60,11 @@ export function useHistory(options = {}) {
             const isMod = event.metaKey || event.ctrlKey;
 
             if (!isMod) return;
+
+            // Let the browser handle native undo/redo while editing text content
+            if (isTextEditing() && (event.key === 'z' || event.key === 'y')) {
+                return;
+            }
 
             // Undo: Cmd/Ctrl + Z (without Shift)
             if (event.key === 'z' && !event.shiftKey) {

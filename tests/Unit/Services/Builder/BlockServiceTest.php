@@ -195,7 +195,7 @@ describe('list block', function () {
             ->and($block['props']['listType'])->toBe('bullet')
             ->and($block['props']['color'])->toBe('#666666')
             ->and($block['props']['fontSize'])->toBe('16px')
-            ->and($block['props']['iconColor'])->toBe('#635bff');
+            ->and($block['props']['iconColor'])->toBe('');
     });
 
     test('creates numbered list block', function () {
@@ -434,7 +434,20 @@ describe('renderBlock', function () {
         $html = $this->blockService->renderBlock($block);
 
         expect($html)->toContain('<ol')
+            ->and($html)->toContain('First')
+            ->and($html)->toContain('Second')
             ->and($html)->toContain('</ol>');
+    });
+
+    test('renders check list correctly', function () {
+        $block = $this->blockService->listBlock(['Done', 'Pending'], 'check');
+        $block['props']['iconColor'] = '#ff0000';
+        $html = $this->blockService->renderBlock($block);
+
+        expect($html)->toContain('lb-list-check')
+            ->and($html)->toContain('Done')
+            ->and($html)->toContain('Pending')
+            ->and($html)->toContain('#ff0000');
     });
 
     test('renders empty string for list with no items', function () {
