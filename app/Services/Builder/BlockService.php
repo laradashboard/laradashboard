@@ -715,22 +715,27 @@ HTML;
         foreach ($items as $item) {
             if ($listType === 'check') {
                 $itemsHtml .= sprintf(
-                    '<li style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; list-style: none;"><span style="color: %s; flex-shrink: 0;">✓</span><span>%s</span></li>',
-                    e($iconColor),
+                    '<li class="lb-list-check-item"><span class="lb-list-check-icon">✓</span><span>%s</span></li>',
                     $item
                 );
             } else {
-                $itemsHtml .= "<li style=\"margin-bottom: 8px;\">{$item}</li>";
+                $itemsHtml .= "<li>{$item}</li>";
             }
         }
 
-        $listStyle = $listType === 'check'
-            ? "color: {$color}; font-size: {$fontSize}; line-height: 1.8; margin: 0; padding-left: 0; list-style: none;"
-            : "color: {$color}; font-size: {$fontSize}; line-height: 1.8; margin: 0; padding-left: 24px;";
+        $listClasses = $listType === 'check' ? 'lb-list lb-list-check' : 'lb-list';
+        $listStyleParts = [
+            "color: {$color}",
+            "font-size: {$fontSize}",
+        ];
 
-        $classAttr = $listType === 'check' ? ' class="lb-list lb-list-check"' : '';
+        if ($listType === 'check') {
+            $listStyleParts[] = "--lb-list-icon-color: {$iconColor}";
+        }
 
-        return "<{$tag}{$classAttr} style=\"{$listStyle}\">{$itemsHtml}</{$tag}>";
+        $listStyle = implode('; ', $listStyleParts);
+
+        return "<{$tag} class=\"{$listClasses}\" style=\"{$listStyle}\">{$itemsHtml}</{$tag}>";
     }
 
     public function renderQuote(array $props): string

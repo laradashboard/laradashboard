@@ -10,15 +10,15 @@ const DEFAULT_ITEMS = ["List item"];
 
 const serializeItems = (items) => JSON.stringify(items ?? []);
 
-const buildListHtml = (items, listType = "bullet", iconColor = "#635bff") => {
+const buildListHtml = (items, listType = "bullet") => {
     const normalized = items?.length ? items : DEFAULT_ITEMS;
 
     if (listType === "check") {
         return normalized
             .map(
                 (item) =>
-                    `<li style="display:flex;align-items:flex-start;gap:8px;margin-bottom:4px;list-style:none;">` +
-                    `<span contenteditable="false" style="color:${iconColor};flex-shrink:0;user-select:none;">✓</span>` +
+                    `<li class="lb-list-check-item">` +
+                    `<span class="lb-list-check-icon" contenteditable="false">✓</span>` +
                     `<span>${item || "<br>"}</span>` +
                     `</li>`
             )
@@ -39,7 +39,12 @@ export default function ListBlock({
     const onUpdateRef = useRef(onUpdate);
     const lastPropsItems = useRef(serializeItems(props.items));
     const lastListType = useRef(props.listType || "bullet");
-    const lastIconColor = useRef(props.iconColor || "#635bff");
+    const typographyColor = props.layoutStyles?.typography?.color;
+    const resolvedIconColor =
+        resolvePageTextColor(props.iconColor, typographyColor) ||
+        props.iconColor ||
+        "#635bff";
+    const lastIconColor = useRef(resolvedIconColor);
     const liveItemsRef = useRef(props.items || DEFAULT_ITEMS);
 
     propsRef.current = props;
@@ -47,7 +52,7 @@ export default function ListBlock({
 
     const items = props.items?.length ? props.items : DEFAULT_ITEMS;
     const listType = props.listType || "bullet";
-    const iconColor = props.iconColor || "#635bff";
+    const iconColor = resolvedIconColor;
     const ListTag = listType === "number" ? "ol" : "ul";
 
     const extractItemsFromEditor = useCallback(() => {
@@ -81,11 +86,10 @@ export default function ListBlock({
 
             editorRef.current.innerHTML = buildListHtml(
                 itemsToRender,
-                listType,
-                iconColor
+                listType
             );
         },
-        [listType, iconColor]
+        [listType]
     );
 
     const saveItems = useCallback(() => {
@@ -174,7 +178,7 @@ export default function ListBlock({
             liveItemsRef.current = items;
             lastIconColor.current = iconColor;
         }
-    }, [items, listType, iconColor, syncEditorFromItems]);
+    }, [items, listType, iconColor, typographyColor, syncEditorFromItems]);
 
     // Register toolbar
     useEffect(() => {
@@ -216,15 +220,20 @@ export default function ListBlock({
         baseListStyle.color = resolvedColor;
     }
 
+    const listClassName =
+        listType === "check" ? "lb-list lb-list-check" : "lb-list";
+
     const listStyle = {
         ...applyLayoutStyles(baseListStyle, props.layoutStyles),
-        paddingLeft: listType === "check" ? "0" : "24px",
         listStyleType:
             listType === "bullet"
                 ? "disc"
                 : listType === "number"
                   ? "decimal"
                   : "none",
+        ...(listType === "check"
+            ? { "--lb-list-icon-color": iconColor }
+            : {}),
     };
 
     if (isSelected) {
@@ -232,6 +241,7 @@ export default function ListBlock({
             <div style={containerStyle} data-text-editing="true">
                 <ListTag
                     ref={editorRef}
+                    className={listClassName}
                     contentEditable
                     suppressContentEditableWarning
                     onInput={saveItems}
@@ -257,10 +267,11 @@ export default function ListBlock({
     return (
         <div style={containerStyle}>
             <ListTag
+                className={listClassName}
                 style={listStyle}
                 suppressContentEditableWarning
                 dangerouslySetInnerHTML={{
-                    __html: buildListHtml(items, listType, iconColor),
+                    __html: buildListHtml(items, listType),
                 }}
             />
         </div>
