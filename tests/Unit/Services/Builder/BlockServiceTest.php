@@ -195,7 +195,7 @@ describe('list block', function () {
             ->and($block['props']['listType'])->toBe('bullet')
             ->and($block['props']['color'])->toBe('#666666')
             ->and($block['props']['fontSize'])->toBe('16px')
-            ->and($block['props']['iconColor'])->toBe('#635bff');
+            ->and($block['props']['iconColor'])->toBe('');
     });
 
     test('creates numbered list block', function () {

@@ -1,6 +1,10 @@
 /**
  * List block structural styles.
  * Dynamic color, font-size, and icon color use inline styles / CSS variables.
+ *
+ * Checklist icon defaults to currentColor (same as list text). Custom color via
+ * --lb-list-icon-color. Selectors must beat text-editor's
+ * `[data-text-editing="true"] li { display: list-item }` so flex gap works.
  */
 
 .lb-page-content .lb-list,
@@ -15,7 +19,8 @@
 }
 
 .lb-page-content .lb-list-check,
-.lb-builder-canvas .lb-list-check {
+.lb-builder-canvas .lb-list-check,
+.lb-builder-canvas [data-text-editing="true"] .lb-list-check {
     list-style: none;
     padding-left: 0;
 }
@@ -26,7 +31,8 @@
 }
 
 .lb-page-content .lb-list-check-item,
-.lb-builder-canvas .lb-list-check-item {
+.lb-builder-canvas .lb-list-check-item,
+.lb-builder-canvas [data-text-editing="true"] .lb-list-check-item {
     display: flex;
     align-items: flex-start;
     gap: 8px;
@@ -34,8 +40,9 @@
 }
 
 .lb-page-content .lb-list-check-icon,
-.lb-builder-canvas .lb-list-check-icon {
-    color: var(--lb-list-icon-color, #635bff);
+.lb-builder-canvas .lb-list-check-icon,
+.lb-builder-canvas [data-text-editing="true"] .lb-list-check-icon {
+    color: var(--lb-list-icon-color, currentColor);
     flex-shrink: 0;
 }
 

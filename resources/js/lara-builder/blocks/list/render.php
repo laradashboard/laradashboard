@@ -22,7 +22,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     $listType = $props['listType'] ?? 'bullet';
     $color = $props['color'] ?? '';
     $fontSize = $props['fontSize'] ?? '16px';
-    $iconColor = $props['iconColor'] ?? '#635bff';
+    $iconColor = $props['iconColor'] ?? '';
     $layoutStyles = $props['layoutStyles'] ?? [];
     $customCSS = $props['customCSS'] ?? '';
     $customClass = $props['customClass'] ?? '';
@@ -102,12 +102,23 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     }
 
     if ($listType === 'check') {
-        $resolvedIconColor = ContentTokens::resolvePageTextColor(
-            $iconColor,
-            $typography['color'] ?? null
-        ) ?? $iconColor;
+        $normalizedIcon = strtolower(trim((string) $iconColor));
+        // Legacy primary default (#635bff) inherits list text color via currentColor.
+        $isLegacyIcon = $normalizedIcon === ''
+            || $normalizedIcon === 'inherit'
+            || $normalizedIcon === 'currentcolor'
+            || $normalizedIcon === '#635bff';
 
-        $blockStyles[] = '--lb-list-icon-color: ' . ($resolvedIconColor ?: '#635bff');
+        if (! $isLegacyIcon) {
+            $resolvedIconColor = ContentTokens::resolvePageTextColor(
+                $iconColor,
+                $typography['color'] ?? null
+            ) ?? $iconColor;
+
+            if ($resolvedIconColor !== null && $resolvedIconColor !== '') {
+                $blockStyles[] = '--lb-list-icon-color: ' . $resolvedIconColor;
+            }
+        }
     }
 
     // Layout styles (margin, padding overrides)

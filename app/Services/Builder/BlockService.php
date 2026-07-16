@@ -279,7 +279,7 @@ HTML;
                 'listType' => $listType,
                 'color' => $color,
                 'fontSize' => '16px',
-                'iconColor' => '#635bff',
+                'iconColor' => '',
                 'layoutStyles' => $this->defaultLayoutStyles(),
             ],
         ];
@@ -703,7 +703,7 @@ HTML;
         $listType = $props['listType'] ?? 'bullet';
         $color = $props['color'] ?? '#666666';
         $fontSize = $props['fontSize'] ?? '16px';
-        $iconColor = $props['iconColor'] ?? '#635bff';
+        $iconColor = $props['iconColor'] ?? '';
 
         if (empty($items)) {
             return '';
@@ -730,7 +730,15 @@ HTML;
         ];
 
         if ($listType === 'check') {
-            $listStyleParts[] = "--lb-list-icon-color: {$iconColor}";
+            $normalizedIcon = strtolower(trim((string) $iconColor));
+            $isLegacyIcon = $normalizedIcon === ''
+                || $normalizedIcon === 'inherit'
+                || $normalizedIcon === 'currentcolor'
+                || $normalizedIcon === '#635bff';
+
+            if (! $isLegacyIcon) {
+                $listStyleParts[] = "--lb-list-icon-color: {$iconColor}";
+            }
         }
 
         $listStyle = implode('; ', $listStyleParts);

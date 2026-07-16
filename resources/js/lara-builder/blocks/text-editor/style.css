@@ -4,9 +4,10 @@
  * lists match the frontend `.prose` / post preview appearance.
  */
 
+/* Exclude .lb-list so List block checklist flex/gap is not overridden. */
 .lb-text-editor ul,
 .lb-builder-canvas .lb-text-editor ul,
-.lb-builder-canvas [data-text-editing="true"] ul,
+.lb-builder-canvas [data-text-editing="true"] ul:not(.lb-list),
 .lb-page-content .lb-text-editor ul {
     list-style-type: disc;
     list-style-position: outside;
@@ -16,7 +17,7 @@
 
 .lb-text-editor ol,
 .lb-builder-canvas .lb-text-editor ol,
-.lb-builder-canvas [data-text-editing="true"] ol,
+.lb-builder-canvas [data-text-editing="true"] ol:not(.lb-list),
 .lb-page-content .lb-text-editor ol {
     list-style-type: decimal;
     list-style-position: outside;
@@ -26,7 +27,7 @@
 
 .lb-text-editor li,
 .lb-builder-canvas .lb-text-editor li,
-.lb-builder-canvas [data-text-editing="true"] li,
+.lb-builder-canvas [data-text-editing="true"] :not(.lb-list) > li,
 .lb-page-content .lb-text-editor li {
     margin: 0.25em 0;
     padding-left: 0.25em;
@@ -35,7 +36,7 @@
 
 .lb-text-editor ul ul,
 .lb-builder-canvas .lb-text-editor ul ul,
-.lb-builder-canvas [data-text-editing="true"] ul ul,
+.lb-builder-canvas [data-text-editing="true"] ul:not(.lb-list) ul,
 .lb-page-content .lb-text-editor ul ul {
     list-style-type: circle;
     margin: 0.25em 0;
@@ -43,14 +44,14 @@
 
 .lb-text-editor ul ul ul,
 .lb-builder-canvas .lb-text-editor ul ul ul,
-.lb-builder-canvas [data-text-editing="true"] ul ul ul,
+.lb-builder-canvas [data-text-editing="true"] ul:not(.lb-list) ul ul,
 .lb-page-content .lb-text-editor ul ul ul {
     list-style-type: square;
 }
 
 .lb-text-editor ol ol,
 .lb-builder-canvas .lb-text-editor ol ol,
-.lb-builder-canvas [data-text-editing="true"] ol ol,
+.lb-builder-canvas [data-text-editing="true"] ol:not(.lb-list) ol,
 .lb-page-content .lb-text-editor ol ol {
     list-style-type: lower-alpha;
     margin: 0.25em 0;

@@ -4,11 +4,35 @@
 
 import { useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { applyLayoutStyles } from "../../components/layout-styles/styleHelpers";
-import { resolvePageTextColor } from "@lara-builder/tokens/contentTokens";
+import {
+    normalizeHexColor,
+    resolvePageTextColor,
+} from "@lara-builder/tokens/contentTokens";
 
 const DEFAULT_ITEMS = ["List item"];
+/** Legacy default that should follow list text color instead of primary. */
+const LEGACY_LIST_ICON_COLOR = "#635bff";
 
 const serializeItems = (items) => JSON.stringify(items ?? []);
+
+/**
+ * Checklist icon follows text color by default (currentColor).
+ * Only returns an explicit color when a non-legacy iconColor is set.
+ */
+const resolveListIconColor = (iconColor, textColor, typographyColor) => {
+    const normalized = normalizeHexColor(iconColor);
+
+    if (
+        !normalized ||
+        normalized === "inherit" ||
+        normalized === "currentcolor" ||
+        normalized === LEGACY_LIST_ICON_COLOR
+    ) {
+        return resolvePageTextColor(textColor, typographyColor);
+    }
+
+    return resolvePageTextColor(iconColor, typographyColor) || iconColor;
+};
 
 const buildListHtml = (items, listType = "bullet") => {
     const normalized = items?.length ? items : DEFAULT_ITEMS;
@@ -40,10 +64,11 @@ export default function ListBlock({
     const lastPropsItems = useRef(serializeItems(props.items));
     const lastListType = useRef(props.listType || "bullet");
     const typographyColor = props.layoutStyles?.typography?.color;
-    const resolvedIconColor =
-        resolvePageTextColor(props.iconColor, typographyColor) ||
-        props.iconColor ||
-        "#635bff";
+    const resolvedIconColor = resolveListIconColor(
+        props.iconColor,
+        props.color,
+        typographyColor
+    );
     const lastIconColor = useRef(resolvedIconColor);
     const liveItemsRef = useRef(props.items || DEFAULT_ITEMS);
 
@@ -231,7 +256,7 @@ export default function ListBlock({
                 : listType === "number"
                   ? "decimal"
                   : "none",
-        ...(listType === "check"
+        ...(listType === "check" && iconColor
             ? { "--lb-list-icon-color": iconColor }
             : {}),
     };
