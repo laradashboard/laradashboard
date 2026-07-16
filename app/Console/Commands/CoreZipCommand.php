@@ -296,9 +296,15 @@ class CoreZipCommand extends Command
         ], base_path());
         $process->setTimeout(600);
 
-        $process->run(function ($type, $buffer) {
-            // Suppress output for cleaner display
-        });
+        $process->run();
+
+        if (! $process->isSuccessful()) {
+            $errorOutput = trim($process->getErrorOutput() ?: $process->getOutput());
+            if ($errorOutput !== '') {
+                $this->newLine();
+                $this->line($errorOutput);
+            }
+        }
 
         return $process->isSuccessful();
     }

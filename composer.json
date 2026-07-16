@@ -107,7 +107,7 @@
             "@php artisan key:generate --ansi"
         ],
         "protect-local-files": [
-            "bash scripts/protect-local-files.sh"
+            "@php scripts/protect-local-files.php"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
