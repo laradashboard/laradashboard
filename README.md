@@ -96,7 +96,11 @@ Built for Laravel developers who want to ship admin dashboards, SaaS apps, CRMs 
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.2.1](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.1) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.2.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.2) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.2.2] — 2026-07-17**
+-   **Fix:** Core upgrade hardening — vendor staging/validation, CLI subprocess migrations, and vendor included in pre-upgrade backups (fixes shared-hosting upgrade failures).
+-   **Fix:** `protect-local-files` Composer script runs via PHP for Windows compatibility.
 
 **[v1.2.1] — 2026-07-15**
 -   **Fix:** Text Editor block lifecycle and list markers in the canvas; list blocks keep content when changing type.

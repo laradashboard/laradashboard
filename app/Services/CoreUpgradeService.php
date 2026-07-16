@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Process\Process;
 use ZipArchive;
 
 class CoreUpgradeService
@@ -356,18 +357,10 @@ class CoreUpgradeService
             // Ensure storage directory structure exists
             $this->ensureStorageDirectoriesExist();
 
-            // Run ONLY core migrations (not module migrations)
-            // Module migrations should be handled by module installation/upgrade
-            Artisan::call('migrate', [
-                '--force' => true,
-                '--path' => 'database/migrations',
-            ]);
-
-            // Clear caches
-            Artisan::call('optimize:clear');
+            $this->runPostUpgradeTasks();
 
             // Clean up temp files
-            File::deleteDirectory($this->tempPath);
+            $this->cleanupUpgradeTempPaths();
 
             // Clear update info from settings
             $this->clearUpdateInfo();
@@ -391,6 +384,7 @@ class CoreUpgradeService
             $this->restoreFromBackup($backupFile);
 
             // Bring application back online
+            $this->cleanupUpgradeTempPaths();
             $this->bringApplicationOnline();
 
             $result['message'] = 'Upgrade failed: '.$e->getMessage();
@@ -452,18 +446,10 @@ class CoreUpgradeService
             // Ensure storage directory structure exists
             $this->ensureStorageDirectoriesExist();
 
-            // Run ONLY core migrations (not module migrations)
-            // Module migrations should be handled by module installation/upgrade
-            Artisan::call('migrate', [
-                '--force' => true,
-                '--path' => 'database/migrations',
-            ]);
-
-            // Clear caches
-            Artisan::call('optimize:clear');
+            $this->runPostUpgradeTasks();
 
             // Clean up temp files
-            File::deleteDirectory($this->tempPath);
+            $this->cleanupUpgradeTempPaths();
 
             // Clear update info from settings
             $this->clearUpdateInfo();
@@ -489,6 +475,7 @@ class CoreUpgradeService
             $this->restoreFromBackup($backupFile);
 
             // Bring application back online
+            $this->cleanupUpgradeTempPaths();
             $this->bringApplicationOnline();
 
             $result['message'] = __('Upgrade failed: :error', ['error' => $e->getMessage()]);
@@ -548,7 +535,7 @@ class CoreUpgradeService
                 $sourcePath = $directories[0];
             }
 
-            // Directories to update (including vendor for production deploys)
+            // Directories to update (vendor is handled separately with staging)
             $directoriesToUpdate = [
                 'app',
                 'bootstrap',
@@ -567,7 +554,6 @@ class CoreUpgradeService
                 'resources/lang',
                 'resources/views',
                 'routes',
-                'vendor',
             ];
 
             // Also copy module build directories if they exist
@@ -579,12 +565,13 @@ class CoreUpgradeService
                 $dest = base_path($dir);
 
                 if (File::isDirectory($source)) {
-                    // For vendor folder, delete existing first to avoid conflicts
-                    if ($dir === 'vendor' && File::isDirectory($dest)) {
-                        File::deleteDirectory($dest);
-                    }
                     File::copyDirectory($source, $dest);
                 }
+            }
+
+            $vendorSource = $sourcePath.'/vendor';
+            if (File::isDirectory($vendorSource) && ! $this->swapVendorDirectory($vendorSource)) {
+                return false;
             }
 
             // Copy individual files
@@ -698,5 +685,178 @@ class CoreUpgradeService
         }
 
         return $buildDirs;
+    }
+
+    /**
+     * Run migrations and cache cleanup in a fresh PHP subprocess.
+     *
+     * We avoid Artisan::call() here because the current HTTP request still has
+     * the pre-upgrade Composer autoloader in memory after vendor is replaced.
+     */
+    protected function runPostUpgradeTasks(): void
+    {
+        $this->runArtisanInSubprocess([
+            'migrate',
+            '--force',
+            '--path=database/migrations',
+        ]);
+
+        $this->runArtisanInSubprocess(['optimize:clear']);
+    }
+
+    /**
+     * Execute an Artisan command in a separate PHP process.
+     *
+     * @param  array<int, string>  $arguments
+     */
+    protected function runArtisanInSubprocess(array $arguments, int $timeout = 600): void
+    {
+        $process = new Process(
+            array_merge([PHP_BINARY, base_path('artisan')], $arguments),
+            base_path()
+        );
+        $process->setTimeout($timeout);
+        $process->run();
+
+        if (! $process->isSuccessful()) {
+            $output = trim($process->getErrorOutput() ?: $process->getOutput());
+
+            throw new \RuntimeException(
+                'Artisan command failed: '.implode(' ', $arguments).($output !== '' ? "\n".$output : '')
+            );
+        }
+    }
+
+    /**
+     * Stage a new vendor directory, validate it, then swap it into place.
+     */
+    protected function swapVendorDirectory(string $sourceVendorPath): bool
+    {
+        $stagingPath = $this->getVendorStagingPath();
+        $vendorPath = $this->getVendorPath();
+        $backupPath = $this->getVendorBackupPath();
+
+        if (File::isDirectory($stagingPath)) {
+            File::deleteDirectory($stagingPath);
+        }
+
+        File::copyDirectory($sourceVendorPath, $stagingPath);
+
+        if (! $this->validateVendorDirectory($stagingPath)) {
+            File::deleteDirectory($stagingPath);
+
+            return false;
+        }
+
+        $previousVendorBackedUp = false;
+
+        try {
+            if (File::isDirectory($vendorPath)) {
+                if (! @rename($vendorPath, $backupPath)) {
+                    Log::error('Failed to move current vendor directory aside for upgrade');
+
+                    File::deleteDirectory($stagingPath);
+
+                    return false;
+                }
+
+                $previousVendorBackedUp = true;
+            }
+
+            if (! @rename($stagingPath, $vendorPath)) {
+                Log::error('Failed to activate staged vendor directory');
+
+                if ($previousVendorBackedUp && File::isDirectory($backupPath) && ! File::isDirectory($vendorPath)) {
+                    @rename($backupPath, $vendorPath);
+                }
+
+                File::deleteDirectory($stagingPath);
+
+                return false;
+            }
+
+            if ($previousVendorBackedUp && File::isDirectory($backupPath)) {
+                File::deleteDirectory($backupPath);
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            if ($previousVendorBackedUp && File::isDirectory($backupPath) && ! File::isDirectory($vendorPath)) {
+                @rename($backupPath, $vendorPath);
+            }
+
+            if (File::isDirectory($stagingPath)) {
+                File::deleteDirectory($stagingPath);
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Verify that a vendor directory contains the files required to boot Laravel.
+     */
+    protected function validateVendorDirectory(string $vendorPath): bool
+    {
+        $requiredFiles = [
+            'autoload.php',
+            'composer/autoload_classmap.php',
+            'livewire/livewire/src/Mechanisms/ExtendBlade/ExtendedCompilerEngine.php',
+        ];
+
+        foreach ($requiredFiles as $relativePath) {
+            if (! File::exists($vendorPath.'/'.$relativePath)) {
+                Log::error('Vendor validation failed: missing required file', [
+                    'vendor_path' => $vendorPath,
+                    'missing_file' => $relativePath,
+                ]);
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Remove temporary upgrade paths, including any stale vendor staging folders.
+     */
+    protected function cleanupUpgradeTempPaths(): void
+    {
+        if (File::isDirectory($this->tempPath)) {
+            File::deleteDirectory($this->tempPath);
+        }
+
+        $stagingPath = $this->getVendorStagingPath();
+
+        if (File::isDirectory($stagingPath)) {
+            File::deleteDirectory($stagingPath);
+        }
+
+        foreach (glob($this->getVendorBackupGlobPattern()) ?: [] as $backupPath) {
+            if (File::isDirectory($backupPath)) {
+                File::deleteDirectory($backupPath);
+            }
+        }
+    }
+
+    protected function getVendorPath(): string
+    {
+        return base_path('vendor');
+    }
+
+    protected function getVendorStagingPath(): string
+    {
+        return base_path('vendor-staging');
+    }
+
+    protected function getVendorBackupPath(): string
+    {
+        return base_path('vendor-backup-'.now()->format('YmdHis'));
+    }
+
+    protected function getVendorBackupGlobPattern(): string
+    {
+        return base_path('vendor-backup-*');
     }
 }

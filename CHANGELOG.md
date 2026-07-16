@@ -2,9 +2,16 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.2.1](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.1) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.2.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.2) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.2.2] — 2026-07-17
+- **Fix:** Core upgrade no longer deletes `vendor/` in-place during the same HTTP request — new vendor is staged, validated, and swapped atomically.
+- **Fix:** Post-upgrade migrations and cache clearing run in a fresh PHP CLI subprocess, preventing stale Composer autoloader failures on shared hosting (e.g. missing Livewire `ExtendedCompilerEngine.php`).
+- **Improve:** Pre-upgrade backups now include the `vendor/` folder so restore fully rolls back a failed upgrade.
+- **Fix:** `protect-local-files` Composer script runs via PHP for cross-platform compatibility (Windows).
+
 
 ## [v1.2.1] — 2026-07-15
 
