@@ -1,69 +1,68 @@
+<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
+    <div
+        x-data="{
+            selectedMedia: [],
+            selectAll: false,
+            bulkDeleteModalOpen: false,
+            typeDropdownOpen: false,
+            bulkActionsDropdownOpen: false,
+            viewMode: localStorage.getItem('mediaViewMode') || 'grid',
+            uploadModalOpen: false,
 
-<div
-    x-data="{
-        selectedMedia: [],
-        selectAll: false,
-        bulkDeleteModalOpen: false,
-        typeDropdownOpen: false,
-        bulkActionsDropdownOpen: false,
-        viewMode: localStorage.getItem('mediaViewMode') || 'grid',
-        uploadModalOpen: false,
+            init() {
+                // Auto-open upload modal if ?new is in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('new')) {
+                    this.uploadModalOpen = true;
+                }
 
-        init() {
-            // Auto-open upload modal if ?new is in URL
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('new')) {
-                this.uploadModalOpen = true;
-            }
+                const autoSelectRaw = sessionStorage.getItem('mediaLibraryAutoSelect');
+                if (autoSelectRaw) {
+                    sessionStorage.removeItem('mediaLibraryAutoSelect');
 
-            const autoSelectRaw = sessionStorage.getItem('mediaLibraryAutoSelect');
-            if (autoSelectRaw) {
-                sessionStorage.removeItem('mediaLibraryAutoSelect');
+                    try {
+                        const uploadedIds = JSON.parse(autoSelectRaw).map(String);
+                        if (uploadedIds.length > 0) {
+                            this.selectedMedia = uploadedIds;
 
-                try {
-                    const uploadedIds = JSON.parse(autoSelectRaw).map(String);
-                    if (uploadedIds.length > 0) {
-                        this.selectedMedia = uploadedIds;
-
-                        this.$nextTick(() => {
-                            const lastId = uploadedIds[uploadedIds.length - 1];
-                            const target = document.querySelector(`[data-media-id="${lastId}"]`);
-                            target?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        });
+                            this.$nextTick(() => {
+                                const lastId = uploadedIds[uploadedIds.length - 1];
+                                const target = document.querySelector(`[data-media-id='${lastId}']`);
+                                target?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Failed to restore uploaded media selection:', error);
                     }
-                } catch (error) {
-                    console.error('Failed to restore uploaded media selection:', error);
                 }
-            }
 
-            // Watch for modal close and remove ?new from URL
-            this.$watch('uploadModalOpen', (value) => {
-                if (!value) {
-                    this.removeNewParam();
+                // Watch for modal close and remove ?new from URL
+                this.$watch('uploadModalOpen', (value) => {
+                    if (!value) {
+                        this.removeNewParam();
+                    }
+                });
+            },
+
+            removeNewParam() {
+                const url = new URL(window.location.href);
+                if (url.searchParams.has('new')) {
+                    url.searchParams.delete('new');
+                    window.history.replaceState({}, '', url.toString());
                 }
-            });
-        },
+            },
 
-        removeNewParam() {
-            const url = new URL(window.location.href);
-            if (url.searchParams.has('new')) {
-                url.searchParams.delete('new');
-                window.history.replaceState({}, '', url.toString());
+            toggleViewMode() {
+                this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
+                localStorage.setItem('mediaViewMode', this.viewMode);
+            },
+
+            showSingleDeleteModal(id) {
+                this.selectedMedia = [id.toString()];
+                this.bulkDeleteModalOpen = true;
             }
-        },
-
-        toggleViewMode() {
-            this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
-            localStorage.setItem('mediaViewMode', this.viewMode);
-        },
-
-        showSingleDeleteModal(id) {
-            this.selectedMedia = [id.toString()];
-            this.bulkDeleteModalOpen = true;
-        }
-    }" id="mediaManager"
->
-    <x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
+        }" id="mediaManager"
+    >
         {!! Hook::applyFilters(CommonFilterHook::MEDIA_AFTER_BREADCRUMBS, '') !!}
 
         @if ($errors->any())
@@ -863,5 +862,5 @@
                 }
             </script>
         @endpush
-    </x-layouts.backend-layout>
-</div>
+    </div>
+</x-layouts.backend-layout>
