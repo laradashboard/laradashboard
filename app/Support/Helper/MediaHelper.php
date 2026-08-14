@@ -229,7 +229,7 @@ class MediaHelper
 
         // Check if POST was truncated due to post_max_size
         if (
-            $_SERVER['REQUEST_METHOD'] === 'POST' &&
+            ($_SERVER['REQUEST_METHOD'] ?? null) === 'POST' &&
             empty($_POST) &&
             empty($_FILES) &&
             isset($_SERVER['CONTENT_LENGTH']) &&
