@@ -874,7 +874,7 @@ Please be sure to read our [Contribution Guide](CONTRIBUTING.md) before submitti
 
 ### ✩ Growth Story
 
-[![Star History Chart](https://api.star-history.com/svg?repos=laradashboard/laradashboard&type=Date)](https://www.star-history.com/#laradashboard/laradashboard&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=laradashboard/laradashboard&type=Date)](https://star-history.dera.page/#laradashboard/laradashboard&Date)
 
 ## 💖 Support
 
