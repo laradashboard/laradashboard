@@ -11,6 +11,8 @@ use App\Services\Builder\PostBuilderService;
 use App\Support\Helper\MediaHelper;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\ValidationException;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -19,6 +21,10 @@ use Illuminate\Support\Str;
 class MediaLibraryService
 {
     use HandlesMediaOperations;
+
+    public function __construct(private readonly SvgSanitizer $svgSanitizer)
+    {
+    }
 
     public function getMediaList(
         ?string $search = null,
@@ -105,48 +111,17 @@ class MediaLibraryService
 
     public function uploadMedia(array $files): array
     {
-        $uploadedFiles = [];
+        $preparedFiles = [];
 
         foreach ($files as $file) {
-            // Skip files that don't pass security checks
-            if (! $this->isSecureFile($file)) {
-                continue;
-            }
+            $this->assertFileIsAllowed($file);
+            $preparedFiles[] = $this->prepareFileForStorage($file);
+        }
 
-            // Check demo mode restrictions.
-            if (config('app.demo_mode', false)) {
-                $mimeType = $file->getMimeType();
-                if (! MediaHelper::isAllowedInDemoMode($mimeType)) {
-                    throw new \InvalidArgumentException(__('In demo mode, only images, videos, PDFs, and documents are allowed. File type :type is not permitted.', ['type' => $mimeType]));
-                }
-            }
+        $uploadedFiles = [];
 
-            // Generate a secure filename
-            $safeFileName = $this->generateUniqueFilename($file->getClientOriginalName());
-
-            // Store the file with a secure name
-            $path = $file->storeAs('media', $safeFileName, 'public');
-
-            // Create media record directly in the media table for standalone uploads
-            $mediaItem = SpatieMedia::create([
-                'model_type' => '', // Empty for standalone media
-                'model_id' => 0,   // 0 for standalone media
-                'uuid' => Str::uuid(),
-                'collection_name' => 'uploads',
-                'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
-                'file_name' => basename($path),
-                'mime_type' => $file->getMimeType(),
-                'disk' => 'public',
-                'conversions_disk' => 'public',
-                'size' => $file->getSize(),
-                'manipulations' => [],
-                'custom_properties' => [],
-                'generated_conversions' => [],
-                'responsive_images' => [],
-                'order_column' => null,
-            ]);
-
-            $uploadedFiles[] = $mediaItem;
+        foreach ($preparedFiles as $prepared) {
+            $uploadedFiles[] = $this->storePreparedMedia($prepared);
         }
 
         return $uploadedFiles;
@@ -196,15 +171,9 @@ class MediaLibraryService
         if ($request->hasFile($fieldName)) {
             $file = $request->file($fieldName);
 
-            // Security checks
-            if ($file && $this->isSecureFile($file)) {
-                // Check demo mode restrictions
-                if (config('app.demo_mode', false)) {
-                    $mimeType = $file->getMimeType();
-                    if (! MediaHelper::isAllowedInDemoMode($mimeType)) {
-                        throw new \InvalidArgumentException(__('In demo mode, only images, videos, PDFs, and documents are allowed. File type :type is not permitted.', ['type' => $mimeType]));
-                    }
-                }
+            if ($file) {
+                $this->assertFileIsAllowed($file);
+                $file = $this->sanitizeSvgIfNeeded($file);
 
                 return $model->addMedia($file)
                     ->sanitizingFileName(function ($fileName) {
@@ -225,23 +194,132 @@ class MediaLibraryService
     ): void {
         if ($request->hasFile($requestKey)) {
             foreach ($request->file($requestKey) as $file) {
-                // Security checks
-                if ($this->isSecureFile($file)) {
-                    // Check demo mode restrictions
-                    if (config('app.demo_mode', false)) {
-                        $mimeType = $file->getMimeType();
-                        if (! MediaHelper::isAllowedInDemoMode($mimeType)) {
-                            throw new \InvalidArgumentException(__('In demo mode, only images, videos, PDFs, and documents are allowed. File type :type is not permitted.', ['type' => $mimeType]));
-                        }
-                    }
+                $this->assertFileIsAllowed($file);
+                $file = $this->sanitizeSvgIfNeeded($file);
 
-                    $model->addMedia($file)
-                        ->sanitizingFileName(function ($fileName) {
-                            return $this->sanitizeFilename($fileName);
-                        })
-                        ->toMediaCollection($collection);
-                }
+                $model->addMedia($file)
+                    ->sanitizingFileName(function ($fileName) {
+                        return $this->sanitizeFilename($fileName);
+                    })
+                    ->toMediaCollection($collection);
             }
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    protected function assertFileIsAllowed(UploadedFile $file): void
+    {
+        if (! $this->isSecureFile($file) || ! MediaHelper::isAllowedMimeType($file->getMimeType())) {
+            throw ValidationException::withMessages([
+                'files' => [__('This file type is not allowed.')],
+            ]);
+        }
+    }
+
+    /**
+     * Validate and, for SVG files, sanitize in memory before any public write.
+     *
+     * @return array{
+     *     contents?: string,
+     *     file?: UploadedFile,
+     *     safe_file_name: string,
+     *     original_name: string,
+     *     mime_type: string,
+     *     size: int
+     * }
+     *
+     * @throws ValidationException
+     */
+    protected function prepareFileForStorage(UploadedFile $file): array
+    {
+        $originalName = $file->getClientOriginalName();
+        $safeFileName = $this->generateUniqueFilename($originalName);
+
+        if (MediaHelper::isSvgFile($file)) {
+            try {
+                $contents = $this->svgSanitizer->sanitizeUploadedFile($file);
+            } catch (\RuntimeException $e) {
+                throw ValidationException::withMessages([
+                    'files' => [$e->getMessage()],
+                ]);
+            }
+
+            return [
+                'contents' => $contents,
+                'safe_file_name' => pathinfo($safeFileName, PATHINFO_FILENAME) . '.svg',
+                'original_name' => $originalName,
+                'mime_type' => 'image/svg+xml',
+                'size' => strlen($contents),
+            ];
+        }
+
+        return [
+            'file' => $file,
+            'safe_file_name' => $safeFileName,
+            'original_name' => $originalName,
+            'mime_type' => (string) $file->getMimeType(),
+            'size' => $file->getSize(),
+        ];
+    }
+
+    /**
+     * @param  array{
+     *     contents?: string,
+     *     file?: UploadedFile,
+     *     safe_file_name: string,
+     *     original_name: string,
+     *     mime_type: string,
+     *     size: int
+     * }  $prepared
+     */
+    protected function storePreparedMedia(array $prepared): SpatieMedia
+    {
+        if (isset($prepared['contents'])) {
+            Storage::disk('public')->put('media/' . $prepared['safe_file_name'], $prepared['contents']);
+            $fileName = $prepared['safe_file_name'];
+        } else {
+            /** @var UploadedFile $file */
+            $file = $prepared['file'];
+            $path = $file->storeAs('media', $prepared['safe_file_name'], 'public');
+            $fileName = basename($path);
+        }
+
+        return SpatieMedia::create([
+            'model_type' => '',
+            'model_id' => 0,
+            'uuid' => Str::uuid(),
+            'collection_name' => 'uploads',
+            'name' => pathinfo($prepared['original_name'], PATHINFO_FILENAME),
+            'file_name' => $fileName,
+            'mime_type' => $prepared['mime_type'],
+            'disk' => 'public',
+            'conversions_disk' => 'public',
+            'size' => $prepared['size'],
+            'manipulations' => [],
+            'custom_properties' => [],
+            'generated_conversions' => [],
+            'responsive_images' => [],
+            'order_column' => null,
+        ]);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    protected function sanitizeSvgIfNeeded(UploadedFile $file): UploadedFile
+    {
+        if (! MediaHelper::isSvgFile($file)) {
+            return $file;
+        }
+
+        try {
+            return $this->svgSanitizer->toSafeUploadedFile($file);
+        } catch (\RuntimeException $e) {
+            throw ValidationException::withMessages([
+                'files' => [$e->getMessage()],
+            ]);
         }
     }
 

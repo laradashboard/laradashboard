@@ -53,7 +53,7 @@ class MediaController extends Controller
         $this->setBreadcrumbTitle(__('Media Library'))
             ->setBreadcrumbIcon('lucide:image')
             ->setBreadcrumbActionClick(
-                "uploadModalOpen = true",
+                "window.dispatchEvent(new CustomEvent('open-media-upload-modal'))",
                 __('Upload Media'),
                 'feather:upload',
                 'media.create'
@@ -101,9 +101,13 @@ class MediaController extends Controller
                     ->values(),
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            $firstError = collect($e->errors())->flatten()->first();
+
             return response()->json([
                 'success' => false,
-                'message' => __('Upload validation failed'),
+                'message' => is_string($firstError) && $firstError !== ''
+                    ? $firstError
+                    : __('Upload validation failed'),
                 'errors' => $e->errors(),
                 'error_type' => 'validation_failed',
             ], 422);
@@ -175,14 +179,10 @@ class MediaController extends Controller
         $this->authorize('viewAny', Media::class);
 
         $limits = MediaHelper::getUploadLimits();
+        $limits['demo_mode'] = (bool) config('app.demo_mode', false);
 
-        // Add demo mode restrictions info
-        if (config('app.demo_mode', false)) {
-            $limits['demo_mode'] = true;
-            $limits['allowed_mime_types'] = MediaHelper::getAllowedMimeTypesForDemo();
-            $limits['demo_restriction_message'] = __('In demo mode, only images, videos, PDFs, and documents (Word, Excel, PowerPoint, text files) are allowed.');
-        } else {
-            $limits['demo_mode'] = false;
+        if ($limits['demo_mode']) {
+            $limits['demo_restriction_message'] = __('Demo mode limits the number of media items. Allowed file types are always restricted.');
         }
 
         return response()->json([

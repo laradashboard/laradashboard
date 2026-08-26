@@ -31,6 +31,7 @@ use App\Http\Controllers\Backend\TranslationController;
 use App\Http\Controllers\Backend\UserLoginAsController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\UnsubscribeController;
+use App\Http\Controllers\PublicStorageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,6 +47,10 @@ use Illuminate\Support\Facades\Route;
 
 // Installation routes
 require __DIR__.'/install.php';
+
+Route::get('/storage/{path}', [PublicStorageController::class, 'show'])
+    ->where('path', '.*')
+    ->name('public.storage');
 
 /**
  * Admin routes.

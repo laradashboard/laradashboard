@@ -1,0 +1,21 @@
+# Harden uploaded files served via the public/storage symlink.
+Options -ExecCGI -Indexes
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+<FilesMatch "(?i)\.(php[0-9]*|phtml|pht|phar)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    <FilesMatch "(?i)\.svg$">
+        Header set Content-Type "image/svg+xml"
+        Header set Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox"
+    </FilesMatch>
+</IfModule>

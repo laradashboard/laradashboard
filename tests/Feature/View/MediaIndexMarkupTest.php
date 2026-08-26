@@ -54,3 +54,14 @@ test('media index emits the doctype first', function () {
     $response->assertOk();
     expect(strtolower(ltrim($response->getContent())))->toStartWith('<!doctype html');
 });
+
+test('header upload button opens the upload modal via a window event', function () {
+    Permission::firstOrCreate(['name' => 'media.create', 'guard_name' => 'web']);
+    $this->user->givePermissionTo('media.create');
+
+    $response = $this->actingAs($this->user)->get(route('admin.media.index'));
+
+    $response->assertOk();
+    $response->assertSee("window.dispatchEvent(new CustomEvent('open-media-upload-modal'))");
+    $response->assertSee('x-on:open-media-upload-modal.window="uploadModalOpen = true"', false);
+});

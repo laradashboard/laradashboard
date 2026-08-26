@@ -346,15 +346,15 @@ echo "Hello World";
             background: #4b4b4b !important;
             color: #fff !important;
         }
-    `;return s&&T==="content"?n.jsx("div",{style:O,"data-text-editing":"true",children:n.jsx("textarea",{ref:$,value:e.content||"",onChange:_,placeholder:`# Hello World
-
-Write your **markdown** content here...
-
-- Item 1
-- Item 2
-
-\`\`\`php
-echo 'Hello';
+    `;return s&&T==="content"?n.jsx("div",{style:O,"data-text-editing":"true",children:n.jsx("textarea",{ref:$,value:e.content||"",onChange:_,placeholder:`# Hello World\r
+\r
+Write your **markdown** content here...\r
+\r
+- Item 1\r
+- Item 2\r
+\r
+\`\`\`php\r
+echo 'Hello';\r
 \`\`\``,className:"w-full px-4 py-3 border-0 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500",style:{minHeight:"200px",resize:"vertical",lineHeight:"1.6"}})}):n.jsxs("div",{style:O,children:[n.jsx("style",{children:J}),i&&n.jsx("div",{className:"p-6 text-center",children:n.jsxs("div",{className:"flex items-center justify-center gap-2 text-gray-500",children:[n.jsxs("svg",{className:"animate-spin h-5 w-5",viewBox:"0 0 24 24",children:[n.jsx("circle",{className:"opacity-25",cx:"12",cy:"12",r:"10",stroke:"currentColor",strokeWidth:"4",fill:"none"}),n.jsx("path",{className:"opacity-75",fill:"currentColor",d:"M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"})]}),n.jsx("span",{children:T==="url"?"Fetching markdown...":"Converting markdown..."})]})}),u&&!i&&n.jsxs("div",{className:"p-4 bg-red-50 border border-red-200 rounded-lg",children:[n.jsxs("div",{className:"flex items-center gap-2 text-red-600",children:[n.jsx("iconify-icon",{icon:"mdi:alert-circle",width:"20",height:"20"}),n.jsx("span",{className:"text-sm font-medium",children:"Error loading markdown"})]}),n.jsx("p",{className:"text-xs text-red-500 mt-1",children:u}),T==="url"&&n.jsx("button",{type:"button",onClick:B,className:"mt-2 text-xs text-red-600 underline hover:text-red-700",children:"Try again"})]}),!i&&!u&&p&&n.jsxs("div",{className:"relative",children:[s&&(e.content||N)&&n.jsx("div",{className:"absolute top-2 right-2 z-10",children:n.jsxs("button",{type:"button",onClick:R,className:`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${v?"bg-green-100 text-green-700 border border-green-200":"bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm"}`,title:"Copy raw markdown",children:[n.jsx("iconify-icon",{icon:v?"mdi:check":"mdi:content-copy",width:"14",height:"14"}),v?"Copied!":"Copy Markdown"]})}),e.showSource&&T==="url"&&e.url&&n.jsxs("div",{className:"mb-3 flex items-center justify-between text-xs text-gray-500 bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-md",children:[n.jsxs("div",{className:"flex items-center gap-2 truncate",children:[n.jsx("iconify-icon",{icon:"mdi:link-variant",width:"14",height:"14"}),n.jsx("span",{className:"truncate",title:e.url,children:e.url})]}),n.jsxs("div",{className:"flex items-center gap-2 shrink-0 ml-2",children:[C&&n.jsxs("span",{className:"text-green-600 flex items-center gap-1",children:[n.jsx("iconify-icon",{icon:"mdi:cached",width:"14",height:"14"}),"cached"]}),n.jsx("button",{type:"button",onClick:F=>{F.stopPropagation(),B()},className:"text-gray-500 hover:text-gray-700 p-1",title:"Refresh content",children:n.jsx("iconify-icon",{icon:"mdi:refresh",width:"14",height:"14"})})]})]}),n.jsx("div",{ref:w,className:"markdown-content",dangerouslySetInnerHTML:{__html:p}},s?"selected":"preview")]}),!i&&!u&&!p&&n.jsxs("div",{className:"p-6 text-center text-gray-400 bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg",children:[n.jsx("iconify-icon",{icon:"mdi:language-markdown",width:"48",height:"48",class:"mb-2 opacity-50"}),n.jsx("div",{className:"text-sm font-medium",children:"Markdown Block"}),n.jsx("div",{className:"text-xs mt-1",children:T==="content"?"Click to start writing markdown":"Enter a markdown URL in the sidebar"})]})]})},Cw=(e,o={})=>{const s={sourceType:e.sourceType||"content",content:e.content||"",url:e.url||"",showSource:e.showSource!==!1,cacheEnabled:e.cacheEnabled!==!1,layoutStyles:e.layoutStyles||{}};return`<div data-lara-block="markdown" data-props='${JSON.stringify(s).replace(/'/g,"&#39;")}'></div>`},kw=(e,o={})=>`<div style="padding: 16px; background: #f3f4f6; border-radius: 8px; text-align: center; color: #6b7280; font-size: 14px;">
         <p style="margin: 0;">Markdown content is not supported in emails.</p>
         <p style="margin: 8px 0 0; font-size: 12px;">Please use other block types for email templates.</p>
