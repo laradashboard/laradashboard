@@ -348,17 +348,28 @@ class BackupService
     }
 
     /**
+     * Resolve a user-supplied backup filename to a canonical path inside the backup directory.
+     *
+     * Returns null when the filename is invalid, the file does not exist, or the resolved
+     * path escapes the backup directory (including via symlink).
+     */
+    public function resolveBackupFile(string $filename): ?string
+    {
+        if (! $this->isSafeBackupFilename($filename)) {
+            return null;
+        }
+
+        return $this->resolvePathInsideBackupDirectory($this->backupPath.DIRECTORY_SEPARATOR.$filename);
+    }
+
+    /**
      * Delete a backup file.
      */
     public function deleteBackup(string $filename): bool
     {
-        $path = $this->backupPath . '/' . $filename;
+        $path = $this->resolveBackupFile($filename);
 
-        if (File::exists($path)) {
-            return File::delete($path);
-        }
-
-        return false;
+        return $path !== null && File::delete($path);
     }
 
     /**
@@ -366,15 +377,22 @@ class BackupService
      */
     public function restoreFromBackup(?string $backupFile): bool
     {
-        if (! $backupFile || ! File::exists($backupFile)) {
+        if (! $backupFile) {
             Log::warning('No backup file to restore from');
+
+            return false;
+        }
+
+        $resolved = $this->resolvePathInsideBackupDirectory($backupFile);
+        if ($resolved === null) {
+            Log::warning('Rejected backup restore outside the backup directory');
 
             return false;
         }
 
         try {
             $extractPath = $this->tempPath . '/restore';
-            if (! $this->extractZip($backupFile, $extractPath)) {
+            if (! $this->extractZip($resolved, $extractPath)) {
                 return false;
             }
 
@@ -577,6 +595,68 @@ class BackupService
         }
 
         return $buildDirs;
+    }
+
+    /**
+     * Backup files are stored as a flat list; reject any directory component rather than stripping it.
+     */
+    protected function isSafeBackupFilename(string $filename): bool
+    {
+        if ($filename === '' || $filename === '.' || $filename === '..') {
+            return false;
+        }
+
+        if (str_contains($filename, "\0") || str_contains($filename, ':')) {
+            return false;
+        }
+
+        if (str_contains($filename, '/') || str_contains($filename, '\\')) {
+            return false;
+        }
+
+        return $filename === basename($filename);
+    }
+
+    /**
+     * Canonicalize an existing path and confirm it is a file inside the backup directory.
+     *
+     * realpath() resolves symlinks, so a link inside the backup directory that points
+     * outside it is rejected.
+     */
+    protected function resolvePathInsideBackupDirectory(string $candidatePath): ?string
+    {
+        $base = realpath($this->backupPath);
+        if ($base === false) {
+            return null;
+        }
+
+        $real = realpath($candidatePath);
+        if ($real === false || ! is_file($real)) {
+            return null;
+        }
+
+        return $this->resolvedPathIsInsideDirectory($real, $base) ? $real : null;
+    }
+
+    /**
+     * Check that a canonical path is strictly inside a canonical directory.
+     */
+    protected function resolvedPathIsInsideDirectory(string $resolvedPath, string $resolvedDirectory): bool
+    {
+        $directory = rtrim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $resolvedDirectory), DIRECTORY_SEPARATOR);
+        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $resolvedPath);
+
+        if ($path === $directory) {
+            return false;
+        }
+
+        $prefix = $directory.DIRECTORY_SEPARATOR;
+
+        if (PHP_OS_FAMILY === 'Windows') {
+            return strncasecmp($path, $prefix, strlen($prefix)) === 0;
+        }
+
+        return str_starts_with($path, $prefix);
     }
 
     /**

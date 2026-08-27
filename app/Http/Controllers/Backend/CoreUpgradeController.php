@@ -181,9 +181,9 @@ class CoreUpgradeController extends Controller
         }
 
         try {
-            $backupPath = $this->backupService->getBackupPath() . '/' . $request->validated('backup_file');
+            $backupPath = $this->backupService->resolveBackupFile($request->validated('backup_file'));
 
-            if (! file_exists($backupPath)) {
+            if ($backupPath === null) {
                 return response()->json([
                     'success' => false,
                     'message' => __('Backup file not found.'),
@@ -297,13 +297,13 @@ class CoreUpgradeController extends Controller
             return back()->with('error', __('Downloading backups is restricted in demo mode.'));
         }
 
-        $backupPath = $this->backupService->getBackupPath() . '/' . $filename;
+        $backupPath = $this->backupService->resolveBackupFile($filename);
 
-        if (! file_exists($backupPath)) {
+        if ($backupPath === null) {
             return back()->with('error', __('Backup file not found.'));
         }
 
-        return response()->download($backupPath, $filename);
+        return response()->download($backupPath, basename($backupPath));
     }
 
     /**
