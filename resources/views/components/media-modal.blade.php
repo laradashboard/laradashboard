@@ -1053,7 +1053,14 @@ async function handleFileUpload(event, modalId) {
         // Check if the response is ok (status 200-299)
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+            let errorMessage = errorData.message || `HTTP ${response.status}: ${response.statusText}`;
+            if (errorData.errors) {
+                const validationErrors = Object.values(errorData.errors).flat().filter(Boolean);
+                if (validationErrors.length > 0) {
+                    errorMessage = validationErrors.join('\n');
+                }
+            }
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();

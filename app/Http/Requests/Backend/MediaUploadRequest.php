@@ -7,6 +7,7 @@ namespace App\Http\Requests\Backend;
 use App\Support\Helper\MediaHelper;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\File;
 
 class MediaUploadRequest extends FormRequest
 {
@@ -18,31 +19,24 @@ class MediaUploadRequest extends FormRequest
     public function rules(): array
     {
         $limits = MediaHelper::getUploadLimits();
-        $maxFileSizeKb = floor($limits['effective_max_filesize'] / 1024); // Convert to KB for Laravel validation
+        $maxFileSizeKb = (int) floor($limits['effective_max_filesize'] / 1024);
 
-        $rules = [
+        return [
             'files' => 'required|array|max:' . $limits['max_file_uploads'],
             'files.*' => [
                 'required',
-                'file',
-                'max:' . $maxFileSizeKb, // in KB
+                File::types(MediaHelper::getAllowedMimeTypes())
+                    ->extensions(MediaHelper::getAllowedExtensions())
+                    ->max($maxFileSizeKb),
             ],
         ];
-
-        // Add MIME type restrictions for demo mode
-        if (config('app.demo_mode', false)) {
-            $allowedMimeTypes = implode(',', MediaHelper::getAllowedMimeTypesForDemo());
-            $rules['files.*'][] = 'mimetypes:' . $allowedMimeTypes;
-        }
-
-        return $rules;
     }
 
     public function messages(): array
     {
         $limits = MediaHelper::getUploadLimits();
 
-        $messages = [
+        return [
             'files.required' => __('Please select at least one file to upload.'),
             'files.max' => __('You can upload a maximum of :max files at once.', ['max' => $limits['max_file_uploads']]),
             'files.*.required' => __('Each file is required.'),
@@ -51,22 +45,16 @@ class MediaUploadRequest extends FormRequest
                 'max' => $limits['effective_max_filesize_formatted'],
                 'limit' => $limits['effective_max_filesize_formatted'],
             ]),
+            'files.*.extensions' => __('This file type is not allowed.'),
+            'files.*.mimetypes' => __('This file type is not allowed.'),
+            'files.*.mimes' => __('This file type is not allowed.'),
         ];
-
-        // Add demo mode specific message
-        if (config('app.demo_mode', false)) {
-            $messages['files.*.mimetypes'] = __('In demo mode, only images, videos, PDFs, and documents (Word, Excel, PowerPoint, text files) are allowed.');
-        }
-
-        return $messages;
     }
 
     protected function prepareForValidation(): void
     {
-        // Check for PHP upload errors before Laravel validation
         $phpError = MediaHelper::checkPhpUploadError();
         if ($phpError) {
-            // Add the error to the validator
             $this->getValidatorInstance()->after(function ($validator) use ($phpError) {
                 $validator->errors()->add('php_upload_limit', $phpError['message']);
             });
