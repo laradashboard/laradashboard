@@ -6,7 +6,6 @@ use App\Http\Controllers\Backend\ActionLogController;
 use App\Http\Controllers\Backend\AiCommandController;
 use App\Http\Controllers\Backend\AiContentController;
 use App\Http\Controllers\Backend\CoreUpgradeController;
-use App\Http\Controllers\Backend\Auth\ScreenshotGeneratorLoginController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\DuplicateEmailTemplateController;
 use App\Http\Controllers\Backend\EditorController;
@@ -290,7 +289,6 @@ Route::group(['prefix' => 'profile', 'as' => 'profile.', 'middleware' => ['auth'
 });
 
 Route::get('/locale/{lang}', [LocaleController::class, 'switch'])->middleware(['auth', 'verified'])->name('locale.switch');
-Route::get('/screenshot-login/{email}', [ScreenshotGeneratorLoginController::class, 'login'])->middleware('web')->name('screenshot.login');
 Route::get('/demo-preview', fn () => view('demo.preview'))->name('demo.preview');
 
 // Email Unsubscribe Routes

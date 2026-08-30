@@ -33,7 +33,7 @@ class MediaLibraryService
         string $direction = 'desc',
         int $perPage = 24
     ): array {
-        $query = SpatieMedia::query()->latest();
+        $query = Media::query()->latest();
 
         // Apply search filter
         if ($search) {
@@ -97,15 +97,15 @@ class MediaLibraryService
     public function getMediaStatistics(): array
     {
         return [
-            'total' => SpatieMedia::count(),
-            'images' => SpatieMedia::where('mime_type', 'like', 'image/%')->count(),
-            'videos' => SpatieMedia::where('mime_type', 'like', 'video/%')->count(),
-            'audio' => SpatieMedia::where('mime_type', 'like', 'audio/%')->count(),
-            'documents' => SpatieMedia::whereNotLike('mime_type', 'image/%')
+            'total' => Media::count(),
+            'images' => Media::where('mime_type', 'like', 'image/%')->count(),
+            'videos' => Media::where('mime_type', 'like', 'video/%')->count(),
+            'audio' => Media::where('mime_type', 'like', 'audio/%')->count(),
+            'documents' => Media::whereNotLike('mime_type', 'image/%')
                 ->whereNotLike('mime_type', 'video/%')
                 ->whereNotLike('mime_type', 'audio/%')
                 ->count(),
-            'total_size' => $this->formatFileSize((int) SpatieMedia::sum('size')),
+            'total_size' => $this->formatFileSize((int) Media::sum('size')),
         ];
     }
 
@@ -286,7 +286,7 @@ class MediaLibraryService
             $fileName = basename($path);
         }
 
-        return SpatieMedia::create([
+        return Media::create([
             'model_type' => '',
             'model_id' => 0,
             'uuid' => Str::uuid(),
@@ -406,19 +406,19 @@ class MediaLibraryService
     protected function findMediaByUrlOrId(string $mediaUrlOrId): ?SpatieMedia
     {
         if (is_numeric($mediaUrlOrId)) {
-            return SpatieMedia::find((int) $mediaUrlOrId);
+            return Media::find((int) $mediaUrlOrId);
         }
 
         $urlPath = parse_url($mediaUrlOrId, PHP_URL_PATH);
         $fileName = basename((string) $urlPath);
 
-        $media = SpatieMedia::where('file_name', $fileName)->first();
+        $media = Media::where('file_name', $fileName)->first();
 
         if ($media) {
             return $media;
         }
 
-        return SpatieMedia::where('disk', 'public')
+        return Media::where('disk', 'public')
             ->get()
             ->first(function ($item) use ($mediaUrlOrId) {
                 try {
@@ -517,7 +517,7 @@ class MediaLibraryService
             ]);
 
             $this->deleteMediaFilesFromDisk($media);
-            SpatieMedia::query()->whereKey($media->id)->delete();
+            Media::query()->whereKey($media->id)->delete();
         }
     }
 
