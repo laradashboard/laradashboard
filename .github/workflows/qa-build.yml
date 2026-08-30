@@ -35,6 +35,9 @@ jobs:
         id: version
         run: echo "VERSION=$(php -r 'echo json_decode(file_get_contents("version.json"), true)["version"];')" >> $GITHUB_OUTPUT
 
+      - name: Install Composer dependencies (bootstrap artisan)
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
       - name: Build distributable ZIP via core:zip
         run: php artisan core:zip --output="laradashboard-v${{ steps.version.outputs.VERSION }}.zip"
 

@@ -86,8 +86,12 @@ jobs:
 
           git fetch --tags --force
           if git rev-parse "${TAG}" >/dev/null 2>&1; then
-            echo "Tag ${TAG} already exists. Skipping release."
-            SHOULD_RELEASE="false"
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+              echo "Tag ${TAG} already exists — release will be retried (workflow_dispatch)."
+            else
+              echo "Tag ${TAG} already exists. Skipping release."
+              SHOULD_RELEASE="false"
+            fi
           fi
 
           echo "should_release=${SHOULD_RELEASE}" >> "$GITHUB_OUTPUT"
@@ -95,32 +99,16 @@ jobs:
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "previous_version=${PREVIOUS_VERSION}" >> "$GITHUB_OUTPUT"
 
-  create-tag:
-    name: Create Git Tag
+  build:
+    name: Build Release Package
     needs: detect-version
     if: needs.detect-version.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Create and push tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "${{ needs.detect-version.outputs.tag }}" -m "Release ${{ needs.detect-version.outputs.tag }}"
-          git push origin "${{ needs.detect-version.outputs.tag }}"
-
-  build:
-    name: Build Release Package
-    needs: [detect-version, create-tag]
-    if: needs.detect-version.outputs.should_release == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
         with:
-          ref: ${{ needs.detect-version.outputs.tag }}
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -135,6 +123,9 @@ jobs:
           node-version: "22"
           cache: npm
 
+      - name: Install Composer dependencies (bootstrap artisan)
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
       - name: Build distributable ZIP
         run: |
           php artisan core:zip --output="laradashboard-v${{ needs.detect-version.outputs.version }}.zip"
@@ -146,6 +137,25 @@ jobs:
           path: laradashboard-v${{ needs.detect-version.outputs.version }}.zip
           retention-days: 30
 
+      - name: Create and push git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          TAG="${{ needs.detect-version.outputs.tag }}"
+          MESSAGE="Release ${TAG}"
+
+          git fetch --tags --force
+
+          if git rev-parse "${TAG}" >/dev/null 2>&1; then
+            echo "Updating existing tag ${TAG} to ${GITHUB_SHA}"
+            git tag -fa "${TAG}" -m "${MESSAGE}" "${GITHUB_SHA}"
+            git push -f origin "${TAG}"
+          else
+            git tag -a "${TAG}" -m "${MESSAGE}" "${GITHUB_SHA}"
+            git push origin "${TAG}"
+          fi
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -153,6 +163,7 @@ jobs:
           name: Release ${{ needs.detect-version.outputs.tag }}
           generate_release_notes: true
           files: laradashboard-v${{ needs.detect-version.outputs.version }}.zip
+          make_latest: true
 
   publish-marketplace:
     name: Publish to Marketplace
