@@ -20,7 +20,7 @@
 
             {{-- Right side - Credits & Links --}}
             <div class="flex items-center gap-2">
-                <span class="hidden sm:inline">{{ __('Made with') }}</span>
+                <span class="hidden sm:inline">{{ __('Crafted with') }}</span>
                 <iconify-icon icon="lucide:heart" class="text-red-500 text-sm"></iconify-icon>
                 <a href="https://laradashboard.com" target="_blank" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">
                     Lara Dashboard
