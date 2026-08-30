@@ -41,21 +41,18 @@
                            id="file-input" 
                            name="files[]" 
                            multiple 
-                           @if(config('app.demo_mode', false))
-                           accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.rtf"
-                           @else
-                           accept="*"
-                           @endif
+                           accept="{{ collect($uploadLimits['allowed_extensions'] ?? [])->map(fn ($ext) => '.' . $ext)->implode(',') }}"
                            class="hidden">
                     <div class="text-xs text-gray-500 dark:text-gray-400 mt-2 space-y-1">
                         <p>{{ __('Maximum file size:') }} <span class="font-medium">{{ $uploadLimits['effective_max_filesize_formatted'] }}</span></p>
                         <p>{{ __('Maximum files at once:') }} <span class="font-medium">{{ $uploadLimits['max_file_uploads'] }}</span></p>
                         <p>{{ __('Maximum total upload:') }} <span class="font-medium">{{ $uploadLimits['post_max_size_formatted'] }}</span></p>
+                        <p>{{ __('Allowed types:') }} <span class="font-medium">{{ strtoupper(implode(', ', $uploadLimits['allowed_extensions'] ?? ['jpg', 'png', 'gif', 'webp', 'svg', 'pdf'])) }}</span></p>
 
                         @if(config('app.demo_mode', false))
                         <p class="text-orange-600 dark:text-orange-400 font-medium">
                             <iconify-icon icon="lucide:info" class="inline w-3 h-3 mr-1"></iconify-icon>
-                            {{ __('Demo Mode: Only images, audios, videos, PDFs, and documents are allowed.') }}
+                            {{ __('Demo Mode: Media library size is limited for this demo.') }}
                         </p>
                         @endif
                     </div>
@@ -86,13 +83,34 @@
 
 <script>
 const uploadLimits = @json($uploadLimits);
-const isDemoMode = {{ config('app.demo_mode', false) ? 'true' : 'false' }};
-const allowedDemoMimeTypes = @json(config('app.demo_mode', false) ? \App\Support\Helper\MediaHelper::getAllowedMimeTypesForDemo() : []);
+const allowedMimeTypes = @json($uploadLimits['allowed_mime_types'] ?? []);
 
-// Function to check if file type is allowed in demo mode
-function isFileAllowedInDemo(fileType) {
-    if (!isDemoMode) return true;
-    return allowedDemoMimeTypes.includes(fileType);
+function isAllowedUploadType(fileType) {
+    return allowedMimeTypes.includes(fileType);
+}
+
+function extractUploadErrorMessage(data, status) {
+    if (data && data.errors) {
+        const validationErrors = Object.values(data.errors).flat().filter(Boolean);
+        if (validationErrors.length > 0) {
+            return validationErrors.join('\n');
+        }
+    }
+
+    if (data && data.message) {
+        return data.message;
+    }
+
+    return status ? `HTTP ${status}` : '{{ __("Error uploading files") }}';
+}
+
+function notifyUpload(variant, title, message) {
+    if (window.showToast) {
+        window.showToast(variant, title, message);
+        return;
+    }
+
+    alert(message);
 }
 
 document.getElementById('file-input').addEventListener('change', function(e) {
@@ -112,9 +130,8 @@ document.getElementById('file-input').addEventListener('change', function(e) {
     files.forEach((file, index) => {
         totalSize += file.size;
         
-        // Check demo mode restrictions
-        if (isDemoMode && !isFileAllowedInDemo(file.type)) {
-            errors.push(`{{ __('File ":name" is not allowed in demo mode. Only images, videos, PDFs, and documents are permitted.', ['name' => '']) }}${file.name}"`);
+        if (file.type && !isAllowedUploadType(file.type)) {
+            errors.push(`{{ __('File ":name" is not an allowed file type.', ['name' => '']) }}${file.name}"`);
             return;
         }
         
@@ -130,7 +147,7 @@ document.getElementById('file-input').addEventListener('change', function(e) {
     }
     
     if (errors.length > 0) {
-        alert(errors.join('\n'));
+        notifyUpload('error', '{{ __('Upload failed') }}', errors.join('\n'));
         this.value = '';
         preview.classList.add('hidden');
         return;
@@ -180,7 +197,7 @@ function uploadFiles() {
     const uploadBtn = document.getElementById('upload-btn');
     
     if (fileInput.files.length === 0) {
-        alert('{{ __("Please select files to upload") }}');
+        notifyUpload('error', '{{ __('Upload failed') }}', '{{ __("Please select files to upload") }}');
         return;
     }
     
@@ -198,12 +215,17 @@ function uploadFiles() {
         body: formData
     })
     .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
-            });
-        }
-        return response.json();
+        return response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(extractUploadErrorMessage(data, response.status));
+            }
+            return data;
+        }).catch(error => {
+            if (error instanceof Error && error.message) {
+                throw error;
+            }
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        });
     })
     .then(data => {
         if (data.success) {
@@ -215,29 +237,21 @@ function uploadFiles() {
                 sessionStorage.setItem('mediaLibraryAutoSelect', JSON.stringify(uploadedFileIds));
             }
 
-            if (window.showToast) {
-                window.showToast('success', '{{ __('Success') }}', data.message);
-            }
+            notifyUpload('success', '{{ __('Success') }}', data.message);
             location.reload();
         } else {
-            let errorMessage = data.message || '{{ __("Error uploading files") }}';
-            
-            // Handle validation errors
-            if (data.errors) {
-                const validationErrors = Object.values(data.errors).flat();
-                errorMessage = validationErrors.join('\n');
-            }
+            let errorMessage = extractUploadErrorMessage(data);
             
             if (data.error_type === 'php_upload_limit') {
                 errorMessage += `\n\n{{ __('Upload size:') }} ${Math.round(data.uploaded_size / 1024 / 1024)} MB\n{{ __('PHP Limit:') }} ${data.limit_formatted}`;
             }
             
-            alert(errorMessage);
+            notifyUpload('error', '{{ __('Upload failed') }}', errorMessage);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert(error.message || '{{ __("Error uploading files") }}');
+        notifyUpload('error', '{{ __('Upload failed') }}', error.message || '{{ __("Error uploading files") }}');
     })
     .finally(() => {
         uploadBtn.disabled = false;

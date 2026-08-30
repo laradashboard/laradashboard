@@ -1,0 +1,4 @@
+[submodule "modules/Laradashboard"]
+	path = modules/Laradashboard
+	url = https://github.com/laradashboard/laradashboard.com.git
+	branch = main

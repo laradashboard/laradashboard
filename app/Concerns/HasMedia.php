@@ -23,6 +23,10 @@ trait HasMedia
     public function registerMediaConversions(?Media $media = null): void
     {
         // Default conversions - can be overridden in models
+        $this->addMediaConversion('preview')
+            ->width(300)
+            ->height(300);
+
         $this->addMediaConversion('thumb')
             ->width(200)
             ->height(200)

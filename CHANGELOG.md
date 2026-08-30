@@ -2,9 +2,21 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.2.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.2) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.3.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.3.0) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.3.0] — 2026-08-30
+- **Fix:** Hardened media uploads — SVG sanitization, server-detected MIME validation, filename sanitization, and `.htaccess` rules blocking script execution on public storage.
+- **Fix:** License API now requires authentication and `module.activate` permission; low-privileged users can no longer read stored license keys.
+- **Fix:** Backup restore rejects path traversal and symlink escapes in backup filenames.
+- **Fix:** Media library upload modal Alpine.js `x-data` attribute quoting; restored header upload button.
+- **New:** GitHub Actions release pipeline — demo deploy, auto-release on `version.json` bump, marketplace publish, and `/api/health` smoke tests.
+- **New:** Headless upgrade commands (`core:upgrade`, `core:verify`, `core:snapshot`, `core:rollback`), Hostinger deploy scripts, and `module:publish-images` on deploy/upgrade.
+- **Fix:** CRM and Custom Forms menu logos republish after deploy — fixes broken module icons when `public/images/modules` is gitignored.
+- **Change:** Demo database refresh moved from every 15 minutes to hourly; updated popover copy across 21 locales.
+- **Fix:** README star-history chart URL; demo deploy PHP 8.3 detection on Hostinger.
+- **Chore:** Dependency updates (`league/commonmark`, `guzzlehttp/guzzle`, `axios`, `js-yaml`, `nanoid`, `fast-uri`, `ip-address`).
 
 ## [v1.2.2] — 2026-07-17
 - **Fix:** Core upgrade no longer deletes `vendor/` in-place during the same HTTP request — new vendor is staged, validated, and swapped atomically.

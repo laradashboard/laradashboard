@@ -96,7 +96,16 @@ Built for Laravel developers who want to ship admin dashboards, SaaS apps, CRMs 
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.2.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.2) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.3.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.3.0) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.3.0] — 2026-08-30**
+-   **Fix:** Hardened media uploads — SVG sanitization, MIME validation, and `.htaccess` hardening on public storage.
+-   **Fix:** License API authorization and backup path traversal protection.
+-   **Fix:** Media library upload modal Alpine.js quoting; restored header upload button.
+-   **New:** GitHub Actions release pipeline — demo deploy, auto-release, marketplace publish, `/api/health`.
+-   **New:** Headless upgrade commands, Hostinger deploy scripts, and `module:publish-images`.
+-   **Change:** Demo refresh moved to hourly; module menu logos fixed after deploy.
+-   **Chore:** Dependency updates (`league/commonmark`, `guzzlehttp/guzzle`, npm packages).
 
 **[v1.2.2] — 2026-07-17**
 -   **Fix:** Core upgrade hardening — vendor staging/validation, CLI subprocess migrations, and vendor included in pre-upgrade backups (fixes shared-hosting upgrade failures).

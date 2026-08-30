@@ -2,5 +2,6 @@
     "crm": true,
     "DocForge": false,
     "Starter26": false,
-    "customform": true
+    "customform": true,
+    "laradashboard": true
 }

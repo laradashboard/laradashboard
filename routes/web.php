@@ -6,7 +6,6 @@ use App\Http\Controllers\Backend\ActionLogController;
 use App\Http\Controllers\Backend\AiCommandController;
 use App\Http\Controllers\Backend\AiContentController;
 use App\Http\Controllers\Backend\CoreUpgradeController;
-use App\Http\Controllers\Backend\Auth\ScreenshotGeneratorLoginController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\DuplicateEmailTemplateController;
 use App\Http\Controllers\Backend\EditorController;
@@ -31,6 +30,7 @@ use App\Http\Controllers\Backend\TranslationController;
 use App\Http\Controllers\Backend\UserLoginAsController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\UnsubscribeController;
+use App\Http\Controllers\PublicStorageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,6 +46,10 @@ use Illuminate\Support\Facades\Route;
 
 // Installation routes
 require __DIR__.'/install.php';
+
+Route::get('/storage/{path}', [PublicStorageController::class, 'show'])
+    ->where('path', '.*')
+    ->name('public.storage');
 
 /**
  * Admin routes.
@@ -155,7 +159,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'v
             Route::post('/upgrade', [CoreUpgradeController::class, 'upgrade'])->name('upgrade');
             Route::post('/upload', [CoreUpgradeController::class, 'uploadUpgrade'])->name('upload');
             Route::post('/backup', [CoreUpgradeController::class, 'createBackup'])->name('backup');
-            Route::get('/download/{filename}', [CoreUpgradeController::class, 'downloadBackup'])->name('download');
+            Route::get('/download/{filename}', [CoreUpgradeController::class, 'downloadBackup'])
+                ->name('download')
+                ->where('filename', '[A-Za-z0-9._-]+');
             Route::post('/restore', [CoreUpgradeController::class, 'restore'])->name('restore');
             Route::post('/delete-backup', [CoreUpgradeController::class, 'deleteBackup'])->name('delete-backup');
             Route::get('/update-status', [CoreUpgradeController::class, 'getUpdateStatus'])->name('update-status');
@@ -283,7 +289,6 @@ Route::group(['prefix' => 'profile', 'as' => 'profile.', 'middleware' => ['auth'
 });
 
 Route::get('/locale/{lang}', [LocaleController::class, 'switch'])->middleware(['auth', 'verified'])->name('locale.switch');
-Route::get('/screenshot-login/{email}', [ScreenshotGeneratorLoginController::class, 'login'])->middleware('web')->name('screenshot.login');
 Route::get('/demo-preview', fn () => view('demo.preview'))->name('demo.preview');
 
 // Email Unsubscribe Routes
