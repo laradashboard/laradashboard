@@ -2,38 +2,21 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.2.3](https://github.com/laradashboard/laradashboard/releases/tag/v1.2.3) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.3.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.3.0) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
 
-## [v1.2.3] — 2026-08-30
-
-### Release automation & deployment
-
-- **New:** GitHub Actions pipeline for `develop` → demo staging deploy (`deploy-demo.yml`) with SSH deploy to Hostinger, PHP 8.3 CLI support, and post-deploy smoke tests (`/api/health`, `/login`).
-- **New:** Automated release workflow — bumping `version.json` on `main` creates the git tag, GitHub Release, distributable ZIP (`core:zip`), marketplace publish, and multi-site upgrade verification.
-- **New:** Artisan commands for headless upgrades: `core:upgrade`, `core:verify`, `core:snapshot`, and `core:rollback`.
-- **New:** `GET /api/health` endpoint for deployment smoke tests and monitoring.
-- **New:** Deploy scripts (`deploy/deploy-demo.sh`, `deploy/deploy-upgrade.sh`, `deploy/rollback.sh`) optimized for Hostinger shared hosting (PHP 8.3 path, skip server-side Vite builds — uses committed `public/build` assets).
-- **New:** Laradashboard marketplace module support for `release:publish` and internal release API (`/api/internal/releases`) for CI-driven publishing to `ld_core_upgrades`.
-- **New:** `scripts/setup-laradashboard-module.sh` and git submodule wiring for `modules/Laradashboard`.
-- **Docs:** Added `docs/RELEASE_AUTOMATION.md` and module-side `docs/RELEASE_PUBLISHING.md`.
-
-### Fixes
-
-- **Fix:** Media library modal — `x-data` attribute no longer breaks out of its quotes, fixing broken Alpine.js initialization in the upload dialog.
-- **Fix:** README star-history chart now uses `star-history.dera.page` (previous CDN URL was unreliable).
-- **Fix:** `core:verify` PHPStan return type documents the upgrade snapshot in the verification report.
-
-### Dependencies
-
-- **Chore:** Bumped `league/commonmark` from 2.8.2 to 2.9.1.
-- **Chore:** Bumped `guzzlehttp/guzzle` from 7.13.2 to 7.15.2.
-- **Chore:** Bumped `axios`, `js-yaml`, `nanoid`, `fast-uri`, and `ip-address` (Dependabot).
-
-### Misc
-
-- **Chore:** Footer credit text updated from “Made with” to “Crafted with”.
+## [v1.3.0] — 2026-08-30
+- **Fix:** Hardened media uploads — SVG sanitization, server-detected MIME validation, filename sanitization, and `.htaccess` rules blocking script execution on public storage.
+- **Fix:** License API now requires authentication and `module.activate` permission; low-privileged users can no longer read stored license keys.
+- **Fix:** Backup restore rejects path traversal and symlink escapes in backup filenames.
+- **Fix:** Media library upload modal Alpine.js `x-data` attribute quoting; restored header upload button.
+- **New:** GitHub Actions release pipeline — demo deploy, auto-release on `version.json` bump, marketplace publish, and `/api/health` smoke tests.
+- **New:** Headless upgrade commands (`core:upgrade`, `core:verify`, `core:snapshot`, `core:rollback`), Hostinger deploy scripts, and `module:publish-images` on deploy/upgrade.
+- **Fix:** CRM and Custom Forms menu logos republish after deploy — fixes broken module icons when `public/images/modules` is gitignored.
+- **Change:** Demo database refresh moved from every 15 minutes to hourly; updated popover copy across 21 locales.
+- **Fix:** README star-history chart URL; demo deploy PHP 8.3 detection on Hostinger.
+- **Chore:** Dependency updates (`league/commonmark`, `guzzlehttp/guzzle`, `axios`, `js-yaml`, `nanoid`, `fast-uri`, `ip-address`).
 
 ## [v1.2.2] — 2026-07-17
 - **Fix:** Core upgrade no longer deletes `vendor/` in-place during the same HTTP request — new vendor is staged, validated, and swapped atomically.
