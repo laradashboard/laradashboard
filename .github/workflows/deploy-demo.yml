@@ -43,6 +43,7 @@ jobs:
           DEMO_USER: ${{ secrets.DEMO_SSH_USER }}
           DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
           DEMO_PATH: ${{ secrets.DEMO_APP_PATH }}
+          DEMO_PHP_BIN: ${{ secrets.DEMO_PHP_BIN }}
         run: |
           PORT="${DEMO_PORT:-65002}"
           if [[ -z "${DEMO_PATH}" ]]; then
@@ -53,9 +54,13 @@ jobs:
             echo "DEMO_SSH_HOST or DEMO_SSH_USER secret is missing."
             exit 1
           fi
+          REMOTE_ENV="APP_PATH='${DEMO_PATH}' GIT_BRANCH=develop"
+          if [[ -n "${DEMO_PHP_BIN}" ]]; then
+            REMOTE_ENV="${REMOTE_ENV} PHP_BIN='${DEMO_PHP_BIN}'"
+          fi
           ssh -p "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
             "${DEMO_USER}@${DEMO_HOST}" \
-            "APP_PATH='${DEMO_PATH}' GIT_BRANCH=develop bash -s" < deploy/deploy-demo.sh
+            "${REMOTE_ENV} bash -s" < deploy/deploy-demo.sh
 
       - name: Smoke test health endpoint
         run: |

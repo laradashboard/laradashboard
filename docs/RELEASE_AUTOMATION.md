@@ -192,6 +192,7 @@ Add these as **Repository secrets** (Settings → Secrets and variables → Acti
 | `DEMO_SSH_USER` | `u769668005` |
 | `DEMO_SSH_KEY` | Private key contents |
 | `DEMO_APP_PATH` | App root on server |
+| `DEMO_PHP_BIN` | `/opt/alt/php83/usr/bin/php` (Hostinger PHP 8.3 CLI) |
 
 Demo server `.env`:
 

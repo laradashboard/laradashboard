@@ -19,9 +19,34 @@ APP_PATH="${APP_PATH:?APP_PATH is required}"
 GIT_BRANCH="${GIT_BRANCH:-develop}"
 GIT_REMOTE="${GIT_REMOTE:-origin}"
 PHP_BIN="${PHP_BIN:-php}"
+[[ -n "${PHP_BIN}" ]] || PHP_BIN=php
 COMPOSER_BIN="${COMPOSER_BIN:-composer}"
 NPM_BIN="${NPM_BIN:-npm}"
 SKIP_NPM_BUILD="${SKIP_NPM_BUILD:-0}"
+
+detect_php_binary() {
+  local candidate
+
+  if "${PHP_BIN}" -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);' 2>/dev/null; then
+    return 0
+  fi
+
+  for candidate in /opt/alt/php83/usr/bin/php php83 php8.3 /usr/bin/php83; do
+    if command -v "${candidate}" >/dev/null 2>&1 \
+      && "${candidate}" -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);' 2>/dev/null; then
+      PHP_BIN="${candidate}"
+      return 0
+    fi
+  done
+
+  echo "PHP 8.3+ is required but not found. Current: $(${PHP_BIN} -r 'echo PHP_VERSION;' 2>/dev/null || echo unknown)"
+  echo "On Hostinger: hPanel → Advanced → PHP Configuration → set site to PHP 8.3"
+  echo "Or set PHP_BIN to your php83 path before running this script."
+  exit 1
+}
+
+detect_php_binary
+echo "==> Using PHP: ${PHP_BIN} ($(${PHP_BIN} -r 'echo PHP_VERSION;'))"
 
 cd "${APP_PATH}"
 
@@ -33,7 +58,7 @@ echo "==> Deploying ${GIT_REMOTE}/${GIT_BRANCH} to ${APP_PATH}"
 git fetch "${GIT_REMOTE}" --prune
 git reset --hard "${GIT_REMOTE}/${GIT_BRANCH}"
 
-${COMPOSER_BIN} install --no-dev --optimize-autoloader --no-interaction
+${PHP_BIN} $(command -v "${COMPOSER_BIN}") install --no-dev --optimize-autoloader --no-interaction
 
 if [[ "${SKIP_NPM_BUILD}" != "1" ]]; then
   ${NPM_BIN} ci
