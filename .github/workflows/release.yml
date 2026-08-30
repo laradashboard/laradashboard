@@ -77,7 +77,8 @@ jobs:
 
           SHOULD_RELEASE="true"
 
-          if [[ "${{ github.event_name }}" != "workflow_dispatch" || -z "${{ github.event.inputs.version }}" ]]; then
+          # Manual runs are explicit retries — do not require a version.json bump on main.
+          if [[ "${{ github.event_name }}" != "workflow_dispatch" ]]; then
             if ! php -r "exit(version_compare('${NEW_VERSION}', '${PREVIOUS_VERSION}', '>') ? 0 : 1);"; then
               echo "Version did not increase (${PREVIOUS_VERSION} -> ${NEW_VERSION}). Skipping release."
               SHOULD_RELEASE="false"
@@ -88,6 +89,7 @@ jobs:
           if git rev-parse "${TAG}" >/dev/null 2>&1; then
             if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
               echo "Tag ${TAG} already exists — release will be retried (workflow_dispatch)."
+              SHOULD_RELEASE="true"
             else
               echo "Tag ${TAG} already exists. Skipping release."
               SHOULD_RELEASE="false"
