@@ -18,8 +18,33 @@ set -euo pipefail
 VERSION="${1:?Usage: deploy-upgrade.sh <version>}"
 APP_PATH="${APP_PATH:?APP_PATH is required}"
 PHP_BIN="${PHP_BIN:-php}"
+[[ -n "${PHP_BIN}" ]] || PHP_BIN=php
 SKIP_BACKUP="${SKIP_BACKUP:-0}"
 ROLLBACK_ON_FAIL="${ROLLBACK_ON_FAIL:-1}"
+
+detect_php_binary() {
+  local candidate
+
+  if "${PHP_BIN}" -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);' 2>/dev/null; then
+    return 0
+  fi
+
+  for candidate in /opt/alt/php83/usr/bin/php php83 php8.3 /usr/bin/php83; do
+    if command -v "${candidate}" >/dev/null 2>&1 \
+      && "${candidate}" -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);' 2>/dev/null; then
+      PHP_BIN="${candidate}"
+      return 0
+    fi
+  done
+
+  echo "PHP 8.3+ is required but not found. Current: $(${PHP_BIN} -r 'echo PHP_VERSION;' 2>/dev/null || echo unknown)"
+  echo "On Hostinger: hPanel → Advanced → PHP Configuration → set site to PHP 8.3"
+  echo "Or set PHP_BIN to your php83 path before running this script."
+  exit 1
+}
+
+detect_php_binary
+echo "==> Using PHP: ${PHP_BIN} ($(${PHP_BIN} -r 'echo PHP_VERSION;'))"
 
 SNAPSHOT_DIR="storage/app/upgrade-snapshots"
 SNAPSHOT_FILE="${SNAPSHOT_DIR}/pre-${VERSION}-$(date +%Y%m%d_%H%M%S).json"
