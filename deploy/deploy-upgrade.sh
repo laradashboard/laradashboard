@@ -43,6 +43,56 @@ detect_php_binary() {
   exit 1
 }
 
+artisan_has() {
+  ${PHP_BIN} artisan list --raw 2>/dev/null | grep -Fxq "$1"
+}
+
+run_legacy_core_upgrade() {
+  echo "==> Running legacy upgrade via CoreUpgradeService (pre core:upgrade CLI)"
+  ${PHP_BIN} <<PHP
+<?php
+define('LARAVEL_START', microtime(true));
+require '${APP_PATH}/vendor/autoload.php';
+\$app = require '${APP_PATH}/bootstrap/app.php';
+\$kernel = \$app->make(Illuminate\Contracts\Console\Kernel::class);
+\$kernel->bootstrap();
+
+if (! class_exists(App\Services\CoreUpgradeService::class)) {
+    fwrite(STDERR, "CoreUpgradeService is not available on this installation.\n");
+    exit(1);
+}
+
+\$service = \$app->make(App\Services\CoreUpgradeService::class);
+\$result = \$service->performUpgrade('${VERSION}', null);
+\$message = \$result['message'] ?? 'Unknown upgrade result';
+
+if (! empty(\$result['success'])) {
+    fwrite(STDOUT, \$message . PHP_EOL);
+    exit(0);
+}
+
+fwrite(STDERR, \$message . PHP_EOL);
+exit(1);
+PHP
+}
+
+verify_installed_version() {
+  local installed
+  installed="$(${PHP_BIN} -r "
+    \$path = '${APP_PATH}/version.json';
+    if (! is_file(\$path)) { exit(1); }
+    \$data = json_decode(file_get_contents(\$path), true);
+    echo \$data['version'] ?? '';
+  " 2>/dev/null || true)"
+
+  if [[ "${installed}" != "${VERSION}" ]]; then
+    echo "==> Version mismatch: expected ${VERSION}, found ${installed:-unknown}"
+    return 1
+  fi
+
+  echo "==> Verified installed version ${installed}"
+}
+
 detect_php_binary
 echo "==> Using PHP: ${PHP_BIN} ($(${PHP_BIN} -r 'echo PHP_VERSION;'))"
 
@@ -51,29 +101,54 @@ SNAPSHOT_FILE="${SNAPSHOT_DIR}/pre-${VERSION}-$(date +%Y%m%d_%H%M%S).json"
 
 cd "${APP_PATH}"
 
-echo "==> Capturing pre-upgrade snapshot for v${VERSION}"
-${PHP_BIN} artisan core:snapshot --output="${SNAPSHOT_FILE}"
-
-UPGRADE_ARGS=(artisan core:upgrade "${VERSION}" --force)
-
-if [[ "${SKIP_BACKUP}" == "1" ]]; then
-  UPGRADE_ARGS+=(--no-backup)
+if artisan_has "core:snapshot"; then
+  echo "==> Capturing pre-upgrade snapshot for v${VERSION}"
+  mkdir -p "${SNAPSHOT_DIR}"
+  ${PHP_BIN} artisan core:snapshot --output="${SNAPSHOT_FILE}"
+else
+  echo "==> Skipping snapshot (core:snapshot not available on this version yet)"
+  SNAPSHOT_FILE=""
 fi
 
 echo "==> Upgrading core to v${VERSION}"
-if ! ${PHP_BIN} "${UPGRADE_ARGS[@]}"; then
+if artisan_has "core:upgrade"; then
+  UPGRADE_ARGS=(artisan core:upgrade "${VERSION}" --force)
+
+  if [[ "${SKIP_BACKUP}" == "1" ]]; then
+    UPGRADE_ARGS+=(--no-backup)
+  fi
+
+  if ! ${PHP_BIN} "${UPGRADE_ARGS[@]}"; then
+    echo "==> Upgrade failed"
+    exit 1
+  fi
+elif ! run_legacy_core_upgrade; then
   echo "==> Upgrade failed"
   exit 1
 fi
 
 echo "==> Verifying upgrade"
-if ! ${PHP_BIN} artisan core:verify \
-  --expected-version="${VERSION}" \
-  --compare-with="${SNAPSHOT_FILE}"; then
+if artisan_has "core:verify"; then
+  VERIFY_ARGS=(artisan core:verify --expected-version="${VERSION}")
 
+  if [[ -n "${SNAPSHOT_FILE}" && -f "${SNAPSHOT_FILE}" ]]; then
+    VERIFY_ARGS+=(--compare-with="${SNAPSHOT_FILE}")
+  fi
+
+  if ! ${PHP_BIN} "${VERIFY_ARGS[@]}"; then
+    echo "==> Verification failed"
+
+    if [[ "${ROLLBACK_ON_FAIL}" == "1" ]] && artisan_has "core:rollback"; then
+      echo "==> Attempting rollback from latest backup"
+      ${PHP_BIN} artisan core:rollback --latest --force || true
+    fi
+
+    exit 1
+  fi
+elif ! verify_installed_version; then
   echo "==> Verification failed"
 
-  if [[ "${ROLLBACK_ON_FAIL}" == "1" ]]; then
+  if [[ "${ROLLBACK_ON_FAIL}" == "1" ]] && artisan_has "core:rollback"; then
     echo "==> Attempting rollback from latest backup"
     ${PHP_BIN} artisan core:rollback --latest --force || true
   fi
