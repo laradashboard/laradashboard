@@ -192,7 +192,7 @@ jobs:
             -H "Accept: application/json" \
             -F "version=${{ needs.detect-version.outputs.version }}" \
             -F "github_tag=${{ needs.detect-version.outputs.tag }}" \
-            -F "force=true" \
+            -F "force=1" \
             -F "zip=@${ZIP_FILE}"
 
   upgrade-demo:
