@@ -3,8 +3,36 @@
 declare(strict_types=1);
 
 use App\Services\Modules\ModuleService;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+
+function removeReplaceActivateTestModuleFromStatuses(): void
+{
+    $statusFile = base_path('modules_statuses.json');
+
+    if (! File::exists($statusFile)) {
+        return;
+    }
+
+    $statuses = json_decode(File::get($statusFile), true, 512, JSON_THROW_ON_ERROR) ?: [];
+    unset(
+        $statuses['replaceactivatetest'],
+        $statuses['ReplaceActivateTest'],
+    );
+    File::put($statusFile, json_encode($statuses, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+}
+
+function deleteReplaceActivateTestModuleDirectories(): void
+{
+    foreach (['replaceactivatetest', 'ReplaceActivateTest'] as $folder) {
+        $path = base_path('modules/' . $folder);
+
+        if (File::isDirectory($path)) {
+            File::deleteDirectory($path);
+        }
+    }
+}
 
 beforeEach(function () {
     $this->moduleService = app(ModuleService::class);
@@ -15,11 +43,8 @@ beforeEach(function () {
         ? File::get($this->statusFile)
         : null;
 
-    foreach ([base_path('modules/' . $this->slugName), base_path('modules/' . $this->studlyName)] as $path) {
-        if (File::isDirectory($path)) {
-            File::deleteDirectory($path);
-        }
-    }
+    deleteReplaceActivateTestModuleDirectories();
+    removeReplaceActivateTestModuleFromStatuses();
 
     $this->artisan('module:make', ['name' => [$this->studlyName]])->assertSuccessful();
 
@@ -29,14 +54,24 @@ beforeEach(function () {
 });
 
 afterEach(function () {
-    foreach ([base_path('modules/' . $this->slugName), base_path('modules/' . $this->studlyName)] as $path) {
-        if (File::isDirectory($path)) {
-            File::deleteDirectory($path);
+    try {
+        Artisan::call('module:disable', ['module' => $this->slugName]);
+    } catch (\Throwable) {
+        // Module may already be deleted or disabled.
+    }
+
+    deleteReplaceActivateTestModuleDirectories();
+
+    foreach (File::glob(storage_path('app/modules_temp/replace_test_*')) ?: [] as $tempPath) {
+        if (File::isDirectory($tempPath)) {
+            File::deleteDirectory($tempPath);
         }
     }
 
     if ($this->originalStatuses !== null) {
         File::put($this->statusFile, $this->originalStatuses);
+    } else {
+        removeReplaceActivateTestModuleFromStatuses();
     }
 });
 
@@ -46,7 +81,7 @@ test('replace module activates the module even when it was previously disabled',
     $tempPath = storage_path('app/modules_temp/replace_test_' . uniqid('', true));
     File::ensureDirectoryExists($tempPath);
 
-    $replacementPath = $tempPath . '/' . $this->studlyName;
+    $replacementPath = $tempPath . '/' . basename($this->modulePath);
     File::copyDirectory($this->modulePath, $replacementPath);
 
     $moduleJsonPath = $replacementPath . '/module.json';
@@ -59,9 +94,14 @@ test('replace module activates the module even when it was previously disabled',
     $statuses = $this->moduleService->getModuleStatuses();
 
     expect($statuses[$this->slugName])->toBeTrue();
-    expect(File::exists($this->modulePath . '/module.json'))->toBeTrue();
 
-    $installedJson = json_decode(File::get($this->modulePath . '/module.json'), true, 512, JSON_THROW_ON_ERROR);
+    $installedFolder = $this->moduleService->getActualModuleFolderName($this->slugName);
+    expect($installedFolder)->not->toBeNull();
+
+    $installedModulePath = base_path('modules/' . $installedFolder);
+    expect(File::exists($installedModulePath . '/module.json'))->toBeTrue();
+
+    $installedJson = json_decode(File::get($installedModulePath . '/module.json'), true, 512, JSON_THROW_ON_ERROR);
     expect($installedJson['version'])->toBe('9.9.9');
 });
 
@@ -71,7 +111,7 @@ test('replace module refreshes nwidart registry before activation', function () 
     $tempPath = storage_path('app/modules_temp/replace_test_' . uniqid('', true));
     File::ensureDirectoryExists($tempPath);
 
-    $replacementPath = $tempPath . '/' . $this->studlyName;
+    $replacementPath = $tempPath . '/' . basename($this->modulePath);
     File::copyDirectory($this->modulePath, $replacementPath);
 
     $moduleJsonPath = $replacementPath . '/module.json';
