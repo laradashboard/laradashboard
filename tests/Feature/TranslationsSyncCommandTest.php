@@ -74,6 +74,17 @@ test('translations sync sorts keys alphabetically', function () {
     expect($keys)->toBe($sorted);
 });
 
+test('translations sync with lang option does not rewrite en.json', function () {
+    $before = File::get($this->langPath . '/en.json');
+
+    File::put($this->testLangFile, json_encode(['Dashboard' => 'Dashboard'], JSON_PRETTY_PRINT));
+
+    $this->artisan('translations:sync', ['--lang' => 'test_lang'])
+        ->assertSuccessful();
+
+    expect(File::get($this->langPath . '/en.json'))->toBe($before);
+});
+
 test('all language files have same key count as en.json', function () {
     $enCount = count(json_decode(File::get($this->langPath . '/en.json'), true));
 

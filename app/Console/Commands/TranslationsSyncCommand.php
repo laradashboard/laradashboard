@@ -39,8 +39,9 @@ class TranslationsSyncCommand extends Command
         $removeStale = $this->option('remove-stale');
         $specificLang = $this->option('lang');
 
-        // Sort en.json itself
-        if (! $isDryRun) {
+        // Sort en.json only when syncing all languages — avoid rewriting the
+        // source file when a single locale is targeted (e.g. in parallel tests).
+        if (! $isDryRun && ! $specificLang) {
             File::put($enFile, json_encode($enTranslations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n");
             $this->info('Sorted en.json (' . count($enTranslations) . ' keys)');
         }
