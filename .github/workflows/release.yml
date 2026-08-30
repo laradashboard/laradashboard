@@ -159,7 +159,6 @@ jobs:
     needs: [detect-version, build]
     if: needs.detect-version.outputs.should_release == 'true'
     runs-on: ubuntu-latest
-    environment: marketplace
     steps:
       - name: Download release ZIP
         uses: actions/download-artifact@v4
@@ -186,17 +185,21 @@ jobs:
     needs: [detect-version, publish-marketplace]
     if: ${{ needs.detect-version.outputs.should_release == 'true' && (github.event_name != 'workflow_dispatch' || github.event.inputs.skip_upgrade_tests != 'true') }}
     runs-on: ubuntu-latest
-    environment: upgrade-test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Configure SSH
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
+          DEMO_KEY: ${{ secrets.DEMO_SSH_KEY }}
         run: |
           install -m 700 -d ~/.ssh
-          echo "${{ secrets.DEMO_SSH_KEY }}" > ~/.ssh/deploy_key
+          echo "${DEMO_KEY}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "${{ secrets.DEMO_SSH_PORT }}" -H "${{ secrets.DEMO_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+          PORT="${DEMO_PORT:-65002}"
+          ssh-keyscan -p "${PORT}" -H "${DEMO_HOST}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Run upgrade with verification
         env:
@@ -205,7 +208,8 @@ jobs:
           DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
           DEMO_PATH: ${{ secrets.DEMO_APP_PATH }}
         run: |
-          ssh -p "${DEMO_PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+          PORT="${DEMO_PORT:-65002}"
+          ssh -p "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
             "${DEMO_USER}@${DEMO_HOST}" \
             "APP_PATH='${DEMO_PATH}' SKIP_BACKUP=1 bash -s -- '${{ needs.detect-version.outputs.version }}'" \
             < deploy/deploy-upgrade.sh
@@ -221,28 +225,37 @@ jobs:
     needs: [detect-version, publish-marketplace]
     if: ${{ needs.detect-version.outputs.should_release == 'true' && (github.event_name != 'workflow_dispatch' || github.event.inputs.skip_upgrade_tests != 'true') }}
     runs-on: ubuntu-latest
-    environment: upgrade-test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Configure SSH
+        env:
+          SSH_HOST: ${{ secrets.MARKETPLACE_SSH_HOST || secrets.DEMO_SSH_HOST }}
+          SSH_PORT: ${{ secrets.MARKETPLACE_SSH_PORT || secrets.DEMO_SSH_PORT }}
+          SSH_KEY: ${{ secrets.MARKETPLACE_SSH_KEY || secrets.DEMO_SSH_KEY }}
         run: |
           install -m 700 -d ~/.ssh
-          echo "${{ secrets.MARKETPLACE_SSH_KEY }}" > ~/.ssh/deploy_key
+          echo "${SSH_KEY}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "${{ secrets.MARKETPLACE_SSH_PORT }}" -H "${{ secrets.MARKETPLACE_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+          PORT="${SSH_PORT:-65002}"
+          ssh-keyscan -p "${PORT}" -H "${SSH_HOST}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Run upgrade with verification
         env:
-          MARKETPLACE_HOST: ${{ secrets.MARKETPLACE_SSH_HOST }}
-          MARKETPLACE_USER: ${{ secrets.MARKETPLACE_SSH_USER }}
-          MARKETPLACE_PORT: ${{ secrets.MARKETPLACE_SSH_PORT }}
-          MARKETPLACE_PATH: ${{ secrets.MARKETPLACE_APP_PATH }}
+          SSH_HOST: ${{ secrets.MARKETPLACE_SSH_HOST || secrets.DEMO_SSH_HOST }}
+          SSH_USER: ${{ secrets.MARKETPLACE_SSH_USER || secrets.DEMO_SSH_USER }}
+          SSH_PORT: ${{ secrets.MARKETPLACE_SSH_PORT || secrets.DEMO_SSH_PORT }}
+          APP_PATH: ${{ secrets.MARKETPLACE_APP_PATH }}
         run: |
-          ssh -p "${MARKETPLACE_PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
-            "${MARKETPLACE_USER}@${MARKETPLACE_HOST}" \
-            "APP_PATH='${MARKETPLACE_PATH}' bash -s -- '${{ needs.detect-version.outputs.version }}'" \
+          if [[ -z "${APP_PATH}" ]]; then
+            echo "MARKETPLACE_APP_PATH secret is missing."
+            exit 1
+          fi
+          PORT="${SSH_PORT:-65002}"
+          ssh -p "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${SSH_USER}@${SSH_HOST}" \
+            "APP_PATH='${APP_PATH}' bash -s -- '${{ needs.detect-version.outputs.version }}'" \
             < deploy/deploy-upgrade.sh
 
       - name: Verify health endpoint
@@ -256,7 +269,6 @@ jobs:
     needs: [detect-version, upgrade-demo, upgrade-marketplace]
     if: ${{ needs.detect-version.outputs.should_release == 'true' && (github.event_name != 'workflow_dispatch' || github.event.inputs.skip_upgrade_tests != 'true') && needs.upgrade-demo.result == 'success' && needs.upgrade-marketplace.result == 'success' }}
     runs-on: ubuntu-latest
-    environment: marketplace
     steps:
       - name: Mark release as verified on marketplace
         env:
@@ -273,7 +285,6 @@ jobs:
     needs: [detect-version, mark-release-verified]
     if: ${{ needs.detect-version.outputs.should_release == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_production == 'true' }}
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

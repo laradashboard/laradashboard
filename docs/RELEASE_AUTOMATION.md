@@ -203,13 +203,31 @@ DEMO_MODE=true
 APP_URL=https://demo.laradashboard.com
 ```
 
-### marketplace / upgrade-test
+### Release workflow (marketplace)
 
-SSH secrets for each site under test, plus `RELEASE_API_TOKEN` (see module doc).
+Add these **repository secrets** when you enable automated releases to laradashboard.com:
+
+| Secret | Required | Fallback | Purpose |
+|--------|----------|----------|---------|
+| `RELEASE_API_TOKEN` | Yes | — | Must match `.env` on laradashboard.com |
+| `MARKETPLACE_APP_PATH` | Yes | — | App root on laradashboard.com (differs from demo path) |
+| `MARKETPLACE_SSH_HOST` | No | `DEMO_SSH_HOST` | Same Hostinger account — reuse demo SSH |
+| `MARKETPLACE_SSH_PORT` | No | `DEMO_SSH_PORT` (default `65002`) | SSH port |
+| `MARKETPLACE_SSH_USER` | No | `DEMO_SSH_USER` | SSH user |
+| `MARKETPLACE_SSH_KEY` | No | `DEMO_SSH_KEY` | SSH private key |
+
+Optional repository **variable**: `MARKETPLACE_URL` (defaults to `https://laradashboard.com`).
+
+laradashboard.com server `.env`:
+
+```env
+RELEASE_API_TOKEN=same-value-as-github-secret
+APP_URL=https://laradashboard.com
+```
 
 ### production
 
-Same SSH pattern with environment protection rules requiring manual approval before deploy.
+Optional manual production deploy via workflow dispatch. Uses `PRODUCTION_SSH_*` repository secrets when you add them later.
 
 ---
 
