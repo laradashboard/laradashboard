@@ -11,10 +11,12 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
             <exclude>tests/Feature/Commands/ModuleMakeCrudCommandTest.php</exclude>
+            <exclude>tests/Feature/Modules/ModuleReplaceActivationTest.php</exclude>
             <exclude>tests/Feature/TranslationsExtractCommandTest.php</exclude>
         </testsuite>
         <testsuite name="Sequential">
             <file>tests/Feature/Commands/ModuleMakeCrudCommandTest.php</file>
+            <file>tests/Feature/Modules/ModuleReplaceActivationTest.php</file>
             <file>tests/Feature/TranslationsExtractCommandTest.php</file>
         </testsuite>
         <testsuite name="Smoke">

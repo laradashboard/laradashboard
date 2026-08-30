@@ -169,7 +169,7 @@ class CoreUpgradeService
             $zipPath = $this->tempPath."/laradashboard-{$version}.zip";
 
             $localZipPath = getenv('UPGRADE_ZIP_PATH') ?: null;
-            if (is_string($localZipPath) && $localZipPath !== '' && File::exists($localZipPath)) {
+            if (is_string($localZipPath) && File::exists($localZipPath)) {
                 File::copy($localZipPath, $zipPath);
 
                 Log::info('Using local upgrade ZIP from UPGRADE_ZIP_PATH', [

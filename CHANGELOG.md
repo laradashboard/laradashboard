@@ -2,9 +2,19 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.3.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.3.0) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.3.1](https://github.com/laradashboard/laradashboard/releases/tag/v1.3.1) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.3.1] — 2026-08-31
+- **Fix:** Password visibility toggle — dynamic `aria-label`, `aria-pressed`, and separate hide tooltip for screen readers (#296).
+- **Fix:** Mobile sidebar toggle — correct open/close icon on small screens plus `aria-label` and `aria-expanded` (#295).
+- **Fix:** Fresh install migration failure when `posts.design_json` is missing — new guard migration runs before canvas padding data fix.
+- **Fix:** Page canvas content-padding migration skips safely when `design_json` column is absent.
+- **Improve:** Core upgrade accepts `UPGRADE_ZIP_PATH` for CI/demo upgrades from a pre-staged release ZIP.
+- **Improve:** Release workflow upgrade-demo job uses the built artifact ZIP instead of downloading from marketplace.
+- **Chore:** PHPStan fix in `CoreUpgradeService`; ignore `config.bat` in `.gitignore`.
+- **Chore:** Synced 3 new accessibility strings (`Hide password`, `Open sidebar`, `Close sidebar`) across 31 locales.
 
 ## [v1.3.0] — 2026-08-30
 - **Fix:** Hardened media uploads — SVG sanitization, server-detected MIME validation, filename sanitization, and `.htaccess` rules blocking script execution on public storage.

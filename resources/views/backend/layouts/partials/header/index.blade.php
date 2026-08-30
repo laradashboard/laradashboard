@@ -36,12 +36,15 @@
                 :class="sidebarToggle ? 'lg:bg-transparent dark:lg:bg-transparent bg-gray-100 dark:bg-gray-800' : ''"
                 class="z-99999 flex h-10 w-10 items-center justify-center rounded-md border-gray-200 text-gray-700 lg:h-11 lg:w-11 dark:border-gray-800 dark:text-gray-300 transition-all duration-300"
                 id="sidebar-toggle-button"
+                type="button"
+                :aria-label="sidebarToggle ? '{{ __('Close sidebar') }}' : '{{ __('Open sidebar') }}'"
+                :aria-expanded="sidebarToggle"
                 @click.stop="sidebarToggle = !sidebarToggle; localStorage.setItem('sidebarToggle', sidebarToggle);">
                 <iconify-icon
                     :icon="sidebarToggle ? 'mdi:menu-close' : 'mdi:menu-open'"
                     width="26" height="26" class="hidden md:inline-block"></iconify-icon>
                 <iconify-icon
-                    :icon="sidebarToggle ? 'feather:menu' : 'feather:menu'"
+                    :icon="sidebarToggle ? 'feather:x' : 'feather:menu'"
                     width="26" height="26" class="md:hidden"></iconify-icon>
             </button>
             @include('backend.layouts.partials.header.quick-links-dropdown')
