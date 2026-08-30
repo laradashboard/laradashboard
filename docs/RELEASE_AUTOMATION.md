@@ -183,14 +183,12 @@ Returns version, module count, and environment info.
 
 ## GitHub secrets
 
-Configure these as GitHub **Environments** (`demo`, `marketplace`, `upgrade-test`, `production`).
+Add these as **Repository secrets** (Settings → Secrets and variables → Actions → Repository secrets):
 
-### demo
-
-| Secret | Purpose |
-|--------|---------|
+| Secret | Value |
+|--------|-------|
 | `DEMO_SSH_HOST` | `178.16.136.122` |
-| `DEMO_SSH_PORT` | `65002` |
+| `DEMO_SSH_PORT` | `65002` (optional — defaults to 65002 in workflow) |
 | `DEMO_SSH_USER` | `u769668005` |
 | `DEMO_SSH_KEY` | Private key contents |
 | `DEMO_APP_PATH` | App root on server |
