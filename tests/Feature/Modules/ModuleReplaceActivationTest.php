@@ -10,23 +10,26 @@ beforeEach(function () {
     $this->moduleService = app(ModuleService::class);
     $this->studlyName = 'ReplaceActivateTest';
     $this->slugName = 'replaceactivatetest';
-    $this->modulePath = base_path('modules/' . $this->slugName);
     $this->statusFile = base_path('modules_statuses.json');
     $this->originalStatuses = File::exists($this->statusFile)
         ? File::get($this->statusFile)
         : null;
 
-    foreach ([$this->modulePath, base_path('modules/' . $this->studlyName)] as $path) {
+    foreach ([base_path('modules/' . $this->slugName), base_path('modules/' . $this->studlyName)] as $path) {
         if (File::isDirectory($path)) {
             File::deleteDirectory($path);
         }
     }
 
     $this->artisan('module:make', ['name' => [$this->studlyName]])->assertSuccessful();
+
+    $actualFolder = $this->moduleService->getActualModuleFolderName($this->studlyName);
+    expect($actualFolder)->not->toBeNull();
+    $this->modulePath = base_path('modules/' . $actualFolder);
 });
 
 afterEach(function () {
-    foreach ([$this->modulePath, base_path('modules/' . $this->studlyName)] as $path) {
+    foreach ([base_path('modules/' . $this->slugName), base_path('modules/' . $this->studlyName)] as $path) {
         if (File::isDirectory($path)) {
             File::deleteDirectory($path);
         }
