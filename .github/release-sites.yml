@@ -1,0 +1,47 @@
+# LaraDashboard release automation — upgrade test site matrix
+#
+# Used by .github/workflows/release.yml
+# Copy values into GitHub Environment secrets/variables as needed.
+
+sites:
+  demo:
+    label: demo
+    url: https://demo.laradashboard.com
+    host_secret: DEMO_SSH_HOST
+    user_secret: DEMO_SSH_USER
+    key_secret: DEMO_SSH_KEY
+    path_secret: DEMO_APP_PATH
+    demo_mode: true
+    skip_backup: true
+    enabled: true
+
+  marketplace:
+    label: marketplace
+    url: https://laradashboard.com
+    host_secret: MARKETPLACE_SSH_HOST
+    user_secret: MARKETPLACE_SSH_USER
+    key_secret: MARKETPLACE_SSH_KEY
+    path_secret: MARKETPLACE_APP_PATH
+    demo_mode: false
+    skip_backup: false
+    enabled: true
+
+  # Add more Hostinger installations as needed:
+  # staging-2:
+  #   label: staging-2
+  #   url: https://staging-2.example.com
+  #   host_secret: STAGING2_SSH_HOST
+  #   user_secret: STAGING2_SSH_USER
+  #   key_secret: STAGING2_SSH_KEY
+  #   path_secret: STAGING2_APP_PATH
+  #   demo_mode: false
+  #   skip_backup: false
+  #   enabled: false
+
+production:
+  url: https://laradashboard.com
+  host_secret: PRODUCTION_SSH_HOST
+  user_secret: PRODUCTION_SSH_USER
+  key_secret: PRODUCTION_SSH_KEY
+  path_secret: PRODUCTION_APP_PATH
+  requires_manual_approval: true

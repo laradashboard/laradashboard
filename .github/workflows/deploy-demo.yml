@@ -1,0 +1,73 @@
+name: Deploy Demo
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - develop
+
+concurrency:
+  group: deploy-demo
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run CI Tests
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy to demo.laradashboard.com
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.DEMO_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          PORT="${DEMO_PORT:-65002}"
+          ssh-keyscan -p "${PORT}" -H "${DEMO_HOST}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy develop branch
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_USER: ${{ secrets.DEMO_SSH_USER }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
+          DEMO_PATH: ${{ secrets.DEMO_APP_PATH }}
+          DEMO_PHP_BIN: ${{ secrets.DEMO_PHP_BIN }}
+        run: |
+          PORT="${DEMO_PORT:-65002}"
+          if [[ -z "${DEMO_PATH}" ]]; then
+            echo "DEMO_APP_PATH secret is missing."
+            exit 1
+          fi
+          if [[ -z "${DEMO_HOST}" || -z "${DEMO_USER}" ]]; then
+            echo "DEMO_SSH_HOST or DEMO_SSH_USER secret is missing."
+            exit 1
+          fi
+          REMOTE_ENV="APP_PATH='${DEMO_PATH}' GIT_BRANCH=develop SKIP_NPM_BUILD=1"
+          if [[ -n "${DEMO_PHP_BIN}" ]]; then
+            REMOTE_ENV="${REMOTE_ENV} PHP_BIN='${DEMO_PHP_BIN}'"
+          fi
+          ssh -p "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${DEMO_USER}@${DEMO_HOST}" \
+            "${REMOTE_ENV} bash -s" < deploy/deploy-demo.sh
+
+      - name: Smoke test health endpoint
+        run: |
+          curl --fail --retry 5 --retry-delay 5 --retry-all-errors \
+            "https://demo.laradashboard.com/api/health"
+
+      - name: Smoke test login page
+        run: |
+          curl --fail --retry 3 --retry-delay 3 \
+            "https://demo.laradashboard.com/login"
