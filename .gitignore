@@ -7,6 +7,9 @@
 /storage/*.key
 /vendor
 /bootstrap/cache/*.php
+.env
+.env.local
+.env.production
 .env.backup
 .phpunit.result.cache
 Homestead.json
@@ -25,6 +28,7 @@ public/images/modules
 # - composer.lock (locked dependencies)
 # Use `php artisan module:install-deps` to install module dependencies.
 /modules/*
+!/modules/Laradashboard
 /modules/*/vendor/
 # Keep the modules directory structure
 !/modules/.gitkeep
