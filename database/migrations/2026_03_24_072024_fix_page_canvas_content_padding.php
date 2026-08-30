@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Fix contentPadding for full-width pages.
@@ -14,6 +15,10 @@ use Illuminate\Support\Facades\DB;
 return new class () extends Migration {
     public function up(): void
     {
+        if (! Schema::hasTable('posts') || ! Schema::hasColumn('posts', 'design_json')) {
+            return;
+        }
+
         DB::table('posts')
             ->whereNotNull('design_json')
             ->where('post_type', 'page')
@@ -42,6 +47,10 @@ return new class () extends Migration {
 
     public function down(): void
     {
+        if (! Schema::hasTable('posts') || ! Schema::hasColumn('posts', 'design_json')) {
+            return;
+        }
+
         DB::table('posts')
             ->whereNotNull('design_json')
             ->where('post_type', 'page')

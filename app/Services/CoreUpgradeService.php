@@ -168,6 +168,20 @@ class CoreUpgradeService
 
             $zipPath = $this->tempPath."/laradashboard-{$version}.zip";
 
+            $localZipPath = getenv('UPGRADE_ZIP_PATH') ?: null;
+            if (is_string($localZipPath) && File::exists($localZipPath)) {
+                File::copy($localZipPath, $zipPath);
+
+                Log::info('Using local upgrade ZIP from UPGRADE_ZIP_PATH', [
+                    'version' => $version,
+                    'source' => $localZipPath,
+                ]);
+
+                if (File::exists($zipPath) && File::size($zipPath) > 0) {
+                    return $zipPath;
+                }
+            }
+
             // Check if we're on the marketplace itself (laradashboard module is installed)
             // In that case, try to get the file directly from local storage
             if ($this->tryLocalDownload($version, $zipPath)) {

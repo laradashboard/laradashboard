@@ -197,12 +197,17 @@ jobs:
 
   upgrade-demo:
     name: Upgrade Test — demo
-    needs: [detect-version, publish-marketplace]
+    needs: [detect-version, build, publish-marketplace]
     if: ${{ needs.detect-version.outputs.should_release == 'true' && (github.event_name != 'workflow_dispatch' || github.event.inputs.skip_upgrade_tests != 'true') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Download release ZIP
+        uses: actions/download-artifact@v4
+        with:
+          name: laradashboard-v${{ needs.detect-version.outputs.version }}
 
       - name: Configure SSH
         env:
@@ -216,18 +221,44 @@ jobs:
           PORT="${DEMO_PORT:-65002}"
           ssh-keyscan -p "${PORT}" -H "${DEMO_HOST}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
+      - name: Stage release ZIP on demo server
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_USER: ${{ secrets.DEMO_SSH_USER }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
+        run: |
+          PORT="${DEMO_PORT:-65002}"
+          REMOTE_ZIP="/tmp/laradashboard-v${{ needs.detect-version.outputs.version }}.zip"
+          scp -P "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "laradashboard-v${{ needs.detect-version.outputs.version }}.zip" \
+            "${DEMO_USER}@${DEMO_HOST}:${REMOTE_ZIP}"
+
       - name: Run upgrade with verification
         env:
           DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
           DEMO_USER: ${{ secrets.DEMO_SSH_USER }}
           DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
           DEMO_PATH: ${{ secrets.DEMO_APP_PATH }}
+          MARKETPLACE_URL: ${{ vars.MARKETPLACE_URL || 'https://laradashboard.com' }}
+        run: |
+          PORT="${DEMO_PORT:-65002}"
+          REMOTE_ZIP="/tmp/laradashboard-v${{ needs.detect-version.outputs.version }}.zip"
+          ssh -p "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${DEMO_USER}@${DEMO_HOST}" \
+            "APP_PATH='${DEMO_PATH}' UPGRADE_ZIP_PATH='${REMOTE_ZIP}' MARKETPLACE_URL='${MARKETPLACE_URL}' SKIP_BACKUP=1 bash -s -- '${{ needs.detect-version.outputs.version }}'" \
+            < deploy/deploy-upgrade.sh
+
+      - name: Remove staged ZIP from demo server
+        if: always()
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_USER: ${{ secrets.DEMO_SSH_USER }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
         run: |
           PORT="${DEMO_PORT:-65002}"
           ssh -p "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
             "${DEMO_USER}@${DEMO_HOST}" \
-            "APP_PATH='${DEMO_PATH}' SKIP_BACKUP=1 bash -s -- '${{ needs.detect-version.outputs.version }}'" \
-            < deploy/deploy-upgrade.sh
+            "rm -f /tmp/laradashboard-v${{ needs.detect-version.outputs.version }}.zip" || true
 
       - name: Verify health endpoint
         run: |

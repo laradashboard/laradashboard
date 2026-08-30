@@ -9,6 +9,7 @@
     'autocomplete' => 'new-password',
     'autogenerate' => false,
     'showTooltip' => __('Show password'),
+    'hideTooltip' => __('Hide password'),
     'hint' => '',
 ])
 
@@ -59,14 +60,25 @@
 
         <div class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2 z-30">
             <x-tooltip :title="$showTooltip">
-                <button type="button" @click="showPassword = !showPassword" class="text-gray-500 cursor-pointer dark:text-gray-300 flex items-center justify-center w-6 h-6">
+                <button
+                    type="button"
+                    @click="showPassword = !showPassword"
+                    class="text-gray-500 cursor-pointer dark:text-gray-300 flex items-center justify-center w-6 h-6"
+                    :aria-label="showPassword ? '{{ $hideTooltip }}' : '{{ $showTooltip }}'"
+                    :aria-pressed="showPassword.toString()"
+                >
                     <iconify-icon x-show="!showPassword" icon="lucide:eye" width="20" height="20" class="text-[#98A2B3]"></iconify-icon>
                     <iconify-icon x-show="showPassword" icon="lucide:eye-off" width="20" height="20" class="text-[#98A2B3]" style="display: none;"></iconify-icon>
                 </button>
             </x-tooltip>
             @if($autogenerate)
             <x-tooltip title="{{ __('Autogenerate password') }}">
-                <button type="button" @click="autogenerate" class="text-gray-500 cursor-pointer dark:text-gray-300 flex items-center justify-center w-6 h-6">
+                <button
+                    type="button"
+                    @click="autogenerate"
+                    class="text-gray-500 cursor-pointer dark:text-gray-300 flex items-center justify-center w-6 h-6"
+                    aria-label="{{ __('Autogenerate password') }}"
+                >
                     <iconify-icon icon="lucide:wand-sparkles" width="20" height="20" class="text-[#98A2B3]"></iconify-icon>
                 </button>
             </x-tooltip>

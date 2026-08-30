@@ -47,3 +47,4 @@ public/images/modules
 # Eclude zip/tar.gz release packages
 *.zip
 *.tar.gz
+config.bat

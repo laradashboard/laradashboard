@@ -96,7 +96,14 @@ Built for Laravel developers who want to ship admin dashboards, SaaS apps, CRMs 
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.3.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.3.0) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.3.1](https://github.com/laradashboard/laradashboard/releases/tag/v1.3.1) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.3.1] — 2026-08-31**
+-   **Fix:** Password visibility toggle accessibility — `aria-label`, `aria-pressed`, and hide tooltip (#296).
+-   **Fix:** Mobile sidebar toggle icon and `aria-label` / `aria-expanded` on small screens (#295).
+-   **Fix:** Fresh install migration failure when `posts.design_json` is missing; guarded canvas padding migration.
+-   **Improve:** Core upgrade supports `UPGRADE_ZIP_PATH`; release workflow demo upgrade uses built artifact ZIP.
+-   **Chore:** Synced new accessibility strings across 31 locales.
 
 **[v1.3.0] — 2026-08-30**
 -   **Fix:** Hardened media uploads — SVG sanitization, MIME validation, and `.htaccess` hardening on public storage.
