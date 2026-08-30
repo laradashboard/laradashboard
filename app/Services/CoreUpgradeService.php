@@ -701,6 +701,8 @@ class CoreUpgradeService
             '--path=database/migrations',
         ]);
 
+        $this->runArtisanInSubprocess(['module:publish-images']);
+
         $this->runArtisanInSubprocess(['optimize:clear']);
     }
 

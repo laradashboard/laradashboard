@@ -73,6 +73,7 @@ else
 fi
 
 ${PHP_BIN} artisan migrate --force
+${PHP_BIN} artisan module:publish-images
 ${PHP_BIN} artisan optimize:clear
 ${PHP_BIN} artisan optimize
 

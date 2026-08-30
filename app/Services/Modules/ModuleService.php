@@ -1635,4 +1635,45 @@ class ModuleService
             return false;
         }
     }
+
+    /**
+     * Publish logo/banner images for a registered module.
+     */
+    public function publishModuleImages(string $moduleName): bool
+    {
+        $module = $this->findModuleByName($moduleName);
+
+        if (! $module) {
+            Log::info("Module {$moduleName} not found for image publishing");
+
+            return false;
+        }
+
+        return $this->publishModuleImagesFromPath(
+            $module->getPath(),
+            $this->normalizeModuleName($moduleName)
+        );
+    }
+
+    /**
+     * Publish logo/banner images for every enabled module on disk.
+     *
+     * @return int Number of modules whose images were published
+     */
+    public function publishModuleImagesForEnabledModules(): int
+    {
+        $publishedCount = 0;
+
+        foreach ($this->getModuleStatuses() as $moduleName => $enabled) {
+            if (! $enabled) {
+                continue;
+            }
+
+            if ($this->publishModuleImages($moduleName)) {
+                $publishedCount++;
+            }
+        }
+
+        return $publishedCount;
+    }
 }
