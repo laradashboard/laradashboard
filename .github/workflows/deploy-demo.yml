@@ -1,0 +1,56 @@
+name: Deploy Demo
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - develop
+
+concurrency:
+  group: deploy-demo
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run CI Tests
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy to demo.laradashboard.com
+    needs: test
+    runs-on: ubuntu-latest
+    environment: demo
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.DEMO_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.DEMO_SSH_PORT }}" -H "${{ secrets.DEMO_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy develop branch
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_USER: ${{ secrets.DEMO_SSH_USER }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
+          DEMO_PATH: ${{ secrets.DEMO_APP_PATH }}
+        run: |
+          ssh -p "${DEMO_PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${DEMO_USER}@${DEMO_HOST}" \
+            "APP_PATH='${DEMO_PATH}' GIT_BRANCH=develop bash -s" < deploy/deploy-demo.sh
+
+      - name: Smoke test health endpoint
+        run: |
+          curl --fail --retry 5 --retry-delay 5 --retry-all-errors \
+            "https://demo.laradashboard.com/api/health"
+
+      - name: Smoke test login page
+        run: |
+          curl --fail --retry 3 --retry-delay 3 \
+            "https://demo.laradashboard.com/login"

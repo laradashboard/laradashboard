@@ -1,0 +1,87 @@
+name: Prepare Release
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      release_date:
+        description: Release date (YYYY-MM-DD). Leave empty for today.
+        required: false
+        type: string
+
+jobs:
+  prepare:
+    name: Bump Version and Open PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          tools: composer
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: bump
+        run: |
+          OUTPUT=$(php scripts/bump-version.php "${{ github.event.inputs.bump }}" "${{ github.event.inputs.release_date }}")
+          echo "${OUTPUT}"
+          echo "version=$(echo "${OUTPUT}" | awk -F= '/^version=/{print $2}')" >> "$GITHUB_OUTPUT"
+          echo "tag=$(echo "${OUTPUT}" | awk -F= '/^tag=/{print $2}')" >> "$GITHUB_OUTPUT"
+
+      - name: Create release branch and commit
+        run: |
+          BRANCH="release/v${{ steps.bump.outputs.version }}"
+          git checkout -b "${BRANCH}"
+          git add version.json package.json CHANGELOG.md README.md
+          git commit -m "Prepare release v${{ steps.bump.outputs.version }}"
+          git push -u origin "${BRANCH}"
+
+      - name: Open pull request to main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "release/v${{ steps.bump.outputs.version }}" \
+            --title "Release v${{ steps.bump.outputs.version }}" \
+            --body "$(cat <<EOF
+          ## Release v${{ steps.bump.outputs.version }}
+
+          - Bumped \`version.json\` and \`package.json\`
+          - Updated \`CHANGELOG.md\` and \`README.md\`
+
+          ## After merge
+
+          Merging this PR to \`main\` is enough — the **Release** workflow runs automatically when \`version.json\` changes:
+
+          - Creates tag \`${{ steps.bump.outputs.tag }}\`
+          - Builds and attaches the ZIP
+          - Publishes to the marketplace
+          - Runs upgrade tests on demo + laradashboard.com
+
+          No manual GitHub Release step required.
+          EOF
+          )"
