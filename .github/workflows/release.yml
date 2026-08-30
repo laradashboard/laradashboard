@@ -166,6 +166,7 @@ jobs:
           generate_release_notes: true
           files: laradashboard-v${{ needs.detect-version.outputs.version }}.zip
           make_latest: true
+          overwrite_files: true
 
   publish-marketplace:
     name: Publish to Marketplace
@@ -185,12 +186,13 @@ jobs:
         run: |
           ZIP_FILE="laradashboard-v${{ needs.detect-version.outputs.version }}.zip"
 
-          curl --fail --silent --show-error \
+          curl --fail-with-body --show-error \
             -X POST "${MARKETPLACE_URL}/api/internal/releases" \
             -H "Authorization: Bearer ${RELEASE_API_TOKEN}" \
             -H "Accept: application/json" \
             -F "version=${{ needs.detect-version.outputs.version }}" \
             -F "github_tag=${{ needs.detect-version.outputs.tag }}" \
+            -F "force=true" \
             -F "zip=@${ZIP_FILE}"
 
   upgrade-demo:
@@ -288,7 +290,7 @@ jobs:
           RELEASE_API_TOKEN: ${{ secrets.RELEASE_API_TOKEN }}
           MARKETPLACE_URL: ${{ vars.MARKETPLACE_URL || 'https://laradashboard.com' }}
         run: |
-          curl --fail --silent --show-error \
+          curl --fail-with-body --show-error \
             -X POST "${MARKETPLACE_URL}/api/internal/releases/${{ needs.detect-version.outputs.version }}/verified" \
             -H "Authorization: Bearer ${RELEASE_API_TOKEN}" \
             -H "Accept: application/json"
@@ -326,7 +328,7 @@ jobs:
           RELEASE_API_TOKEN: ${{ secrets.RELEASE_API_TOKEN }}
           MARKETPLACE_URL: ${{ vars.MARKETPLACE_URL || 'https://laradashboard.com' }}
         run: |
-          curl --fail --silent --show-error \
+          curl --fail-with-body --show-error \
             -X POST "${MARKETPLACE_URL}/api/internal/releases/${{ needs.detect-version.outputs.version }}/deployed" \
             -H "Authorization: Bearer ${RELEASE_API_TOKEN}" \
             -H "Accept: application/json"
