@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Observers\MediaObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 
 /**
@@ -14,6 +15,27 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 #[ObservedBy([MediaObserver::class])]
 class Media extends SpatieMedia
 {
-    // Inherit all functionality from Spatie Media
-    // Add any custom functionality here if needed.
+    /**
+     * Standalone library media can retain generated conversion flags after being
+     * detached from a model, but Spatie 11.23's default accessor throws when the
+     * conversion is no longer registered on the related model.
+     */
+    protected function previewUrl(): Attribute
+    {
+        return Attribute::get(function (): string {
+            if (! $this->hasGeneratedConversion('preview')) {
+                return '';
+            }
+
+            try {
+                return $this->getUrl('preview');
+            } catch (\Throwable) {
+                try {
+                    return $this->getUrl();
+                } catch (\Throwable) {
+                    return '';
+                }
+            }
+        });
+    }
 }

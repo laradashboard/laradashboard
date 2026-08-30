@@ -61,7 +61,9 @@
                 this.selectedMedia = [id.toString()];
                 this.bulkDeleteModalOpen = true;
             }
-        }" id="mediaManager"
+        }"
+        id="mediaManager"
+        x-on:open-media-upload-modal.window="uploadModalOpen = true"
     >
         {!! Hook::applyFilters(CommonFilterHook::MEDIA_AFTER_BREADCRUMBS, '') !!}
 

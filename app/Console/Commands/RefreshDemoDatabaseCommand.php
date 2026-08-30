@@ -59,6 +59,8 @@ class RefreshDemoDatabaseCommand extends Command
             '--force' => true,
         ]);
 
+        $this->call('module:publish-images');
+
         // Clear all caches after refresh to ensure fresh state
         $this->call('cache:clear');
         app()[PermissionRegistrar::class]->forgetCachedPermissions();

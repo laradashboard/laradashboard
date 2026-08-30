@@ -529,18 +529,13 @@ class ModuleService
         // This is handled automatically by setModuleStatus() which cleans up duplicates
 
         // Install the new module
-        $installedModuleName = $this->installModuleFromTemp($tempPath, $folderName, $moduleName);
+        $this->installModuleFromTemp($tempPath, $folderName, $moduleName);
 
-        // Re-enable if was previously enabled
-        if ($wasEnabled) {
-            try {
-                $this->toggleModule($installedModuleName, true);
-            } catch (\Throwable $e) {
-                Log::warning("Could not re-enable module after replacement: " . $e->getMessage());
-            }
-        }
+        // Replacing is an intentional upgrade — always activate so the module is usable immediately.
+        $jsonName = $this->getModuleJsonName($moduleName) ?? $moduleName;
+        $this->activateModuleAfterInstall($jsonName);
 
-        return $installedModuleName;
+        return $this->normalizeModuleName($jsonName);
     }
 
     /**
@@ -574,6 +569,9 @@ class ModuleService
             File::moveDirectory($extractedPath, $targetPath);
             File::deleteDirectory($tempPath);
         }
+
+        // Refresh nwidart's in-memory module registry so the new files are discoverable.
+        $this->refreshModuleRegistry();
 
         // Save this module to the modules_statuses.json file as DISABLED.
         // New modules are disabled by default for security - admin must explicitly enable them.
@@ -771,6 +769,26 @@ class ModuleService
         return Str::studly(basename($modulePath));
     }
 
+    /**
+     * Clear nwidart's cached module scan results.
+     *
+     * Required after upload/replace — otherwise module:enable may target stale paths.
+     */
+    public function refreshModuleRegistry(): void
+    {
+        app('modules')->resetModules();
+    }
+
+    /**
+     * Enable a module that was just installed or replaced on disk.
+     */
+    public function activateModuleAfterInstall(string $moduleName): void
+    {
+        $jsonName = $this->getModuleJsonName($moduleName) ?? $moduleName;
+        $this->refreshModuleRegistry();
+        $this->toggleModule($jsonName, true);
+    }
+
     public function toggleModule($moduleName, $enable = true, bool $skipMigrations = false): bool
     {
         $action = $enable ? 'enable' : 'disable';
@@ -778,6 +796,8 @@ class ModuleService
             'user_id' => Auth::id(),
             'ip' => request()->ip(),
         ]);
+
+        $this->refreshModuleRegistry();
 
         // Fire action hooks before enabling/disabling
         if ($enable) {
@@ -1634,5 +1654,46 @@ class ModuleService
             Log::error("Failed to publish assets for module {$moduleName}: " . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Publish logo/banner images for a registered module.
+     */
+    public function publishModuleImages(string $moduleName): bool
+    {
+        $module = $this->findModuleByName($moduleName);
+
+        if (! $module) {
+            Log::info("Module {$moduleName} not found for image publishing");
+
+            return false;
+        }
+
+        return $this->publishModuleImagesFromPath(
+            $module->getPath(),
+            $this->normalizeModuleName($moduleName)
+        );
+    }
+
+    /**
+     * Publish logo/banner images for every enabled module on disk.
+     *
+     * @return int Number of modules whose images were published
+     */
+    public function publishModuleImagesForEnabledModules(): int
+    {
+        $publishedCount = 0;
+
+        foreach ($this->getModuleStatuses() as $moduleName => $enabled) {
+            if (! $enabled) {
+                continue;
+            }
+
+            if ($this->publishModuleImages($moduleName)) {
+                $publishedCount++;
+            }
+        }
+
+        return $publishedCount;
     }
 }

@@ -25,7 +25,7 @@ class DeleteBackupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'backup_file' => ['required', 'string', 'max:255'],
+            'backup_file' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z0-9._-]+$/'],
         ];
     }
 
@@ -38,6 +38,7 @@ class DeleteBackupRequest extends FormRequest
     {
         return [
             'backup_file.required' => __('Backup file is required.'),
+            'backup_file.regex' => __('Invalid backup file name.'),
         ];
     }
 }

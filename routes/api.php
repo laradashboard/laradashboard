@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ActionLogController;
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\AiContentController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\LocalLicenseController;
@@ -30,6 +31,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Public API endpoints.
+Route::get('/health', HealthController::class)->name('api.health');
+
 Route::get('/translations/{lang}', function (string $lang) {
     $path = resource_path("lang/{$lang}.json");
 

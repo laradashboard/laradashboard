@@ -71,83 +71,126 @@ class MediaHelper
         return $filename;
     }
 
-    public static function isDangerousFile(UploadedFile $file): bool
+    /**
+     * Allowed media extensions mapped to server-detected MIME types.
+     *
+     * Client-supplied Content-Type is never used for these checks.
+     *
+     * @return array<string, list<string>>
+     */
+    public static function getAllowedExtensionMimeMap(): array
     {
-        $dangerousExtensions = [
-            'php',
-            'php3',
-            'php4',
-            'php5',
-            'phtml',
-            'phps',
-            'asp',
-            'aspx',
-            'jsp',
-            'jspx',
-            'exe',
-            'com',
-            'bat',
-            'cmd',
-            'scr',
-            'vbs',
-            'vbe',
-            'js',
-            'jar',
-            'pl',
-            'py',
-            'rb',
-            'sh',
-        ];
-
-        $extension = strtolower($file->getClientOriginalExtension());
-
-        if (in_array($extension, $dangerousExtensions)) {
-            return true;
-        }
-
-        // Check for double extensions
-        $filename = $file->getClientOriginalName();
-        if (preg_match('/\.(php|asp|jsp|exe|com|bat|cmd|scr|vbs|vbe|js|jar|pl|py|rb|sh)\./i', $filename)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static function validateFileHeaders(UploadedFile $file): bool
-    {
-        $mimeType = $file->getMimeType();
-        $extension = strtolower($file->getClientOriginalExtension());
-
-        $validMimeTypes = [
-            'jpg' => ['image/jpeg'],
-            'jpeg' => ['image/jpeg'],
+        return [
+            'jpg' => ['image/jpeg', 'image/jpg'],
+            'jpeg' => ['image/jpeg', 'image/jpg'],
             'png' => ['image/png'],
             'gif' => ['image/gif'],
             'webp' => ['image/webp'],
-            'svg' => ['image/svg+xml'],
+            'svg' => ['image/svg+xml', 'image/svg', 'text/xml', 'application/xml', 'text/plain'],
+            'bmp' => ['image/bmp', 'image/x-ms-bmp'],
+            'tif' => ['image/tiff'],
+            'tiff' => ['image/tiff'],
             'pdf' => ['application/pdf'],
             'mp4' => ['video/mp4'],
             'avi' => ['video/avi', 'video/x-msvideo'],
             'mov' => ['video/quicktime'],
-            'mp3' => ['audio/mpeg'],
-            'wav' => ['audio/wav', 'audio/x-wav'],
-            'ogg' => ['audio/ogg'],
+            'webm' => ['video/webm'],
+            'ogv' => ['video/ogg'],
+            '3gp' => ['video/3gpp'],
+            'wmv' => ['video/x-ms-wmv'],
+            'mp3' => ['audio/mpeg', 'audio/mp3'],
+            'wav' => ['audio/wav', 'audio/x-wav', 'audio/wave'],
+            'ogg' => ['audio/ogg', 'video/ogg', 'application/ogg'],
+            'aac' => ['audio/aac', 'audio/x-aac'],
+            'flac' => ['audio/flac', 'audio/x-flac'],
+            'doc' => ['application/msword'],
+            'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            'xls' => ['application/vnd.ms-excel'],
+            'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+            'ppt' => ['application/vnd.ms-powerpoint'],
+            'pptx' => ['application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+            'txt' => ['text/plain'],
+            'csv' => ['text/csv', 'text/plain', 'application/csv', 'text/x-csv'],
+            'rtf' => ['application/rtf', 'text/rtf'],
         ];
+    }
 
-        if (! isset($validMimeTypes[$extension])) {
-            return true; // Allow unknown extensions
+    /**
+     * @return list<string>
+     */
+    public static function getAllowedExtensions(): array
+    {
+        return array_keys(self::getAllowedExtensionMimeMap());
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function getAllowedMimeTypes(): array
+    {
+        $types = [];
+
+        foreach (self::getAllowedExtensionMimeMap() as $mimes) {
+            foreach ($mimes as $mime) {
+                $types[] = $mime;
+            }
         }
 
-        return in_array($mimeType, $validMimeTypes[$extension]);
+        return array_values(array_unique($types));
+    }
+
+    public static function hasAllowedExtension(UploadedFile $file): bool
+    {
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        return $extension !== '' && array_key_exists($extension, self::getAllowedExtensionMimeMap());
+    }
+
+    public static function isSvgFile(UploadedFile $file): bool
+    {
+        return strtolower($file->getClientOriginalExtension()) === 'svg';
+    }
+
+    public static function isDangerousFile(UploadedFile $file): bool
+    {
+        return ! self::hasAllowedExtension($file);
+    }
+
+    public static function validateFileHeaders(UploadedFile $file): bool
+    {
+        $extension = strtolower($file->getClientOriginalExtension());
+        $map = self::getAllowedExtensionMimeMap();
+
+        if ($extension === '' || ! isset($map[$extension])) {
+            return false;
+        }
+
+        $mimeType = $file->getMimeType();
+
+        if (! is_string($mimeType) || $mimeType === '') {
+            return false;
+        }
+
+        return in_array($mimeType, $map[$extension], true);
     }
 
     public static function generateUniqueFilename(string $originalName): string
     {
-        $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+        $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
         $name = pathinfo($originalName, PATHINFO_FILENAME);
 
         $sanitizedName = self::sanitizeFilename($name);
+        $sanitizedName = str_replace('.', '_', $sanitizedName);
+        $sanitizedName = trim($sanitizedName, '._-');
+
+        if ($sanitizedName === '') {
+            $sanitizedName = 'file';
+        }
+
+        if ($extension === '' || ! array_key_exists($extension, self::getAllowedExtensionMimeMap())) {
+            $extension = 'bin';
+        }
+
         $timestamp = now()->format('Y-m-d_H-i-s');
         $random = Str::random(8);
 
@@ -194,6 +237,8 @@ class MediaHelper
             'max_file_uploads' => $maxFileUploads,
             'max_input_time' => $maxInputTime,
             'max_execution_time' => $maxExecutionTime,
+            'allowed_mime_types' => self::getAllowedMimeTypes(),
+            'allowed_extensions' => self::getAllowedExtensions(),
         ];
     }
 
@@ -248,64 +293,32 @@ class MediaHelper
     }
 
     /**
-     * Get allowed MIME types for demo mode
-     * Only allows images, videos, PDFs, and documents
+     * @deprecated Use getAllowedMimeTypes(). Kept for backward compatibility.
+     *
+     * @return list<string>
      */
     public static function getAllowedMimeTypesForDemo(): array
     {
-        return [
-            // Images
-            'image/jpeg',
-            'image/jpg',
-            'image/png',
-            'image/gif',
-            'image/webp',
-            'image/svg+xml',
-            'image/bmp',
-            'image/tiff',
-
-            // Videos
-            'video/mp4',
-            'video/avi',
-            'video/quicktime',
-            'video/x-msvideo',
-            'video/webm',
-            'video/ogg',
-            'video/3gpp',
-            'video/x-ms-wmv',
-
-            // Audios
-            'audio/mpeg',
-            'audio/wav',
-            'audio/ogg',
-            'audio/aac',
-            'audio/flac',
-
-            // PDFs
-            'application/pdf',
-
-            // Documents
-            'application/msword', // .doc
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
-            'application/vnd.ms-excel', // .xls
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-            'application/vnd.ms-powerpoint', // .ppt
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
-            'text/plain', // .txt
-            'text/csv', // .csv
-            'application/rtf', // .rtf
-        ];
+        return self::getAllowedMimeTypes();
     }
 
     /**
-     * Check if a file type is allowed in demo mode
+     * MIME allowlist is always enforced, including when demo mode is off.
+     */
+    public static function isAllowedMimeType(?string $mimeType): bool
+    {
+        if (! is_string($mimeType) || $mimeType === '') {
+            return false;
+        }
+
+        return in_array($mimeType, self::getAllowedMimeTypes(), true);
+    }
+
+    /**
+     * @deprecated Use isAllowedMimeType(). MIME restrictions are no longer demo-only.
      */
     public static function isAllowedInDemoMode(string $mimeType): bool
     {
-        if (! config('app.demo_mode', false)) {
-            return true; // No restrictions when not in demo mode
-        }
-
-        return in_array($mimeType, self::getAllowedMimeTypesForDemo());
+        return self::isAllowedMimeType($mimeType);
     }
 }

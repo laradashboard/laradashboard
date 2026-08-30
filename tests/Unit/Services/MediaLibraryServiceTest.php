@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services;
 
+use App\Models\Media;
 use App\Models\Post;
 use App\Services\Builder\PostBuilderService;
 use App\Services\MediaLibraryService;
@@ -34,11 +35,37 @@ class MediaLibraryServiceTest extends TestCase
         @unlink(storage_path('app/public/media/existing-feature.png'));
         @unlink(storage_path('app/public/media/new-feature.png'));
         @unlink(storage_path('app/public/media/legacy-feature.png'));
+        @unlink(storage_path('app/public/media/stale-preview.png'));
+        @unlink(storage_path('app/public/media/library-preview.png'));
 
         parent::tearDown();
     }
 
-    private function createStandaloneMedia(string $fileName, string $name): SpatieMedia
+    public function test_standalone_media_with_stale_preview_conversion_serializes_safely(): void
+    {
+        $media = $this->createStandaloneMedia('stale-preview.png', 'Stale Preview');
+        $media->generated_conversions = ['preview' => true];
+        $media->save();
+
+        $serialized = $media->fresh()->toArray();
+
+        $this->assertArrayHasKey('preview_url', $serialized);
+        $this->assertStringContainsString('stale-preview.png', $serialized['preview_url']);
+    }
+
+    public function test_get_media_list_does_not_throw_for_stale_preview_conversion(): void
+    {
+        $media = $this->createStandaloneMedia('library-preview.png', 'Library Preview');
+        $media->generated_conversions = ['preview' => true];
+        $media->save();
+
+        $result = $this->service->getMediaList(perPage: 10);
+
+        $this->assertSame(1, $result['media']->total());
+        $this->assertStringContainsString('library-preview.png', $result['media']->first()->preview_url);
+    }
+
+    private function createStandaloneMedia(string $fileName, string $name): Media
     {
         $directory = storage_path('app/public/media');
 
@@ -48,7 +75,7 @@ class MediaLibraryServiceTest extends TestCase
 
         file_put_contents($directory . '/' . $fileName, 'fake-image-content');
 
-        return SpatieMedia::create([
+        return Media::create([
             'model_type' => '',
             'model_id' => 0,
             'uuid' => (string) Str::uuid(),

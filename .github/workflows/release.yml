@@ -1,0 +1,365 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - version.json
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Force release for this semver (without v prefix). Leave empty to use version.json.
+        required: false
+        type: string
+      skip_upgrade_tests:
+        description: Skip multi-site upgrade verification
+        required: false
+        default: false
+        type: boolean
+      deploy_production:
+        description: Deploy to production after tests pass
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: release-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  detect-version:
+    name: Detect Version Bump
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+      version: ${{ steps.check.outputs.version }}
+      tag: ${{ steps.check.outputs.tag }}
+      previous_version: ${{ steps.check.outputs.previous_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect version change
+        id: check
+        run: |
+          read_version() {
+            php -r 'echo json_decode(file_get_contents("version.json"), true)["version"];'
+          }
+
+          NEW_VERSION="$(read_version)"
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ github.event.inputs.version }}" ]]; then
+            NEW_VERSION="${{ github.event.inputs.version }}"
+          fi
+
+          if [[ ! "${NEW_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid semver in version.json: ${NEW_VERSION}"
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PREVIOUS_VERSION="0.0.0"
+          if git rev-parse HEAD~1 >/dev/null 2>&1 && git cat-file -e HEAD~1:version.json 2>/dev/null; then
+            PREVIOUS_VERSION="$(git show HEAD~1:version.json | php -r '$d=json_decode(file_get_contents("php://stdin"), true); echo $d["version"] ?? "0.0.0";')"
+          fi
+
+          TAG="v${NEW_VERSION}"
+
+          echo "New version: ${NEW_VERSION}"
+          echo "Previous version: ${PREVIOUS_VERSION}"
+          echo "Tag: ${TAG}"
+
+          SHOULD_RELEASE="true"
+
+          # Manual runs are explicit retries — do not require a version.json bump on main.
+          if [[ "${{ github.event_name }}" != "workflow_dispatch" ]]; then
+            if ! php -r "exit(version_compare('${NEW_VERSION}', '${PREVIOUS_VERSION}', '>') ? 0 : 1);"; then
+              echo "Version did not increase (${PREVIOUS_VERSION} -> ${NEW_VERSION}). Skipping release."
+              SHOULD_RELEASE="false"
+            fi
+          fi
+
+          git fetch --tags --force
+          if git rev-parse "${TAG}" >/dev/null 2>&1; then
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+              echo "Tag ${TAG} already exists — release will be retried (workflow_dispatch)."
+              SHOULD_RELEASE="true"
+            else
+              echo "Tag ${TAG} already exists. Skipping release."
+              SHOULD_RELEASE="false"
+            fi
+          fi
+
+          echo "should_release=${SHOULD_RELEASE}" >> "$GITHUB_OUTPUT"
+          echo "version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "previous_version=${PREVIOUS_VERSION}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build Release Package
+    needs: detect-version
+    if: needs.detect-version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, intl, zip, pdo, pdo_mysql, bcmath, gd, curl, xml, json, fileinfo, tokenizer, openssl
+          tools: composer
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install Composer dependencies (bootstrap artisan)
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Build distributable ZIP
+        run: |
+          php artisan core:zip --output="laradashboard-v${{ needs.detect-version.outputs.version }}.zip"
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: laradashboard-v${{ needs.detect-version.outputs.version }}
+          path: laradashboard-v${{ needs.detect-version.outputs.version }}.zip
+          retention-days: 30
+
+      - name: Create and push git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          TAG="${{ needs.detect-version.outputs.tag }}"
+          MESSAGE="Release ${TAG}"
+
+          git fetch --tags --force
+
+          if git rev-parse "${TAG}" >/dev/null 2>&1; then
+            echo "Updating existing tag ${TAG} to ${GITHUB_SHA}"
+            git tag -fa "${TAG}" -m "${MESSAGE}" "${GITHUB_SHA}"
+            git push -f origin "${TAG}"
+          else
+            git tag -a "${TAG}" -m "${MESSAGE}" "${GITHUB_SHA}"
+            git push origin "${TAG}"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.detect-version.outputs.tag }}
+          name: Release ${{ needs.detect-version.outputs.tag }}
+          generate_release_notes: true
+          files: laradashboard-v${{ needs.detect-version.outputs.version }}.zip
+          make_latest: true
+          overwrite_files: true
+
+  publish-marketplace:
+    name: Publish to Marketplace
+    needs: [detect-version, build]
+    if: needs.detect-version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release ZIP
+        uses: actions/download-artifact@v4
+        with:
+          name: laradashboard-v${{ needs.detect-version.outputs.version }}
+
+      - name: Publish release to LaraDashboard marketplace
+        env:
+          RELEASE_API_TOKEN: ${{ secrets.RELEASE_API_TOKEN }}
+          MARKETPLACE_URL: ${{ vars.MARKETPLACE_URL || 'https://laradashboard.com' }}
+        run: |
+          ZIP_FILE="laradashboard-v${{ needs.detect-version.outputs.version }}.zip"
+
+          curl --fail-with-body --show-error \
+            -X POST "${MARKETPLACE_URL}/api/internal/releases" \
+            -H "Authorization: Bearer ${RELEASE_API_TOKEN}" \
+            -H "Accept: application/json" \
+            -F "version=${{ needs.detect-version.outputs.version }}" \
+            -F "github_tag=${{ needs.detect-version.outputs.tag }}" \
+            -F "force=1" \
+            -F "zip=@${ZIP_FILE}"
+
+  upgrade-demo:
+    name: Upgrade Test — demo
+    needs: [detect-version, build, publish-marketplace]
+    if: ${{ needs.detect-version.outputs.should_release == 'true' && (github.event_name != 'workflow_dispatch' || github.event.inputs.skip_upgrade_tests != 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download release ZIP
+        uses: actions/download-artifact@v4
+        with:
+          name: laradashboard-v${{ needs.detect-version.outputs.version }}
+
+      - name: Configure SSH
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
+          DEMO_KEY: ${{ secrets.DEMO_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${DEMO_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          PORT="${DEMO_PORT:-65002}"
+          ssh-keyscan -p "${PORT}" -H "${DEMO_HOST}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Stage release ZIP on demo server
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_USER: ${{ secrets.DEMO_SSH_USER }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
+        run: |
+          PORT="${DEMO_PORT:-65002}"
+          REMOTE_ZIP="/tmp/laradashboard-v${{ needs.detect-version.outputs.version }}.zip"
+          scp -P "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "laradashboard-v${{ needs.detect-version.outputs.version }}.zip" \
+            "${DEMO_USER}@${DEMO_HOST}:${REMOTE_ZIP}"
+
+      - name: Run upgrade with verification
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_USER: ${{ secrets.DEMO_SSH_USER }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
+          DEMO_PATH: ${{ secrets.DEMO_APP_PATH }}
+          MARKETPLACE_URL: ${{ vars.MARKETPLACE_URL || 'https://laradashboard.com' }}
+        run: |
+          PORT="${DEMO_PORT:-65002}"
+          REMOTE_ZIP="/tmp/laradashboard-v${{ needs.detect-version.outputs.version }}.zip"
+          ssh -p "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${DEMO_USER}@${DEMO_HOST}" \
+            "APP_PATH='${DEMO_PATH}' UPGRADE_ZIP_PATH='${REMOTE_ZIP}' MARKETPLACE_URL='${MARKETPLACE_URL}' SKIP_BACKUP=1 bash -s -- '${{ needs.detect-version.outputs.version }}'" \
+            < deploy/deploy-upgrade.sh
+
+      - name: Remove staged ZIP from demo server
+        if: always()
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_USER: ${{ secrets.DEMO_SSH_USER }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
+        run: |
+          PORT="${DEMO_PORT:-65002}"
+          ssh -p "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${DEMO_USER}@${DEMO_HOST}" \
+            "rm -f /tmp/laradashboard-v${{ needs.detect-version.outputs.version }}.zip" || true
+
+      - name: Verify health endpoint
+        run: |
+          RESPONSE=$(curl --fail --silent "https://demo.laradashboard.com/api/health")
+          echo "${RESPONSE}"
+          echo "${RESPONSE}" | grep -q '"version":"${{ needs.detect-version.outputs.version }}"'
+
+  upgrade-marketplace:
+    name: Upgrade Test — marketplace
+    needs: [detect-version, publish-marketplace]
+    if: ${{ needs.detect-version.outputs.should_release == 'true' && (github.event_name != 'workflow_dispatch' || github.event.inputs.skip_upgrade_tests != 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          SSH_HOST: ${{ secrets.MARKETPLACE_SSH_HOST || secrets.DEMO_SSH_HOST }}
+          SSH_PORT: ${{ secrets.MARKETPLACE_SSH_PORT || secrets.DEMO_SSH_PORT }}
+          SSH_KEY: ${{ secrets.MARKETPLACE_SSH_KEY || secrets.DEMO_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${SSH_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          PORT="${SSH_PORT:-65002}"
+          ssh-keyscan -p "${PORT}" -H "${SSH_HOST}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Run upgrade with verification
+        env:
+          SSH_HOST: ${{ secrets.MARKETPLACE_SSH_HOST || secrets.DEMO_SSH_HOST }}
+          SSH_USER: ${{ secrets.MARKETPLACE_SSH_USER || secrets.DEMO_SSH_USER }}
+          SSH_PORT: ${{ secrets.MARKETPLACE_SSH_PORT || secrets.DEMO_SSH_PORT }}
+          APP_PATH: ${{ secrets.MARKETPLACE_APP_PATH }}
+        run: |
+          if [[ -z "${APP_PATH}" ]]; then
+            echo "MARKETPLACE_APP_PATH secret is missing."
+            exit 1
+          fi
+          PORT="${SSH_PORT:-65002}"
+          ssh -p "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${SSH_USER}@${SSH_HOST}" \
+            "APP_PATH='${APP_PATH}' bash -s -- '${{ needs.detect-version.outputs.version }}'" \
+            < deploy/deploy-upgrade.sh
+
+      - name: Verify health endpoint
+        run: |
+          RESPONSE=$(curl --fail --silent "https://laradashboard.com/api/health")
+          echo "${RESPONSE}"
+          echo "${RESPONSE}" | grep -q '"version":"${{ needs.detect-version.outputs.version }}"'
+
+  mark-release-verified:
+    name: Mark Release Verified
+    needs: [detect-version, upgrade-demo, upgrade-marketplace]
+    if: ${{ needs.detect-version.outputs.should_release == 'true' && (github.event_name != 'workflow_dispatch' || github.event.inputs.skip_upgrade_tests != 'true') && needs.upgrade-demo.result == 'success' && needs.upgrade-marketplace.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark release as verified on marketplace
+        env:
+          RELEASE_API_TOKEN: ${{ secrets.RELEASE_API_TOKEN }}
+          MARKETPLACE_URL: ${{ vars.MARKETPLACE_URL || 'https://laradashboard.com' }}
+        run: |
+          curl --fail-with-body --show-error \
+            -X POST "${MARKETPLACE_URL}/api/internal/releases/${{ needs.detect-version.outputs.version }}/verified" \
+            -H "Authorization: Bearer ${RELEASE_API_TOKEN}" \
+            -H "Accept: application/json"
+
+  deploy-production:
+    name: Deploy Production
+    needs: [detect-version, mark-release-verified]
+    if: ${{ needs.detect-version.outputs.should_release == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_production == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.PRODUCTION_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.PRODUCTION_SSH_PORT }}" -H "${{ secrets.PRODUCTION_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy production upgrade
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+          PRODUCTION_PORT: ${{ secrets.PRODUCTION_SSH_PORT }}
+          PRODUCTION_PATH: ${{ secrets.PRODUCTION_APP_PATH }}
+        run: |
+          ssh -p "${PRODUCTION_PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            "${PRODUCTION_USER}@${PRODUCTION_HOST}" \
+            "APP_PATH='${PRODUCTION_PATH}' bash -s -- '${{ needs.detect-version.outputs.version }}'" \
+            < deploy/deploy-upgrade.sh
+
+      - name: Mark release deployed
+        env:
+          RELEASE_API_TOKEN: ${{ secrets.RELEASE_API_TOKEN }}
+          MARKETPLACE_URL: ${{ vars.MARKETPLACE_URL || 'https://laradashboard.com' }}
+        run: |
+          curl --fail-with-body --show-error \
+            -X POST "${MARKETPLACE_URL}/api/internal/releases/${{ needs.detect-version.outputs.version }}/deployed" \
+            -H "Authorization: Bearer ${RELEASE_API_TOKEN}" \
+            -H "Accept: application/json"

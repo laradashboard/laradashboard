@@ -14,8 +14,21 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # Deny PHP-like files under uploaded media storage.
+    RewriteRule ^storage/.*\.(?i:php[0-9]*|phtml|pht|phar)$ - [F,L]
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    <If "%{REQUEST_URI} =~ m#^/storage/#">
+        Header set X-Content-Type-Options "nosniff"
+    </If>
+    <FilesMatch "(?i)\.svg$">
+        Header set X-Content-Type-Options "nosniff"
+        Header set Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox"
+    </FilesMatch>
 </IfModule>

@@ -25,78 +25,21 @@ jobs:
           extensions: mbstring, intl, zip, pdo, pdo_mysql, bcmath, gd, curl, xml, json, fileinfo, tokenizer, openssl
           tools: composer
 
-      - name: Verify PHP version
-        run: php -v
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
 
-      - name: Install Composer dependencies (production only)
-        run: composer install --no-dev --optimize-autoloader --no-interaction
-
-      - name: Install npm dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install
-
-      - name: Build assets
-        run: npm run build
-
-      - name: Create storage directories with .gitignore files
-        run: |
-          mkdir -p storage/app/public
-          mkdir -p storage/framework/cache/data
-          mkdir -p storage/framework/sessions
-          mkdir -p storage/framework/testing
-          mkdir -p storage/framework/views
-          mkdir -p storage/logs
-          mkdir -p bootstrap/cache
-          echo -e "*\n!.gitignore" > storage/app/.gitignore
-          echo -e "*\n!.gitignore" > storage/app/public/.gitignore
-          echo -e "*\n!.gitignore" > storage/framework/cache/.gitignore
-          echo -e "*\n!.gitignore" > storage/framework/sessions/.gitignore
-          echo -e "*\n!.gitignore" > storage/framework/testing/.gitignore
-          echo -e "*\n!.gitignore" > storage/framework/views/.gitignore
-          echo -e "*\n!.gitignore" > storage/logs/.gitignore
-
-      - name: Set proper permissions
-        run: |
-          chmod -R 755 storage
-          chmod -R 755 bootstrap/cache
-
       - name: Get version from version.json
         id: version
-        run: echo "VERSION=$(cat version.json | grep -o '"version": "[^"]*' | cut -d'"' -f4)" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(php -r 'echo json_decode(file_get_contents("version.json"), true)["version"];')" >> $GITHUB_OUTPUT
 
-      - name: Clean up development files
-        run: |
-          rm -rf node_modules
-          rm -rf .git
-          rm -rf .github
-          rm -rf demo-screenshots
-          rm -rf tests
-          rm -rf storage/debugbar
-          rm -rf storage/logs/*
-          rm -f CONTRIBUTING.md
-          rm -f Coding-Standard.md
-          rm -f phpunit.xml
-          rm -f pint.json
-          rm -f rector.php
-          rm -f phpstan.neon
-          rm -f eslint.config.js
+      - name: Install Composer dependencies (bootstrap artisan)
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Generate distribution zip
-        run: |
-          cd ..
-          zip -r laradashboard-v${{ steps.version.outputs.VERSION }}.zip laradashboard/ \
-            -x "laradashboard/.env" \
-            -x "laradashboard/public/images/uploads/*" \
-            -x "laradashboard/public/uploads/*" \
-            -x "*.DS_Store"
-          mv laradashboard-v${{ steps.version.outputs.VERSION }}.zip laradashboard/
+      - name: Build distributable ZIP via core:zip
+        run: php artisan core:zip --output="laradashboard-v${{ steps.version.outputs.VERSION }}.zip"
 
       - name: Upload Zip
         uses: actions/upload-artifact@v4
