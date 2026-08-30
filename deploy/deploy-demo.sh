@@ -11,7 +11,9 @@
 #   PHP_BIN         — php binary (default: php)
 #   COMPOSER_BIN    — composer binary (default: composer)
 #   NPM_BIN         — npm binary (default: npm)
-#   SKIP_NPM_BUILD  — set to 1 to skip npm build (default: 0)
+#   SKIP_NPM_BUILD  — set to 0 to run npm ci + build (default: 1)
+#                     Built assets live in public/build and are committed to git.
+#                     Hostinger shared hosting cannot reliably run Vite.
 #
 set -euo pipefail
 
@@ -22,7 +24,7 @@ PHP_BIN="${PHP_BIN:-php}"
 [[ -n "${PHP_BIN}" ]] || PHP_BIN=php
 COMPOSER_BIN="${COMPOSER_BIN:-composer}"
 NPM_BIN="${NPM_BIN:-npm}"
-SKIP_NPM_BUILD="${SKIP_NPM_BUILD:-0}"
+SKIP_NPM_BUILD="${SKIP_NPM_BUILD:-1}"
 
 detect_php_binary() {
   local candidate
@@ -60,7 +62,12 @@ git reset --hard "${GIT_REMOTE}/${GIT_BRANCH}"
 
 ${PHP_BIN} $(command -v "${COMPOSER_BIN}") install --no-dev --optimize-autoloader --no-interaction
 
-if [[ "${SKIP_NPM_BUILD}" != "1" ]]; then
+if [[ "${SKIP_NPM_BUILD}" == "1" ]]; then
+  echo "==> Skipping npm build (using committed public/build assets)"
+elif [[ -f public/build/manifest.json ]]; then
+  echo "==> Skipping npm build (public/build/manifest.json already present)"
+else
+  echo "==> Building frontend assets"
   ${NPM_BIN} ci
   ${NPM_BIN} run build
 fi

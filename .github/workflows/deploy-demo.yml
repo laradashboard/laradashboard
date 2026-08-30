@@ -54,7 +54,7 @@ jobs:
             echo "DEMO_SSH_HOST or DEMO_SSH_USER secret is missing."
             exit 1
           fi
-          REMOTE_ENV="APP_PATH='${DEMO_PATH}' GIT_BRANCH=develop"
+          REMOTE_ENV="APP_PATH='${DEMO_PATH}' GIT_BRANCH=develop SKIP_NPM_BUILD=1"
           if [[ -n "${DEMO_PHP_BIN}" ]]; then
             REMOTE_ENV="${REMOTE_ENV} PHP_BIN='${DEMO_PHP_BIN}'"
           fi

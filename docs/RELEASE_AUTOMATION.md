@@ -194,6 +194,8 @@ Add these as **Repository secrets** (Settings → Secrets and variables → Acti
 | `DEMO_APP_PATH` | App root on server |
 | `DEMO_PHP_BIN` | `/opt/alt/php83/usr/bin/php` (Hostinger PHP 8.3 CLI) |
 
+Demo deploy skips `npm run build` on the server — **built assets are committed** in `public/build/`. Run `npm run build` locally (or in CI) before pushing when you change frontend files.
+
 Demo server `.env`:
 
 ```env
