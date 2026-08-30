@@ -41,6 +41,14 @@ jobs:
           DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
           DEMO_PATH: ${{ secrets.DEMO_APP_PATH }}
         run: |
+          if [[ -z "${DEMO_PORT}" ]]; then
+            echo "DEMO_SSH_PORT secret is missing. Set it to 65002 for Hostinger."
+            exit 1
+          fi
+          if [[ -z "${DEMO_PATH}" ]]; then
+            echo "DEMO_APP_PATH secret is missing."
+            exit 1
+          fi
           ssh -p "${DEMO_PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
             "${DEMO_USER}@${DEMO_HOST}" \
             "APP_PATH='${DEMO_PATH}' GIT_BRANCH=develop bash -s" < deploy/deploy-demo.sh
