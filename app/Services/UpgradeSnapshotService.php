@@ -120,7 +120,7 @@ class UpgradeSnapshotService
     /**
      * Run verification checks against the current installation.
      *
-     * @return array{passed: bool, checks: array<int, array<string, mixed>>}
+     * @return array{passed: bool, checks: array<int, array<string, mixed>>, snapshot: array<string, mixed>}
      */
     public function verify(?array $beforeSnapshot = null, ?string $expectedVersion = null): array
     {
