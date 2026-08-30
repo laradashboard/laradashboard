@@ -28,11 +28,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure SSH
+        env:
+          DEMO_HOST: ${{ secrets.DEMO_SSH_HOST }}
+          DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
         run: |
           install -m 700 -d ~/.ssh
           echo "${{ secrets.DEMO_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "${{ secrets.DEMO_SSH_PORT }}" -H "${{ secrets.DEMO_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+          PORT="${DEMO_PORT:-65002}"
+          ssh-keyscan -p "${PORT}" -H "${DEMO_HOST}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Deploy develop branch
         env:
@@ -41,15 +45,16 @@ jobs:
           DEMO_PORT: ${{ secrets.DEMO_SSH_PORT }}
           DEMO_PATH: ${{ secrets.DEMO_APP_PATH }}
         run: |
-          if [[ -z "${DEMO_PORT}" ]]; then
-            echo "DEMO_SSH_PORT secret is missing. Set it to 65002 for Hostinger."
-            exit 1
-          fi
+          PORT="${DEMO_PORT:-65002}"
           if [[ -z "${DEMO_PATH}" ]]; then
             echo "DEMO_APP_PATH secret is missing."
             exit 1
           fi
-          ssh -p "${DEMO_PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+          if [[ -z "${DEMO_HOST}" || -z "${DEMO_USER}" ]]; then
+            echo "DEMO_SSH_HOST or DEMO_SSH_USER secret is missing."
+            exit 1
+          fi
+          ssh -p "${PORT}" -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
             "${DEMO_USER}@${DEMO_HOST}" \
             "APP_PATH='${DEMO_PATH}' GIT_BRANCH=develop bash -s" < deploy/deploy-demo.sh
 
