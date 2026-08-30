@@ -12,6 +12,8 @@
 #   PHP_BIN          — php binary (default: php)
 #   SKIP_BACKUP      — set to 1 to pass --no-backup to core:upgrade
 #   ROLLBACK_ON_FAIL — set to 1 to restore latest backup if verify fails (default: 1)
+#   UPGRADE_ZIP_PATH — use a local ZIP instead of downloading from marketplace (CI/demo)
+#   MARKETPLACE_URL  — override marketplace base URL for HTTP downloads
 #
 set -euo pipefail
 
@@ -111,6 +113,9 @@ else
 fi
 
 echo "==> Upgrading core to v${VERSION}"
+if [[ -n "${UPGRADE_ZIP_PATH:-}" ]]; then
+  echo "==> Using pre-staged ZIP at ${UPGRADE_ZIP_PATH}"
+fi
 if artisan_has "core:upgrade"; then
   UPGRADE_ARGS=(artisan core:upgrade "${VERSION}" --force)
 
