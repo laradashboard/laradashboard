@@ -5,7 +5,7 @@ import { LaraHooks } from '../hooks-system/LaraHooks';
 import { BuilderHooks } from '../hooks-system/HookNames';
 import { __ } from '@lara-builder/i18n';
 
-const DraggableBlockItem = ({ block, onAddBlock }) => {
+const DraggableBlockItem = ({ block, onAddBlock, isActive = false }) => {
     const [wasDragged, setWasDragged] = useState(false);
     const mouseDownPos = useRef(null);
 
@@ -52,13 +52,19 @@ const DraggableBlockItem = ({ block, onAddBlock }) => {
         <div
             ref={setNodeRef}
             style={style}
+            data-block-type={block.type}
             {...listeners}
             {...attributes}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onClick={handleClick}
-            className="flex flex-col items-center justify-center p-2 bg-white border border-gray-200 rounded-lg cursor-grab hover:border-primary hover:bg-primary/10 transition-colors active:cursor-grabbing"
+            className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-grab transition-colors active:cursor-grabbing border ${
+                isActive
+                    ? 'bg-primary/10 border-primary'
+                    : 'bg-white border-gray-200 hover:border-primary hover:bg-primary/10'
+            }`}
             title={__(block.label)}
+            aria-current={isActive ? 'true' : undefined}
         >
             <iconify-icon icon={block.icon} width="24" height="24" class="text-primary"></iconify-icon>
             <span className="text-[10px] text-gray-600 font-medium mt-1 text-center leading-tight">{__(block.label)}</span>
@@ -66,9 +72,10 @@ const DraggableBlockItem = ({ block, onAddBlock }) => {
     );
 };
 
-const BlockPanel = ({ onAddBlock, context = null }) => {
+const BlockPanel = ({ onAddBlock, context = null, selectedBlockType = null }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [blockVersion, setBlockVersion] = useState(0);
+    const blocksListRef = useRef(null);
 
     // Listen for new blocks being registered
     useEffect(() => {
@@ -121,6 +128,24 @@ const BlockPanel = ({ onAddBlock, context = null }) => {
         return categories.filter(cat => categoriesWithBlocks.has(cat));
     }, [categories, filteredBlocks, searchQuery]);
 
+    const scrollActiveBlockIntoView = useCallback(() => {
+        if (!selectedBlockType || !blocksListRef.current) {
+            return;
+        }
+
+        const activeItem = blocksListRef.current.querySelector(
+            `[data-block-type="${selectedBlockType}"]`
+        );
+
+        if (activeItem) {
+            activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, [selectedBlockType]);
+
+    useEffect(() => {
+        scrollActiveBlockIntoView();
+    }, [scrollActiveBlockIntoView, filteredBlocks]);
+
     return (
         <div className="h-full flex flex-col overflow-hidden">
             {/* Search input */}
@@ -151,7 +176,7 @@ const BlockPanel = ({ onAddBlock, context = null }) => {
             </div>
 
             {/* Blocks list */}
-            <div className="flex-1 overflow-y-auto">
+            <div ref={blocksListRef} className="flex-1 overflow-y-auto">
                 {filteredCategories.length === 0 ? (
                     <div className="text-center py-8 text-gray-400">
                         <iconify-icon icon="mdi:package-variant" width="32" height="32" class="mb-2 opacity-50"></iconify-icon>
@@ -169,7 +194,12 @@ const BlockPanel = ({ onAddBlock, context = null }) => {
                                 </h4>
                                 <div className="grid grid-cols-3 gap-1.5">
                                     {categoryBlocks.map(block => (
-                                        <DraggableBlockItem key={block.type} block={block} onAddBlock={onAddBlock} />
+                                        <DraggableBlockItem
+                                            key={block.type}
+                                            block={block}
+                                            onAddBlock={onAddBlock}
+                                            isActive={selectedBlockType === block.type}
+                                        />
                                     ))}
                                 </div>
                             </div>

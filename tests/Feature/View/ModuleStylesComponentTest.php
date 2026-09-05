@@ -93,3 +93,50 @@ it('emits a developer hint in debug mode when assets are missing', function () {
         ->toContain('[module-styles]')
         ->toContain($build);
 });
+
+it('renders when the manifest uses legacy short entry keys', function () {
+    forceViteNotHot();
+    $build = 'build-legacy-'.uniqid();
+    $dir = public_path($build);
+    File::ensureDirectoryExists($dir);
+    File::put("{$dir}/manifest.json", json_encode([
+        'resources/assets/css/app.css' => [
+            'file' => 'assets/app-legacy.css',
+            'src' => 'resources/assets/css/app.css',
+            'isEntry' => true,
+        ],
+    ]));
+
+    try {
+        $html = renderModuleStyles(['modules/Test/resources/assets/css/app.css'], $build);
+
+        expect($html)
+            ->toContain("/{$build}/assets/app-legacy.css")
+            ->toContain('rel="stylesheet"');
+    } finally {
+        File::deleteDirectory($dir);
+    }
+});
+
+it('degrades gracefully when manifest exists but entry keys do not match', function () {
+    forceViteNotHot();
+    config()->set('app.debug', true);
+    $build = 'build-mismatch-'.uniqid();
+    $dir = public_path($build);
+    File::ensureDirectoryExists($dir);
+    File::put("{$dir}/manifest.json", json_encode([
+        'totally/unrelated.css' => [
+            'file' => 'assets/unrelated.css',
+            'src' => 'totally/unrelated.css',
+            'isEntry' => true,
+        ],
+    ]));
+
+    try {
+        $html = renderModuleStyles(['modules/Test/resources/assets/css/app.css'], $build);
+
+        expect($html)->toContain('[module-styles]');
+    } finally {
+        File::deleteDirectory($dir);
+    }
+});

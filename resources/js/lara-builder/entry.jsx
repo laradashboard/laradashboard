@@ -29,6 +29,7 @@ import { registerModularBlocks } from "./blocks/blockLoader";
 
 // Import and initialize translations
 import { initTranslations } from "./i18n";
+import { parseSaveErrorResponse } from "./core/saveError";
 
 // Register all modular blocks (new architecture with block.json, editor.jsx)
 // Each block includes component + propertyEditor
@@ -89,11 +90,11 @@ function initLaraBuilder(elementId = "lara-builder-root") {
             body: JSON.stringify(data),
         });
 
-        const responseData = await response.json();
-
         if (!response.ok) {
-            throw new Error(responseData.message || "Failed to save");
+            throw new Error(await parseSaveErrorResponse(response));
         }
+
+        const responseData = await response.json();
 
         // If a redirect URL was provided, use it after save
         // This allows any module to pass a return URL

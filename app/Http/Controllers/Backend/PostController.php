@@ -681,7 +681,8 @@ class PostController extends Controller
 
         // Update post.
         $post->title = $data['title'];
-        $post->slug = $data['slug'] ?? Str::slug($data['title']);
+        $baseSlug = $data['slug'] ?? Str::slug($data['title']);
+        $post->slug = $this->generateUniqueSlug($baseSlug, $post->id);
         $post->content = $data['content'] ?? '';
         $post->design_json = $data['design_json'] ?? null;
         $post->excerpt = $this->postBuilderService->resolveExcerpt($data['excerpt'] ?? null, $data['content'] ?? null);

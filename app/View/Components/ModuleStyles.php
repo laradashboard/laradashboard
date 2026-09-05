@@ -77,17 +77,25 @@ class ModuleStyles extends Component
         // while sharing its hot-file so both agree we are not running hot.
         $manifest = $this->resolveManifestFilename();
 
-        if ($manifest !== null) {
-            $this->tags = (new Vite())
-                ->useHotFile($vite->hotFile())
-                ->useBuildDirectory($this->build)
-                ->useManifestFilename($manifest)
-                ->__invoke($this->entrypoints);
+        if ($manifest === null) {
+            $this->hint = $this->buildHint();
 
             return;
         }
 
-        $this->hint = $this->buildHint();
+        $entrypoints = $this->resolveManifestEntrypoints($manifest);
+
+        if ($entrypoints === null) {
+            $this->hint = $this->buildHint();
+
+            return;
+        }
+
+        $this->tags = (new Vite())
+            ->useHotFile($vite->hotFile())
+            ->useBuildDirectory($this->build)
+            ->useManifestFilename($manifest)
+            ->__invoke($entrypoints);
     }
 
     /**
@@ -103,6 +111,56 @@ class ModuleStyles extends Component
             if (is_file(public_path($this->build.'/'.$candidate))) {
                 return $candidate;
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Map requested entry points to keys present in the module manifest.
+     *
+     * Older dev builds sometimes emit `resources/assets/...` keys while Blade
+     * templates reference `modules/{Module}/resources/assets/...`. Accept both.
+     *
+     * @return list<string>|null Resolved keys, or null when any entry is missing.
+     */
+    protected function resolveManifestEntrypoints(string $manifestFilename): ?array
+    {
+        $manifestPath = public_path($this->build.'/'.$manifestFilename);
+        $manifest = json_decode((string) file_get_contents($manifestPath), true);
+
+        if (! is_array($manifest)) {
+            return null;
+        }
+
+        $resolved = [];
+
+        foreach ($this->entrypoints as $entrypoint) {
+            $key = $this->resolveManifestEntrypointKey($manifest, $entrypoint);
+
+            if ($key === null) {
+                return null;
+            }
+
+            $resolved[] = $key;
+        }
+
+        return $resolved;
+    }
+
+    /**
+     * @param  array<string, mixed>  $manifest
+     */
+    protected function resolveManifestEntrypointKey(array $manifest, string $entrypoint): ?string
+    {
+        if (isset($manifest[$entrypoint])) {
+            return $entrypoint;
+        }
+
+        $shortEntrypoint = preg_replace('#^modules/[^/]+/#', '', $entrypoint);
+
+        if (is_string($shortEntrypoint) && isset($manifest[$shortEntrypoint])) {
+            return $shortEntrypoint;
         }
 
         return null;

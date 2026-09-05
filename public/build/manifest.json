@@ -1,17 +1,17 @@
 {
-  "_index-Bic5jYdw.js": {
-    "file": "assets/index-Bic5jYdw.js",
-    "name": "index",
+  "_saveError-KmpSBVaw.css": {
+    "file": "assets/saveError-KmpSBVaw.css",
+    "src": "_saveError-KmpSBVaw.css"
+  },
+  "_saveError-giq9y5WI.js": {
+    "file": "assets/saveError-giq9y5WI.js",
+    "name": "saveError",
     "css": [
-      "assets/index-Bn1b7qW6.css"
+      "assets/saveError-KmpSBVaw.css"
     ]
   },
-  "_index-Bn1b7qW6.css": {
-    "file": "assets/index-Bn1b7qW6.css",
-    "src": "_index-Bn1b7qW6.css"
-  },
   "resources/css/app.css": {
-    "file": "assets/app-CgefqwkF.css",
+    "file": "assets/app-Zno7SQrM.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -29,21 +29,21 @@
     ]
   },
   "resources/js/lara-builder/entry.jsx": {
-    "file": "assets/entry-wnPXhULC.js",
+    "file": "assets/entry-BlcWnLN7.js",
     "name": "entry",
     "src": "resources/js/lara-builder/entry.jsx",
     "isEntry": true,
     "imports": [
-      "_index-Bic5jYdw.js"
+      "_saveError-giq9y5WI.js"
     ]
   },
   "resources/js/lara-builder/post-entry.jsx": {
-    "file": "assets/post-entry-CjAinZ3I.js",
+    "file": "assets/post-entry-GxthKMed.js",
     "name": "post-entry",
     "src": "resources/js/lara-builder/post-entry.jsx",
     "isEntry": true,
     "imports": [
-      "_index-Bic5jYdw.js"
+      "_saveError-giq9y5WI.js"
     ],
     "css": [
       "assets/post-entry-TC8QQP5f.css"

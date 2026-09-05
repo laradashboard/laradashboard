@@ -28,6 +28,7 @@ import "./adapters";
 
 // Import and initialize translations
 import { initTranslations } from "./i18n";
+import { parseSaveErrorResponse } from "./core/saveError";
 import "@lara-builder/styles/content-tokens.css";
 
 // Register all modular blocks (new architecture with block.json, editor.jsx)
@@ -156,8 +157,7 @@ if (container) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || "Failed to save");
+            throw new Error(await parseSaveErrorResponse(response));
         }
 
         return await response.json();

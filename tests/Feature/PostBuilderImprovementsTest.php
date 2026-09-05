@@ -302,4 +302,93 @@ class PostBuilderImprovementsTest extends TestCase
         $resaveResponse->assertOk();
         $this->assertSame(1, SpatieMedia::count());
     }
+
+    public function test_builder_update_persists_list_block_with_edited_items(): void
+    {
+        $post = Post::factory()->create([
+            'title' => 'Dashboard in 2026?',
+            'post_type' => 'post',
+            'status' => PostStatus::DRAFT->value,
+            'user_id' => $this->admin->id,
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->putJson("/admin/posts/post/{$post->id}", [
+                'title' => 'Dashboard in 2026?',
+                'slug' => $post->slug,
+                'status' => PostStatus::DRAFT->value,
+                'excerpt' => '',
+                'content' => '<div data-lara-block="list"></div>',
+                'design_json' => [
+                    'blocks' => [[
+                        'id' => 'block-list-1',
+                        'type' => 'list',
+                        'props' => [
+                            'items' => [
+                                'This is th first item',
+                                'This is the Second item',
+                                'Third list item',
+                            ],
+                            'listType' => 'bullet',
+                            'color' => '',
+                            'fontSize' => '16px',
+                            'iconColor' => '',
+                        ],
+                    ]],
+                    'canvasSettings' => [],
+                    'version' => 1,
+                ],
+                'seo_title' => '',
+                'seo_description' => '',
+                'seo_keywords' => '',
+                'seo_og_title' => '',
+                'seo_og_description' => '',
+                'seo_canonical' => '',
+                'seo_noindex' => false,
+                'seo_nofollow' => false,
+                'seo_schema_type' => '',
+            ]);
+
+        $response->assertOk()->assertJsonPath('success', true);
+
+        $post->refresh();
+
+        $this->assertSame('list', $post->design_json['blocks'][0]['type'] ?? null);
+        $this->assertSame(
+            ['This is th first item', 'This is the Second item', 'Third list item'],
+            $post->design_json['blocks'][0]['props']['items'] ?? []
+        );
+    }
+
+    public function test_builder_update_avoids_slug_collision_with_other_posts(): void
+    {
+        Post::factory()->create([
+            'title' => 'Existing Post',
+            'slug' => 'shared-title',
+            'post_type' => 'post',
+            'status' => PostStatus::DRAFT->value,
+            'user_id' => $this->admin->id,
+        ]);
+
+        $post = Post::factory()->create([
+            'title' => 'Another Post',
+            'slug' => 'another-post',
+            'post_type' => 'post',
+            'status' => PostStatus::DRAFT->value,
+            'user_id' => $this->admin->id,
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->putJson("/admin/posts/post/{$post->id}", [
+                'title' => 'Shared Title',
+                'content' => '<p>Updated</p>',
+                'status' => PostStatus::DRAFT->value,
+            ]);
+
+        $response->assertOk();
+
+        $post->refresh();
+
+        $this->assertSame('shared-title-1', $post->slug);
+    }
 }

@@ -102,9 +102,10 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
     // This ensures consistent output between canvas preview and HTML export.
 
     const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
+        transform: CSS.Translate.toString(transform),
+        transition: isDragging ? undefined : transition,
+        opacity: isDragging ? 0 : 1,
+        pointerEvents: isDragging ? "none" : undefined,
     };
 
     // Build block classes (lb-block lb-{type} + custom class)
@@ -200,7 +201,7 @@ const SortableBlock = ({ block, selectedBlockId, onSelect, onUpdate, onDelete, o
         <div
             ref={setRefs}
             style={style}
-            className={`${blockClasses} relative group ${cursorClass} ${isDragging ? 'z-50' : ''} ${isSelected ? 'lb-block-selected' : ''}`}
+            className={`${blockClasses} relative group ${cursorClass} ${isDragging ? "z-0" : ""} ${isSelected && !isDragging ? "lb-block-selected" : ""}`}
             data-block-type={block.type}
             onClick={(e) => {
                 e.stopPropagation();
