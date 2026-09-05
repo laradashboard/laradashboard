@@ -14,7 +14,7 @@
  * const { state, dispatch, actions } = useBuilder();
  */
 
-import React, { createContext, useContext, useReducer, useCallback, useMemo, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo, useEffect, useRef } from 'react';
 import { builderReducer, initialState, actions as actionCreators, createDefaultTextBlock } from './BuilderReducer';
 import { pendingCursors } from './pendingCursors';
 import { LaraHooks } from '../hooks-system/LaraHooks';
@@ -97,8 +97,18 @@ export function BuilderProvider({
         return state;
     }, [context, config, initialData, defaultSettings]);
 
+    // Keep a synchronous state ref so save can read fresh blocks after flushSync.
+    const stateRef = useRef(preparedInitialState);
+
+    const reducerWithRef = useCallback((currentState, action) => {
+        const nextState = builderReducer(currentState, action);
+        stateRef.current = nextState;
+
+        return nextState;
+    }, []);
+
     // Initialize reducer
-    const [state, dispatch] = useReducer(builderReducer, preparedInitialState);
+    const [state, dispatch] = useReducer(reducerWithRef, preparedInitialState);
 
     // Notify on state changes
     useEffect(() => {
@@ -252,6 +262,29 @@ export function BuilderProvider({
         return data;
     }, [state.blocks, state.canvasSettings, context]);
 
+    /**
+     * Read save payload from the latest reducer state (safe inside flushSync).
+     */
+    const getSaveDataImmediate = useCallback(() => {
+        let data = {
+            blocks: stateRef.current.blocks,
+            canvasSettings: stateRef.current.canvasSettings,
+            version: 1,
+        };
+
+        data = LaraHooks.applyFilters(BuilderHooks.FILTER_STATE_BEFORE_SAVE, data, context);
+
+        return data;
+    }, [context]);
+
+    const getHtmlImmediate = useCallback(() => {
+        return OutputAdapterRegistry.generateHtml(
+            context,
+            stateRef.current.blocks,
+            stateRef.current.canvasSettings
+        );
+    }, [context]);
+
     // ========================================
     // Context value
     // ========================================
@@ -278,6 +311,8 @@ export function BuilderProvider({
             getSelectedBlock,
             findBlockById,
             getSaveData,
+            getSaveDataImmediate,
+            getHtmlImmediate,
 
             // Context info
             context,
@@ -295,6 +330,8 @@ export function BuilderProvider({
             getSelectedBlock,
             findBlockById,
             getSaveData,
+            getSaveDataImmediate,
+            getHtmlImmediate,
             context,
             config,
         ]

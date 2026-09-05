@@ -8,6 +8,7 @@ import {
     normalizeHexColor,
     resolvePageTextColor,
 } from "@lara-builder/tokens/contentTokens";
+import { registerSaveFlush } from "../../core/pendingSaveFlush";
 
 const DEFAULT_ITEMS = ["List item"];
 /** Legacy default that should follow list text color instead of primary. */
@@ -132,6 +133,8 @@ export default function ListBlock({
             onUpdateRef.current({ ...propsRef.current, items: finalItems });
         }
     }, [extractItemsFromEditor]);
+
+    useEffect(() => registerSaveFlush(saveItems), [saveItems]);
 
     const handleKeyDown = useCallback((e) => {
         const isMod = e.ctrlKey || e.metaKey;
@@ -263,28 +266,23 @@ export default function ListBlock({
 
     if (isSelected) {
         return (
-            <div style={containerStyle} data-text-editing="true">
-                <ListTag
-                    ref={editorRef}
-                    className={listClassName}
-                    contentEditable
-                    suppressContentEditableWarning
-                    onInput={saveItems}
-                    onBlur={saveItems}
-                    onKeyDown={handleKeyDown}
-                    style={{
-                        ...listStyle,
-                        paddingLeft: listType === "check" ? "8px" : "32px",
-                        paddingTop: "8px",
-                        paddingRight: "8px",
-                        paddingBottom: "8px",
-                        border: "2px solid var(--color-primary, #635bff)",
-                        borderRadius: "4px",
-                        outline: "none",
-                        background: "white",
-                        minHeight: "40px",
-                    }}
-                />
+            <div style={containerStyle}>
+                <div data-text-editing="true">
+                    <ListTag
+                        ref={editorRef}
+                        className={listClassName}
+                        contentEditable
+                        suppressContentEditableWarning
+                        onInput={saveItems}
+                        onBlur={saveItems}
+                        onKeyDown={handleKeyDown}
+                        style={{
+                            ...listStyle,
+                            outline: "none",
+                            minHeight: "40px",
+                        }}
+                    />
+                </div>
             </div>
         );
     }

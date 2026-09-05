@@ -52,7 +52,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
             'line-height: 1.8',
             'font-family: Arial, Helvetica, sans-serif',
             'margin: 0',
-            'padding-left: 24px',
+            'padding-left: 12px',
         ];
 
         $layoutCSS = \App\Helpers\EmailStyleHelper::buildLayoutStyles($layoutStyles);

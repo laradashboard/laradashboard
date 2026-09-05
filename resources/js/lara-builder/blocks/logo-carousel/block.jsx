@@ -41,10 +41,7 @@ const LogoCarouselBlock = ({ props, isSelected, onUpdate }) => {
     };
 
     return (
-        <div
-            className={`transition-all rounded-lg ${isSelected ? "ring-2 ring-primary ring-offset-2" : ""}`}
-            style={containerStyle}
-        >
+        <div className="transition-all rounded-lg" style={containerStyle}>
             {/* Heading */}
             {headingText && (
                 <p

@@ -13,9 +13,10 @@
     margin: 0;
 }
 
+/* 12px matches table block cell padding (8px wrapper + 12px inset). */
 .lb-page-content .lb-list:not(.lb-list-check),
 .lb-builder-canvas .lb-list:not(.lb-list-check) {
-    padding-left: 24px;
+    padding-left: 12px;
 }
 
 .lb-page-content .lb-list-check,

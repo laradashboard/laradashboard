@@ -456,6 +456,16 @@ describe('renderBlock', function () {
         expect($html)->toBe('');
     });
 
+    test('email list render uses table-aligned padding-left', function () {
+        $render = require resource_path('js/lara-builder/blocks/list/render.php');
+        $html = $render([
+            'items' => ['Item A'],
+            'listType' => 'bullet',
+        ], 'email');
+
+        expect($html)->toContain('padding-left: 12px');
+    });
+
     test('renders quote block correctly', function () {
         $block = $this->blockService->quote('Great quote', 'John Doe', 'CEO');
         $html = $this->blockService->renderBlock($block);

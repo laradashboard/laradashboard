@@ -11,7 +11,7 @@ import BlockPanel from "./BlockPanel";
 /**
  * Left Sidebar - Block Palette (Desktop)
  */
-export function LeftSidebar({ collapsed, setCollapsed, onAddBlock, context }) {
+export function LeftSidebar({ collapsed, setCollapsed, onAddBlock, context, selectedBlockType }) {
     if (collapsed) {
         return (
             <div className="flex flex-col items-center py-4">
@@ -57,7 +57,7 @@ export function LeftSidebar({ collapsed, setCollapsed, onAddBlock, context }) {
                     ></iconify-icon>
                 </button>
             </div>
-            <BlockPanel onAddBlock={onAddBlock} context={context} />
+            <BlockPanel onAddBlock={onAddBlock} context={context} selectedBlockType={selectedBlockType} />
         </div>
     );
 }
@@ -124,7 +124,7 @@ export function RightSidebar({
 /**
  * Left Drawer - Block Palette (Mobile)
  */
-export function LeftDrawer({ isOpen, onClose, onAddBlock, context }) {
+export function LeftDrawer({ isOpen, onClose, onAddBlock, context, selectedBlockType }) {
     if (!isOpen) return null;
 
     return (
@@ -152,6 +152,7 @@ export function LeftDrawer({ isOpen, onClose, onAddBlock, context }) {
                             onClose();
                         }}
                         context={context}
+                        selectedBlockType={selectedBlockType}
                     />
                 </div>
             </div>

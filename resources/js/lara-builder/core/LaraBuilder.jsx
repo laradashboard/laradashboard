@@ -33,6 +33,7 @@
  */
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { flushSync } from "react-dom";
 import {
     DndContext,
     DragOverlay,
@@ -49,6 +50,7 @@ import { usePostState } from "./hooks/usePostState";
 import { useBlockOperations } from "./hooks/useBlockOperations";
 import { useDragAndDrop } from "./hooks/useDragAndDrop";
 import { useAutoSave, shouldAutoSavePost } from "./hooks/useAutoSave";
+import { flushPendingEdits } from "./pendingSaveFlush";
 import { LaraHooks } from "../hooks-system/LaraHooks";
 import { BuilderHooks } from "../hooks-system/HookNames";
 import { blockRegistry } from "../registry/BlockRegistry";
@@ -56,6 +58,7 @@ import { __ } from "@lara-builder/i18n";
 
 // Import components
 import Canvas from "../components/Canvas";
+import CanvasBlockDragPreview from "../components/CanvasBlockDragPreview";
 import PropertiesPanel from "../components/PropertiesPanel";
 import Toast from "../components/Toast";
 import CodeEditor from "../components/CodeEditor";
@@ -99,6 +102,8 @@ function LaraBuilderInner({
         redo,
         getHtml,
         getSaveData,
+        getSaveDataImmediate,
+        getHtmlImmediate,
         context,
     } = useBuilder();
 
@@ -615,8 +620,15 @@ function LaraBuilderInner({
             setSaving(true);
 
             try {
-                const html = editorMode === "code" ? codeEditorHtml : getHtml();
-                const designJson = getSaveData();
+                flushSync(() => {
+                    flushPendingEdits();
+                });
+
+                const html =
+                    editorMode === "code"
+                        ? codeEditorHtml
+                        : getHtmlImmediate();
+                const designJson = getSaveDataImmediate();
 
                 let saveData = {};
 
@@ -775,6 +787,8 @@ function LaraBuilderInner({
             codeEditorHtml,
             getHtml,
             getSaveData,
+            getSaveDataImmediate,
+            getHtmlImmediate,
             templateSubject,
             templateStatus,
             selectedTerms,
@@ -1076,6 +1090,7 @@ function LaraBuilderInner({
                             setCollapsed={setLeftSidebarCollapsed}
                             onAddBlock={handleAddBlock}
                             context={context}
+                            selectedBlockType={selectedBlock?.type ?? null}
                         />
                     </div>
 
@@ -1085,6 +1100,7 @@ function LaraBuilderInner({
                         onClose={() => setLeftDrawerOpen(false)}
                         onAddBlock={handleAddBlock}
                         context={context}
+                        selectedBlockType={selectedBlock?.type ?? null}
                     />
 
                     {/* Canvas or Code Editor based on mode */}
@@ -1156,8 +1172,8 @@ function LaraBuilderInner({
             </div>
 
             {/* Drag overlay */}
-            <DragOverlay>
-                {activeId && activeId.toString().startsWith("palette-") && (
+            <DragOverlay dropAnimation={null}>
+                {activeId && activeId.toString().startsWith("palette-") ? (
                     <div className="p-4 bg-white border-2 border-primary rounded-lg shadow-lg opacity-80">
                         <span className="text-sm font-medium">
                             {
@@ -1167,7 +1183,13 @@ function LaraBuilderInner({
                             }
                         </span>
                     </div>
-                )}
+                ) : activeId ? (
+                    <CanvasBlockDragPreview
+                        blockType={
+                            blocks.find((block) => block.id === activeId)?.type
+                        }
+                    />
+                ) : null}
             </DragOverlay>
 
             {/* Toast notification */}
