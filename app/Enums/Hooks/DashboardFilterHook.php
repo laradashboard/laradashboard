@@ -186,6 +186,24 @@ enum DashboardFilterHook: string
      */
     case DASHBOARD_STAT_VALUE = 'filter.dashboard.stat.value';
 
+    /**
+     * Filter globally hidden dashboard stat card IDs.
+     * Return an array of stat card IDs that should be hidden for all users.
+     *
+     * @param array<int, string> $hiddenIds
+     * @return array<int, string>
+     */
+    case DASHBOARD_HIDDEN_STAT_CARDS = 'filter.dashboard.hidden_stat_cards';
+
+    /**
+     * Filter globally hidden dashboard widget IDs.
+     * Return an array of widget IDs that should be hidden for all users.
+     *
+     * @param array<int, string> $hiddenIds
+     * @return array<int, string>
+     */
+    case DASHBOARD_HIDDEN_WIDGETS = 'filter.dashboard.hidden_widgets';
+
     // ==========================================================================
     // Dashboard Quick Actions
     // ==========================================================================

@@ -80,6 +80,13 @@ class Setting extends Model
     public const SITE_FAVICON = 'site_favicon';
 
     // =========================================================================
+    // Dashboard
+    // =========================================================================
+    public const DASHBOARD_HIDDEN_STAT_CARDS = 'dashboard_hidden_stat_cards';
+
+    public const DASHBOARD_HIDDEN_WIDGETS = 'dashboard_hidden_widgets';
+
+    // =========================================================================
     // Analytics & Tracking
     // =========================================================================
     public const GOOGLE_TAG_MANAGER_SCRIPT = 'google_tag_manager_script';
