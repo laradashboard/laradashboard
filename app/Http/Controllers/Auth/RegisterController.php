@@ -97,11 +97,32 @@ class RegisterController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $rules = array_merge($rules, $this->registrationGuard->additionalValidationRules());
+        $rules = $this->mergeValidationRules($rules, $this->registrationGuard->additionalValidationRules());
 
         $messages = Hook::applyFilters(AuthFilterHook::REGISTER_VALIDATION_MESSAGES, []);
 
         return Validator::make($data, $rules, $messages);
+    }
+
+    /**
+     * Merge additional per-field rules onto the base rule set without dropping
+     * existing rules for a field (a plain array_merge() would replace them).
+     *
+     * @param  array<string, mixed>  $base
+     * @param  array<string, mixed>  $additional
+     * @return array<string, mixed>
+     */
+    protected function mergeValidationRules(array $base, array $additional): array
+    {
+        foreach ($additional as $field => $fieldRules) {
+            $existing = $base[$field] ?? [];
+            $existing = is_array($existing) ? $existing : [$existing];
+            $fieldRules = is_array($fieldRules) ? $fieldRules : [$fieldRules];
+
+            $base[$field] = array_merge($existing, $fieldRules);
+        }
+
+        return $base;
     }
 
     /**
@@ -176,7 +197,7 @@ class RegisterController extends Controller
             if ($this->shouldSendVerificationEmail()) {
                 try {
                     event(new Registered($user));
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     // Log the error but don't fail registration
                     Log::warning('Could not send verification email: '.$e->getMessage());
                 }
@@ -211,7 +232,7 @@ class RegisterController extends Controller
 
         try {
             $user->notify(new RegistrationWelcomeNotification());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Log the error but don't fail registration
             Log::warning('Could not send welcome email: '.$e->getMessage());
         }

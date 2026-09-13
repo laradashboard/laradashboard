@@ -281,8 +281,9 @@ class ModuleController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => __('Module replaced successfully.'),
+                'message' => __('Module replaced and activated successfully.'),
                 'module_name' => $moduleName,
+                'already_activated' => true,
             ]);
         } catch (\Throwable $th) {
             return response()->json([

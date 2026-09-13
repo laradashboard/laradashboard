@@ -46,7 +46,7 @@ Route::group(['middleware' => 'guest'], function () {
             ->middleware(['recaptcha:forgot_password', 'throttle:20,1'])->name('password.email');
         Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
         Route::post('password/reset', [ResetPasswordController::class, 'reset'])
-            ->middleware('throttle:20,1')->name('password.update');
+            ->middleware(['recaptcha:reset_password', 'throttle:20,1'])->name('password.update');
     });
 });
 

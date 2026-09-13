@@ -167,6 +167,26 @@
             <label class="flex items-center gap-3">
                 <input
                     type="checkbox"
+                    name="auth_registration_email_domain_check_enabled"
+                    value="1"
+                    @if(filter_var(config('settings.auth_registration_email_domain_check_enabled', '1'), FILTER_VALIDATE_BOOLEAN)) checked @endif
+                    class="form-checkbox rounded border-gray-300 text-brand-600 shadow-sm focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700"
+                >
+                <div>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ __('Validate email domain (registration & public forms)') }}
+                    </span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ __('Free local checks: stricter format validation, known disposable/temporary providers, and domains with no mail server (MX/A/AAAA). Runs before any paid API verification.') }}
+                    </p>
+                </div>
+            </label>
+        </div>
+
+        <div class="relative">
+            <label class="flex items-center gap-3">
+                <input
+                    type="checkbox"
                     name="auth_defer_welcome_email_until_verified"
                     value="1"
                     @if(filter_var(config('settings.auth_defer_welcome_email_until_verified', '1'), FILTER_VALIDATE_BOOLEAN)) checked @endif
@@ -181,6 +201,87 @@
                     </p>
                 </div>
             </label>
+        </div>
+    </div>
+</x-card>
+
+<x-card class="mt-6">
+    <x-slot name="header">
+        {{ __('Email Verification') }}
+    </x-slot>
+    <x-slot name="headerDescription">
+        {{ __('Third tier: after format and local domain checks pass, optionally verify mailbox existence via AbstractAPI. The API is never called for addresses that fail free local checks, preserving your monthly quota. Falls back to local checks when disabled, out of quota, or unreachable. Applies to registration and public forms.') }}
+    </x-slot>
+
+    <div class="space-y-6">
+        <div class="relative">
+            <label class="flex items-center gap-3">
+                <input
+                    type="checkbox"
+                    name="email_verification_enabled"
+                    value="1"
+                    @if(filter_var(config('settings.email_verification_enabled', '0'), FILTER_VALIDATE_BOOLEAN)) checked @endif
+                    class="form-checkbox rounded border-gray-300 text-brand-600 shadow-sm focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700"
+                >
+                <div>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ __('Enable AbstractAPI mailbox verification') }}
+                    </span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ __('Requires an AbstractAPI Email Validation API key below. Get a free key at') }}
+                        <a href="https://www.abstractapi.com/api/email-verification-validation-api" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:underline">abstractapi.com</a>.
+                    </p>
+                </div>
+            </label>
+        </div>
+
+        <div class="relative">
+            <label class="form-label" for="email_verification_api_key">
+                {{ __('AbstractAPI Key') }}
+            </label>
+            <x-inputs.password
+                name="email_verification_api_key"
+                id="email_verification_api_key"
+                :value="config('settings.email_verification_api_key') ?? ''"
+                placeholder="{{ __('Enter your AbstractAPI email validation key') }}"
+                :required="false"
+                :disabled="config('app.demo_mode', false)"
+                :showTooltip="__('Show API key')"
+            />
+            @if (config('app.demo_mode', false))
+            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {{ __('Editing this field is disabled in demo mode.') }}
+            </div>
+            @endif
+        </div>
+
+        <div class="relative max-w-xs">
+            <label class="form-label" for="email_verification_monthly_limit">
+                {{ __('Monthly verification quota') }}
+            </label>
+            <input
+                type="number"
+                min="0"
+                step="1"
+                name="email_verification_monthly_limit"
+                id="email_verification_monthly_limit"
+                value="{{ config('settings.email_verification_monthly_limit', 100) }}"
+                class="form-control"
+            />
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {{ __('AbstractAPI\'s free plan includes 100 verifications/month. Once this limit is reached, submissions fall back to the free local domain check for the rest of the month. Set to 0 if you\'re on a paid/unlimited plan.') }}
+            </p>
+            @php
+                $emailVerificationService = app(\App\Services\EmailVerificationService::class);
+                $emailVerificationLimit = $emailVerificationService->getMonthlyLimit();
+                $emailVerificationUsed = $emailVerificationService->usageThisMonth();
+            @endphp
+            <p class="mt-2 text-xs text-gray-600 dark:text-gray-300">
+                {{ __('Used this month: :used / :limit', [
+                    'used' => $emailVerificationUsed,
+                    'limit' => $emailVerificationLimit > 0 ? $emailVerificationLimit : __('unlimited'),
+                ]) }}
+            </p>
         </div>
     </div>
 </x-card>

@@ -178,7 +178,9 @@ test('admin cannot create mcp agent token when mcp is disabled', function () {
     config(['settings.'.Setting::MCP_ENABLED => '0']);
 
     $this->actingAs($this->user)
-        ->postJson(route('admin.settings.mcp.tokens.store'))
+        ->postJson(route('admin.settings.mcp.tokens.store'), [
+            'label' => 'Disabled MCP test',
+        ])
         ->assertUnprocessable()
         ->assertJson([
             'success' => false,
@@ -192,19 +194,37 @@ test('settings page disables token generation when mcp is disabled', function ()
     $this->actingAs($this->user)
         ->get(route('admin.settings.mcp.index'))
         ->assertOk()
-        ->assertSee('Enable MCP server above and save changes before generating tokens or connecting an AI client.', false)
+        ->assertSee('Unsaved changes', false)
         ->assertSee('mcpEnabledSaved: false', false)
-        ->assertSee(':disabled="creatingToken || !canUseMcp()"', false);
+        ->assertSee('openTokenModal()', false);
 });
 
 test('admin can create mcp agent token when mcp is enabled', function () {
     enableMcp();
 
     $response = $this->actingAs($this->user)
-        ->postJson(route('admin.settings.mcp.tokens.store'));
+        ->postJson(route('admin.settings.mcp.tokens.store'), [
+            'label' => 'Cursor blog automation',
+        ]);
 
     $response->assertCreated()
-        ->assertJsonStructure(['success', 'token', 'abilities']);
+        ->assertJsonStructure(['success', 'token', 'abilities', 'token_record'])
+        ->assertJsonPath('token_record.label', 'Cursor blog automation');
+
+    $token = $this->user->tokens()
+        ->where('name', 'laradashboard-mcp: Cursor blog automation')
+        ->first();
+
+    expect($token)->not->toBeNull();
+});
+
+test('mcp token creation requires a label', function () {
+    enableMcp();
+
+    $this->actingAs($this->user)
+        ->postJson(route('admin.settings.mcp.tokens.store'), [])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['label']);
 });
 
 test('cursor env config snippet uses environment variable placeholder', function () {

@@ -28,11 +28,15 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Pulse\Contracts\Storage;
+use App\Services\Pulse\PulseDatabaseStorage;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->bind(Storage::class, PulseDatabaseStorage::class);
+
         if (PHP_VERSION_ID >= 80400) {
             error_reporting(E_ALL & ~E_DEPRECATED);
         }

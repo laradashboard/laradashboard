@@ -22,6 +22,8 @@ class MediaLibraryService
 {
     use HandlesMediaOperations;
 
+    public const MCP_MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+
     public function __construct(private readonly SvgSanitizer $svgSanitizer)
     {
     }
@@ -125,6 +127,140 @@ class MediaLibraryService
         }
 
         return $uploadedFiles;
+    }
+
+    /**
+     * Upload a standalone media library item from base64 (MCP agents, API clients).
+     *
+     * @throws ValidationException
+     */
+    public function uploadFromBase64(
+        string $filename,
+        string $mimeType,
+        string $contentBase64,
+        ?string $title = null,
+        ?string $altText = null,
+    ): SpatieMedia {
+        $filename = MediaHelper::sanitizeFilename(basename($filename));
+
+        if ($filename === '' || $filename === '.' || $filename === '..') {
+            throw ValidationException::withMessages([
+                'filename' => [__('A valid filename is required.')],
+            ]);
+        }
+
+        $mimeType = strtolower(trim($mimeType));
+
+        if (! str_starts_with($mimeType, 'image/') || ! MediaHelper::isAllowedMimeType($mimeType)) {
+            throw ValidationException::withMessages([
+                'mime_type' => [__('This file type is not allowed.')],
+            ]);
+        }
+
+        $decoded = base64_decode($contentBase64, true);
+
+        if ($decoded === false) {
+            throw ValidationException::withMessages([
+                'content_base64' => [__('Invalid base64 content.')],
+            ]);
+        }
+
+        if ($decoded === '') {
+            throw ValidationException::withMessages([
+                'content_base64' => [__('File content is empty.')],
+            ]);
+        }
+
+        if (strlen($decoded) > self::MCP_MAX_UPLOAD_BYTES) {
+            throw ValidationException::withMessages([
+                'content_base64' => [__('File exceeds the maximum allowed size of :size.', [
+                    'size' => MediaHelper::formatFileSize(self::MCP_MAX_UPLOAD_BYTES),
+                ])],
+            ]);
+        }
+
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $allowedForExtension = MediaHelper::getAllowedExtensionMimeMap()[$extension] ?? null;
+
+        if ($allowedForExtension === null || ! in_array($mimeType, $allowedForExtension, true)) {
+            throw ValidationException::withMessages([
+                'mime_type' => [__('Filename extension does not match the declared MIME type.')],
+            ]);
+        }
+
+        $tmpPath = tempnam(sys_get_temp_dir(), 'ld_mcp_upload_');
+
+        if ($tmpPath === false) {
+            throw ValidationException::withMessages([
+                'content_base64' => [__('Unable to prepare the uploaded file.')],
+            ]);
+        }
+
+        try {
+            if (file_put_contents($tmpPath, $decoded) === false) {
+                throw ValidationException::withMessages([
+                    'content_base64' => [__('Unable to prepare the uploaded file.')],
+                ]);
+            }
+
+            $uploadedFile = new UploadedFile(
+                $tmpPath,
+                $filename,
+                $mimeType,
+                null,
+                true,
+            );
+
+            $this->assertFileIsAllowed($uploadedFile);
+            $prepared = $this->prepareFileForStorage($uploadedFile);
+
+            if ($title !== null && trim($title) !== '') {
+                $prepared['original_name'] = trim($title).'.'.$extension;
+            }
+
+            $media = $this->storePreparedMedia($prepared);
+
+            if ($altText !== null && trim($altText) !== '') {
+                $customProperties = is_array($media->custom_properties) ? $media->custom_properties : [];
+                $customProperties['alt_text'] = trim($altText);
+                $media->custom_properties = $customProperties;
+                $media->save();
+            }
+
+            return $media;
+        } finally {
+            if (is_file($tmpPath)) {
+                @unlink($tmpPath);
+            }
+        }
+    }
+
+    /**
+     * @return array{
+     *     id: int,
+     *     name: string,
+     *     file_name: string,
+     *     mime_type: string,
+     *     size: int,
+     *     human_readable_size: string|null,
+     *     url: string,
+     *     created_at: string|null
+     * }
+     */
+    public function formatMediaForMcp(SpatieMedia $item): array
+    {
+        $url = $this->resolveMediaUrl($item) ?? '';
+
+        return [
+            'id' => $item->id,
+            'name' => $item->name,
+            'file_name' => $item->file_name,
+            'mime_type' => $item->mime_type,
+            'size' => $item->size,
+            'human_readable_size' => $item->human_readable_size ?? null,
+            'url' => $url,
+            'created_at' => optional($item->created_at)?->toIso8601String(),
+        ];
     }
 
     public function deleteMedia(int $id): bool

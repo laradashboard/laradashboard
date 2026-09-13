@@ -33,4 +33,11 @@ enum CommonFilterHook: string
     // Registration anti-spam
     case REGISTRATION_GUARD_VALIDATION_RULES = 'filter.registration_guard.validation_rules';
     case REGISTRATION_SPAM_NAME_PATTERNS = 'filter.registration_guard.spam_name_patterns';
+    case REGISTRATION_DISPOSABLE_EMAIL_DOMAINS = 'filter.registration_guard.disposable_email_domains';
+
+    // Public forms (contact, support ticket, newsletter, etc.)
+    case PUBLIC_FORM_GUARD_VALIDATION_RULES = 'filter.public_form_guard.validation_rules';
+
+    // Email submission (registration, public forms)
+    case EMAIL_SUBMISSION_VALIDATION_RULES = 'filter.email_submission.validation_rules';
 }
