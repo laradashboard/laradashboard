@@ -10,6 +10,7 @@ use Livewire\Component;
 /**
  * @mixin Component
  */
+/** @phpstan-ignore trait.unused */
 trait ValidatesPublicFormSubmissions
 {
     public string $company_website = '';

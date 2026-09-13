@@ -127,7 +127,6 @@ class McpTokenService
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Relations\MorphMany<PersonalAccessToken, User>  $relation
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany<PersonalAccessToken, User>
      */
     protected function mcpTokensQuery(User $user)
