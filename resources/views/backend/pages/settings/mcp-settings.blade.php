@@ -28,7 +28,7 @@
         </div>
     </x-slot>
 
-    <div class="space-y-8" x-data="mcpSettingsPanel({
+    <div class="space-y-6" x-data="mcpSettingsPanel({
         createTokenUrl: @js($createTokenUrl),
         revokeTokenUrlTemplate: @js($revokeTokenUrlTemplate),
         csrfToken: @js($csrfToken),
@@ -38,101 +38,162 @@
         mcpEnabledSaved: @js($mcpEnabled),
         demoMode: @js(config('app.demo_mode', false)),
     })">
-        <div class="p-4 border border-gray-200 rounded-xl dark:border-gray-700 bg-gradient-to-br from-indigo-50 to-blue-50/60 dark:from-gray-800/50 dark:to-gray-900/30">
-            <h4 class="font-semibold text-gray-900 dark:text-white mb-2">{{ __('Connect AI agents to LaraDashboard') }}</h4>
-            <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                {{ __('MCP lets tools like Cursor (Desktop or CLI), Claude Desktop, and Claude Code manage your LaraDashboard site — create blog posts, fetch content, and generate SEO metadata using natural language commands.') }}
-            </p>
-            <p class="mt-2 text-sm text-amber-700 dark:text-amber-300">
-                {{ __('MCP is disabled by default. Enable it only when you want external AI agents to access this installation.') }}
-            </p>
-        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-300">
+            {{ __('Connect Cursor, Claude Desktop, or Claude Code to manage content and settings from your AI client.') }}
+        </p>
 
-        <div class="flex items-center gap-3">
-            <input type="hidden" name="mcp_enabled" value="0">
-            <div class="shrink-0">
-                <x-inputs.toggle
-                    name="mcp_enabled"
-                    :checked="$mcpEnabled"
-                    :disabled="config('app.demo_mode', false)"
-                />
-            </div>
-            <div class="min-w-0">
-                <label for="mcp_enabled" class="font-medium text-gray-900 dark:text-white text-sm">
-                    {{ __('Enable MCP server') }}
-                </label>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    {{ __('When disabled, the MCP endpoint returns 404 and no agent can connect.') }}
-                </p>
-                @if (config('app.demo_mode', false))
-                    <p class="mt-1 text-sm text-amber-600 dark:text-amber-400">
-                        {{ __('MCP cannot be enabled in demo mode.') }}
-                    </p>
-                @endif
-            </div>
-        </div>
+        <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <input type="hidden" name="mcp_enabled" value="0">
+                    <div class="shrink-0">
+                        <x-inputs.toggle
+                            name="mcp_enabled"
+                            :checked="$mcpEnabled"
+                            :disabled="config('app.demo_mode', false)"
+                        />
+                    </div>
+                    <label for="mcp_enabled" class="font-medium text-gray-900 dark:text-white text-sm">
+                        {{ __('Enable MCP server') }}
+                    </label>
+                </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-            <div>
-                <label class="form-label">{{ __('MCP server URL') }}</label>
+                <div class="flex flex-wrap items-center gap-3 sm:justify-end">
+                    <span
+                        x-show="canUseMcp()"
+                        x-cloak
+                        class="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                    >
+                        <span class="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                        {{ __('Enabled') }}
+                    </span>
+                    <span
+                        x-show="!canUseMcp() && mcpPendingSave()"
+                        x-cloak
+                        class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                    >
+                        <span class="h-2 w-2 rounded-full bg-amber-500" aria-hidden="true"></span>
+                        {{ __('Unsaved changes') }}
+                    </span>
+                    <span
+                        x-show="!canUseMcp() && !mcpPendingSave()"
+                        x-cloak
+                        class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                    >
+                        <span class="h-2 w-2 rounded-full bg-gray-400" aria-hidden="true"></span>
+                        {{ __('Disabled') }}
+                    </span>
+                    <x-buttons.submit-buttons
+                        :submit-label="__('Save Changes')"
+                        :class-names="['wrapper' => 'flex gap-3']"
+                    />
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200 p-5 dark:border-gray-700">
+                <label class="form-label" for="mcp-server-url">{{ __('MCP server URL') }}</label>
                 <div class="flex gap-2">
                     <input type="text" readonly value="{{ $mcpServerUrl }}" class="form-control font-mono text-sm" id="mcp-server-url">
                     <x-copy-button
                         :copy-value="$mcpServerUrl"
-                        class="btn-outline-primary"
+                        class="btn-outline-primary shrink-0"
                     />
                 </div>
             </div>
-            <div>
-                <label class="form-label">{{ __('Status') }}</label>
-                <div class="flex items-center h-[42px]">
-                    @if ($mcpEnabled)
-                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            {{ __('Enabled') }}
-                        </span>
-                    @else
-                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                            <span class="w-2 h-2 rounded-full bg-gray-400"></span>
-                            {{ __('Disabled') }}
-                        </span>
-                    @endif
-                </div>
-            </div>
         </div>
-
-        <template x-if="!canUseMcp()">
-            <div class="p-4 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700" role="status">
-                <p class="text-sm text-amber-900 dark:text-amber-200" x-show="demoMode">
-                    {{ __('MCP agent tokens cannot be created in demo mode.') }}
-                </p>
-                <p class="text-sm text-amber-900 dark:text-amber-200" x-show="!demoMode && mcpPendingSave()" x-cloak>
-                    {{ __('Save changes to apply MCP access before generating a token or connecting an AI client.') }}
-                </p>
-                <p class="text-sm text-amber-900 dark:text-amber-200" x-show="!demoMode && !mcpToggleOn" x-cloak>
-                    {{ __('Enable MCP server above and save changes before generating tokens or connecting an AI client.') }}
-                </p>
-            </div>
-        </template>
 
         <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
                 <div>
                     <h4 class="font-semibold text-gray-900 dark:text-white">{{ __('Agent tokens') }}</h4>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        {{ __('Create a dedicated MCP token. Regular API login tokens will not work.') }}
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        {{ __('Use a dedicated MCP token — not your login credentials.') }}
                     </p>
                 </div>
                 <button
                     type="button"
                     class="btn btn-primary"
-                    @click="createToken()"
-                    :disabled="creatingToken || !canUseMcp()"
-                    :class="{ 'opacity-50 cursor-not-allowed': creatingToken || !canUseMcp() }"
+                    @click="openTokenModal()"
+                    :disabled="!canUseMcp()"
+                    :class="{ 'opacity-50 cursor-not-allowed': !canUseMcp() }"
                 >
-                    <span x-show="!creatingToken">{{ __('Generate MCP token') }}</span>
-                    <span x-show="creatingToken">{{ __('Generating...') }}</span>
+                    {{ __('Generate MCP token') }}
                 </button>
+            </div>
+
+            <div
+                x-show="tokenModalOpen"
+                x-cloak
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="mcp-token-modal-title"
+                @keydown.escape.window="closeTokenModal()"
+            >
+                <div
+                    @click.outside="closeTokenModal()"
+                    class="relative mx-4 w-full max-w-lg rounded-lg bg-white shadow-lg dark:bg-gray-900"
+                >
+                    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                        <h3 id="mcp-token-modal-title" class="font-semibold text-gray-900 dark:text-white">
+                            {{ __('Name your MCP token') }}
+                        </h3>
+                        <button
+                            type="button"
+                            class="btn-outline-secondary flex h-6 w-6 items-center justify-center p-1"
+                            @click="closeTokenModal()"
+                            :aria-label="@js(__('Close'))"
+                        >
+                            <iconify-icon icon="mdi:close" class="flex h-5 w-5" aria-hidden="true"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <div class="space-y-4 px-6 py-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            {{ __('Give this token a descriptive name so you can remember where it is used — for example, "Cursor SEO blog" or "Claude Desktop local dev".') }}
+                        </p>
+
+                        <div>
+                            <label for="mcp-token-label" class="form-label">{{ __('Token name') }}</label>
+                            <input
+                                id="mcp-token-label"
+                                type="text"
+                                x-ref="tokenLabelInput"
+                                x-model="tokenLabel"
+                                class="form-control"
+                                maxlength="100"
+                                placeholder="{{ __('e.g. Cursor blog automation') }}"
+                                @keydown.enter.prevent="createToken()"
+                            >
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {{ __('Required. Shown in your token list; not sent to connected agents.') }}
+                            </p>
+                            <p x-show="tokenLabelError" x-cloak class="mt-2 text-sm text-red-600 dark:text-red-400" x-text="tokenLabelError"></p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+                        <button type="button" class="btn btn-outline-secondary" @click="closeTokenModal()" :disabled="creatingToken">
+                            {{ __('Cancel') }}
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            @click="createToken()"
+                            :disabled="creatingToken"
+                            :class="{ 'opacity-50 cursor-not-allowed': creatingToken }"
+                        >
+                            <span x-show="!creatingToken">{{ __('Generate token') }}</span>
+                            <span x-show="creatingToken">{{ __('Generating...') }}</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <template x-if="newToken">
@@ -154,40 +215,44 @@
                 <div class="mb-4 p-3 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300 text-sm" x-text="tokenError"></div>
             </template>
 
-            @if ($mcpTokens->isEmpty())
-                <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('No MCP agent tokens yet.') }}</p>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
-                        <thead>
-                            <tr class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                                <th class="py-2 pr-4">{{ __('Created') }}</th>
-                                <th class="py-2 pr-4">{{ __('Last used') }}</th>
-                                <th class="py-2 pr-4">{{ __('Abilities') }}</th>
-                                <th class="py-2">{{ __('Actions') }}</th>
+            <p id="mcp-tokens-empty" class="text-sm text-gray-500 dark:text-gray-400 @if(!$mcpTokens->isEmpty()) hidden @endif">
+                {{ __('No MCP agent tokens yet.') }}
+            </p>
+
+            <div class="overflow-x-auto @if($mcpTokens->isEmpty()) hidden @endif" id="mcp-tokens-table-wrap">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                            <th class="py-2 pr-4">{{ __('Name') }}</th>
+                            <th class="py-2 pr-4">{{ __('Created') }}</th>
+                            <th class="py-2 pr-4">{{ __('Last used') }}</th>
+                            <th class="py-2 pr-4">{{ __('Abilities') }}</th>
+                            <th class="py-2">{{ __('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mcp-tokens-body">
+                        @foreach ($mcpTokens as $token)
+                            <tr class="border-b border-gray-100 dark:border-gray-800" id="mcp-token-row-{{ $token->id }}">
+                                <td class="py-3 pr-4 font-medium text-gray-900 dark:text-white">
+                                    {{ $mcpTokenService->tokenLabel($token) }}
+                                </td>
+                                <td class="py-3 pr-4">{{ $token->created_at?->format('M j, Y g:i A') }}</td>
+                                <td class="py-3 pr-4">{{ $token->last_used_at?->diffForHumans() ?? __('Never') }}</td>
+                                <td class="py-3 pr-4">
+                                    <code class="text-xs">{{ implode(', ', $token->abilities ?? []) }}</code>
+                                </td>
+                                <td class="py-3">
+                                    <button type="button"
+                                        class="text-red-600 hover:text-red-700 dark:text-red-400 text-sm"
+                                        @click="revokeToken({{ $token->id }})">
+                                        {{ __('Revoke') }}
+                                    </button>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($mcpTokens as $token)
-                                <tr class="border-b border-gray-100 dark:border-gray-800" id="mcp-token-row-{{ $token->id }}">
-                                    <td class="py-3 pr-4">{{ $token->created_at?->format('M j, Y g:i A') }}</td>
-                                    <td class="py-3 pr-4">{{ $token->last_used_at?->diffForHumans() ?? __('Never') }}</td>
-                                    <td class="py-3 pr-4">
-                                        <code class="text-xs">{{ implode(', ', $token->abilities ?? []) }}</code>
-                                    </td>
-                                    <td class="py-3">
-                                        <button type="button"
-                                            class="text-red-600 hover:text-red-700 dark:text-red-400 text-sm"
-                                            @click="revokeToken({{ $token->id }})">
-                                            {{ __('Revoke') }}
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div :class="{ 'opacity-60': !canUseMcp() }">
@@ -279,6 +344,9 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('mcpSettingsPanel', ({ createTokenUrl, revokeTokenUrlTemplate, csrfToken, serverUrl, selectedClient, groupedTools, mcpEnabledSaved, demoMode }) => ({
         creatingToken: false,
+        tokenModalOpen: false,
+        tokenLabel: '',
+        tokenLabelError: null,
         newToken: null,
         tokenError: null,
         selectedClient: selectedClient || @js($defaultClient),
@@ -357,46 +425,121 @@ document.addEventListener('alpine:init', () => {
             }, null, 2);
         },
 
-        async createToken() {
+        openTokenModal() {
             if (!this.canUseMcp()) {
                 if (this.demoMode) {
-                    this.tokenError = @js(__('MCP agent tokens cannot be created in demo mode.'));
+                    this.tokenError = @js(__('MCP is unavailable in demo mode.'));
                 } else if (this.mcpPendingSave()) {
-                    this.tokenError = @js(__('Save changes to apply MCP access before generating a token.'));
+                    this.tokenError = @js(__('Save changes to activate MCP.'));
                 } else {
-                    this.tokenError = @js(__('Enable MCP server and save changes before generating a token.'));
+                    this.tokenError = @js(__('Enable MCP and save to connect agents.'));
                 }
 
                 return;
             }
 
+            this.tokenLabel = '';
+            this.tokenLabelError = null;
+            this.tokenModalOpen = true;
+
+            this.$nextTick(() => {
+                this.$refs.tokenLabelInput?.focus();
+            });
+        },
+
+        closeTokenModal(force = false) {
+            if (this.creatingToken && ! force) {
+                return;
+            }
+
+            this.tokenModalOpen = false;
+            this.tokenLabel = '';
+            this.tokenLabelError = null;
+        },
+
+        async createToken() {
+            if (!this.canUseMcp()) {
+                this.closeTokenModal();
+                return;
+            }
+
+            const label = this.tokenLabel.trim();
+
+            if (label.length < 2) {
+                this.tokenLabelError = @js(__('Please enter a name for this MCP token.'));
+                return;
+            }
+
             this.creatingToken = true;
             this.tokenError = null;
+            this.tokenLabelError = null;
 
             try {
                 const response = await fetch(createTokenUrl, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
                         'X-Requested-With': 'XMLHttpRequest',
                     },
+                    body: JSON.stringify({ label }),
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    this.tokenError = data.message || 'Failed to create token.';
+                    const validationMessage = data.errors?.label?.[0];
+                    this.tokenLabelError = validationMessage || data.message || @js(__('Failed to create token.'));
                     return;
                 }
 
                 this.newToken = data.token;
                 this.updateConfigSnippet(data.token);
+                this.appendTokenRow(data.token_record);
+                this.creatingToken = false;
+                this.closeTokenModal(true);
             } catch (error) {
-                this.tokenError = error.message;
+                this.tokenLabelError = error.message;
             } finally {
                 this.creatingToken = false;
             }
+        },
+
+        appendTokenRow(record) {
+            if (!record) {
+                return;
+            }
+
+            document.getElementById('mcp-tokens-empty')?.classList.add('hidden');
+            document.getElementById('mcp-tokens-table-wrap')?.classList.remove('hidden');
+
+            const tbody = document.getElementById('mcp-tokens-body');
+
+            if (!tbody) {
+                return;
+            }
+
+            const row = document.createElement('tr');
+            row.id = 'mcp-token-row-' + record.id;
+            row.className = 'border-b border-gray-100 dark:border-gray-800';
+            row.innerHTML = `
+                <td class="py-3 pr-4 font-medium text-gray-900 dark:text-white"></td>
+                <td class="py-3 pr-4"></td>
+                <td class="py-3 pr-4"></td>
+                <td class="py-3 pr-4"><code class="text-xs"></code></td>
+                <td class="py-3"></td>
+            `;
+
+            const cells = row.querySelectorAll('td');
+            cells[0].textContent = record.label;
+            cells[1].textContent = record.created_at;
+            cells[2].textContent = record.last_used_at;
+            cells[3].querySelector('code').textContent = record.abilities;
+            cells[4].innerHTML = `<button type="button" class="text-red-600 hover:text-red-700 dark:text-red-400 text-sm" data-revoke-token="${record.id}">${@js(__('Revoke'))}</button>`;
+            cells[4].querySelector('button')?.addEventListener('click', () => this.revokeToken(record.id));
+
+            tbody.prepend(row);
         },
 
         async revokeToken(tokenId) {
@@ -417,6 +560,11 @@ document.addEventListener('alpine:init', () => {
 
             if (response.ok) {
                 document.getElementById('mcp-token-row-' + tokenId)?.remove();
+
+                if (!document.querySelector('#mcp-tokens-body tr')) {
+                    document.getElementById('mcp-tokens-empty')?.classList.remove('hidden');
+                    document.getElementById('mcp-tokens-table-wrap')?.classList.add('hidden');
+                }
             }
         },
     }));

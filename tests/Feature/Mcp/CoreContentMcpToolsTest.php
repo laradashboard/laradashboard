@@ -9,6 +9,7 @@ use App\Mcp\Tools\DeletePostTool;
 use App\Mcp\Tools\GetLogTailTool;
 use App\Mcp\Tools\GetSiteHealthTool;
 use App\Mcp\Tools\ListMediaTool;
+use App\Mcp\Tools\UploadMediaTool;
 use App\Mcp\Tools\ListMcpToolsTool;
 use App\Mcp\Tools\ListModulesTool;
 use App\Mcp\Tools\ListTermsTool;
@@ -30,7 +31,7 @@ pest()->use(RefreshDatabase::class);
 beforeEach(function () {
     foreach ([
         'post.view', 'post.create', 'post.edit', 'post.delete',
-        'term.view', 'media.view', 'settings.edit', 'dashboard.view', 'module.view',
+        'term.view', 'media.view', 'media.create', 'settings.edit', 'dashboard.view', 'module.view',
     ] as $permission) {
         Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
     }
@@ -40,7 +41,7 @@ beforeEach(function () {
     $this->user->assignRole($role);
     $this->user->syncPermissions([
         'post.view', 'post.create', 'post.edit', 'post.delete',
-        'term.view', 'media.view', 'settings.edit', 'dashboard.view', 'module.view',
+        'term.view', 'media.view', 'media.create', 'settings.edit', 'dashboard.view', 'module.view',
     ]);
 
     app(McpTokenService::class)->createToken($this->user);
@@ -61,6 +62,7 @@ test('new core content and discovery mcp tools are registered', function () {
         ->toContain(AssignPostTermsTool::class)
         ->toContain(ListTermsTool::class)
         ->toContain(ListMediaTool::class)
+        ->toContain(UploadMediaTool::class)
         ->toContain(AttachFeaturedImageTool::class)
         ->toContain(GetLogTailTool::class)
         ->toContain(GetSiteHealthTool::class)
@@ -116,6 +118,42 @@ test('assign post terms mcp tool syncs terms on a post', function () {
 
     expect($post->fresh()->terms->pluck('id')->sort()->values()->all())
         ->toBe(collect([$category->id, $tag->id])->sort()->values()->all());
+});
+
+test('upload media mcp tool stores base64 image in the library', function () {
+    $pngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
+    LaraDashboardServer::actingAs($this->user, 'sanctum')
+        ->tool(UploadMediaTool::class, [
+            'filename' => 'mcp-upload-hero.png',
+            'mime_type' => 'image/png',
+            'content_base64' => $pngBase64,
+            'title' => 'MCP Upload Hero',
+            'alt_text' => 'Generated hero image',
+        ])
+        ->assertOk()
+        ->assertSee('Media uploaded successfully')
+        ->assertSee('mcp-upload-hero');
+
+    $media = Media::query()->where('file_name', 'like', 'mcp-upload-hero%')->first();
+    expect($media)->not->toBeNull();
+    expect($media?->custom_properties['alt_text'] ?? null)->toBe('Generated hero image');
+});
+
+test('upload media mcp tool rejects token without media write ability', function () {
+    $limitedUser = User::factory()->create();
+    $limitedUser->syncPermissions(['media.view', 'post.view']);
+
+    app(McpTokenService::class)->createToken($limitedUser);
+    $limitedUser->withAccessToken($limitedUser->tokens()->latest()->first());
+
+    LaraDashboardServer::actingAs($limitedUser, 'sanctum')
+        ->tool(UploadMediaTool::class, [
+            'filename' => 'blocked.png',
+            'mime_type' => 'image/png',
+            'content_base64' => 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+        ])
+        ->assertSee('mcp:media.write');
 });
 
 test('list media mcp tool returns library items', function () {

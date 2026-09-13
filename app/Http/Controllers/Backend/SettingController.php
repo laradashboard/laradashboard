@@ -59,6 +59,7 @@ class SettingController extends Controller
                 'recaptcha_secret_key',
                 'recaptcha_enabled_pages',
                 'recaptcha_score_threshold',
+                'email_verification_api_key',
                 'hide_admin_url',
                 'custom_login_route',
                 'hide_default_login_url',
@@ -99,7 +100,9 @@ class SettingController extends Controller
             'error_notifications_enabled',
             'auth_registration_honeypot_enabled',
             'auth_registration_ip_limit_enabled',
+            'auth_registration_email_domain_check_enabled',
             'auth_defer_welcome_email_until_verified',
+            'email_verification_enabled',
         ];
         foreach ($checkboxFields as $checkboxField) {
             // Skip restricted fields in demo mode

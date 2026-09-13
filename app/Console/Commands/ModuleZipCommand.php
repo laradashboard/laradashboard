@@ -96,6 +96,7 @@ class ModuleZipCommand extends Command
 
                 return self::FAILURE;
             }
+            $this->pruneBundledFrameworkFromModuleVendor($modulePath);
             $this->info('  ✓ Composer dependencies installed (--no-dev)');
             $this->newLine();
         } else {
@@ -211,6 +212,61 @@ class ModuleZipCommand extends Command
         $this->newLine();
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Remove bundled Illuminate/Laravel copies from module vendor before packaging.
+     *
+     * Marketplace modules ship a self-contained vendor tree for standalone installs,
+     * but those framework copies must never be loaded inside a LaraDashboard host.
+     */
+    private function pruneBundledFrameworkFromModuleVendor(string $modulePath): void
+    {
+        $vendorPath = "{$modulePath}/vendor";
+        if (! is_dir($vendorPath)) {
+            return;
+        }
+
+        foreach (['illuminate', 'laravel'] as $directory) {
+            $frameworkPath = "{$vendorPath}/{$directory}";
+            if (! is_dir($frameworkPath)) {
+                continue;
+            }
+
+            $this->deleteDirectory($frameworkPath);
+        }
+
+        $process = new Process(
+            ['composer', 'dump-autoload', '--no-dev', '--optimize', '--no-interaction'],
+            $modulePath
+        );
+        $process->setTimeout(120);
+        $process->run();
+    }
+
+    /**
+     * Recursively delete a directory.
+     */
+    private function deleteDirectory(string $path): void
+    {
+        if (! is_dir($path)) {
+            return;
+        }
+
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($iterator as $item) {
+            if ($item->isDir()) {
+                rmdir($item->getPathname());
+            } else {
+                unlink($item->getPathname());
+            }
+        }
+
+        rmdir($path);
     }
 
     /**

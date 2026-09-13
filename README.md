@@ -141,7 +141,14 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.4.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.0) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.4.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.2) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.4.2] — 2026-09-14**
+-   **New:** Public-form spam protection — honeypot, reCAPTCHA v3, disposable/typo/domain email validation, and reusable Blade components for Livewire forms.
+-   **New:** MCP `UploadMediaTool` for AI agents to upload files to the media library.
+-   **Improve:** Datatable shift-click bulk selection and sticky headers.
+-   **Improve:** Module replace UX (auto-activate + **Replaced & active** badge), MCP settings UI, and auth email guard settings.
+-   **Fix:** MCP media URLs, bulk actions dropdown, Pulse storage on fresh installs.
 
 **[v1.4.0] — 2026-09-07**
 -   **New:** MCP server for AI agents — token-based access from **Settings → MCP** with tools for content, CRM, forms, email, docs, cache, and logs.

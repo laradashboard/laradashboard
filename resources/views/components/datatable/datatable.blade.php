@@ -30,6 +30,7 @@
     'sort' => '',
     'perPage' => 10,
     'perPageOptions' => [10, 20, 50, 100, __('All')],
+    'enableStickyHeader' => true,
 ])
 
 @php
@@ -41,7 +42,71 @@
         selectedItems: Array.isArray($wire.selectedItems) ? $wire.selectedItems : [],
         selectAll: false,
         allIds: {{ json_encode($allIds) }},
+        previousAllIdsKey: JSON.stringify({{ json_encode($allIds) }}),
+        lastClickedIndex: null,
+        lastClickedItemId: null,
         bulkDeleteModalOpen: false,
+        parseCheckboxId(value) {
+            const num = parseInt(value, 10);
+            return Number.isNaN(num) ? value : num;
+        },
+        getPageCheckboxes() {
+            return Array.from(this.$root.querySelectorAll('.item-checkbox'));
+        },
+        setItemSelected(itemId, selected) {
+            if (selected) {
+                if (!this.selectedItems.includes(itemId)) {
+                    this.selectedItems.push(itemId);
+                }
+            } else {
+                this.selectedItems = this.selectedItems.filter(id => id !== itemId);
+            }
+        },
+        syncSelectedItemsToLivewire() {
+            if (@json($enableLivewire)) {
+                $wire.set('selectedItems', this.selectedItems);
+            }
+        },
+        resolveAnchorIndex(checkboxes) {
+            if (this.lastClickedIndex !== null) {
+                return this.lastClickedIndex;
+            }
+
+            if (this.lastClickedItemId === null) {
+                return null;
+            }
+
+            return checkboxes.findIndex(
+                checkbox => this.parseCheckboxId(checkbox.value) === this.lastClickedItemId
+            );
+        },
+        toggleItem(itemId, checkboxIndex, event) {
+            const checkboxes = this.getPageCheckboxes();
+            const shouldSelect = event.target.checked;
+            const anchorIndex = this.resolveAnchorIndex(checkboxes);
+
+            if (event.shiftKey && anchorIndex !== null && anchorIndex !== -1) {
+                const start = Math.min(anchorIndex, checkboxIndex);
+                const end = Math.max(anchorIndex, checkboxIndex);
+
+                for (let i = start; i <= end; i++) {
+                    const checkbox = checkboxes[i];
+                    if (!checkbox) {
+                        continue;
+                    }
+
+                    const id = this.parseCheckboxId(checkbox.value);
+                    checkbox.checked = shouldSelect;
+                    this.setItemSelected(id, shouldSelect);
+                }
+            } else {
+                this.setItemSelected(itemId, shouldSelect);
+            }
+
+            this.lastClickedIndex = checkboxIndex;
+            this.lastClickedItemId = itemId;
+            this.updateSelectAll();
+        },
         toggleSelectAll() {
             if (this.selectAll) {
                 // Add current page items to selection (preserve items from other pages)
@@ -55,21 +120,16 @@
                 this.selectedItems = this.selectedItems.filter(id => !this.allIds.includes(id));
             }
             // Update all checkboxes on current page
-            document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+            this.getPageCheckboxes().forEach(checkbox => {
                 checkbox.checked = this.selectAll;
             });
-            // Sync with Livewire
-            if (@json($enableLivewire)) {
-                $wire.set('selectedItems', this.selectedItems);
-            }
+            this.lastClickedIndex = null;
+            this.lastClickedItemId = null;
+            this.syncSelectedItemsToLivewire();
         },
         updateSelectAll() {
             // Check if all current page items are selected
             this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
-            // Sync with Livewire
-            if (@json($enableLivewire)) {
-                $wire.set('selectedItems', this.selectedItems);
-            }
         },
         // Method to refresh allIds when Livewire updates
         refreshIds(newIds) {
@@ -93,6 +153,12 @@
                         const num = parseInt(val);
                         return isNaN(num) ? val : num;
                     });
+                    const newAllIdsKey = JSON.stringify(this.allIds);
+                    if (newAllIdsKey !== this.previousAllIdsKey) {
+                        this.previousAllIdsKey = newAllIdsKey;
+                        this.lastClickedIndex = null;
+                        this.lastClickedItemId = null;
+                    }
                     // Update selectAll state based on new page items
                     this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
                 }
@@ -101,9 +167,11 @@
             window.addEventListener('resetSelectedItems', () => {
                 this.selectedItems = [];
                 this.selectAll = false;
+                this.lastClickedIndex = null;
+                this.lastClickedItemId = null;
 
                 // Uncheck all checkboxes.
-                document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                this.getPageCheckboxes().forEach(checkbox => {
                     checkbox.checked = false;
                 });
             });
@@ -142,14 +210,14 @@
                         @if($customBulkActions)
                             {!! $customBulkActions !!}
                         @else
-                            <div class="relative flex items-center" x-data="{ open: false }">
+                            <div class="relative flex items-center" x-data="{ open: false }" @click.outside="open = false">
                                 <button @click="open = !open" class="btn-secondary flex items-center gap-2 text-sm whitespace-nowrap" type="button">
                                     <iconify-icon icon="lucide:more-vertical"></iconify-icon>
                                     <span>{{ __('Bulk Actions') }} (<span x-text="selectedItems.length"></span>)</span>
                                     <iconify-icon icon="lucide:chevron-down"></iconify-icon>
                                 </button>
-                                <div x-show="open" @click.outside="open = false" x-transition
-                                        class="absolute right-0 top-10 mt-2 w-48 rounded-md shadow bg-white dark:bg-gray-700 z-10 p-2">
+                                <div x-show="open" x-transition
+                                        class="absolute right-0 top-full z-30 mt-2 w-48 rounded-md shadow bg-white dark:bg-gray-700 dark:border dark:border-gray-600 p-2">
                                     <ul class="space-y-2">
                                         <li class="cursor-pointer flex items-center gap-1 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500 dark:hover:text-red-50 px-2 py-1.5 rounded transition-colors duration-300"
                                             @click="open = false; bulkDeleteModalOpen = true">
@@ -238,10 +306,11 @@
                                             </button>
                                             <button
                                                 type="button"
-                                                @click="bulkDeleteModalOpen = false"
                                                 @if($enableLivewire)
-                                                    wire:click="bulkDelete"
+                                                    @click="syncSelectedItemsToLivewire(); bulkDeleteModalOpen = false; $wire.bulkDelete()"
                                                     wire:loading.attr="disabled"
+                                                @else
+                                                    @click="bulkDeleteModalOpen = false"
                                                 @endif
                                                 class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-800"
                                             >
@@ -282,9 +351,15 @@
             </div>
         </div>
 
-        <div class="table-responsive">
+        <div @class([
+            'table-responsive',
+            'datatable-scroll-area' => $enableStickyHeader,
+        ])>
             <table id="dataTable" class="table">
-                <thead class="table-thead">
+                <thead @class([
+                    'table-thead',
+                    'table-thead-sticky' => $enableStickyHeader,
+                ])>
                     <tr class="table-tr">
                         @if($enableCheckbox ?? true)
                             <th width="3%" class="table-thead-th" wire:ignore>
@@ -336,6 +411,7 @@
                 </thead>
 
                 <tbody>
+                    @php $checkboxIndex = 0; @endphp
                     @forelse ($data as $item)
                         @php
                             $afterRowContent = ($enableLivewire && method_exists($this, 'renderAfterRow')) ? $this->renderAfterRow($item) : null;
@@ -354,19 +430,10 @@
                                         class="item-checkbox form-checkbox"
                                         value="{{ $itemId }}"
                                         :checked="selectedItems.includes({{ $itemIdJson }})"
-                                        @change="
-                                            const itemId = {{ $itemIdJson }};
-                                            if ($event.target.checked) {
-                                                if (!selectedItems.includes(itemId)) {
-                                                    selectedItems.push(itemId);
-                                                }
-                                            } else {
-                                                selectedItems = selectedItems.filter(id => id !== itemId);
-                                            }
-                                            updateSelectAll();
-                                        "
+                                        @click="toggleItem({{ $itemIdJson }}, {{ $checkboxIndex }}, $event)"
                                     />
                                 </td>
+                                @php $checkboxIndex++; @endphp
                             @endif
 
                             @foreach($headers ?? [] as $header)

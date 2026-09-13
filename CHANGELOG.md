@@ -2,9 +2,44 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.4.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.0) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.4.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.2) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.4.2] — 2026-09-14
+
+### Public form spam protection
+
+- **New:** Shared public-form guard layer — honeypot, reCAPTCHA v3, disposable/typo/domain email validation via `PublicFormGuardService` and `ValidatesPublicFormSubmissions`.
+- **New:** Reusable Blade components — `<x-public-form.honeypot>`, `<x-public-form.livewire-recaptcha>`, `<x-public-form.submit-button>`.
+- **New:** `EmailDomainCheckService`, `EmailSubmissionValidator`, and `EmailVerificationService` for registration and public form email quality checks.
+- **Improve:** Auth settings UI for email domain checks, reCAPTCHA page targeting, and blocked domains.
+- **Improve:** Registration, forgot-password, and reset-password flows use dedicated Form Request classes and spam guards.
+
+### MCP
+
+- **New:** `UploadMediaTool` — MCP agents can upload media and attach featured images.
+- **Fix:** MCP media URLs for standalone uploads use `resolveMediaUrl()` instead of signed conversion URLs.
+- **Improve:** MCP token service, token storage validation, and Settings → MCP management UI.
+
+### Datatable
+
+- **New:** Shift-click range selection for bulk checkboxes (current page).
+- **New:** Sticky table headers when scrolling long lists.
+- **Fix:** Bulk actions dropdown not opening — `@click.outside` moved to the wrapper that includes the trigger button.
+- **Fix:** Selection sync deferred until bulk actions run (prevents Livewire re-render from breaking shift-click anchor).
+
+### Module management
+
+- **Improve:** Module replace auto-activates and reports `already_activated` in the JSON response.
+- **Improve:** Upload queue shows **Replaced & active** badge instead of a stale **Activate** button after replace.
+- **Improve:** Conflict modal copy clarifies that replace auto-activates the uploaded version.
+
+### Other
+
+- **Fix:** Pulse database storage compatibility on fresh installs.
+- **Improve:** `ModuleZipCommand` packaging reliability.
+- **Chore:** 200+ new translation strings synced across 31 locales.
 
 ## [v1.4.0] — 2026-09-07
 - **New:** LaraDashboard MCP server — connect Cursor, Claude, and other MCP agents to manage content, CRM, forms, email, cache, logs, and daily briefings from **Settings → MCP**.

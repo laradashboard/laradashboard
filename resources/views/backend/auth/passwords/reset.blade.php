@@ -54,6 +54,10 @@
                     required
                 />
 
+                <x-public-form.honeypot-field />
+
+                <x-recaptcha page="reset_password" />
+
                 <!-- Button -->
                 <div>
                     <button type="submit" class="btn-primary w-full" :disabled="loading">
