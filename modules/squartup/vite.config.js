@@ -1,0 +1,36 @@
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
+import path from 'path';
+
+// Dual build mode: development builds to public/, distribution builds to dist/
+const isDistBuild = process.env.MODULE_DIST_BUILD === 'true';
+const distOutDir = path.resolve(__dirname, 'dist/build-squartup');
+const devOutDir = path.resolve(__dirname, '../../public/build-squartup');
+
+export default defineConfig({
+    build: {
+        outDir: isDistBuild ? distOutDir : devOutDir,
+        emptyOutDir: true,
+        // Write the manifest at the build-dir root (public/build-squartup/manifest.json)
+        // so Laravel and <x-module-styles> can locate it without the Vite dev server.
+        manifest: 'manifest.json',
+    },
+    plugins: [
+        laravel({
+            publicDirectory: '../../public',
+            buildDirectory: 'build-squartup',
+            input: [
+                __dirname + '/resources/assets/css/app.css',
+                __dirname + '/resources/assets/js/app.js',
+            ],
+            refresh: true,
+        }),
+        tailwindcss(),
+    ],
+    resolve: {
+        alias: [
+            { find: '~', replacement: path.resolve(__dirname, 'node_modules') },
+        ],
+    },
+});

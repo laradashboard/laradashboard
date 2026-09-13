@@ -3,5 +3,6 @@
     "DocForge": false,
     "Starter26": false,
     "customform": true,
-    "laradashboard": true
+    "laradashboard": false,
+    "Squartup": true
 }

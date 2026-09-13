@@ -1,0 +1,20 @@
+{
+    "name": "Squartup",
+    "alias": "squartup",
+    "title": "Squartup",
+    "description": "Foundation module for migrating the Squartup public website into Lara Dashboard. Phase 1 is isolated loading only — no public site, admin CRUD, or commerce yet.",
+    "keywords": ["squartup", "website", "marketing"],
+    "category": "addon",
+    "priority": 50,
+    "providers": [
+        "Modules\\Squartup\\Providers\\SquartupServiceProvider"
+    ],
+    "files": [],
+    "icon": "lucide:globe",
+    "logo_image": null,
+    "banner_image": null,
+    "version": "0.1.0",
+    "min_laradashboard_required": "1.4.2",
+    "author": "Squartup",
+    "pricing": "free"
+}

@@ -1,0 +1,40 @@
+@import "tailwindcss" prefix(squartup);
+
+/* Use class-based dark mode (controlled by .dark class on html) instead of system preference */
+@custom-variant dark (&:is(.dark *));
+
+/* Scan module views for Tailwind classes */
+@source '../../views/**/*.blade.php';
+
+/*
+ * Theme - inherit primary color from main app
+ * Override if you want a custom primary color for this module
+ */
+@theme {
+    --color-primary: #635bff;
+}
+
+/*
+ * Runtime override to inherit the main app's primary color
+ * This allows the module to use the same branding as the main application
+ */
+@layer base {
+    :root, :host {
+        --squartup-color-primary: var(--color-primary, #635bff);
+    }
+}
+
+/*
+ * Safelist for dynamic Alpine.js classes that JIT can't detect
+ * Add any dynamic classes used in your module here
+ */
+@source inline("border-primary border-2 border-gray-200 border-gray-300");
+@source inline("bg-primary bg-primary/5 bg-primary/20 bg-white bg-gray-100 bg-gray-700 bg-gray-800");
+@source inline("text-primary text-gray-400 text-gray-500 text-gray-600 text-white");
+@source inline("ring-2 ring-primary shadow-md");
+
+/*
+ * Custom styles for this module
+ * Note: Do NOT use @apply here — it conflicts with the prefix() setting.
+ * Write plain CSS instead, or use raw Tailwind class names in your Blade files.
+ */

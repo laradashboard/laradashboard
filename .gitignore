@@ -29,6 +29,7 @@ public/images/modules
 # Use `php artisan module:install-deps` to install module dependencies.
 /modules/*
 !/modules/Laradashboard
+!/modules/squartup
 /modules/*/vendor/
 # Keep the modules directory structure
 !/modules/.gitkeep

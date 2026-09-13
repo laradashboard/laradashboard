@@ -1,0 +1,12 @@
+@extends('squartup::layouts.master')
+
+@section('squartup-admin-content')
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-8">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            {{ __('Welcome to') }} {{ config('squartup.name') }}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+            {{ __('Your module is ready. Start building!') }}
+        </p>
+    </div>
+@endsection

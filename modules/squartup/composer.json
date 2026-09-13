@@ -1,0 +1,30 @@
+{
+    "name": "laradashboard/squartup",
+    "description": "Foundation module for the Squartup website migration.",
+    "authors": [
+        {
+            "name": "Lara Dashboard",
+            "email": "admin@laradashboard.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Squartup\\": "app/",
+            "Modules\\Squartup\\Database\\Factories\\": "database/factories/",
+            "Modules\\Squartup\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Squartup\\Tests\\": "tests/"
+        }
+    }
+}
