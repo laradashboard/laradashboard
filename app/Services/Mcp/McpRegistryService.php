@@ -28,6 +28,7 @@ use App\Mcp\Tools\ListPostsTool;
 use App\Mcp\Tools\ListTermsTool;
 use App\Mcp\Tools\SendEmailTool;
 use App\Mcp\Tools\UpdatePostTool;
+use App\Mcp\Tools\UploadMediaTool;
 use App\Support\Facades\Hook;
 use Illuminate\Support\Str;
 use Laravel\Mcp\Server\Tool;
@@ -50,6 +51,7 @@ class McpRegistryService
             AssignPostTermsTool::class,
             ListTermsTool::class,
             ListMediaTool::class,
+            UploadMediaTool::class,
             AttachFeaturedImageTool::class,
             GenerateSeoMetaTool::class,
             GetDailyBriefingTool::class,

@@ -228,6 +228,19 @@
         @apply space-y-3 border-t border-gray-100 dark:border-gray-800 overflow-x-auto overflow-y-visible;
     }
 
+    .datatable-scroll-area {
+        @apply max-h-[calc(100dvh-15rem)] overflow-y-auto;
+    }
+
+    .datatable-scroll-area .table-thead-sticky .table-thead-th {
+        @apply sticky top-0 z-10;
+        box-shadow: 0 1px 0 0 rgb(243 244 246);
+    }
+
+    .dark .datatable-scroll-area .table-thead-sticky .table-thead-th {
+        box-shadow: 0 1px 0 0 rgb(31 41 55);
+    }
+
     .table {
         @apply w-full dark:text-gray-300;
     }

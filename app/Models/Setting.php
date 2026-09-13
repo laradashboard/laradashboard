@@ -152,6 +152,8 @@ class Setting extends Model
 
     public const AUTH_DEFER_WELCOME_EMAIL_UNTIL_VERIFIED = 'auth_defer_welcome_email_until_verified';
 
+    public const AUTH_REGISTRATION_EMAIL_DOMAIN_CHECK_ENABLED = 'auth_registration_email_domain_check_enabled';
+
     public const AUTH_DEFAULT_USER_ROLE = 'auth_default_user_role';
 
     public const AUTH_REDIRECT_AFTER_LOGIN = 'auth_redirect_after_login';
@@ -167,6 +169,17 @@ class Setting extends Model
     public const AUTH_REGISTER_PAGE_DESCRIPTION = 'auth_register_page_description';
 
     public const AUTH_SHOW_SOCIAL_LOGIN = 'auth_show_social_login';
+
+    // =========================================================================
+    // Email Verification (mailbox-existence check, e.g. AbstractAPI)
+    // Used by registration and any public form (e.g. contact form) that
+    // collects an email address from an untrusted/anonymous visitor.
+    // =========================================================================
+    public const EMAIL_VERIFICATION_ENABLED = 'email_verification_enabled';
+
+    public const EMAIL_VERIFICATION_API_KEY = 'email_verification_api_key';
+
+    public const EMAIL_VERIFICATION_MONTHLY_LIMIT = 'email_verification_monthly_limit';
 
     // =========================================================================
     // Social Authentication Settings

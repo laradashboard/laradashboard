@@ -52,25 +52,10 @@ class ListMediaTool extends Tool
         $media = $result['media'];
 
         return Response::json([
-            'data' => $media->getCollection()->map(function ($item): array {
-                $url = '';
-                try {
-                    $url = $item->getUrl();
-                } catch (\Throwable) {
-                    // Standalone or stale conversion media may not resolve a URL.
-                }
-
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'file_name' => $item->file_name,
-                    'mime_type' => $item->mime_type,
-                    'size' => $item->size,
-                    'human_readable_size' => $item->human_readable_size,
-                    'url' => $url,
-                    'created_at' => optional($item->created_at)?->toIso8601String(),
-                ];
-            })->values()->all(),
+            'data' => $media->getCollection()
+                ->map(fn ($item): array => $this->mediaLibraryService->formatMediaForMcp($item))
+                ->values()
+                ->all(),
             'meta' => [
                 'current_page' => $media->currentPage(),
                 'last_page' => $media->lastPage(),

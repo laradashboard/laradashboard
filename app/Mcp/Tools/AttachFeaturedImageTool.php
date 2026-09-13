@@ -62,12 +62,7 @@ class AttachFeaturedImageTool extends Tool
             return Response::error(__('Media not found in the library.'));
         }
 
-        $url = '';
-        try {
-            $url = $media->getUrl();
-        } catch (\Throwable) {
-            // URL may be unavailable for some standalone media records.
-        }
+        $url = $this->mediaLibraryService->resolveMediaUrl($media) ?? '';
 
         return Response::json([
             'message' => __('Featured image attached successfully.'),

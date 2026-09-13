@@ -24,6 +24,7 @@ beforeEach(function () {
         'settings.auth_registration_honeypot_enabled' => '1',
         'settings.auth_registration_ip_limit_enabled' => '1',
         'settings.auth_registration_max_per_ip_per_day' => '3',
+        'settings.auth_registration_email_domain_check_enabled' => '1',
         'settings.auth_defer_welcome_email_until_verified' => '1',
         'settings.recaptcha_site_key' => '',
         'settings.recaptcha_secret_key' => '',
@@ -107,6 +108,46 @@ test('recaptcha register alias is enabled when legacy registration key is stored
 
     expect($service->isEnabledForPage('register'))->toBeTrue();
     expect($service->isEnabledForPage('registration'))->toBeTrue();
+});
+
+test('registration rejects disposable email domains', function () {
+    $response = $this->from('/register')->post('/register', validRegistrationPayload([
+        'email' => 'spammer@mailinator.com',
+    ]));
+
+    $response->assertRedirect('/register');
+    $response->assertSessionHasErrors('email');
+    $this->assertGuest();
+    expect(User::where('email', 'spammer@mailinator.com')->exists())->toBeFalse();
+});
+
+test('disposable email domains are allowed when the check is disabled', function () {
+    config(['settings.auth_registration_email_domain_check_enabled' => '0']);
+
+    $response = $this->post('/register', validRegistrationPayload([
+        'email' => 'spammer@mailinator.com',
+    ]));
+
+    $response->assertRedirect();
+    expect(User::where('email', 'spammer@mailinator.com')->exists())->toBeTrue();
+});
+
+test('registration guard service flags disposable domains and known hook-added domains', function () {
+    $service = app(\App\Services\Auth\RegistrationGuardService::class);
+
+    expect($service->isDisposableEmailDomain('user@mailinator.com'))->toBeTrue();
+    expect($service->isDisposableEmailDomain('user@example.com'))->toBeFalse();
+    expect($service->isDisposableEmailDomain('not-an-email'))->toBeFalse();
+});
+
+test('registration emails are queued instead of sent inline', function () {
+    // Guards against a suspended/unreachable mail account blocking registration:
+    // both notifications must implement ShouldQueue so delivery happens off-request.
+    expect(new \App\Notifications\RegistrationWelcomeNotification())
+        ->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class);
+
+    expect(new \App\Notifications\CustomVerifyEmailNotification())
+        ->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class);
 });
 
 test('welcome email is sent when verification is disabled', function () {

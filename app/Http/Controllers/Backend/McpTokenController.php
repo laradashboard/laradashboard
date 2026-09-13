@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Backend\StoreMcpTokenRequest;
 use App\Models\Setting;
 use App\Services\Mcp\McpTokenService;
 use Illuminate\Http\JsonResponse;
@@ -53,13 +54,26 @@ class McpTokenController extends Controller
             ], 403);
         }
 
-        $plainTextToken = $this->mcpTokenService->createToken($user);
+        $validated = $request->validate(
+            (new StoreMcpTokenRequest())->rules(),
+            (new StoreMcpTokenRequest())->messages(),
+        );
+
+        $issued = $this->mcpTokenService->issueToken($user, $validated['label']);
+        $tokenRecord = $issued['token'];
 
         return response()->json([
             'success' => true,
             'message' => __('MCP agent token created. Copy it now — it will not be shown again.'),
-            'token' => $plainTextToken,
+            'token' => $issued['plain_text'],
             'abilities' => $abilities,
+            'token_record' => [
+                'id' => $tokenRecord->id,
+                'label' => $this->mcpTokenService->tokenLabel($tokenRecord),
+                'created_at' => $tokenRecord->created_at?->format('M j, Y g:i A'),
+                'last_used_at' => __('Never'),
+                'abilities' => implode(', ', $tokenRecord->abilities ?? []),
+            ],
         ], 201);
     }
 

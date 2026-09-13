@@ -85,7 +85,7 @@
                 <div class="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
                     <p class="text-sm text-amber-700 dark:text-amber-400 flex items-start gap-2">
                         <iconify-icon icon="lucide:info" class="text-lg shrink-0 mt-0.5"></iconify-icon>
-                        <span>{{ __('Replacing the current module will delete all existing files. If the module was active, it will be re-activated after replacement. Make sure to backup your data first.') }}</span>
+                        <span>{{ __('Replacing the current module will delete all existing files and activate the uploaded version automatically. Back up your data first.') }}</span>
                     </p>
                 </div>
             </div>

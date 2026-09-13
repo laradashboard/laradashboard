@@ -8,12 +8,29 @@ use App\Enums\NotificationType;
 use App\Models\Notification;
 use App\Services\Emails\EmailSender;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification as BaseNotification;
 
-class RegistrationWelcomeNotification extends BaseNotification
+class RegistrationWelcomeNotification extends BaseNotification implements ShouldQueue
 {
     use Queueable;
+
+    /**
+     * Number of times the queued notification may be attempted.
+     */
+    public int $tries = 3;
+
+    /**
+     * Backoff (in seconds) between retry attempts, so a broken/suspended
+     * mail account doesn't get hammered with immediate retries.
+     *
+     * @return list<int>
+     */
+    public function backoff(): array
+    {
+        return [60, 300, 900];
+    }
 
     /**
      * Get the notification's delivery channels.

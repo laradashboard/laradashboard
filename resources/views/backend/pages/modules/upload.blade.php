@@ -90,6 +90,10 @@
                         progress: 0,
                         message: '',
                         moduleName: '',
+                        activated: false,
+                        wasReplaced: false,
+                        activating: false,
+                        activationStatus: '',
                         currentStep: 0,
                         steps: [
                             { label: '{{ __('Uploading') }}', status: 'pending' },
@@ -288,10 +292,12 @@
                     fileItem.steps[3].status = 'complete';
 
                     fileItem.moduleName = data.module_name || '';
-                    fileItem.message = data.message || '{{ __('Module replaced successfully') }}';
+                    fileItem.message = data.message || '{{ __('Module replaced and activated successfully.') }}';
+                    fileItem.activated = data.already_activated ?? true;
+                    fileItem.wasReplaced = true;
                     fileItem.status = 'success';
 
-                    this.showToast('success', '{{ __('Success') }}', '{{ __('Module replaced successfully!') }}');
+                    this.showToast('success', '{{ __('Success') }}', fileItem.message);
 
                 } catch (error) {
                     fileItem.steps[fileItem.currentStep].status = 'error';
@@ -600,7 +606,11 @@
                                                     <iconify-icon icon="lucide:loader-2" class="animate-spin"></iconify-icon>
                                                     {{ __('Activating...') }}
                                                 </button>
-                                                <span x-show="fileItem.activated && !fileItem.activating" class="text-xs px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-md flex items-center gap-1.5">
+                                                <span x-show="fileItem.activated && !fileItem.activating && fileItem.wasReplaced" class="text-xs px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-md flex items-center gap-1.5">
+                                                    <iconify-icon icon="lucide:check"></iconify-icon>
+                                                    {{ __('Replaced & active') }}
+                                                </span>
+                                                <span x-show="fileItem.activated && !fileItem.activating && !fileItem.wasReplaced" class="text-xs px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-md flex items-center gap-1.5">
                                                     <iconify-icon icon="lucide:check"></iconify-icon>
                                                     {{ __('Activated') }}
                                                 </span>

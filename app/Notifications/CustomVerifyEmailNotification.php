@@ -8,13 +8,30 @@ use App\Enums\NotificationType;
 use App\Models\Notification;
 use App\Services\Emails\EmailSender;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
 
-class CustomVerifyEmailNotification extends VerifyEmail
+class CustomVerifyEmailNotification extends VerifyEmail implements ShouldQueue
 {
+    /**
+     * Number of times the queued notification may be attempted.
+     */
+    public int $tries = 3;
+
+    /**
+     * Backoff (in seconds) between retry attempts, so a broken/suspended
+     * mail account doesn't get hammered with immediate retries.
+     *
+     * @return list<int>
+     */
+    public function backoff(): array
+    {
+        return [60, 300, 900];
+    }
+
     /**
      * Build the mail representation of the notification.
      */

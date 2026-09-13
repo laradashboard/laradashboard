@@ -47,6 +47,8 @@
                     @enderror
                 </div>
 
+                <x-public-form.honeypot-field />
+
                 <x-recaptcha page="forgot_password" />
 
                 <div>

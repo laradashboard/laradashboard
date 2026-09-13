@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Enums\Hooks\CommonFilterHook;
 use App\Enums\Hooks\SettingFilterHook;
 use App\Http\Controllers\Auth\LoginController;
 use App\Support\Facades\Hook;
@@ -33,6 +34,19 @@ class AuthSettingsServiceProvider extends ServiceProvider
         $this->registerSettingsTab();
         $this->registerDefaultSettings();
         $this->registerCustomLoginRoute();
+        $this->registerRecaptchaPages();
+    }
+
+    protected function registerRecaptchaPages(): void
+    {
+        Hook::addFilter(CommonFilterHook::RECAPTCHA_AVAILABLE_PAGES, function (array $pages): array {
+            return array_merge($pages, [
+                'public_form' => __('Public Forms (Contact, etc.)'),
+                'support_ticket' => __('Support Ticket'),
+                'newsletter' => __('Newsletter'),
+                'reset_password' => __('Reset Password'),
+            ]);
+        });
     }
 
     /**
@@ -72,7 +86,11 @@ class AuthSettingsServiceProvider extends ServiceProvider
             'auth_registration_honeypot_enabled' => '1',
             'auth_registration_ip_limit_enabled' => '1',
             'auth_registration_max_per_ip_per_day' => '3',
+            'auth_registration_email_domain_check_enabled' => '1',
             'auth_defer_welcome_email_until_verified' => '1',
+            'email_verification_enabled' => '0',
+            'email_verification_api_key' => '',
+            'email_verification_monthly_limit' => '100',
             'auth_default_user_role' => 'Subscriber',
             'auth_redirect_after_login' => '/',
             'auth_redirect_after_register' => '/',

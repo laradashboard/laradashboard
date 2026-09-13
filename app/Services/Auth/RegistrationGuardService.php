@@ -6,6 +6,8 @@ namespace App\Services\Auth;
 
 use App\Enums\Hooks\CommonFilterHook;
 use App\Models\Setting;
+use App\Services\EmailDomainCheckService;
+use App\Services\EmailSubmissionValidator;
 use App\Support\Facades\Hook;
 use Illuminate\Support\Facades\Cache;
 
@@ -29,6 +31,12 @@ class RegistrationGuardService
         '/telegra\.ph/i',
     ];
 
+    public function __construct(
+        private readonly EmailDomainCheckService $emailDomainCheck,
+        private readonly EmailSubmissionValidator $emailSubmissionValidator,
+    ) {
+    }
+
     public function isHoneypotEnabled(): bool
     {
         return filter_var(
@@ -48,6 +56,14 @@ class RegistrationGuardService
     public function getMaxRegistrationsPerIpPerDay(): int
     {
         return max(0, (int) config('settings.'.Setting::AUTH_REGISTRATION_MAX_PER_IP_PER_DAY, 3));
+    }
+
+    public function isEmailDomainCheckEnabled(): bool
+    {
+        return filter_var(
+            config('settings.'.Setting::AUTH_REGISTRATION_EMAIL_DOMAIN_CHECK_ENABLED, '1'),
+            FILTER_VALIDATE_BOOLEAN
+        );
     }
 
     public function shouldDeferWelcomeEmailUntilVerified(): bool
@@ -118,7 +134,28 @@ class RegistrationGuardService
         $rules['first_name'][] = $nameRule;
         $rules['last_name'][] = $nameRule;
 
+        if ($this->emailSubmissionValidator->shouldValidate()) {
+            $rules['email'][] = $this->emailSubmissionValidator->validationClosure();
+        }
+
         return Hook::applyFilters(CommonFilterHook::REGISTRATION_GUARD_VALIDATION_RULES, $rules);
+    }
+
+    /**
+     * Whether the email's domain is a known disposable/throwaway provider.
+     */
+    public function isDisposableEmailDomain(string $email): bool
+    {
+        return $this->emailDomainCheck->isDisposableEmailDomain($email);
+    }
+
+    /**
+     * Whether the email's domain resolves to a mail server (MX) or at least a host (A/AAAA).
+     * Real DNS lookups are skipped during automated tests to avoid network dependency/flakiness.
+     */
+    public function domainAcceptsMail(string $email): bool
+    {
+        return $this->emailDomainCheck->domainAcceptsMail($email);
     }
 
     public function looksLikeSpamName(string $value): bool
