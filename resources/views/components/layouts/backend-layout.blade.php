@@ -1,4 +1,7 @@
-@props(['breadcrumbs' => []])
+@props([
+    'breadcrumbs' => [],
+    'unifiedScroll' => false,
+])
 
 @extends('backend.layouts.app')
 
@@ -12,7 +15,15 @@
 
 @section('admin-content')
     <div class="ld-container">
-        @if ($breadcrumbsData ?? false)
+        @if ($unifiedScroll)
+            <x-datatable.unified-scroll-header>
+                @if ($breadcrumbsData ?? false)
+                    {!! $breadcrumbsData !!}
+                @else
+                    <x-breadcrumbs :breadcrumbs="$breadcrumbs" />
+                @endif
+            </x-datatable.unified-scroll-header>
+        @elseif ($breadcrumbsData ?? false)
             {!! $breadcrumbsData !!}
         @else
             <x-breadcrumbs :breadcrumbs="$breadcrumbs" />

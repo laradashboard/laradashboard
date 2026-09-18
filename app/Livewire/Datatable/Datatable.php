@@ -100,7 +100,7 @@ abstract class Datatable extends Component
 
     public function usesUnifiedPageScroll(): bool
     {
-        return false;
+        return true;
     }
 
     public function mount(): void

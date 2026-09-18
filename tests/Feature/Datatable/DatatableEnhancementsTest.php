@@ -36,10 +36,11 @@ test('datatable renders shift-click selection wiring', function () {
         ->assertSeeHtml('syncSelectedItemsToLivewire');
 });
 
-test('datatable renders sticky header scroll container', function () {
+test('datatable renders sticky header page-scroll container', function () {
     $this->actingAs($this->admin);
 
     Livewire::test(UserDatatable::class)
-        ->assertSeeHtml('datatable-scroll-area')
-        ->assertSeeHtml('table-thead-sticky');
+        ->assertSeeHtml('datatable-page-scroll')
+        ->assertSeeHtml('table-thead-sticky')
+        ->assertSeeHtml('datatable-pagination-sticky');
 });

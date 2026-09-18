@@ -1,4 +1,4 @@
-<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
+<x-layouts.backend-layout :breadcrumbs="$breadcrumbs" :unified-scroll="true">
     {!! Hook::applyFilters(PermissionFilterHook::PERMISSIONS_AFTER_BREADCRUMBS, '') !!}
 
     {!! Hook::applyFilters(PermissionFilterHook::PERMISSIONS_BEFORE_TABLE, '') !!}

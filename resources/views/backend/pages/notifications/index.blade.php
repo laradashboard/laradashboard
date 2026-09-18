@@ -1,4 +1,4 @@
-<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
+<x-layouts.backend-layout :breadcrumbs="$breadcrumbs" :unified-scroll="true">
     {!! Hook::applyFilters(NotificationFilterHook::NOTIFICATIONS_AFTER_BREADCRUMBS, '') !!}
 
     <x-email-tabs.navigation currentTab="notifications" />
