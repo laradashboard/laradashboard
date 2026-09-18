@@ -98,6 +98,11 @@ abstract class Datatable extends Component
         return view('components.datatable.skeleton');
     }
 
+    public function usesUnifiedPageScroll(): bool
+    {
+        return false;
+    }
+
     public function mount(): void
     {
         if (empty($this->getModelClass())) {

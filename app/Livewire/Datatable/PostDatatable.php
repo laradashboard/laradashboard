@@ -33,6 +33,11 @@ class PostDatatable extends Datatable
         return __('Search by title or content') . '...';
     }
 
+    public function usesUnifiedPageScroll(): bool
+    {
+        return true;
+    }
+
     public function updatingStatus()
     {
         $this->resetPage();

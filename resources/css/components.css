@@ -241,6 +241,35 @@
         box-shadow: 0 1px 0 0 rgb(31 41 55);
     }
 
+    /* Single page-level scroll: toolbar leaves, thead sticks below the page header. */
+    .table-responsive.datatable-page-scroll {
+        overflow: visible;
+    }
+
+    .datatable-page-scroll .table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .datatable-page-scroll .table-thead-sticky .table-thead-th {
+        @apply sticky z-10;
+        top: var(--admin-page-header-height, 4.5rem);
+        box-shadow: 0 1px 0 0 rgb(243 244 246);
+    }
+
+    .dark .datatable-page-scroll .table-thead-sticky .table-thead-th {
+        box-shadow: 0 1px 0 0 rgb(31 41 55);
+    }
+
+    .datatable-page-scroll .datatable-pagination-sticky {
+        @apply sticky bottom-0 z-10 bg-white dark:bg-gray-900;
+        box-shadow: 0 -1px 0 0 rgb(243 244 246);
+    }
+
+    .dark .datatable-page-scroll .datatable-pagination-sticky {
+        box-shadow: 0 -1px 0 0 rgb(31 41 55);
+    }
+
     .table {
         @apply w-full dark:text-gray-300;
     }

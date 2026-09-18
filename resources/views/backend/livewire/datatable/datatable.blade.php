@@ -15,4 +15,5 @@
     :customNewResourceLink="$this->getCustomNewResourceLink()"
     :newResourceLinkRouteUrl="$this->getCreateRouteUrl()"
     :newResourceLinkLabel="$newResourceLinkLabel"
+    :enableUnifiedScroll="$this->usesUnifiedPageScroll()"
 />

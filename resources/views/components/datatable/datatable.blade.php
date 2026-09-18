@@ -31,6 +31,7 @@
     'perPage' => 10,
     'perPageOptions' => [10, 20, 50, 100, __('All')],
     'enableStickyHeader' => true,
+    'enableUnifiedScroll' => false,
 ])
 
 @php
@@ -179,7 +180,7 @@
      }"
 >
     <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div class="px-5 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row justify-between items-center gap-3">
+        <div class="datatable-toolbar px-5 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row justify-between items-center gap-3">
             {!! Hook::applyFilters(DatatableHook::BEFORE_SEARCHBOX, '', $searchbarPlaceholder) !!}
             @if($enableLivewire)
                 {{ method_exists($this, 'renderBeforeSearchbar') ? $this->renderBeforeSearchbar() : '' }}
@@ -353,7 +354,8 @@
 
         <div @class([
             'table-responsive',
-            'datatable-scroll-area' => $enableStickyHeader,
+            'datatable-scroll-area' => $enableStickyHeader && ! $enableUnifiedScroll,
+            'datatable-page-scroll' => $enableUnifiedScroll,
         ])>
             <table id="dataTable" class="table">
                 <thead @class([
@@ -487,7 +489,11 @@
             </table>
 
             @if($enablePagination ?? true)
-                <div class="my-4 px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div @class([
+                    'datatable-pagination px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4',
+                    'my-4' => ! $enableUnifiedScroll,
+                    'datatable-pagination-sticky py-3' => $enableUnifiedScroll,
+                ])>
                     <div class="flex items-center gap-2">
                         <label for="perPage" class="text-sm text-gray-600 dark:text-gray-300">{{ __('Per page') }}</label>
                         <select
