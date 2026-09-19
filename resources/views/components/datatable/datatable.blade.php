@@ -31,7 +31,7 @@
     'perPage' => 10,
     'perPageOptions' => [10, 20, 50, 100, __('All')],
     'enableStickyHeader' => true,
-    'enableUnifiedScroll' => false,
+    'enableUnifiedScroll' => true,
 ])
 
 @php
@@ -47,6 +47,8 @@
         lastClickedIndex: null,
         lastClickedItemId: null,
         bulkDeleteModalOpen: false,
+        unifiedScrollObserver: null,
+        unifiedScrollOwnsPageChrome: false,
         parseCheckboxId(value) {
             const num = parseInt(value, 10);
             return Number.isNaN(num) ? value : num;
@@ -132,6 +134,95 @@
             // Check if all current page items are selected
             this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
         },
+        findOrAdoptPageHeader() {
+            const existing = document.querySelector('[data-datatable-unified-scroll-header]');
+            if (existing) {
+                return { header: existing, adopted: false };
+            }
+
+            let node = this.$el;
+            let header = null;
+
+            while (node && node !== document.body) {
+                const parent = node.parentElement;
+                if (!parent) {
+                    break;
+                }
+
+                header = Array.from(parent.children).find(
+                    (child) => child !== node && !child.contains(this.$el)
+                );
+
+                if (header) {
+                    break;
+                }
+
+                node = parent;
+            }
+
+            if (!header) {
+                return { header: null, adopted: false };
+            }
+
+            header.setAttribute('data-datatable-unified-scroll-header', '');
+            header.classList.add(
+                'sticky', 'top-0', 'z-20', '-mx-4', 'bg-body', 'px-4', 'py-3',
+                'sm:-mx-6', 'sm:px-6', 'lg:-mx-8', 'lg:px-8', 'dark:bg-gray-900'
+            );
+
+            return { header, adopted: true };
+        },
+        setupUnifiedPageScroll() {
+            if (!@json($enableUnifiedScroll)) {
+                return;
+            }
+
+            const { header, adopted } = this.findOrAdoptPageHeader();
+            this.unifiedScrollOwnsPageChrome = adopted || !header;
+
+            if (this.unifiedScrollOwnsPageChrome) {
+                document.body.classList.add('admin-unified-scroll');
+
+                const nav = document.getElementById('appHeader');
+                if (nav) {
+                    nav.classList.remove('sticky');
+                    nav.classList.add('relative');
+                }
+            }
+
+            const setHeaderHeight = () => {
+                document.documentElement.style.setProperty(
+                    '--admin-page-header-height',
+                    (header ? header.offsetHeight : 0) + 'px'
+                );
+            };
+
+            setHeaderHeight();
+
+            if (header && window.ResizeObserver) {
+                this.unifiedScrollObserver = new ResizeObserver(setHeaderHeight);
+                this.unifiedScrollObserver.observe(header);
+            }
+        },
+        teardownUnifiedPageScroll() {
+            this.unifiedScrollObserver?.disconnect();
+            this.unifiedScrollObserver = null;
+
+            if (!this.unifiedScrollOwnsPageChrome) {
+                return;
+            }
+
+            document.body.classList.remove('admin-unified-scroll');
+            document.documentElement.style.removeProperty('--admin-page-header-height');
+
+            const nav = document.getElementById('appHeader');
+            if (nav) {
+                nav.classList.add('sticky');
+                nav.classList.remove('relative');
+            }
+
+            this.unifiedScrollOwnsPageChrome = false;
+        },
         // Method to refresh allIds when Livewire updates
         refreshIds(newIds) {
             this.allIds = newIds;
@@ -140,6 +231,8 @@
             this.updateSelectAll();
         },
         init() {
+            this.setupUnifiedPageScroll();
+
             // Set initial selectAll state based on loaded selectedItems
             this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
 
@@ -176,6 +269,9 @@
                     checkbox.checked = false;
                 });
             });
+        },
+        destroy() {
+            this.teardownUnifiedPageScroll();
         }
      }"
 >

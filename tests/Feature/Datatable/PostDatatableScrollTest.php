@@ -140,11 +140,13 @@ test('other datatables use the same unified page scroll', function () {
 
     Livewire::test(UserDatatable::class)
         ->assertSeeHtml('datatable-page-scroll')
+        ->assertSeeHtml('setupUnifiedPageScroll')
         ->assertSeeHtml('datatable-pagination-sticky')
         ->assertDontSeeHtml('datatable-scroll-area');
 
     Livewire::test(RoleDatatable::class)
         ->assertSeeHtml('datatable-page-scroll')
+        ->assertSeeHtml('setupUnifiedPageScroll')
         ->assertSeeHtml('datatable-pagination-sticky')
         ->assertDontSeeHtml('datatable-scroll-area');
 });

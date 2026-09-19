@@ -44,3 +44,18 @@ test('datatable renders sticky header page-scroll container', function () {
         ->assertSeeHtml('table-thead-sticky')
         ->assertSeeHtml('datatable-pagination-sticky');
 });
+
+test('unified page scroll is the default for every datatable', function () {
+    $this->actingAs($this->admin);
+
+    $component = Livewire::test(UserDatatable::class);
+
+    expect($component->instance()->usesUnifiedPageScroll())->toBeTrue();
+
+    $component
+        ->assertSeeHtml('setupUnifiedPageScroll')
+        ->assertSeeHtml('findOrAdoptPageHeader')
+        ->assertSeeHtml('datatable-page-scroll')
+        ->assertSeeHtml('datatable-pagination-sticky')
+        ->assertDontSeeHtml('datatable-scroll-area');
+});

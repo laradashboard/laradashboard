@@ -1,5 +1,6 @@
 @props([
     'breadcrumbs' => [],
+    // Optional first-paint sticky title. Datatables apply unified page scroll on their own.
     'unifiedScroll' => false,
 ])
 

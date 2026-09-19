@@ -98,6 +98,11 @@ abstract class Datatable extends Component
         return view('components.datatable.skeleton');
     }
 
+    /**
+     * Unified page scroll (sticky title/column headers and bottom pagination)
+     * is on for every datatable, including module tables that extend this class.
+     * Override and return false to use an inner table scroller instead.
+     */
     public function usesUnifiedPageScroll(): bool
     {
         return true;
