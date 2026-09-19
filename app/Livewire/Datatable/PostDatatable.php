@@ -33,6 +33,16 @@ class PostDatatable extends Datatable
         return __('Search by title or content') . '...';
     }
 
+    public function usesColumnVisibility(): bool
+    {
+        return $this->postType === PostType::POST;
+    }
+
+    public function getColumnVisibilityStorageKey(): string
+    {
+        return parent::getColumnVisibilityStorageKey() . '-' . $this->postType;
+    }
+
     public function updatingStatus()
     {
         $this->resetPage();
