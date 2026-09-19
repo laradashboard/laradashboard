@@ -215,7 +215,9 @@ class Post extends Model implements SpatieHasMedia
     public function getViewCountAttribute(): int
     {
         if ($this->relationLoaded('postMeta')) {
-            return (int) ($this->postMeta->firstWhere('meta_key', self::VIEWS_META_KEY)?->meta_value ?? 0);
+            $viewsMeta = $this->postMeta->firstWhere('meta_key', self::VIEWS_META_KEY);
+
+            return $viewsMeta !== null ? (int) $viewsMeta->meta_value : 0;
         }
 
         return (int) $this->getMeta(self::VIEWS_META_KEY, 0);
