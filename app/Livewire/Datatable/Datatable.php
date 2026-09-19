@@ -99,10 +99,7 @@ abstract class Datatable extends Component
         return view('components.datatable.skeleton');
     }
 
-    /**
-     * Column visibility is on for every datatable, including module tables
-     * that extend this class. Override and return false to disable it.
-     */
+    
     public function usesColumnVisibility(): bool
     {
         return true;
