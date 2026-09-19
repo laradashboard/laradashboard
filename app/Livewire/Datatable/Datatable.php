@@ -97,7 +97,8 @@ abstract class Datatable extends Component
     public function placeholder(): Renderable
     {
         return view('components.datatable.skeleton');
-    }    
+    }
+
     public function usesColumnVisibility(): bool
     {
         return true;
