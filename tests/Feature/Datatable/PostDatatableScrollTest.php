@@ -98,11 +98,10 @@ beforeEach(function () {
     );
 });
 
-test('datatable list pages use a unified page-scroll header', function (string $uri) {
+test('datatable list pages still render without a layout unified-scroll flag', function (string $uri) {
     $this->actingAs($this->admin)
         ->get($uri)
-        ->assertOk()
-        ->assertSee('data-datatable-unified-scroll-header', false);
+        ->assertOk();
 })->with([
     '/admin/posts/post',
     '/admin/posts/page',

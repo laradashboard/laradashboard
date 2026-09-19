@@ -1,4 +1,4 @@
-<x-layouts.backend-layout :breadcrumbs="$breadcrumbs" :unified-scroll="true">
+<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
     <x-email-tabs.navigation currentTab="email-templates" />
 
     <div class="space-y-6">

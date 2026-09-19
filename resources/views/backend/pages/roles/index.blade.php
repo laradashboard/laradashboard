@@ -1,4 +1,4 @@
-<x-layouts.backend-layout :breadcrumbs="$breadcrumbs" :unified-scroll="true">
+<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
     {!! Hook::applyFilters(RoleFilterHook::ROLES_AFTER_BREADCRUMBS, '') !!}
 
     {!! Hook::applyFilters(RoleFilterHook::ROLES_BEFORE_TABLE, '') !!}

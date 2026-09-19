@@ -1,4 +1,4 @@
-<x-layouts.backend-layout :breadcrumbs="$breadcrumbs" :unified-scroll="true">
+<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
     {!! Hook::applyFilters(TermFilterHook::TERM_AFTER_BREADCRUMBS, '', $taxonomyModel) !!}
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

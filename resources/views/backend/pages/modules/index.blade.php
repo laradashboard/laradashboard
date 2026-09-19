@@ -1,4 +1,4 @@
-<x-layouts.backend-layout :breadcrumbs="$breadcrumbs" :unified-scroll="true">
+<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
     {!! Hook::applyFilters(ModuleFilterHook::MODULES_AFTER_BREADCRUMBS, '') !!}
 
     <div x-data="{

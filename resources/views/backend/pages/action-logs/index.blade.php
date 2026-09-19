@@ -1,4 +1,4 @@
-<x-layouts.backend-layout :breadcrumbs="$breadcrumbs" :unified-scroll="true">
+<x-layouts.backend-layout :breadcrumbs="$breadcrumbs">
     {!! Hook::applyFilters(ActionLogFilterHook::ACTION_LOG_AFTER_BREADCRUMBS, '') !!}
 
     @livewire('datatable.action-log-datatable', ['lazy' => true])

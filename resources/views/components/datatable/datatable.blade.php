@@ -140,10 +140,13 @@
                 return { header: existing, adopted: false };
             }
 
-            let node = this.$el;
-            let header = null;
+            const page = this.$el.closest('.ld-container');
+            let header = page?.firstElementChild && !page.firstElementChild.contains(this.$el)
+                ? page.firstElementChild
+                : null;
 
-            while (node && node !== document.body) {
+            let node = this.$el;
+            while (!header && node && node !== document.body) {
                 const parent = node.parentElement;
                 if (!parent) {
                     break;
