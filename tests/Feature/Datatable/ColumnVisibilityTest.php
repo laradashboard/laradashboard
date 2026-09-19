@@ -116,6 +116,7 @@ test('posts datatable lists every column in the visibility control', function ()
         ->assertSeeHtml('data-column-id="author"')
         ->assertSeeHtml('data-column-id="status"')
         ->assertSeeHtml('data-column-id="category"')
+        ->assertSeeHtml('data-column-id="views"')
         ->assertSeeHtml('data-column-id="created_at"')
         ->assertSeeHtml('data-column-id="updated_at"')
         ->assertSeeHtml('data-column-id="actions"');

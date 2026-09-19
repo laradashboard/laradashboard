@@ -13,5 +13,6 @@ abstract class BaseContentPage extends BaseFrontendPage
     public function mount(string $slug): void
     {
         $this->page = $this->query()->findPublishedPageBySlug($slug);
+        $this->page?->incrementViews();
     }
 }
