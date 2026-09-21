@@ -28,6 +28,16 @@ use Spatie\Permission\Models\Permission;
 
 pest()->use(RefreshDatabase::class);
 
+function mcpFeatureTestPngBytes(): string
+{
+    $decoded = base64_decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+        true,
+    );
+
+    return is_string($decoded) ? $decoded : '';
+}
+
 beforeEach(function () {
     foreach ([
         'post.view', 'post.create', 'post.edit', 'post.delete',
@@ -193,7 +203,8 @@ test('list media mcp tool returns library items', function () {
 test('attach featured image mcp tool links media to a post', function () {
     $directory = storage_path('app/public/media');
     File::ensureDirectoryExists($directory);
-    File::put($directory.'/mcp-featured.png', 'fake-image');
+    $pngBytes = mcpFeatureTestPngBytes();
+    File::put($directory.'/mcp-featured.png', $pngBytes);
 
     $media = Media::create([
         'model_type' => '',
@@ -205,7 +216,7 @@ test('attach featured image mcp tool links media to a post', function () {
         'mime_type' => 'image/png',
         'disk' => 'public',
         'conversions_disk' => 'public',
-        'size' => 10,
+        'size' => strlen($pngBytes),
         'manipulations' => [],
         'custom_properties' => [],
         'generated_conversions' => [],
