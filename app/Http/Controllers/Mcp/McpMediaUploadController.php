@@ -61,8 +61,8 @@ class McpMediaUploadController extends Controller
         try {
             $media = $this->mediaLibraryService->uploadStandaloneFile(
                 $request->file('file'),
-                $pending['title'] ?? null,
-                $pending['alt_text'] ?? null,
+                ($pending ?? [])['title'] ?? null,
+                ($pending ?? [])['alt_text'] ?? null,
             );
         } catch (ValidationException $exception) {
             return response()->json([

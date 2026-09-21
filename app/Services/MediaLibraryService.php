@@ -18,13 +18,39 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+/**
+ * @phpstan-type McpMediaServeability array{
+ *     serve_ok: bool,
+ *     http_status: int|null,
+ *     bytes: int,
+ *     mime: string|null
+ * }
+ * @phpstan-type McpFormattedMedia array{
+ *     id: int,
+ *     name: string,
+ *     file_name: string,
+ *     mime_type: string,
+ *     size: int,
+ *     human_readable_size: string|null,
+ *     url: string,
+ *     created_at: string|null,
+ *     serve_ok: bool,
+ *     http_status: int|null,
+ *     bytes: int,
+ *     mime: string|null
+ * }
+ */
 class MediaLibraryService
 {
     use HandlesMediaOperations;
 
+    /** Maximum size for multipart MCP uploads (bytes). */
     public const MCP_MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
-    /** Base64-in-JSON uploads above this size should use multipart MCP upload instead. */
+    /**
+     * Maximum decoded size for base64-in-JSON MCP uploads. Must stay less than or equal to
+     * {@see self::MCP_MAX_UPLOAD_BYTES}; larger files must use multipart upload (create-media-upload).
+     */
     public const MCP_BASE64_FALLBACK_MAX_BYTES = 100 * 1024;
 
     public function __construct(private readonly SvgSanitizer $svgSanitizer)
@@ -174,22 +200,7 @@ class MediaLibraryService
             ]);
         }
 
-        if (strlen($decoded) > self::MCP_BASE64_FALLBACK_MAX_BYTES) {
-            throw ValidationException::withMessages([
-                'content_base64' => [__(
-                    'For files larger than :size, call create-media-upload and POST the file as multipart/form-data to the returned upload_url (or upload_url_bearer with your MCP token).',
-                    ['size' => MediaHelper::formatFileSize(self::MCP_BASE64_FALLBACK_MAX_BYTES)]
-                )],
-            ]);
-        }
-
-        if (strlen($decoded) > self::MCP_MAX_UPLOAD_BYTES) {
-            throw ValidationException::withMessages([
-                'content_base64' => [__('File exceeds the maximum allowed size of :size.', [
-                    'size' => MediaHelper::formatFileSize(self::MCP_MAX_UPLOAD_BYTES),
-                ])],
-            ]);
-        }
+        $this->assertMcpBase64PayloadWithinLimit($decoded);
 
         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         $allowedForExtension = MediaHelper::getAllowedExtensionMimeMap()[$extension] ?? null;
@@ -289,7 +300,7 @@ class MediaLibraryService
     }
 
     /**
-     * @return array{serve_ok: bool, http_status: int|null, bytes: int, mime: string|null}
+     * @return McpMediaServeability
      */
     public function verifyMediaPublicServeability(SpatieMedia $item): array
     {
@@ -305,26 +316,13 @@ class MediaLibraryService
     }
 
     /**
-     * @return array{
-     *     id: int,
-     *     name: string,
-     *     file_name: string,
-     *     mime_type: string,
-     *     size: int,
-     *     human_readable_size: string|null,
-     *     url: string,
-     *     created_at: string|null,
-     *     serve_ok: bool,
-     *     http_status: int|null,
-     *     bytes: int,
-     *     mime: string|null
-     * }
+     * @return McpFormattedMedia
      */
-    public function formatMediaForMcp(SpatieMedia $item, bool $includeServeCheck = true): array
+    public function formatMediaForMcp(SpatieMedia $item): array
     {
         $url = $this->resolveMediaUrl($item) ?? '';
 
-        $payload = [
+        return array_merge([
             'id' => $item->id,
             'name' => $item->name,
             'file_name' => $item->file_name,
@@ -332,14 +330,8 @@ class MediaLibraryService
             'size' => $item->size,
             'human_readable_size' => $item->human_readable_size ?? null,
             'url' => $url,
-            'created_at' => optional($item->created_at)?->toIso8601String(),
-        ];
-
-        if ($includeServeCheck) {
-            return array_merge($payload, $this->verifyMediaPublicServeability($item));
-        }
-
-        return $payload;
+            'created_at' => $item->created_at?->toIso8601String(),
+        ], $this->verifyMediaPublicServeability($item));
     }
 
     public function deleteMedia(int $id): bool
@@ -475,8 +467,25 @@ class MediaLibraryService
             'safe_file_name' => $safeFileName,
             'original_name' => $originalName,
             'mime_type' => (string) $file->getMimeType(),
-            'size' => $file->getSize(),
+            'size' => (int) ($file->getSize() ?: 0),
         ];
+    }
+
+    /**
+     * @param  non-empty-string  $decoded
+     *
+     * @throws ValidationException
+     */
+    private function assertMcpBase64PayloadWithinLimit(string $decoded): void
+    {
+        if (strlen($decoded) > self::MCP_BASE64_FALLBACK_MAX_BYTES) {
+            throw ValidationException::withMessages([
+                'content_base64' => [__(
+                    'For files larger than :size, call create-media-upload and POST the file as multipart/form-data to the returned upload_url (or upload_url_bearer with your MCP token).',
+                    ['size' => MediaHelper::formatFileSize(self::MCP_BASE64_FALLBACK_MAX_BYTES)]
+                )],
+            ]);
+        }
     }
 
     /**

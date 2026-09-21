@@ -17,6 +17,7 @@ use Laravel\Mcp\Server\Tool;
 #[Name('list-media')]
 #[Description('Search the media library for images and files. Use before attach-featured-image to find media IDs or URLs.')]
 #[McpToolMeta(ability: 'mcp:media.read', permission: 'media.view', group: 'Content')]
+/** @phpstan-import-type McpFormattedMedia from \App\Services\MediaLibraryService */
 class ListMediaTool extends Tool
 {
     use InteractsWithMcpAuthorization;
