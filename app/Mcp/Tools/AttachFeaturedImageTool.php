@@ -62,6 +62,12 @@ class AttachFeaturedImageTool extends Tool
             return Response::error(__('Media not found in the library.'));
         }
 
+        $serveability = $this->mediaLibraryService->verifyMediaPublicServeability($media);
+
+        if (! $serveability['serve_ok']) {
+            return Response::error(__('Featured image was linked in the database, but the public file is missing or not serveable.'));
+        }
+
         $url = $this->mediaLibraryService->resolveMediaUrl($media) ?? '';
 
         return Response::json([
@@ -70,13 +76,13 @@ class AttachFeaturedImageTool extends Tool
                 'id' => $post->id,
                 'title' => $post->title,
             ],
-            'media' => [
+            'media' => array_merge([
                 'id' => $media->id,
                 'name' => $media->name,
                 'file_name' => $media->file_name,
                 'mime_type' => $media->mime_type,
                 'url' => $url,
-            ],
+            ], $serveability),
         ]);
     }
 

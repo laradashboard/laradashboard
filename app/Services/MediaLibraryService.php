@@ -24,6 +24,9 @@ class MediaLibraryService
 
     public const MCP_MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
+    /** Base64-in-JSON uploads above this size should use multipart MCP upload instead. */
+    public const MCP_BASE64_FALLBACK_MAX_BYTES = 100 * 1024;
+
     public function __construct(private readonly SvgSanitizer $svgSanitizer)
     {
     }
@@ -171,6 +174,15 @@ class MediaLibraryService
             ]);
         }
 
+        if (strlen($decoded) > self::MCP_BASE64_FALLBACK_MAX_BYTES) {
+            throw ValidationException::withMessages([
+                'content_base64' => [__(
+                    'For files larger than :size, call create-media-upload and POST the file as multipart/form-data to the returned upload_url (or upload_url_bearer with your MCP token).',
+                    ['size' => MediaHelper::formatFileSize(self::MCP_BASE64_FALLBACK_MAX_BYTES)]
+                )],
+            ]);
+        }
+
         if (strlen($decoded) > self::MCP_MAX_UPLOAD_BYTES) {
             throw ValidationException::withMessages([
                 'content_base64' => [__('File exceeds the maximum allowed size of :size.', [
@@ -236,6 +248,63 @@ class MediaLibraryService
     }
 
     /**
+     * Store a standalone library file from an uploaded multipart file (MCP agents).
+     *
+     * @throws ValidationException
+     */
+    public function uploadStandaloneFile(
+        UploadedFile $file,
+        ?string $title = null,
+        ?string $altText = null,
+    ): SpatieMedia {
+        $size = (int) ($file->getSize() ?: 0);
+
+        if ($size > self::MCP_MAX_UPLOAD_BYTES) {
+            throw ValidationException::withMessages([
+                'file' => [__('File exceeds the maximum allowed size of :size.', [
+                    'size' => MediaHelper::formatFileSize(self::MCP_MAX_UPLOAD_BYTES),
+                ])],
+            ]);
+        }
+
+        $this->assertFileIsAllowed($file);
+        $file = $this->sanitizeSvgIfNeeded($file);
+        $prepared = $this->prepareFileForStorage($file);
+
+        if ($title !== null && trim($title) !== '') {
+            $extension = pathinfo($prepared['safe_file_name'], PATHINFO_EXTENSION);
+            $prepared['original_name'] = trim($title).'.'.$extension;
+        }
+
+        $media = $this->storePreparedMedia($prepared);
+
+        if ($altText !== null && trim($altText) !== '') {
+            $customProperties = is_array($media->custom_properties) ? $media->custom_properties : [];
+            $customProperties['alt_text'] = trim($altText);
+            $media->custom_properties = $customProperties;
+            $media->save();
+        }
+
+        return $media;
+    }
+
+    /**
+     * @return array{serve_ok: bool, http_status: int|null, bytes: int, mime: string|null}
+     */
+    public function verifyMediaPublicServeability(SpatieMedia $item): array
+    {
+        $path = $this->resolveMediaPath($item);
+        $bytes = ($path !== null && is_file($path)) ? (int) filesize($path) : 0;
+
+        return [
+            'serve_ok' => $bytes > 0,
+            'http_status' => $bytes > 0 ? 200 : null,
+            'bytes' => $bytes > 0 ? $bytes : (int) $item->size,
+            'mime' => $item->mime_type,
+        ];
+    }
+
+    /**
      * @return array{
      *     id: int,
      *     name: string,
@@ -244,14 +313,18 @@ class MediaLibraryService
      *     size: int,
      *     human_readable_size: string|null,
      *     url: string,
-     *     created_at: string|null
+     *     created_at: string|null,
+     *     serve_ok: bool,
+     *     http_status: int|null,
+     *     bytes: int,
+     *     mime: string|null
      * }
      */
-    public function formatMediaForMcp(SpatieMedia $item): array
+    public function formatMediaForMcp(SpatieMedia $item, bool $includeServeCheck = true): array
     {
         $url = $this->resolveMediaUrl($item) ?? '';
 
-        return [
+        $payload = [
             'id' => $item->id,
             'name' => $item->name,
             'file_name' => $item->file_name,
@@ -261,6 +334,12 @@ class MediaLibraryService
             'url' => $url,
             'created_at' => optional($item->created_at)?->toIso8601String(),
         ];
+
+        if ($includeServeCheck) {
+            return array_merge($payload, $this->verifyMediaPublicServeability($item));
+        }
+
+        return $payload;
     }
 
     public function deleteMedia(int $id): bool
