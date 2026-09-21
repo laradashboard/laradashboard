@@ -306,13 +306,31 @@ class MediaLibraryService
     {
         $path = $this->resolveMediaPath($item);
         $bytes = ($path !== null && is_file($path)) ? (int) filesize($path) : 0;
+        $serveOk = $bytes > 0 && $this->mediaFileIsDecodableAtPath($path, (string) $item->mime_type);
 
         return [
-            'serve_ok' => $bytes > 0,
-            'http_status' => $bytes > 0 ? 200 : null,
+            'serve_ok' => $serveOk,
+            'http_status' => $serveOk ? 200 : null,
             'bytes' => $bytes > 0 ? $bytes : (int) $item->size,
             'mime' => $item->mime_type,
         ];
+    }
+
+    protected function mediaFileIsDecodableAtPath(?string $path, string $mimeType): bool
+    {
+        if ($path === null || ! is_file($path)) {
+            return false;
+        }
+
+        if ($mimeType === 'image/svg+xml') {
+            return true;
+        }
+
+        if (! str_starts_with($mimeType, 'image/')) {
+            return true;
+        }
+
+        return @getimagesize($path) !== false;
     }
 
     /**
@@ -421,6 +439,28 @@ class MediaLibraryService
         if (! $this->isSecureFile($file) || ! MediaHelper::isAllowedMimeType($file->getMimeType())) {
             throw ValidationException::withMessages([
                 'files' => [__('This file type is not allowed.')],
+            ]);
+        }
+
+        $this->assertRasterImageIsDecodable($file);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    protected function assertRasterImageIsDecodable(UploadedFile $file): void
+    {
+        $mimeType = (string) $file->getMimeType();
+
+        if (! str_starts_with($mimeType, 'image/') || MediaHelper::isSvgFile($file)) {
+            return;
+        }
+
+        $path = $file->getRealPath();
+
+        if ($path === false || @getimagesize($path) === false) {
+            throw ValidationException::withMessages([
+                'file' => [__('The uploaded image is invalid or corrupted.')],
             ]);
         }
     }

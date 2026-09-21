@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Media;
 use App\Services\MediaLibraryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
 
 pest()->use(RefreshDatabase::class);
@@ -60,6 +61,15 @@ test('upload from base64 rejects payloads above fallback limit', function () {
         contentBase64: base64_encode($tooLarge),
     );
 })->throws(ValidationException::class, 'create-media-upload');
+
+test('multipart upload rejects corrupted jpeg bytes', function () {
+    $service = app(MediaLibraryService::class);
+    $tmp = tempnam(sys_get_temp_dir(), 'ld_bad_jpeg_');
+    file_put_contents($tmp, "\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00not-a-real-image");
+    $file = new UploadedFile($tmp, 'bad.jpg', 'image/jpeg', null, true);
+
+    $service->uploadStandaloneFile($file);
+})->throws(ValidationException::class, 'invalid or corrupted');
 
 test('upload from base64 rejects invalid mime type', function () {
     $service = app(MediaLibraryService::class);
