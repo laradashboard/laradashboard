@@ -1,10 +1,15 @@
 @php
     use App\Services\Mcp\McpSettingsService;
+    use App\Services\MediaLibraryService;
+    use App\Support\Helper\MediaHelper;
 
     $clients = $mcpSettings->supportedClients();
     $defaultClient = $mcpSettings->defaultAiClient();
     $isInsecureHttp = $mcpSettings->isInsecureHttp();
     $cursorMcpEnvVar = McpSettingsService::CURSOR_MCP_ENV_VAR;
+    $multipartUploadUrl = $mcpSettings->multipartUploadUrl();
+    $base64FallbackMax = MediaHelper::formatFileSize(MediaLibraryService::MCP_BASE64_FALLBACK_MAX_BYTES);
+    $multipartMax = MediaHelper::formatFileSize(MediaLibraryService::MCP_MAX_UPLOAD_BYTES);
 @endphp
 
 <div class="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-6">
@@ -194,6 +199,62 @@
                     <li><code class="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{{ __('What is on my daily briefing?') }}</code></li>
                     <li><code class="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{{ __('Create a blog post about getting started with LaraDashboard') }}</code></li>
                 </ul>
+            </div>
+        </div>
+
+        {{-- Step 6 — hero images --}}
+        <div class="flex gap-4">
+            <div class="flex shrink-0 justify-center items-center w-8 h-8 text-sm font-semibold text-gray-600 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300" aria-hidden="true">6</div>
+            <div class="flex-1 min-w-0 space-y-3">
+                <h5 class="font-medium text-gray-900 dark:text-white">{{ __('Upload blog hero images (sharp, large files)') }}</h5>
+                <p class="text-sm text-gray-600 dark:text-gray-300">
+                    {{ __('Do not send large images as base64 through MCP tool calls — many clients truncate JSON payloads and uploads fail or look blurry. Use multipart upload instead.') }}
+                </p>
+
+                <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300 list-disc list-inside">
+                    <li>
+                        <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">upload-media</code>
+                        {{ __('— tiny assets only (about :size decoded or less).', ['size' => $base64FallbackMax]) }}
+                    </li>
+                    <li>
+                        <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">create-media-upload</code>
+                        {{ __('→ POST the file → :tool — preferred for 1200×630 heroes up to :max.', [
+                            'tool' => 'finalize-media-upload',
+                            'max' => $multipartMax,
+                        ]) }}
+                    </li>
+                    <li>
+                        <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">attach-featured-image</code>
+                        {{ __('— after upload reports :field; the public URL must be serveable or attach fails.', ['field' => 'serve_ok: true']) }}
+                    </li>
+                </ul>
+
+                <div class="space-y-2">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ __('Agent workflow') }}</p>
+                    <ol class="space-y-1.5 text-sm text-gray-600 dark:text-gray-300 list-decimal list-inside">
+                        <li>{{ __('Call create-media-upload with filename and mime_type (e.g. hero.jpg, image/jpeg).') }}</li>
+                        <li>{{ __('POST multipart/form-data with field file to upload_url (signed) or upload_url_bearer with the same Authorization header as MCP.') }}</li>
+                        <li>{{ __('Call finalize-media-upload with upload_token and confirm serve_ok is true in the response.') }}</li>
+                        <li>{{ __('Call attach-featured-image with post_id and media_id.') }}</li>
+                    </ol>
+                </div>
+
+                <div class="space-y-2">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ __('Multipart upload URL (Bearer token)') }}</p>
+                    <code class="block text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1.5 rounded font-mono text-gray-700 dark:text-gray-300 break-all">{{ $multipartUploadUrl }}</code>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ __('Example (replace paths and token):') }}
+                    </p>
+                    <div class="relative overflow-hidden rounded-lg bg-gray-900">
+                        <pre class="p-3 text-xs text-gray-100 overflow-x-auto"><code>curl -X POST "{{ $multipartUploadUrl }}" \
+  -H "Authorization: Bearer YOUR_MCP_AGENT_TOKEN" \
+  -F "file=@/path/to/hero.jpg;type=image/jpeg" \
+  -F "upload_token=UPLOAD_TOKEN_FROM_create-media-upload"</code></pre>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ __('upload_token is optional when you POST to the signed upload_url returned by create-media-upload.') }}
+                    </p>
+                </div>
             </div>
         </div>
     </div>

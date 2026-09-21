@@ -246,6 +246,8 @@ test('settings page includes mcp tab content', function () {
         ->assertSee('Connect Your AI Client', false)
         ->assertSeeText('Cursor (Desktop & CLI)')
         ->assertSee('agent mcp list', false)
+        ->assertSee('create-media-upload', false)
+        ->assertSee('multipart/form-data', false)
         ->assertSee('LARADASHBOARD_MCP_TOKEN', false)
         ->assertSee('AI Client', false)
         ->assertSee('Search tools...', false)
