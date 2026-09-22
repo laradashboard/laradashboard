@@ -27,11 +27,11 @@ $mcpAgentMiddleware = [
 Mcp::web('/mcp', LaraDashboardServer::class)
     ->middleware($mcpAgentMiddleware);
 
+Route::post('/mcp/media/upload/{uploadToken}', [McpMediaUploadController::class, 'storeSigned'])
+    ->middleware([EnsureMcpEnabled::class, 'signed'])
+    ->name('mcp.media.upload.signed');
+
 Route::middleware($mcpAgentMiddleware)->group(function (): void {
     Route::post('/mcp/media/upload', [McpMediaUploadController::class, 'store'])
         ->name('mcp.media.upload.store');
-
-    Route::post('/mcp/media/upload/{uploadToken}', [McpMediaUploadController::class, 'storeSigned'])
-        ->middleware('signed')
-        ->name('mcp.media.upload.signed');
 });

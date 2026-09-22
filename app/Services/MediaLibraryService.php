@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Concerns\HandlesMediaOperations;
+use App\Http\Controllers\PublicStorageController;
 use App\Models\Media;
 use App\Models\Post;
 use App\Services\Builder\PostBuilderService;
@@ -17,6 +18,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 /**
  * @phpstan-type McpMediaServeability array{
@@ -302,18 +304,52 @@ class MediaLibraryService
     /**
      * @return McpMediaServeability
      */
-    public function verifyMediaPublicServeability(SpatieMedia $item): array
+    public function verifyMediaPublicServeability(SpatieMedia $item, bool $probeHttp = false): array
     {
         $path = $this->resolveMediaPath($item);
         $bytes = ($path !== null && is_file($path)) ? (int) filesize($path) : 0;
+        $url = $this->resolveMediaUrl($item) ?? '';
         $serveOk = $bytes > 0 && $this->mediaFileIsDecodableAtPath($path, (string) $item->mime_type);
+        $httpStatus = null;
+
+        if ($serveOk && $probeHttp && $url !== '') {
+            $httpStatus = $this->probePublicMediaHttpStatus($url);
+            $serveOk = $httpStatus === 200;
+        }
 
         return [
             'serve_ok' => $serveOk,
-            'http_status' => $serveOk ? 200 : null,
+            'http_status' => $httpStatus,
             'bytes' => $bytes > 0 ? $bytes : (int) $item->size,
             'mime' => $item->mime_type,
         ];
+    }
+
+    /**
+     * GET the public storage URL through the same controller that serves /storage/*.
+     */
+    protected function probePublicMediaHttpStatus(string $url): ?int
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+
+        if (! is_string($path) || $path === '' || ! str_starts_with($path, '/storage/')) {
+            return null;
+        }
+
+        $relative = rawurldecode(ltrim(substr($path, strlen('/storage/')), '/'));
+
+        try {
+            return app(PublicStorageController::class)->show($relative)->getStatusCode();
+        } catch (HttpExceptionInterface $exception) {
+            return $exception->getStatusCode();
+        } catch (\Throwable $exception) {
+            Log::warning('Failed to probe public media URL', [
+                'path' => $path,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return 500;
+        }
     }
 
     protected function mediaFileIsDecodableAtPath(?string $path, string $mimeType): bool
@@ -336,7 +372,7 @@ class MediaLibraryService
     /**
      * @return McpFormattedMedia
      */
-    public function formatMediaForMcp(SpatieMedia $item): array
+    public function formatMediaForMcp(SpatieMedia $item, bool $probeHttp = false): array
     {
         $url = $this->resolveMediaUrl($item) ?? '';
 
@@ -349,7 +385,7 @@ class MediaLibraryService
             'human_readable_size' => $item->human_readable_size ?? null,
             'url' => $url,
             'created_at' => $item->created_at?->toIso8601String(),
-        ], $this->verifyMediaPublicServeability($item));
+        ], $this->verifyMediaPublicServeability($item, $probeHttp));
     }
 
     public function deleteMedia(int $id): bool

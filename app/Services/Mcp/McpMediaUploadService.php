@@ -105,7 +105,7 @@ class McpMediaUploadService
         );
     }
 
-    public function resolveCompletedMediaId(string $uploadToken, ?int $expectedUserId = null): int
+    public function resolveCompletedMediaId(string $uploadToken): int
     {
         /** @var array{media_id?: int}|null $completed */
         $completed = Cache::get(self::COMPLETED_CACHE_PREFIX.$uploadToken);

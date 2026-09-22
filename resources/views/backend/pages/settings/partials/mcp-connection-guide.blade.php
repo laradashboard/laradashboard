@@ -208,7 +208,7 @@
             <div class="flex-1 min-w-0 space-y-3">
                 <h5 class="font-medium text-gray-900 dark:text-white">{{ __('Upload blog hero images (sharp, large files)') }}</h5>
                 <p class="text-sm text-gray-600 dark:text-gray-300">
-                    {{ __('Do not send large images as base64 through MCP tool calls — many clients truncate JSON payloads and uploads fail or look blurry. Use multipart upload instead.') }}
+                    {{ __('Do not send large images as base64 through MCP tool calls — many clients truncate JSON payloads and uploads fail or look blurry. Use multipart upload instead. The agent token needs the mcp:media.write ability.') }}
                 </p>
 
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300 list-disc list-inside">
@@ -233,7 +233,7 @@
                     <p class="text-sm font-medium text-gray-900 dark:text-white">{{ __('Agent workflow') }}</p>
                     <ol class="space-y-1.5 text-sm text-gray-600 dark:text-gray-300 list-decimal list-inside">
                         <li>{{ __('Call create-media-upload with filename and mime_type (e.g. hero.jpg, image/jpeg).') }}</li>
-                        <li>{{ __('POST multipart/form-data with field file to upload_url (signed) or upload_url_bearer with the same Authorization header as MCP.') }}</li>
+                        <li>{{ __('POST multipart/form-data with field file (optional title, alt_text) to upload_url. The signed URL does not need a Bearer token. Or POST to upload_url_bearer with the same Authorization header as MCP.') }}</li>
                         <li>{{ __('Call finalize-media-upload with upload_token and confirm serve_ok is true in the response.') }}</li>
                         <li>{{ __('Call attach-featured-image with post_id and media_id.') }}</li>
                     </ol>
@@ -252,7 +252,7 @@
   -F "upload_token=UPLOAD_TOKEN_FROM_create-media-upload"</code></pre>
                     </div>
                     <p class="text-xs text-gray-500 dark:text-gray-400">
-                        {{ __('upload_token is optional when you POST to the signed upload_url returned by create-media-upload.') }}
+                        {{ __('The signed upload_url does not need an Authorization header. upload_token is required when using upload_url_bearer.') }}
                     </p>
                 </div>
             </div>

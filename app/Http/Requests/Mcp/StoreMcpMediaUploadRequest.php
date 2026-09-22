@@ -24,6 +24,8 @@ class StoreMcpMediaUploadRequest extends FormRequest
         return [
             'file' => ['required', 'file', 'max:'.$maxKilobytes],
             'upload_token' => ['nullable', 'string', 'uuid'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'alt_text' => ['nullable', 'string', 'max:500'],
         ];
     }
 }

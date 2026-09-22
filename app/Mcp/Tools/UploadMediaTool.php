@@ -57,7 +57,7 @@ class UploadMediaTool extends Tool
             return Response::error(__('Media upload failed: :error', ['error' => $exception->getMessage()]));
         }
 
-        $mediaPayload = $this->mediaLibraryService->formatMediaForMcp($media);
+        $mediaPayload = $this->mediaLibraryService->formatMediaForMcp($media, probeHttp: true);
 
         if (! $mediaPayload['serve_ok']) {
             return Response::error(__('Media was stored but the public file is not serveable.'));

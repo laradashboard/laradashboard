@@ -21,6 +21,18 @@ use Spatie\Permission\Models\Permission;
 
 pest()->use(RefreshDatabase::class);
 
+function mcpToolResponseJson(object $toolResponse): array
+{
+    $reflection = new ReflectionClass($toolResponse);
+    $prop = $reflection->getProperty('response');
+    $prop->setAccessible(true);
+    $payload = $prop->getValue($toolResponse)->toArray();
+    $text = $payload['result']['content'][0]['text'] ?? '';
+    $decoded = json_decode($text, true);
+
+    return is_array($decoded) ? $decoded : [];
+}
+
 beforeEach(function () {
     foreach (['post.view', 'post.create', 'post.edit', 'media.view', 'media.create', 'settings.edit'] as $permission) {
         Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
@@ -66,13 +78,7 @@ test('multipart mcp upload stores large image with serve_ok', function () {
         ->assertOk()
         ->assertSee('upload_token');
 
-    // Extract upload URL from the tool response JSON embedded in MCP output.
-    $reflection = new ReflectionClass($sessionResponse);
-    $prop = $reflection->getProperty('response');
-    $prop->setAccessible(true);
-    $payload = $prop->getValue($sessionResponse)->toArray();
-    $text = $payload['result']['content'][0]['text'] ?? '';
-    $decoded = json_decode($text, true);
+    $decoded = mcpToolResponseJson($sessionResponse);
     $uploadToken = $decoded['upload']['upload_token'] ?? null;
     $uploadUrl = $decoded['upload']['upload_url'] ?? null;
 
@@ -86,7 +92,15 @@ test('multipart mcp upload stores large image with serve_ok', function () {
     ]);
 
     $uploadResponse->assertCreated()
-        ->assertJsonPath('media.serve_ok', true);
+        ->assertJsonPath('media.serve_ok', true)
+        ->assertJsonPath('media.http_status', 200);
+
+    $publicPath = parse_url((string) $uploadResponse->json('media.url'), PHP_URL_PATH);
+    expect($publicPath)->toBeString();
+
+    $publicResponse = $this->get($publicPath);
+    $publicResponse->assertOk();
+    expect(strtolower((string) $publicResponse->headers->get('Content-Type')))->toStartWith('image/');
 
     LaraDashboardServer::actingAs($this->user, 'sanctum')
         ->tool(FinalizeMediaUploadTool::class, [
@@ -94,6 +108,28 @@ test('multipart mcp upload stores large image with serve_ok', function () {
         ])
         ->assertOk()
         ->assertSee('serve_ok');
+});
+
+test('signed multipart upload url does not require bearer token', function () {
+    $sessionResponse = LaraDashboardServer::actingAs($this->user, 'sanctum')
+        ->tool(CreateMediaUploadTool::class, [
+            'filename' => 'signed-hero.jpg',
+            'mime_type' => 'image/jpeg',
+        ])
+        ->assertOk();
+
+    $uploadUrl = mcpToolResponseJson($sessionResponse)['upload']['upload_url'] ?? null;
+    expect($uploadUrl)->not->toBeNull();
+
+    auth()->guard('web')->logout();
+
+    $response = $this->post($uploadUrl, [
+        'file' => UploadedFile::fake()->image('signed-hero.jpg', 1200, 630)->size(80),
+    ]);
+
+    $response->assertCreated()
+        ->assertJsonPath('media.serve_ok', true)
+        ->assertJsonPath('media.http_status', 200);
 });
 
 test('bearer multipart upload endpoint accepts mcp token', function () {
@@ -104,10 +140,14 @@ test('bearer multipart upload endpoint accepts mcp token', function () {
     $response = $this->withHeader('Authorization', 'Bearer '.$this->plainToken)
         ->post(route('mcp.media.upload.store'), [
             'file' => $file,
+            'title' => 'Bearer Hero',
+            'alt_text' => 'Hero alt',
         ]);
 
     $response->assertCreated()
-        ->assertJsonPath('media.serve_ok', true);
+        ->assertJsonPath('media.serve_ok', true)
+        ->assertJsonPath('media.http_status', 200)
+        ->assertJsonPath('media.name', 'Bearer Hero');
 });
 
 test('attach featured image fails when media file is missing on disk', function () {

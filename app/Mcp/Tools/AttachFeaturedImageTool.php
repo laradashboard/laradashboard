@@ -62,7 +62,7 @@ class AttachFeaturedImageTool extends Tool
             return Response::error(__('Media not found in the library.'));
         }
 
-        $formattedMedia = $this->mediaLibraryService->formatMediaForMcp($media);
+        $formattedMedia = $this->mediaLibraryService->formatMediaForMcp($media, probeHttp: true);
 
         if (! $formattedMedia['serve_ok']) {
             return Response::error(__('Featured image was linked in the database, but the public file is missing or not serveable.'));

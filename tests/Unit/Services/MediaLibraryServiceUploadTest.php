@@ -31,7 +31,7 @@ test('upload from base64 stores image in media library', function () {
     expect($media->mime_type)->toBe('image/png');
     expect($media->custom_properties['alt_text'] ?? null)->toBe('Alt text');
 
-    $formatted = $service->formatMediaForMcp($media);
+    $formatted = $service->formatMediaForMcp($media, probeHttp: true);
 
     expect($formatted)->toHaveKeys([
         'id',
@@ -48,6 +48,7 @@ test('upload from base64 stores image in media library', function () {
         'mime',
     ]);
     expect($formatted['serve_ok'])->toBeTrue();
+    expect($formatted['http_status'])->toBe(200);
     expect($formatted['created_at'])->toBeString();
 });
 

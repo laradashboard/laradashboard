@@ -10,6 +10,7 @@ use App\Services\MediaLibraryService;
 use App\Services\Mcp\McpMediaUploadService;
 use App\Services\Mcp\McpTokenService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -58,11 +59,24 @@ class McpMediaUploadController extends Controller
             $pending = $this->mcpMediaUploadService->pullPendingUpload((string) $tokenFromRequest, $userId);
         }
 
+        $title = $request->validated('title') ?? (($pending ?? [])['title'] ?? null);
+        $altText = $request->validated('alt_text') ?? (($pending ?? [])['alt_text'] ?? null);
+        $file = $request->file('file');
+
+        if (! $file instanceof UploadedFile) {
+            return response()->json([
+                'message' => __('A valid file is required.'),
+                'errors' => [
+                    'file' => [__('A valid file is required.')],
+                ],
+            ], 422);
+        }
+
         try {
             $media = $this->mediaLibraryService->uploadStandaloneFile(
-                $request->file('file'),
-                ($pending ?? [])['title'] ?? null,
-                ($pending ?? [])['alt_text'] ?? null,
+                $file,
+                is_string($title) ? $title : null,
+                is_string($altText) ? $altText : null,
             );
         } catch (ValidationException $exception) {
             return response()->json([
@@ -71,7 +85,7 @@ class McpMediaUploadController extends Controller
             ], 422);
         }
 
-        $formatted = $this->mediaLibraryService->formatMediaForMcp($media);
+        $formatted = $this->mediaLibraryService->formatMediaForMcp($media, probeHttp: true);
 
         if ($tokenFromRequest !== null) {
             $this->mcpMediaUploadService->markUploadCompleted((string) $tokenFromRequest, $media->id);

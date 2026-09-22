@@ -248,6 +248,7 @@ test('settings page includes mcp tab content', function () {
         ->assertSee('agent mcp list', false)
         ->assertSee('create-media-upload', false)
         ->assertSee('multipart/form-data', false)
+        ->assertSee('mcp:media.write', false)
         ->assertSee('LARADASHBOARD_MCP_TOKEN', false)
         ->assertSee('AI Client', false)
         ->assertSee('Search tools...', false)

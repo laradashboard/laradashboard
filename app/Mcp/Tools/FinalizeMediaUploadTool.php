@@ -54,7 +54,7 @@ class FinalizeMediaUploadTool extends Tool
             return Response::error(__('Uploaded media record was not found.'));
         }
 
-        $formatted = $this->mediaLibraryService->formatMediaForMcp($media);
+        $formatted = $this->mediaLibraryService->formatMediaForMcp($media, probeHttp: true);
 
         if (! $formatted['serve_ok']) {
             return Response::error(__('Media exists but the public file is missing or not serveable.'));
