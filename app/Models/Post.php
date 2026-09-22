@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\Hooks\AdminFilterHook;
+use App\Enums\Hooks\FrontendActionHook;
 use App\Services\Builder\BlockRenderer;
 use App\Services\Builder\DesignJsonRenderer;
 use App\Services\Builder\PostBuilderService;
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
@@ -36,6 +38,8 @@ class Post extends Model implements SpatieHasMedia
     use HasFactory;
     use QueryBuilderTrait;
     use HasMedia;
+
+    public const VIEWS_META_KEY = 'views';
 
     protected $fillable = [
         'user_id',
@@ -203,6 +207,83 @@ class Post extends Model implements SpatieHasMedia
         return $this->postMeta()
             ->pluck('meta_value', 'meta_key')
             ->toArray();
+    }
+
+    /**
+     * Public view count stored in post_meta (`meta_key` = views).
+     */
+    public function getViewCountAttribute(): int
+    {
+        if ($this->relationLoaded('postMeta')) {
+            $viewsMeta = $this->postMeta->firstWhere('meta_key', self::VIEWS_META_KEY);
+
+            return $viewsMeta !== null ? (int) $viewsMeta->meta_value : 0;
+        }
+
+        return (int) $this->getMeta(self::VIEWS_META_KEY, 0);
+    }
+
+    /**
+     * Compact admin display: 850, 2.1k, or — when there are no views.
+     */
+    public function formattedViewCount(): string
+    {
+        $count = $this->view_count;
+
+        if ($count < 1) {
+            return '—';
+        }
+
+        if ($count < 1000) {
+            return (string) $count;
+        }
+
+        if ($count < 1_000_000) {
+            $thousands = $count / 1000;
+            $formatted = $thousands >= 10
+                ? (string) round($thousands)
+                : rtrim(rtrim(sprintf('%.1f', $thousands), '0'), '.');
+
+            return $formatted . 'k';
+        }
+
+        $millions = $count / 1_000_000;
+        $formatted = $millions >= 10
+            ? (string) round($millions)
+            : rtrim(rtrim(sprintf('%.1f', $millions), '0'), '.');
+
+        return $formatted . 'm';
+    }
+
+    /**
+     * Atomically increment the view counter in post_meta.
+     */
+    public function incrementViews(): void
+    {
+        if ($this->status !== PostStatus::PUBLISHED->value) {
+            return;
+        }
+
+        $updated = $this->postMeta()
+            ->where('meta_key', self::VIEWS_META_KEY)
+            ->update([
+                'meta_value' => DB::raw('CAST(COALESCE(meta_value, 0) AS INTEGER) + 1'),
+            ]);
+
+        if ($updated === 0) {
+            $this->postMeta()->create([
+                'meta_key' => self::VIEWS_META_KEY,
+                'meta_value' => '1',
+            ]);
+        }
+
+        $this->unsetRelation('postMeta');
+
+        $hook = $this->post_type === PostType::PAGE
+            ? FrontendActionHook::PAGE_VIEWED
+            : FrontendActionHook::POST_VIEWED;
+
+        Hook::doAction($hook, $this);
     }
 
     /**

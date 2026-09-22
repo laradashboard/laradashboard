@@ -54,6 +54,7 @@ abstract class Datatable extends Component
     public string $noResultsMessage = '';
     public string $customNoResultsMessage = '';
     public array $headers = [];
+    public array $visibleColumnIds = [];
 
     public const QUERY_STRING_DEFAULTS = [
         'search' => ['except' => ''],
@@ -98,14 +99,91 @@ abstract class Datatable extends Component
         return view('components.datatable.skeleton');
     }
 
-    /**
-     * Unified page scroll (sticky title/column headers and bottom pagination)
-     * is on for every datatable, including module tables that extend this class.
-     * Override and return false to use an inner table scroller instead.
-     */
-    public function usesUnifiedPageScroll(): bool
+    public function usesColumnVisibility(): bool
     {
         return true;
+    }
+
+    public function getColumnVisibilityStorageKey(): string
+    {
+        return 'datatable-visible-columns-' . Str::kebab(class_basename(static::class));
+    }
+
+    public function isColumnVisible(string $columnId): bool
+    {
+        if (! $this->usesColumnVisibility() || $this->visibleColumnIds === []) {
+            return true;
+        }
+
+        return in_array($columnId, $this->visibleColumnIds, true);
+    }
+
+    public function toggleColumnVisibility(string $columnId): void
+    {
+        if (! $this->usesColumnVisibility()) {
+            return;
+        }
+
+        $allowed = $this->getColumnIds();
+        if (! in_array($columnId, $allowed, true)) {
+            return;
+        }
+
+        $visible = $this->normalizedVisibleColumnIds($allowed);
+
+        if (in_array($columnId, $visible, true)) {
+            if (count($visible) === 1) {
+                return;
+            }
+
+            $visible = array_values(array_filter($visible, fn (string $id): bool => $id !== $columnId));
+        } else {
+            $visible[] = $columnId;
+            $visible = array_values(array_intersect($allowed, $visible));
+        }
+
+        $this->visibleColumnIds = $visible;
+    }
+
+    public function setVisibleColumnIds(array $ids): void
+    {
+        if (! $this->usesColumnVisibility()) {
+            return;
+        }
+
+        $allowed = $this->getColumnIds();
+        $visible = array_values(array_intersect($allowed, $ids));
+
+        $this->visibleColumnIds = $visible !== [] ? $visible : $allowed;
+    }
+
+    protected function getColumnIds(): array
+    {
+        return array_values(array_filter(array_column($this->getHeaders(), 'id')));
+    }
+
+    protected function getVisibleHeaders(): array
+    {
+        $headers = $this->getHeaders();
+
+        if (! $this->usesColumnVisibility()) {
+            return $headers;
+        }
+
+        $allowed = array_column($headers, 'id');
+        $visible = $this->normalizedVisibleColumnIds($allowed);
+
+        return array_values(array_filter(
+            $headers,
+            fn (array $header): bool => in_array($header['id'] ?? '', $visible, true)
+        ));
+    }
+
+    protected function normalizedVisibleColumnIds(array $allowed): array
+    {
+        $visible = array_values(array_intersect($allowed, $this->visibleColumnIds));
+
+        return $visible !== [] ? $visible : $allowed;
     }
 
     public function mount(): void
@@ -125,6 +203,10 @@ abstract class Datatable extends Component
         $this->noResultsMessage = $this->getNoResultsMessage();
         $this->customNoResultsMessage = $this->getCustomNoResultsMessage();
         $this->paginateOnEachSlide = 0;
+
+        if ($this->usesColumnVisibility() && $this->visibleColumnIds === []) {
+            $this->visibleColumnIds = $this->getColumnIds();
+        }
     }
 
     public function renderBeforeSearchbar(): string|Renderable
@@ -400,11 +482,16 @@ abstract class Datatable extends Component
 
     public function render(): Renderable
     {
-        $this->headers = $this->getHeaders();
         $this->filters = $this->getFilters();
+        $this->headers = $this->getHeaders();
+
+        if ($this->usesColumnVisibility() && $this->visibleColumnIds === []) {
+            $this->visibleColumnIds = $this->getColumnIds();
+        }
 
         return view('backend.livewire.datatable.datatable', [
-            'headers' => $this->headers,
+            'visibleHeaders' => $this->getVisibleHeaders(),
+            'columnVisibilityHeaders' => $this->headers,
             'data' => $this->getData(),
             'perPage' => $this->perPage,
             'perPageOptions' => $this->perPageOptions,
