@@ -55,7 +55,10 @@ test('unified page scroll is the default for every datatable', function () {
     $component
         ->assertSeeHtml('setupUnifiedPageScroll')
         ->assertSeeHtml('findOrAdoptPageHeader')
+        ->assertSeeHtml("createElement('div')")
+        ->assertSeeHtml("className = 'datatable-unified-scroll-header'")
         ->assertSeeHtml('datatable-page-scroll')
         ->assertSeeHtml('datatable-pagination-sticky')
-        ->assertDontSeeHtml('datatable-scroll-area');
+        ->assertDontSeeHtml('datatable-scroll-area')
+        ->assertDontSeeHtml("header.classList.add");
 });

@@ -118,6 +118,17 @@ test('datatable list pages still render without a layout unified-scroll flag', f
     '/admin/terms/tag',
 ]);
 
+test('list page breadcrumbs stay full width in the server markup', function () {
+    $html = $this->actingAs($this->admin)
+        ->get('/admin/posts/page')
+        ->assertOk()
+        ->getContent();
+
+    expect($html)
+        ->toContain('mb-6 w-full flex flex-nowrap items-center justify-between gap-3')
+        ->not->toContain('class="datatable-unified-scroll-header');
+});
+
 test('posts datatable uses page scroll instead of an inner row scroller', function () {
     Post::factory()->count(3)->create([
         'post_type' => 'post',
@@ -131,6 +142,7 @@ test('posts datatable uses page scroll instead of an inner row scroller', functi
         ->assertSeeHtml('datatable-toolbar')
         ->assertSeeHtml('table-thead-sticky')
         ->assertSeeHtml('datatable-pagination-sticky')
+        ->assertSeeHtml("className = 'datatable-unified-scroll-header'")
         ->assertDontSeeHtml('datatable-scroll-area');
 });
 

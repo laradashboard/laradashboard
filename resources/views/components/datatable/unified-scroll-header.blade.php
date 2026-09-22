@@ -1,7 +1,7 @@
 @props([])
 
 <div
-    {{ $attributes->class('datatable-unified-scroll-header sticky top-0 z-20 -mx-4 bg-body px-4 py-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-900 [&>div]:mb-0') }}
+    {{ $attributes->class('datatable-unified-scroll-header') }}
     data-datatable-unified-scroll-header
     x-data="{
         observer: null,

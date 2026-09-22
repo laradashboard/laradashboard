@@ -31,6 +31,7 @@
     'perPage' => 10,
     'perPageOptions' => [10, 20, 50, 100, __('All')],
     'enableStickyHeader' => true,
+    'enableUnifiedScroll' => true,
     'enableColumnVisibility' => false,
     'columnVisibilityHeaders' => [],
     'visibleColumnIds' => [],
@@ -140,7 +141,10 @@
         findOrAdoptPageHeader() {
             const existing = document.querySelector('[data-datatable-unified-scroll-header]');
             if (existing) {
-                return { header: existing, adopted: false };
+                return {
+                    header: existing,
+                    adopted: existing.getAttribute('data-datatable-unified-scroll-header') === 'adopted',
+                };
             }
 
             const page = this.$el.closest('.ld-container');
@@ -170,13 +174,14 @@
                 return { header: null, adopted: false };
             }
 
-            header.setAttribute('data-datatable-unified-scroll-header', '');
-            header.classList.add(
-                'sticky', 'top-0', 'z-20', '-mx-4', 'bg-body', 'px-4', 'py-3',
-                'sm:-mx-6', 'sm:px-6', 'lg:-mx-8', 'lg:px-8', 'dark:bg-gray-900'
-            );
+            // Wrap the breadcrumb/CTA so bleed padding does not shrink the w-full row.
+            const wrapper = document.createElement('div');
+            wrapper.className = 'datatable-unified-scroll-header';
+            wrapper.setAttribute('data-datatable-unified-scroll-header', 'adopted');
+            header.parentNode.insertBefore(wrapper, header);
+            wrapper.appendChild(header);
 
-            return { header, adopted: true };
+            return { header: wrapper, adopted: true };
         },
         setupUnifiedPageScroll() {
             if (!@json($enableUnifiedScroll)) {

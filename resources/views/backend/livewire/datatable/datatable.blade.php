@@ -16,6 +16,7 @@
     :newResourceLinkRouteUrl="$this->getCreateRouteUrl()"
     :newResourceLinkLabel="$newResourceLinkLabel"
     :enableColumnVisibility="$this->usesColumnVisibility()"
+    :enableUnifiedScroll="$this->usesUnifiedPageScroll()"
     :columnVisibilityHeaders="$columnVisibilityHeaders"
     :visibleColumnIds="$this->visibleColumnIds"
     :columnVisibilityStorageKey="$this->getColumnVisibilityStorageKey()"
