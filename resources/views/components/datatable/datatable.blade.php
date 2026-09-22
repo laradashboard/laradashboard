@@ -31,6 +31,10 @@
     'perPage' => 10,
     'perPageOptions' => [10, 20, 50, 100, __('All')],
     'enableStickyHeader' => true,
+    'enableColumnVisibility' => false,
+    'columnVisibilityHeaders' => [],
+    'visibleColumnIds' => [],
+    'columnVisibilityStorageKey' => '',
 ])
 
 @php
@@ -338,6 +342,14 @@
                     @endif
                 @endif
 
+                @if($enableColumnVisibility)
+                    <x-datatable.column-visibility
+                        :headers="$columnVisibilityHeaders"
+                        :visibleColumnIds="$visibleColumnIds"
+                        :storageKey="$columnVisibilityStorageKey"
+                    />
+                @endif
+
                 @if($enableNewResourceLink)
                     @if($customNewResourceLink)
                         {!! $customNewResourceLink !!}
@@ -376,6 +388,8 @@
 
                         @foreach($headers ?? [] as $header)
                         <th
+                            wire:key="datatable-header-{{ $header['id'] ?? $loop->index }}"
+                            data-column-id="{{ $header['id'] ?? '' }}"
                             @isset($header['width']) width="{{ $header['width'] }}" @endisset
                             class="table-thead-th {{ count($headers) - 1 === $loop->index ? 'table-thead-th-last' : '' }} {{ isset($header['align']) ? 'text-' . $header['align'] : '' }}"
                         >
@@ -437,7 +451,10 @@
                             @endif
 
                             @foreach($headers ?? [] as $header)
-                                <td class="table-td {{ isset($header['align']) ? 'text-' . $header['align'] : '' }}">
+                                <td
+                                    wire:key="datatable-cell-{{ $item->id }}-{{ $header['id'] ?? $loop->index }}"
+                                    class="table-td {{ isset($header['align']) ? 'text-' . $header['align'] : '' }}"
+                                >
                                     @php
                                         $pascalCaseId = collect(explode('_', $header['id']))->map(fn($part) => ucfirst($part))->implode('');
                                         $content = isset($data[$loop->index][$header['id']]) ? $data[$loop->index][$header['id']] : null;
