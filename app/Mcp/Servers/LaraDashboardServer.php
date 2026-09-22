@@ -28,7 +28,8 @@ use Laravel\Mcp\Server\Attributes\Version;
     - update-post — publish pending posts, edit drafts, or change status
     - delete-post — remove drafts or unwanted posts/pages
     - list-terms / assign-post-terms — categories and tags (use term IDs from list-terms)
-    - list-media / upload-media / attach-featured-image — upload heroes and set featured images on posts
+    - list-media / create-media-upload / finalize-media-upload — multipart hero uploads (preferred for sharp blog images)
+    - upload-media — tiny base64 images only (~100KB max); attach-featured-image — set featured image (requires serve_ok file)
     - generate-seo-meta — optimize SEO for a post (requires OpenAI)
 
     CRM workflow:

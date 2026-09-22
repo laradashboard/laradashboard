@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\SvgSanitizer;
 use App\Support\Helper\MediaHelper;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 use Spatie\Permission\Models\Permission;
@@ -57,6 +58,47 @@ function storedMediaContents(?SpatieMedia $media = null): ?string
     return is_file($path) ? file_get_contents($path) : null;
 }
 
+function mediaLibraryDirectory(): string
+{
+    $directory = storage_path('app/public/media');
+    File::ensureDirectoryExists($directory);
+
+    return $directory;
+}
+
+/**
+ * @return list<string>
+ */
+function existingMediaLibraryFiles(): array
+{
+    return array_values(array_filter(
+        glob(mediaLibraryDirectory().'/*') ?: [],
+        'is_file'
+    ));
+}
+
+/**
+ * @param  list<string>  $existingFiles
+ */
+function cleanupMediaSecurityTestFiles(array $existingFiles): void
+{
+    foreach (glob(mediaLibraryDirectory().'/*') ?: [] as $file) {
+        if (! is_file($file)) {
+            continue;
+        }
+
+        if (in_array($file, $existingFiles, true)) {
+            continue;
+        }
+
+        if (str_ends_with($file, '.gitignore') || str_ends_with($file, '.htaccess')) {
+            continue;
+        }
+
+        @unlink($file);
+    }
+}
+
 beforeEach(function () {
     $_SERVER['REQUEST_METHOD'] = 'POST';
     config(['app.demo_mode' => false]);
@@ -67,14 +109,11 @@ beforeEach(function () {
     ]);
 
     $this->user = mediaCreateUser();
+    $this->mediaFilesBeforeTest = existingMediaLibraryFiles();
 });
 
 afterEach(function () {
-    foreach (glob(storage_path('app/public/media/*')) ?: [] as $file) {
-        if (is_file($file) && ! str_ends_with($file, '.gitignore') && ! str_ends_with($file, '.htaccess')) {
-            @unlink($file);
-        }
-    }
+    cleanupMediaSecurityTestFiles($this->mediaFilesBeforeTest ?? []);
 });
 
 test('valid svg uploads remain functional', function () {
@@ -365,4 +404,21 @@ test('svg sanitizer rejects executable constructs instead of storing them', func
             <rect width="10" height="10"/>
         </svg>
         SVG))->toThrow(RuntimeException::class, 'unsafe content');
+});
+
+test('media security cleanup does not delete pre-existing library files', function () {
+    $sentinel = mediaLibraryDirectory().'/pre-existing-library-file.bin';
+    file_put_contents($sentinel, 'keep-me');
+    $this->mediaFilesBeforeTest[] = $sentinel;
+
+    $this->actingAs($this->user)->postJson(route('admin.media.store'), [
+        'files' => [makeUploadFile('logo.svg', validSvgMarkup())],
+    ])->assertOk();
+
+    cleanupMediaSecurityTestFiles($this->mediaFilesBeforeTest);
+
+    expect(is_file($sentinel))->toBeTrue();
+    expect(glob(mediaLibraryDirectory().'/*.svg') ?: [])->toBe([]);
+
+    @unlink($sentinel);
 });
