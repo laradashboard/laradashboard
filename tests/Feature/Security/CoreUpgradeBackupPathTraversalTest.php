@@ -33,8 +33,8 @@ beforeEach(function () {
     $this->coreUpgradeTestPaths = [];
     File::ensureDirectoryExists(storage_path('app/core-backups'));
 
-    Role::firstOrCreate(['name' => 'SettingsEditor', 'guard_name' => 'web']);
-    $this->settingsEditor = $this->createUserWithRole('SettingsEditor', [
+    Role::firstOrCreate(['name' => Role::SUPERADMIN, 'guard_name' => 'web']);
+    $this->superadmin = $this->createUserWithRole(Role::SUPERADMIN, [
         'settings.view',
         'settings.edit',
     ]);
@@ -53,23 +53,23 @@ afterEach(function () {
     }
 });
 
-test('a user with settings.edit can download a legitimate backup', function () {
+test('superadmin can download a legitimate backup', function () {
     $filename = 'ld-cwe22-http-download.zip';
     $path = recordCoreUpgradeTestPath(storage_path('app/core-backups/'.$filename));
     createCoreUpgradeTestZip($path);
 
-    $response = $this->actingAs($this->settingsEditor)
+    $response = $this->actingAs($this->superadmin)
         ->get(route('admin.core-upgrades.download', ['filename' => $filename]));
 
     $response->assertOk();
     $response->assertDownload($filename);
 });
 
-test('a user with settings.edit cannot download a file outside the backup directory', function (string $filename) {
+test('superadmin cannot download a file outside the backup directory', function (string $filename) {
     $outside = recordCoreUpgradeTestPath(storage_path('app/ld-cwe22-http-outside-download.zip'));
     createCoreUpgradeTestZip($outside);
 
-    $response = $this->actingAs($this->settingsEditor)
+    $response = $this->actingAs($this->superadmin)
         ->get('/admin/settings/core-upgrades/download/'.$filename);
 
     $response->assertNotFound();
@@ -81,12 +81,12 @@ test('a user with settings.edit cannot download a file outside the backup direct
     ['foo%2Fbar.zip'],
 ]);
 
-test('a user with settings.edit can delete a legitimate backup', function () {
+test('superadmin can delete a legitimate backup', function () {
     $filename = 'ld-cwe22-http-delete.zip';
     $path = recordCoreUpgradeTestPath(storage_path('app/core-backups/'.$filename));
     createCoreUpgradeTestZip($path);
 
-    $response = $this->actingAs($this->settingsEditor)
+    $response = $this->actingAs($this->superadmin)
         ->from(route('admin.core-upgrades.index'))
         ->post(route('admin.core-upgrades.delete-backup'), [
             'backup_file' => $filename,
@@ -97,11 +97,11 @@ test('a user with settings.edit can delete a legitimate backup', function () {
     expect(File::exists($path))->toBeFalse();
 });
 
-test('a user with settings.edit cannot delete a file outside the backup directory', function (string $filename) {
+test('superadmin cannot delete a file outside the backup directory', function (string $filename) {
     $outside = recordCoreUpgradeTestPath(storage_path('app/ld-cwe22-http-outside-delete.zip'));
     File::put($outside, 'keep me');
 
-    $response = $this->actingAs($this->settingsEditor)
+    $response = $this->actingAs($this->superadmin)
         ->from(route('admin.core-upgrades.index'))
         ->post(route('admin.core-upgrades.delete-backup'), [
             'backup_file' => $filename,
@@ -120,12 +120,12 @@ test('a user with settings.edit cannot delete a file outside the backup director
     ['/etc/passwd'],
 ]);
 
-test('a user with settings.edit can restore a legitimate backup', function () {
+test('superadmin can restore a legitimate backup', function () {
     $filename = 'ld-cwe22-http-restore.zip';
     $path = recordCoreUpgradeTestPath(storage_path('app/core-backups/'.$filename));
     createCoreUpgradeTestZip($path);
 
-    $response = $this->actingAs($this->settingsEditor)
+    $response = $this->actingAs($this->superadmin)
         ->postJson(route('admin.core-upgrades.restore'), [
             'backup_file' => $filename,
         ]);
@@ -137,11 +137,11 @@ test('a user with settings.edit can restore a legitimate backup', function () {
     expect($response->getContent())->not->toContain(storage_path());
 });
 
-test('a user with settings.edit cannot restore an archive outside the backup directory', function (string $filename) {
+test('superadmin cannot restore an archive outside the backup directory', function (string $filename) {
     $outside = recordCoreUpgradeTestPath(storage_path('app/ld-cwe22-http-outside-restore.zip'));
     createCoreUpgradeTestZip($outside);
 
-    $response = $this->actingAs($this->settingsEditor)
+    $response = $this->actingAs($this->superadmin)
         ->postJson(route('admin.core-upgrades.restore'), [
             'backup_file' => $filename,
         ]);
@@ -174,7 +174,7 @@ test('restore rejects a symlink that escapes the backup directory', function () 
         test()->markTestSkipped('Symlinks are not supported in this environment.');
     }
 
-    $response = $this->actingAs($this->settingsEditor)
+    $response = $this->actingAs($this->superadmin)
         ->postJson(route('admin.core-upgrades.restore'), [
             'backup_file' => $linkName,
         ]);

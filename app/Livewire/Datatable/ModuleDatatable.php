@@ -239,11 +239,14 @@ class ModuleDatatable extends Datatable
      */
     public function getActionCellPermissions($item): array
     {
+        $module = $item instanceof Module ? $item : new Module(['id' => (string) $item]);
+
         return [
             'view' => false, // Modules don't have a view page
             'edit' => false, // Modules don't have an edit page
-            'delete' => true, // Always allow delete for now
-            'toggle' => true, // Custom permission for toggle status
+            'delete' => auth()->user()?->can('delete', $module) ?? false,
+            'toggle' => auth()->user()?->can('update', $module) ?? false,
+            'update' => auth()->user()?->can('update', $module) ?? false,
         ];
     }
 
@@ -287,6 +290,8 @@ class ModuleDatatable extends Datatable
 
             return;
         }
+
+        $this->authorize('delete', new Module(['id' => $moduleName]));
 
         try {
             $this->moduleService->deleteModule($moduleName);
@@ -334,6 +339,8 @@ class ModuleDatatable extends Datatable
 
             return;
         }
+
+        $this->authorize('delete', new Module(['id' => 'bulk-operation']));
 
         $deletedCount = 0;
         $errors = [];
@@ -383,6 +390,8 @@ class ModuleDatatable extends Datatable
 
             return;
         }
+
+        $this->authorize('update', new Module(['id' => $moduleName]));
 
         // Check version compatibility before enabling
         $module = $this->moduleService->getModuleByName($moduleName);
@@ -435,6 +444,8 @@ class ModuleDatatable extends Datatable
             return;
         }
 
+        $this->authorize('update', new Module(['id' => 'bulk-operation']));
+
         $moduleNames = $this->selectedItems;
 
         if (empty($moduleNames)) {
@@ -483,6 +494,8 @@ class ModuleDatatable extends Datatable
             return;
         }
 
+        $this->authorize('update', new Module(['id' => 'bulk-operation']));
+
         $moduleNames = $this->selectedItems;
 
         if (empty($moduleNames)) {
@@ -520,7 +533,12 @@ class ModuleDatatable extends Datatable
      */
     public function renderAfterSearchbar(): Renderable
     {
-        return view('backend.pages.modules.partials.module-bulk-actions');
+        $user = auth()->user();
+
+        return view('backend.pages.modules.partials.module-bulk-actions', [
+            'canChangeStatus' => $user?->can('update', new Module(['id' => 'bulk-operation'])) ?? false,
+            'canDelete' => $user?->can('delete', new Module(['id' => 'bulk-operation'])) ?? false,
+        ]);
     }
 
     /**
@@ -569,6 +587,8 @@ class ModuleDatatable extends Datatable
 
             return;
         }
+
+        $this->authorize('update', new Module(['id' => $moduleName]));
 
         try {
             $result = $this->updateService->downloadAndInstallUpdate($moduleName);
