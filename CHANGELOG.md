@@ -2,9 +2,43 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.4.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.2) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.4.5](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.5) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.4.5] — 2026-09-23
+
+### Datatable
+
+- **New:** Column visibility on every datatable by default — a Columns dropdown that remembers the choice in the browser, including generated module tables.
+- **New:** Unified page scroll is the default — sticky headers and sticky pagination on every list table.
+- **Fix:** List-page title row and breadcrumbs stay aligned with the table; unified-scroll padding no longer shrinks the page action button.
+
+### Posts and pages
+
+- **New:** View counts on Posts and Pages admin lists. Public visits are stored in `post_meta` (`views`) and shown as a sortable Views column.
+
+### MCP
+
+- **New:** Multipart hero upload with `serve_ok` verification so featured images fail when the file is not publicly serveable (#327).
+- **Improve:** Base64 `upload-media` is limited to about 100KB; larger images use the multipart route.
+- **Fix:** Corrupted raster uploads are rejected, and public media URLs are probed before `serve_ok` is reported.
+- **Fix:** Signed multipart uploads no longer require a bearer token.
+- **Docs:** Admin MCP connection guide includes multipart hero upload steps and a curl example.
+
+### Security
+
+- **Fix:** Core upgrade restore, download, and replace actions are Superadmin-only. An admin with `settings.edit` could previously replace application files.
+- **Fix:** Installed-modules Livewire actions (enable, disable, delete, update) now go through `ModulePolicy`, matching the HTTP controller.
+
+### Editor and AI
+
+- **Fix:** Text editor autoresize after content changes and when embedded images, iframes, or video finish loading.
+- **New:** `AiContentGeneratorService::chatCompletion()` for multi-turn chat across OpenAI, Claude, Gemini, and Ollama.
+
+### Other
+
+- **Fix:** Media security tests delete only files created during the test, so they no longer wipe the local media library.
 
 ## [v1.4.2] — 2026-09-14
 
