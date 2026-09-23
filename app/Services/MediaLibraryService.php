@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Concerns\HandlesMediaOperations;
+use App\Http\Controllers\PublicStorageController;
 use App\Models\Media;
 use App\Models\Post;
 use App\Services\Builder\PostBuilderService;
@@ -17,12 +18,42 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
+/**
+ * @phpstan-type McpMediaServeability array{
+ *     serve_ok: bool,
+ *     http_status: int|null,
+ *     bytes: int,
+ *     mime: string|null
+ * }
+ * @phpstan-type McpFormattedMedia array{
+ *     id: int,
+ *     name: string,
+ *     file_name: string,
+ *     mime_type: string,
+ *     size: int,
+ *     human_readable_size: string|null,
+ *     url: string,
+ *     created_at: string|null,
+ *     serve_ok: bool,
+ *     http_status: int|null,
+ *     bytes: int,
+ *     mime: string|null
+ * }
+ */
 class MediaLibraryService
 {
     use HandlesMediaOperations;
 
+    /** Maximum size for multipart MCP uploads (bytes). */
     public const MCP_MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+
+    /**
+     * Maximum decoded size for base64-in-JSON MCP uploads. Must stay less than or equal to
+     * {@see self::MCP_MAX_UPLOAD_BYTES}; larger files must use multipart upload (create-media-upload).
+     */
+    public const MCP_BASE64_FALLBACK_MAX_BYTES = 100 * 1024;
 
     public function __construct(private readonly SvgSanitizer $svgSanitizer)
     {
@@ -171,13 +202,7 @@ class MediaLibraryService
             ]);
         }
 
-        if (strlen($decoded) > self::MCP_MAX_UPLOAD_BYTES) {
-            throw ValidationException::withMessages([
-                'content_base64' => [__('File exceeds the maximum allowed size of :size.', [
-                    'size' => MediaHelper::formatFileSize(self::MCP_MAX_UPLOAD_BYTES),
-                ])],
-            ]);
-        }
+        $this->assertMcpBase64PayloadWithinLimit($decoded);
 
         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         $allowedForExtension = MediaHelper::getAllowedExtensionMimeMap()[$extension] ?? null;
@@ -236,22 +261,122 @@ class MediaLibraryService
     }
 
     /**
-     * @return array{
-     *     id: int,
-     *     name: string,
-     *     file_name: string,
-     *     mime_type: string,
-     *     size: int,
-     *     human_readable_size: string|null,
-     *     url: string,
-     *     created_at: string|null
-     * }
+     * Store a standalone library file from an uploaded multipart file (MCP agents).
+     *
+     * @throws ValidationException
      */
-    public function formatMediaForMcp(SpatieMedia $item): array
+    public function uploadStandaloneFile(
+        UploadedFile $file,
+        ?string $title = null,
+        ?string $altText = null,
+    ): SpatieMedia {
+        $size = (int) ($file->getSize() ?: 0);
+
+        if ($size > self::MCP_MAX_UPLOAD_BYTES) {
+            throw ValidationException::withMessages([
+                'file' => [__('File exceeds the maximum allowed size of :size.', [
+                    'size' => MediaHelper::formatFileSize(self::MCP_MAX_UPLOAD_BYTES),
+                ])],
+            ]);
+        }
+
+        $this->assertFileIsAllowed($file);
+        $file = $this->sanitizeSvgIfNeeded($file);
+        $prepared = $this->prepareFileForStorage($file);
+
+        if ($title !== null && trim($title) !== '') {
+            $extension = pathinfo($prepared['safe_file_name'], PATHINFO_EXTENSION);
+            $prepared['original_name'] = trim($title).'.'.$extension;
+        }
+
+        $media = $this->storePreparedMedia($prepared);
+
+        if ($altText !== null && trim($altText) !== '') {
+            $customProperties = is_array($media->custom_properties) ? $media->custom_properties : [];
+            $customProperties['alt_text'] = trim($altText);
+            $media->custom_properties = $customProperties;
+            $media->save();
+        }
+
+        return $media;
+    }
+
+    /**
+     * @return McpMediaServeability
+     */
+    public function verifyMediaPublicServeability(SpatieMedia $item, bool $probeHttp = false): array
+    {
+        $path = $this->resolveMediaPath($item);
+        $bytes = ($path !== null && is_file($path)) ? (int) filesize($path) : 0;
+        $url = $this->resolveMediaUrl($item) ?? '';
+        $serveOk = $bytes > 0 && $this->mediaFileIsDecodableAtPath($path, (string) $item->mime_type);
+        $httpStatus = null;
+
+        if ($serveOk && $probeHttp && $url !== '') {
+            $httpStatus = $this->probePublicMediaHttpStatus($url);
+            $serveOk = $httpStatus === 200;
+        }
+
+        return [
+            'serve_ok' => $serveOk,
+            'http_status' => $httpStatus,
+            'bytes' => $bytes > 0 ? $bytes : (int) $item->size,
+            'mime' => $item->mime_type,
+        ];
+    }
+
+    /**
+     * GET the public storage URL through the same controller that serves /storage/*.
+     */
+    protected function probePublicMediaHttpStatus(string $url): ?int
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+
+        if (! is_string($path) || $path === '' || ! str_starts_with($path, '/storage/')) {
+            return null;
+        }
+
+        $relative = rawurldecode(ltrim(substr($path, strlen('/storage/')), '/'));
+
+        try {
+            return app(PublicStorageController::class)->show($relative)->getStatusCode();
+        } catch (HttpExceptionInterface $exception) {
+            return $exception->getStatusCode();
+        } catch (\Throwable $exception) {
+            Log::warning('Failed to probe public media URL', [
+                'path' => $path,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return 500;
+        }
+    }
+
+    protected function mediaFileIsDecodableAtPath(?string $path, string $mimeType): bool
+    {
+        if ($path === null || ! is_file($path)) {
+            return false;
+        }
+
+        if ($mimeType === 'image/svg+xml') {
+            return true;
+        }
+
+        if (! str_starts_with($mimeType, 'image/')) {
+            return true;
+        }
+
+        return @getimagesize($path) !== false;
+    }
+
+    /**
+     * @return McpFormattedMedia
+     */
+    public function formatMediaForMcp(SpatieMedia $item, bool $probeHttp = false): array
     {
         $url = $this->resolveMediaUrl($item) ?? '';
 
-        return [
+        return array_merge([
             'id' => $item->id,
             'name' => $item->name,
             'file_name' => $item->file_name,
@@ -259,8 +384,8 @@ class MediaLibraryService
             'size' => $item->size,
             'human_readable_size' => $item->human_readable_size ?? null,
             'url' => $url,
-            'created_at' => optional($item->created_at)?->toIso8601String(),
-        ];
+            'created_at' => $item->created_at?->toIso8601String(),
+        ], $this->verifyMediaPublicServeability($item, $probeHttp));
     }
 
     public function deleteMedia(int $id): bool
@@ -352,6 +477,28 @@ class MediaLibraryService
                 'files' => [__('This file type is not allowed.')],
             ]);
         }
+
+        $this->assertRasterImageIsDecodable($file);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    protected function assertRasterImageIsDecodable(UploadedFile $file): void
+    {
+        $mimeType = (string) $file->getMimeType();
+
+        if (! str_starts_with($mimeType, 'image/') || MediaHelper::isSvgFile($file)) {
+            return;
+        }
+
+        $path = $file->getRealPath();
+
+        if ($path === false || @getimagesize($path) === false) {
+            throw ValidationException::withMessages([
+                'file' => [__('The uploaded image is invalid or corrupted.')],
+            ]);
+        }
     }
 
     /**
@@ -396,8 +543,25 @@ class MediaLibraryService
             'safe_file_name' => $safeFileName,
             'original_name' => $originalName,
             'mime_type' => (string) $file->getMimeType(),
-            'size' => $file->getSize(),
+            'size' => (int) ($file->getSize() ?: 0),
         ];
+    }
+
+    /**
+     * @param  non-empty-string  $decoded
+     *
+     * @throws ValidationException
+     */
+    private function assertMcpBase64PayloadWithinLimit(string $decoded): void
+    {
+        if (strlen($decoded) > self::MCP_BASE64_FALLBACK_MAX_BYTES) {
+            throw ValidationException::withMessages([
+                'content_base64' => [__(
+                    'For files larger than :size, call create-media-upload and POST the file as multipart/form-data to the returned upload_url (or upload_url_bearer with your MCP token).',
+                    ['size' => MediaHelper::formatFileSize(self::MCP_BASE64_FALLBACK_MAX_BYTES)]
+                )],
+            ]);
+        }
     }
 
     /**

@@ -39,7 +39,7 @@
         />
 
         {{-- Update Action (when update is available) --}}
-        @if($hasUpdate)
+        @if($hasUpdate && ! empty($permissions['update']))
             <button
                 type="button"
                 class="flex w-full items-center gap-2 px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -79,6 +79,7 @@
         @endif
 
         {{-- Toggle Status Action --}}
+        @if(! empty($permissions['toggle']))
         <button
             type="button"
             wire:click="toggleStatus('{{ $module->name }}')"
@@ -96,8 +97,10 @@
             </span>
             {{ $module->status ? __('Disable') : __('Enable') }}
         </button>
+        @endif
 
         {{-- Delete Action --}}
+        @if(! empty($permissions['delete']))
         <button
             type="button"
             class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -107,6 +110,7 @@
             <iconify-icon icon="lucide:trash" class="text-base"></iconify-icon>
             {{ __('Delete') }}
         </button>
+        @endif
     </x-buttons.action-buttons>
 
     {{-- License Activation Modal (only for paid/freemium modules) --}}
@@ -120,6 +124,7 @@
     @endif
 
     {{-- Delete Confirmation Modal --}}
+    @if(! empty($permissions['delete']))
     <x-modals.confirm-delete
         id="delete-modal-{{ $module->name }}"
         :title="__('Delete Module')"
@@ -129,9 +134,10 @@
         :cancelButtonText="__('No, Cancel')"
         :confirmButtonText="__('Yes, Delete')"
     />
+    @endif
 
     {{-- Update Confirmation Modal --}}
-    @if($hasUpdate)
+    @if($hasUpdate && ! empty($permissions['update']))
         <x-modals.module-update
             id="update-modal-{{ $module->name }}"
             :module="$module"

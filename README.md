@@ -141,7 +141,15 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.4.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.2) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.4.5](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.5) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.4.5] — 2026-09-23**
+-   **New:** Datatable column visibility on every list, and unified page scroll with sticky headers and pagination.
+-   **New:** View counts on Posts and Pages admin lists.
+-   **New:** MCP multipart hero uploads with `serve_ok` checks; base64 uploads capped at ~100KB (#327).
+-   **New:** Multi-turn AI chat completion across OpenAI, Claude, Gemini, and Ollama.
+-   **Fix (Security):** Core upgrades and Livewire module enable, disable, delete, and update actions are authorized (Superadmin / `ModulePolicy`).
+-   **Fix:** Text editor autoresize for embedded media; MCP media serve checks and signed uploads.
 
 **[v1.4.2] — 2026-09-14**
 -   **New:** Public-form spam protection — honeypot, reCAPTCHA v3, disposable/typo/domain email validation, and reusable Blade components for Livewire forms.

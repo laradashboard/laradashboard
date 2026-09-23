@@ -311,6 +311,8 @@ class CoreUpgradeController extends Controller
      */
     public function getUpdateStatus(): JsonResponse
     {
+        $this->authorize('viewCoreUpgrades', Setting::class);
+
         $updateInfo = $this->upgradeService->getStoredUpdateInfo();
 
         return response()->json([

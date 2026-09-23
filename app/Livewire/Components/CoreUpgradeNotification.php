@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Components;
 
+use App\Models\Setting;
 use App\Services\CoreUpgradeService;
 use Livewire\Component;
 
@@ -17,10 +18,21 @@ class CoreUpgradeNotification extends Component
 
     public function mount(): void
     {
-        $this->checkForUpdates();
+        if (! auth()->user()?->can('viewCoreUpgrades', Setting::class)) {
+            return;
+        }
+
+        $this->loadUpdateStatus();
     }
 
     public function checkForUpdates(): void
+    {
+        $this->authorize('viewCoreUpgrades', Setting::class);
+
+        $this->loadUpdateStatus();
+    }
+
+    private function loadUpdateStatus(): void
     {
         $upgradeService = app(CoreUpgradeService::class);
         $updateInfo = $upgradeService->getStoredUpdateInfo();

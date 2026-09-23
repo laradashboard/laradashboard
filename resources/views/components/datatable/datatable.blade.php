@@ -31,6 +31,11 @@
     'perPage' => 10,
     'perPageOptions' => [10, 20, 50, 100, __('All')],
     'enableStickyHeader' => true,
+    'enableUnifiedScroll' => true,
+    'enableColumnVisibility' => false,
+    'columnVisibilityHeaders' => [],
+    'visibleColumnIds' => [],
+    'columnVisibilityStorageKey' => '',
 ])
 
 @php
@@ -46,6 +51,8 @@
         lastClickedIndex: null,
         lastClickedItemId: null,
         bulkDeleteModalOpen: false,
+        unifiedScrollObserver: null,
+        unifiedScrollOwnsPageChrome: false,
         parseCheckboxId(value) {
             const num = parseInt(value, 10);
             return Number.isNaN(num) ? value : num;
@@ -131,6 +138,102 @@
             // Check if all current page items are selected
             this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
         },
+        findOrAdoptPageHeader() {
+            const existing = document.querySelector('[data-datatable-unified-scroll-header]');
+            if (existing) {
+                return {
+                    header: existing,
+                    adopted: existing.getAttribute('data-datatable-unified-scroll-header') === 'adopted',
+                };
+            }
+
+            const page = this.$el.closest('.ld-container');
+            let header = page?.firstElementChild && !page.firstElementChild.contains(this.$el)
+                ? page.firstElementChild
+                : null;
+
+            let node = this.$el;
+            while (!header && node && node !== document.body) {
+                const parent = node.parentElement;
+                if (!parent) {
+                    break;
+                }
+
+                header = Array.from(parent.children).find(
+                    (child) => child !== node && !child.contains(this.$el)
+                );
+
+                if (header) {
+                    break;
+                }
+
+                node = parent;
+            }
+
+            if (!header) {
+                return { header: null, adopted: false };
+            }
+
+            // Wrap the breadcrumb/CTA so bleed padding does not shrink the w-full row.
+            const wrapper = document.createElement('div');
+            wrapper.className = 'datatable-unified-scroll-header';
+            wrapper.setAttribute('data-datatable-unified-scroll-header', 'adopted');
+            header.parentNode.insertBefore(wrapper, header);
+            wrapper.appendChild(header);
+
+            return { header: wrapper, adopted: true };
+        },
+        setupUnifiedPageScroll() {
+            if (!@json($enableUnifiedScroll)) {
+                return;
+            }
+
+            const { header, adopted } = this.findOrAdoptPageHeader();
+            this.unifiedScrollOwnsPageChrome = adopted || !header;
+
+            if (this.unifiedScrollOwnsPageChrome) {
+                document.body.classList.add('admin-unified-scroll');
+
+                const nav = document.getElementById('appHeader');
+                if (nav) {
+                    nav.classList.remove('sticky');
+                    nav.classList.add('relative');
+                }
+            }
+
+            const setHeaderHeight = () => {
+                document.documentElement.style.setProperty(
+                    '--admin-page-header-height',
+                    (header ? header.offsetHeight : 0) + 'px'
+                );
+            };
+
+            setHeaderHeight();
+
+            if (header && window.ResizeObserver) {
+                this.unifiedScrollObserver = new ResizeObserver(setHeaderHeight);
+                this.unifiedScrollObserver.observe(header);
+            }
+        },
+        teardownUnifiedPageScroll() {
+            this.unifiedScrollObserver?.disconnect();
+            this.unifiedScrollObserver = null;
+
+            if (!this.unifiedScrollOwnsPageChrome) {
+                return;
+            }
+
+            document.body.classList.remove('admin-unified-scroll');
+            document.documentElement.style.removeProperty('--admin-page-header-height');
+
+            const nav = document.getElementById('appHeader');
+            if (nav) {
+                nav.classList.add('sticky');
+                nav.classList.remove('relative');
+            }
+
+            this.unifiedScrollOwnsPageChrome = false;
+        },
         // Method to refresh allIds when Livewire updates
         refreshIds(newIds) {
             this.allIds = newIds;
@@ -139,6 +242,8 @@
             this.updateSelectAll();
         },
         init() {
+            this.setupUnifiedPageScroll();
+
             // Set initial selectAll state based on loaded selectedItems
             this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
 
@@ -175,11 +280,14 @@
                     checkbox.checked = false;
                 });
             });
+        },
+        destroy() {
+            this.teardownUnifiedPageScroll();
         }
      }"
 >
     <div class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div class="px-5 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row justify-between items-center gap-3">
+        <div class="datatable-toolbar px-5 py-4 sm:px-6 sm:py-5 flex flex-col md:flex-row justify-between items-center gap-3">
             {!! Hook::applyFilters(DatatableHook::BEFORE_SEARCHBOX, '', $searchbarPlaceholder) !!}
             @if($enableLivewire)
                 {{ method_exists($this, 'renderBeforeSearchbar') ? $this->renderBeforeSearchbar() : '' }}
@@ -338,6 +446,14 @@
                     @endif
                 @endif
 
+                @if($enableColumnVisibility)
+                    <x-datatable.column-visibility
+                        :headers="$columnVisibilityHeaders"
+                        :visibleColumnIds="$visibleColumnIds"
+                        :storageKey="$columnVisibilityStorageKey"
+                    />
+                @endif
+
                 @if($enableNewResourceLink)
                     @if($customNewResourceLink)
                         {!! $customNewResourceLink !!}
@@ -353,7 +469,8 @@
 
         <div @class([
             'table-responsive',
-            'datatable-scroll-area' => $enableStickyHeader,
+            'datatable-scroll-area' => $enableStickyHeader && ! $enableUnifiedScroll,
+            'datatable-page-scroll' => $enableUnifiedScroll,
         ])>
             <table id="dataTable" class="table">
                 <thead @class([
@@ -376,6 +493,8 @@
 
                         @foreach($headers ?? [] as $header)
                         <th
+                            wire:key="datatable-header-{{ $header['id'] ?? $loop->index }}"
+                            data-column-id="{{ $header['id'] ?? '' }}"
                             @isset($header['width']) width="{{ $header['width'] }}" @endisset
                             class="table-thead-th {{ count($headers) - 1 === $loop->index ? 'table-thead-th-last' : '' }} {{ isset($header['align']) ? 'text-' . $header['align'] : '' }}"
                         >
@@ -437,7 +556,10 @@
                             @endif
 
                             @foreach($headers ?? [] as $header)
-                                <td class="table-td {{ isset($header['align']) ? 'text-' . $header['align'] : '' }}">
+                                <td
+                                    wire:key="datatable-cell-{{ $item->id }}-{{ $header['id'] ?? $loop->index }}"
+                                    class="table-td {{ isset($header['align']) ? 'text-' . $header['align'] : '' }}"
+                                >
                                     @php
                                         $pascalCaseId = collect(explode('_', $header['id']))->map(fn($part) => ucfirst($part))->implode('');
                                         $content = isset($data[$loop->index][$header['id']]) ? $data[$loop->index][$header['id']] : null;
@@ -487,7 +609,11 @@
             </table>
 
             @if($enablePagination ?? true)
-                <div class="my-4 px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div @class([
+                    'datatable-pagination px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4',
+                    'my-4' => ! $enableUnifiedScroll,
+                    'datatable-pagination-sticky py-3' => $enableUnifiedScroll,
+                ])>
                     <div class="flex items-center gap-2">
                         <label for="perPage" class="text-sm text-gray-600 dark:text-gray-300">{{ __('Per page') }}</label>
                         <select

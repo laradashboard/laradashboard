@@ -20,6 +20,7 @@ abstract class BaseSinglePost extends BaseFrontendPage
     public function mount(string $slug): void
     {
         $this->post = $this->query()->findPublishedPostBySlug($slug);
+        $this->post?->incrementViews();
 
         $this->relatedPosts = $this->query()->relatedPosts($this->post);
 

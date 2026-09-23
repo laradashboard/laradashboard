@@ -13,5 +13,6 @@ abstract class BaseHomePage extends BaseFrontendPage
     public function mount(): void
     {
         $this->page = $this->query()->findHomepage();
+        $this->page?->incrementViews();
     }
 }

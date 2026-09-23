@@ -32,7 +32,7 @@
                 {{ __('View version :version details', ['version' => $updateInfo['latest_version']]) }}
             </button>
             {{ __('or') }}
-            @if($canUpdate)
+            @if($canUpdate && auth()->user()?->can('update', $module))
                 <button
                     type="button"
                     wire:click="updateModule('{{ $module->name }}')"

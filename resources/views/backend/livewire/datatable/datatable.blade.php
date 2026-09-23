@@ -3,7 +3,7 @@
     :filters="$filters"
     :customFilters="$customFilters"
     :perPageOptions="$perPageOptions"
-    :headers="$headers"
+    :headers="$visibleHeaders"
     :enableCheckbox="$enableCheckbox"
     :enableBulkActions="$enableBulkActions"
     :enableNewResourceLink="$showCreateButton"
@@ -15,4 +15,9 @@
     :customNewResourceLink="$this->getCustomNewResourceLink()"
     :newResourceLinkRouteUrl="$this->getCreateRouteUrl()"
     :newResourceLinkLabel="$newResourceLinkLabel"
+    :enableColumnVisibility="$this->usesColumnVisibility()"
+    :enableUnifiedScroll="$this->usesUnifiedPageScroll()"
+    :columnVisibilityHeaders="$columnVisibilityHeaders"
+    :visibleColumnIds="$this->visibleColumnIds"
+    :columnVisibilityStorageKey="$this->getColumnVisibilityStorageKey()"
 />

@@ -36,10 +36,29 @@ test('datatable renders shift-click selection wiring', function () {
         ->assertSeeHtml('syncSelectedItemsToLivewire');
 });
 
-test('datatable renders sticky header scroll container', function () {
+test('datatable renders sticky header page-scroll container', function () {
     $this->actingAs($this->admin);
 
     Livewire::test(UserDatatable::class)
-        ->assertSeeHtml('datatable-scroll-area')
-        ->assertSeeHtml('table-thead-sticky');
+        ->assertSeeHtml('datatable-page-scroll')
+        ->assertSeeHtml('table-thead-sticky')
+        ->assertSeeHtml('datatable-pagination-sticky');
+});
+
+test('unified page scroll is the default for every datatable', function () {
+    $this->actingAs($this->admin);
+
+    $component = Livewire::test(UserDatatable::class);
+
+    expect($component->instance()->usesUnifiedPageScroll())->toBeTrue();
+
+    $component
+        ->assertSeeHtml('setupUnifiedPageScroll')
+        ->assertSeeHtml('findOrAdoptPageHeader')
+        ->assertSeeHtml("createElement('div')")
+        ->assertSeeHtml("className = 'datatable-unified-scroll-header'")
+        ->assertSeeHtml('datatable-page-scroll')
+        ->assertSeeHtml('datatable-pagination-sticky')
+        ->assertDontSeeHtml('datatable-scroll-area')
+        ->assertDontSeeHtml("header.classList.add");
 });

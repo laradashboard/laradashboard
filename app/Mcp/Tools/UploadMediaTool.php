@@ -16,7 +16,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('upload-media')]
-#[Description('Upload an image into the media library from base64 content. Returns media id and URL for attach-featured-image.')]
+#[Description('Upload a small image via base64 (max ~100KB decoded). For hero images and larger files, use create-media-upload with multipart POST instead.')]
 #[McpToolMeta(ability: 'mcp:media.write', permission: 'media.create', group: 'Content')]
 class UploadMediaTool extends Tool
 {
@@ -57,9 +57,15 @@ class UploadMediaTool extends Tool
             return Response::error(__('Media upload failed: :error', ['error' => $exception->getMessage()]));
         }
 
+        $mediaPayload = $this->mediaLibraryService->formatMediaForMcp($media, probeHttp: true);
+
+        if (! $mediaPayload['serve_ok']) {
+            return Response::error(__('Media was stored but the public file is not serveable.'));
+        }
+
         return Response::json([
             'message' => __('Media uploaded successfully.'),
-            'media' => $this->mediaLibraryService->formatMediaForMcp($media),
+            'media' => $mediaPayload,
         ]);
     }
 
@@ -73,7 +79,7 @@ class UploadMediaTool extends Tool
                 ->description('Image MIME type (image/png, image/jpeg, image/webp, image/gif, image/svg+xml).')
                 ->required(),
             'content_base64' => $schema->string()
-                ->description('Base64-encoded file bytes (max 5 MB decoded).')
+                ->description('Base64-encoded file bytes (max ~100 KB decoded; use create-media-upload for larger heroes).')
                 ->required(),
             'title' => $schema->string()
                 ->description('Optional media library title.'),
