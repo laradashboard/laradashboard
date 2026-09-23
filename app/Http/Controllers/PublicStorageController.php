@@ -27,10 +27,15 @@ class PublicStorageController extends Controller
 
         $fullPath = Storage::disk('public')->path($path);
         $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $mimeType = Storage::disk('public')->mimeType($path);
 
         $headers = [
             'X-Content-Type-Options' => 'nosniff',
         ];
+
+        if (is_string($mimeType) && $mimeType !== '') {
+            $headers['Content-Type'] = $mimeType;
+        }
 
         if ($extension === 'svg') {
             $headers['Content-Type'] = 'image/svg+xml';

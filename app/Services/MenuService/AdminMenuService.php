@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\MenuService;
 
 use App\Enums\Hooks\AdminFilterHook;
+use App\Models\Role;
 use App\Services\Content\ContentService;
 use App\Support\Facades\Hook;
 use Illuminate\Support\Facades\Route;
@@ -59,6 +60,11 @@ class AdminMenuService
                     if (isset($child['permission'])) {
                         $child['permissions'] = $child['permission'];
                         unset($child['permission']);
+                    }
+
+                    $roles = (array) ($child['roles'] ?? []);
+                    if ($roles !== [] && ! $user->hasAnyRole($roles)) {
+                        return null;
                     }
 
                     $permissions = $child['permissions'] ?? [];
@@ -248,6 +254,7 @@ class AdminMenuService
                     'route' => route('admin.core-upgrades.index'),
                     'active' => Route::is('admin.core-upgrades.*'),
                     'priority' => 25,
+                    'roles' => [Role::SUPERADMIN],
                     'permissions' => 'settings.view',
                 ],
             ],

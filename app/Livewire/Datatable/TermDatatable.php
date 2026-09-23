@@ -18,6 +18,11 @@ class TermDatatable extends Datatable
         return __('Search by :taxonomy name...', ['taxonomy' => $this->taxonomy]);
     }
 
+    public function getColumnVisibilityStorageKey(): string
+    {
+        return parent::getColumnVisibilityStorageKey() . '-' . $this->taxonomy;
+    }
+
     protected function getNoResultsMessage(): string
     {
         return __('No :items found.', ['items' => ucfirst($this->taxonomy)]);

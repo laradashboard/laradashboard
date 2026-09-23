@@ -1,3 +1,4 @@
+@if($canChangeStatus || $canDelete)
 <div class="flex items-center gap-2">
     {{-- Bulk Actions Dropdown (only shown when items are selected) --}}
     <div x-show="selectedItems.length > 0" x-data="{ bulkOpen: false }" class="relative" @click.outside="bulkOpen = false">
@@ -17,6 +18,7 @@
             class="absolute right-0 top-full z-30 mt-2 w-56 rounded-md shadow bg-white dark:bg-gray-700 dark:border dark:border-gray-600 p-2"
         >
             <ul class="space-y-1">
+                @if($canChangeStatus)
                 {{-- Activate Selected --}}
                 <li>
                     <button
@@ -54,9 +56,13 @@
                         {{ __('Deactivate Selected') }}
                     </button>
                 </li>
+                @endif
 
+                @if($canChangeStatus && $canDelete)
                 <li class="border-t border-gray-200 dark:border-gray-600 my-1"></li>
+                @endif
 
+                @if($canDelete)
                 {{-- Delete Selected --}}
                 <li>
                     <button
@@ -68,7 +74,9 @@
                         {{ __('Delete Selected') }}
                     </button>
                 </li>
+                @endif
             </ul>
         </div>
     </div>
 </div>
+@endif

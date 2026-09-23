@@ -11,6 +11,7 @@ use App\Models\Term;
 use App\Services\Content\ContentService;
 use App\Services\Content\PostType;
 use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class PostDatatable extends Datatable
@@ -31,6 +32,11 @@ class PostDatatable extends Datatable
     public function getSearchbarPlaceholder(): string
     {
         return __('Search by title or content') . '...';
+    }
+
+    public function getColumnVisibilityStorageKey(): string
+    {
+        return parent::getColumnVisibilityStorageKey() . '-' . $this->postType;
     }
 
     public function updatingStatus()
@@ -170,6 +176,14 @@ class PostDatatable extends Datatable
         }
 
         $headers[] = [
+            'id' => 'views',
+            'title' => __('Views'),
+            'width' => null,
+            'sortable' => true,
+            'sortBy' => 'views',
+        ];
+
+        $headers[] = [
             'id' => 'created_at',
             'title' => __('Created'),
             'width' => null,
@@ -200,7 +214,7 @@ class PostDatatable extends Datatable
     {
         $query = QueryBuilder::for($this->model)
             ->where('post_type', $this->postType)
-            ->with('author')
+            ->with(['author', 'postMeta'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('title', 'like', "%{$this->search}%")
@@ -225,6 +239,23 @@ class PostDatatable extends Datatable
             });
 
         return $this->sortQuery($query);
+    }
+
+    public function sortQuery(QueryBuilder $query): QueryBuilder|Builder
+    {
+        if ($this->sort !== 'views') {
+            return parent::sortQuery($query);
+        }
+
+        $direction = $this->direction === 'asc' ? 'asc' : 'desc';
+
+        return $query
+            ->leftJoin('post_meta as pm_views', function ($join) {
+                $join->on('pm_views.post_id', '=', 'posts.id')
+                    ->where('pm_views.meta_key', '=', Post::VIEWS_META_KEY);
+            })
+            ->orderByRaw('CAST(COALESCE(pm_views.meta_value, 0) AS INTEGER) ' . $direction)
+            ->select('posts.*');
     }
 
     public function renderTitleColumn(Post $post): string|Renderable
@@ -268,6 +299,15 @@ class PostDatatable extends Datatable
     public function renderCategoryColumn(Post $post): string|Renderable
     {
         return $post->categories->pluck('name')->map(fn ($name) => "<span class='badge'>" . ucfirst($name) . "</span>")->join(' ');
+    }
+
+    public function renderViewsColumn(Post $post): string
+    {
+        $count = $post->view_count;
+        $display = $post->formattedViewCount();
+        $title = $count > 0 ? ' title="' . e(number_format($count)) . '"' : '';
+
+        return '<span class="text-sm text-gray-700 dark:text-gray-300"' . $title . '>' . e($display) . '</span>';
     }
 
 }

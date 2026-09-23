@@ -20,6 +20,11 @@ class McpSettingsService
         return url('/mcp');
     }
 
+    public function multipartUploadUrl(): string
+    {
+        return route('mcp.media.upload.store');
+    }
+
     public function isInsecureHttp(): bool
     {
         return ! str_starts_with($this->serverUrl(), 'https://');

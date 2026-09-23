@@ -1,6 +1,6 @@
 <div>
     @if ($hasUpdate)
-        @can('settings.view')
+        @can('viewCoreUpgrades', \App\Models\Setting::class)
             @php
                 $versionDisplay = str_starts_with($latestVersion, 'v') ? $latestVersion : 'v' . $latestVersion;
             @endphp

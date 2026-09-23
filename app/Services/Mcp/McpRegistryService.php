@@ -10,9 +10,11 @@ use App\Mcp\Tools\ActivateModuleTool;
 use App\Mcp\Tools\AssignPostTermsTool;
 use App\Mcp\Tools\AttachFeaturedImageTool;
 use App\Mcp\Tools\ClearCacheTool;
+use App\Mcp\Tools\CreateMediaUploadTool;
 use App\Mcp\Tools\CreatePostTool;
 use App\Mcp\Tools\DeactivateModuleTool;
 use App\Mcp\Tools\DeletePostTool;
+use App\Mcp\Tools\FinalizeMediaUploadTool;
 use App\Mcp\Tools\GenerateSeoMetaTool;
 use App\Mcp\Tools\GetDailyBriefingTool;
 use App\Mcp\Tools\GetEmailTemplateTool;
@@ -51,6 +53,8 @@ class McpRegistryService
             AssignPostTermsTool::class,
             ListTermsTool::class,
             ListMediaTool::class,
+            CreateMediaUploadTool::class,
+            FinalizeMediaUploadTool::class,
             UploadMediaTool::class,
             AttachFeaturedImageTool::class,
             GenerateSeoMetaTool::class,
