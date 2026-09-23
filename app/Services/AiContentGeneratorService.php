@@ -824,4 +824,174 @@ IMPORTANT RULES:
     {
         return ! empty(config('settings.ai_openai_api_key') ?: config('ai.openai.api_key'));
     }
+
+    /**
+     * Multi-turn chat completion using the configured default provider.
+     *
+     * @param  array<int, array{role: string, content: string}>  $messages
+     */
+    public function chatCompletion(array $messages, ?float $temperature = null, ?int $maxTokens = null): string
+    {
+        if (! $this->isConfigured()) {
+            throw new Exception(__('AI is not configured. Please add your API key in Settings → Integrations.'));
+        }
+
+        $available = $this->getAvailableProviders();
+        $provider = $this->getDefaultProvider();
+
+        if (! isset($available[$provider])) {
+            $provider = (string) array_key_first($available);
+            $this->setProvider($provider);
+        }
+
+        $temperature ??= 0.7;
+        $maxTokens ??= min($this->getMaxTokens(), 8000);
+
+        $response = match ($this->provider) {
+            'openai' => $this->sendOpenAiChatRequest($messages, $temperature, $maxTokens),
+            'claude' => $this->sendClaudeChatRequest($messages, $temperature, $maxTokens),
+            'gemini' => $this->sendGeminiChatRequest($messages, $temperature, $maxTokens),
+            'ollama' => $this->sendOllamaChatRequest($messages, $temperature, $maxTokens),
+            default => throw new Exception("Unsupported AI provider: {$this->provider}"),
+        };
+
+        if (! $response->successful()) {
+            throw new Exception($this->parseApiError($response));
+        }
+
+        $content = match ($this->provider) {
+            'openai' => (string) data_get($response->json(), 'choices.0.message.content', ''),
+            'claude' => (string) data_get($response->json(), 'content.0.text', ''),
+            'gemini' => $this->extractGeminiContent($response->json()),
+            'ollama' => (string) data_get($response->json(), 'message.content', ''),
+            default => '',
+        };
+
+        $content = trim($content);
+
+        if ($content === '') {
+            throw new Exception(__('The AI provider returned an empty reply.'));
+        }
+
+        return $content;
+    }
+
+    /**
+     * @param  array<int, array{role: string, content: string}>  $messages
+     */
+    private function sendOpenAiChatRequest(array $messages, float $temperature, int $maxTokens): Response
+    {
+        $model = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-4o-mini');
+
+        return Http::withHeaders([
+            'Authorization' => 'Bearer '.$this->apiKey,
+            'Content-Type' => 'application/json',
+        ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
+            'model' => $model,
+            'messages' => $messages,
+            'temperature' => $temperature,
+            'max_tokens' => $maxTokens,
+        ]);
+    }
+
+    /**
+     * @param  array<int, array{role: string, content: string}>  $messages
+     */
+    private function sendClaudeChatRequest(array $messages, float $temperature, int $maxTokens): Response
+    {
+        $model = config('settings.ai_claude_model') ?: config('ai.anthropic.model', 'claude-3-haiku-20240307');
+        $system = '';
+        $conversation = [];
+
+        foreach ($messages as $message) {
+            if ($message['role'] === 'system') {
+                $system = $message['content'];
+
+                continue;
+            }
+
+            $conversation[] = [
+                'role' => $message['role'] === 'assistant' ? 'assistant' : 'user',
+                'content' => $message['content'],
+            ];
+        }
+
+        $payload = [
+            'model' => $model,
+            'max_tokens' => $maxTokens,
+            'temperature' => $temperature,
+            'messages' => $conversation,
+        ];
+
+        if ($system !== '') {
+            $payload['system'] = $system;
+        }
+
+        return Http::withHeaders([
+            'x-api-key' => $this->apiKey,
+            'Content-Type' => 'application/json',
+            'anthropic-version' => '2023-06-01',
+        ])->timeout(60)->post('https://api.anthropic.com/v1/messages', $payload);
+    }
+
+    /**
+     * @param  array<int, array{role: string, content: string}>  $messages
+     */
+    private function sendGeminiChatRequest(array $messages, float $temperature, int $maxTokens): Response
+    {
+        $model = config('settings.ai_gemini_model') ?: config('ai.gemini.model', 'gemini-2.0-flash');
+        $contents = [];
+
+        foreach ($messages as $message) {
+            if ($message['role'] === 'system') {
+                $contents[] = [
+                    'role' => 'user',
+                    'parts' => [['text' => $message['content']]],
+                ];
+                $contents[] = [
+                    'role' => 'model',
+                    'parts' => [['text' => 'Understood.']],
+                ];
+
+                continue;
+            }
+
+            $contents[] = [
+                'role' => $message['role'] === 'assistant' ? 'model' : 'user',
+                'parts' => [['text' => $message['content']]],
+            ];
+        }
+
+        return Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->timeout(60)->post(
+            "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$this->apiKey}",
+            [
+                'contents' => $contents,
+                'generationConfig' => [
+                    'temperature' => $temperature,
+                    'maxOutputTokens' => $maxTokens,
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @param  array<int, array{role: string, content: string}>  $messages
+     */
+    private function sendOllamaChatRequest(array $messages, float $temperature, int $maxTokens): Response
+    {
+        $model = config('settings.ai_ollama_model') ?: config('ai.ollama.model', 'llama3.2');
+        $baseUrl = rtrim((string) $this->baseUrl, '/');
+
+        return Http::timeout(120)->post("{$baseUrl}/api/chat", [
+            'model' => $model,
+            'messages' => $messages,
+            'stream' => false,
+            'options' => [
+                'num_predict' => $maxTokens,
+                'temperature' => $temperature,
+            ],
+        ]);
+    }
 }
