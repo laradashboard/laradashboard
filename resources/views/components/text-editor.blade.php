@@ -128,8 +128,9 @@
         // Height configuration and plugins based on minHeight prop
         const heightConfig = {};
         let plugins = pluginsConfigs[editorType] || pluginsConfigs.basic;
+        const usesAutoResize = minHeightValue && minHeightValue !== '' && minHeightValue !== 'null';
         
-        if (minHeightValue && minHeightValue !== '' && minHeightValue !== 'null') {
+        if (usesAutoResize) {
             // Use min_height for flexible growing editor - requires autoresize plugin
             const minHeightMatch = minHeightValue.match(/(\d+)px/);
             const numericMinHeight = minHeightMatch ? parseInt(minHeightMatch[1]) : 400;
@@ -149,6 +150,40 @@
             // Use fixed height (existing behavior)
             heightConfig.height = numericHeight;
         }
+
+        const resizeEditorToContent = function(editor) {
+            if (! usesAutoResize) {
+                return;
+            }
+
+            try {
+                editor.execCommand('mceAutoResize');
+            } catch (error) {
+                // Autoresize may not be ready yet during init.
+            }
+        };
+
+        const bindAutoResizeForEmbeddedMedia = function(editor) {
+            if (! usesAutoResize) {
+                return;
+            }
+
+            const doc = editor.getDoc();
+            if (! doc) {
+                return;
+            }
+
+            doc.querySelectorAll('img, iframe, video').forEach(function(element) {
+                if (element.dataset.autoResizeBound === 'true') {
+                    return;
+                }
+
+                element.dataset.autoResizeBound = 'true';
+                element.addEventListener('load', function() {
+                    resizeEditorToContent(editor);
+                });
+            });
+        };
 
         // Initialize TinyMCE
         tinymce.init({
@@ -254,12 +289,14 @@
                 window['tinymce-' + editorId] = editor;
 
                 // Sync with textarea on change
-                editor.on('change keyup paste', function() {
+                editor.on('change keyup paste SetContent NodeChange', function() {
                     textareaElement.value = editor.getContent();
 
                     // Trigger form change detection
                     const event = new Event('input', { bubbles: true });
                     textareaElement.dispatchEvent(event);
+                    resizeEditorToContent(editor);
+                    bindAutoResizeForEmbeddedMedia(editor);
                 });
 
                 // Add custom button for media modal
@@ -323,6 +360,13 @@
                     }
                 } else {
                     console.log(`No initial content for #${editorId}`);
+                }
+
+                if (usesAutoResize) {
+                    requestAnimationFrame(function() {
+                        resizeEditorToContent(editor);
+                        bindAutoResizeForEmbeddedMedia(editor);
+                    });
                 }
 
                 // Hide original textarea
