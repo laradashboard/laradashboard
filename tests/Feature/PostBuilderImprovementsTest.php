@@ -35,7 +35,8 @@ class PostBuilderImprovementsTest extends TestCase
         Permission::firstOrCreate(['name' => 'post.view', 'guard_name' => 'web']);
         Permission::firstOrCreate(['name' => 'post.create', 'guard_name' => 'web']);
         Permission::firstOrCreate(['name' => 'post.edit', 'guard_name' => 'web']);
-        $role->givePermissionTo(['post.view', 'post.create', 'post.edit']);
+        Permission::firstOrCreate(['name' => 'post.publish', 'guard_name' => 'web']);
+        $role->givePermissionTo(['post.view', 'post.create', 'post.edit', 'post.publish']);
         $this->admin->assignRole($role);
 
         app(ContentService::class)->registerPostType([

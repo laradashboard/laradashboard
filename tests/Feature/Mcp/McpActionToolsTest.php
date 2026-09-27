@@ -20,14 +20,14 @@ use Spatie\Permission\Models\Permission;
 pest()->use(RefreshDatabase::class);
 
 beforeEach(function () {
-    foreach (['post.view', 'post.create', 'post.edit', 'settings.edit', 'dashboard.view'] as $permission) {
+    foreach (['post.view', 'post.create', 'post.edit', 'post.publish', 'settings.edit', 'dashboard.view'] as $permission) {
         Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
     }
 
     $this->user = User::factory()->create();
     $role = Role::firstOrCreate(['name' => Role::ADMIN, 'guard_name' => 'web']);
     $this->user->assignRole($role);
-    $this->user->syncPermissions(['post.view', 'post.create', 'post.edit', 'settings.edit', 'dashboard.view']);
+    $this->user->syncPermissions(['post.view', 'post.create', 'post.edit', 'post.publish', 'settings.edit', 'dashboard.view']);
 
     app(McpTokenService::class)->createToken($this->user);
     $this->user->withAccessToken($this->user->tokens()->latest()->first());

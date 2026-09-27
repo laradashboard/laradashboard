@@ -6,9 +6,16 @@ namespace App\Services;
 
 use App\Enums\PostStatus;
 use App\Models\Post;
+use App\Services\Content\PostStatusAuthorizationService;
+use Illuminate\Support\Facades\Auth;
 
 class PostService
 {
+    public function __construct(
+        private readonly PostStatusAuthorizationService $postStatusAuthorizationService,
+    ) {
+    }
+
     /**
      * Get posts with filters
      *
@@ -99,6 +106,16 @@ class PostService
      */
     public function createPost(array $data): Post
     {
+        $user = Auth::user();
+
+        if ($user !== null && isset($data['status'])) {
+            $data['status'] = $this->postStatusAuthorizationService->resolveStatus(
+                $user,
+                null,
+                (string) $data['status'],
+            );
+        }
+
         $post = Post::create([
             'title' => $data['title'],
             'slug' => $data['slug'] ?? str()->slug($data['title']),
@@ -140,6 +157,16 @@ class PostService
      */
     public function updatePost(Post $post, array $data): Post
     {
+        $user = Auth::user();
+
+        if ($user !== null && array_key_exists('status', $data)) {
+            $data['status'] = $this->postStatusAuthorizationService->resolveStatus(
+                $user,
+                $post,
+                (string) $data['status'],
+            );
+        }
+
         $updateData = [
             'title' => $data['title'] ?? $post->title,
             'slug' => $data['slug'] ?? $post->slug,

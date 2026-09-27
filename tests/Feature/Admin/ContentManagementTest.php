@@ -36,13 +36,14 @@ beforeEach(function () {
     Permission::firstOrCreate(['name' => 'post.create', 'guard_name' => 'web']);
     Permission::firstOrCreate(['name' => 'post.edit', 'guard_name' => 'web']);
     Permission::firstOrCreate(['name' => 'post.delete', 'guard_name' => 'web']);
+    Permission::firstOrCreate(['name' => 'post.publish', 'guard_name' => 'web']);
     Permission::firstOrCreate(['name' => 'term.view', 'guard_name' => 'web']);
     Permission::firstOrCreate(['name' => 'term.create', 'guard_name' => 'web']);
     Permission::firstOrCreate(['name' => 'term.edit', 'guard_name' => 'web']);
     Permission::firstOrCreate(['name' => 'term.delete', 'guard_name' => 'web']);
 
     $adminRole->syncPermissions([
-        'post.view', 'post.create', 'post.edit', 'post.delete',
+        'post.view', 'post.create', 'post.edit', 'post.delete', 'post.publish',
         'term.view', 'term.create', 'term.edit', 'term.delete',
     ]);
 
