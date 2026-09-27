@@ -35,6 +35,14 @@ class SettingPolicy extends BasePolicy
     }
 
     /**
+     * Determine whether the user can update settings via the API.
+     */
+    public function update(User $user): bool
+    {
+        return $this->manage($user);
+    }
+
+    /**
      * Determine whether the user can view core upgrades.
      */
     public function viewCoreUpgrades(User $user): bool
