@@ -55,6 +55,7 @@ import { LaraHooks } from "../hooks-system/LaraHooks";
 import { BuilderHooks } from "../hooks-system/HookNames";
 import { blockRegistry } from "../registry/BlockRegistry";
 import { __ } from "@lara-builder/i18n";
+import { isSafeRedirectUrl } from "../utils/safeRedirect";
 
 // Import components
 import Canvas from "../components/Canvas";
@@ -756,7 +757,10 @@ function LaraBuilderInner({
                                 result.id
                             }/edit`;
                         }, 500);
-                    } else if (result?.redirect) {
+                    } else if (
+                        result?.redirect &&
+                        isSafeRedirectUrl(result.redirect)
+                    ) {
                         suppressBeforeUnloadRef.current = true;
                         setTimeout(() => {
                             window.location.href = result.redirect;

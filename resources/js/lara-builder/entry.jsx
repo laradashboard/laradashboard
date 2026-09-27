@@ -30,6 +30,7 @@ import { registerModularBlocks } from "./blocks/blockLoader";
 // Import and initialize translations
 import { initTranslations } from "./i18n";
 import { parseSaveErrorResponse } from "./core/saveError";
+import { isSafeRedirectUrl } from "./utils/safeRedirect";
 
 // Register all modular blocks (new architecture with block.json, editor.jsx)
 // Each block includes component + propertyEditor
@@ -60,7 +61,11 @@ function initLaraBuilder(elementId = "lara-builder-root") {
     const videoUploadUrl = mountElement.dataset.videoUploadUrl;
     const showHeader = mountElement.dataset.showHeader !== "false";
     // Generic redirect URL - any module can pass this to redirect after save
-    const redirectUrl = mountElement.dataset.redirectUrl || null;
+    const rawRedirectUrl = mountElement.dataset.redirectUrl || null;
+    const redirectUrl =
+        rawRedirectUrl && isSafeRedirectUrl(rawRedirectUrl)
+            ? rawRedirectUrl
+            : null;
 
     // Initialize translations from data attribute or global window object
     const translations = mountElement.dataset.translations
