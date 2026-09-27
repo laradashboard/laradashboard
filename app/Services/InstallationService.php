@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Setting;
+use App\Support\Security\SafeZipExtractor;
 use App\Models\User;
 use App\Services\Modules\ModuleService;
 use Illuminate\Support\Facades\Artisan;
@@ -1027,19 +1028,14 @@ class InstallationService
                 }
             }
 
-            // Extract the zip
-            $zip = new \ZipArchive();
+            $extractPath = $tempPath . '/extracted';
+            File::ensureDirectoryExists($extractPath);
 
-            if (! $zip->open($zipPath)) {
+            if (! (new SafeZipExtractor())->extract($zipPath, $extractPath)) {
                 File::deleteDirectory($tempPath);
 
                 return ['success' => false, 'message' => __('Failed to open module package.')];
             }
-
-            $extractPath = $tempPath . '/extracted';
-            File::ensureDirectoryExists($extractPath);
-            $zip->extractTo($extractPath);
-            $zip->close();
 
             // Find module.json in extracted content
             $moduleService = app(ModuleService::class);

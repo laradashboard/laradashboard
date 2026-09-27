@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Modules;
 
 use App\Services\LicenseVerificationService;
+use App\Support\Security\SafeZipExtractor;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -806,10 +807,10 @@ class ModuleUpdateService
                 ];
             }
 
-            // Extract the ZIP
-            $zip = new \ZipArchive();
+            $extractPath = $tempPath . '/extracted';
+            File::ensureDirectoryExists($extractPath);
 
-            if (! $zip->open($zipPath)) {
+            if (! (new SafeZipExtractor())->extract($zipPath, $extractPath)) {
                 File::deleteDirectory($tempPath);
 
                 return [
@@ -817,11 +818,6 @@ class ModuleUpdateService
                     'message' => 'Failed to open update package.',
                 ];
             }
-
-            $extractPath = $tempPath . '/extracted';
-            File::ensureDirectoryExists($extractPath);
-            $zip->extractTo($extractPath);
-            $zip->close();
 
             // Use the module service to replace the module
             $newModuleName = $this->moduleService->replaceModule($extractPath, $folderName);

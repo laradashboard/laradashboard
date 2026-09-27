@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Modules;
 
 use App\Exceptions\ModuleConflictException;
+use App\Support\Security\SafeZipExtractor;
 use App\Exceptions\ModuleException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -202,10 +203,10 @@ class MarketplaceService
                 ];
             }
 
-            // Extract the ZIP
-            $zip = new \ZipArchive();
+            $extractPath = $tempPath . '/extracted';
+            File::ensureDirectoryExists($extractPath);
 
-            if (! $zip->open($zipPath)) {
+            if (! (new SafeZipExtractor())->extract($zipPath, $extractPath)) {
                 File::deleteDirectory($tempPath);
 
                 return [
@@ -214,11 +215,6 @@ class MarketplaceService
                     'module_name' => null,
                 ];
             }
-
-            $extractPath = $tempPath . '/extracted';
-            File::ensureDirectoryExists($extractPath);
-            $zip->extractTo($extractPath);
-            $zip->close();
 
             // Check if the module already exists locally
             $moduleInfo = $this->findModuleInExtracted($extractPath);

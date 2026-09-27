@@ -8,6 +8,7 @@ use App\Enums\Hooks\ModuleActionHook;
 use App\Exceptions\ModuleConflictException;
 use App\Exceptions\ModuleException;
 use App\Support\Facades\Hook;
+use App\Support\Security\SafeZipExtractor;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -407,17 +408,15 @@ class ModuleService
 
         // Extract and install the module.
         $modulePath = storage_path('app/' . $filePath);
-        $zip = new \ZipArchive();
-
-        if (! $zip->open($modulePath)) {
-            throw new ModuleException(__('Module upload failed. The file may not be a valid zip archive.'));
-        }
 
         // Extract to a temporary location first to read module.json
         $tempPath = storage_path('app/modules_temp/' . uniqid('module_', true));
         File::ensureDirectoryExists($tempPath);
-        $zip->extractTo($tempPath);
-        $zip->close();
+
+        if (! (new SafeZipExtractor())->extract($modulePath, $tempPath)) {
+            File::deleteDirectory($tempPath);
+            throw new ModuleException(__('Module upload failed. The file may not be a valid zip archive.'));
+        }
 
         // Find the module folder and module.json (handles various zip structures)
         $moduleInfo = $this->findModuleInTempPath($tempPath);

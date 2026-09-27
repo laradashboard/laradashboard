@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\Security\SafeZipExtractor;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use ZipArchive;
@@ -422,20 +423,7 @@ class BackupService
      */
     public function extractZip(string $zipPath, string $extractPath): bool
     {
-        $zip = new ZipArchive();
-        if ($zip->open($zipPath) !== true) {
-            return false;
-        }
-
-        // Create extract directory
-        if (! File::exists($extractPath)) {
-            File::makeDirectory($extractPath, 0755, true);
-        }
-
-        $zip->extractTo($extractPath);
-        $zip->close();
-
-        return true;
+        return (new SafeZipExtractor())->extract($zipPath, $extractPath);
     }
 
     /**

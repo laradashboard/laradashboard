@@ -6,6 +6,12 @@ All notable changes to **Lara Dashboard** are documented in this file. This proj
 
 ---
 
+## [Unreleased]
+
+### Security
+
+- **Fix:** Zip-slip (CWE-22) when extracting uploaded or downloaded zip archives during core upgrades, backup restore, module upload, marketplace install, module updates, and installer module import. Extraction now validates every archive entry path ([GHSA-6626-2hmw-wrhx](https://github.com/laradashboard/laradashboard/security/advisories/GHSA-6626-2hmw-wrhx)).
+
 ## [v1.4.5] — 2026-09-23
 
 ### Datatable
