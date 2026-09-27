@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Role;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
 
 class RolePolicy extends BasePolicy
 {
@@ -38,6 +38,10 @@ class RolePolicy extends BasePolicy
      */
     public function update(User $user, Role $role): bool
     {
+        if ($role->isSuperAdminRole()) {
+            return false;
+        }
+
         return $this->checkPermission($user, 'role.edit');
     }
 
@@ -46,6 +50,10 @@ class RolePolicy extends BasePolicy
      */
     public function delete(User $user, Role $role): bool
     {
+        if ($role->isSuperAdminRole()) {
+            return false;
+        }
+
         return $this->checkPermission($user, 'role.delete');
     }
 
