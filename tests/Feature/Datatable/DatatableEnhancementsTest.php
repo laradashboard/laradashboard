@@ -62,3 +62,15 @@ test('unified page scroll is the default for every datatable', function () {
         ->assertDontSeeHtml('datatable-scroll-area')
         ->assertDontSeeHtml("header.classList.add");
 });
+
+test('unified page scroll datatable enables horizontal scroll when the table overflows', function () {
+    $this->actingAs($this->admin);
+
+    Livewire::test(UserDatatable::class)
+        ->assertSeeHtml('class="datatable-table-scroll" wire:ignore.self')
+        ->assertSeeHtml("querySelector('.datatable-table-scroll')")
+        ->assertSeeHtml('class="datatable-scrollbar hidden" aria-hidden="true" tabindex="-1" wire:ignore')
+        ->assertSeeHtml('setupTableHorizontalScroll')
+        ->assertSeeHtml("'is-scrollable-x'")
+        ->assertSeeHtml('teardownTableHorizontalScroll');
+});
