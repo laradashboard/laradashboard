@@ -390,7 +390,7 @@
             @endif
             {!! Hook::applyFilters(DatatableHook::AFTER_SEARCHBOX, '', $searchbarPlaceholder) !!}
 
-            <div class="flex items-center gap-3 flex-wrap md:flex-nowrap w-full md:w-auto">
+            <div class="flex items-center gap-3 flex-wrap w-full md:w-auto md:min-w-0 md:flex-1 md:flex-nowrap md:justify-end">
                 <div
                     class="flex items-center gap-2"
                     x-show="selectedItems.length > 0"
@@ -701,23 +701,21 @@
 
                     @if($enablePagination ?? true)
                         <div @class([
-                            'datatable-pagination px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4',
+                            'datatable-pagination px-4 sm:px-6 flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-4 gap-y-3',
                             'my-4' => ! $enableUnifiedScroll,
                             'py-3' => $enableUnifiedScroll,
                         ])>
                             <div class="flex items-center gap-2">
-                                <label for="perPage" class="text-sm text-gray-600 dark:text-gray-300">{{ __('Per page') }}</label>
-                                <select
+                                <label for="perPage" class="text-sm text-gray-600 dark:text-gray-300 max-sm:sr-only">{{ __('Per page') }}</label>
+                                <x-datatable.dropdown-select
                                     id="perPage"
-                                    wire:model.live="perPage"
-                                    class="form-control w-20"
-                                >
-                                    @foreach($perPageOptions as $option)
-                                        <option value="{{ $option == 'All' ? 999999 : $option }}">
-                                            {{ $option }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                    name="perPage"
+                                    class="w-20"
+                                    trigger-class="px-3 gap-1"
+                                    :options="collect($perPageOptions)->map(fn ($option) => ['value' => is_numeric($option) ? (int) $option : 999999, 'label' => $option])->all()"
+                                    :selected="$perPage"
+                                    :dropUp="true"
+                                />
                             </div>
                             <div class="pagination-links max-w-full overflow-x-auto">
                                 {{ $data->links() }}

@@ -11,7 +11,7 @@
 @endphp
 
 <div
-    class="relative"
+    class="relative flex-1 min-w-0 md:flex-none"
     data-datatable-column-visibility
     wire:ignore
     x-data="{
@@ -68,16 +68,16 @@
     <button
         @click="open = !open"
         @keydown.escape.window="open = false"
-        class="btn-default flex items-center justify-center gap-2 whitespace-nowrap"
+        class="btn-default flex items-center justify-center gap-2 whitespace-nowrap w-full md:w-auto"
         type="button"
         :aria-expanded="open.toString()"
         aria-haspopup="true"
         aria-controls="datatable-column-visibility-menu"
         aria-label="{{ __('Toggle column visibility') }}"
     >
-        <iconify-icon icon="lucide:eye" aria-hidden="true"></iconify-icon>
+        <iconify-icon icon="lucide:eye" aria-hidden="true" noobserver></iconify-icon>
         {{ __('Columns') }}
-        <iconify-icon icon="lucide:chevron-down" class="transition-transform duration-200" :class="{'rotate-180': open}" aria-hidden="true"></iconify-icon>
+        <iconify-icon icon="lucide:chevron-down" class="transition-transform duration-200" :class="{'rotate-180': open}" aria-hidden="true" noobserver></iconify-icon>
     </button>
 
     <div

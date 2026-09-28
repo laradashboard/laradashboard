@@ -2,6 +2,7 @@
     :searchbarPlaceholder="$searchbarPlaceholder"
     :filters="$filters"
     :customFilters="$customFilters"
+    :perPage="$perPage"
     :perPageOptions="$perPageOptions"
     :headers="$visibleHeaders"
     :enableCheckbox="$enableCheckbox"

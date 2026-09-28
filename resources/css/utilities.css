@@ -23,6 +23,23 @@
         @apply flex gap-3;
     }
 
+    /* Phones: per page + previous/next share the first row, page links wrap to the next one. */
+    @media (width < 40rem) {
+        .datatable-pagination .pagination-links:has(> div > nav > div),
+        .datatable-pagination .pagination-links:has(> div > nav > div) > div,
+        .datatable-pagination .pagination-links:has(> div > nav > div) > div > nav {
+            display: contents;
+        }
+
+        .datatable-pagination .pagination-links > div > nav > div:nth-child(1) {
+            @apply flex-none;
+        }
+
+        .datatable-pagination .pagination-links > div > nav > div:nth-child(2) {
+            @apply w-full flex-wrap justify-center gap-y-2;
+        }
+    }
+
     /* Optimize fonts loading */
     .font-display-swap {
         font-display: swap;
