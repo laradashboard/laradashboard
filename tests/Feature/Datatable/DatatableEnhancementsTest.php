@@ -72,5 +72,7 @@ test('unified page scroll datatable enables horizontal scroll when the table ove
         ->assertSeeHtml('class="datatable-scrollbar hidden" aria-hidden="true" tabindex="-1" wire:ignore')
         ->assertSeeHtml('setupTableHorizontalScroll')
         ->assertSeeHtml("'is-scrollable-x'")
+        ->assertSeeHtml("icon.setAttribute('noobserver', '')")
+        ->assertSeeHtml('icon.stopObserver?.()')
         ->assertSeeHtml('teardownTableHorizontalScroll');
 });

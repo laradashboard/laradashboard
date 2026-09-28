@@ -272,7 +272,7 @@
 
     /* An overflow-x container can't stick to the page, so the thead scrolls with the rows here. */
     .datatable-page-scroll .datatable-table-scroll.is-scrollable-x {
-        @apply overflow-x-auto;
+        @apply mb-0 overflow-x-auto;
         scrollbar-width: none;
     }
 

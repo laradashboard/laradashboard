@@ -55,6 +55,7 @@
         unifiedScrollOwnsPageChrome: false,
         tableScrollObserver: null,
         tableScrollHandlers: null,
+        tableIconObserver: null,
         parseCheckboxId(value) {
             const num = parseInt(value, 10);
             return Number.isNaN(num) ? value : num;
@@ -261,6 +262,19 @@
                 }
             };
 
+            // iconify-icon drops its SVG while off-screen, so column widths would change as rows scroll
+            // and flip the scroll mode. Its noobserver attribute is ignored after connect, hence stopObserver().
+            const pinIcons = () => {
+                wrapper.querySelectorAll('iconify-icon:not([noobserver])').forEach((icon) => {
+                    icon.setAttribute('noobserver', '');
+                    icon.stopObserver?.();
+                });
+            };
+
+            pinIcons();
+            this.tableIconObserver = new MutationObserver(pinIcons);
+            this.tableIconObserver.observe(wrapper, { childList: true, subtree: true });
+
             const update = () => {
                 const overflowing = table.getBoundingClientRect().width > wrapper.clientWidth + 1;
                 wrapper.classList.toggle('is-scrollable-x', overflowing);
@@ -290,6 +304,8 @@
         teardownTableHorizontalScroll() {
             this.tableScrollObserver?.disconnect();
             this.tableScrollObserver = null;
+            this.tableIconObserver?.disconnect();
+            this.tableIconObserver = null;
 
             if (this.tableScrollHandlers) {
                 this.$root.querySelector('.datatable-table-scroll')?.removeEventListener('scroll', this.tableScrollHandlers.wrapper);
