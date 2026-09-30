@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
 
@@ -39,7 +38,7 @@ class SettingPolicy extends BasePolicy
      */
     public function viewCoreUpgrades(User $user): bool
     {
-        return $user->hasRole(Role::SUPERADMIN);
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -47,6 +46,6 @@ class SettingPolicy extends BasePolicy
      */
     public function manageCoreUpgrades(User $user): bool
     {
-        return $user->hasRole(Role::SUPERADMIN);
+        return $user->isSuperAdmin();
     }
 }

@@ -19,14 +19,19 @@ trait InteractsWithSecurityUsers
     {
         $this->withoutMiddleware(VerifyCsrfToken::class);
 
-        Role::firstOrCreate(['name' => Role::SUPERADMIN, 'guard_name' => 'web']);
+        $superadminRole = Role::firstOrCreate(['name' => Role::SUPERADMIN, 'guard_name' => 'web']);
+        if (! $superadminRole->isSuperAdminRole()) {
+            $superadminRole->forceFill(['is_super_admin' => true])->save();
+        }
+
         Role::firstOrCreate(['name' => Role::ADMIN, 'guard_name' => 'web']);
 
         $this->adminUser = $this->createUserWithRole(Role::ADMIN, [
             'user.view',
             'user.create',
             'user.edit',
-            'user.login_as',
+            'role.edit',
+            'role.delete',
             'module.create',
             'module.view',
         ]);

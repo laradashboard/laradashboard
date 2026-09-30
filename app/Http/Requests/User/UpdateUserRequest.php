@@ -34,8 +34,8 @@ class UpdateUserRequest extends FormRequest
         $targetUser = User::find($userId);
 
         if (
-            $targetUser?->hasRole(Role::SUPERADMIN)
-            && ! auth()->user()?->hasRole(Role::SUPERADMIN)
+            $targetUser?->isSuperAdmin()
+            && ! auth()->user()?->isSuperAdmin()
         ) {
             abort(403, __('You are not allowed to modify a Superadmin user.'));
         }
@@ -65,9 +65,11 @@ class UpdateUserRequest extends FormRequest
                 'nullable',
                 Rule::exists('roles', 'name'),
                 function ($attribute, $value, $fail) {
+                    $role = Role::query()->where('name', $value)->first();
+
                     if (
-                        $value === Role::SUPERADMIN
-                        && ! auth()->user()?->hasRole(Role::SUPERADMIN)
+                        $role?->isSuperAdminRole()
+                        && ! auth()->user()?->isSuperAdmin()
                     ) {
                         $fail(__('You are not allowed to assign the Superadmin role.'));
                     }

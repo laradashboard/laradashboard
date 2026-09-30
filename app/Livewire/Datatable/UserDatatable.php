@@ -145,7 +145,7 @@ class UserDatatable extends Datatable
         $users = User::whereIn('id', $ids)->get();
         $deletedCount = 0;
         foreach ($users as $user) {
-            if ($user->hasRole(Role::SUPERADMIN) || $user->id === Auth::id()) {
+            if ($user->isSuperAdmin() || $user->id === Auth::id()) {
                 continue;
             }
 
@@ -175,7 +175,7 @@ class UserDatatable extends Datatable
     {
         // Prevent Superadmin deletion.
         // @phpstan-ignore-next-line
-        if ($user->hasRole(Role::SUPERADMIN)) {
+        if ($user->isSuperAdmin()) {
             throw new \Exception(__('You cannot delete a :role account.', ['role' => Role::SUPERADMIN]));
         }
 
