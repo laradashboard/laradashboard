@@ -33,13 +33,22 @@ class UploadMediaTool extends Tool
             return $response;
         }
 
-        $validated = $request->validate([
-            'filename' => ['required', 'string', 'max:255'],
-            'mime_type' => ['required', 'string', 'max:100'],
-            'content_base64' => ['required', 'string'],
-            'title' => ['nullable', 'string', 'max:255'],
-            'alt_text' => ['nullable', 'string', 'max:500'],
-        ]);
+        $validated = $request->validate(
+            [
+                'filename' => ['required', 'string', 'max:255'],
+                'mime_type' => ['required', 'string', 'max:100'],
+                'content_base64' => [
+                    'required',
+                    'string',
+                    'max:'.MediaLibraryService::MCP_BASE64_FALLBACK_MAX_ENCODED_LENGTH,
+                ],
+                'title' => ['nullable', 'string', 'max:255'],
+                'alt_text' => ['nullable', 'string', 'max:500'],
+            ],
+            [
+                'content_base64.max' => MediaLibraryService::mcpBase64PayloadTooLargeMessage(),
+            ],
+        );
 
         try {
             $media = $this->mediaLibraryService->uploadFromBase64(

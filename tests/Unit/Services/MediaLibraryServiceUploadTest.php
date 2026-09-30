@@ -15,6 +15,15 @@ test('mcp base64 fallback limit does not exceed multipart upload limit', functio
         ->toBeLessThanOrEqual(MediaLibraryService::MCP_MAX_UPLOAD_BYTES);
 });
 
+test('mcp base64 encoded length cap matches decoded fallback limit', function () {
+    expect(MediaLibraryService::MCP_BASE64_FALLBACK_MAX_ENCODED_LENGTH)
+        ->toBe(intdiv(MediaLibraryService::MCP_BASE64_FALLBACK_MAX_BYTES, 3) * 4);
+
+    $maxDecodedFromCap = intdiv(MediaLibraryService::MCP_BASE64_FALLBACK_MAX_ENCODED_LENGTH, 4) * 3;
+
+    expect($maxDecodedFromCap)->toBeLessThanOrEqual(MediaLibraryService::MCP_BASE64_FALLBACK_MAX_BYTES);
+});
+
 test('upload from base64 stores image in media library', function () {
     $service = app(MediaLibraryService::class);
     $pngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
@@ -51,6 +60,17 @@ test('upload from base64 stores image in media library', function () {
     expect($formatted['http_status'])->toBe(200);
     expect($formatted['created_at'])->toBeString();
 });
+
+test('upload from base64 rejects oversized encoded string before decode', function () {
+    $service = app(MediaLibraryService::class);
+    $oversized = str_repeat('A', MediaLibraryService::MCP_BASE64_FALLBACK_MAX_ENCODED_LENGTH + 1);
+
+    $service->uploadFromBase64(
+        filename: 'too-large.jpg',
+        mimeType: 'image/jpeg',
+        contentBase64: $oversized,
+    );
+})->throws(ValidationException::class, 'create-media-upload');
 
 test('upload from base64 rejects payloads above fallback limit', function () {
     $service = app(MediaLibraryService::class);

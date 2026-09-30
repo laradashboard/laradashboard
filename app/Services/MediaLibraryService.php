@@ -55,6 +55,20 @@ class MediaLibraryService
      */
     public const MCP_BASE64_FALLBACK_MAX_BYTES = 100 * 1024;
 
+    /**
+     * Max base64 string length allowed before decode (4 chars per 3 bytes; equals
+     * intdiv({@see MCP_BASE64_FALLBACK_MAX_BYTES}, 3) * 4).
+     */
+    public const MCP_BASE64_FALLBACK_MAX_ENCODED_LENGTH = 136_532;
+
+    public static function mcpBase64PayloadTooLargeMessage(): string
+    {
+        return __(
+            'For files larger than :size, call create-media-upload and POST the file as multipart/form-data to the returned upload_url (or upload_url_bearer with your MCP token).',
+            ['size' => MediaHelper::formatFileSize(self::MCP_BASE64_FALLBACK_MAX_BYTES)]
+        );
+    }
+
     public function __construct(private readonly SvgSanitizer $svgSanitizer)
     {
     }
@@ -187,6 +201,8 @@ class MediaLibraryService
                 'mime_type' => [__('This file type is not allowed.')],
             ]);
         }
+
+        $this->assertMcpBase64EncodedWithinLimit($contentBase64);
 
         $decoded = base64_decode($contentBase64, true);
 
@@ -552,16 +568,25 @@ class MediaLibraryService
      *
      * @throws ValidationException
      */
+    private function assertMcpBase64EncodedWithinLimit(string $encoded): void
+    {
+        if (strlen($encoded) > self::MCP_BASE64_FALLBACK_MAX_ENCODED_LENGTH) {
+            $this->throwMcpBase64PayloadTooLarge();
+        }
+    }
+
     private function assertMcpBase64PayloadWithinLimit(string $decoded): void
     {
         if (strlen($decoded) > self::MCP_BASE64_FALLBACK_MAX_BYTES) {
-            throw ValidationException::withMessages([
-                'content_base64' => [__(
-                    'For files larger than :size, call create-media-upload and POST the file as multipart/form-data to the returned upload_url (or upload_url_bearer with your MCP token).',
-                    ['size' => MediaHelper::formatFileSize(self::MCP_BASE64_FALLBACK_MAX_BYTES)]
-                )],
-            ]);
+            $this->throwMcpBase64PayloadTooLarge();
         }
+    }
+
+    private function throwMcpBase64PayloadTooLarge(): never
+    {
+        throw ValidationException::withMessages([
+            'content_base64' => [self::mcpBase64PayloadTooLargeMessage()],
+        ]);
     }
 
     /**
