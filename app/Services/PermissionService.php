@@ -105,6 +105,7 @@ class PermissionService
                     'post.create',
                     'post.view',
                     'post.edit',
+                    'post.publish',
                     'post.delete',
                     'term.create',
                     'term.view',

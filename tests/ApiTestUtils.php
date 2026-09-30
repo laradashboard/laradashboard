@@ -41,6 +41,7 @@ trait ApiTestUtils
             Permission::firstOrCreate(['name' => 'post.create']);
             Permission::firstOrCreate(['name' => 'post.edit']);
             Permission::firstOrCreate(['name' => 'post.delete']);
+            Permission::firstOrCreate(['name' => 'post.publish']);
 
             // Role/Permission management permissions
             Permission::firstOrCreate(['name' => 'role.view']);
@@ -70,6 +71,7 @@ trait ApiTestUtils
                 'post.create',
                 'post.edit',
                 'post.delete',
+                'post.publish',
                 'role.view',
                 'role.create',
                 'role.edit',
