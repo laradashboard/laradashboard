@@ -23,7 +23,7 @@ class ForgotPasswordRequest extends FormRequest
             [
                 'email' => ['required', 'email'],
             ],
-            emailFields: ['email'],
+            includeAdvancedEmailValidation: false,
         );
     }
 }

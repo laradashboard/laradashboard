@@ -26,7 +26,7 @@ class ResetPasswordRequest extends FormRequest
                 'email' => ['required', 'email'],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ],
-            emailFields: ['email'],
+            includeAdvancedEmailValidation: false,
         );
     }
 }
