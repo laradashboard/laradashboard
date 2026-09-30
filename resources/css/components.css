@@ -243,7 +243,7 @@
 
     /* Wrapper only: -mx/px on the w-full breadcrumb row shrinks title + CTA vs the table. */
     .datatable-unified-scroll-header {
-        @apply sticky top-0 z-20 -mx-4 bg-body px-4 py-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-900;
+        @apply sticky top-0 z-5 -mx-4 bg-body px-4 py-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-900;
     }
 
     .datatable-unified-scroll-header > div {
@@ -308,7 +308,7 @@
     }
 
     .datatable-page-scroll .datatable-pagination-sticky {
-        @apply sticky bottom-0 z-10 bg-white dark:bg-gray-900;
+        @apply sticky bottom-0 z-5 bg-white dark:bg-gray-900;
         box-shadow: 0 -1px 0 0 rgb(243 244 246);
     }
 
