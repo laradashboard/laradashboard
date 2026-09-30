@@ -261,7 +261,7 @@
     }
 
     .datatable-page-scroll .table-thead-sticky .table-thead-th {
-        @apply sticky z-10;
+        @apply sticky z-5;
         top: var(--admin-page-header-height, 4.5rem);
         box-shadow: 0 1px 0 0 rgb(243 244 246);
     }
