@@ -58,3 +58,12 @@ test('ip limit can be disabled via settings', function () {
 
     expect($guard->hasExceededIpLimit('203.0.113.11'))->toBeFalse();
 });
+
+test('ip limit reserve rejects when threshold would be exceeded', function () {
+    $guard = app(RegistrationGuardService::class);
+
+    expect($guard->reserveIpRegistrationSlot('203.0.113.12'))->toBeTrue();
+    expect($guard->reserveIpRegistrationSlot('203.0.113.12'))->toBeTrue();
+    expect($guard->reserveIpRegistrationSlot('203.0.113.12'))->toBeFalse();
+    expect($guard->hasExceededIpLimit('203.0.113.12'))->toBeTrue();
+});

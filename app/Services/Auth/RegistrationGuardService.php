@@ -98,11 +98,42 @@ class RegistrationGuardService
         $key = $this->ipLimitCacheKey($ip);
         $ttl = max(60, now()->diffInSeconds(now()->endOfDay()));
 
-        if (! Cache::has($key)) {
-            Cache::put($key, 0, $ttl);
+        Cache::add($key, 0, $ttl);
+        Cache::increment($key);
+    }
+
+    /**
+     * Atomically reserve one registration slot for the IP (check + increment).
+     * Must run before user creation so concurrent requests cannot bypass the cap.
+     */
+    public function reserveIpRegistrationSlot(?string $ip): bool
+    {
+        if (! $this->isIpLimitEnabled() || $ip === null || $ip === '') {
+            return true;
         }
 
-        Cache::increment($key);
+        $max = $this->getMaxRegistrationsPerIpPerDay();
+
+        if ($max === 0) {
+            return true;
+        }
+
+        $key = $this->ipLimitCacheKey($ip);
+        $ttl = max(60, now()->diffInSeconds(now()->endOfDay()));
+
+        $result = Cache::lock($key.':lock', 10)->block(5, function () use ($key, $ttl, $max): bool {
+            Cache::add($key, 0, $ttl);
+
+            if ((int) Cache::get($key, 0) >= $max) {
+                return false;
+            }
+
+            Cache::increment($key);
+
+            return true;
+        });
+
+        return $result === true;
     }
 
     /**
