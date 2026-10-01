@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\TermController;
+use App\Http\Controllers\Api\TranslationController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\EmailTemplateController;
 use App\Http\Controllers\Api\NotificationController;
@@ -33,17 +34,9 @@ use Illuminate\Support\Facades\Route;
 // Public API endpoints.
 Route::get('/health', HealthController::class)->name('api.health');
 
-Route::get('/translations/{lang}', function (string $lang) {
-    $path = resource_path("lang/{$lang}.json");
-
-    if (! file_exists($path)) {
-        return response()->json(['error' => 'Language not found'], 404);
-    }
-
-    $translations = json_decode(file_get_contents($path), true);
-
-    return response()->json($translations);
-});
+Route::get('/translations/{lang}', TranslationController::class)
+    ->where('lang', '[A-Za-z0-9_-]+')
+    ->name('api.translations.show');
 
 // Authentication routes.
 Route::prefix('auth')->group(function () {
