@@ -2,9 +2,33 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.4.5](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.5) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.4.7](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.7) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.4.7] — 2026-10-02
+
+### Security
+
+- **Fix:** Settings API no longer returns secret values to callers who only have `settings.view`.
+- **Fix:** Password recovery uses the same public-form DNS email checks as registration.
+- **Fix:** The registration IP limit can no longer be skipped by concurrent signups.
+- **Fix:** The Superadmin role can no longer be renamed, reassigned, or minted outside the intended path.
+- **Fix:** Publishing a post requires the publish permission. A client-supplied status can no longer approve a post.
+- **Fix:** Email builder redirect URLs are limited to safe same-application targets.
+- **Fix:** MCP base64 `upload-media` is size-capped before the payload is decoded.
+- **Fix:** `GET /api/translations/{lang}` only reads a locale file inside `resources/lang`. Locale names are restricted to letters, numbers, underscores, and hyphens, which closes the Windows backslash traversal reported in GHSA-43jp-66c9-7cgh.
+
+### Datatable
+
+- **Fix:** Wide tables scroll horizontally again.
+- **Fix:** Page scroll no longer shakes when off-screen icons are measured.
+- **Fix:** Toolbar, pager, and filter dropdowns stay usable on small screens.
+- **Fix:** Sticky header and pagination stack above the table instead of covering the page title.
+
+### Other
+
+- **Chore:** `phpseclib/phpseclib` 3.0.57 and `js-yaml` 5.4.2.
 
 ## [v1.4.5] — 2026-09-23
 
