@@ -12,6 +12,7 @@ use App\Models\Post;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\MediaLibraryService;
 use App\Services\Mcp\McpTokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -53,6 +54,18 @@ beforeEach(function () {
         ['option_value' => '1', 'autoload' => true]
     );
     config(['settings.'.Setting::MCP_ENABLED => '1']);
+});
+
+test('upload media tool rejects oversized base64 string at validation before decode', function () {
+    $oversizedPayload = str_repeat('A', MediaLibraryService::MCP_BASE64_FALLBACK_MAX_ENCODED_LENGTH + 1);
+
+    LaraDashboardServer::actingAs($this->user, 'sanctum')
+        ->tool(UploadMediaTool::class, [
+            'filename' => 'too-large.jpg',
+            'mime_type' => 'image/jpeg',
+            'content_base64' => $oversizedPayload,
+        ])
+        ->assertSee('create-media-upload');
 });
 
 test('upload media tool rejects base64 payloads above fallback limit', function () {

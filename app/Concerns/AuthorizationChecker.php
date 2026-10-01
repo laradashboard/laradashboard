@@ -7,7 +7,7 @@ namespace App\Concerns;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 trait AuthorizationChecker
 {
@@ -61,8 +61,8 @@ trait AuthorizationChecker
 
     public function preventSuperAdminRoleModification(Role $role, string $action = 'modified'): void
     {
-        if (config('app.demo_mode') && $role->name == 'Superadmin') {
-            abort(403, "The Superadmin role can not be {$action}.");
+        if ($role->isSuperAdminRole()) {
+            abort(403, __('The Superadmin role cannot be :action.', ['action' => $action]));
         }
     }
 }

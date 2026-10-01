@@ -8,6 +8,7 @@ use App\Http\Requests\Setting\UpdateSettingsRequest;
 use App\Http\Resources\SettingResource;
 use App\Models\Setting;
 use App\Services\SettingService;
+use App\Support\Settings\SensitiveSettingValue;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,7 +24,7 @@ class SettingController extends ApiController
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Setting::class);
-        $settings = $this->settingService->getAllSettings(
+        $settings = $this->settingService->getAllSettingsForApi(
             $request->input('search'),
             $request->integer('autoload')
         );
@@ -41,7 +42,7 @@ class SettingController extends ApiController
     {
         $setting = $this->settingService->getSettingByKey($option_name);
 
-        if (! $setting) {
+        if (! $setting || SensitiveSettingValue::isHiddenFromApi($setting->option_name)) {
             return $this->errorResponse('Setting not found', 404);
         }
 
@@ -65,7 +66,10 @@ class SettingController extends ApiController
 
         foreach ($settings as $key => $value) {
             $setting = $this->settingService->updateOrCreateSetting((string) $key, $value);
-            $updatedSettings[] = $setting;
+
+            if ($setting !== null) {
+                $updatedSettings[] = $setting;
+            }
         }
 
         $this->logAction('Settings Updated', null, ['updated_keys' => array_keys($settings)]);

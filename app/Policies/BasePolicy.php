@@ -17,7 +17,7 @@ abstract class BasePolicy
     public function before(User $user): ?bool
     {
         // Super admin can do everything
-        if ($user->hasRole('Superadmin')) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\CoreUpgrade;
 
-use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UploadRequest extends FormRequest
@@ -20,7 +19,7 @@ class UploadRequest extends FormRequest
             return false;
         }
 
-        return $user->hasRole(Role::SUPERADMIN);
+        return $user->isSuperAdmin();
     }
 
     /**

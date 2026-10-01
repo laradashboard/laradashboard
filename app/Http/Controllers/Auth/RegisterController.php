@@ -172,7 +172,9 @@ class RegisterController extends Controller
      */
     public function register(Request $request): RedirectResponse|JsonResponse
     {
-        if ($this->registrationGuard->hasExceededIpLimit($request->ip())) {
+        $this->validator($request->all())->validate();
+
+        if (! $this->registrationGuard->reserveIpRegistrationSlot($request->ip())) {
             return back()
                 ->withErrors([
                     'email' => __('Too many registration attempts from your network. Please try again later.'),
@@ -180,12 +182,8 @@ class RegisterController extends Controller
                 ->withInput($request->except('password', 'password_confirmation'));
         }
 
-        $this->validator($request->all())->validate();
-
         try {
             $user = $this->create($request->all());
-
-            $this->registrationGuard->recordRegistration($request->ip());
 
             if ($this->shouldSendWelcomeEmail()) {
                 $this->sendWelcomeEmail($user);

@@ -8,6 +8,7 @@ use App\Enums\Hooks\CommonFilterHook;
 use App\Enums\Hooks\SettingActionHook;
 use App\Models\Setting;
 use App\Support\Facades\Hook;
+use App\Support\Settings\SensitiveSettingValue;
 
 class SettingService
 {
@@ -26,12 +27,18 @@ class SettingService
             return null;
         }
 
+        $storedValue = SensitiveSettingValue::prepareForStorage($optionName, $optionValue);
+
+        if ($storedValue === null) {
+            return Setting::where('option_name', $optionName)->first();
+        }
+
         // Fire action before setting creation
-        Hook::doAction(SettingActionHook::SETTING_CREATED_BEFORE, $optionName, $optionValue);
+        Hook::doAction(SettingActionHook::SETTING_CREATED_BEFORE, $optionName, $storedValue);
 
         $setting = Setting::updateOrCreate(
             ['option_name' => $optionName],
-            ['option_value' => $optionValue ?? '', 'autoload' => $autoload]
+            ['option_value' => $storedValue, 'autoload' => $autoload]
         );
 
         // Fire action after setting creation
@@ -51,11 +58,17 @@ class SettingService
         if ($setting) {
             $oldValue = $setting->option_value;
 
+            $storedValue = SensitiveSettingValue::prepareForStorage($optionName, $optionValue);
+
+            if ($storedValue === null) {
+                return true;
+            }
+
             // Fire action before setting update
-            Hook::doAction(SettingActionHook::SETTING_UPDATED_BEFORE, $setting, $optionValue);
+            Hook::doAction(SettingActionHook::SETTING_UPDATED_BEFORE, $setting, $storedValue);
 
             $setting->update([
-                'option_value' => $optionValue,
+                'option_value' => $storedValue,
                 'autoload' => $autoload ?? $setting->autoload,
             ]);
 
@@ -90,7 +103,13 @@ class SettingService
     public function getSetting(string $optionName): mixed
     {
         try {
-            return Setting::where('option_name', $optionName)->value('option_value');
+            $stored = Setting::where('option_name', $optionName)->value('option_value');
+
+            if ($stored === null) {
+                return null;
+            }
+
+            return SensitiveSettingValue::resolveStoredValue($optionName, $stored);
         } catch (\Illuminate\Database\QueryException $e) {
             // Handle case when settings table doesn't exist (e.g., during testing)
             return null;
@@ -125,13 +144,33 @@ class SettingService
     }
 
     /**
+     * Settings safe to expose via the HTTP API (excludes internal secrets blob keys).
+     */
+    public function getAllSettingsForApi(?string $search = null, $autoload = null): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->getAllSettings($search, $autoload)
+            ->reject(fn (Setting $setting) => SensitiveSettingValue::isHiddenFromApi($setting->option_name))
+            ->values();
+    }
+
+    /**
      * Update or create a setting
      */
-    public function updateOrCreateSetting(string $key, mixed $value): Setting
+    public function updateOrCreateSetting(string $key, mixed $value): ?Setting
     {
+        if (SensitiveSettingValue::isHiddenFromApi($key)) {
+            return null;
+        }
+
+        $storedValue = SensitiveSettingValue::prepareForStorage($key, $value);
+
+        if ($storedValue === null) {
+            return Setting::where('option_name', $key)->first();
+        }
+
         return Setting::updateOrCreate(
             ['option_name' => $key],
-            ['option_value' => $value ?? '']
+            ['option_value' => $storedValue]
         );
     }
 

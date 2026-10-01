@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Role;
 use App\Models\User;
 
 class UserPolicy extends BasePolicy
@@ -66,6 +65,10 @@ class UserPolicy extends BasePolicy
             return false;
         }
 
+        if (! $user->isSuperAdmin()) {
+            return false;
+        }
+
         return $this->checkPermission($user, 'user.delete');
     }
 
@@ -90,6 +93,10 @@ class UserPolicy extends BasePolicy
      */
     public function bulkDelete(User $user): bool
     {
+        if (! $user->isSuperAdmin()) {
+            return false;
+        }
+
         return $this->checkPermission($user, 'user.delete');
     }
 
@@ -111,25 +118,11 @@ class UserPolicy extends BasePolicy
             return false;
         }
 
-        // Must have impersonation permission.
-        if (! $this->checkPermission($user, 'user.login_as')) {
+        if (! $user->isSuperAdmin()) {
             return false;
         }
 
-        $userIsSuperadmin = $user->hasRole(Role::SUPERADMIN);
-        $targetIsSuperadmin = $model->hasRole(Role::SUPERADMIN);
-
-        // Non-Superadmin users cannot impersonate Superadmin.
-        if ($targetIsSuperadmin && ! $userIsSuperadmin) {
-            return false;
-        }
-
-        // Superadmin can impersonate anybody
-        if ($userIsSuperadmin) {
-            return true;
-        }
-
-        return true;
+        return $this->checkPermission($user, 'user.login_as');
     }
 
     /**
@@ -139,7 +132,7 @@ class UserPolicy extends BasePolicy
     {
         $isSuperAdmin = $model->email === 'superadmin@example.com' ||
             $model->username === 'Superadmin' ||
-            $model->hasRole(Role::SUPERADMIN);
+            $model->isSuperAdmin();
 
         if (config('app.demo_mode') && $isSuperAdmin) {
             return false;

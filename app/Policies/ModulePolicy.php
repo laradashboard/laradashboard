@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Role;
 use App\Models\Module;
 use App\Models\User;
 
@@ -31,7 +30,7 @@ class ModulePolicy extends BasePolicy
      */
     public function create(User $user): bool
     {
-        if (! $user->hasRole(Role::SUPERADMIN)) {
+        if (! $user->isSuperAdmin()) {
             return false;
         }
 
@@ -43,7 +42,7 @@ class ModulePolicy extends BasePolicy
      */
     public function update(User $user, Module $module): bool
     {
-        if (! $user->hasRole(Role::SUPERADMIN)) {
+        if (! $user->isSuperAdmin()) {
             return false;
         }
 
@@ -63,7 +62,7 @@ class ModulePolicy extends BasePolicy
      */
     public function activate(User $user, Module $module): bool
     {
-        if (! $user->hasRole(Role::SUPERADMIN)) {
+        if (! $user->isSuperAdmin()) {
             return false;
         }
 

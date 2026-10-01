@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\LicenseVerificationService;
+use App\Support\Settings\SensitiveSettingValue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -120,5 +121,7 @@ test('users with settings.edit can manage stored module licenses', function () {
         ->postJson('/api/admin/licenses/remove', ['module_slug' => 'pro-module'])
         ->assertOk();
 
-    expect(Setting::where('option_name', 'module_licenses')->value('option_value'))->toBe('[]');
+    $stored = Setting::where('option_name', 'module_licenses')->value('option_value');
+
+    expect(SensitiveSettingValue::resolveStoredValue('module_licenses', $stored))->toBe('[]');
 });

@@ -146,6 +146,15 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @param  array|string  $permissions
      */
+    public function isSuperAdmin(): bool
+    {
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->contains(fn ($role): bool => $role->isSuperAdminRole());
+        }
+
+        return $this->roles()->where('is_super_admin', true)->exists();
+    }
+
     public function hasAnyPermission($permissions): bool
     {
         if (empty($permissions)) {
