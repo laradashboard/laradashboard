@@ -47,7 +47,9 @@ class PostStatusAuthorizationService
             return $targetStatus;
         }
 
-        $currentStatus = $existingPost?->status ?? PostStatus::DRAFT->value;
+        $currentStatus = $existingPost === null
+            ? PostStatus::DRAFT->value
+            : ($existingPost->status ?? PostStatus::DRAFT->value);
 
         if ($this->isPublisherStatus($currentStatus) && ! $this->isPublisherStatus($targetStatus)) {
             return $currentStatus;

@@ -564,7 +564,7 @@ class MediaLibraryService
     }
 
     /**
-     * @param  non-empty-string  $decoded
+     * @param  non-empty-string  $encoded
      *
      * @throws ValidationException
      */
