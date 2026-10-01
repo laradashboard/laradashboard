@@ -13,6 +13,7 @@ use App\Services\EnvWriter;
 use App\Services\ImageService;
 use App\Services\RecaptchaService;
 use App\Services\SettingService;
+use App\Support\Settings\SensitiveSettingValue;
 use App\Support\Facades\Hook;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\JsonResponse;
@@ -137,8 +138,22 @@ class SettingController extends Controller
 
         $this->envWriter->batchWriteKeysToEnvFile($fields);
 
+        $loggedFields = collect($fields)
+            ->map(function (mixed $value, string $key): mixed {
+                if (
+                    SensitiveSettingValue::isSensitive($key)
+                    && $value !== ''
+                    && ! SensitiveSettingValue::isMaskedSubmission($value)
+                ) {
+                    return SensitiveSettingValue::MASK;
+                }
+
+                return $value;
+            })
+            ->all();
+
         $this->storeActionLog(ActionType::UPDATED, [
-            'settings' => $fields,
+            'settings' => $loggedFields,
         ]);
 
         return redirect()->back()->with('success', 'Settings saved successfully.');

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Setting;
+use App\Support\Settings\SensitiveSettingValue;
 
 /**
  * Service for managing locally stored module licenses.
@@ -35,7 +36,9 @@ class LicenseVerificationService
             return [];
         }
 
-        return json_decode($setting->option_value, true) ?? [];
+        $json = SensitiveSettingValue::resolveStoredValue('module_licenses', $setting->option_value);
+
+        return json_decode($json, true) ?? [];
     }
 
     /**
@@ -52,9 +55,11 @@ class LicenseVerificationService
             'domain' => $this->getCurrentDomain(),
         ];
 
+        $payload = SensitiveSettingValue::prepareForStorage('module_licenses', json_encode($licenses)) ?? '';
+
         Setting::updateOrCreate(
             ['option_name' => 'module_licenses'],
-            ['option_value' => json_encode($licenses)]
+            ['option_value' => $payload]
         );
     }
 
@@ -67,9 +72,11 @@ class LicenseVerificationService
 
         unset($licenses[$moduleSlug]);
 
+        $payload = SensitiveSettingValue::prepareForStorage('module_licenses', json_encode($licenses)) ?? '';
+
         Setting::updateOrCreate(
             ['option_name' => 'module_licenses'],
-            ['option_value' => json_encode($licenses)]
+            ['option_value' => $payload]
         );
     }
 

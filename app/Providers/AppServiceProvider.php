@@ -16,6 +16,7 @@ use App\Services\EmailProviders\SmtpProvider;
 use App\Services\ImapService;
 use App\Services\InboundEmailProcessor;
 use App\Support\Facades\Hook;
+use App\Support\Settings\SensitiveSettingValue;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
@@ -113,7 +114,12 @@ class AppServiceProvider extends ServiceProvider
                 if (Schema::hasTable('settings')) {
                     $settings = Setting::pluck('option_value', 'option_name')->toArray();
                     foreach ($settings as $key => $value) {
-                        config(['settings.' . $key => $value]);
+                        config([
+                            'settings.'.$key => SensitiveSettingValue::resolveStoredValue(
+                                (string) $key,
+                                $value
+                            ),
+                        ]);
                     }
                 }
             } catch (\Exception $e) {

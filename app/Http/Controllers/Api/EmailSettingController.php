@@ -22,7 +22,7 @@ class EmailSettingController extends ApiController
         $this->authorize('viewAny', Setting::class);
 
         $search = $request->input('search', 'mail');
-        $settings = $this->settingService->getAllSettings($search);
+        $settings = $this->settingService->getAllSettingsForApi($search);
 
         return $this->resourceResponse(SettingResource::collection($settings), 'Email settings retrieved successfully');
     }
@@ -35,7 +35,11 @@ class EmailSettingController extends ApiController
         $updatedSettings = [];
 
         foreach ($settings as $key => $value) {
-            $updatedSettings[] = $this->settingService->updateOrCreateSetting((string) $key, $value);
+            $setting = $this->settingService->updateOrCreateSetting((string) $key, $value);
+
+            if ($setting !== null) {
+                $updatedSettings[] = $setting;
+            }
         }
 
         $this->logAction('Email Settings Updated', null, ['updated_keys' => array_keys($settings)]);
