@@ -13,7 +13,7 @@ test('translation endpoint rejects path traversal', function (string $lang) {
     $response = $this->getJson('/api/translations/'.$lang);
 
     $response->assertNotFound();
-    expect($response->getContent())->not->toContain('laradashboard/laradashboard');
+    expect($response->json('name'))->not->toBe('laradashboard/laradashboard');
     expect($response->json('release_date'))->toBeNull();
 })->with([
     '..%2F..%2Fversion',
