@@ -29,9 +29,12 @@ beforeEach(function () {
     // Assign permissions to users
     $this->assignPermissions();
 
-    // Assign admin role to admin user if role system exists
+    // Assign superadmin role to admin user if role system exists
     if (class_exists(Role::class)) {
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $adminRole = Role::firstOrCreate(['name' => Role::SUPERADMIN, 'guard_name' => 'web']);
+        if (! $adminRole->isSuperAdminRole()) {
+            $adminRole->forceFill(['is_super_admin' => true])->save();
+        }
         $this->adminUser->assignRole($adminRole);
     }
 });
@@ -315,6 +318,15 @@ test('delete user returns 404 for nonexistent user', function () {
     $response->assertStatus(404);
 });
 
+test('non-superadmin user cannot delete user', function () {
+    $this->authenticateUser();
+    $user = User::factory()->create();
+
+    $response = $this->deleteJson("/api/v1/users/{$user->id}");
+
+    $response->assertStatus(403);
+});
+
 test('authenticated user can bulk delete users', function () {
     $this->authenticateAdmin();
     $users = User::factory(3)->create();
@@ -356,6 +368,18 @@ test('bulk delete validates ids are numeric', function () {
     ]);
 
     $response->assertStatus(422);
+});
+
+test('non-superadmin user cannot bulk delete users', function () {
+    $this->authenticateUser();
+    $users = User::factory(3)->create();
+    $userIds = $users->pluck('id')->toArray();
+
+    $response = $this->postJson('/api/v1/users/bulk-delete', [
+        'ids' => $userIds,
+    ]);
+
+    $response->assertStatus(403);
 });
 
 test('user management handles edge case inputs', function () {
