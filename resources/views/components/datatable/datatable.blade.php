@@ -53,6 +53,9 @@
         bulkDeleteModalOpen: false,
         unifiedScrollObserver: null,
         unifiedScrollOwnsPageChrome: false,
+        tableScrollObserver: null,
+        tableScrollHandlers: null,
+        tableIconObserver: null,
         parseCheckboxId(value) {
             const num = parseInt(value, 10);
             return Number.isNaN(num) ? value : num;
@@ -234,6 +237,82 @@
 
             this.unifiedScrollOwnsPageChrome = false;
         },
+        // Page-level sticky thead needs overflow: visible, so only opt into horizontal scrolling when the table is wider than its container.
+        setupTableHorizontalScroll() {
+            if (!@json($enableUnifiedScroll)) {
+                return;
+            }
+
+            const wrapper = this.$root.querySelector('.datatable-table-scroll');
+            const table = wrapper?.querySelector('table');
+            if (!wrapper || !table) {
+                return;
+            }
+
+            if (!window.ResizeObserver) {
+                wrapper.classList.add('is-scrollable-x');
+                return;
+            }
+
+            // Mirrors the table's horizontal scroll inside the sticky footer so the scrollbar stays in view.
+            const bar = this.$root.querySelector('.datatable-scrollbar');
+            const syncScroll = (from, to) => {
+                if (to && Math.abs(to.scrollLeft - from.scrollLeft) > 1) {
+                    to.scrollLeft = from.scrollLeft;
+                }
+            };
+
+            // iconify-icon drops its SVG while off-screen, so column widths would change as rows scroll
+            // and flip the scroll mode. Its noobserver attribute is ignored after connect, hence stopObserver().
+            const pinIcons = () => {
+                wrapper.querySelectorAll('iconify-icon:not([noobserver])').forEach((icon) => {
+                    icon.setAttribute('noobserver', '');
+                    icon.stopObserver?.();
+                });
+            };
+
+            pinIcons();
+            this.tableIconObserver = new MutationObserver(pinIcons);
+            this.tableIconObserver.observe(wrapper, { childList: true, subtree: true });
+
+            const update = () => {
+                const overflowing = table.getBoundingClientRect().width > wrapper.clientWidth + 1;
+                wrapper.classList.toggle('is-scrollable-x', overflowing);
+
+                if (bar) {
+                    bar.classList.toggle('hidden', !overflowing);
+                    bar.firstElementChild.style.width = wrapper.scrollWidth + 'px';
+                    syncScroll(wrapper, bar);
+                }
+            };
+
+            if (bar) {
+                this.tableScrollHandlers = {
+                    wrapper: () => syncScroll(wrapper, bar),
+                    bar: () => syncScroll(bar, wrapper),
+                };
+                wrapper.addEventListener('scroll', this.tableScrollHandlers.wrapper, { passive: true });
+                bar.addEventListener('scroll', this.tableScrollHandlers.bar, { passive: true });
+            }
+
+            update();
+
+            this.tableScrollObserver = new ResizeObserver(update);
+            this.tableScrollObserver.observe(wrapper);
+            this.tableScrollObserver.observe(table);
+        },
+        teardownTableHorizontalScroll() {
+            this.tableScrollObserver?.disconnect();
+            this.tableScrollObserver = null;
+            this.tableIconObserver?.disconnect();
+            this.tableIconObserver = null;
+
+            if (this.tableScrollHandlers) {
+                this.$root.querySelector('.datatable-table-scroll')?.removeEventListener('scroll', this.tableScrollHandlers.wrapper);
+                this.$root.querySelector('.datatable-scrollbar')?.removeEventListener('scroll', this.tableScrollHandlers.bar);
+                this.tableScrollHandlers = null;
+            }
+        },
         // Method to refresh allIds when Livewire updates
         refreshIds(newIds) {
             this.allIds = newIds;
@@ -243,6 +322,7 @@
         },
         init() {
             this.setupUnifiedPageScroll();
+            this.setupTableHorizontalScroll();
 
             // Set initial selectAll state based on loaded selectedItems
             this.selectAll = this.allIds.length > 0 && this.allIds.every(id => this.selectedItems.includes(id));
@@ -283,6 +363,7 @@
         },
         destroy() {
             this.teardownUnifiedPageScroll();
+            this.teardownTableHorizontalScroll();
         }
      }"
 >
@@ -309,7 +390,7 @@
             @endif
             {!! Hook::applyFilters(DatatableHook::AFTER_SEARCHBOX, '', $searchbarPlaceholder) !!}
 
-            <div class="flex items-center gap-3 flex-wrap md:flex-nowrap w-full md:w-auto">
+            <div class="flex items-center gap-3 flex-wrap w-full md:w-auto md:min-w-0 md:flex-1 md:flex-nowrap md:justify-end">
                 <div
                     class="flex items-center gap-2"
                     x-show="selectedItems.length > 0"
@@ -472,6 +553,7 @@
             'datatable-scroll-area' => $enableStickyHeader && ! $enableUnifiedScroll,
             'datatable-page-scroll' => $enableUnifiedScroll,
         ])>
+            <div class="datatable-table-scroll" wire:ignore.self>
             <table id="dataTable" class="table">
                 <thead @class([
                     'table-thead',
@@ -607,30 +689,39 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
 
-            @if($enablePagination ?? true)
-                <div @class([
-                    'datatable-pagination px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4',
-                    'my-4' => ! $enableUnifiedScroll,
-                    'datatable-pagination-sticky py-3' => $enableUnifiedScroll,
-                ])>
-                    <div class="flex items-center gap-2">
-                        <label for="perPage" class="text-sm text-gray-600 dark:text-gray-300">{{ __('Per page') }}</label>
-                        <select
-                            id="perPage"
-                            wire:model.live="perPage"
-                            class="form-control w-20"
-                        >
-                            @foreach($perPageOptions as $option)
-                                <option value="{{ $option == 'All' ? 999999 : $option }}">
-                                    {{ $option }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="pagination-links">
-                        {{ $data->links() }}
-                    </div>
+            @if($enableUnifiedScroll || ($enablePagination ?? true))
+                <div @class(['datatable-pagination-sticky' => $enableUnifiedScroll])>
+                    @if($enableUnifiedScroll)
+                        <div class="datatable-scrollbar hidden" aria-hidden="true" tabindex="-1" wire:ignore>
+                            <div class="h-px"></div>
+                        </div>
+                    @endif
+
+                    @if($enablePagination ?? true)
+                        <div @class([
+                            'datatable-pagination px-4 sm:px-6 flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-4 gap-y-3',
+                            'my-4' => ! $enableUnifiedScroll,
+                            'py-3' => $enableUnifiedScroll,
+                        ])>
+                            <div class="flex items-center gap-2">
+                                <label for="perPage" class="text-sm text-gray-600 dark:text-gray-300 max-sm:sr-only">{{ __('Per page') }}</label>
+                                <x-datatable.dropdown-select
+                                    id="perPage"
+                                    name="perPage"
+                                    class="w-20"
+                                    trigger-class="px-3 gap-1"
+                                    :options="collect($perPageOptions)->map(fn ($option) => ['value' => is_numeric($option) ? (int) $option : 999999, 'label' => $option])->all()"
+                                    :selected="$perPage"
+                                    :dropUp="true"
+                                />
+                            </div>
+                            <div class="pagination-links max-w-full overflow-x-auto">
+                                {{ $data->links() }}
+                            </div>
+                        </div>
+                    @endif
                 </div>
             @endif
         </div>

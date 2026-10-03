@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
 
@@ -35,11 +34,19 @@ class SettingPolicy extends BasePolicy
     }
 
     /**
+     * Determine whether the user can update settings via the API.
+     */
+    public function update(User $user): bool
+    {
+        return $this->manage($user);
+    }
+
+    /**
      * Determine whether the user can view core upgrades.
      */
     public function viewCoreUpgrades(User $user): bool
     {
-        return $user->hasRole(Role::SUPERADMIN);
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -47,6 +54,6 @@ class SettingPolicy extends BasePolicy
      */
     public function manageCoreUpgrades(User $user): bool
     {
-        return $user->hasRole(Role::SUPERADMIN);
+        return $user->isSuperAdmin();
     }
 }

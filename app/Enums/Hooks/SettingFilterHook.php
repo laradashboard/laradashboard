@@ -13,6 +13,12 @@ enum SettingFilterHook: string
     case SETTINGS_TABS = 'filter.settings.tabs';
     case SETTINGS_RESTRICTED_FIELDS = 'filter.settings.restricted_fields';
 
+    /** @param list<string> $keys Additional option_name values treated as secrets */
+    case SETTINGS_SENSITIVE_KEYS = 'filter.settings.sensitive_keys';
+
+    /** @param list<string> $keys Option names omitted from settings API index/show */
+    case SETTINGS_HIDDEN_FROM_API_KEYS = 'filter.settings.hidden_from_api_keys';
+
     // UI Hooks - General tab
     case SETTINGS_GENERAL_TAB_BEFORE_SECTION_START = 'filter.settings.general_tab_before_section_start';
     case SETTINGS_GENERAL_TAB_BEFORE_SECTION_END = 'filter.settings.general_tab_before_section_end';

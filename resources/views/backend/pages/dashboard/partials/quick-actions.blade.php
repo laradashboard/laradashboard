@@ -69,7 +69,7 @@
     storage-key="dashboard_quick_actions"
     :collapsed-by-default="true"
 >
-    <div class="grid grid-cols-2 gap-3 md:grid-cols-8">
+    <div class="grid grid-cols-3 gap-3 md:grid-cols-8">
         {{-- AI Agent Button --}}
         <button type="button"
                 @click="$dispatch('open-ai-modal')"

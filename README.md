@@ -141,7 +141,17 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.4.5](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.5) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.4.8](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.8) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.4.8] — 2026-10-03**
+-   **Fix (Security):** Fixed some security improvements.
+-   **Fix:** Fixed some mobile responsive issues.
+
+**[v1.4.7] — 2026-10-02**
+-   **Fix (Security):** Settings secrets stay hidden from `settings.view`; registration IP limits, Superadmin role changes, post publish status, email-builder redirects, and MCP base64 uploads are locked down.
+-   **Fix (Security):** Public translation JSON can only be read from `resources/lang` (GHSA-43jp-66c9-7cgh).
+-   **Fix:** Datatable horizontal scroll, small-screen toolbar, and sticky header stacking.
+-   **Chore:** `phpseclib` 3.0.57 and `js-yaml` 5.4.2.
 
 **[v1.4.5] — 2026-09-23**
 -   **New:** Datatable column visibility on every list, and unified page scroll with sticky headers and pagination.

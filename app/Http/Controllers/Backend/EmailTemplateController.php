@@ -13,6 +13,7 @@ use App\Services\Emails\EmailTemplateService;
 use App\Enums\TemplateType;
 use App\Models\EmailTemplate;
 use App\Services\Emails\EmailVariable;
+use App\Support\Security\SafeRedirectValidator;
 use Illuminate\Support\Facades\Log;
 
 class EmailTemplateController extends Controller
@@ -20,6 +21,7 @@ class EmailTemplateController extends Controller
     public function __construct(
         private readonly EmailTemplateService $emailTemplateService,
         private readonly EmailVariable $emailVariable,
+        private readonly SafeRedirectValidator $safeRedirectValidator,
     ) {
     }
 
@@ -137,9 +139,9 @@ class EmailTemplateController extends Controller
     {
         $this->authorize('create', EmailTemplate::class);
 
-        // Support redirect_url for extensibility - any module can pass a redirect URL
-        // to return to after saving the template
-        $redirectUrl = $request->query('redirect_url');
+        $redirectUrl = $this->safeRedirectValidator->sanitize(
+            $request->query('redirect_url')
+        );
 
         return view('email-templates.builder', [
             'saveUrl' => route('admin.email-templates.store'),
@@ -154,9 +156,9 @@ class EmailTemplateController extends Controller
     {
         $this->authorize('update', $emailTemplate);
 
-        // Support redirect_url for extensibility - any module can pass a redirect URL
-        // to return to after saving the template
-        $redirectUrl = $request->query('redirect_url');
+        $redirectUrl = $this->safeRedirectValidator->sanitize(
+            $request->query('redirect_url')
+        );
 
         return view('email-templates.builder', [
             'template' => $emailTemplate,

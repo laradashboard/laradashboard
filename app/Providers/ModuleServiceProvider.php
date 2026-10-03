@@ -9,6 +9,7 @@ use App\Contracts\Modules\ModuleComposerInterface;
 use App\Services\Modules\ModuleAutoloaderService;
 use App\Services\Modules\ModuleComposerService;
 use App\Support\Modules\CustomFileRepository;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Nwidart\Modules\Contracts\RepositoryInterface;
 
@@ -46,23 +47,36 @@ class ModuleServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Check for auto-disabled modules from bootstrap/modules.php
-        $disabledPath = storage_path('framework/modules_auto_disabled.json');
+        $this->flashAutoDisabledModuleNotices(storage_path('framework/modules_auto_disabled.json'));
+    }
 
-        if (file_exists($disabledPath)) {
-            $disabledModules = json_decode(file_get_contents($disabledPath), true) ?? [];
+    /**
+     * Flash notices written before the application booted, then remove the file.
+     *
+     * Pest workers share storage/framework, so another process can remove the
+     * file after this one has already seen it.
+     */
+    public function flashAutoDisabledModuleNotices(string $disabledPath): void
+    {
+        $contents = @file_get_contents($disabledPath);
 
-            if (! empty($disabledModules)) {
-                foreach ($disabledModules as $moduleName => $reason) {
-                    session()->flash('warning', __('Module ":module" was auto-disabled: :reason', [
-                        'module' => $moduleName,
-                        'reason' => $reason,
-                    ]));
-                }
-
-                // Clear the file after showing notifications
-                unlink($disabledPath);
-            }
+        if (! is_string($contents) || $contents === '') {
+            return;
         }
+
+        $disabledModules = json_decode($contents, true);
+
+        if (! is_array($disabledModules) || $disabledModules === []) {
+            return;
+        }
+
+        foreach ($disabledModules as $moduleName => $reason) {
+            session()->flash('warning', __('Module ":module" was auto-disabled: :reason', [
+                'module' => $moduleName,
+                'reason' => $reason,
+            ]));
+        }
+
+        File::delete($disabledPath);
     }
 }

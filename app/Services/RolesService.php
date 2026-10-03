@@ -8,7 +8,10 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Spatie\Permission\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
+use App\Support\RolePermissionGuard;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class RolesService
 {
@@ -25,8 +28,8 @@ class RolesService
     {
         $query = Role::query();
 
-        if (! Auth::user()?->hasRole('Superadmin')) {
-            $query->where('name', '!=', 'Superadmin');
+        if (! Auth::user()?->isSuperAdmin()) {
+            $query->where('is_super_admin', false);
         }
 
         return $query->pluck('name', 'name')->toArray();
@@ -79,6 +82,16 @@ class RolesService
             ['name' => $name, 'guard_name' => 'web']
         );
 
+        if (
+            $name === Role::SUPERADMIN
+            && Schema::hasColumn($role->getTable(), 'is_super_admin')
+            && ! $role->isSuperAdminRole()
+        ) {
+            $role->forceFill(['is_super_admin' => true])->save();
+        }
+
+        $permissions = $this->filterPermissionsForCurrentUser($role, $permissions);
+
         if (! empty($permissions)) {
             $role->syncPermissions($permissions);
         }
@@ -102,6 +115,12 @@ class RolesService
 
     public function updateRole(Role $role, string $name, array $permissions = []): Role
     {
+        if ($role->isSuperAdminRole()) {
+            abort(403, __('The Superadmin role cannot be modified.'));
+        }
+
+        $permissions = $this->filterPermissionsForCurrentUser($role, $permissions);
+
         $role->name = $name;
         $role->save();
 
@@ -110,6 +129,21 @@ class RolesService
         }
 
         return $role;
+    }
+
+    /**
+     * @param  list<string>  $permissions
+     * @return list<string>
+     */
+    private function filterPermissionsForCurrentUser(Role $role, array $permissions): array
+    {
+        $editor = Auth::user();
+
+        if (! $editor instanceof User || $permissions === []) {
+            return $permissions;
+        }
+
+        return RolePermissionGuard::filterGrantablePermissions($editor, $role, $permissions);
     }
 
     public function deleteRole(Role $role): bool

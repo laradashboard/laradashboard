@@ -43,18 +43,20 @@ class UserService
             abort(403);
         }
 
-        $isSuperadmin = $authUser->hasRole(Role::SUPERADMIN);
+        $isSuperadmin = $authUser->isSuperAdmin();
 
-        // Prevent non-superadmin from modifying an existing superadmin user.
-        if ($targetUser->hasRole(Role::SUPERADMIN) && ! $isSuperadmin) {
+        if ($targetUser->isSuperAdmin() && ! $isSuperadmin) {
             abort(403, __('You are not allowed to modify a Superadmin user.'));
         }
 
-        // Prevent non-superadmin from assigning the Superadmin role.
         $requestedRoles = collect($roles)->filter()->values();
 
-        if ($requestedRoles->contains(Role::SUPERADMIN) && ! $isSuperadmin) {
-            abort(403, __('You are not allowed to assign the Superadmin role.'));
+        foreach ($requestedRoles as $roleName) {
+            $role = Role::query()->where('name', $roleName)->first();
+
+            if ($role?->isSuperAdminRole() && ! $isSuperadmin) {
+                abort(403, __('You are not allowed to assign the Superadmin role.'));
+            }
         }
     }
 
@@ -318,7 +320,7 @@ class UserService
         $deletedCount = 0;
 
         foreach ($users as $user) {
-            if ($user->hasRole(Role::SUPERADMIN)) {
+            if ($user->isSuperAdmin()) {
                 continue;
             }
             if ($currentUserId && $user->id == $currentUserId) {

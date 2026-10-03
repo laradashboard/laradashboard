@@ -243,7 +243,7 @@
 
     /* Wrapper only: -mx/px on the w-full breadcrumb row shrinks title + CTA vs the table. */
     .datatable-unified-scroll-header {
-        @apply sticky top-0 z-20 -mx-4 bg-body px-4 py-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-900;
+        @apply sticky top-0 z-5 -mx-4 bg-body px-4 py-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-900;
     }
 
     .datatable-unified-scroll-header > div {
@@ -261,7 +261,7 @@
     }
 
     .datatable-page-scroll .table-thead-sticky .table-thead-th {
-        @apply sticky z-10;
+        @apply sticky z-5;
         top: var(--admin-page-header-height, 4.5rem);
         box-shadow: 0 1px 0 0 rgb(243 244 246);
     }
@@ -270,8 +270,45 @@
         box-shadow: 0 1px 0 0 rgb(31 41 55);
     }
 
+    /* An overflow-x container can't stick to the page, so the thead scrolls with the rows here. */
+    .datatable-page-scroll .datatable-table-scroll.is-scrollable-x {
+        @apply mb-0 overflow-x-auto;
+        scrollbar-width: none;
+    }
+
+    .datatable-page-scroll .datatable-table-scroll.is-scrollable-x::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Stand-in for the table's scrollbar, pinned in the sticky footer. */
+    .datatable-scrollbar {
+        @apply overflow-x-auto overflow-y-hidden border-b border-gray-100 dark:border-gray-800;
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-gray-300) transparent;
+    }
+
+    .dark .datatable-scrollbar {
+        scrollbar-color: var(--color-gray-600) transparent;
+    }
+
+    .datatable-scrollbar::-webkit-scrollbar {
+        @apply h-2;
+    }
+
+    .datatable-scrollbar::-webkit-scrollbar-thumb {
+        @apply rounded-full bg-gray-300;
+    }
+
+    .dark .datatable-scrollbar::-webkit-scrollbar-thumb {
+        @apply bg-gray-600;
+    }
+
+    .datatable-page-scroll .datatable-table-scroll.is-scrollable-x .table-thead-sticky .table-thead-th {
+        @apply static;
+    }
+
     .datatable-page-scroll .datatable-pagination-sticky {
-        @apply sticky bottom-0 z-10 bg-white dark:bg-gray-900;
+        @apply sticky bottom-0 z-5 bg-white dark:bg-gray-900;
         box-shadow: 0 -1px 0 0 rgb(243 244 246);
     }
 

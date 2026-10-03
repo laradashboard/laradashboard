@@ -183,24 +183,17 @@ test('admin can delete role', function () {
 });
 
 test('admin cannot delete superadmin role', function () {
-    // Enable demo mode for this test (the code should check this)
-    config(['app.demo_mode' => true]);
+    config(['app.demo_mode' => false]);
 
-    // Get the Superadmin role
     $superadminRole = Role::where('name', 'Superadmin')->first();
+    $superadminRole?->forceFill(['is_super_admin' => true])->save();
 
-    // The test expects this to fail with 403 because Superadmin can't be deleted.
     $response = $this->actingAs($this->admin)
         ->from('/admin/roles')
         ->delete("/admin/roles/{$superadminRole->id}");
 
     $response->assertStatus(403);
-
-    // Confirm role still exists
     $this->assertDatabaseHas('roles', ['id' => $superadminRole->id]);
-
-    // Reset config
-    config(['app.demo_mode' => false]);
 });
 
 test('user without permission cannot manage roles', function () {

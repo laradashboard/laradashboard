@@ -52,9 +52,11 @@ class StoreUserRequest extends FormRequest
                 'nullable',
                 Rule::exists('roles', 'name'),
                 function ($attribute, $value, $fail) {
+                    $role = Role::query()->where('name', $value)->first();
+
                     if (
-                        $value === Role::SUPERADMIN
-                        && ! auth()->user()?->hasRole(Role::SUPERADMIN)
+                        $role?->isSuperAdminRole()
+                        && ! auth()->user()?->isSuperAdmin()
                     ) {
                         $fail(__('You are not allowed to assign the Superadmin role.'));
                     }

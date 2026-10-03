@@ -15,6 +15,27 @@ class Role extends SpatieRole
     use QueryBuilderTrait;
 
     public const SUPERADMIN = 'Superadmin';
+
+    protected $fillable = [
+        'name',
+        'guard_name',
+        'is_super_admin',
+    ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_super_admin' => 'boolean',
+        ];
+    }
+
+    public function isSuperAdminRole(): bool
+    {
+        return (bool) $this->is_super_admin;
+    }
     public const EDITOR = 'Editor';
     public const ADMIN = 'Admin';
     public const SUBSCRIBER = 'Subscriber';
