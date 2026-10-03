@@ -43,6 +43,9 @@ trait ValidatesPublicFormSubmissions
     ): bool {
         $guard = $this->publicFormGuard();
 
+        // Validate reCAPTCHA first, then merge and validate all other rules.
+        $guard->assertRecaptcha($this->recaptchaToken, $recaptchaPage);
+
         $this->validate(
             $guard->mergeRules(
                 $rules,
@@ -60,8 +63,6 @@ trait ValidatesPublicFormSubmissions
 
             return false;
         }
-
-        $guard->assertRecaptcha($this->recaptchaToken, $recaptchaPage);
 
         $this->recaptchaToken = '';
 
