@@ -2,9 +2,13 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.4.7](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.7) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.4.8](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.8) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.4.8] — 2026-10-03**
+-   **Fix (Security):** Fixed some security improvements.
+-   **Fix:** Fixed some mobile responsive issues.
 
 ## [v1.4.7] — 2026-10-02
 

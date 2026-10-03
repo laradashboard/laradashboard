@@ -141,7 +141,11 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.4.7](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.7) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.4.8](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.8) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.4.8] — 2026-10-03**
+-   **Fix (Security):** Fixed some security improvements.
+-   **Fix:** Fixed some mobile responsive issues.
 
 **[v1.4.7] — 2026-10-02**
 -   **Fix (Security):** Settings secrets stay hidden from `settings.view`; registration IP limits, Superadmin role changes, post publish status, email-builder redirects, and MCP base64 uploads are locked down.
