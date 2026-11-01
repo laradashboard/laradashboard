@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\SanitizedDesignJson;
 use App\Concerns\QueryBuilderTrait;
 use App\Enums\TemplateType;
 use App\Services\Builder\BlockRenderer;
@@ -37,7 +38,7 @@ class EmailTemplate extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'is_deleteable' => 'boolean',
-        'design_json' => 'array',
+        'design_json' => SanitizedDesignJson::class,
         'is_default' => 'boolean',
         'type' => 'string',
     ];

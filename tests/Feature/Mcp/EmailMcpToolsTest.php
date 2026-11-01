@@ -17,14 +17,14 @@ use Spatie\Permission\Models\Permission;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    foreach (['email_template.view', 'settings.edit'] as $permission) {
+    foreach (['email_template.view', 'email_template.edit', 'settings.edit'] as $permission) {
         Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
     }
 
     $this->user = User::factory()->create();
     $role = Role::firstOrCreate(['name' => Role::ADMIN, 'guard_name' => 'web']);
     $this->user->assignRole($role);
-    $this->user->syncPermissions(['email_template.view', 'settings.edit']);
+    $this->user->syncPermissions(['email_template.view', 'email_template.edit', 'settings.edit']);
 
     app(McpTokenService::class)->createToken($this->user);
     $accessToken = $this->user->tokens()->latest()->first();
@@ -91,4 +91,47 @@ test('send email mcp tool sends raw subject and body', function () {
         ])
         ->assertOk()
         ->assertSee('Raw MCP Email');
+});
+
+test('send email mcp tool is not granted to a token minted with email template view only', function () {
+    Mail::fake();
+
+    $viewer = User::factory()->create();
+    $viewer->syncPermissions(['email_template.view']);
+
+    app(McpTokenService::class)->createToken($viewer);
+    $viewer->withAccessToken($viewer->tokens()->latest()->first());
+
+    LaraDashboardServer::actingAs($viewer, 'sanctum')
+        ->tool(SendEmailTool::class, [
+            'to' => 'raw@example.com',
+            'subject' => 'Should not send',
+            'body_html' => '<p>Raw body</p>',
+        ])
+        ->assertHasErrors()
+        ->assertSee('mcp:email.send');
+
+    Mail::assertNothingSent();
+});
+
+test('send email mcp tool rejects a legacy token holding the ability when the user only has view permission', function () {
+    Mail::fake();
+
+    $viewer = User::factory()->create();
+    $viewer->syncPermissions(['email_template.view']);
+
+    // Simulates a token minted before email.send required email_template.edit.
+    $token = $viewer->createToken('legacy-mcp', ['mcp:email.send']);
+    $viewer->withAccessToken($token->accessToken);
+
+    LaraDashboardServer::actingAs($viewer, 'sanctum')
+        ->tool(SendEmailTool::class, [
+            'to' => 'raw@example.com',
+            'subject' => 'Should not send',
+            'body_html' => '<p>Raw body</p>',
+        ])
+        ->assertHasErrors()
+        ->assertSee('You do not have permission to perform this action.');
+
+    Mail::assertNothingSent();
 });

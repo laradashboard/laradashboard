@@ -153,8 +153,8 @@ return function (array $props, string $context = 'page', ?string $blockId = null
                 </%s>
             </nav>
         </div>',
-        $blockClasses,
-        $styleAttr,
+        $blockClasses, // customClass already escaped above
+        e($styleAttr),
         $titleHtml,
         $listTag,
         $listStyleValue,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\SanitizedDesignJson;
 use App\Enums\Hooks\AdminFilterHook;
 use App\Enums\Hooks\FrontendActionHook;
 use App\Services\Builder\BlockRenderer;
@@ -57,7 +58,7 @@ class Post extends Model implements SpatieHasMedia
 
     protected $casts = [
         'meta' => 'array',
-        'design_json' => 'array',
+        'design_json' => SanitizedDesignJson::class,
         'published_at' => 'datetime',
     ];
 

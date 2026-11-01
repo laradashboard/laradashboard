@@ -130,7 +130,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         }
         $columnsHtml .= sprintf(
             '<div class="lb-column" style="%s; min-width: 0;">%s</div>',
-            $columnWidthCSS,
+            e($columnWidthCSS),
             $columnContent
         );
     }

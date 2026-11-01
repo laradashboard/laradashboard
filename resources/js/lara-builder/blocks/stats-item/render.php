@@ -88,7 +88,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
 
     $valueHtml = sprintf(
         '<div style="%s">%s</div>',
-        implode('; ', $valueStyles),
+        e(implode('; ', $valueStyles)),
         $displayValue
     );
 
@@ -100,7 +100,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
 
     $labelHtml = sprintf(
         '<div style="%s">%s</div>',
-        implode('; ', $labelStyles),
+        e(implode('; ', $labelStyles)),
         htmlspecialchars($label)
     );
 

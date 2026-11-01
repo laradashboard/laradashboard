@@ -141,7 +141,13 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.4.8](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.8) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.4.9](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.9) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.4.9] — 2026-11-02**
+-   **Fix (Security):** Social login no longer links an existing account to an unverified provider email; the OAuth callback is rate-limited (GHSA-c5x3-wvxj-7cgr).
+-   **Fix (Security):** LaraBuilder content is sanitized on save and load, closing stored XSS in the builder, admin previews, and rendered pages (GHSA-rf5h-55h2-jmf8, GHSA-9gg9-jh9p-fw37).
+-   **Fix (Security):** MCP `send-email` requires `email_template.edit` (GHSA-gjfv-h634-pxpv).
+-   **Chore:** Livewire 4.4.8, Laravel 13.39, CommonMark 2.10.4, svg-sanitize 1.0.0, Vite 7.3.7, and other dependency security updates.
 
 **[v1.4.8] — 2026-10-03**
 -   **Fix (Security):** Fixed some security improvements.

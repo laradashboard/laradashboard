@@ -71,6 +71,7 @@ Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function () {
         ->whereIn('provider', ['google', 'github', 'facebook', 'twitter', 'linkedin']);
 
     Route::get('{provider}/callback', [SocialLoginController::class, 'callback'])
+        ->middleware('throttle:20,1')
         ->name('social.callback')
         ->whereIn('provider', ['google', 'github', 'facebook', 'twitter', 'linkedin']);
 });

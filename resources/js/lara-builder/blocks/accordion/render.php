@@ -36,7 +36,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
             $isLast = $index === $lastIdx;
             $itemsHtml .= sprintf(
                 '<div style="border-bottom: %s;"><div style="display: flex; align-items: center; justify-content: space-between; padding: %s; background-color: %s;"><span style="font-weight: %s; font-size: %s; color: %s;">%s</span><span style="color: %s; font-size: 12px;">&#9660;</span></div><div style="padding: %s; background-color: %s; color: %s; font-size: %s; line-height: 1.6;">%s</div></div>',
-                $isLast ? 'none' : "1px solid {$borderColor}",
+                $isLast ? 'none' : '1px solid ' . e($borderColor),
                 e($headerPadding),
                 e($headerBgColor),
                 e($tFontWeight),
@@ -127,7 +127,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     ];
 
     return sprintf(
-        '<div class="%s" id="%s" data-independent="%s" data-default-open="%d" style="%s">%s</div><script>(function(){var a=document.getElementById("%s");if(!a)return;var i=a.dataset.independent==="true";var d=parseInt(a.dataset.defaultOpen)||0;a.querySelectorAll(".lb-accordion-header").forEach(function(h){h.addEventListener("click",function(){var t=this.dataset.target,c=document.getElementById(t),ic=this.querySelector(".lb-accordion-icon"),o=c.style.maxHeight&&c.style.maxHeight!=="0px";if(!i){a.querySelectorAll(".lb-accordion-content").forEach(function(x){x.style.maxHeight="0px"});a.querySelectorAll(".lb-accordion-icon").forEach(function(x){x.style.transform="rotate(0deg)"});a.querySelectorAll(".lb-accordion-header").forEach(function(x){x.style.backgroundColor="%s"})}if(o){c.style.maxHeight="0px";ic.style.transform="rotate(0deg)";this.style.backgroundColor="%s"}else{c.style.maxHeight=c.scrollHeight+"px";ic.style.transform="rotate(180deg)";this.style.backgroundColor="%s"}})});var headers=a.querySelectorAll(".lb-accordion-header");if(headers[d])headers[d].click()})();</script>',
+        '<div class="%s" id="%s" data-independent="%s" data-default-open="%d" style="%s">%s</div><script>(function(){var a=document.getElementById("%s");if(!a)return;var i=a.dataset.independent==="true";var d=parseInt(a.dataset.defaultOpen)||0;a.querySelectorAll(".lb-accordion-header").forEach(function(h){h.addEventListener("click",function(){var t=this.dataset.target,c=document.getElementById(t),ic=this.querySelector(".lb-accordion-icon"),o=c.style.maxHeight&&c.style.maxHeight!=="0px";if(!i){a.querySelectorAll(".lb-accordion-content").forEach(function(x){x.style.maxHeight="0px"});a.querySelectorAll(".lb-accordion-icon").forEach(function(x){x.style.transform="rotate(0deg)"});a.querySelectorAll(".lb-accordion-header").forEach(function(x){x.style.backgroundColor=%s})}if(o){c.style.maxHeight="0px";ic.style.transform="rotate(0deg)";this.style.backgroundColor=%s}else{c.style.maxHeight=c.scrollHeight+"px";ic.style.transform="rotate(180deg)";this.style.backgroundColor=%s}})});var headers=a.querySelectorAll(".lb-accordion-header");if(headers[d])headers[d].click()})();</script>',
         e($blockClasses),
         e($accordionId),
         $independentToggle ? 'true' : 'false',
@@ -135,8 +135,8 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         e(implode('; ', $blockStyles)),
         $itemsHtml,
         e($accordionId),
-        $headerBgColor,
-        $headerBgColor,
-        $headerBgColorActive
+        json_encode((string) $headerBgColor, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
+        json_encode((string) $headerBgColor, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
+        json_encode((string) $headerBgColorActive, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
     );
 };

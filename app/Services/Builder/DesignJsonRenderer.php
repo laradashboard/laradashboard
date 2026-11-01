@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Builder;
 
 use App\Support\Builder\ContentTokens;
+use App\Support\Security\RichHtmlSanitizer;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -141,7 +142,7 @@ class DesignJsonRenderer
     public function renderBlock(array $block, string $context = 'page'): string
     {
         $type = $block['type'] ?? '';
-        $props = $block['props'] ?? [];
+        $props = RichHtmlSanitizer::sanitizeBlockProps($type, is_array($block['props'] ?? null) ? $block['props'] : []);
         $blockId = $block['id'] ?? null;
 
         if (empty($type)) {
@@ -334,7 +335,10 @@ class DesignJsonRenderer
     protected function renderHeading(array $props): string
     {
         $text = $props['text'] ?? '';
-        $level = $props['level'] ?? 'h1';
+        $level = strtolower((string) ($props['level'] ?? 'h1'));
+        if (! in_array($level, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], true)) {
+            $level = 'h2';
+        }
         $align = $props['align'] ?? 'left';
         $color = $props['color'] ?? '#111827';
         $fontSize = $props['fontSize'] ?? '24px';
@@ -536,7 +540,7 @@ class DesignJsonRenderer
         return sprintf(
             '<div class="lb-block lb-stats-item" style="display: flex; flex-direction: column; align-items: %s; text-align: %s;">%s%s</div>',
             $flexAlign,
-            $textAlign,
+            htmlspecialchars((string) $textAlign),
             $valueHtml,
             $labelHtml
         );
@@ -675,7 +679,7 @@ class DesignJsonRenderer
 
         return sprintf(
             '<div class="lb-block lb-button" style="text-align: %s; padding: 10px 0;"><a href="%s" style="%s">%s</a></div>',
-            $align,
+            htmlspecialchars((string) $align),
             htmlspecialchars($link),
             htmlspecialchars($buttonStyle),
             htmlspecialchars($text)
@@ -710,7 +714,7 @@ class DesignJsonRenderer
 
         return sprintf(
             '<div class="lb-block lb-image" style="text-align: %s; padding: 10px 0;">%s</div>',
-            $align,
+            htmlspecialchars((string) $align),
             $imgHtml
         );
     }

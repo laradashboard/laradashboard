@@ -2,11 +2,24 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.4.8](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.8) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.4.9](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.9) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
 
-## [v1.4.8] — 2026-10-03**
+## [v1.4.9] — 2026-11-02
+
+### Security
+
+- **Fix:** Social login only links to an existing account when the provider has verified the email address (Google and LinkedIn `email_verified`; GitHub and X return verified emails only). Accounts created from an unverified email are no longer marked verified, and the OAuth callback is rate-limited (GHSA-c5x3-wvxj-7cgr).
+- **Fix:** LaraBuilder content is sanitized before it is stored and whenever it is loaded, so script, event handlers, Alpine/Livewire directives, and `javascript:` links can no longer run in the builder, the admin post view, email template previews, or rendered pages. This covers every block type, including module and `make:block` blocks; the code block keeps its escaped source (GHSA-rf5h-55h2-jmf8, GHSA-9gg9-jh9p-fw37).
+- **Fix:** Block renderers escape colors, sizes, gaps, and CSS before they reach `style` attributes or inline scripts; the countdown expired message is inserted as text.
+- **Fix:** The MCP `send-email` tool requires `email_template.edit`. `email_template.view` can still list and read templates (GHSA-gjfv-h634-pxpv).
+
+### Dependencies
+
+- **Chore:** `livewire/livewire` 4.4.8, `laravel/framework` 13.39, `league/commonmark` 2.10.4, `enshrined/svg-sanitize` 1.0.0, `vite` 7.3.7, `follow-redirects` 1.16.1, and `source-map-js` 1.2.2 (resolves all open Dependabot alerts).
+
+## [v1.4.8] — 2026-10-03
 -   **Fix (Security):** Fixed some security improvements.
 -   **Fix:** Fixed some mobile responsive issues.
 

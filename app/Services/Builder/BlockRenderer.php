@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Builder;
 
+use App\Support\Security\RichHtmlSanitizer;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -66,6 +67,7 @@ class BlockRenderer
      */
     protected function renderBlock(string $blockType, array $props, string $context, ?string $blockId = null): ?string
     {
+        $props = RichHtmlSanitizer::sanitizeBlockProps($blockType, $props);
         $callback = $this->getBlockRenderCallback($blockType);
 
         if (! $callback) {
@@ -87,6 +89,10 @@ class BlockRenderer
      */
     public function processContent(string $content, string $context = 'page'): string
     {
+        // Strip active content from the stored document. Block renderers run afterwards,
+        // so the scripts they emit themselves (accordion, tabs, video) are unaffected.
+        $content = RichHtmlSanitizer::neutralizeDocument($content);
+
         // First, handle legacy markdown blocks with data-block-type="markdown" format
         $content = $this->processLegacyMarkdownBlocks($content, $context);
 

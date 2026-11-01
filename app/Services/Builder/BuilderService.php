@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Builder;
 
+use App\Support\Security\RichHtmlSanitizer;
 use App\Enums\Builder\BuilderActionHook;
 use App\Enums\Builder\BuilderContext;
 use App\Enums\Builder\BuilderFilterHook;
@@ -143,7 +144,7 @@ class BuilderService
             return null;
         }
 
-        return call_user_func($callback, $props, $context, $blockId);
+        return call_user_func($callback, RichHtmlSanitizer::sanitizeBlockProps($blockType, $props), $context, $blockId);
     }
 
     /**
