@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Casts\SanitizedDesignJson;
 use App\Enums\PostStatus;
 use App\Models\Post;
 use App\Models\PostMeta;
@@ -34,7 +35,7 @@ it('has casted attributes', function () {
     expect($casts)->toHaveKey('meta');
     expect($casts['meta'])->toEqual('array');
     expect($casts)->toHaveKey('design_json');
-    expect($casts['design_json'])->toEqual('array');
+    expect($casts['design_json'])->toEqual(SanitizedDesignJson::class);
     expect($casts)->toHaveKey('published_at');
     expect($casts['published_at'])->toEqual('datetime');
 });
