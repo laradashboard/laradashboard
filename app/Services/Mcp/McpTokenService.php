@@ -94,7 +94,7 @@ class McpTokenService
             'mcp:media.read' => 'media.view',
             'mcp:media.write' => 'media.create',
             'mcp:email_templates.read' => 'email_template.view',
-            'mcp:email.send' => 'email_template.view',
+            'mcp:email.send' => 'email_template.edit',
             'mcp:briefing.read' => 'dashboard.view',
             'mcp:ops.cache' => 'settings.edit',
             'mcp:ops.logs.read' => 'settings.edit',

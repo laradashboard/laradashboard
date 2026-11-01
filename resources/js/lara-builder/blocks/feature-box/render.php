@@ -131,7 +131,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
 
         $iconHtml = sprintf(
             '<div style="%s">%s</div>',
-            implode('; ', $iconWrapperStyles),
+            e(implode('; ', $iconWrapperStyles)),
             $iconHtml
         );
     } else {

@@ -235,9 +235,15 @@ class SocialAuthService
                 return $existingUser;
             }
 
-            // Check if user exists with same email
+            // Check if user exists with same email. Only link when the provider vouches for
+            // the address; otherwise anyone able to make a provider assert a victim's email
+            // would be logged in as that account (GHSA-c5x3-wvxj-7cgr).
             $email = $socialUser->getEmail();
             $user = $email ? User::where('email', $email)->first() : null;
+
+            if ($user && ! $this->providerVerifiedEmail($provider, $socialUser)) {
+                throw new \RuntimeException(__('An account with this email already exists. Please sign in with your password.'));
+            }
 
             if (! $user) {
                 if (! filter_var(config('settings.auth_enable_public_registration', '0'), FILTER_VALIDATE_BOOLEAN)) {
@@ -245,7 +251,7 @@ class SocialAuthService
                 }
 
                 // Create new user
-                $user = $this->createUser($socialUser);
+                $user = $this->createUser($socialUser, $provider);
             }
 
             // Create social account link
@@ -258,9 +264,29 @@ class SocialAuthService
     }
 
     /**
+     * Whether the provider has confirmed that the user owns the returned email address.
+     *
+     * Google and LinkedIn (OpenID Connect) send an explicit `email_verified` claim, which must be
+     * true. GitHub only exposes verified addresses and X only returns `confirmed_email`, so their
+     * emails are trusted. Any other provider (e.g. Facebook) must send the claim explicitly.
+     */
+    protected function providerVerifiedEmail(string $provider, SocialiteUser $socialUser): bool
+    {
+        $raw = isset($socialUser->user) && is_array($socialUser->user) ? $socialUser->user : [];
+
+        foreach (['email_verified', 'verified_email'] as $claim) {
+            if (array_key_exists($claim, $raw)) {
+                return filter_var($raw[$claim], FILTER_VALIDATE_BOOLEAN);
+            }
+        }
+
+        return in_array($provider, ['github', 'twitter'], true);
+    }
+
+    /**
      * Create a new user from social provider data.
      */
-    protected function createUser(SocialiteUser $socialUser): User
+    protected function createUser(SocialiteUser $socialUser, string $provider = ''): User
     {
         $name = $socialUser->getName() ?? $socialUser->getNickname() ?? 'User';
         $nameParts = explode(' ', $name, 2);
@@ -283,7 +309,7 @@ class SocialAuthService
             'username' => $username,
             'email' => $email,
             'password' => Hash::make(Str::random(32)),
-            'email_verified_at' => $email ? now() : null,
+            'email_verified_at' => $email && $this->providerVerifiedEmail($provider, $socialUser) ? now() : null,
         ]);
 
         $user = User::forceCreate($userData);

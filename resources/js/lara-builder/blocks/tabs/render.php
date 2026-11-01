@@ -148,17 +148,23 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         $tabPanelsHtml
     );
 
-    // Vanilla JS for tab switching
+    // Vanilla JS for tab switching (values JSON-encoded so they cannot break out of the script)
+    $jsFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+    $jsGroupSelector = json_encode('[data-tab-group="' . $groupId . '"]', $jsFlags);
+    $jsTabStyle = json_encode((string) $tabStyle, $jsFlags);
+    $jsAccentColor = json_encode((string) $accentColor, $jsFlags);
+    $jsTabBgColor = json_encode((string) $tabBgColor, $jsFlags);
+
     $script = <<<JS
 <script>
 (function(){
-    var group = document.querySelector('[data-tab-group="{$groupId}"]');
+    var group = document.querySelector({$jsGroupSelector});
     if (!group) return;
     var btns = group.querySelectorAll('[data-tab-btn]');
     var panels = group.querySelectorAll('[data-tab-panel]');
-    var tabStyle = '{$tabStyle}';
-    var accentColor = '{$accentColor}';
-    var tabBgColor = '{$tabBgColor}';
+    var tabStyle = {$jsTabStyle};
+    var accentColor = {$jsAccentColor};
+    var tabBgColor = {$jsTabBgColor};
 
     btns.forEach(function(btn) {
         btn.addEventListener('click', function() {

@@ -70,6 +70,7 @@ test('social login callback creates new user when user does not exist', function
     $socialiteUser->shouldReceive('getName')->andReturn('John Doe');
     $socialiteUser->shouldReceive('getNickname')->andReturn('johndoe');
     $socialiteUser->shouldReceive('getAvatar')->andReturn('https://example.com/avatar.jpg');
+    $socialiteUser->user = ['email_verified' => true];
     $socialiteUser->token = 'test-token';
     $socialiteUser->refreshToken = 'test-refresh-token';
     $socialiteUser->expiresIn = 3600;
@@ -112,6 +113,7 @@ test('social login callback links existing user when email matches', function ()
     $socialiteUser->shouldReceive('getName')->andReturn('Existing User');
     $socialiteUser->shouldReceive('getNickname')->andReturn('existinguser');
     $socialiteUser->shouldReceive('getAvatar')->andReturn('https://example.com/avatar.jpg');
+    $socialiteUser->user = ['email_verified' => true];
     $socialiteUser->token = 'test-token';
     $socialiteUser->refreshToken = 'test-refresh-token';
     $socialiteUser->expiresIn = 3600;
@@ -242,4 +244,63 @@ test('authenticated user cannot access social login routes', function () {
     $response = $this->actingAs($user)->get('/auth/google/redirect');
 
     $response->assertRedirect();
+});
+
+/**
+ * Build a Google Socialite user mock and route the callback to it.
+ *
+ * @param  array<string, mixed>  $raw
+ */
+function fakeGoogleCallbackUser(string $id, string $email, array $raw): void
+{
+    $socialiteUser = Mockery::mock(SocialiteUser::class);
+    $socialiteUser->shouldReceive('getId')->andReturn($id);
+    $socialiteUser->shouldReceive('getEmail')->andReturn($email);
+    $socialiteUser->shouldReceive('getName')->andReturn('Attacker');
+    $socialiteUser->shouldReceive('getNickname')->andReturn('attacker');
+    $socialiteUser->shouldReceive('getAvatar')->andReturn(null);
+    $socialiteUser->user = $raw;
+    $socialiteUser->token = 'attacker-token';
+    $socialiteUser->refreshToken = null;
+    $socialiteUser->expiresIn = 3600;
+
+    Socialite::shouldReceive('driver')
+        ->with('google')
+        ->andReturn(Mockery::mock()->shouldReceive('user')->andReturn($socialiteUser)->getMock());
+}
+
+test('social login does not take over an existing account when the provider has not verified the email', function (array $raw) {
+    $victim = User::factory()->create(['email' => 'victim@example.com']);
+
+    fakeGoogleCallbackUser('attacker-1', 'victim@example.com', $raw);
+
+    $this->get('/auth/google/callback')->assertRedirect('/login');
+
+    $this->assertGuest();
+    expect(SocialAccount::where('user_id', $victim->id)->exists())->toBeFalse();
+})->with([
+    'email_verified false' => [['email_verified' => false]],
+    'verified_email false' => [['verified_email' => false]],
+    'claim missing' => [[]],
+]);
+
+test('social login creates new accounts as unverified when the provider has not verified the email', function () {
+    Setting::create(['option_name' => 'auth_enable_public_registration', 'option_value' => '1']);
+    config(['settings.auth_enable_public_registration' => '1']);
+
+    fakeGoogleCallbackUser('new-1', 'fresh@example.com', ['email_verified' => false]);
+
+    $this->get('/auth/google/callback')->assertRedirect();
+
+    expect(User::where('email', 'fresh@example.com')->first()?->email_verified_at)->toBeNull();
+});
+
+test('social login callback is rate limited', function () {
+    fakeGoogleCallbackUser('rl-1', 'victim@example.com', ['email_verified' => false]);
+
+    foreach (range(1, 20) as $attempt) {
+        $this->get('/auth/google/callback');
+    }
+
+    $this->get('/auth/google/callback')->assertStatus(429);
 });

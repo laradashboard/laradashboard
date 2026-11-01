@@ -21,7 +21,7 @@ use Laravel\Mcp\Server\Tool;
 
 #[Name('send-email')]
 #[Description('Send an email to a recipient using an email template or raw subject/body content.')]
-#[McpToolMeta(ability: 'mcp:email.send', permission: 'email_template.view', group: 'Email')]
+#[McpToolMeta(ability: 'mcp:email.send', permission: 'email_template.edit', group: 'Email')]
 class SendEmailTool extends Tool
 {
     use InteractsWithMcpAuthorization;
@@ -34,7 +34,7 @@ class SendEmailTool extends Tool
 
     public function handle(Request $request): Response
     {
-        if ($response = $this->authorizeMcpAbility('mcp:email.send', 'email_template.view')) {
+        if ($response = $this->authorizeMcpAbility('mcp:email.send', 'email_template.edit')) {
             return $response;
         }
 
