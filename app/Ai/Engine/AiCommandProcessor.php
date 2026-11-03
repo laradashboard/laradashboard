@@ -386,7 +386,7 @@ PROMPT;
         }
 
         // Get model for each provider
-        $openaiModel = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-4o-mini');
+        $openaiModel = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-6-luna');
         $claudeModel = config('settings.ai_claude_model') ?: config('ai.anthropic.model', 'claude-3-haiku-20240307');
         $geminiModel = config('settings.ai_gemini_model') ?: config('ai.gemini.model', 'gemini-2.0-flash');
         $ollamaModel = config('settings.ai_ollama_model') ?: config('ai.ollama.model', 'llama3.2');
