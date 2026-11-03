@@ -294,7 +294,7 @@ Rules:
 
     private function sendOpenAiRequest(string $systemPrompt, string $userPrompt): Response
     {
-        $model = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-4o-mini');
+        $model = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-6-luna');
 
         return Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->apiKey,
@@ -881,7 +881,7 @@ IMPORTANT RULES:
      */
     private function sendOpenAiChatRequest(array $messages, float $temperature, int $maxTokens): Response
     {
-        $model = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-4o-mini');
+        $model = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-6-luna');
 
         return Http::withHeaders([
             'Authorization' => 'Bearer '.$this->apiKey,
