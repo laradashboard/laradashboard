@@ -6,11 +6,12 @@ All notable changes to **Lara Dashboard** are documented in this file. This proj
 
 ---
 
-## [Unreleased]
-
-### Added
+## [v1.5.0] - 2026-10-04
 
 - **Feature:** OAuth 2.1 for the MCP server. Remote clients that only speak OAuth, such as Claude.ai custom connectors, can now connect with just the `/mcp` URL: they discover the endpoints, register themselves, and the user approves the connection in the browser. Uses PKCE (S256), single-use authorization codes and rotating refresh tokens. Issued access tokens are regular MCP agent tokens, so abilities, permissions and revocation work exactly as before. See `docs/mcp.md`.
+- **Fix:** Module installs can no longer write outside `modules/`. The install folder name comes from untrusted module metadata (`module.json` providers, `composer.json` PSR-4 keys, or the module name), and a crafted value like `../public/x` could place a module's files in the web root. Every direct-upload, replace and marketplace install now goes through one check that only allows a plain namespace segment, and `temp_path` from the replace/cancel requests is resolved with `realpath` before it's trusted (GHSA-75q6-qrv2-96rx).
+- **Fix:** Module `vendor/` autoloaders no longer override core packages. A module that bundled an older `illuminate/*` copy could mix two framework versions in one process. Migrations then failed with `Relation::withConstraintsForNestedRelation does not exist`. Module loaders now load after the core autoloader, so core classes always win.
+### Added
 
 ## [v1.4.9] — 2026-11-02
 
