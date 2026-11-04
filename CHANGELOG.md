@@ -6,6 +6,12 @@ All notable changes to **Lara Dashboard** are documented in this file. This proj
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- **Fix:** Module `vendor/` autoloaders no longer override core packages. A module that bundled an older `illuminate/*` copy could mix two framework versions in one process. Migrations then failed with `Relation::withConstraintsForNestedRelation does not exist`. Module loaders now load after the core autoloader, so core classes always win.
+
 ## [v1.4.9] — 2026-11-02
 
 ### Security
