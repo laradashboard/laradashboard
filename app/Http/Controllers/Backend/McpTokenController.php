@@ -45,9 +45,7 @@ class McpTokenController extends Controller
             ], 401);
         }
 
-        $abilities = $this->mcpTokenService->resolveAbilitiesForUser($user);
-
-        if (! in_array('mcp:posts.read', $abilities, true) && ! in_array('mcp:posts.write', $abilities, true)) {
+        if (! $this->mcpTokenService->hasMcpCompatibleAbilities($user)) {
             return response()->json([
                 'success' => false,
                 'message' => __('Your account does not have any MCP-compatible permissions (post.view or post.create).'),
@@ -66,7 +64,7 @@ class McpTokenController extends Controller
             'success' => true,
             'message' => __('MCP agent token created. Copy it now — it will not be shown again.'),
             'token' => $issued['plain_text'],
-            'abilities' => $abilities,
+            'abilities' => $tokenRecord->abilities ?? [],
             'token_record' => [
                 'id' => $tokenRecord->id,
                 'label' => $this->mcpTokenService->tokenLabel($tokenRecord),
