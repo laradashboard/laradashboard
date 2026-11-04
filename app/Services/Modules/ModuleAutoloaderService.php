@@ -51,7 +51,7 @@ class ModuleAutoloaderService implements ModuleAutoloaderInterface
         }
 
         try {
-            $loader = require $autoloadPath;
+            $loader = static::requireAutoloader($autoloadPath);
 
             if ($loader instanceof ClassLoader) {
                 $this->loaders[$moduleName] = $loader;
@@ -195,6 +195,28 @@ class ModuleAutoloaderService implements ModuleAutoloaderInterface
     }
 
     /**
+     * Load a module's vendor/autoload.php without letting it override core classes.
+     *
+     * Composer registers every ClassLoader with prepend = true, so a module that
+     * bundles its own (older) copy of a package the core already ships, e.g.
+     * illuminate/database, would otherwise shadow the core version and mix two
+     * framework versions in one process. Re-registering the module loader at the
+     * end of the autoload stack lets core packages always win, while the module
+     * still provides any class the core doesn't have.
+     */
+    public static function requireAutoloader(string $autoloadPath): mixed
+    {
+        $loader = require $autoloadPath;
+
+        if ($loader instanceof ClassLoader) {
+            $loader->unregister();
+            $loader->register(false);
+        }
+
+        return $loader;
+    }
+
+    /**
      * Static method to register all module autoloaders.
      * This can be called from bootstrap before Laravel is fully loaded.
      *
@@ -219,7 +241,7 @@ class ModuleAutoloaderService implements ModuleAutoloaderInterface
 
             if (is_dir($fullPath) && file_exists($autoloadPath)) {
                 try {
-                    require $autoloadPath;
+                    static::requireAutoloader($autoloadPath);
                     $results[$dir] = true;
                 } catch (\Throwable $e) {
                     $results[$dir] = false;

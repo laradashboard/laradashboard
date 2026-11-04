@@ -269,7 +269,7 @@ class ModuleController extends Controller
         }
 
         // Validate temp path is within our expected directory for security
-        if (! str_starts_with($tempPath, storage_path('app/modules_temp/'))) {
+        if (! $this->moduleService->isModuleTempPath($tempPath)) {
             return response()->json([
                 'success' => false,
                 'message' => __('Invalid temporary path.'),
@@ -300,7 +300,7 @@ class ModuleController extends Controller
     {
         $tempPath = $request->input('temp_path');
 
-        if ($tempPath && str_starts_with($tempPath, storage_path('app/modules_temp/'))) {
+        if ($this->moduleService->isModuleTempPath($tempPath)) {
             $this->moduleService->cancelModuleReplacement($tempPath);
         }
 
