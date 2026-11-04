@@ -44,7 +44,7 @@ class McpOAuthAuthorizationCode extends Model
     }
 
     /**
-     * @return Builder<McpOAuthAuthorizationCode>
+     * @return Builder<static>
      */
     public function prunable(): Builder
     {
