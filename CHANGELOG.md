@@ -8,6 +8,10 @@ All notable changes to **Lara Dashboard** are documented in this file. This proj
 
 ## [Unreleased]
 
+### Security
+
+- **Fix:** Module installs can no longer write outside `modules/`. The install folder name comes from untrusted module metadata (`module.json` providers, `composer.json` PSR-4 keys, or the module name), and a crafted value like `../public/x` could place a module's files in the web root. Every direct-upload, replace and marketplace install now goes through one check that only allows a plain namespace segment, and `temp_path` from the replace/cancel requests is resolved with `realpath` before it's trusted (GHSA-75q6-qrv2-96rx).
+
 ### Fixed
 
 - **Fix:** Module `vendor/` autoloaders no longer override core packages. A module that bundled an older `illuminate/*` copy could mix two framework versions in one process. Migrations then failed with `Relation::withConstraintsForNestedRelation does not exist`. Module loaders now load after the core autoloader, so core classes always win.

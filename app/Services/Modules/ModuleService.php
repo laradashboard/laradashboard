@@ -396,6 +396,51 @@ class ModuleService
      * @throws ModuleException If the upload fails
      * @throws ModuleConflictException If a module with the same name already exists
      */
+    /**
+     * A module folder name must be a plain directory name that is also a valid
+     * PSR-4 namespace segment: no separators, dots or traversal sequences.
+     */
+    public function isValidModuleFolderName(string $folderName): bool
+    {
+        return preg_match('/^[A-Za-z][A-Za-z0-9_]{0,99}$/', $folderName) === 1;
+    }
+
+    /**
+     * The install path for a module folder, guaranteed to sit directly inside
+     * the modules directory. Folder names come from untrusted module metadata
+     * (module.json providers, composer.json PSR-4 keys, name), so every install
+     * and replace path must go through here.
+     *
+     * @throws ModuleException
+     */
+    public function moduleTargetPath(string $folderName): string
+    {
+        if (! $this->isValidModuleFolderName($folderName)) {
+            throw new ModuleException(__('Invalid module folder name ":name". Module namespaces may only contain letters, numbers and underscores.', ['name' => Str::limit($folderName, 60)]));
+        }
+
+        return rtrim($this->modulesPath, '/') . '/' . $folderName;
+    }
+
+    /**
+     * Whether a path is a real extraction directory inside storage/app/modules_temp.
+     * Resolves symlinks and "..", so a prefix check can't be bypassed.
+     */
+    public function isModuleTempPath(?string $path): bool
+    {
+        if (! is_string($path) || $path === '') {
+            return false;
+        }
+
+        $root = realpath(storage_path('app/modules_temp'));
+        $real = realpath($path);
+
+        return $root !== false
+            && $real !== false
+            && is_dir($real)
+            && str_starts_with($real, $root . DIRECTORY_SEPARATOR);
+    }
+
     public function uploadModule(Request $request): string
     {
         // First, clean up orphaned entries from module_statuses.json
@@ -432,12 +477,19 @@ class ModuleService
         $folderName = $moduleInfo['folder'];
         $moduleJsonPath = $extractedPath . '/module.json';
 
+        try {
+            $existingModulePath = $this->moduleTargetPath($folderName);
+        } catch (ModuleException $e) {
+            File::deleteDirectory($tempPath);
+
+            throw $e;
+        }
+
         // Get the uploaded module info from module.json
         $uploadedModuleJson = json_decode(File::get($moduleJsonPath), true);
         $moduleName = $uploadedModuleJson['name'] ?? $folderName;
 
         // Check if a module with this name already exists
-        $existingModulePath = $this->modulesPath . '/' . $folderName;
         $moduleStatuses = $this->getModuleStatuses();
         $conflictingModule = null;
 
@@ -481,6 +533,10 @@ class ModuleService
      */
     public function replaceModule(string $tempPath, string $existingModuleName): string
     {
+        if (! $this->isModuleTempPath($tempPath)) {
+            throw new ModuleException(__('Invalid temporary path.'));
+        }
+
         // Find the module folder and module.json
         $moduleInfo = $this->findModuleInTempPath($tempPath);
 
@@ -492,6 +548,9 @@ class ModuleService
         $extractedPath = $moduleInfo['path'];
         $folderName = $moduleInfo['folder'];
         $moduleJsonPath = $extractedPath . '/module.json';
+
+        // Validate before the existing module is deleted.
+        $this->moduleTargetPath($folderName);
 
         $uploadedModuleJson = json_decode(File::get($moduleJsonPath), true);
         $moduleName = $uploadedModuleJson['name'] ?? $folderName;
@@ -550,7 +609,7 @@ class ModuleService
         // Fire action before module installation
         Hook::doAction(ModuleActionHook::MODULE_INSTALLING_BEFORE, $moduleName, ['folder' => $folderName, 'path' => $tempPath]);
 
-        $targetPath = $this->modulesPath . '/' . $folderName;
+        $targetPath = $this->moduleTargetPath($folderName);
 
         // Check if the module is in a subdirectory or at the root of temp path
         $extractedPath = $tempPath . '/' . $folderName;
@@ -673,7 +732,7 @@ class ModuleService
      */
     public function cancelModuleReplacement(string $tempPath): void
     {
-        if (File::exists($tempPath) && str_starts_with($tempPath, storage_path('app/modules_temp/'))) {
+        if ($this->isModuleTempPath($tempPath)) {
             File::deleteDirectory($tempPath);
         }
     }
@@ -727,7 +786,7 @@ class ModuleService
      * 2. Extract from composer.json PSR-4: "Modules\\Crm\\": "app/" -> "Crm"
      * 3. Fallback to module.json name converted to StudlyCase
      */
-    protected function extractNamespaceFolderFromPath(string $modulePath): string
+    public function extractNamespaceFolderFromPath(string $modulePath): string
     {
         // Try to extract from module.json providers first
         $moduleJsonPath = $modulePath . '/module.json';
@@ -735,10 +794,10 @@ class ModuleService
             $moduleJson = json_decode(File::get($moduleJsonPath), true);
 
             // Check providers array for namespace
-            $providers = $moduleJson['providers'] ?? [];
+            $providers = (array) ($moduleJson['providers'] ?? []);
             foreach ($providers as $provider) {
-                // Match pattern: Modules\{ModuleName}\...
-                if (preg_match('/^Modules\\\\([^\\\\]+)\\\\/', $provider, $matches)) {
+                // Match pattern: Modules\{ModuleName}\... (validated later by moduleTargetPath())
+                if (is_string($provider) && preg_match('/^Modules\\\\([^\\\\]+)\\\\/', $provider, $matches)) {
                     return $matches[1]; // Returns "Crm" from "Modules\Crm\..."
                 }
             }
@@ -748,11 +807,11 @@ class ModuleService
         $composerJsonPath = $modulePath . '/composer.json';
         if (File::exists($composerJsonPath)) {
             $composerJson = json_decode(File::get($composerJsonPath), true);
-            $psr4 = $composerJson['autoload']['psr-4'] ?? [];
+            $psr4 = (array) ($composerJson['autoload']['psr-4'] ?? []);
 
             foreach (array_keys($psr4) as $namespace) {
-                // Match pattern: Modules\{ModuleName}\
-                if (preg_match('/^Modules\\\\([^\\\\]+)\\\\/', $namespace, $matches)) {
+                // Match pattern: Modules\{ModuleName}\ (validated later by moduleTargetPath())
+                if (is_string($namespace) && preg_match('/^Modules\\\\([^\\\\]+)\\\\/', $namespace, $matches)) {
                     return $matches[1]; // Returns "Crm" from "Modules\Crm\"
                 }
             }
