@@ -9,7 +9,8 @@
 
 (function () {
     $modulesPath = dirname(__DIR__) . '/modules';
-    $statusesPath = dirname(__DIR__) . '/modules_statuses.json';
+    // Same file as config('modules.activators.file.statuses-file'); config isn't loaded yet.
+    $statusesPath = dirname(__DIR__) . '/' . (getenv('MODULES_STATUSES_FILE') ?: 'modules_statuses.json');
     $vendorAutoload = dirname(__DIR__) . '/vendor/autoload.php';
 
     if (! file_exists($statusesPath)) {
@@ -203,10 +204,28 @@
         $validatedModules[$moduleName] = $moduleDir;
     }
 
-    // NOTE: Module vendor autoloaders are now loaded by each module's service provider
-    // after Laravel boots. Loading them here (before Laravel boots) can break
-    // Laravel's core services like 'config'. See CrmServiceProvider::registerHelpers()
-    // for the pattern to load module vendor autoload in the service provider.
+    // Pre-include each validated module's vendor/autoload.php, appended AFTER the
+    // core Composer loader (ModuleAutoloaderService::requireAutoloader()).
+    //
+    // Many modules `require_once` their own vendor/autoload.php from their service
+    // provider. Composer prepends that loader, so a module bundling an older
+    // illuminate/* copy shadowed core classes and mixed two framework versions
+    // ("Relation::withConstraintsForNestedRelation does not exist" in migrations).
+    // Including the file here first turns that later require_once into a no-op,
+    // so module dependencies can only fill gaps and never override core classes.
+    foreach ($validatedModules as $moduleName => $moduleDir) {
+        $moduleAutoload = $moduleDir . '/vendor/autoload.php';
+
+        if (! file_exists($moduleAutoload)) {
+            continue;
+        }
+
+        try {
+            \App\Services\Modules\ModuleAutoloaderService::requireAutoloader($moduleAutoload);
+        } catch (\Throwable $e) {
+            // Leave it to the module's own provider; never block booting the core.
+        }
+    }
 
     // Save updated statuses if any modules were disabled
     if ($modified) {

@@ -262,6 +262,10 @@ class MarketplaceService
                 'module_name' => null,
             ];
         } catch (ModuleException $e) {
+            if (isset($tempPath) && File::isDirectory($tempPath)) {
+                File::deleteDirectory($tempPath);
+            }
+
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -395,7 +399,7 @@ class MarketplaceService
 
             return [
                 'name' => $data['name'] ?? basename($extractPath),
-                'folder' => $this->extractFolderName($extractPath, $data),
+                'folder' => $this->moduleService->extractNamespaceFolderFromPath($extractPath),
                 'path' => $extractPath,
             ];
         }
@@ -417,30 +421,14 @@ class MarketplaceService
     }
 
     /**
-     * Extract the PascalCase folder name from module data.
-     */
-    protected function extractFolderName(string $modulePath, array $moduleJson): string
-    {
-        // Try to extract from providers
-        $providers = $moduleJson['providers'] ?? [];
-        foreach ($providers as $provider) {
-            if (preg_match('/^Modules\\\\([^\\\\]+)\\\\/', $provider, $matches)) {
-                return $matches[1];
-            }
-        }
-
-        // Fallback to StudlyCase of name
-        return \Illuminate\Support\Str::studly($moduleJson['name'] ?? basename($modulePath));
-    }
-
-    /**
      * Install a module from extracted path (new module, not replacing).
      */
     protected function installFromExtracted(string $extractPath, array $moduleInfo): string
     {
         $folderName = $moduleInfo['folder'];
         $moduleName = $moduleInfo['name'];
-        $targetPath = $this->moduleService->modulesPath . '/' . $folderName;
+        // Throws for folder names that aren't a plain namespace segment (path traversal).
+        $targetPath = $this->moduleService->moduleTargetPath($folderName);
 
         if ($moduleInfo['path'] === $extractPath) {
             // Module is at root of extract path

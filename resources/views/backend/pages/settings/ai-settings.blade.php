@@ -95,7 +95,7 @@
                             </div>
                             <div>
                                 <h4 class="font-semibold text-gray-900 dark:text-white">{{ __('OpenAI') }}</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">GPT-4o, GPT-4, DALL-E</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">GPT-6, DALL-E</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5" data-provider-badges="openai">
@@ -149,11 +149,9 @@
                                 {{ __('Model') }}
                             </label>
                             <select name="ai_openai_model" id="ai_openai_model" class="form-control text-sm">
-                                @php $currentOpenaiModel = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-4o-mini'); @endphp
-                                <option value="gpt-4o-mini" {{ $currentOpenaiModel == 'gpt-4o-mini' ? 'selected' : '' }}>GPT-4o Mini ({{ __('Fast & Affordable') }})</option>
-                                <option value="gpt-4o" {{ $currentOpenaiModel == 'gpt-4o' ? 'selected' : '' }}>GPT-4o ({{ __('Most Capable') }})</option>
-                                <option value="gpt-4-turbo" {{ $currentOpenaiModel == 'gpt-4-turbo' ? 'selected' : '' }}>GPT-4 Turbo</option>
-                                <option value="gpt-3.5-turbo" {{ $currentOpenaiModel == 'gpt-3.5-turbo' ? 'selected' : '' }}>GPT-3.5 Turbo ({{ __('Legacy') }})</option>
+                                @php $currentOpenaiModel = config('settings.ai_openai_model') ?: config('ai.openai.model', 'gpt-6-luna'); @endphp
+                                <option value="gpt-6-luna" {{ $currentOpenaiModel == 'gpt-6-luna' ? 'selected' : '' }}>GPT-6 Luna ({{ __('Fast & Affordable') }})</option>
+                                <option value="gpt-6-sol" {{ $currentOpenaiModel == 'gpt-6-sol' ? 'selected' : '' }}>GPT-6 Sol ({{ __('Most Capable') }})</option>
                             </select>
                         </div>
                     </div>
@@ -426,13 +424,8 @@
 const providerTokenLimits = {
     openai: {
         default: 16384,
-        models: {
-            'gpt-4o': 16384,
-            'gpt-4o-mini': 16384,
-            'gpt-4-turbo': 4096,
-            'gpt-3.5-turbo': 4096
-        },
-        hint: 'GPT-4o supports up to 16K output tokens.'
+        models: {},
+        hint: 'Output token limit depends on the selected model.'
     },
     claude: {
         default: 8192,

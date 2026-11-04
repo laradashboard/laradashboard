@@ -18,7 +18,7 @@ beforeEach(function () {
     }
 
     // Remove TestCrud from modules_statuses.json if it exists
-    $statusFile = base_path('modules_statuses.json');
+    $statusFile = \App\Services\Modules\ModuleService::statusesFilePath();
     if (File::exists($statusFile)) {
         $statuses = json_decode(File::get($statusFile), true) ?: [];
         unset($statuses['TestCrud'], $statuses['test-crud'], $statuses['testcrud']);
@@ -35,7 +35,7 @@ afterEach(function () {
     }
 
     // Remove TestCrud from modules_statuses.json
-    $statusFile = base_path('modules_statuses.json');
+    $statusFile = \App\Services\Modules\ModuleService::statusesFilePath();
     if (File::exists($statusFile)) {
         $statuses = json_decode(File::get($statusFile), true) ?: [];
         unset($statuses['TestCrud'], $statuses['test-crud'], $statuses['testcrud']);

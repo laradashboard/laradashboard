@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Services\Mcp;
 
 use App\Enums\Hooks\McpFilterHook;
+use App\Models\McpOAuthRefreshToken;
 use App\Models\User;
 use App\Support\Facades\Hook;
+use DateTimeInterface;
 use Illuminate\Support\Collection;
 use Laravel\Sanctum\Contracts\HasAbilities;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -23,10 +25,10 @@ class McpTokenService
     /**
      * @return array{plain_text: string, token: PersonalAccessToken}
      */
-    public function issueToken(User $user, ?string $label = null): array
+    public function issueToken(User $user, ?string $label = null, ?DateTimeInterface $expiresAt = null): array
     {
         $abilities = $this->resolveAbilitiesForUser($user);
-        $newToken = $user->createToken($this->formatTokenName($label), $abilities);
+        $newToken = $user->createToken($this->formatTokenName($label), $abilities, $expiresAt);
 
         return [
             'plain_text' => $newToken->plainTextToken,
@@ -46,9 +48,19 @@ class McpTokenService
 
     public function revokeToken(User $user, int $tokenId): bool
     {
-        return $this->mcpTokensQuery($user)
+        $deleted = $this->mcpTokensQuery($user)
             ->whereKey($tokenId)
             ->delete() > 0;
+
+        if ($deleted) {
+            // An OAuth connection must not silently come back through its refresh token.
+            McpOAuthRefreshToken::query()
+                ->where('personal_access_token_id', $tokenId)
+                ->whereNull('revoked_at')
+                ->update(['revoked_at' => now()]);
+        }
+
+        return $deleted;
     }
 
     public function tokenLabel(PersonalAccessToken $token): string
@@ -114,6 +126,17 @@ class McpTokenService
         $abilities = Hook::applyFilters(McpFilterHook::TOKEN_ABILITIES, $abilities, $user);
 
         return array_values(array_unique($abilities));
+    }
+
+    /**
+     * Whether the user holds at least one permission that makes an MCP token useful.
+     */
+    public function hasMcpCompatibleAbilities(User $user): bool
+    {
+        $abilities = $this->resolveAbilitiesForUser($user);
+
+        return in_array('mcp:posts.read', $abilities, true)
+            || in_array('mcp:posts.write', $abilities, true);
     }
 
     public function isMcpToken(?HasAbilities $token): bool

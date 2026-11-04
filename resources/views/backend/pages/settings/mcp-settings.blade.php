@@ -99,6 +99,9 @@
                         class="btn-outline-primary shrink-0"
                     />
                 </div>
+                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    {{ __('Clients that support OAuth, such as Claude.ai custom connectors, only need this URL. You will be asked to sign in and approve the connection, and no token needs to be copied.') }}
+                </p>
             </div>
         </div>
 
