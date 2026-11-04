@@ -48,7 +48,7 @@ class McpOAuthRefreshToken extends Model
     /**
      * Keep revoked rows for a week so refresh-token reuse can still be detected.
      *
-     * @return Builder<McpOAuthRefreshToken>
+     * @return Builder<static>
      */
     public function prunable(): Builder
     {
