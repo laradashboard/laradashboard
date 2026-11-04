@@ -141,7 +141,13 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.4.9](https://github.com/laradashboard/laradashboard/releases/tag/v1.4.9) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.5.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.0) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.5.0] — 2026-11-04**
+-   **New:** OAuth 2.1 for the MCP server, so OAuth-only clients like Claude.ai custom connectors can connect with just the `/mcp` URL (PKCE, rotating refresh tokens).
+-   **Fix (Security):** Module installs can no longer write outside `modules/` via crafted folder names (GHSA-75q6-qrv2-96rx).
+-   **Fix:** Module `vendor/` autoloaders no longer override core framework classes.
+-   **Change:** OpenAI defaults to `gpt-6-luna`; `gpt-6-sol` replaces the retired GPT-4o/GPT-4/GPT-3.5 models.
 
 **[v1.4.9] — 2026-11-02**
 -   **Fix (Security):** Social login no longer links an existing account to an unverified provider email; the OAuth callback is rate-limited (GHSA-c5x3-wvxj-7cgr).
