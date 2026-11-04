@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Models\McpOAuthAuthorizationCode;
+use App\Models\McpOAuthRefreshToken;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -56,6 +58,15 @@ class Kernel extends ConsoleKernel
             ->dailyAt(preg_match('/^\d{2}:\d{2}$/', $errorNotifyTime) ? $errorNotifyTime : '09:00')
             ->withoutOverlapping()
             ->runInBackground();
+
+        // Clean up expired MCP OAuth codes and refresh tokens, and expired MCP access tokens.
+        $schedule->command('model:prune', [
+            '--model' => [
+                McpOAuthAuthorizationCode::class,
+                McpOAuthRefreshToken::class,
+            ],
+        ])->daily()->withoutOverlapping()->runInBackground();
+        $schedule->command('sanctum:prune-expired --hours=24')->daily()->withoutOverlapping()->runInBackground();
 
         // Process queued jobs (workflow actions, emails, etc.).
         // Runs every minute, processes up to 50 jobs per batch, stops after 55 seconds

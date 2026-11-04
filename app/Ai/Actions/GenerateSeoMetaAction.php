@@ -119,7 +119,7 @@ class GenerateSeoMetaAction implements AiActionInterface
             'openai' => Http::withHeaders([
                 'Authorization' => 'Bearer '.$apiKey,
             ])->timeout(30)->post('https://api.openai.com/v1/chat/completions', [
-                'model' => 'gpt-4o-mini',
+                'model' => 'gpt-6-luna',
                 'messages' => [
                     ['role' => 'system', 'content' => $systemPrompt],
                     ['role' => 'user', 'content' => $prompt],

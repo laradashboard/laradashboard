@@ -6,6 +6,12 @@ All notable changes to **Lara Dashboard** are documented in this file. This proj
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **Feature:** OAuth 2.1 for the MCP server. Remote clients that only speak OAuth, such as Claude.ai custom connectors, can now connect with just the `/mcp` URL: they discover the endpoints, register themselves, and the user approves the connection in the browser. Uses PKCE (S256), single-use authorization codes and rotating refresh tokens. Issued access tokens are regular MCP agent tokens, so abilities, permissions and revocation work exactly as before. See `docs/mcp.md`.
+
 ## [v1.4.9] — 2026-11-02
 
 ### Security
