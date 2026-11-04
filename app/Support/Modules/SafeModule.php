@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Modules;
 
+use App\Services\Modules\ModuleService;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Nwidart\Modules\Laravel\Module as LaravelModule;
@@ -56,7 +57,7 @@ class SafeModule extends LaravelModule
         ]);
 
         // Auto-disable the module to prevent further crashes
-        $statusesPath = base_path('modules_statuses.json');
+        $statusesPath = ModuleService::statusesFilePath();
 
         if (File::exists($statusesPath)) {
             $statuses = json_decode(File::get($statusesPath), true) ?? [];

@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 function removeReplaceActivateTestModuleFromStatuses(): void
 {
-    $statusFile = base_path('modules_statuses.json');
+    $statusFile = ModuleService::statusesFilePath();
 
     if (! File::exists($statusFile)) {
         return;
@@ -38,7 +38,7 @@ beforeEach(function () {
     $this->moduleService = app(ModuleService::class);
     $this->studlyName = 'ReplaceActivateTest';
     $this->slugName = 'replaceactivatetest';
-    $this->statusFile = base_path('modules_statuses.json');
+    $this->statusFile = ModuleService::statusesFilePath();
     $this->originalStatuses = File::exists($this->statusFile)
         ? File::get($this->statusFile)
         : null;

@@ -32,7 +32,7 @@ class ModuleService
     public function __construct()
     {
         $this->modulesPath = config('modules.paths.modules');
-        $this->modulesStatusesPath = base_path('modules_statuses.json');
+        $this->modulesStatusesPath = static::statusesFilePath();
     }
 
     /**
@@ -396,6 +396,14 @@ class ModuleService
      * @throws ModuleException If the upload fails
      * @throws ModuleConflictException If a module with the same name already exists
      */
+    /**
+     * Path of the module statuses file (config: modules.activators.file.statuses-file).
+     */
+    public static function statusesFilePath(): string
+    {
+        return (string) config('modules.activators.file.statuses-file', base_path('modules_statuses.json'));
+    }
+
     /**
      * A module folder name must be a plain directory name that is also a valid
      * PSR-4 namespace segment: no separators, dots or traversal sequences.

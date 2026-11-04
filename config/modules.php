@@ -306,7 +306,9 @@ return [
     'activators' => [
         'file' => [
             'class' => FileActivator::class,
-            'statuses-file' => base_path('modules_statuses.json'),
+            // Relative to the project root. Tests point this at their own file so the
+            // core suite never enables installed modules or rewrites the real one.
+            'statuses-file' => base_path(env('MODULES_STATUSES_FILE', 'modules_statuses.json')),
         ],
     ],
 

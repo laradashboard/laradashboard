@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Collections;
 
 use App\Models\Module;
+use App\Services\Modules\ModuleService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
@@ -36,7 +37,7 @@ class ModuleCollection
     public function __construct()
     {
         $this->modulesPath = config('modules.paths.modules');
-        $this->modulesStatusesPath = base_path('modules_statuses.json');
+        $this->modulesStatusesPath = ModuleService::statusesFilePath();
         $this->items = collect();
     }
 

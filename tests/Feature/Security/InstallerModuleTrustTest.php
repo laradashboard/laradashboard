@@ -18,7 +18,7 @@ test('installer only accepts trusted module download urls', function (string $ur
 ]);
 
 test('installer only resolves modules from allowed status slugs', function () {
-    $statusesPath = base_path('modules_statuses.json');
+    $statusesPath = \App\Services\Modules\ModuleService::statusesFilePath();
     $originalStatuses = File::exists($statusesPath) ? File::get($statusesPath) : null;
 
     File::put($statusesPath, json_encode([

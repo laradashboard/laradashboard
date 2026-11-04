@@ -783,7 +783,7 @@ class InstallationService
      */
     public function getModuleSlugsFromStatuses(): array
     {
-        $path = base_path('modules_statuses.json');
+        $path = ModuleService::statusesFilePath();
 
         if (! file_exists($path)) {
             return [];
