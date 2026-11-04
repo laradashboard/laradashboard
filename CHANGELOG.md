@@ -6,6 +6,12 @@ All notable changes to **Lara Dashboard** are documented in this file. This proj
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- **Fix:** Deploy migrations no longer fail with `Relation::withConstraintsForNestedRelation does not exist` when an installed module loads its own `vendor/autoload.php` from its service provider. `bootstrap/modules.php` now pre-includes each module's autoloader after the core one, so the module's later `require_once` does nothing and its bundled `illuminate/*` copies can't shadow core classes.
+
 ## [v1.5.0] — 2026-11-04
 
 ### Added

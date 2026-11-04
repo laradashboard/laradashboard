@@ -78,3 +78,20 @@ test('the static bootstrap registration also keeps core classes first', function
         ->and($last[0])->not->toBe($this->coreLoader);
     $last[0]->unregister();
 });
+
+test('a module provider re-requiring its vendor autoload cannot jump ahead of core', function () {
+    // bootstrap/modules.php pre-includes the module autoloader (appended after core) ...
+    $autoload = $this->root.'/modules/Fake/vendor/autoload.php';
+    $loader = ModuleAutoloaderService::requireAutoloader($autoload);
+
+    // ... so the module's own `require_once` in its service provider is a no-op
+    // and its prepending ClassLoader is never registered a second time.
+    $loaderCount = count(spl_autoload_functions());
+    require_once $autoload;
+    expect(count(spl_autoload_functions()))->toBe($loaderCount);
+
+    $shared = $this->namespace.'\\Shared';
+    expect($shared::VERSION)->toBe('core');
+
+    $loader->unregister();
+});
