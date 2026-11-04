@@ -9,7 +9,8 @@
 
 (function () {
     $modulesPath = dirname(__DIR__) . '/modules';
-    $statusesPath = dirname(__DIR__) . '/modules_statuses.json';
+    // Same file as config('modules.activators.file.statuses-file'); config isn't loaded yet.
+    $statusesPath = dirname(__DIR__) . '/' . (getenv('MODULES_STATUSES_FILE') ?: 'modules_statuses.json');
     $vendorAutoload = dirname(__DIR__) . '/vendor/autoload.php';
 
     if (! file_exists($statusesPath)) {

@@ -119,8 +119,8 @@ test('rejected uploads leave no extracted files behind', function () {
 test('namespace extraction only accepts a plain namespace segment', function () {
     $service = app(ModuleService::class);
 
-    File::put($this->workDir.'/module.json', json_encode(['providers' => ['Modules\\Crm\\Providers\\CrmServiceProvider']]));
-    expect($service->extractNamespaceFolderFromPath($this->workDir))->toBe('Crm');
+    File::put($this->workDir.'/module.json', json_encode(['providers' => ['Modules\\Acme\\Providers\\AcmeServiceProvider']]));
+    expect($service->extractNamespaceFolderFromPath($this->workDir))->toBe('Acme');
 
     // A traversal segment is returned as-is so moduleTargetPath() rejects the whole module.
     File::put($this->workDir.'/module.json', json_encode(['name' => 'x', 'providers' => [['nested'], 'Modules\\../evil\\P']]));
@@ -132,8 +132,8 @@ test('namespace extraction only accepts a plain namespace segment', function () 
 test('module folder names are validated', function (string $name, bool $valid) {
     expect(app(ModuleService::class)->isValidModuleFolderName($name))->toBe($valid);
 })->with([
-    ['Crm', true],
-    ['DocForge', true],
+    ['Acme', true],
+    ['AcmeTools', true],
     ['Custom_Form2', true],
     ['../public/pwn', false],
     ['..', false],
@@ -166,7 +166,7 @@ test('replace and cancel endpoints reject a traversing temp_path', function () {
     $traversingPath = storage_path('app/modules_temp/../testing-traversal/'.$this->marker.'/victim');
 
     $this->actingAs($this->superadminUser)
-        ->postJson(route('admin.modules.replace'), ['temp_path' => $traversingPath, 'existing_module_name' => 'crm'])
+        ->postJson(route('admin.modules.replace'), ['temp_path' => $traversingPath, 'existing_module_name' => 'acme'])
         ->assertStatus(400);
 
     $this->actingAs($this->superadminUser)

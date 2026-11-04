@@ -11,6 +11,7 @@ All notable changes to **Lara Dashboard** are documented in this file. This proj
 ### Fixed
 
 - **Fix:** Deploy migrations no longer fail with `Relation::withConstraintsForNestedRelation does not exist` when an installed module loads its own `vendor/autoload.php` from its service provider. `bootstrap/modules.php` now pre-includes each module's autoloader after the core one, so the module's later `require_once` does nothing and its bundled `illuminate/*` copies can't shadow core classes.
+- **Tests:** The core test suite no longer boots installed modules or rewrites the real `modules_statuses.json`. The statuses file path is now configurable (`MODULES_STATUSES_FILE`, used by `config('modules.activators.file.statuses-file')` and `ModuleService::statusesFilePath()`), and `phpunit.xml` points tests at a throwaway file that's reset for every test app.
 
 ## [v1.5.0] — 2026-11-04
 
