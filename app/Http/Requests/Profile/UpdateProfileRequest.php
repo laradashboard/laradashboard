@@ -6,6 +6,7 @@ namespace App\Http\Requests\Profile;
 
 use App\Http\Requests\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -31,7 +32,7 @@ class UpdateProfileRequest extends FormRequest
             'last_name' => 'required|string|max:50',
             'email' => 'required|email|max:100|unique:users,email,' . $userId,
             'username' => 'required|string|max:100|unique:users,username,' . $userId,
-            'password' => 'nullable|min:6|confirmed',
+            'password' => 'nullable|min:6|max:'.User::PASSWORD_MAX_LENGTH.'|confirmed',
             'avatar_id' => 'nullable|exists:media,id',
         ];
     }

@@ -6,6 +6,7 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\User;
 
 class LoginRequest extends FormRequest
 {
@@ -29,7 +30,7 @@ class LoginRequest extends FormRequest
             'email' => 'required|max:50|email',
 
             /** @example "12345678" */
-            'password' => 'required',
+            'password' => 'required|string|max:'.User::PASSWORD_INPUT_MAX_LENGTH,
         ];
     }
 }

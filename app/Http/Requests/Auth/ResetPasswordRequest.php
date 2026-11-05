@@ -7,6 +7,7 @@ namespace App\Http\Requests\Auth;
 use App\Http\Requests\FormRequest;
 use App\Services\PublicFormGuardService;
 use Illuminate\Validation\Rules;
+use App\Models\User;
 
 class ResetPasswordRequest extends FormRequest
 {
@@ -24,7 +25,7 @@ class ResetPasswordRequest extends FormRequest
             [
                 'token' => ['required'],
                 'email' => ['required', 'email'],
-                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'password' => ['required', 'confirmed', 'max:'.User::PASSWORD_MAX_LENGTH, Rules\Password::defaults()],
             ],
             includeAdvancedEmailValidation: false,
         );
