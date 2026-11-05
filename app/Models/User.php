@@ -35,6 +35,18 @@ class User extends Authenticatable implements MustVerifyEmail
     use QueryBuilderTrait;
 
     /**
+     * Longest password a user can set. Bcrypt only reads the first 72 bytes, so
+     * longer passwords add no security and very long ones waste server time.
+     */
+    public const PASSWORD_MAX_LENGTH = 72;
+
+    /**
+     * Longest password accepted at login. Looser than PASSWORD_MAX_LENGTH so
+     * accounts created before that limit can still sign in.
+     */
+    public const PASSWORD_INPUT_MAX_LENGTH = 255;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array

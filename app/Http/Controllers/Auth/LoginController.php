@@ -14,6 +14,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -108,7 +109,7 @@ class LoginController extends Controller
     {
         $rules = Hook::applyFilters(AuthFilterHook::LOGIN_VALIDATION_RULES, [
             $this->username() => 'required|string',
-            'password' => 'required|string',
+            'password' => 'required|string|max:'.User::PASSWORD_INPUT_MAX_LENGTH,
         ]);
 
         $messages = Hook::applyFilters(AuthFilterHook::LOGIN_VALIDATION_MESSAGES, []);

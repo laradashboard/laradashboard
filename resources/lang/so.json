@@ -2068,6 +2068,7 @@
     "Password (Optional)": "Furaha sirta (Ikhtiyaari)",
     "Password Input": "Password Input",
     "Password confirmation does not match.": "Password confirmation does not match.",
+    "Password may not be longer than :max characters.": "Password may not be longer than :max characters.",
     "Password must be at least 8 characters.": "Password must be at least 8 characters.",
     "Password:": "Password:",
     "Paste the JSON below into claude_desktop_config.json and save the file.": "Paste the JSON below into claude_desktop_config.json and save the file.",

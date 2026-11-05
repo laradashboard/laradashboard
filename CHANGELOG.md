@@ -2,11 +2,15 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.5.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.0) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.5.1](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.1) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
 
-## [Unreleased]
+## [v1.5.1] — 2026-11-05
+
+### Security
+
+- **Fix:** Passwords now have a maximum length. Bcrypt only reads the first 72 bytes, so very long passwords added no security and let anyone make the server spend time hashing megabytes of input. Registration, password reset, profile updates, admin user create/edit and the install wizard reject passwords longer than 72 characters (`User::PASSWORD_MAX_LENGTH`). Login and the API login request accept up to 255 characters (`User::PASSWORD_INPUT_MAX_LENGTH`), so accounts created before this limit can still sign in.
 
 ### Fixed
 

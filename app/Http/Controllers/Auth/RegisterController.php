@@ -94,7 +94,7 @@ class RegisterController extends Controller
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'max:' . User::PASSWORD_MAX_LENGTH, 'confirmed'],
         ]);
 
         $rules = $this->mergeValidationRules($rules, $this->registrationGuard->additionalValidationRules());
@@ -156,7 +156,7 @@ class RegisterController extends Controller
                 $user->assignRole($defaultRole);
             } catch (\Exception $e) {
                 // Role might not exist, log the error
-                \Illuminate\Support\Facades\Log::warning("Could not assign role '{$defaultRole}' to new user: ".$e->getMessage());
+                \Illuminate\Support\Facades\Log::warning("Could not assign role '{$defaultRole}' to new user: " . $e->getMessage());
             }
         }
 
@@ -197,7 +197,7 @@ class RegisterController extends Controller
                     event(new Registered($user));
                 } catch (\Throwable $e) {
                     // Log the error but don't fail registration
-                    Log::warning('Could not send verification email: '.$e->getMessage());
+                    Log::warning('Could not send verification email: ' . $e->getMessage());
                 }
             }
 
@@ -232,7 +232,7 @@ class RegisterController extends Controller
             $user->notify(new RegistrationWelcomeNotification());
         } catch (\Throwable $e) {
             // Log the error but don't fail registration
-            Log::warning('Could not send welcome email: '.$e->getMessage());
+            Log::warning('Could not send welcome email: ' . $e->getMessage());
         }
     }
 
@@ -293,7 +293,7 @@ class RegisterController extends Controller
         $counter = 1;
 
         while (User::where('username', $username)->exists()) {
-            $username = $baseUsername.$counter;
+            $username = $baseUsername . $counter;
             $counter++;
         }
 

@@ -141,7 +141,12 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.5.0](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.0) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.5.1](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.1) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.5.1] — 2026-11-05**
+-   **Fix (Security):** Passwords are capped at 72 characters (bcrypt's limit) on registration, reset, profile and user forms; login accepts up to 255 so existing accounts still work.
+-   **Fix:** Deploy migrations no longer fail when a module loads its own `vendor/autoload.php`; module autoloaders are pre-included after core.
+-   **Tests:** The core test suite no longer boots installed modules or rewrites `modules_statuses.json`.
 
 **[v1.5.0] — 2026-11-04**
 -   **New:** OAuth 2.1 for the MCP server, so OAuth-only clients like Claude.ai custom connectors can connect with just the `/mcp` URL (PKCE, rotating refresh tokens).

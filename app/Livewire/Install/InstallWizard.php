@@ -395,6 +395,12 @@ class InstallWizard extends Component
             return false;
         }
 
+        if (strlen($this->adminPassword) > User::PASSWORD_MAX_LENGTH) {
+            $this->errorMessage = __('Password may not be longer than :max characters.', ['max' => User::PASSWORD_MAX_LENGTH]);
+
+            return false;
+        }
+
         if ($this->adminPassword !== $this->adminPasswordConfirmation) {
             $this->errorMessage = __('Password confirmation does not match.');
 

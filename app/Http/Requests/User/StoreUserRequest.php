@@ -41,7 +41,7 @@ class StoreUserRequest extends FormRequest
             /** @example "johndoe123" */
             'username' => 'required|max:100|unique:users,username',
 
-            'password' => 'required|min:6|confirmed',
+            'password' => 'required|min:6|max:'.User::PASSWORD_MAX_LENGTH.'|confirmed',
 
             /** @example "123" */
             'avatar_id' => 'nullable|exists:media,id',
