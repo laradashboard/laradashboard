@@ -2,9 +2,24 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.5.1](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.1) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.5.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.2) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.5.2] — 2026-11-08
+
+### Security
+
+- **Fix:** SSRF through the Ollama base URL (GHSA-47pj-m4xp-74g5). The `ai_ollama_base_url` setting was used for server-side requests without any checks, and `generate-seo` (any `post.create` user) could reflect the target's reply. The URL must now be a bare `http(s)` server address (no path, query or credentials) that doesn't resolve to cloud metadata or other link-local addresses; only a Superadmin can change it (web and API settings); Ollama requests no longer follow redirects; and `generate-seo` only accepts providers that are configured. Loopback and private addresses stay allowed for local Ollama; set `OLLAMA_ALLOW_PRIVATE_NETWORK=false` to block them.
+- **Fix:** Secret settings no longer leak into the action log (GHSA-29v7-6x3j-r97q). Every setting change was logged with its raw value, so `actionlog.view` alone exposed API keys, the SMTP password and OAuth client secrets. Values of sensitive settings (`*_key`, `*_secret`, `*_password`, `*_token`) are now masked in new log entries, and a migration masks them in existing entries. **Rotate any API keys, passwords and client secrets saved before this release** if other users can view the action log.
+- **Fix:** The dashboard Quick Draft widget now checks `post.create` when it saves (GHSA-p4mj-68rh-c24q). Before, any logged-in user, including a self-registered Subscriber, could create draft posts through it.
+- **Hardening:** The setup wizard's module download now uses the same folder-name check as uploads and marketplace installs (the module upload path traversal itself, GHSA-75q6-qrv2-96rx, was fixed in v1.5.0), with new tests covering the marketplace path.
+
+### Fixed
+
+- **Fix:** AI image generation works again. OpenAI retired DALL-E 3 on 2026-05-12, so every request failed with `The model 'dall-e-3' does not exist`. Images now use `gpt-image-2.5-flare` by default (change it with `OPENAI_IMAGE_MODEL` or the `ai_openai_image_model` setting). GPT Image returns base64 rather than a temporary URL, so the new `AiContentGeneratorService::storeGeneratedImage()` saves either form; old DALL-E sizes such as `1792x1024` are mapped to the closest supported size.
+- **Fix:** Datatables whose `render()` was written before column visibility (v1.4.5) no longer throw `Undefined variable $visibleHeaders` (seen on CustomForm submissions). The view falls back to `$headers`, and subclasses can call the new `datatableViewData(['data' => $data])` to keep column visibility.
+- **Fix:** The LaraBuilder video block embeds YouTube, Vimeo and Dailymotion links as a player on published pages and posts instead of showing a link.
 
 ## [v1.5.1] — 2026-11-05
 

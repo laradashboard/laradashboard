@@ -1043,7 +1043,6 @@ class InstallationService
 
             // Find module.json in extracted content
             $moduleService = app(ModuleService::class);
-            $modulesPath = config('modules.paths.modules', base_path('modules'));
 
             // Find the module folder (handles nested zip structures)
             $moduleFolder = $this->findModuleFolderInPath($extractPath);
@@ -1056,11 +1055,14 @@ class InstallationService
 
             $moduleJsonPath = $moduleFolder . '/module.json';
             $moduleData = json_decode(File::get($moduleJsonPath), true);
-            $folderName = basename($moduleFolder);
+            $folderName = $moduleFolder === $extractPath
+                ? $moduleService->extractNamespaceFolderFromPath($extractPath)
+                : basename($moduleFolder);
             $moduleName = $moduleData['name'] ?? $folderName;
 
-            // Move to modules directory
-            $targetPath = $modulesPath . '/' . $folderName;
+            // Move to modules directory. Like uploads and marketplace installs, the folder
+            // name comes from the package, so it must stay a plain directory inside modules/.
+            $targetPath = $moduleService->moduleTargetPath($folderName);
 
             if (File::isDirectory($targetPath)) {
                 // Module already exists locally, skip download

@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class AiContentController extends Controller
 {
@@ -142,7 +143,8 @@ class AiContentController extends Controller
             'excerpt' => 'nullable|string|max:5000',
             'slug' => 'nullable|string|max:200',
             'post_type' => 'nullable|string|max:50',
-            'provider' => 'nullable|string|in:openai,claude,gemini,ollama',
+            // Only providers that are actually configured (an unset Ollama URL would fall back to a default host).
+            'provider' => ['nullable', 'string', Rule::in(array_keys($this->aiService->getAvailableProviders()))],
         ]);
 
         if ($validator->fails()) {
