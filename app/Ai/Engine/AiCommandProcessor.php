@@ -378,7 +378,7 @@ PROMPT;
 
         // Validate configuration
         if ($provider === 'ollama') {
-            if (empty($ollamaBaseUrl)) {
+            if (empty($ollamaBaseUrl) || ! app(\App\Support\Security\OllamaUrlValidator::class)->isValid($ollamaBaseUrl)) {
                 return null;
             }
         } elseif (empty($apiKey)) {
@@ -431,7 +431,7 @@ PROMPT;
                     ],
                 ]
             ),
-            'ollama' => \Illuminate\Support\Facades\Http::timeout(60)->post(
+            'ollama' => \Illuminate\Support\Facades\Http::timeout(60)->withoutRedirecting()->post(
                 rtrim($ollamaBaseUrl, '/') . '/api/chat',
                 [
                     'model' => $ollamaModel,

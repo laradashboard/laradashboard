@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use App\Exceptions\ModuleException;
+use App\Services\Modules\MarketplaceService;
 use App\Services\Modules\ModuleService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 /**
@@ -103,6 +105,27 @@ test('the module name fallback cannot steer the install outside modules/', funct
     expect($error)->toBeInstanceOf(ModuleException::class)
         ->and(File::isDirectory(public_path($this->marker)))->toBeFalse();
 });
+
+test('marketplace installs cannot steer the install outside modules/', function (array $files) {
+    config(['laradashboard.marketplace.url' => 'https://marketplace.test']);
+    $zip = traversalZip($this->workDir, $files);
+    Http::fake(['marketplace.test/*' => Http::response(File::get($zip->getPathname()))]);
+
+    $result = app(MarketplaceService::class)->downloadAndInstall('innocuous-module', '1.0.0');
+
+    expect($result['success'])->toBeFalse()
+        ->and(File::isDirectory(public_path($this->marker)))->toBeFalse();
+})->with([
+    'module.json providers' => fn () => [
+        'module.json' => json_encode(['name' => 'innocuous-module', 'providers' => ['Modules\\../public/'.$this->marker.'\\P']], JSON_UNESCAPED_SLASHES),
+        'marker.php' => '<?php // inert marker',
+    ],
+    'composer.json psr-4' => fn () => [
+        'module.json' => json_encode(['name' => 'innocuous-module']),
+        'composer.json' => json_encode(['autoload' => ['psr-4' => ['Modules\\../public/'.$this->marker.'\\' => 'app/']]], JSON_UNESCAPED_SLASHES),
+        'marker.php' => '<?php // inert marker',
+    ],
+]);
 
 test('rejected uploads leave no extracted files behind', function () {
     $before = File::isDirectory(storage_path('app/modules_temp'))

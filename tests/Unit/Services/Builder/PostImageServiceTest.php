@@ -48,12 +48,14 @@ test('post image service generates and stores images when configured', function 
 
     $aiService = Mockery::mock(AiContentGeneratorService::class);
     $aiService->shouldReceive('canGenerateImages')->andReturnTrue();
+    $result = ['b64_json' => 'aW1hZ2U=', 'url' => null, 'format' => 'webp', 'revised_prompt' => 'Remote work tips'];
     $aiService->shouldReceive('generateImage')
         ->once()
-        ->andReturn(['url' => 'https://example.com/generated.png']);
-    $aiService->shouldReceive('downloadAndStoreImage')
+        ->with(Mockery::type('string'), '1536x1024')
+        ->andReturn($result);
+    $aiService->shouldReceive('storeGeneratedImage')
         ->once()
-        ->with('https://example.com/generated.png')
+        ->with($result)
         ->andReturn('/uploads/posts/generated.png');
 
     $service = new PostImageService($aiService, $this->blockService);

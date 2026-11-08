@@ -492,6 +492,22 @@ abstract class Datatable extends Component
 
     public function render(): Renderable
     {
+        return view('backend.livewire.datatable.datatable', $this->datatableViewData());
+    }
+
+    /**
+     * Everything the shared datatable view needs.
+     *
+     * Subclasses that override render() should pass this through instead of building the
+     * variable list themselves, so new view variables (like column visibility) keep working:
+     *
+     *     return view('backend.livewire.datatable.datatable', $this->datatableViewData(['data' => $data]));
+     *
+     * @param  array<string, mixed>  $overrides  Values to replace, e.g. pre-fetched 'data'.
+     * @return array<string, mixed>
+     */
+    protected function datatableViewData(array $overrides = []): array
+    {
         $this->filters = $this->getFilters();
         $this->headers = $this->getHeaders();
 
@@ -499,13 +515,13 @@ abstract class Datatable extends Component
             $this->visibleColumnIds = $this->getColumnIds();
         }
 
-        return view('backend.livewire.datatable.datatable', [
+        return array_merge([
             'visibleHeaders' => $this->getVisibleHeaders(),
             'columnVisibilityHeaders' => $this->headers,
-            'data' => $this->getData(),
+            'data' => array_key_exists('data', $overrides) ? null : $this->getData(),
             'perPage' => $this->perPage,
             'perPageOptions' => $this->perPageOptions,
-        ]);
+        ], $overrides);
     }
 
     public function renderIdCell($item): string

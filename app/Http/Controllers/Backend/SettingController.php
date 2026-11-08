@@ -8,6 +8,7 @@ use App\Enums\ActionType;
 use App\Enums\Hooks\SettingFilterHook;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Rules\SafeOllamaBaseUrl;
 use App\Services\CacheService;
 use App\Services\EnvWriter;
 use App\Services\ImageService;
@@ -71,6 +72,12 @@ class SettingController extends Controller
             $fields = $request->except($restrictedFields);
         } else {
             $fields = $request->all();
+        }
+
+        if (array_key_exists('ai_ollama_base_url', $fields)) {
+            $request->validate([
+                'ai_ollama_base_url' => ['nullable', 'string', 'max:255', new SafeOllamaBaseUrl($request->user())],
+            ]);
         }
 
         // Validate custom login route if provided

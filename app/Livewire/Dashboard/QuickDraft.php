@@ -21,8 +21,17 @@ class QuickDraft extends Component
 
     public bool $showSuccess = false;
 
+    public function mount(): void
+    {
+        $this->authorize('create', Post::class);
+    }
+
     public function save(): void
     {
+        // Checked on every save, not only when the widget renders: Livewire actions are
+        // plain HTTP requests anyone logged in can send.
+        $this->authorize('create', Post::class);
+
         $this->validate();
 
         $blockService = app(BlockService::class);

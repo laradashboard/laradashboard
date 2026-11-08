@@ -47,13 +47,13 @@ class PostImageService
                 ? ($suggestion['alt'] ?? $prompt)
                 : $prompt;
 
-            $result = $this->aiService->generateImage($prompt, '1792x1024');
+            $result = $this->aiService->generateImage($prompt, '1536x1024');
 
-            if ($result === null || empty($result['url'])) {
+            if ($result === null) {
                 continue;
             }
 
-            $localUrl = $this->aiService->downloadAndStoreImage($result['url']);
+            $localUrl = $this->aiService->storeGeneratedImage($result);
 
             if ($localUrl) {
                 $images[] = [

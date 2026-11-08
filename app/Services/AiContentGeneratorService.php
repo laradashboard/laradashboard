@@ -7,6 +7,7 @@ namespace App\Services;
 use Exception;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use App\Support\Security\OllamaUrlValidator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -366,9 +367,10 @@ Rules:
     private function sendOllamaRequest(string $systemPrompt, string $userPrompt): Response
     {
         $model = config('settings.ai_ollama_model') ?: config('ai.ollama.model', 'llama3.2');
-        $baseUrl = rtrim($this->baseUrl, '/');
+        $baseUrl = $this->safeOllamaBaseUrl();
 
         return Http::timeout(120)
+            ->withoutRedirecting()
             ->post(
                 "{$baseUrl}/api/chat",
                 [
@@ -719,11 +721,29 @@ IMPORTANT RULES:
     }
 
     /**
-     * Generate an image using AI (OpenAI DALL-E)
+     * Image sizes accepted by OpenAI's GPT Image models.
+     */
+    public const IMAGE_SIZES = ['1024x1024', '1536x1024', '1024x1536', 'auto'];
+
+    /**
+     * Older DALL-E sizes mapped to the closest GPT Image size.
+     */
+    private const LEGACY_IMAGE_SIZES = [
+        '1792x1024' => '1536x1024',
+        '1024x1792' => '1024x1536',
+        '512x512' => '1024x1024',
+        '256x256' => '1024x1024',
+    ];
+
+    /**
+     * Generate an image with OpenAI's image model (gpt-image-2.5-flare by default).
+     *
+     * GPT Image models return the image as base64 (`b64_json`); pass the result to
+     * storeGeneratedImage() to save it, whichever form the provider returns.
      *
      * @param  string  $prompt  Description of the image to generate
-     * @param  string  $size  Image size (1024x1024, 1792x1024, 1024x1792)
-     * @return array{url: string, revised_prompt: string}|null
+     * @param  string  $size  1024x1024, 1536x1024 (landscape), 1024x1536 (portrait) or auto; DALL-E sizes are mapped
+     * @return array{b64_json: string|null, url: string|null, format: string, revised_prompt: string}|null
      */
     public function generateImage(string $prompt, string $size = '1024x1024'): ?array
     {
@@ -736,21 +756,25 @@ IMPORTANT RULES:
             return null;
         }
 
+        $format = 'webp';
+
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $apiKey,
                 'Content-Type' => 'application/json',
             ])->timeout(120)
                 ->post('https://api.openai.com/v1/images/generations', [
-                    'model' => 'dall-e-3',
+                    'model' => $this->getImageModel(),
                     'prompt' => $prompt,
                     'n' => 1,
-                    'size' => $size,
-                    'quality' => 'standard',
+                    'size' => $this->normalizeImageSize($size),
+                    'quality' => 'medium',
+                    'output_format' => $format,
                 ]);
 
             if (! $response->successful()) {
                 Log::error('Image generation failed', [
+                    'model' => $this->getImageModel(),
                     'status' => $response->status(),
                     'error' => $response->json(),
                 ]);
@@ -758,11 +782,21 @@ IMPORTANT RULES:
                 return null;
             }
 
-            $data = $response->json();
+            $image = $response->json('data.0') ?? [];
+            $b64 = $image['b64_json'] ?? null;
+            $url = $image['url'] ?? null;
+
+            if (empty($b64) && empty($url)) {
+                Log::error('Image generation returned no image', ['model' => $this->getImageModel()]);
+
+                return null;
+            }
 
             return [
-                'url' => $data['data'][0]['url'] ?? null,
-                'revised_prompt' => $data['data'][0]['revised_prompt'] ?? $prompt,
+                'b64_json' => $b64 ?: null,
+                'url' => $url ?: null,
+                'format' => $format,
+                'revised_prompt' => $image['revised_prompt'] ?? $prompt,
             ];
         } catch (Exception $e) {
             Log::error('Image generation error', [
@@ -775,9 +809,63 @@ IMPORTANT RULES:
     }
 
     /**
+     * The OpenAI image model: admin setting first, then config/ai.php.
+     */
+    public function getImageModel(): string
+    {
+        return config('settings.ai_openai_image_model') ?: config('ai.openai.image_model', 'gpt-image-2.5-flare');
+    }
+
+    /**
+     * Map a requested size to one the image model accepts.
+     */
+    public function normalizeImageSize(string $size): string
+    {
+        if (in_array($size, self::IMAGE_SIZES, true)) {
+            return $size;
+        }
+
+        return self::LEGACY_IMAGE_SIZES[$size] ?? '1024x1024';
+    }
+
+    /**
+     * Save a generateImage() result to public storage, from base64 or a URL.
+     *
+     * @param  array{b64_json?: string|null, url?: string|null, format?: string}  $result
+     * @param  string  $storagePath  Path relative to storage/app/public
+     * @return string|null The public URL of the stored image
+     */
+    public function storeGeneratedImage(array $result, string $storagePath = 'posts/images'): ?string
+    {
+        if (! empty($result['b64_json'])) {
+            $bytes = base64_decode($result['b64_json'], true);
+
+            // Only store real image bytes.
+            if ($bytes === false || @getimagesizefromstring($bytes) === false) {
+                Log::error('Generated image could not be decoded');
+
+                return null;
+            }
+
+            $extension = in_array($result['format'] ?? '', ['png', 'jpeg', 'webp'], true) ? $result['format'] : 'png';
+            $fullPath = $storagePath . '/ai_' . uniqid() . '.' . ($extension === 'jpeg' ? 'jpg' : $extension);
+
+            \Illuminate\Support\Facades\Storage::disk('public')->put($fullPath, $bytes);
+
+            return asset('storage/' . $fullPath);
+        }
+
+        if (! empty($result['url'])) {
+            return $this->downloadAndStoreImage($result['url'], $storagePath);
+        }
+
+        return null;
+    }
+
+    /**
      * Download an image from URL and store it locally
      *
-     * @param  string  $imageUrl  The temporary URL from DALL-E
+     * @param  string  $imageUrl  A temporary image URL returned by an image provider
      * @param  string  $storagePath  Path relative to storage/app/public
      * @return string|null  The public URL of the stored image
      */
@@ -977,14 +1065,33 @@ IMPORTANT RULES:
     }
 
     /**
+     * The configured Ollama base URL, refused when it points somewhere the server
+     * must not send requests (cloud metadata, a path on another service, ...).
+     *
+     * @throws Exception
+     */
+    private function safeOllamaBaseUrl(): string
+    {
+        $baseUrl = (string) $this->baseUrl;
+
+        if ($error = app(OllamaUrlValidator::class)->validate($baseUrl)) {
+            Log::warning('Ollama request blocked: unsafe base URL', ['error' => $error]);
+
+            throw new Exception($error);
+        }
+
+        return rtrim($baseUrl, '/');
+    }
+
+    /**
      * @param  array<int, array{role: string, content: string}>  $messages
      */
     private function sendOllamaChatRequest(array $messages, float $temperature, int $maxTokens): Response
     {
         $model = config('settings.ai_ollama_model') ?: config('ai.ollama.model', 'llama3.2');
-        $baseUrl = rtrim((string) $this->baseUrl, '/');
+        $baseUrl = $this->safeOllamaBaseUrl();
 
-        return Http::timeout(120)->post("{$baseUrl}/api/chat", [
+        return Http::timeout(120)->withoutRedirecting()->post("{$baseUrl}/api/chat", [
             'model' => $model,
             'messages' => $messages,
             'stream' => false,

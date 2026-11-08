@@ -1,10 +1,11 @@
+{{-- Subclasses that override render() should pass datatableViewData(); the ?? fallbacks keep older overrides working. --}}
 <x-datatable
     :searchbarPlaceholder="$searchbarPlaceholder"
     :filters="$filters"
     :customFilters="$customFilters"
     :perPage="$perPage"
     :perPageOptions="$perPageOptions"
-    :headers="$visibleHeaders"
+    :headers="$visibleHeaders ?? $headers"
     :enableCheckbox="$enableCheckbox"
     :enableBulkActions="$enableBulkActions"
     :enableNewResourceLink="$showCreateButton"
@@ -18,7 +19,7 @@
     :newResourceLinkLabel="$newResourceLinkLabel"
     :enableColumnVisibility="$this->usesColumnVisibility()"
     :enableUnifiedScroll="$this->usesUnifiedPageScroll()"
-    :columnVisibilityHeaders="$columnVisibilityHeaders"
+    :columnVisibilityHeaders="$columnVisibilityHeaders ?? $headers"
     :visibleColumnIds="$this->visibleColumnIds"
     :columnVisibilityStorageKey="$this->getColumnVisibilityStorageKey()"
 />

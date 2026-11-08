@@ -141,7 +141,15 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.5.1](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.1) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.5.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.2) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.5.2] — 2026-11-08**
+-   **Fix (Security):** Ollama base URL is validated and Superadmin-only, closing an SSRF via `generate-seo` (GHSA-47pj-m4xp-74g5).
+-   **Fix (Security):** Secret settings (API keys, passwords, client secrets) are masked in the action log, including existing entries (GHSA-29v7-6x3j-r97q). Rotate secrets saved before this release.
+-   **Fix (Security):** Dashboard Quick Draft requires `post.create` (GHSA-p4mj-68rh-c24q).
+-   **Fix:** AI image generation works again after DALL-E 3's retirement; defaults to `gpt-image-2.5-flare`.
+-   **Fix:** Older datatable `render()` overrides no longer throw `Undefined variable $visibleHeaders`.
+-   **Fix:** LaraBuilder video block embeds YouTube, Vimeo and Dailymotion players on published pages.
 
 **[v1.5.1] — 2026-11-05**
 -   **Fix (Security):** Passwords are capped at 72 characters (bcrypt's limit) on registration, reset, profile and user forms; login accepts up to 255 so existing accounts still work.
