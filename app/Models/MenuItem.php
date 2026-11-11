@@ -99,7 +99,7 @@ class MenuItem extends Model
             'category' => $this->getCategoryUrl(),
             'tag' => $this->getTagUrl(),
             'route' => $this->getRouteUrl(),
-            'custom' => $this->target ?? '#',
+            'custom' => MenuTargetSanitizer::sanitize($this->target),
             default => '#',
         };
     }
