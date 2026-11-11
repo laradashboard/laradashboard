@@ -6,13 +6,11 @@ namespace App\Livewire\Admin\Menus;
 
 use App\Models\Menu;
 use App\Models\MenuItem;
+use App\Rules\SafeMenuTargetUrl;
 use App\Services\MenuService;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use App\Models\MenuItem;
-use App\Rules\SafeMenuTargetUrl;
-use App\Services\MenuService;
 
 class Builder extends Component
 {
@@ -62,7 +60,7 @@ protected function rules(): array
     return [
         'label' => 'required|string|max:255',
         'type' => 'required|in:page,post,category,tag,custom,route',
-        'target' => ['nullable', 'string', 'max:255', new SafeMenuTargetUrl],
+        'target' => ['nullable', 'string', 'max:255', new SafeMenuTargetUrl()],
         'targetBlank' => 'boolean',
         'icon' => 'nullable|string|max:100',
         'cssClasses' => 'nullable|string|max:255',
