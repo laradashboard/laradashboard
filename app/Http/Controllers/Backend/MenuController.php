@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Backend;
 
+use App\Models\MenuItem;
+use App\Rules\SafeMenuTargetUrl;
+use App\Services\MenuService;
 use App\Http\Controllers\Controller;
 use App\Models\Menu;
 use App\Models\MenuItem;
