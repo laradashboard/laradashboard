@@ -5,6 +5,11 @@ All notable changes to **Lara Dashboard** are documented in this file. This proj
 > **Latest release:** [v1.5.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.2) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+## [Unreleased]
+
+### Security
+
+- **Fix:** Stored XSS via `javascript:` URI in a custom menu item's target (GHSA-883p-xm36-3p99). `MenuItem::getUrl()` returned a "custom" type item's `target` unchanged, and the public navigation rendered it straight into an `href`; Blade's `{{ }}` only HTML-entity-escapes, it does not restrict URL schemes. Saving `target = "javascript:alert(document.cookie)"` on a custom menu item therefore produced a live, site-wide stored-XSS payload. The `target` field is now checked against an allowlist of navigable schemes (`http`, `https`, `mailto`, `tel`, `sms`) both at save time (`App\Rules\SafeMenuTargetUrl`, on the AJAX add/update-item endpoints and the menu builder's Livewire form) and when rendered (`App\Support\Security\MenuTargetSanitizer`, used by `MenuItem::getUrl()`), so existing rows are protected too. The scheme check normalizes out the whitespace/tab-splitting tricks browsers use to resolve a URL (e.g. `java\tscript:` or leading spaces before `javascript:`).
 
 ## [v1.5.2] — 2026-11-08
 
