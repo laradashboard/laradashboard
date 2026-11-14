@@ -1,0 +1,20 @@
+[
+  {
+    "file": "digital-technology.mp3",
+    "title": "Digital Technology",
+    "author": "AtlasAudio",
+    "page": "https://pixabay.com/music/corporate-digital-technology-617560/",
+    "url": "https://cdn.pixabay.com/download/audio/2026/10/08/audio_8c0003cff3.mp3",
+    "licence": "Pixabay Content License",
+    "contentId": false
+  },
+  {
+    "file": "corporate-ambient.mp3",
+    "title": "Corporate Ambient",
+    "author": "AtlasAudio",
+    "page": "https://pixabay.com/music/corporate-corporate-ambient-625699/",
+    "url": "https://cdn.pixabay.com/download/audio/2026/10/23/audio_f62c992948.mp3",
+    "licence": "Pixabay Content License",
+    "contentId": false
+  }
+]

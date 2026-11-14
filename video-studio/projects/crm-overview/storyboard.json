@@ -1,0 +1,299 @@
+{
+  "title": "LaraDashboard CRM in 60 Seconds",
+  "category": "overview",
+  "brand": {
+    "product": "CRM"
+  },
+  "transition": "fade",
+  "transitionDuration": 0.6,
+  "music": "@library/digital-technology.mp3",
+  "scenes": [
+    {
+      "type": "title",
+      "duration": 5.0,
+      "kicker": "LaraDashboard CRM",
+      "title": "Run your whole business from *one dashboard.*",
+      "chips": [
+        "Contacts",
+        "Deals",
+        "Helpdesk",
+        "Campaigns",
+        "Automation"
+      ],
+      "hero": [
+        {
+          "src": "clips/dashboard.mp4",
+          "at": 0.5
+        },
+        {
+          "src": "clips/deals.mp4",
+          "at": 0.5
+        },
+        {
+          "src": "clips/workflow.mp4",
+          "at": 1
+        }
+      ],
+      "transition": "zoom",
+      "vo": "Meet LaraDashboard CRM. Your whole business, in one dashboard.",
+      "voFile": "vo/00-c6fbc2a2.mp3",
+      "voDuration": 4.02
+    },
+    {
+      "type": "screen",
+      "chapter": "Dashboard",
+      "src": "clips/dashboard.mp4",
+      "size": [
+        1440,
+        900
+      ],
+      "trim": [
+        0.2,
+        13.18
+      ],
+      "url": "app.laradashboard.com/admin/crm/dashboard",
+      "vo": "Start every morning with deals won, revenue, open tickets and today's tasks, all at a glance.",
+      "voFile": "vo/01-29a0b4da.mp3",
+      "voDuration": 6.71
+    },
+    {
+      "type": "features",
+      "duration": 6.9,
+      "kicker": "Everything in one place",
+      "title": "Built for *growing teams*",
+      "items": [
+        {
+          "icon": "users",
+          "title": "Contacts",
+          "desc": "Types, groups, tags, custom fields"
+        },
+        {
+          "icon": "kanban",
+          "title": "Deal pipelines",
+          "desc": "Drag-and-drop stages"
+        },
+        {
+          "icon": "ticket",
+          "title": "Helpdesk",
+          "desc": "Replies, notes and SLAs"
+        },
+        {
+          "icon": "mail",
+          "title": "Email campaigns",
+          "desc": "Send, track, measure"
+        },
+        {
+          "icon": "workflow",
+          "title": "Workflows",
+          "desc": "Automation with AI agents"
+        },
+        {
+          "icon": "chart",
+          "title": "Reports",
+          "desc": "Funnel, revenue, team"
+        }
+      ],
+      "transition": "zoom",
+      "vo": "Contacts, pipelines, helpdesk, campaigns, workflows and reports. All built in.",
+      "voFile": "vo/02-30b78fb5.mp3",
+      "voDuration": 5.93
+    },
+    {
+      "type": "screen",
+      "chapter": "Contacts",
+      "src": "clips/contacts.mp4",
+      "size": [
+        1440,
+        900
+      ],
+      "trim": [
+        0.2,
+        8.09
+      ],
+      "layout": "split-left",
+      "url": "app.laradashboard.com/admin/crm/contacts",
+      "headline": {
+        "kicker": "Contacts",
+        "title": "Every customer. *One place.*",
+        "body": "Lead status, groups, tags and custom fields - filter in a click."
+      },
+      "vo": "Keep every customer in one place, and filter by type, status or group in a click.",
+      "voFile": "vo/03-5cb81dd3.mp3",
+      "voDuration": 5.38
+    },
+    {
+      "type": "screen",
+      "chapter": "Pipeline",
+      "src": "clips/deals.mp4",
+      "size": [
+        1440,
+        900
+      ],
+      "trim": [
+        0.3,
+        6.7
+      ],
+      "url": "app.laradashboard.com/admin/crm/deals",
+      "caption": "Drag a deal to the next stage - totals update instantly",
+      "vo": "Drag a deal to its next stage, and your pipeline totals update instantly.",
+      "voFile": "vo/04-f729f877.mp3",
+      "voDuration": 4.83
+    },
+    {
+      "type": "screen",
+      "chapter": "Helpdesk",
+      "src": "clips/ticket.mp4",
+      "size": [
+        1440,
+        900
+      ],
+      "trim": [
+        0.2,
+        8.21
+      ],
+      "layout": "split-right",
+      "url": "app.laradashboard.com/admin/crm/tickets/11",
+      "headline": {
+        "kicker": "Helpdesk",
+        "title": "Support, *built in.*",
+        "body": "Customer replies, internal notes and SLAs in one conversation."
+      },
+      "transition": "zoom",
+      "vo": "Answer support tickets with replies and internal notes, right next to the conversation.",
+      "voFile": "vo/05-fa46f4cc.mp3",
+      "voDuration": 4.68
+    },
+    {
+      "type": "diagram",
+      "chapter": "Automation",
+      "duration": 4.2,
+      "title": "Automate the follow-up",
+      "nodes": [
+        {
+          "id": "t",
+          "label": "New contact",
+          "icon": "users",
+          "sub": "Trigger"
+        },
+        {
+          "id": "w",
+          "label": "Wait 10 min",
+          "icon": "bell",
+          "sub": "Delay"
+        },
+        {
+          "id": "e",
+          "label": "Welcome email",
+          "icon": "mail",
+          "sub": "Action"
+        },
+        {
+          "id": "a",
+          "label": "AI scores lead",
+          "icon": "sparkles",
+          "sub": "AI agent"
+        }
+      ],
+      "check": "a",
+      "vo": "Then, automate the follow-up.",
+      "voFile": "vo/06-a1502bf3.mp3",
+      "voDuration": 1.7
+    },
+    {
+      "type": "screen",
+      "chapter": "Automation",
+      "src": "clips/workflow.mp4",
+      "size": [
+        1440,
+        900
+      ],
+      "trim": [
+        0.4,
+        10.85
+      ],
+      "url": "app.laradashboard.com/admin/crm/workflows",
+      "maxZoom": 1.6,
+      "vo": "Build workflows visually. A trigger, a short wait, a welcome email, and an AI agent that scores the lead.",
+      "voFile": "vo/07-b366331c.mp3",
+      "voDuration": 8.54
+    },
+    {
+      "type": "screen",
+      "chapter": "Campaigns",
+      "src": "clips/analytics.mp4",
+      "size": [
+        1440,
+        900
+      ],
+      "trim": [
+        0.2,
+        5.72
+      ],
+      "layout": "split-left",
+      "url": "app.laradashboard.com/admin/crm/email-campaigns",
+      "headline": {
+        "kicker": "Email campaigns",
+        "title": "Campaigns you can *measure.*",
+        "body": "Opens, clicks, replies and deliverability for every send."
+      },
+      "vo": "Send email campaigns, and see exactly who opened, clicked and replied.",
+      "voFile": "vo/08-c5bf59aa.mp3",
+      "voDuration": 4.13
+    },
+    {
+      "type": "screen",
+      "chapter": "Reports",
+      "src": "clips/reports.mp4",
+      "size": [
+        1440,
+        900
+      ],
+      "trim": [
+        0.2,
+        6.35
+      ],
+      "url": "app.laradashboard.com/admin/crm/reports",
+      "vo": "And track it all with reports on your funnel, revenue and team.",
+      "voFile": "vo/09-4728bbb6.mp3",
+      "voDuration": 3.53
+    },
+    {
+      "type": "end",
+      "duration": 6.7,
+      "kicker": "Open source \u00b7 Self-hosted \u00b7 Built on Laravel",
+      "title": "Where to go next",
+      "cards": [
+        {
+          "icon": "play",
+          "title": "Try it",
+          "lines": [
+            "Install LaraDashboard",
+            "Enable the CRM module"
+          ],
+          "cta": "Get started"
+        },
+        {
+          "icon": "book",
+          "title": "Docs",
+          "lines": [
+            "Contacts & deals",
+            "Workflows & AI"
+          ],
+          "cta": "Read the guide"
+        },
+        {
+          "icon": "message",
+          "title": "Community",
+          "lines": [
+            "Ask questions",
+            "Share feedback"
+          ],
+          "cta": "Join us"
+        }
+      ],
+      "vo": "LaraDashboard CRM. Open source, self-hosted, and built on Laravel.",
+      "voFile": "vo/10-8f0f788e.mp3",
+      "voDuration": 5.75
+    }
+  ]
+}

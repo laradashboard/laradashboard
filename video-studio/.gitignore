@@ -1,0 +1,12 @@
+node_modules/
+out/
+projects/*/clips/*_frames/
+projects/*/.auth.json
+projects/*/qa/
+.env
+projects/*/.library/
+# Licensed music: the Pixabay licence forbids redistributing tracks as files. Restore with `npm run music`.
+assets/music/*.mp3
+# Generated media (re-create with scripts/record.mjs and scripts/voiceover.mjs)
+projects/*/clips/
+projects/*/vo/

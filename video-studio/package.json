@@ -1,0 +1,29 @@
+{
+  "name": "laradashboard-video-studio",
+  "private": true,
+  "type": "module",
+  "description": "Motion-design kit for LaraDashboard product videos (Remotion + Playwright).",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "record": "node scripts/record.mjs",
+    "voice": "node scripts/voiceover.mjs",
+    "render": "node scripts/render.mjs",
+    "qa": "node scripts/qa.mjs",
+    "typecheck": "tsc --noEmit",
+    "music": "node scripts/fetch-music.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.535",
+    "@remotion/cli": "4.0.535",
+    "@remotion/renderer": "4.0.535",
+    "@remotion/transitions": "4.0.535",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.535"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "playwright": "1.60.0",
+    "typescript": "5.6.3"
+  }
+}
