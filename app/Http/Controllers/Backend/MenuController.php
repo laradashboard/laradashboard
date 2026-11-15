@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Menu;
 use App\Models\MenuItem;
+use App\Rules\SafeMenuTargetUrl;
 use App\Services\MenuService;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\JsonResponse;
@@ -164,7 +165,7 @@ class MenuController extends Controller
             'parent_id' => 'nullable|exists:menu_items,id',
             'label' => 'required|string|max:255',
             'type' => 'required|in:page,post,category,tag,custom,route',
-            'target' => 'nullable|string|max:255',
+            'target' => ['nullable', 'string', 'max:255', new SafeMenuTargetUrl()],
             'target_blank' => 'boolean',
             'icon' => 'nullable|string|max:100',
             'css_classes' => 'nullable|string|max:255',
@@ -193,7 +194,7 @@ class MenuController extends Controller
             'parent_id' => 'nullable|exists:menu_items,id',
             'label' => 'required|string|max:255',
             'type' => 'required|in:page,post,category,tag,custom,route',
-            'target' => 'nullable|string|max:255',
+            'target' => ['nullable', 'string', 'max:255', new SafeMenuTargetUrl()],
             'target_blank' => 'boolean',
             'icon' => 'nullable|string|max:100',
             'css_classes' => 'nullable|string|max:255',
