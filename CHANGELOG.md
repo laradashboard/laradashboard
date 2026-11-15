@@ -6,6 +6,12 @@ All notable changes to **Lara Dashboard** are documented in this file. This proj
 
 ---
 
+## [Unreleased]
+
+### Security
+
+- **Fix:** Stored XSS through a custom menu item's link (GHSA-883p-xm36-3p99). A `javascript:` target was rendered straight into the public navigation's `href`. Menu item targets now only accept `http`, `https`, `mailto`, `tel` and `sms` links (or relative ones), checked when saving and again when rendering, so existing items are protected too.
+
 ## [v1.5.2] — 2026-11-08
 
 ### Security
