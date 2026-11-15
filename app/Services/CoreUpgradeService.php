@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Setting;
+use App\Support\PhpBinaryResolver;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -728,7 +729,7 @@ class CoreUpgradeService
     protected function runArtisanInSubprocess(array $arguments, int $timeout = 600): void
     {
         $process = new Process(
-            array_merge([PHP_BINARY, base_path('artisan')], $arguments),
+            array_merge([app(PhpBinaryResolver::class)->resolve(), base_path('artisan')], $arguments),
             base_path()
         );
         $process->setTimeout($timeout);

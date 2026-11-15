@@ -2697,6 +2697,7 @@
     "Text transform": "Teksttransformation",
     "Textarea": "Textarea",
     "Thank you for creating an account with us. We're excited to have you on board!": "Thank you for creating an account with us. We're excited to have you on board!",
+    "The :attribute must be a valid link (http, https, mailto, tel or sms), not a script URL.": "The :attribute must be a valid link (http, https, mailto, tel or sms), not a script URL.",
     "The AI provider returned an empty reply.": "The AI provider returned an empty reply.",
     "The Ollama base URL is not a valid URL.": "The Ollama base URL is not a valid URL.",
     "The Ollama base URL must be the server address only, such as http://localhost:11434, without a path.": "The Ollama base URL must be the server address only, such as http://localhost:11434, without a path.",

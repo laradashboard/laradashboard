@@ -304,3 +304,78 @@ test('social login callback is rate limited', function () {
 
     $this->get('/auth/google/callback')->assertStatus(429);
 });
+
+/**
+ * A Socialite user for calling SocialAuthService directly.
+ */
+function socialiteUser(string $id, string $email, string $name = 'Jane Doe'): SocialiteUser
+{
+    $socialiteUser = Mockery::mock(SocialiteUser::class);
+    $socialiteUser->shouldReceive('getId')->andReturn($id);
+    $socialiteUser->shouldReceive('getEmail')->andReturn($email);
+    $socialiteUser->shouldReceive('getName')->andReturn($name);
+    $socialiteUser->shouldReceive('getNickname')->andReturn(null);
+    $socialiteUser->shouldReceive('getAvatar')->andReturn(null);
+    $socialiteUser->user = ['email_verified' => true];
+    $socialiteUser->token = 'token';
+    $socialiteUser->refreshToken = null;
+    $socialiteUser->expiresIn = 3600;
+
+    return $socialiteUser;
+}
+
+// GHSA-w29c-wmgq-hfrc: social sign-up must respect the registration form's protections.
+test('social sign-up respects the per-ip daily registration cap', function () {
+    config([
+        'settings.auth_enable_public_registration' => '1',
+        'settings.'.Setting::AUTH_REGISTRATION_IP_LIMIT_ENABLED => '1',
+        'settings.'.Setting::AUTH_REGISTRATION_MAX_PER_IP_PER_DAY => 3,
+    ]);
+    $service = app(SocialAuthService::class);
+
+    foreach (range(1, 3) as $i) {
+        $service->findOrCreateUser('google', socialiteUser("cap-{$i}", "cap{$i}@example.com"));
+    }
+
+    expect(fn () => $service->findOrCreateUser('google', socialiteUser('cap-4', 'cap4@example.com')))
+        ->toThrow(RuntimeException::class);
+    expect(User::where('email', 'cap4@example.com')->exists())->toBeFalse()
+        ->and(User::where('email', 'like', 'cap%@example.com')->count())->toBe(3);
+
+    // Returning social users still sign in once the cap is reached.
+    expect($service->findOrCreateUser('google', socialiteUser('cap-1', 'cap1@example.com'))->email)
+        ->toBe('cap1@example.com');
+});
+
+test('social sign-up rejects spam names without using an ip slot', function () {
+    config([
+        'settings.auth_enable_public_registration' => '1',
+        'settings.'.Setting::AUTH_REGISTRATION_IP_LIMIT_ENABLED => '1',
+        'settings.'.Setting::AUTH_REGISTRATION_MAX_PER_IP_PER_DAY => 1,
+    ]);
+    $service = app(SocialAuthService::class);
+
+    expect(fn () => $service->findOrCreateUser('google', socialiteUser('spam-1', 'spam@example.com', 'Claim +0.75 BTC www.graph.org')))
+        ->toThrow(RuntimeException::class);
+    expect(User::where('email', 'spam@example.com')->exists())->toBeFalse();
+
+    expect($service->findOrCreateUser('google', socialiteUser('real-1', 'real@example.com'))->email)
+        ->toBe('real@example.com');
+});
+
+test('social sign-up through the callback is blocked once the ip cap is reached', function () {
+    Setting::create(['option_name' => 'auth_enable_public_registration', 'option_value' => '1']);
+    config([
+        'settings.auth_enable_public_registration' => '1',
+        'settings.'.Setting::AUTH_REGISTRATION_IP_LIMIT_ENABLED => '1',
+        'settings.'.Setting::AUTH_REGISTRATION_MAX_PER_IP_PER_DAY => 1,
+    ]);
+    app(SocialAuthService::class)->findOrCreateUser('google', socialiteUser('first-1', 'first@example.com'));
+
+    fakeGoogleCallbackUser('second-1', 'second@example.com', ['email_verified' => true]);
+
+    $this->get('/auth/google/callback')->assertRedirect('/login');
+
+    $this->assertGuest();
+    expect(User::where('email', 'second@example.com')->exists())->toBeFalse();
+});

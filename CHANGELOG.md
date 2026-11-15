@@ -2,15 +2,25 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.5.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.2) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.5.3](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.3) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
 
-## [Unreleased]
+## [v1.5.3] — 2026-11-15
 
 ### Security
 
-- **Fix:** Stored XSS through a custom menu item's link (GHSA-883p-xm36-3p99). A `javascript:` target was rendered straight into the public navigation's `href`. Menu item targets now only accept `http`, `https`, `mailto`, `tel` and `sms` links (or relative ones), checked when saving and again when rendering, so existing items are protected too.
+- **Fix:** Stored XSS through a custom menu item's link (GHSA-883p-xm36-3p99). A `javascript:` target was rendered straight into the public navigation's `href`. Menu item targets now only accept `http`, `https`, `mailto`, `tel` and `sms` links (or relative ones), checked when saving and again when rendering, so existing items are protected too. Invisible control characters in front of the scheme (e.g. `\x0Cjavascript:`) are stripped before the check, the same way browsers read the link.
+- **Fix:** Social login sign-ups now get the same protections as the registration form (GHSA-w29c-wmgq-hfrc). New accounts created through Google, GitHub and the other providers count toward the per-IP daily registration limit and go through the spam-name and email checks; returning social users are not affected. Before, social sign-up skipped all of these.
+- **Fix:** The Ollama base URL check now recognises cloud metadata addresses written as IPv6 in any notation (GHSA-7447-x4w9-pc4p). `::ffff:a9fe:a9fe`, `0:0:0:0:0:ffff:a9fe:a9fe`, `::a9fe:a9fe` and `64:ff9b::a9fe:a9fe` all mean `169.254.169.254` and are now blocked like the dotted form already was.
+
+### Fixed
+
+- **Fix:** Core upgrades and module installs no longer fail on hosts whose default command-line PHP is older than the site's PHP (common on Hostinger and cPanel/CloudLinux). The background `artisan` and `composer dump-autoload` steps now use a PHP binary that matches the web PHP version instead of `PHP_BINARY`. Set `PHP_CLI_BINARY` (for example `/opt/alt/php84/usr/bin/php`) to choose it yourself.
+
+### Chore
+
+- **Chore:** Laravel 13.40.0.
 
 ## [v1.5.2] — 2026-11-08
 

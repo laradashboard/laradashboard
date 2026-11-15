@@ -76,4 +76,19 @@ return [
          */
         'fallback_throttle_minutes' => 60,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | PHP CLI Binary
+    |--------------------------------------------------------------------------
+    |
+    | Absolute path to the PHP CLI binary used for background subprocesses
+    | (core upgrade migrations, composer dump-autoload). Leave empty to
+    | auto-detect a binary matching the web PHP version. Set this on hosts
+    | where the default CLI PHP differs from the site's PHP version, e.g.
+    | PHP_CLI_BINARY=/opt/alt/php84/usr/bin/php
+    |
+    */
+
+    'php_cli_binary' => env('PHP_CLI_BINARY'),
 ];
