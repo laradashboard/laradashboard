@@ -118,10 +118,8 @@ class OllamaUrlValidator
 
     private function isBlockedIp(string $ip): bool
     {
-        // Check IPv4-mapped IPv6 addresses (::ffff:169.254.169.254) as IPv4.
-        if (preg_match('/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/i', $ip, $mapped)) {
-            $ip = $mapped[1];
-        }
+        // Check IPv6 addresses that carry an IPv4 address as that IPv4 address.
+        $ip = $this->embeddedIpv4($ip) ?? $ip;
 
         foreach (self::BLOCKED_RANGES as $range) {
             if ($this->inRange($ip, $range)) {
@@ -134,6 +132,34 @@ class OllamaUrlValidator
         }
 
         return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false;
+    }
+
+    /**
+     * The IPv4 address inside an IPv4-mapped (::ffff:0:0/96), IPv4-compatible (::/96) or
+     * NAT64 (64:ff9b::/96) IPv6 address, in any notation (GHSA-7447-x4w9-pc4p):
+     * ::ffff:169.254.169.254, ::ffff:a9fe:a9fe and 0:0:0:0:0:ffff:a9fe:a9fe are the same host.
+     */
+    private function embeddedIpv4(string $ip): ?string
+    {
+        $bin = @inet_pton($ip);
+
+        if ($bin === false || strlen($bin) !== 16) {
+            return null;
+        }
+
+        $prefix = substr($bin, 0, 12);
+        $embedsIpv4 = $prefix === str_repeat("\0", 10)."\xff\xff"
+            || $prefix === "\0\x64\xff\x9b".str_repeat("\0", 8)
+            // IPv4-compatible, but not :: or ::1 (those stay IPv6).
+            || ($prefix === str_repeat("\0", 12) && ltrim(substr($bin, 12), "\0") !== '' && substr($bin, 12) !== "\0\0\0\x01");
+
+        if (! $embedsIpv4) {
+            return null;
+        }
+
+        $ipv4 = inet_ntop(substr($bin, 12));
+
+        return $ipv4 === false ? null : $ipv4;
     }
 
     private function inRange(string $ip, string $cidr): bool

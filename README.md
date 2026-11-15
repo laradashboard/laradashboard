@@ -145,6 +145,8 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 **[v1.5.3] — 2026-11-15**
 -   **Fix (Security):** Custom menu item links only accept `http`, `https`, `mailto`, `tel`, `sms` or relative URLs, closing a stored XSS in the public navigation (GHSA-883p-xm36-3p99).
+-   **Fix (Security):** Social login sign-ups count toward the per-IP daily registration limit and pass the spam-name and email checks (GHSA-w29c-wmgq-hfrc).
+-   **Fix (Security):** The Ollama base URL check blocks cloud metadata addresses written in any IPv6 notation, e.g. `::ffff:a9fe:a9fe` (GHSA-7447-x4w9-pc4p).
 -   **Fix:** Core upgrades and module installs pick a command-line PHP that matches the site's PHP version; override with `PHP_CLI_BINARY`.
 -   **Chore:** Laravel 13.40.0.
 

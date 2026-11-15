@@ -94,6 +94,14 @@ test('ollama base urls are validated', function (string $url, bool $valid) {
     'zero network' => ['http://0.0.0.0:11434', false],
     'alibaba metadata' => ['http://100.100.100.200', false],
     'ipv6 link-local' => ['http://[fe80::1]:11434', false],
+    // GHSA-7447-x4w9-pc4p: the same metadata host written as IPv6 in other notations.
+    'mapped metadata, hex' => ['http://[::ffff:a9fe:a9fe]', false],
+    'mapped metadata, upper-case hex' => ['http://[::FFFF:A9FE:A9FE]', false],
+    'mapped metadata, expanded' => ['http://[0:0:0:0:0:ffff:a9fe:a9fe]', false],
+    'compatible metadata' => ['http://[::a9fe:a9fe]', false],
+    'nat64 metadata' => ['http://[64:ff9b::a9fe:a9fe]', false],
+    'mapped alibaba metadata, hex' => ['http://[::ffff:6464:64c8]', false],
+    'ipv6 loopback' => ['http://[::1]:11434', true],
     'path' => ['http://localhost:11434/api', false],
     'query' => ['http://localhost:11434?x=1', false],
     'credentials' => ['http://user:pass@localhost:11434', false],
@@ -106,7 +114,9 @@ test('private networks can be blocked for publicly hosted ollama', function () {
     config(['ai.ollama.allow_private_network' => false]);
 
     expect(app(OllamaUrlValidator::class)->isValid('http://127.0.0.1:11434'))->toBeFalse()
-        ->and(app(OllamaUrlValidator::class)->isValid('http://10.0.0.5:11434'))->toBeFalse();
+        ->and(app(OllamaUrlValidator::class)->isValid('http://10.0.0.5:11434'))->toBeFalse()
+        ->and(app(OllamaUrlValidator::class)->isValid('http://[::ffff:7f00:1]:11434'))->toBeFalse()
+        ->and(app(OllamaUrlValidator::class)->isValid('http://[::ffff:a00:5]:11434'))->toBeFalse();
 });
 
 test('only a superadmin can change the ollama base url', function (string $via) {

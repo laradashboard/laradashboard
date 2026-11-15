@@ -173,6 +173,23 @@ class RegistrationGuardService
     }
 
     /**
+     * Spam-name and email checks for sign-ups that skip the registration form, such as
+     * social login (GHSA-w29c-wmgq-hfrc). Returns an error message, or null to continue.
+     */
+    public function validateFormlessSignup(string $name, ?string $email): ?string
+    {
+        if ($this->looksLikeSpamName($name)) {
+            return __('Please enter a valid name.');
+        }
+
+        if ($email !== null && $email !== '') {
+            return $this->emailSubmissionValidator->validate($email);
+        }
+
+        return null;
+    }
+
+    /**
      * Whether the email's domain is a known disposable/throwaway provider.
      */
     public function isDisposableEmailDomain(string $email): bool

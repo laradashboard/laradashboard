@@ -28,8 +28,8 @@ class PhpBinaryResolver
             return static::$resolved = $configured;
         }
 
-        if (PHP_SAPI === 'cli' && PHP_BINARY !== '') {
-            return static::$resolved = PHP_BINARY;
+        if (PHP_SAPI === 'cli' && $this->phpBinary() !== '') {
+            return static::$resolved = $this->phpBinary();
         }
 
         foreach ($this->candidates() as $candidate) {
@@ -38,7 +38,7 @@ class PhpBinaryResolver
             }
         }
 
-        return static::$resolved = (PHP_BINARY !== '' ? PHP_BINARY : 'php');
+        return static::$resolved = ($this->phpBinary() !== '' ? $this->phpBinary() : 'php');
     }
 
     public static function flush(): void
@@ -58,8 +58,8 @@ class PhpBinaryResolver
 
         $candidates = [];
 
-        if (PHP_BINARY !== '') {
-            $dir = dirname(PHP_BINARY);
+        if ($this->phpBinary() !== '') {
+            $dir = dirname($this->phpBinary());
             $candidates[] = $dir.'/php';
             $candidates[] = $dir.'/php'.$dotted;
             $candidates[] = $dir.'/php'.$compact;
@@ -86,6 +86,14 @@ class PhpBinaryResolver
         ]);
 
         return array_values(array_unique($candidates));
+    }
+
+    /**
+     * PHP_BINARY can be empty under some SAPIs, even though static analysis types it as non-empty.
+     */
+    protected function phpBinary(): string
+    {
+        return PHP_BINARY;
     }
 
     protected function matchesCurrentVersion(string $binary): bool

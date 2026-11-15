@@ -8,6 +8,7 @@ use App\Enums\Hooks\AuthActionHook;
 use App\Enums\Hooks\AuthFilterHook;
 use App\Models\SocialAccount;
 use App\Models\User;
+use App\Services\Auth\RegistrationGuardService;
 use App\Support\Facades\Hook;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -250,6 +251,8 @@ class SocialAuthService
                     throw new \RuntimeException(__('New account registration is currently disabled.'));
                 }
 
+                $this->guardNewRegistration($socialUser);
+
                 // Create new user
                 $user = $this->createUser($socialUser, $provider);
             }
@@ -261,6 +264,25 @@ class SocialAuthService
         });
 
         return $user;
+    }
+
+    /**
+     * Apply the registration form's protections to a new social sign-up: spam-name and
+     * email checks, then the per-IP daily cap (GHSA-w29c-wmgq-hfrc). The slot is reserved
+     * last, so rejected sign-ups don't use it up.
+     */
+    protected function guardNewRegistration(SocialiteUser $socialUser): void
+    {
+        $guard = app(RegistrationGuardService::class);
+        $name = (string) ($socialUser->getName() ?? $socialUser->getNickname() ?? '');
+
+        if ($error = $guard->validateFormlessSignup($name, $socialUser->getEmail())) {
+            throw new \RuntimeException($error);
+        }
+
+        if (! $guard->reserveIpRegistrationSlot(request()->ip())) {
+            throw new \RuntimeException(__('Too many registration attempts from your network. Please try again later.'));
+        }
     }
 
     /**
