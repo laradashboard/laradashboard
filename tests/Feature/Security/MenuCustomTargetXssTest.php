@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 use App\Models\Menu;
 use App\Models\MenuItem;
+use App\Livewire\Admin\Menus\Builder;
 use App\Models\Role;
+use Livewire\Livewire;
 
-/*
- * MenuItem::getUrl() used to return a custom menu item's `target` verbatim, and the
- * public navigation rendered it straight into an href. Blade's {{ }} only
- * HTML-entity-escapes; it does not restrict URL schemes, so a saved
- * `javascript:alert(document.cookie)` target became a live, site-wide stored-XSS
- * payload. See GHSA-883p-xm36-3p99.
- */
+// GHSA-883p-xm36-3p99: a custom menu item's target was rendered verbatim as the nav href.
 
 beforeEach(function () {
     $this->setUpSecurityUsers();
@@ -22,7 +18,7 @@ test('a javascript: custom target is rejected by the add-item endpoint', functio
     $menu = Menu::create(['name' => 'Main Navigation', 'location' => 'test-nav-'.uniqid()]);
 
     $response = $this->actingAs($this->superadminUser)->postJson(
-        "/admin/menus/{$menu->id}/items",
+        route('admin.menus.items.store', $menu),
         [
             'label' => 'Click me',
             'type' => 'custom',
@@ -45,7 +41,7 @@ test('a javascript: custom target is rejected by the update-item endpoint', func
     ]);
 
     $response = $this->actingAs($this->superadminUser)->putJson(
-        "/admin/menus/{$menu->id}/items/{$item->id}",
+        route('admin.menus.items.update', [$menu, $item]),
         [
             'label' => 'Click me',
             'type' => 'custom',
@@ -92,6 +88,9 @@ test('a dangerous custom target that reaches the model is still never rendered a
     'JavaScript:alert(1)',
     "   javascript:alert(1)",
     "java\tscript:alert(1)",
+    "\x01javascript:alert(1)",
+    "\x0Cjavascript:alert(1)",
+    "\x1Fjavascript:alert(1)",
     'vbscript:msgbox(1)',
     'data:text/html,<script>alert(1)</script>',
 ]);
@@ -122,7 +121,7 @@ test('a lower-privileged role granted menu.edit is also protected', function () 
     $menu = Menu::create(['name' => 'Main Navigation', 'location' => 'test-nav-'.uniqid()]);
 
     $response = $this->actingAs($editor)->postJson(
-        "/admin/menus/{$menu->id}/items",
+        route('admin.menus.items.store', $menu),
         [
             'label' => 'Click me',
             'type' => 'custom',
@@ -132,3 +131,21 @@ test('a lower-privileged role granted menu.edit is also protected', function () 
 
     $response->assertInvalid(['target']);
 });
+
+test('the menu builder rejects a script target', function (string $dangerousTarget) {
+    $menu = Menu::create(['name' => 'Main Navigation', 'location' => 'test-nav-'.uniqid()]);
+
+    $this->actingAs($this->superadminUser);
+
+    Livewire::test(Builder::class, ['menu' => $menu])
+        ->set('label', 'Click me')
+        ->set('type', 'custom')
+        ->set('target', $dangerousTarget)
+        ->call('saveItem')
+        ->assertHasErrors('target');
+
+    expect(MenuItem::where('menu_id', $menu->id)->count())->toBe(0);
+})->with([
+    'javascript:alert(document.cookie)',
+    "\x0Cjavascript:alert(1)",
+]);
