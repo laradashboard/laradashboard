@@ -141,7 +141,12 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 ## 📝 Changelog
 
-> **Latest release:** [v1.5.2](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.2) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.5.3](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.3) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
+
+**[v1.5.3] — 2026-11-15**
+-   **Fix (Security):** Custom menu item links only accept `http`, `https`, `mailto`, `tel`, `sms` or relative URLs, closing a stored XSS in the public navigation (GHSA-883p-xm36-3p99).
+-   **Fix:** Core upgrades and module installs pick a command-line PHP that matches the site's PHP version; override with `PHP_CLI_BINARY`.
+-   **Chore:** Laravel 13.40.0.
 
 **[v1.5.2] — 2026-11-08**
 -   **Fix (Security):** Ollama base URL is validated and Superadmin-only, closing an SSRF via `generate-seo` (GHSA-47pj-m4xp-74g5).
