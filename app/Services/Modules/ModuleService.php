@@ -1342,7 +1342,7 @@ class ModuleService
         try {
             $composerPath = base_path('composer.phar');
             $command = file_exists($composerPath)
-                ? ['php', $composerPath, 'dump-autoload', '--no-interaction']
+                ? [app(\App\Support\PhpBinaryResolver::class)->resolve(), $composerPath, 'dump-autoload', '--no-interaction']
                 : ['composer', 'dump-autoload', '--no-interaction'];
 
             $process = new Process($command, base_path());
