@@ -83,6 +83,22 @@ test('authenticated user can create email template', function () {
     }
 });
 
+test('authenticated user can get email template content', function () {
+    $this->authenticateUser();
+
+    $template = EmailTemplate::factory()->create([
+        'subject' => 'Welcome aboard',
+        'body_html' => '<p>Hello there</p>',
+    ]);
+
+    $response = $this->getJson("/api/v1/email-templates/{$template->id}/content");
+
+    $response->assertStatus(200)
+        ->assertJsonPath('data.subject', 'Welcome aboard');
+
+    expect($response->json('data.body_html'))->toContain('Hello there');
+});
+
 // Notifications
 
 test('authenticated user can list notifications', function () {
