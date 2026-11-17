@@ -56,6 +56,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Force HTTPS URLs
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, all generated URLs use the https scheme. Useful when the
+    | application runs behind a proxy or load balancer that terminates TLS.
+    |
+    */
+
+    'redirect_https' => (bool) env('REDIRECT_HTTPS', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |
@@ -160,6 +172,17 @@ return [
     */
 
     'demo_mode' => filter_var(env('DEMO_MODE', false), FILTER_VALIDATE_BOOLEAN),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Demo Application URL
+    |--------------------------------------------------------------------------
+    |
+    | The public URL of the demo application.
+    |
+    */
+
+    'demo_url' => env('DEMO_APP_URL', 'https://demo.laradashboard.com'),
 
     /*
     |--------------------------------------------------------------------------

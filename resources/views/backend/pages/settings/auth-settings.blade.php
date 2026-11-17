@@ -620,8 +620,8 @@
             @foreach($socialAuthService::PROVIDERS as $provider => $config)
                 @php
                     $isEnabled = filter_var(config('settings.' . $config['setting_enable'], '0'), FILTER_VALIDATE_BOOLEAN);
-                    $hasEnvClientId = !empty(env($config['env_client_id']));
-                    $hasEnvClientSecret = !empty(env($config['env_client_secret']));
+                    $hasEnvClientId = !empty(config('services.' . $provider . '.client_id'));
+                    $hasEnvClientSecret = !empty(config('services.' . $provider . '.client_secret'));
                     $hasEnvCredentials = $hasEnvClientId && $hasEnvClientSecret;
                 @endphp
 

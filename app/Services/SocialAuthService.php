@@ -159,10 +159,10 @@ class SocialAuthService
 
         if ($type === 'client_id') {
             $settingValue = config('settings.'.$config['setting_client_id']);
-            $envValue = env($config['env_client_id']);
+            $envValue = config('services.'.$provider.'.client_id');
         } elseif ($type === 'client_secret') {
             $settingValue = config('settings.'.$config['setting_client_secret']);
-            $envValue = env($config['env_client_secret']);
+            $envValue = config('services.'.$provider.'.client_secret');
         } else {
             return null;
         }
