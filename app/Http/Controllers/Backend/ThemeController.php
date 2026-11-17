@@ -262,8 +262,8 @@ class ThemeController extends Controller
             }
 
             if ($request->hasFile($fieldName)) {
-                $this->imageService->deleteImageFromPublic((string) config($fieldName));
                 $fileUrl = $this->imageService->storeImageAndGetUrl($request, $fieldName, $uploadPath);
+                $this->imageService->deleteImageFromPublic((string) config("settings.{$fieldName}"));
                 $this->settingService->addSetting($fieldName, $fileUrl);
             } elseif ($fieldName === 'social_links') {
                 $this->settingService->addSetting($fieldName, $fieldValue);
