@@ -98,7 +98,7 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        if (env('REDIRECT_HTTPS')) {
+        if (config('app.redirect_https')) {
             URL::forceScheme('https');
         }
 

@@ -996,6 +996,8 @@ class InstallationService
             return ['success' => false, 'message' => __('Untrusted module download source.')];
         }
 
+        $tempPath = null;
+
         try {
             $tempPath = storage_path('app/modules_temp/' . uniqid('install_', true));
             File::ensureDirectoryExists($tempPath);
@@ -1081,7 +1083,7 @@ class InstallationService
 
             return ['success' => true, 'message' => __('Module installed successfully.')];
         } catch (\Exception $e) {
-            if (File::isDirectory($tempPath)) {
+            if ($tempPath !== null && File::isDirectory($tempPath)) {
                 File::deleteDirectory($tempPath);
             }
 

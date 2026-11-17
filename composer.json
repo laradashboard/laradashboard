@@ -40,6 +40,7 @@
         "tormjens/eventy": "^0.8.0"
     },
     "require-dev": {
+        "baer-software/larabeacon": "^3.4",
         "barryvdh/laravel-debugbar": "^4.0",
         "brianium/paratest": "*",
         "larastan/larastan": "^3.0",

@@ -145,24 +145,12 @@ class EmailTemplateController extends ApiController
     }
 
     /**
-     * Get Email Template Content with Header and Footer.
+     * Get the rendered Email Template Content.
      */
     public function getContent(EmailTemplate $emailTemplate): JsonResponse
     {
         $this->authorize('manage', Setting::class);
 
-        // Load header and footer templates
-        $emailTemplate->load(['headerTemplate', 'footerTemplate']);
-
-        $combinedHtml = '';
-        if ($emailTemplate->headerTemplate) {
-            $combinedHtml .= $emailTemplate->headerTemplate->renderContent('email');
-        }
-        $combinedHtml .= $emailTemplate->renderContent('email');
-        if ($emailTemplate->footerTemplate) {
-            $combinedHtml .= $emailTemplate->footerTemplate->renderContent('email');
-        }
-
-        return $this->successResponse(['subject' => $emailTemplate->subject, 'body_html' => $combinedHtml], 'Email content retrieved');
+        return $this->successResponse(['subject' => $emailTemplate->subject, 'body_html' => $emailTemplate->renderContent('email')], 'Email content retrieved');
     }
 }

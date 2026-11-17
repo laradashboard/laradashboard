@@ -379,3 +379,18 @@ test('social sign-up through the callback is blocked once the ip cap is reached'
     $this->assertGuest();
     expect(User::where('email', 'second@example.com')->exists())->toBeFalse();
 });
+
+test('social auth service falls back to the services config when settings are empty', function () {
+    config([
+        'settings.auth_social_github_client_id' => '',
+        'settings.auth_social_github_client_secret' => '',
+        'services.github.client_id' => 'config-client-id',
+        'services.github.client_secret' => 'config-client-secret',
+    ]);
+
+    $service = new SocialAuthService();
+
+    expect($service->getProviderCredential('github', 'client_id'))->toBe('config-client-id');
+    expect($service->getProviderCredential('github', 'client_secret'))->toBe('config-client-secret');
+    expect($service->getProviderCredential('google', 'client_id'))->toBe('test-client-id');
+});
