@@ -129,10 +129,10 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     if (! empty($layoutStyles)) {
         if (! empty($layoutStyles['margin'])) {
             $margin = $layoutStyles['margin'];
-            if (isset($margin['top'])) {
+            if (isset($margin['top']) && $margin['top'] !== '') {
                 $styles[] = "margin-top: {$margin['top']}";
             }
-            if (isset($margin['bottom'])) {
+            if (isset($margin['bottom']) && $margin['bottom'] !== '') {
                 $styles[] = "margin-bottom: {$margin['bottom']}";
             }
         }

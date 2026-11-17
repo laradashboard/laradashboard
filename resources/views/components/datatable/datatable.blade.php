@@ -150,8 +150,14 @@
                 };
             }
 
+            // Only an element *above* the table can be its page header. On pages with a side form
+            // (e.g. tags, stages) the form card sits beside the table; measuring it pushed the sticky
+            // thead hundreds of pixels down the page.
+            const tableTop = this.$el.getBoundingClientRect().top;
+            const isAbove = (el) => el.getBoundingClientRect().bottom <= tableTop + 1;
+
             const page = this.$el.closest('.ld-container');
-            let header = page?.firstElementChild && !page.firstElementChild.contains(this.$el)
+            let header = page?.firstElementChild && !page.firstElementChild.contains(this.$el) && isAbove(page.firstElementChild)
                 ? page.firstElementChild
                 : null;
 
@@ -163,7 +169,7 @@
                 }
 
                 header = Array.from(parent.children).find(
-                    (child) => child !== node && !child.contains(this.$el)
+                    (child) => child !== node && !child.contains(this.$el) && isAbove(child)
                 );
 
                 if (header) {

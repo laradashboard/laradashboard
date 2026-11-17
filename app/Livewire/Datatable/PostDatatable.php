@@ -262,7 +262,7 @@ class PostDatatable extends Datatable
     {
         ob_start();
         ?>
-        <div class="flex gap-0.5 items-center">
+        <div class="flex gap-0.5 items-center" style="min-width: 10rem">
             <?php if ($post->hasFeaturedImage()): ?>
                 <img src="<?php echo e($post->getFeaturedImageUrl('thumb') ?? $post->getFeaturedImageUrl()) ?>" alt="<?php echo e($post->title) ?>"
                     class="h-10 w-10 object-cover rounded mr-3 shrink-0">
@@ -273,7 +273,7 @@ class PostDatatable extends Datatable
             <?php endif; ?>
             <a href="<?php echo route('admin.posts.edit', [$this->postType, $post->id]) ?>"
                 class="text-gray-700 dark:text-white font-medium hover:text-primary dark:hover:text-primary">
-                <?php echo $post->title; ?>
+                <?php echo e($post->title); ?>
             </a>
         </div>
         <?php
@@ -282,10 +282,11 @@ class PostDatatable extends Datatable
 
     public function renderStatusColumn(Post $post): string|Renderable
     {
-        $html = "<span class='" . get_post_status_class($post->status) . "'>" . ucfirst($post->status) . "</span>";
+        $html = "<span class='" . get_post_status_class($post->status) . "'>" . e(ucfirst($post->status)) . "</span>";
 
         if ($post->status === PostStatus::SCHEDULED->value && ! empty($post->published_at)) {
-            $html .= " <br><small class='text-muted'>" . __('(Scheduled for :date)', ['date' => $post->published_at->format('M d, Y h:i A')]) . "</small>";
+            $html .= "<small class='block mt-1 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap' title='" . e(__('Scheduled for :date', ['date' => $post->published_at->format('M d, Y h:i A')])) . "'>"
+                . e($post->published_at->format('M j, g:i A')) . '</small>';
         }
 
         return $html;
@@ -298,7 +299,7 @@ class PostDatatable extends Datatable
 
     public function renderCategoryColumn(Post $post): string|Renderable
     {
-        return $post->categories->pluck('name')->map(fn ($name) => "<span class='badge'>" . ucfirst($name) . "</span>")->join(' ');
+        return $post->categories->pluck('name')->map(fn ($name) => "<span class='badge whitespace-nowrap'>" . e(ucfirst($name)) . '</span>')->join(' ');
     }
 
     public function renderViewsColumn(Post $post): string

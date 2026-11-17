@@ -260,19 +260,7 @@ class RolesService
         $roles['admin'] = $this->createRole('Admin', $adminPermissions);
 
         // 3. Editor role - can manage content but not users/settings.
-        $editorPermissions = [
-            'dashboard.view',
-            // Blog permissions
-            'blog.create',
-            'blog.view',
-            'blog.edit',
-            // Profile permissions
-            'profile.view',
-            'profile.edit',
-            'profile.update',
-            // Translations
-            'translations.view',
-        ];
+        $editorPermissions = $this->getPredefinedRolePermissions('Editor');
 
         $roles['editor'] = $this->createRole('Editor', $editorPermissions);
 
@@ -333,19 +321,24 @@ class RolesService
             case 'Editor':
                 return [
                     'dashboard.view',
+                    // Blog permissions (legacy names, kept for older checks)
                     'blog.create',
                     'blog.view',
                     'blog.edit',
-                    'profile.view',
-                    'profile.edit',
-                    'profile.update',
-                    'translations.view',
-                    // Add post and term related permissions for Editor
+                    // Post & page permissions (what the Posts/Pages screens and menu check)
                     'post.create',
                     'post.view',
                     'post.edit',
-                    'term.view',
-                    'term.create',
+                    'post.publish',
+                    // Media, for featured images
+                    'media.view',
+                    'media.create',
+                    // Profile permissions
+                    'profile.view',
+                    'profile.edit',
+                    'profile.update',
+                    // Translations
+                    'translations.view',
                 ];
 
             case 'Subscriber':

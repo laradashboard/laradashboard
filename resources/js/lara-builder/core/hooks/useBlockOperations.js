@@ -236,16 +236,28 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
             const currentBlock = findBlock(blockId);
             const transferredProps = { ...(options.initialProps || {}) };
 
+            // "/heading" typed to open the slash menu is a command, not content: never carry it over,
+            // or it reappears after the cursor and is pushed into the next block on Enter.
+            const keepText = (value) => {
+                // DOMParser documents are inert (no scripts run, nothing is rendered); only read the text.
+                const plain = (
+                    new DOMParser().parseFromString(String(value || ""), "text/html").body.textContent || ""
+                )
+                    .replace(/ /g, " ")
+                    .trim();
+                return plain.startsWith("/") ? "" : value || "";
+            };
+
             if (currentBlock) {
                 if (currentBlock.type === "text" && newBlockType === "heading") {
-                    transferredProps.text = currentBlock.props.content || "";
+                    transferredProps.text = keepText(currentBlock.props.content);
                     transferredProps.level =
                         transferredProps.level || currentBlock.props.level || "h2";
                 } else if (
                     currentBlock.type === "heading" &&
                     newBlockType === "text"
                 ) {
-                    transferredProps.content = currentBlock.props.text || "";
+                    transferredProps.content = keepText(currentBlock.props.text);
                 }
             }
 

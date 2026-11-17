@@ -134,7 +134,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     if (! empty($layoutStyles['margin'])) {
         $margin = $layoutStyles['margin'];
         foreach (['top', 'right', 'bottom', 'left'] as $side) {
-            if (isset($margin[$side])) {
+            if (isset($margin[$side]) && $margin[$side] !== '') {
                 $buttonStyles[] = "margin-{$side}: {$margin[$side]}";
             }
         }

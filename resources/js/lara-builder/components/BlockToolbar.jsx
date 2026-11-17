@@ -5,6 +5,7 @@ import { __ } from "@lara-builder/i18n";
 import { LaraHooks } from "../hooks-system/LaraHooks";
 import { BuilderHooks } from "../hooks-system/HookNames";
 import AITextAssistant from "./AITextAssistant";
+import { canUseAI } from "../utils/permissions";
 
 // Get block config from registry
 const getBlock = (type) => blockRegistry.get(type);
@@ -400,7 +401,7 @@ const TextFormatControls = ({
     const showJustify = supports.justify === true;
     const showClearFormat = supports.clearFormat !== false;
     const showMoreControls = supports.moreControls !== false;
-    const showAIAssistant = supports.aiAssistant !== false;
+    const showAIAssistant = supports.aiAssistant !== false && canUseAI();
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkUrl, setLinkUrl] = useState("");
     const [openInNewTab, setOpenInNewTab] = useState(false);

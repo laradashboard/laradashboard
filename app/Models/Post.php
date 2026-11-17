@@ -265,10 +265,13 @@ class Post extends Model implements SpatieHasMedia
             return;
         }
 
+        // MySQL/MariaDB only accept SIGNED/UNSIGNED in CAST(); SQLite and PostgreSQL use INTEGER.
+        $integerType = in_array($this->getConnection()->getDriverName(), ['mysql', 'mariadb'], true) ? 'UNSIGNED' : 'INTEGER';
+
         $updated = $this->postMeta()
             ->where('meta_key', self::VIEWS_META_KEY)
             ->update([
-                'meta_value' => DB::raw('CAST(COALESCE(meta_value, 0) AS INTEGER) + 1'),
+                'meta_value' => DB::raw("CAST(COALESCE(meta_value, 0) AS {$integerType}) + 1"),
             ]);
 
         if ($updated === 0) {
@@ -461,6 +464,19 @@ class Post extends Model implements SpatieHasMedia
         $postType = $this->getPostTypeObject();
 
         return $postType ? $postType->supports($feature) : false;
+    }
+
+    /**
+     * Excerpt for listings: the saved excerpt, or readable text from the rendered content.
+     */
+    public function plainExcerpt(int $limit = 120): string
+    {
+        $text = trim((string) $this->excerpt);
+        if ($text === '') {
+            $text = app(PostBuilderService::class)->plainText($this->renderContent());
+        }
+
+        return \Illuminate\Support\Str::limit($text, $limit);
     }
 
     /**

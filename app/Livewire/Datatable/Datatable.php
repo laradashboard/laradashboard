@@ -535,10 +535,10 @@ abstract class Datatable extends Component
             return '';
         }
 
-        $short = $item->created_at->format('d M Y');
+        $short = $this->shortDate($item->created_at);
         $full = $item->created_at->format('Y-m-d H:i:s');
 
-        return '<span class="text-sm" title="' . e($full) . '">' . e($short) . '</span>';
+        return '<span class="text-sm whitespace-nowrap" title="' . e($full) . '">' . e($short) . '</span>';
     }
 
     public function renderUpdatedAtColumn($item): string
@@ -547,8 +547,16 @@ abstract class Datatable extends Component
             return '';
         }
 
-        $short = $item->updated_at->format('d M Y');
+        $short = $this->shortDate($item->updated_at);
         $full = $item->updated_at->format('Y-m-d H:i:s');
-        return '<span class="text-sm" title="' . e($full) . '">' . e($short) . '</span>';
+        return '<span class="text-sm whitespace-nowrap" title="' . e($full) . '">' . e($short) . '</span>';
+    }
+
+    /**
+     * Compact date for table cells: "16 Nov" this year, "16 Nov 2025" otherwise (full timestamp in the title).
+     */
+    protected function shortDate(\DateTimeInterface $date): string
+    {
+        return $date->format($date->format('Y') === now()->format('Y') ? 'd M' : 'd M Y');
     }
 }

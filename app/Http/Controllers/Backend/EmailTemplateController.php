@@ -96,9 +96,21 @@ class EmailTemplateController extends Controller
         }
     }
 
-    public function getContent(EmailTemplate $emailTemplate): JsonResponse
+    public function getContent(Request $request, EmailTemplate $emailTemplate): JsonResponse
     {
         $this->authorize('view', $emailTemplate);
+
+        // ?preview=1 fills the variables with sample data (for read-only previews);
+        // without it the raw {variables} are kept so editors can reuse the content.
+        if ($request->boolean('preview')) {
+            $rendered = $emailTemplate->renderTemplate($this->emailVariable->getPreviewSampleData());
+
+            return response()->json([
+                'name' => $emailTemplate->name,
+                'subject' => $rendered['subject'],
+                'body_html' => $rendered['body_html'],
+            ]);
+        }
 
         return response()->json([
             'name' => $emailTemplate->name,

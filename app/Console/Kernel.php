@@ -29,6 +29,11 @@ class Kernel extends ConsoleKernel
         // Schedule the demo database refresh command hourly in demo mode.
         $schedule->command('demo:refresh-database')->hourly();
 
+        // Publish scheduled posts and pages once their publish date arrives.
+        $schedule->command('posts:publish-scheduled')
+            ->everyMinute()
+            ->withoutOverlapping();
+
         // Check for module updates hourly (with silent output).
         // Uses caching to avoid hitting the API unnecessarily.
         $schedule->command('modules:check-updates --silent')

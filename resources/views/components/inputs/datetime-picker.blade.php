@@ -13,6 +13,8 @@
     'showAltFormat' => true,
     'class' => '',
     'helpText' => '',
+    // Prefill today's date when empty. Turn off for optional dates (e.g. date of birth).
+    'defaultToNow' => true,
 ])
 
 <div x-data="{
@@ -71,7 +73,7 @@
             <iconify-icon icon="lucide:calendar" class="text-gray-400 dark:text-gray-500 z-1"></iconify-icon>
         </div>
         <input x-ref="datetimePicker" type="text" id="{{ $id }}" name="{{ $name }}"
-            value="{{ $value ?: now()->format($dateFormat) }}" placeholder="{{ $placeholder }}"
+            value="{{ $value ?: ($defaultToNow ? now()->format($dateFormat) : '') }}" placeholder="{{ $placeholder }}"
             {{ $required ? 'required' : '' }} {{ $attributes->merge(['class' => 'form-control !ps-10' . $class]) }} />
     </div>
 

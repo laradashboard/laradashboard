@@ -27,6 +27,7 @@
 <div
     id="lara-builder-root"
     data-context="{{ $context }}"
+    data-can-use-ai="{{ auth()->user()?->can('aiContent', \App\Models\Post::class) ? 'true' : 'false' }}"
     data-initial-data="{{ json_encode($initialData) }}"
     data-template-data="{{ json_encode($templateData) }}"
     @if($saveUrl) data-save-url="{{ $saveUrl }}" @endif

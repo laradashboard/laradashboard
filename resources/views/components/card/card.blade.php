@@ -6,40 +6,42 @@
     x-data="{ loading: @js($skeleton ?? false) }"
     class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] {{ $class ?? '' }}"
 >
-    <template x-if="loading">
-        <x-card.card-skeleton />
-    </template>
-    <template x-if="!loading">
-        <div>
-            @isset($header)
-                <div class="py-4 px-4 md:px-8 space-y-6 sm:p-4 border-b border-gray-200 dark:border-gray-800 font-semibold flex justify-between items-center {{ $headerClass }}">
-                    <div class="w-full flex justify-between mb-0 items-center {{ isset($headerTitleClass) ? $headerTitleClass : '' }}">
-                        {!! $header !!}
+    {{-- x-show, not <template x-if>: Livewire morphs the real DOM, so card content must not be an
+         Alpine-stamped copy of a template (updates to it would never reach the screen). --}}
+    @if ($skeleton ?? false)
+        <div x-show="loading">
+            <x-card.card-skeleton />
+        </div>
+    @endif
+    <div x-show="!loading">
+        @isset($header)
+            <div class="py-4 px-4 md:px-8 space-y-6 sm:p-4 border-b border-gray-200 dark:border-gray-800 font-semibold flex justify-between items-center {{ $headerClass }}">
+                <div class="w-full flex justify-between mb-0 items-center {{ isset($headerTitleClass) ? $headerTitleClass : '' }}">
+                    {!! $header !!}
 
-                        @isset($headerRight)
-                            <div class="{{ $headerRightClass ?? '' }}">
-                                {!! $headerRight !!}
-                            </div>
-                        @endisset
-                    </div>
-
-                    @isset($headerDescription)
-                        <p class="mt-2 text-sm text-gray-500 font-normal dark:text-gray-400 {{ $headerDescriptionClass ?? '' }}">
-                            {!! $headerDescription !!}
-                        </p>
+                    @isset($headerRight)
+                        <div class="{{ $headerRightClass ?? '' }}">
+                            {!! $headerRight !!}
+                        </div>
                     @endisset
                 </div>
-            @endisset
 
-            <div class="py-8 md:px-8 space-y-6 p-4 {{ isset($footer) ? 'border-b border-gray-200 dark:border-gray-800' : '' }} {{ $bodyClass ?? '' }}">
-                {{ $slot }}
+                @isset($headerDescription)
+                    <p class="mt-2 text-sm text-gray-500 font-normal dark:text-gray-400 {{ $headerDescriptionClass ?? '' }}">
+                        {!! $headerDescription !!}
+                    </p>
+                @endisset
             </div>
+        @endisset
 
-            @isset($footer)
-            <div class="py-4 md:px-8 space-y-6 p-4 flex justify-between items-center {{ $footerClass ?? '' }}">
-                {{ $footer }}
-            </div>
-            @endisset
+        <div class="py-8 md:px-8 space-y-6 p-4 {{ isset($footer) ? 'border-b border-gray-200 dark:border-gray-800' : '' }} {{ $bodyClass ?? '' }}">
+            {{ $slot }}
         </div>
-    </template>
+
+        @isset($footer)
+        <div class="py-4 md:px-8 space-y-6 p-4 flex justify-between items-center {{ $footerClass ?? '' }}">
+            {{ $footer }}
+        </div>
+        @endisset
+    </div>
 </div>

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
     SortableContext,
@@ -177,8 +177,8 @@ const DroppableColumn = ({
                 isOver
                     ? "bg-primary/10 border-2 border-primary border-dashed"
                     : blocks.length === 0
-                    ? "bg-gray-50 border-2 border-dashed border-gray-300"
-                    : "bg-gray-50/50"
+                    ? "bg-gray-400/10 border-2 border-dashed border-gray-400/40"
+                    : "border border-dashed border-transparent hover:border-gray-400/40"
             }`}
         >
             <SortableContext
@@ -229,6 +229,9 @@ const DroppableColumn = ({
     );
 };
 
+/** Width (px) under which columns with "stack on mobile" stack, matching the page CSS breakpoint. */
+const STACK_BREAKPOINT = 640;
+
 const ColumnsBlock = ({
     props,
     isSelected,
@@ -246,9 +249,23 @@ const ColumnsBlock = ({
         children = [],
         verticalAlign = "stretch",
         horizontalAlign = "stretch",
+        stackOnMobile = true,
     } = props;
 
     const columnCount = Math.min(Math.max(parseInt(columns) || 2, 1), 6);
+
+    // Stack like the published page does on phones. The editor's tablet/mobile preview only
+    // narrows the canvas (viewport media queries never fire), so measure the block itself.
+    const containerRef = useRef(null);
+    const [isNarrow, setIsNarrow] = useState(false);
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el || typeof ResizeObserver === "undefined") return undefined;
+        const observer = new ResizeObserver(([entry]) => setIsNarrow(entry.contentRect.width < STACK_BREAKPOINT));
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+    const stacked = stackOnMobile && isNarrow;
 
     // Ensure children array has correct length
     const columnChildren = Array.from(
@@ -295,6 +312,9 @@ const ColumnsBlock = ({
 
     // Column style - flex basis for equal widths when stretch
     const getColumnStyle = () => {
+        if (stacked) {
+            return { flex: "1 1 100%", minWidth: 0 };
+        }
         if (horizontalAlign === "stretch") {
             return {
                 flex: `1 1 calc(${100 / columnCount}% - ${gap})`,
@@ -309,7 +329,7 @@ const ColumnsBlock = ({
     };
 
     return (
-        <div className="transition-all" style={containerStyle}>
+        <div ref={containerRef} className="transition-all" style={containerStyle}>
             <div style={gridStyle}>
                 {columnChildren.map((columnBlocks, index) => (
                     <div key={index} style={getColumnStyle()}>

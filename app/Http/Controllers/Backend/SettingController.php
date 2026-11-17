@@ -126,8 +126,8 @@ class SettingController extends Controller
 
         foreach ($fields as $fieldName => $fieldValue) {
             if ($request->hasFile($fieldName)) {
-                $this->imageService->deleteImageFromPublic((string) config($fieldName));
                 $fileUrl = $this->imageService->storeImageAndGetUrl($request, $fieldName, $uploadPath);
+                $this->imageService->deleteImageFromPublic((string) config("settings.{$fieldName}"));
                 $this->settingService->addSetting($fieldName, $fileUrl);
             } elseif ($fieldName === 'social_links') {
                 // Social links are submitted as JSON string from Alpine.js

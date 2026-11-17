@@ -274,7 +274,7 @@ export const defaultBlocks = [
             email: 'contact@company.com',
             unsubscribeText: 'Unsubscribe from these emails',
             unsubscribeUrl: '#unsubscribe',
-            copyright: '© 2024 Your Company. All rights reserved.',
+            copyright: `© ${new Date().getFullYear()} Your Company. All rights reserved.`,
             textColor: '#6b7280',
             linkColor: '#635bff',
             fontSize: '12px',

@@ -299,7 +299,7 @@ function notificationForm() {
             this.loading = true;
 
             try {
-                const url = `/admin/settings/email-templates/${templateId}/content`;
+                const url = `/admin/settings/email-templates/${templateId}/content?preview=1`;
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {

@@ -111,14 +111,14 @@ return function (array $props, string $context = 'page', ?string $blockId = null
 
     if (! empty($layoutStyles['margin'])) {
         foreach (['top', 'right', 'bottom', 'left'] as $side) {
-            if (isset($layoutStyles['margin'][$side])) {
+            if (isset($layoutStyles['margin'][$side]) && $layoutStyles['margin'][$side] !== '') {
                 $blockStyles[] = "margin-{$side}: {$layoutStyles['margin'][$side]}";
             }
         }
     }
     if (! empty($layoutStyles['padding'])) {
         foreach (['top', 'right', 'bottom', 'left'] as $side) {
-            if (isset($layoutStyles['padding'][$side])) {
+            if (isset($layoutStyles['padding'][$side]) && $layoutStyles['padding'][$side] !== '') {
                 $blockStyles[] = "padding-{$side}: {$layoutStyles['padding'][$side]}";
             }
         }

@@ -67,7 +67,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     }
     if (! empty($layoutStyles['margin'])) {
         foreach (['top', 'right', 'bottom', 'left'] as $side) {
-            if (isset($layoutStyles['margin'][$side])) {
+            if (isset($layoutStyles['margin'][$side]) && $layoutStyles['margin'][$side] !== '') {
                 $cardStyles[] = "margin-{$side}: {$layoutStyles['margin'][$side]}";
             }
         }

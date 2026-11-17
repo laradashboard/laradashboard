@@ -1,0 +1,11 @@
+/* "Stack on mobile": one column per row on phones (matches the editor's preview breakpoint). */
+@media (max-width: 640px) {
+    .lb-columns-stack-mobile {
+        flex-direction: column;
+    }
+
+    .lb-columns-stack-mobile > .lb-column {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }
+}

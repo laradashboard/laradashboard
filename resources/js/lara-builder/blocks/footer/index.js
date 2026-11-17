@@ -53,7 +53,7 @@ const fields = [
         type: 'text',
         label: __('Copyright Text'),
         section: __('Copyright'),
-        placeholder: '© 2024 Your Company. All rights reserved.',
+        placeholder: `© ${new Date().getFullYear()} Your Company. All rights reserved.`,
     },
     {
         name: 'linkColor',
@@ -63,4 +63,13 @@ const fields = [
     },
 ];
 
-export default createBlockFromJson(config, { block, save, fields });
+// Default copyright uses the current year (block.json is static and said 2024).
+const configWithYear = {
+    ...config,
+    defaultProps: {
+        ...config.defaultProps,
+        copyright: `© ${new Date().getFullYear()} Your Company. All rights reserved.`,
+    },
+};
+
+export default createBlockFromJson(configWithYear, { block, save, fields });
