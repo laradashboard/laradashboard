@@ -326,6 +326,9 @@
 @push('scripts')
 
 <script>
+// Escape values that go into HTML strings (and inline handlers) built for innerHTML: file names are user data.
+window.ldEscHtml = window.ldEscHtml || ((value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])));
+window.ldJsArg = window.ldJsArg || ((value) => window.ldEscHtml(JSON.stringify(String(value ?? ''))));
 // Translations for media modal
 window.mediaModalTranslations = {
     copied: '{{ __('Copied') }}',
@@ -528,7 +531,7 @@ function createMediaItem(modalId, file) {
     let thumbnailHtml = '';
     if (isImage) {
         const imgSrc = file.thumbnail_url || file.url;
-        thumbnailHtml = `<img src="${imgSrc}" alt="${file.name}" class="w-full h-32 object-cover" loading="lazy">`;
+        thumbnailHtml = `<img src="${ldEscHtml(imgSrc)}" alt="${ldEscHtml(file.name)}" class="w-full h-32 object-contain p-2 bg-gray-50 dark:bg-gray-800" loading="lazy">`;
     } else if (isVideo) {
         thumbnailHtml = `
             <div class="w-full h-32 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 flex items-center justify-center">
@@ -554,11 +557,11 @@ function createMediaItem(modalId, file) {
     div.innerHTML = `
         ${thumbnailHtml}
         <div class="p-3 bg-white dark:bg-gray-800">
-            <p class="text-xs font-medium text-gray-700 dark:text-white truncate" title="${file.name}">
-                ${file.name}
+            <p class="text-xs font-medium text-gray-700 dark:text-white truncate" title="${ldEscHtml(file.name)}">
+                ${ldEscHtml(file.name)}
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                ${file.extension?.toUpperCase() || 'FILE'} • ${file.human_readable_size || '0 KB'}
+                ${ldEscHtml(file.extension?.toUpperCase() || 'FILE')} • ${ldEscHtml(file.human_readable_size || '0 KB')}
             </p>
         </div>
         ${modalData.multiple ? `
@@ -682,13 +685,13 @@ function generateMediaPreview(modalId, file, container) {
 
     if (isImage) {
         container.innerHTML = `
-            <img src="${file.thumbnail_url || file.url}"
-                 alt="${file.name}"
+            <img src="${ldEscHtml(file.thumbnail_url || file.url)}"
+                 alt="${ldEscHtml(file.name)}"
                  class="w-full h-48 object-contain bg-gray-100 dark:bg-gray-800 cursor-pointer"
                  loading="lazy"
-                 onclick="openImageModal('${file.url}', '${file.name}')">
+                 onclick="openImageModal(${ldJsArg(file.url)}, ${ldJsArg(file.name)})">
             <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <button onclick="openImageModal('${file.url}', '${file.name}')"
+                <button onclick="openImageModal(${ldJsArg(file.url)}, ${ldJsArg(file.name)})"
                         class="p-2 bg-white/90 backdrop-blur-sm rounded-md text-gray-700 hover:bg-white transition-colors shadow-lg"
                         title="View Full Size">
                     <iconify-icon icon="lucide:maximize-2" class="text-lg"></iconify-icon>
@@ -705,7 +708,7 @@ function generateMediaPreview(modalId, file, container) {
                     style="background: linear-gradient(135deg, rgb(147 51 234 / 0.1) 0%, rgb(147 51 234 / 0.2) 100%)"
                     onloadstart="this.volume=0.5"
                 >
-                    <source src="${file.url}" type="${file.mime_type}">
+                    <source src="${ldEscHtml(file.url)}" type="${ldEscHtml(file.mime_type)}">
                     Your browser does not support the video tag.
                 </video>
                 <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
@@ -722,8 +725,8 @@ function generateMediaPreview(modalId, file, container) {
                 <div class="flex-1 flex items-center justify-center p-4">
                     <div class="text-center">
                         <iconify-icon icon="lucide:music" class="text-4xl text-green-600 dark:text-green-300 mb-3"></iconify-icon>
-                        <p class="text-sm font-medium text-green-700 dark:text-green-300 truncate" title="${file.name}">
-                            ${file.name}
+                        <p class="text-sm font-medium text-green-700 dark:text-green-300 truncate" title="${ldEscHtml(file.name)}">
+                            ${ldEscHtml(file.name)}
                         </p>
                     </div>
                 </div>
@@ -736,7 +739,7 @@ function generateMediaPreview(modalId, file, container) {
                         style="height: 32px;"
                         onloadstart="this.volume=0.5"
                     >
-                        <source src="${file.url}" type="${file.mime_type}">
+                        <source src="${ldEscHtml(file.url)}" type="${ldEscHtml(file.mime_type)}">
                         Your browser does not support the audio tag.
                     </audio>
                 </div>
@@ -1309,13 +1312,13 @@ function openAudioModal(src, name, file) {
     const t = window.mediaModalTranslations;
     let infoHtml = '';
     if (file.human_readable_size) {
-        infoHtml += `<div>${t.size}: ${file.human_readable_size}</div>`;
+        infoHtml += `<div>${t.size}: ${ldEscHtml(file.human_readable_size)}</div>`;
     }
     if (file.duration) {
         infoHtml += `<div>${t.duration}: ${formatAudioDuration(file.duration)}</div>`;
     }
     if (file.extension) {
-        infoHtml += `<div>${t.format}: ${file.extension.toUpperCase()}</div>`;
+        infoHtml += `<div>${t.format}: ${ldEscHtml(file.extension.toUpperCase())}</div>`;
     }
     info.innerHTML = infoHtml;
 

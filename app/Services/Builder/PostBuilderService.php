@@ -44,7 +44,28 @@ class PostBuilderService
             return $excerpt;
         }
 
-        return Str::limit(strip_tags($content ?? ''), 200);
+        $content ??= '';
+
+        // Builder content keeps its text in block attributes (data-lara-block placeholders),
+        // so render it first or the excerpt comes out empty.
+        if (str_contains($content, 'data-lara-block')) {
+            $content = app(BlockRenderer::class)->processContent($content, 'page');
+        }
+
+        return Str::limit($this->plainText($content), 200);
+    }
+
+    /**
+     * Readable text from rendered HTML: drops <style>/<script> blocks (whose contents strip_tags
+     * would keep), tags and extra whitespace.
+     */
+    public function plainText(string $html): string
+    {
+        $html = (string) preg_replace('#<(style|script|noscript|template)\b[^>]*>.*?</\1>#is', ' ', $html);
+        $html = (string) preg_replace('#<(br|/p|/div|/h[1-6]|/li)\b[^>]*>#i', '$0 ', $html);
+        $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        return trim((string) preg_replace('/\s+/u', ' ', $text));
     }
 
     /**

@@ -117,10 +117,16 @@ return function (array $props, string $context = 'page', ?string $blockId = null
         $styles[] = "color: {$resolvedColor}";
     }
 
-    if (! empty($typography['fontSize'])) {
-        $styles[] = "font-size: {$typography['fontSize']}";
-    } elseif ($fontSize) {
-        $styles[] = "font-size: {$fontSize}";
+    $pageFontSize = ! empty($typography['fontSize']) ? $typography['fontSize'] : $fontSize;
+    if ($pageFontSize) {
+        // Large pixel headings scale down on small screens (never below 60% of the chosen size),
+        // so a 58px hero headline doesn't wrap one word per line on a phone. Desktop is unchanged.
+        if (preg_match('/^(\d+(?:\.\d+)?)px$/', trim((string) $pageFontSize), $m) && (float) $m[1] >= 32) {
+            $minPx = round((float) $m[1] * 0.6);
+            $styles[] = "font-size: min({$pageFontSize}, max({$minPx}px, 9vw))";
+        } else {
+            $styles[] = "font-size: {$pageFontSize}";
+        }
     }
 
     if (! empty($typography['fontWeight'])) {
@@ -144,32 +150,32 @@ return function (array $props, string $context = 'page', ?string $blockId = null
     // Layout styles (margin, padding, width, etc.)
     if (! empty($layoutStyles['margin'])) {
         $margin = $layoutStyles['margin'];
-        if (isset($margin['top'])) {
+        if (isset($margin['top']) && $margin['top'] !== '') {
             $styles[] = "margin-top: {$margin['top']}";
         }
-        if (isset($margin['right'])) {
+        if (isset($margin['right']) && $margin['right'] !== '') {
             $styles[] = "margin-right: {$margin['right']}";
         }
-        if (isset($margin['bottom'])) {
+        if (isset($margin['bottom']) && $margin['bottom'] !== '') {
             $styles[] = "margin-bottom: {$margin['bottom']}";
         }
-        if (isset($margin['left'])) {
+        if (isset($margin['left']) && $margin['left'] !== '') {
             $styles[] = "margin-left: {$margin['left']}";
         }
     }
 
     if (! empty($layoutStyles['padding'])) {
         $padding = $layoutStyles['padding'];
-        if (isset($padding['top'])) {
+        if (isset($padding['top']) && $padding['top'] !== '') {
             $styles[] = "padding-top: {$padding['top']}";
         }
-        if (isset($padding['right'])) {
+        if (isset($padding['right']) && $padding['right'] !== '') {
             $styles[] = "padding-right: {$padding['right']}";
         }
-        if (isset($padding['bottom'])) {
+        if (isset($padding['bottom']) && $padding['bottom'] !== '') {
             $styles[] = "padding-bottom: {$padding['bottom']}";
         }
-        if (isset($padding['left'])) {
+        if (isset($padding['left']) && $padding['left'] !== '') {
             $styles[] = "padding-left: {$padding['left']}";
         }
     }

@@ -78,6 +78,9 @@ export function SlashCommandMenu({
                     break;
                 case "Enter":
                     e.preventDefault();
+                    // The menu owns this Enter: without this the editor also sees it (after the
+                    // menu closes) and inserts an extra empty block below the new one.
+                    e.stopPropagation();
                     if (filteredBlocks[selectedIndex]) {
                         onSelect(filteredBlocks[selectedIndex].type);
                     }

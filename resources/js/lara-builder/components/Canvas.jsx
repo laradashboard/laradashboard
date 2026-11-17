@@ -388,7 +388,7 @@ const Canvas = ({ blocks, selectedBlockId, allBlocksSelected = false, onSelect, 
                 onSelect(null);
             }}
         >
-            <div className="mx-auto" style={{ maxWidth: settings.width }}>
+            <div className="mx-auto" style={{ maxWidth: settings.width, containerType: 'inline-size' }}>
                 {/* Email preview container */}
                 <div
                     ref={setNodeRef}

@@ -504,6 +504,14 @@ const HeadingBlock = ({
     // Apply layout styles (typography, background, spacing, border, shadow)
     const baseStyle = applyLayoutStyles(defaultStyle, props.layoutStyles);
 
+    // Same responsive scaling as the published page (render.php), relative to the canvas width
+    // (the canvas is a size container), so the tablet/mobile preview matches a real phone.
+    const pxSize = /^(\d+(?:\.\d+)?)px$/.exec(String(baseStyle.fontSize || "").trim());
+    if (pxSize && parseFloat(pxSize[1]) >= 32) {
+        const minPx = Math.round(parseFloat(pxSize[1]) * 0.6);
+        baseStyle.fontSize = `min(${baseStyle.fontSize}, max(${minPx}px, 9cqw))`;
+    }
+
     // Check if content is empty for placeholder display
     const isEmpty = isContentEmpty(props.text);
 

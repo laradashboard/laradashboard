@@ -74,7 +74,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
 
     if (! empty($layoutStyles['margin'])) {
         foreach (['top', 'right', 'bottom', 'left'] as $side) {
-            if (isset($layoutStyles['margin'][$side])) {
+            if (isset($layoutStyles['margin'][$side]) && $layoutStyles['margin'][$side] !== '') {
                 $styles[] = "margin-{$side}: {$layoutStyles['margin'][$side]}";
             }
         }
@@ -82,7 +82,7 @@ return function (array $props, string $context = 'page', ?string $blockId = null
 
     if (! empty($layoutStyles['padding'])) {
         foreach (['top', 'right', 'bottom', 'left'] as $side) {
-            if (isset($layoutStyles['padding'][$side])) {
+            if (isset($layoutStyles['padding'][$side]) && $layoutStyles['padding'][$side] !== '') {
                 $styles[] = "padding-{$side}: {$layoutStyles['padding'][$side]}";
             }
         }

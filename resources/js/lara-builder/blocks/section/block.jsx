@@ -187,7 +187,7 @@ const DroppableSection = ({
                 isOver
                     ? "bg-primary/10 border-2 border-primary border-dashed"
                     : blocks.length === 0
-                    ? "bg-gray-50/50 border-2 border-dashed border-gray-300"
+                    ? "bg-gray-400/10 border-2 border-dashed border-gray-400/40"
                     : ""
             }`}
         >

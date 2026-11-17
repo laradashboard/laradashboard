@@ -68,9 +68,15 @@
                 </div>
 
                 <div x-show="active === 'html'" x-cloak id="content-html">
-                    <div class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-headings:text-gray-700 dark:prose-headings:text-white/90 prose-p:text-gray-700 dark:prose-p:text-gray-300">
-                        {!! $emailTemplate->renderContent('email') !!}
-                    </div>
+                    {{-- Isolated so admin styles don't restyle the email (and the email's styles don't leak into the admin). --}}
+                    <iframe
+                        title="{{ __('Email preview') }}"
+                        srcdoc="{{ $emailTemplate->renderContent('email') }}"
+                        sandbox="allow-same-origin allow-popups"
+                        x-init="const fit = () => { if ($el.contentDocument?.documentElement) $el.style.height = $el.contentDocument.documentElement.scrollHeight + 'px' }; $el.addEventListener('load', fit); $watch('active', v => v === 'html' && $nextTick(fit)); fit()"
+                        class="block w-full min-h-96 rounded-md border-0 bg-white"
+                        data-email-preview
+                    ></iframe>
                 </div>
 
                 <div x-show="active === 'source'" x-cloak id="content-source">

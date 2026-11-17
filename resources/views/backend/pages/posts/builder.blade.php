@@ -18,9 +18,20 @@
     {!! app(\App\Services\Builder\BuilderService::class)->injectToFrontend('page') !!}
 </head>
 <body class="font-sans antialiased">
+    @php
+        // Mirror PostStatusAuthorizationService: without post.publish, publisher-only statuses
+        // are not offered (the post's current status stays so it still shows correctly).
+        $canPublish = auth()->user()->can('publish', $post ?? new \App\Models\Post(['user_id' => auth()->id()]));
+        $builderStatuses = collect(\App\Models\Post::getPostStatuses())
+            ->when(! $canPublish, fn ($statuses) => $statuses->filter(
+                fn ($label, $value) => ! in_array($value, ['published', 'scheduled', 'private'], true) || $value === ($post->status ?? null)
+            ))
+            ->all();
+    @endphp
     <div
         id="lara-builder-root"
         data-context="page"
+        data-can-use-ai="{{ auth()->user()?->can('aiContent', \App\Models\Post::class) ? 'true' : 'false' }}"
         data-initial-data="{{ json_encode($initialData ?? null) }}"
         data-post-data="{{ json_encode($postData) }}"
         data-save-url="{{ $saveUrl }}"
@@ -39,8 +50,9 @@
             'supports_excerpt' => $postTypeModel->supports_excerpt,
             'supports_thumbnail' => $postTypeModel->supports_thumbnail,
             'icon' => $postTypeModel->icon ?? 'lucide:file-text',
+            'can_publish' => $canPublish,
         ]) }}"
-        data-statuses="{{ json_encode(\App\Models\Post::getPostStatuses()) }}"
+        data-statuses="{{ json_encode($builderStatuses) }}"
         data-translations='@json(__("*"))'
     ></div>
 

@@ -9,6 +9,7 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use App\Services\NotificationService;
 use App\Services\Emails\EmailTemplateService;
+use App\Services\Emails\EmailVariable;
 use App\Http\Requests\NotificationRequest;
 use App\Models\Notification;
 use App\Models\Setting;
@@ -20,6 +21,7 @@ class NotificationController extends Controller
     public function __construct(
         private readonly NotificationService $notificationService,
         private readonly EmailTemplateService $emailTemplateService,
+        private readonly EmailVariable $emailVariable,
     ) {
     }
 
@@ -85,8 +87,10 @@ class NotificationController extends Controller
         // Load the email template relationship
         $notification->load('emailTemplate');
 
-        // Render template HTML through BlockRenderer to process data-lara-block placeholders
-        $previewHtml = $notification->emailTemplate ? $notification->emailTemplate->renderContent('email') : '';
+        // Render the template with sample data (variables filled, data-lara-block placeholders processed).
+        $previewHtml = $notification->emailTemplate
+            ? $notification->emailTemplate->renderTemplate($this->emailVariable->getPreviewSampleData())['body_html']
+            : '';
 
         return $this->renderViewWithBreadcrumbs('backend.pages.notifications.show', compact('notification', 'previewHtml'));
     }

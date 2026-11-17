@@ -21,6 +21,7 @@
     <div
         id="lara-builder-root"
         data-context="email"
+        data-can-use-ai="{{ auth()->user()?->can('aiContent', \App\Models\Post::class) ? 'true' : 'false' }}"
         data-initial-data="{{ json_encode($initialData ?? null) }}"
         data-template-data="{{ json_encode($templateData ?? null) }}"
         data-save-url="{{ $saveUrl }}"

@@ -38,6 +38,14 @@
                 // Set the input value directly and dispatch input event for Livewire
                 this.$refs.passwordInput.value = pass;
                 this.$refs.passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+                // Fill the matching confirmation field too, or the form fails 'confirmed' validation.
+                const confirmation = this.$refs.passwordInput.form?.querySelector('[name=&quot;{{ $name }}_confirmation&quot;]');
+                if (confirmation) {
+                    confirmation.value = pass;
+                    confirmation.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                // Show it, so it can be copied and shared.
+                this.showPassword = true;
             }
         }"
         class="relative"

@@ -47,6 +47,8 @@
             conflictData: null,
             conflictFileItem: null,
             isReplacing: false,
+            // Resolves the paused upload queue once the user replaces or cancels.
+            conflictResolver: null,
 
             handleDrop(event) {
                 this.isDragging = false;
@@ -131,7 +133,8 @@
             },
 
             get isUploading() {
-                return this.files.some(f => f.status === 'uploading');
+                // A file waiting on a replace decision still holds the queue.
+                return this.files.some(f => f.status === 'uploading' || f.status === 'conflict');
             },
 
             get completedCount() {
@@ -143,6 +146,7 @@
             },
 
             async startUpload() {
+                if (this.isUploading) return;
                 const pendingFiles = this.files.filter(f => f.status === 'pending');
                 for (const fileItem of pendingFiles) {
                     await this.uploadFile(fileItem);
@@ -178,6 +182,10 @@
                         // Set status to waiting for user decision
                         fileItem.status = 'conflict';
                         fileItem.message = '{{ __('Module already exists - waiting for your decision') }}';
+
+                        // Pause the queue until the user decides, so a later
+                        // conflict cannot overwrite this file's modal state.
+                        await new Promise(resolve => this.conflictResolver = resolve);
                         return;
                     }
 
@@ -305,14 +313,25 @@
                     fileItem.status = 'error';
                     this.showToast('error', '{{ __('Error') }}', error.message);
                 } finally {
-                    this.showConflictModal = false;
-                    this.conflictData = null;
-                    this.conflictFileItem = null;
+                    this.resolveConflict();
                     this.isReplacing = false;
                 }
             },
 
+            resolveConflict() {
+                this.showConflictModal = false;
+                this.conflictData = null;
+                this.conflictFileItem = null;
+
+                const resolve = this.conflictResolver;
+                this.conflictResolver = null;
+                if (resolve) resolve();
+            },
+
             async cancelReplacement() {
+                // Esc / click-away listeners fire even when no conflict is open.
+                if (!this.conflictFileItem || this.isReplacing) return;
+
                 if (this.conflictData?.temp_path) {
                     try {
                         await fetch('{{ route('admin.modules.cancel-replacement') }}', {
@@ -340,9 +359,7 @@
                     this.conflictFileItem.steps.forEach(s => s.status = 'pending');
                 }
 
-                this.showConflictModal = false;
-                this.conflictData = null;
-                this.conflictFileItem = null;
+                this.resolveConflict();
 
                 this.showToast('info', '{{ __('Cancelled') }}', '{{ __('You can retry the upload by clicking Install.') }}');
             },

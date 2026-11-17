@@ -294,7 +294,7 @@
                                         <div class="aspect-square">
                                             @if (str_starts_with($item->mime_type, 'image/'))
                                                 <img src="{{ $item->url ?? asset('storage/media/' . $item->file_name) }}"
-                                                    alt="{{ $item->name }}" class="w-full h-full object-cover"
+                                                    alt="{{ $item->name }}" class="w-full h-full object-contain p-2 bg-gray-50 dark:bg-gray-800"
                                                     loading="lazy">
                                             @elseif(str_starts_with($item->mime_type, 'video/'))
                                                 <div class="w-full h-full bg-black rounded-lg overflow-hidden relative">
@@ -369,28 +369,28 @@
                                             @if (str_starts_with($item->mime_type, 'image/'))
                                                 <button
                                                     class="p-2 bg-white/90 backdrop-blur-sm rounded-md text-gray-700 hover:bg-white transition-colors shadow-lg"
-                                                    onclick="openImageModal('{{ $item->url ?? asset('storage/media/' . $item->file_name) }}', '{{ $item->name }}')"
+                                                    onclick="openImageModal(@js($item->url ?? asset('storage/media/' . $item->file_name)), @js($item->name))"
                                                     title="{{ __('View') }}">
                                                     <iconify-icon icon="lucide:eye" class="text-sm"></iconify-icon>
                                                 </button>
                                             @elseif (str_starts_with($item->mime_type, 'video/'))
                                                 <button
                                                     class="p-2 bg-white/90 backdrop-blur-sm rounded-md text-gray-700 hover:bg-white transition-colors shadow-lg"
-                                                    onclick="openVideoModal('{{ $item->url ?? asset('storage/media/' . $item->file_name) }}', '{{ $item->name }}')"
+                                                    onclick="openVideoModal(@js($item->url ?? asset('storage/media/' . $item->file_name)), @js($item->name))"
                                                     title="{{ __('Play Video') }}">
                                                     <iconify-icon icon="lucide:play" class="text-sm"></iconify-icon>
                                                 </button>
                                             @elseif (str_starts_with($item->mime_type, 'audio/'))
                                                 <button
                                                     class="p-2 bg-white/90 backdrop-blur-sm rounded-md text-gray-700 hover:bg-white transition-colors shadow-lg"
-                                                    onclick="openAudioModal('{{ $item->url ?? asset('storage/media/' . $item->file_name) }}', '{{ $item->name }}', { name: '{{ $item->name }}', human_readable_size: '{{ $item->human_readable_size }}', extension: '{{ pathinfo($item->file_name, PATHINFO_EXTENSION) }}', duration: {{ $item->duration ?? 'null' }} })"
+                                                    onclick="openAudioModal(@js($item->url ?? asset('storage/media/' . $item->file_name)), @js($item->name), { name: @js($item->name), human_readable_size: @js($item->human_readable_size), extension: @js(pathinfo($item->file_name, PATHINFO_EXTENSION)), duration: {{ $item->duration ?? 'null' }} })"
                                                     title="{{ __('Play Audio') }}">
                                                     <iconify-icon icon="lucide:headphones" class="text-sm"></iconify-icon>
                                                 </button>
                                             @elseif (str_starts_with($item->mime_type, 'application/pdf'))
                                                 <button
                                                     class="p-2 bg-white/90 backdrop-blur-sm rounded-md text-gray-700 hover:bg-white transition-colors shadow-lg"
-                                                    onclick="openPdfModal('{{ $item->url ?? asset('storage/media/' . $item->file_name) }}', '{{ $item->name }}')"
+                                                    onclick="openPdfModal(@js($item->url ?? asset('storage/media/' . $item->file_name)), @js($item->name))"
                                                     title="{{ __('View PDF') }}">
                                                     <iconify-icon icon="lucide:eye" class="text-sm"></iconify-icon>
                                                 </button>
@@ -403,10 +403,10 @@
                                             </a>
                                             <button
                                                 class="p-2 bg-white/90 backdrop-blur-sm rounded-md text-gray-700 hover:bg-white transition-colors shadow-lg"
-                                                onclick="copyToClipboard('{{ $item->url ?? asset('storage/media/' . $item->file_name) }}')"
+                                                onclick="copyToClipboard(@js($item->url ?? asset('storage/media/' . $item->file_name)))"
                                                 title="{{ __('Copy URL') }}">
                                                 <iconify-icon icon="lucide:copy" class="text-sm"></iconify-icon>
-                                            </a>
+                                            </button>
                                             @if (auth()->user()->can('media.delete'))
                                                 <button
                                                     class="p-2 bg-red-500/90 backdrop-blur-sm rounded-md text-white hover:bg-red-500 transition-colors shadow-lg"
@@ -522,28 +522,28 @@
                                                     @if (str_starts_with($item->mime_type, 'image/'))
                                                         <button
                                                             class="text-green-400 hover:text-green-600 dark:hover:text-green-300"
-                                                            onclick="openImageModal('{{ $item->url ?? asset('storage/media/' . $item->file_name) }}', '{{ $item->name }}')"
+                                                            onclick="openImageModal(@js($item->url ?? asset('storage/media/' . $item->file_name)), @js($item->name))"
                                                             title="{{ __('View Image') }}">
                                                             <iconify-icon icon="lucide:eye" class="text-sm"></iconify-icon>
                                                         </button>
                                                     @elseif (str_starts_with($item->mime_type, 'video/'))
                                                         <button
                                                             class="text-purple-400 hover:text-purple-600 dark:hover:text-purple-300"
-                                                            onclick="openVideoModal('{{ $item->url ?? asset('storage/media/' . $item->file_name) }}', '{{ $item->name }}')"
+                                                            onclick="openVideoModal(@js($item->url ?? asset('storage/media/' . $item->file_name)), @js($item->name))"
                                                             title="{{ __('Play Video') }}">
                                                             <iconify-icon icon="lucide:play" class="text-sm"></iconify-icon>
                                                         </button>
                                                     @elseif (str_starts_with($item->mime_type, 'audio/'))
                                                         <button
                                                             class="text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300"
-                                                            onclick="openAudioModal('{{ $item->url ?? asset('storage/media/' . $item->file_name) }}', '{{ $item->name }}', '{{ $item->human_readable_size }}')"
+                                                            onclick="openAudioModal(@js($item->url ?? asset('storage/media/' . $item->file_name)), @js($item->name), @js($item->human_readable_size))"
                                                             title="{{ __('Play Audio') }}">
                                                             <iconify-icon icon="lucide:headphones" class="text-sm"></iconify-icon>
                                                         </button>
                                                     @elseif (str_starts_with($item->mime_type, 'application/pdf'))
                                                         <button
                                                             class="text-red-400 hover:text-red-600 dark:hover:text-red-300"
-                                                            onclick="openPdfModal('{{ $item->url ?? asset('storage/media/' . $item->file_name) }}', '{{ $item->name }}')"
+                                                            onclick="openPdfModal(@js($item->url ?? asset('storage/media/' . $item->file_name)), @js($item->name))"
                                                             title="{{ __('View PDF') }}">
                                                             <iconify-icon icon="lucide:eye" class="text-sm"></iconify-icon>
                                                         </button>
@@ -556,7 +556,7 @@
                                                     </a>
                                                     <button
                                                         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                                                        onclick="copyToClipboard('{{ $item->url ?? asset('storage/media/' . $item->file_name) }}')"
+                                                        onclick="copyToClipboard(@js($item->url ?? asset('storage/media/' . $item->file_name)))"
                                                         title="{{ __('Copy URL') }}">
                                                         <iconify-icon icon="lucide:copy" class="text-sm"></iconify-icon>
                                                     </button>

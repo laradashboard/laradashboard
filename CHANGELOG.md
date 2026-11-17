@@ -2,9 +2,39 @@
 
 All notable changes to **Lara Dashboard** are documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
-> **Latest release:** [v1.5.3](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.3) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
+> **Latest release:** [v1.5.4](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.4) • [View all releases](https://github.com/laradashboard/laradashboard/releases)
 
 ---
+
+## [v1.5.4] — 2026-11-16
+
+### Added
+
+- **Feature:** Scheduled posts and pages now publish themselves. The new `posts:publish-scheduled` command runs every minute from the scheduler and publishes anything whose publish date has arrived. Posts are saved one by one, so observers and hooks run as if an editor had published them. Your server needs the Laravel scheduler cron (`php artisan schedule:run`) running.
+- **Feature:** The LaraBuilder columns block stacks on phones ("stack on mobile", on by default). The editor's tablet and mobile previews now stack the same way the published page does.
+- **Feature:** Large pixel headings (32px and up) shrink on small screens, down to 60% of the chosen size at most, so a big hero headline no longer wraps one word per line on a phone. Desktop sizes stay the same, and the editor preview matches.
+- **Feature:** `Post::plainExcerpt()` returns readable listing text: the saved excerpt, or plain text taken from the rendered content.
+
+### Security
+
+- **Fix:** Media file names are escaped everywhere the media library and media picker show them (thumbnails, previews, the view, play and copy buttons, the audio info panel). A file name with HTML or quotes in it could run script in the admin.
+- **Fix:** Post titles, statuses and category names are escaped in the posts and pages list.
+
+### Fixed
+
+- **Fix:** Post excerpts made from LaraBuilder content are no longer empty, and no longer show CSS or script code. The blocks are rendered before the text is taken out.
+- **Fix:** Email template previews (the template's own page, the notification page and the notification form) fill `{variables}` with sample data. The template preview now loads in an isolated frame, so admin styles no longer change how the email looks. Editors still get the raw `{variables}` when they reuse a template's content.
+- **Fix:** The Editor role's default permissions now match the Posts and Pages screens and menu: `post.create`, `post.view`, `post.edit`, `post.publish`, plus `media.view` and `media.create` for featured images. New installs and the role seeder use the same list.
+- **Fix:** Counting post views works on MySQL and MariaDB again. `CAST(... AS INTEGER)` only works on SQLite and PostgreSQL, so MySQL and MariaDB now get `UNSIGNED`.
+- **Fix:** LaraBuilder blocks with empty margin or padding fields no longer output broken CSS such as `margin-top: ;`.
+- **Fix:** Choosing a block from the slash menu with Enter no longer adds an extra empty block, and the `/heading` command text is no longer carried into the new block.
+- **Fix:** Uploading several modules that already exist no longer mixes up the replace dialogs. The upload queue now waits for your decision on each module before it goes on to the next.
+- **Fix:** On pages with a side form (for example tags or stages), the sticky table header no longer sits hundreds of pixels below the table.
+- **Fix:** Image thumbnails in the media library and media picker now show the whole image instead of cropping it.
+- **Fix:** Created and updated dates in data tables stay on one line, and dates from the current year leave out the year (the full timestamp is shown on hover). A scheduled post's date in the posts list is shorter too.
+- **Fix:** The LaraBuilder footer block's default copyright shows the current year instead of 2024.
+- **Change:** The datetime picker has a new `defaultToNow` prop. It is on by default; turn it off so optional dates such as a date of birth start empty instead of today's date.
+- **Fix:** In the builder, empty columns and sections have a clearer drop area, and it can be seen on dark backgrounds.
 
 ## [v1.5.3] — 2026-11-15
 

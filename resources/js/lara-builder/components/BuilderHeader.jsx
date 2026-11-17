@@ -5,6 +5,7 @@
  */
 
 import { useState, useMemo } from "react";
+import { canUseAI } from "../utils/permissions";
 import { __ } from "@lara-builder/i18n";
 import EditorOptionsMenu from "./EditorOptionsMenu";
 import AIContentModal from "./AIContentModal";
@@ -153,10 +154,13 @@ function BuilderHeader({
         ? postTypeModel?.label_singular || labels.title.split(" ")[0]
         : labels.title.split(" ")[0];
 
+    // Without post.publish the server turns a publish into "pending review", so say so.
+    const canPublish = postTypeModel?.can_publish !== false;
+
     const getPrimaryButtonLabel = () => {
         if (!isPostContext) return labels.saveText;
         if (isNewPost || status === "draft" || status === "pending") {
-            return __("Publish");
+            return canPublish ? __("Publish") : __("Submit for review");
         }
         if (status === "scheduled") return __("Schedule");
         return __("Update");
@@ -165,7 +169,7 @@ function BuilderHeader({
     const getPrimaryStatusOverride = () => {
         if (!isPostContext) return undefined;
         if (isNewPost || status === "draft" || status === "pending") {
-            return "published";
+            return canPublish ? "published" : "pending";
         }
         return undefined;
     };
@@ -189,21 +193,23 @@ function BuilderHeader({
 
     const postToolButtons = isPostContext ? (
         <>
-            <button
-                type="button"
-                onClick={() => setAiModalOpen(true)}
-                className="inline-flex items-center justify-center w-8 h-8 shrink-0 text-white rounded-lg transition-opacity hover:opacity-90"
-                style={{
-                    backgroundColor: "var(--color-primary, #635bff)",
-                }}
-                title={__("Generate content with AI")}
-            >
-                <iconify-icon
-                    icon="mdi:lightning-bolt"
-                    width="16"
-                    height="16"
-                ></iconify-icon>
-            </button>
+            {canUseAI() && (
+                <button
+                    type="button"
+                    onClick={() => setAiModalOpen(true)}
+                    className="inline-flex items-center justify-center w-8 h-8 shrink-0 text-white rounded-lg transition-opacity hover:opacity-90"
+                    style={{
+                        backgroundColor: "var(--color-primary, #635bff)",
+                    }}
+                    title={__("Generate content with AI")}
+                >
+                    <iconify-icon
+                        icon="mdi:lightning-bolt"
+                        width="16"
+                        height="16"
+                    ></iconify-icon>
+                </button>
+            )}
             <button
                 type="button"
                 onClick={() => setSeoDrawerOpen(true)}
