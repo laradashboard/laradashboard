@@ -1,5 +1,8 @@
 parameters:
 	ignoreErrors:
+		# Match arms already narrowed by an earlier match on the same provider (PHPStan 2.3+)
+		- '#Match arm comparison between ''(claude|ollama)'' and ''(claude|ollama)'' is always true\.#'
+
 		# Laravel model property PHPDoc type covariance issues
 		- '#PHPDoc type array(\<.*\>)? of property .* is not covariant with PHPDoc type .* of overridden property#'
 		
