@@ -143,9 +143,10 @@ For local development, you can store the token in an env var (`LARADASHBOARD_MCP
 
 > **Latest release:** [v1.5.4](https://github.com/laradashboard/laradashboard/releases/tag/v1.5.4) • [Full changelog →](CHANGELOG.md) • [All GitHub releases](https://github.com/laradashboard/laradashboard/releases)
 
-**[v1.5.4] — 2026-11-16**
+**[v1.5.4] — 2026-11-17**
 -   **Feature:** Scheduled posts and pages publish automatically (`posts:publish-scheduled`, every minute; needs the scheduler cron).
 -   **Feature:** LaraBuilder columns stack on phones, and large headings scale down on small screens; the editor previews match.
+-   **Fix (Security):** Settings and Theme image uploads only accept real image files, closing remote code execution through an uploaded `.php` logo (GHSA-r9ch-j892-qrh2).
 -   **Fix (Security):** Media file names and post list titles/categories are escaped, closing XSS through crafted file names.
 -   **Fix:** Excerpts from LaraBuilder content are no longer empty; email template previews fill variables with sample data and load in an isolated frame.
 -   **Fix:** Editor role defaults include post and media permissions; post view counts work on MySQL/MariaDB.

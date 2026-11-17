@@ -239,7 +239,12 @@ export function useBlockOperations({ blocks, actions, addBlockAfterSelected }) {
             // "/heading" typed to open the slash menu is a command, not content: never carry it over,
             // or it reappears after the cursor and is pushed into the next block on Enter.
             const keepText = (value) => {
-                const plain = String(value || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
+                // DOMParser documents are inert (no scripts run, nothing is rendered); only read the text.
+                const plain = (
+                    new DOMParser().parseFromString(String(value || ""), "text/html").body.textContent || ""
+                )
+                    .replace(/ /g, " ")
+                    .trim();
                 return plain.startsWith("/") ? "" : value || "";
             };
 

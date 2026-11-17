@@ -17,6 +17,7 @@ All notable changes to **Lara Dashboard** are documented in this file. This proj
 
 ### Security
 
+- **Fix:** Remote code execution through the Settings and Theme image uploads (GHSA-r9ch-j892-qrh2). Any user with `settings.edit` (including the default Admin role) could upload a `.php` file as a logo or favicon. It was saved in `public/uploads/settings/` under its own extension, where the web server would run it. Image uploads now only accept jpg, jpeg, png, gif, webp, avif, bmp, ico and svg; the file type is detected on the server and must match the extension, raster images must decode, and SVGs are sanitized before they are saved. Replacing an image only deletes old files inside `uploads/`. The Apache `.htaccess` also refuses to run PHP under `uploads/` and `images/uploads/`. **On Nginx, add a similar rule, and check `public/uploads/` for unexpected `.php`, `.phtml`, `.phar` or `.pht` files** on sites where other users have `settings.edit`.
 - **Fix:** Media file names are escaped everywhere the media library and media picker show them (thumbnails, previews, the view, play and copy buttons, the audio info panel). A file name with HTML or quotes in it could run script in the admin.
 - **Fix:** Post titles, statuses and category names are escaped in the posts and pages list.
 
