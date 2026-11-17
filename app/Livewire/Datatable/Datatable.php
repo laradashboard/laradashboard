@@ -236,7 +236,7 @@ abstract class Datatable extends Component
 
     protected function getCustomNoResultsMessage(): string
     {
-        return $this->customNoResultsMessage ?? '';
+        return $this->customNoResultsMessage;
     }
 
     protected function getModelClass(): string
